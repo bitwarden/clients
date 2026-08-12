@@ -6,7 +6,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import { AutofillService, PageDetail } from "../autofill/services/abstractions/autofill.service";
 import { createChromeTabMock } from "../autofill/spec/autofill-mocks";
 import { BrowserApi } from "../platform/browser/browser-api";

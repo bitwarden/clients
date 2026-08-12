@@ -23,8 +23,8 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthWebAuthnPopout,
 } from "../auth/popup/utils/auth-popout-window";
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
-import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import { isDefaultPasswordManagerPromptFeatureEnabled } from "../autofill/default-password-manager-prompt-feature.util";
 import { DefaultPasswordManagerPromptStateAccessor } from "../autofill/default-password-manager-prompt-state.accessor";
 import { completePendingDefaultPasswordManagerApply } from "../autofill/default-password-manager-session.util";

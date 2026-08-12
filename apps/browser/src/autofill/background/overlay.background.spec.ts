@@ -75,6 +75,7 @@ import {
   triggerWebRequestOnCompletedEvent,
 } from "../spec/testing-utils";
 
+import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   FocusedFieldData,
@@ -84,7 +85,6 @@ import {
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
 } from "./abstractions/overlay.background";
-import { AutofillOrchestrator } from "./autofill-orchestrator";
 import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {

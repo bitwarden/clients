@@ -90,6 +90,7 @@ import {
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
 import { getSubFrameUrlVariations } from "../utils/url-variations";
 
+import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
@@ -116,7 +117,6 @@ import {
   UpdateOverlayCiphersParams,
   PasswordGenerateRequestSource,
 } from "./abstractions/overlay.background";
-import { AutofillOrchestrator } from "./autofill-orchestrator";
 
 const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
 

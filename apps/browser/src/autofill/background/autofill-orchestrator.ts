@@ -39,6 +39,8 @@ import {
 } from "../services/abstractions/autofill.service";
 import { AutofillTriageResponse } from "../types/autofill-triage";
 
+import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
+
 /**
  * A fill the background drives from a runtime message or a resolved page
  * transition.
@@ -110,7 +112,7 @@ const CALLER_FILL_DEFAULTS = Object.freeze({
 });
 
 /**
- * Opt-out key for {@link AutofillOrchestrator.commit}'s foreground verification. It is a symbol
+ * Opt-out key for {@link DefaultAutofillOrchestrator.commit}'s foreground verification. It is a symbol
  * private to this module, so no code outside this file can build the options object that turns the
  * check off. This prohibits logic outside the orchestrator from circumventing the type system to
  * invoke a commit without active tab support. The most an external caller can do
@@ -118,7 +120,7 @@ const CALLER_FILL_DEFAULTS = Object.freeze({
  */
 const requireActiveTab = Symbol("requireActiveTab");
 
-/** {@link AutofillOrchestrator.commit} overrides, keyed by the module-private {@link requireActiveTab}.
+/** {@link DefaultAutofillOrchestrator.commit} overrides, keyed by the module-private {@link requireActiveTab}.
  *
  * DANGER: {@link requireActiveTab} exists only to support extension-initiated fills. NEVER disable this
  * flag from a code path initiated outside of the extension.
@@ -126,10 +128,10 @@ const requireActiveTab = Symbol("requireActiveTab");
 type CommitOverrides = { [requireActiveTab]?: boolean };
 
 /**
- * The single owner of fill execution: it reduces every fill request to one concrete instruction for
- * the autofill service and upholds the fill invariants. See `orchestrator.design.md` for details.
+ * Default implementation of {@link AutofillOrchestrator}. See `orchestrator.design.md` for the
+ * sequencing and invariants it upholds.
  */
-export class AutofillOrchestrator {
+export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   /** Serialized-core input; public methods and the page-load subscription feed it. */
   private readonly fillRequest$ = new Subject<FillRequest>();
 
@@ -146,11 +148,6 @@ export class AutofillOrchestrator {
     private now: () => number = () => Date.now(),
   ) {}
 
-  /**
-   * Wires the serialized dispatch core and the page-load consumer. Call once,
-   * when the background starts, after the lifecycle service is initialized.
-   * Subscriptions are process-lifetime — this is a background singleton.
-   */
   init() {
     // sequence and dispatch fill requests through a common pipe to prevent dispatch
     // calls from interleaving async collections and fills.
@@ -205,39 +202,14 @@ export class AutofillOrchestrator {
       });
   }
 
-  /**
-   * Fills the active tab from a keyboard shortcut. The orchestrator collects the
-   * tab's page details itself inside the serialized dispatch, so collection is
-   * sequenced with the fill. Preserves the shared `AutofillCommand` side effects:
-   * account activity, TOTP clipboard copy, and overlay-cipher refresh.
-   */
   autofillActiveTabFromCommand(tab: chrome.tabs.Tab) {
     this.enqueueUserInitiated("command", tab);
   }
 
-  /**
-   * Fills the active tab with the next card or identity cipher, collecting the
-   * tab's page details inside the serialized dispatch. Card/identity fills carry
-   * none of the page-load/keyboard side effects.
-   */
   autofillActiveTabForCipherType(tab: chrome.tabs.Tab, cipherType: CipherType) {
     this.enqueueUserInitiated("cipherType", tab, cipherType);
   }
 
-  /**
-   * Collects a tab's page details for an external, one-shot caller (triage, the popup collect) —
-   * not part of the serialized fill pipe, which uses the private {@link read} instead.
-   *
-   * Always waits `COLLECT_SETTLE_MS` for a tab's independently-answering frames to accumulate,
-   * frame-scoped or not; the extra settle on a single-frame collect is harmless latency the fill
-   * pipe's {@link read} avoids.
-   *
-   * Resolves once the collection settles, or with an empty array when the tab does
-   * not respond.
-   *
-   * @param tab The tab to collect from
-   * @param frameId When set, collect only this frame; otherwise every frame
-   */
   collectPageDetails(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
     return firstValueFrom(
       this.autofillService
@@ -246,15 +218,6 @@ export class AutofillOrchestrator {
     );
   }
 
-  /**
-   * Collects autofill-triage analysis for a tab from the same single owner. Unlike
-   * {@link collectPageDetails} this is a direct one-shot request/response (its own
-   * message round-trip), not part of the serialized fill pipe. Resolves with `undefined`
-   * when the tab has no receiver or does not respond.
-   *
-   * @param tabId The tab to analyze
-   * @param frameId When set, analyze only this frame
-   */
   collectAutofillTriage(
     tabId: number,
     frameId?: number,
@@ -276,26 +239,10 @@ export class AutofillOrchestrator {
     });
   }
 
-  /**
-   * Fills a caller-supplied cipher into a tab. This is the orchestrator's entry for
-   * externally-initiated fills (inline menu, generated password, etc) that bring
-   * their own cipher.
-   *
-   * This method skips page detail collection. Use {@link autofillTabWithCipher} if a
-   * collection hasn't completed before this operation.
-   *
-   * Reports whether a fill ran and the TOTP to copy.
-   */
   async fillCipher(options: AutoFillOptions): Promise<AutoFillResult> {
     return this.commit(options);
   }
 
-  /**
-   * Collects a tab's page details and fills the given cipher into it.
-   *
-   * Reports whether a fill ran and the TOTP to copy; a tab with no page details to
-   * fill reports no fill.
-   */
   async autofillTabWithCipher(
     tab: chrome.tabs.Tab,
     cipher: CipherView,
@@ -309,16 +256,6 @@ export class AutofillOrchestrator {
     return this.fillCipher(fill);
   }
 
-  /**
-   * Collects a tab's page details and fills the given cipher into it, omitting active tab validation.
-   *
-   * DANGER: a fill from this method can land on a tab the user is not looking at. It must NEVER be
-   * reachable from a message a content script can place. Call it only after confirming the sender is an
-   * extension page.
-   *
-   * Reports whether a fill ran and the TOTP to copy; a tab with no page details to
-   * fill reports no fill.
-   */
   async unsafeAutofillTabWithCipher(
     tab: chrome.tabs.Tab,
     cipher: CipherView,
@@ -344,7 +281,7 @@ export class AutofillOrchestrator {
    * @param tab The tab whose frame is running the auto-submit workflow
    * @param frameId The frame that reported the auto-submit opportunity
    */
-  async autoSubmitLoginOnTab(tab: chrome.tabs.Tab, frameId?: number): Promise<void> {
+  private async autoSubmitLoginOnTab(tab: chrome.tabs.Tab, frameId?: number): Promise<void> {
     const activeUserId = await this.activeUserId();
     if (activeUserId == null || !tab.url) {
       return;
@@ -380,8 +317,7 @@ export class AutofillOrchestrator {
   ) {
     const tabId = tab?.id;
     if (tabId == null) {
-      // A fill with no tab id cannot be targeted or keyed for serialization;
-      // `doAutoFill`'s tab-match guard would drop it anyway.
+      // A fill with no tab id cannot be targeted or keyed for serialization.
       return;
     }
     // A user-initiated fill is tab-scoped: it fills the active tab across all frames in one pass,

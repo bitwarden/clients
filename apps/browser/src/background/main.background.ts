@@ -334,13 +334,14 @@ import {
 import { ExtensionAuthRequestAnsweringService } from "../auth/services/auth-request-answering/extension-auth-request-answering.service";
 import { AuthStatusBadgeUpdaterService } from "../auth/services/auth-status-badge-updater.service";
 import { ExtensionLockService } from "../auth/services/extension-lock.service";
+import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
 import { OverlayNotificationsBackground as OverlayNotificationsBackgroundInterface } from "../autofill/background/abstractions/overlay-notifications.background";
 import {
   OverlayBackground as OverlayBackgroundInterface,
   PasswordGenerateRequestSource,
 } from "../autofill/background/abstractions/overlay.background";
 import { AutoSubmitLoginBackground } from "../autofill/background/auto-submit-login.background";
-import { AutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
+import { DefaultAutofillOrchestrator } from "../autofill/background/autofill-orchestrator";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
@@ -1295,7 +1296,7 @@ export default class MainBackground {
       this.animationControlService,
       this.autofillLifecycleService,
     );
-    this.autofillOrchestrator = new AutofillOrchestrator(
+    this.autofillOrchestrator = new DefaultAutofillOrchestrator(
       this.autofillLifecycleService,
       this.autofillService,
       this.cipherService,

@@ -30,13 +30,13 @@ import {
 import { flushPromises } from "../spec/testing-utils";
 
 import {
-  AutofillOrchestrator,
+  DefaultAutofillOrchestrator,
   LIVE_TAB_SEED_MAX_RETRIES,
   LIVE_TAB_SEED_RETRY_DELAY_MS,
 } from "./autofill-orchestrator";
 
-describe("AutofillOrchestrator", () => {
-  let autofillOrchestrator: AutofillOrchestrator;
+describe("DefaultAutofillOrchestrator", () => {
+  let autofillOrchestrator: DefaultAutofillOrchestrator;
   let lifecycleService: MockProxy<AutofillLifecycleService>;
   let autofillService: MockProxy<AutofillService>;
   let cipherService: MockProxy<CipherService>;
@@ -119,7 +119,7 @@ describe("AutofillOrchestrator", () => {
   const NOW = 1_700_000_000_000;
 
   const construct = (now: () => number = () => NOW) =>
-    new AutofillOrchestrator(
+    new DefaultAutofillOrchestrator(
       lifecycleService,
       autofillService,
       cipherService,
@@ -1047,7 +1047,7 @@ describe("AutofillOrchestrator", () => {
 
       autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
 
-      await autofillOrchestrator.autoSubmitLoginOnTab(pd.tab, 0);
+      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
 
       expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalledWith(pd.tab, 0);
       expect(autofillService.doAutoFill).toHaveBeenCalledWith(
@@ -1065,7 +1065,7 @@ describe("AutofillOrchestrator", () => {
     it("does not fill when the frame has no page details to submit", async () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([]));
 
-      await autofillOrchestrator.autoSubmitLoginOnTab(createChromeTabMock({ id: 1 }), 0);
+      await autofillOrchestrator["autoSubmitLoginOnTab"](createChromeTabMock({ id: 1 }), 0);
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
     });
@@ -1081,7 +1081,7 @@ describe("AutofillOrchestrator", () => {
         .spyOn(BrowserApi, "getTabFromCurrentWindow")
         .mockResolvedValue(createChromeTabMock({ id: 2 }));
 
-      await autofillOrchestrator.autoSubmitLoginOnTab(pd.tab, 0);
+      await autofillOrchestrator["autoSubmitLoginOnTab"](pd.tab, 0);
 
       // The read ran but no credential was filled or submitted to the non-foreground tab, and no
       // activity was booked — the guard short-circuits before `doAutoFill`, so a blocked submit
