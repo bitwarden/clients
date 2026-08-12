@@ -32,7 +32,6 @@ import {
   VaultItemsTableCopyPresentation,
 } from "./vault-items-table-copy-presentation";
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
-// Type-only, so it erases at build time and adds no runtime edge back to the table component.
 import type { VaultItemsTableColumn } from "./vault-items-table.component";
 
 /**
