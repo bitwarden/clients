@@ -43,10 +43,15 @@ describe("SharedFolderCardGridComponent", () => {
     return Array.from({ length: count }, (_, i) => folderNode(`folder-${i}`, `Folder ${i}`));
   }
 
-  function createComponent(folders: TreeNode<CollectionView>[]) {
+  function createComponent(folders: TreeNode<CollectionView>[], parentName = "Engineering") {
     fixture = TestBed.createComponent(SharedFolderCardGridComponent);
     fixture.componentRef.setInput("folders", folders);
+    fixture.componentRef.setInput("parentName", parentName);
     fixture.detectChanges();
+  }
+
+  function countLabel(): string | undefined {
+    return fixture.nativeElement.querySelector("section span")?.textContent?.trim();
   }
 
   function cardLinks(): HTMLAnchorElement[] {
@@ -100,7 +105,7 @@ describe("SharedFolderCardGridComponent", () => {
   });
 
   describe("rendering child folders", () => {
-    it("renders each child as a card with a shared folder icon, name, and trailing chevron", () => {
+    it("renders each child as a card with a folder icon, name, and trailing chevron", () => {
       createComponent(folderNodes(2));
 
       const cards = cardLinks();
@@ -108,7 +113,7 @@ describe("SharedFolderCardGridComponent", () => {
       expect(cards.map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
 
       cards.forEach((card) => {
-        expect(card.querySelector("bit-icon-tile i")?.classList).toContain("bwi-shared-folder");
+        expect(card.querySelector("bit-icon-tile i")?.classList).toContain("bwi-collection-shared");
         expect(card.querySelector(".bwi-angle-right")).not.toBeNull();
       });
     });
@@ -183,7 +188,7 @@ describe("SharedFolderCardGridComponent", () => {
       const disclosure = fixture.nativeElement.querySelector("bit-disclosure");
       expect(disclosure.classList).toContain("tw-hidden");
       expect(disclosure.querySelectorAll("a[bit-item-content]")).toHaveLength(3);
-      expect(trigger()?.textContent?.trim()).toBe("showMore");
+      expect(trigger()?.textContent?.trim()).toBe("showAll");
     });
 
     it("reflects the open state on the trigger's aria-expanded", () => {
@@ -202,6 +207,17 @@ describe("SharedFolderCardGridComponent", () => {
       expect(fixture.nativeElement.querySelector("bit-disclosure").classList).not.toContain(
         "tw-hidden",
       );
+    });
+
+    it("flips the trigger's caret to match the open state", () => {
+      createComponent(folderNodes(COLLAPSED_CARD_COUNT + 1));
+
+      expect(trigger()?.querySelector("i")?.classList).toContain("bwi-angle-down");
+
+      trigger()?.click();
+      fixture.detectChanges();
+
+      expect(trigger()?.querySelector("i")?.classList).toContain("bwi-angle-up");
     });
 
     it("re-collapses when the host navigates to a folder with different children", () => {
@@ -248,21 +264,54 @@ describe("SharedFolderCardGridComponent", () => {
     });
   });
 
-  describe("terminology", () => {
-    it("labels the section with the legacy term and count when the flag is off", () => {
-      createComponent(folderNodes(2));
+  describe("header", () => {
+    it("titles the section with the parent folder name", () => {
+      createComponent(folderNodes(2), "Engineering");
 
       expect(fixture.nativeElement.querySelector("h2").textContent.trim()).toBe(
-        "collectionsWithCount:2",
+        "collectionsInParent:Engineering",
       );
     });
 
-    it("labels the section with the shared folder term and count when the flag is on", () => {
-      vfo1Enabled.set(true);
-      createComponent(folderNodes(2));
+    it("shows the child count alongside the title", () => {
+      createComponent(folderNodes(16));
+
+      expect(countLabel()).toBe("collectionCount:16");
+    });
+
+    it("counts every child, not just the rows on show", () => {
+      createComponent(folderNodes(COLLAPSED_CARD_COUNT + 7));
+
+      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT + 7);
+      expect(countLabel()).toBe(`collectionCount:${COLLAPSED_CARD_COUNT + 7}`);
+    });
+  });
+
+  describe("terminology", () => {
+    it("uses the legacy terms for the title and count when the flag is off", () => {
+      createComponent(folderNodes(2), "Engineering");
 
       expect(fixture.nativeElement.querySelector("h2").textContent.trim()).toBe(
-        "sharedFoldersWithCount:2",
+        "collectionsInParent:Engineering",
+      );
+      expect(countLabel()).toBe("collectionCount:2");
+    });
+
+    it("uses shared folder terms for the title and count when the flag is on", () => {
+      vfo1Enabled.set(true);
+      createComponent(folderNodes(2), "Engineering");
+
+      expect(fixture.nativeElement.querySelector("h2").textContent.trim()).toBe(
+        "sharedFoldersInParent:Engineering",
+      );
+      expect(countLabel()).toBe("sharedFolderCount:2");
+    });
+
+    it("keeps the shared collection icon when the flag is off", () => {
+      createComponent(folderNodes(1));
+
+      expect(cardLinks()[0].querySelector("bit-icon-tile i")?.classList).toContain(
+        "bwi-collection-shared",
       );
     });
 

@@ -106,13 +106,15 @@ export default {
             new I18nMockService({
               collections: "Collections",
               sharedFolders: "Shared folders",
-              collectionsWithCount: (count) => `Collections (${count})`,
-              sharedFoldersWithCount: (count) => `Shared folders (${count})`,
+              collectionsInParent: (name) => `Collections in ${name}`,
+              sharedFoldersInParent: (name) => `Shared folders in ${name}`,
+              collectionCount: (count) => `${count} collections`,
+              sharedFolderCount: (count) => `${count} shared folders`,
               moreCollectionsShownAbove: (count) =>
                 `${count} more collections shown above this button`,
               moreSharedFoldersShownAbove: (count) =>
                 `${count} more shared folders shown above this button`,
-              showMore: "Show more",
+              showAll: "Show all",
               showLess: "Show less",
             }),
         },
@@ -122,6 +124,7 @@ export default {
   ],
   args: {
     folders: DEFAULT_FOLDERS,
+    parentName: "Departments",
   },
 } as Meta<SharedFolderCardGridComponent>;
 
@@ -154,7 +157,7 @@ export const ManyChildrenExpanded: Story = {
     folders: MANY_FOLDERS,
   },
   play: async (context) => {
-    const trigger = getByRole(context.canvasElement, "button", { name: "Show more" });
+    const trigger = getByRole(context.canvasElement, "button", { name: "Show all" });
     await userEvent.click(trigger);
   },
 };

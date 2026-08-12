@@ -113,21 +113,41 @@
   "sharedFolders": {
     "message": "Shared folders"
   },
-  "collectionsWithCount": {
-    "message": "Collections ($COUNT$)",
+  "collectionsInParent": {
+    "message": "Collections in $NAME$",
+    "description": "Titles the grid of collections nested directly inside the collection being viewed.",
     "placeholders": {
-      "count": {
+      "name": {
         "content": "$1",
-        "example": "3"
+        "example": "Engineering"
       }
     }
   },
-  "sharedFoldersWithCount": {
-    "message": "Shared folders ($COUNT$)",
+  "sharedFoldersInParent": {
+    "message": "Shared folders in $NAME$",
+    "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "collectionCount": {
+    "message": "$COUNT$ collections",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "3"
+        "example": "16"
+      }
+    }
+  },
+  "sharedFolderCount": {
+    "message": "$COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "16"
       }
     }
   },

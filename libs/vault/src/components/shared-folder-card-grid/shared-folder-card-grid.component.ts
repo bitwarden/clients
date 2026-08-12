@@ -102,6 +102,9 @@ export class SharedFolderCardGridComponent {
    */
   readonly folders = input.required<TreeNode<CollectionView>[]>();
 
+  /** Name of the shared folder in view, used to title the section. */
+  readonly parentName = input.required<string>();
+
   protected readonly headingId = `shared-folder-card-grid-heading-${nextId++}`;
   protected readonly gridTemplateColumns = GRID_TEMPLATE_COLUMNS;
 

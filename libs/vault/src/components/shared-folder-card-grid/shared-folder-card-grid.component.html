@@ -2,9 +2,14 @@
 
 @if (count() > 0) {
   <section [attr.aria-labelledby]="headingId">
-    <h2 [id]="headingId" bitTypography="h6" class="tw-mb-3">
-      {{ "collectionsWithCount" | vfo1I18n: "sharedFoldersWithCount" : count() }}
-    </h2>
+    <div class="tw-mb-3 tw-flex tw-items-baseline tw-justify-between tw-gap-4">
+      <h2 [id]="headingId" bitTypography="h6" class="tw-mb-0">
+        {{ "collectionsInParent" | vfo1I18n: "sharedFoldersInParent" : parentName() }}
+      </h2>
+      <span bitTypography="body2" class="tw-shrink-0 tw-text-muted">
+        {{ "collectionCount" | vfo1I18n: "sharedFolderCount" : count() }}
+      </span>
+    </div>
 
     <ul
       class="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0"
@@ -39,9 +44,10 @@
         bitLink
         linkType="primary"
         class="tw-mt-3"
+        [endIcon]="expanded() ? 'bwi-angle-up' : 'bwi-angle-down'"
         [bitDisclosureTriggerFor]="overflowRows"
       >
-        {{ (expanded() ? "showLess" : "showMore") | i18n }}
+        {{ (expanded() ? "showLess" : "showAll") | i18n }}
       </button>
     }
   </section>
@@ -57,7 +63,7 @@
         [queryParamsHandling]="folder.queryParamsHandling"
         [state]="folder.state"
       >
-        <bit-icon-tile slot="start" [icon]="'bwi-shared-folder' | vfo1Icon"></bit-icon-tile>
+        <bit-icon-tile slot="start" [icon]="'bwi-collection-shared' | vfo1Icon"></bit-icon-tile>
         {{ folder.name }}
         <bit-icon slot="end" name="bwi-angle-right" class="tw-text-main bwi-lg" />
       </a>
