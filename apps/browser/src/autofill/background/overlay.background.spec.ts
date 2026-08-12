@@ -256,6 +256,7 @@ describe("OverlayBackground", () => {
       accountService,
       generatorHistoryService,
       generatorService,
+      configService,
     );
     portKeyForTabSpy = overlayBackground["portKeyForTab"];
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
@@ -427,6 +428,24 @@ describe("OverlayBackground", () => {
       expect(pageDetailsForTabSpy[tabId]).toBeUndefined();
       expect(portKeyForTabSpy[tabId]).toBeUndefined();
     });
+  });
+
+  describe("inline menu list port init message", () => {
+    it.each([true, false])(
+      "includes useLitComponents as %s when LitInlineMenuComponents is %s",
+      async (enabled) => {
+        overlayBackground.useLitInlineMenuComponents$ = of(enabled);
+
+        await initOverlayElementPorts({ initList: true, initButton: false });
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            command: "initAutofillInlineMenuList",
+            useLitComponents: enabled,
+          }),
+        );
+      },
+    );
   });
 
   describe("when enableFillAssist is turned off", () => {
