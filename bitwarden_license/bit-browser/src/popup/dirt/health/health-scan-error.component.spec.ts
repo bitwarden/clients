@@ -29,8 +29,10 @@ describe("HealthScanErrorComponent", () => {
   });
 
   it("does not offer a rescan control", () => {
-    // The scan runs on every Health tab open, so reopening the tab is the retry
-    // path and there is deliberately no manual rescan.
+    // Deliberate, and deliberately against the design frame: that frame shows a
+    // "Try again" button, but the acceptance criteria state the tab has no
+    // manual rescan control, and the criteria govern. Reopening the tab is the
+    // recovery path, since the scan runs on every open.
     expect(fixture.nativeElement.querySelector("button")).toBeNull();
   });
 });

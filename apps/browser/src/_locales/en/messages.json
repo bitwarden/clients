@@ -7297,7 +7297,7 @@
   "transferItemsToOrganizationAction": {
     "message": "Click accept to transfer ownership of your items."
   },
-   "openTransferItemsHelpArticle": {
+  "openTransferItemsHelpArticle": {
     "message": "Open help article on transferring items"
   },
   "acceptTransfer": {
@@ -7705,15 +7705,15 @@
     "description": "Heading shown while the vault health scan is running."
   },
   "scanningYourVaultDescription": {
-    "message": "Checking your passwords for exposure, weakness, and reuse. This may take a moment.",
+    "message": "Checking for exposed, weak, and reused passwords.",
     "description": "Explains what the vault health scan is doing while it runs."
   },
   "healthScanFailed": {
-    "message": "Scan unavailable",
+    "message": "Something went wrong",
     "description": "Heading shown when the vault health scan did not complete."
   },
   "healthScanFailedDescription": {
-    "message": "We couldn't check your passwords right now. Reopen Health to try again.",
-    "description": "Explains that the vault health scan failed and how the user can retry."
+    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "description": "Explains that the vault health scan did not complete."
   }
 }

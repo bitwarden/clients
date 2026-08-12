@@ -1,7 +1,15 @@
-<div class="tw-m-4 tw-flex tw-flex-col tw-items-center tw-gap-3 tw-p-4 tw-text-center" role="alert">
-  <bit-icon name="bwi-error" class="bwi-2x tw-text-fg-danger" />
+<div
+  class="tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-center tw-px-6 tw-text-center"
+  role="alert"
+>
+  <!-- Placeholder for the design's document-and-warning illustration, which has
+       not been exported yet. Omitting ariaLabel marks it decorative, so the
+       heading carries the announcement. -->
+  <bit-icon name="bwi-error" class="bwi-3x tw-mb-3 tw-text-fg-danger" />
 
-  <h2 bitTypography="h3">{{ "healthScanFailed" | i18n }}</h2>
+  <h2 bitTypography="body1" class="tw-mb-1 tw-font-semibold tw-text-fg-heading">
+    {{ "healthScanFailed" | i18n }}
+  </h2>
 
   <p bitTypography="body2" class="tw-mb-0 tw-text-fg-body-subtle">
     {{ "healthScanFailedDescription" | i18n }}

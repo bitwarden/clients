@@ -16,8 +16,7 @@ export default {
           useFactory: () =>
             new I18nMockService({
               scanningYourVault: "Scanning your vault",
-              scanningYourVaultDescription:
-                "Checking your passwords for exposure, weakness, and reuse. This may take a moment.",
+              scanningYourVaultDescription: "Checking for exposed, weak, and reused passwords.",
             }),
         },
       ],
@@ -28,7 +27,7 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/JZf3F2PRqB7HhflAybw2Xe/Premium-end-user-health?node-id=730-4635",
     },
-    // The spinner and the body copy are theme-aware, so dark has to be
+    // The bar and the body copy are theme-aware, so dark has to be
     // snapshotted explicitly or a dark-mode colour regression ships unseen.
     chromatic: {
       modes: {
@@ -41,5 +40,5 @@ export default {
 
 type Story = StoryObj<HealthScanningComponent>;
 
-/** Shown while the vault-health scan is running. The component takes no inputs. */
+/** Shown while the vault-health scan is running. The bar animates; it takes no inputs. */
 export const Default: Story = {};

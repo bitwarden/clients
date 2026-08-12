@@ -1,15 +1,22 @@
 <div
-  class="tw-m-4 tw-flex tw-flex-col tw-items-center tw-gap-3 tw-p-4 tw-text-center"
+  class="tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-center tw-px-6 tw-text-center"
   role="status"
   aria-live="polite"
 >
-  <!-- Omitting ariaLabel makes bit-icon mark itself aria-hidden, so the heading
-       carries the announcement rather than the spinner. -->
-  <bit-icon name="bwi-spinner" class="bwi-2x bwi-spin tw-text-fg-brand" />
+  <h2 bitTypography="body1" class="tw-mb-3 tw-font-semibold tw-text-fg-heading">
+    {{ "scanningYourVault" | i18n }}
+  </h2>
 
-  <h2 bitTypography="h3">{{ "scanningYourVault" | i18n }}</h2>
+  <div class="tw-w-full">
+    <bit-progress-bar
+      [value]="progress()"
+      [hideStartHint]="true"
+      [accessibleName]="'scanningYourVault' | i18n"
+      [ariaValueText]="'scanningYourVault' | i18n"
+    />
+  </div>
 
-  <p bitTypography="body2" class="tw-mb-0 tw-text-fg-body-subtle">
+  <p bitTypography="body2" class="tw-mb-0 tw-mt-3 tw-text-fg-body-subtle">
     {{ "scanningYourVaultDescription" | i18n }}
   </p>
 </div>

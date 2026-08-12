@@ -15,9 +15,9 @@ export default {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              healthScanFailed: "Scan unavailable",
+              healthScanFailed: "Something went wrong",
               healthScanFailedDescription:
-                "We couldn't check your passwords right now. Reopen Health to try again.",
+                "Your vault scan didn't complete due to an unexpected error.",
             }),
         },
       ],
@@ -28,7 +28,7 @@ export default {
       type: "figma",
       url: "https://www.figma.com/design/JZf3F2PRqB7HhflAybw2Xe/Premium-end-user-health?node-id=730-4635",
     },
-    // The error icon and the body copy are theme-aware, so dark has to be
+    // The error visual and the body copy are theme-aware, so dark has to be
     // snapshotted explicitly or a dark-mode colour regression ships unseen.
     chromatic: {
       modes: {

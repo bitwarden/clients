@@ -8,6 +8,8 @@ describe("HealthScanningComponent", () => {
   let fixture: ComponentFixture<HealthScanningComponent>;
 
   beforeEach(async () => {
+    jest.useFakeTimers();
+
     await TestBed.configureTestingModule({
       imports: [HealthScanningComponent],
       providers: [{ provide: I18nService, useValue: { t: (key: string) => key } }],
@@ -15,6 +17,13 @@ describe("HealthScanningComponent", () => {
 
     fixture = TestBed.createComponent(HealthScanningComponent);
     fixture.detectChanges();
+  });
+
+  afterEach(() => {
+    // Destroying the fixture clears the component's interval; without this the
+    // timer keeps ticking across tests.
+    fixture.destroy();
+    jest.useRealTimers();
   });
 
   it("renders the scanning heading and description", () => {
@@ -28,11 +37,39 @@ describe("HealthScanningComponent", () => {
     expect(fixture.nativeElement.querySelector('[role="status"]')).not.toBeNull();
   });
 
-  it("hides the decorative spinner from assistive technology", () => {
-    // bit-icon derives this from the absence of an ariaLabel, so the assertion
-    // also pins that no one later gives the spinner its own announcement.
-    const icon = fixture.nativeElement.querySelector("bit-icon");
+  it("renders a progress bar", () => {
+    expect(fixture.nativeElement.querySelector("bit-progress-bar")).not.toBeNull();
+  });
 
-    expect(icon.getAttribute("aria-hidden")).toBe("true");
+  it("advances the indicator while the scan runs", () => {
+    const width = () =>
+      parseFloat(fixture.nativeElement.querySelector('[role="progressbar"]').style.width) || 0;
+    const before = width();
+
+    jest.advanceTimersByTime(1000);
+    fixture.detectChanges();
+
+    expect(width()).toBeGreaterThan(before);
+  });
+
+  it("never reaches 100, because the view is replaced rather than completed", () => {
+    // The indicator is animated, not driven by real progress, so it must not
+    // claim the scan finished. The root swaps this view out on completion.
+    jest.advanceTimersByTime(120000);
+    fixture.detectChanges();
+
+    const width = parseFloat(
+      fixture.nativeElement.querySelector('[role="progressbar"]').style.width,
+    );
+
+    expect(width).toBeLessThan(100);
+  });
+
+  it("does not announce a percentage to assistive technology", () => {
+    // The percentage is animated rather than real, so the bar announces its
+    // status instead of a misleading number.
+    const bar = fixture.nativeElement.querySelector('[role="progressbar"]');
+
+    expect(bar.getAttribute("aria-valuetext")).toBe("scanningYourVault");
   });
 });
