@@ -1,12 +1,6 @@
 import { buildContainerCandidates, buildSelectorCapture } from "./webmapper-picker";
 
 describe("webmapper-picker", () => {
-  beforeAll(() => {
-    // jsdom doesn't implement CSS.escape, which the selector generator uses for
-    // id-based candidates; identity escaping is sufficient for the simple test ids.
-    (global as any).CSS ??= { escape: (value: string) => value };
-  });
-
   afterEach(() => {
     document.documentElement.innerHTML = "";
   });

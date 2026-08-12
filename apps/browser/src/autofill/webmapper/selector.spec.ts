@@ -50,6 +50,51 @@ describe("generateSelector", () => {
     });
   });
 
+  describe("id candidates", () => {
+    it("prefers a stable #id and reports it as unique", () => {
+      document.body.innerHTML = `<form><input id="username"></form>`;
+      const input = document.querySelector("input")!;
+
+      const result = generateSelector(input);
+
+      expect(result.selector).toBe("#username");
+      expect(result.matches).toBe(1);
+      expect(document.querySelector(result.selector!)).toBe(input);
+    });
+
+    it("escapes id characters that would otherwise change the selector's meaning", () => {
+      // A ":" in an id reads as a pseudo-class unescaped, so the selector would
+      // either throw or match something else entirely.
+      document.body.innerHTML = `<form><input id="user:name"></form>`;
+      const input = document.querySelector("input")!;
+
+      const result = generateSelector(input);
+
+      expect(result.selector).toBe("#user\\:name");
+      expect(document.querySelector(result.selector!)).toBe(input);
+    });
+
+    it("takes an auto-generated id only as a last resort, and warns", () => {
+      document.body.innerHTML = `<form><input id="css-1a2b3c"></form>`;
+      const input = document.querySelector("input")!;
+
+      const result = generateSelector(input);
+
+      expect(result.selector).toBe("#css-1a2b3c");
+      expect(result.warnings.some((w) => w.includes("auto-generated"))).toBe(true);
+    });
+
+    it("prefers a stable attribute over an auto-generated id", () => {
+      document.body.innerHTML = `<form><input id="css-1a2b3c" name="username"></form>`;
+      const input = document.querySelector("input")!;
+
+      const result = generateSelector(input);
+
+      expect(result.selector).toBe('input[name="username"]');
+      expect(result.warnings.some((w) => w.includes("auto-generated"))).toBe(true);
+    });
+  });
+
   it("returns a null selector and structural: false for a non-element", () => {
     const result = generateSelector(null);
 
