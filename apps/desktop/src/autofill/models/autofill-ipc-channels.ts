@@ -16,6 +16,8 @@ type PasskeyAssertionWithoutUserInterfaceRequest =
   autofill.PasskeyAssertionWithoutUserInterfaceRequest;
 type PasskeyRegistrationResponse = autofill.PasskeyRegistrationResponse;
 type PasskeyRegistrationRequest = autofill.PasskeyRegistrationRequest;
+type PasswordAutofillRequest = autofill.PasswordAutofillRequest;
+type PasswordAutofillResponse = autofill.PasswordAutofillResponse;
 // Note that WindowHandleQueryResponse is implemented directly in the main
 // process and does not need to touch the renderer process, so we don't register it here.
 
@@ -26,6 +28,7 @@ export const AutofillIpcChannelIncoming = Object.freeze({
   PasskeyAssertion: "autofill.passkeyAssertion",
   PasskeyAssertionWithoutUserInterface: "autofill.passkeyAssertionWithoutUserInterface",
   PasskeyRegistration: "autofill.passkeyRegistration",
+  PasswordAutofill: "autofill.passwordAutofill",
 } as const);
 export type AutofillIpcChannelIncoming =
   (typeof AutofillIpcChannelIncoming)[keyof typeof AutofillIpcChannelIncoming];
@@ -35,6 +38,7 @@ export const AutofillIpcChannelOutgoing = Object.freeze({
   LockStatus: "autofill.completeLockStatus",
   PasskeyAssertion: "autofill.completePasskeyAssertion",
   PasskeyRegistration: "autofill.completePasskeyRegistration",
+  PasswordAutofill: "autofill.completePasswordAutofill",
 } as const);
 export type AutofillIpcChannelOutgoing =
   (typeof AutofillIpcChannelOutgoing)[keyof typeof AutofillIpcChannelOutgoing];
@@ -77,6 +81,11 @@ export type AutofillIpcDefinitionMap = {
     request: PasskeyRegistrationRequest;
     response: PasskeyRegistrationResponse;
     outgoing: typeof AutofillIpcChannelOutgoing.PasskeyRegistration;
+  };
+  [AutofillIpcChannelIncoming.PasswordAutofill]: {
+    request: PasswordAutofillRequest;
+    response: PasswordAutofillResponse;
+    outgoing: typeof AutofillIpcChannelOutgoing.PasswordAutofill;
   };
 };
 

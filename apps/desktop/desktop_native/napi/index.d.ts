@@ -135,6 +135,30 @@ export declare namespace autofill {
     /** WebAuthn attestation object. */
     attestationObject: Array<number>
   }
+  /** Request to retrieve a password credential. */
+  export interface PasswordAutofillRequest {
+    userName: string
+    displayName?: string
+    serviceIdentifier: string
+    recordIdentifier?: string
+    /**
+     * Native context required for callbacks to the OS. Format differs by OS.
+     * # Operating System Differences
+     *
+     * ## macOS
+     * A UUID representing the request.
+     *
+     * ## Windows
+     * Not implemented
+     */
+    context: string
+  }
+  /** Response for a password autofill request. */
+  export interface PasswordAutofillResponse {
+    /** Username of the account */
+    username: string
+    password: string
+  }
   /** Coordinates representing a point on the screen. */
   export interface Position {
     x: number
@@ -209,6 +233,7 @@ export declare namespace autofill {
     stop(): void
     completeRegistration(clientId: number, sequenceNumber: number, response: PasskeyRegistrationResponse): number
     completeAssertion(clientId: number, sequenceNumber: number, response: PasskeyAssertionResponse): number
+    completePasswordAutofill(clientId: number, sequenceNumber: number, response: PasswordAutofillResponse): number
     completeLockStatus(clientId: number, sequenceNumber: number, response: LockStatusResponse): number
     completeWindowHandleQuery(clientId: number, sequenceNumber: number, response: WindowHandleQueryResponse): number
     completeError(clientId: number, sequenceNumber: number, error: string): number
@@ -247,6 +272,13 @@ export declare namespace autofill {
    * string that was passed on the initial request.
    */
   cancelRequestCallback: { (error: null, clientId: number, sequenceNumber: number, message: string): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
+  /**
+   * Function to execute when a password autofill request is received.
+   *
+   * The `context` field should be stored, as the cancel_request_callback
+   * will use the same value to identify the request to be cancelled.
+   */
+  passwordAutofillCallback: { (error: null, clientId: number, sequenceNumber: number, message: PasswordAutofillRequest): void; (error: Error, clientId: number, sequenceNumber: number, message: null): void; }
   }
   export function runCommand(value: string): Promise<string>
 }

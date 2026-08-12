@@ -352,6 +352,35 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             }
         }
 
+        if let request = credentialRequest as? ASPasswordCredentialRequest {
+            if let passwordIdentity = request.credentialIdentity as? ASPasswordCredentialIdentity {
+
+                logger.log("[autofill-extension] prepareInterfaceToProvideCredential (password) called \(request)")
+
+                let displayName: String? = if #available(macOS 26.2, *) {
+                    passwordIdentity.serviceIdentifier.displayName
+                } else {
+                    nil
+                }
+
+                Task {
+                    let context = UUID().uuidString
+                    let req = PasswordAutofillRequest(
+                        userName: passwordIdentity.user,
+                        displayName: displayName,
+                        serviceIdentifier: passwordIdentity.serviceIdentifier.identifier,
+                        recordIdentifier: passwordIdentity.recordIdentifier,
+                        context: context
+                    )
+
+                    let client = await getClient()
+                    self.beginRequest(context)
+                    client.preparePassword(request: req, callback: PasswordCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+                }
+                return
+            }
+        }
+
         timeoutTimer.cancel()
 
         logger.log("[autofill-extension] provideCredentialWithoutUserInteraction2 called wrong")
@@ -554,6 +583,28 @@ private final class RegistrationCallback: PreparePasskeyRegistrationCallback {
                 clientDataHash: credential.clientDataHash,
                 credentialID: credential.credentialId,
                 attestationObject: credential.attestationObject
+            ))
+        }
+    }
+
+    func onError(error: BitwardenError) {
+        request.cancel(with: error)
+    }
+}
+
+// Forwards a password autofill result from the IPC layer to the host request.
+private final class PasswordCallback: PreparePasswordAutofillCallback {
+    private let request: HostRequest
+
+    init(_ request: HostRequest) {
+        self.request = request
+    }
+
+    func onComplete(credential: PasswordAutofillResponse) {
+        request.complete { ctx in
+            ctx.completeRequest(withSelectedCredential: ASPasswordCredential(
+                user: credential.username,
+                password: credential.password
             ))
         }
     }

@@ -66,6 +66,11 @@ export const DesktopAutofillPreload = {
     AutofillIpcChannelIncoming.PasskeyAssertionWithoutUserInterface,
     AutofillIpcChannelOutgoing.PasskeyAssertion,
   ),
+
+  listenPasswordAutofill: makeListener(
+    AutofillIpcChannelIncoming.PasswordAutofill,
+    AutofillIpcChannelOutgoing.PasswordAutofill,
+  ),
 };
 
 function makeListener<K extends AutofillIpcChannelIncoming>(
