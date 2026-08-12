@@ -17,6 +17,7 @@ import {
   PasswordPreloginData,
   PasswordPreloginService,
 } from "@bitwarden/common/auth/password-prelogin";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -132,7 +133,25 @@ export class PasswordLoginStrategy extends LoginStrategy {
   ): Promise<MasterKey> {
     // if we have prefetched prelogin data, use it
     if (preFetchedPreloginData) {
-      return this.keyService.makeMasterKey(masterPassword, email, preFetchedPreloginData.kdfConfig);
+      // If we are using the sdk to fetch the prelogin, then use the salt that is used. By not
+      // using the salt when the feature flag is off, this gives us the ability to turn off using
+      // the salt in the event of bad normalization occurring during the transition.
+      const useSdkForPrelogin = await this.configService.getFeatureFlag(
+        FeatureFlag.PM27060_PasswordPreloginFromSdk,
+      );
+      if (useSdkForPrelogin) {
+        return this.keyService.makeMasterKey(
+          masterPassword,
+          preFetchedPreloginData.salt,
+          preFetchedPreloginData.kdfConfig,
+        );
+      } else {
+        return this.keyService.makeMasterKey(
+          masterPassword,
+          email,
+          preFetchedPreloginData.kdfConfig,
+        );
+      }
     }
 
     // No prefetched data — fetch now. PasswordPreloginData.fromResponse validates the KDF config.

@@ -9,7 +9,10 @@ import { PasswordPreloginResponse } from "./password-prelogin.response";
  * Contains the KDF configuration needed to derive the master key from the user's master password.
  */
 export class PasswordPreloginData {
-  constructor(readonly kdfConfig: KdfConfig) {}
+  constructor(
+    readonly kdfConfig: KdfConfig,
+    readonly salt: string,
+  ) {}
 
   /**
    * Creates a PasswordPreloginData instance from a prelogin API response.
@@ -17,14 +20,14 @@ export class PasswordPreloginData {
    */
   static fromResponse(response: PasswordPreloginResponse): PasswordPreloginData {
     const kdfConfig =
-      response.kdf === KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(response.kdfIterations)
+      response.kdfSettings.kdfType === KdfType.PBKDF2_SHA256
+        ? new PBKDF2KdfConfig(response.kdfSettings.iterations)
         : new Argon2KdfConfig(
-            response.kdfIterations,
-            response.kdfMemory!,
-            response.kdfParallelism!,
+            response.kdfSettings.iterations,
+            response.kdfSettings.memory!,
+            response.kdfSettings.parallelism!,
           );
     kdfConfig.validateKdfConfigForPrelogin();
-    return new PasswordPreloginData(kdfConfig);
+    return new PasswordPreloginData(kdfConfig, response.salt);
   }
 }
