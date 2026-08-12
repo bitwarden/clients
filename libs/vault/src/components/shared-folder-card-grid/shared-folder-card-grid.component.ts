@@ -51,6 +51,11 @@ const COLLAPSED_CARD_COUNT = MAX_COLUMNS * VISIBLE_ROWS;
 const GRID_TEMPLATE_COLUMNS =
   "repeat(auto-fill, minmax(min(100%, max(240px, (100% - 1.5rem) / 3)), 1fr))";
 
+// Sentinel substituted for the child count so a fully translated sentence can be split around it,
+// letting the number be emphasized in the template without embedding markup in (or splitting up)
+// the translated string. Mirrors the approach in `assign-collections.component.ts`.
+const COUNT_TOKEN = "\uFFFC";
+
 /** A single child folder, resolved to the route its card links to. */
 type SharedFolderCard = {
   id: string;
@@ -150,6 +155,23 @@ export class SharedFolderCardGridComponent {
   });
 
   protected readonly count = computed(() => this.cards().length);
+
+  /**
+   * Breaks the child-count sentence into display segments so the number can be emphasized. A
+   * sentinel is substituted for the count and the fully translated sentence is split around it, so
+   * word order stays correct in every language and the count is always rendered as plain text
+   * rather than markup.
+   */
+  protected readonly countSegments = computed(() => {
+    const sentence = this.i18nService.t(
+      this.vfo1TerminologyService.enabled() ? "sharedFolderCount" : "collectionCount",
+      COUNT_TOKEN,
+    );
+
+    const [before, after = ""] = sentence.split(COUNT_TOKEN);
+    return { before, count: this.count(), after };
+  });
+
   protected readonly visibleCards = computed(() => this.cards().slice(0, COLLAPSED_CARD_COUNT));
   protected readonly overflowCards = computed(() => this.cards().slice(COLLAPSED_CARD_COUNT));
 

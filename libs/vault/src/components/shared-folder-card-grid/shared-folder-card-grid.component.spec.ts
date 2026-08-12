@@ -290,6 +290,18 @@ describe("SharedFolderCardGridComponent", () => {
       expect(countLabel()).toBe("collectionCount:16");
     });
 
+    it("emphasizes the number without splitting the translated sentence", () => {
+      createComponent(folderNodes(16));
+
+      // The sentinel is substituted into the whole translated sentence, which is then split around
+      // it, so the count is bold while the surrounding words keep their translated order.
+      const emphasized = fixture.nativeElement.querySelector("section strong");
+      expect(emphasized.textContent).toBe("16");
+      expect(emphasized.classList).toContain("tw-font-bold");
+      expect(countLabel()).toBe("collectionCount:16");
+      expect(countLabel()).not.toContain("\uFFFC");
+    });
+
     it("counts every child, not just the rows on show", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT + 7));
 

@@ -6,9 +6,12 @@
       <h2 [id]="headingId" bitTypography="h6" class="tw-mb-0">
         {{ "collectionsInParent" | vfo1I18n: "sharedFoldersInParent" : parentName() }}
       </h2>
-      <span bitTypography="body2" class="tw-shrink-0 tw-text-muted">
-        {{ "collectionCount" | vfo1I18n: "sharedFolderCount" : count() }}
-      </span>
+      @let countText = countSegments();
+      <span bitTypography="body2" class="tw-shrink-0 tw-text-muted"
+        >{{ countText.before
+        }}<strong class="tw-text-main tw-font-bold">{{ countText.count }}</strong
+        >{{ countText.after }}</span
+      >
     </div>
 
     <ul
