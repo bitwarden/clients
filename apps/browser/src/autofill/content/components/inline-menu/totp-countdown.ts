@@ -85,8 +85,6 @@ function createTotpCountdownRef(
 
       if (secondsEl) {
         secondsEl.textContent = `${seconds}`;
-        // Inline color only — avoid Emotion css() here. Dynamic classes are injected into
-        // document.head after the shadow-root style sync and would otherwise miss positioning.
         secondsEl.style.color = textColor;
       }
       if (innerCircle) {

@@ -34,7 +34,6 @@ export type InlineMenuCipherItemProps = {
   showTotpUsername?: boolean;
   totpSecondsRemaining?: number;
   onTotpPeriodElapsed?: () => void;
-  /** Called when ArrowUp/ArrowDown has no next/previous cipher (e.g. focus "New item"). */
   onListEdgeReached?: (direction: 1 | -1) => void;
 };
 
