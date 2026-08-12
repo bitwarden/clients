@@ -116,7 +116,7 @@ export class CipherRowMenuService {
         label: this.i18nService.t("delete"),
         icon: "bwi-trash",
         event: (item) => ({ type: "delete", items: [{ cipher: item }] }),
-        show: (item) => item.edit && !CipherViewLikeUtils.isDeleted(item),
+        show: (item) => this.canDelete(item) && !CipherViewLikeUtils.isDeleted(item),
         variant: "danger",
       },
       {
@@ -124,7 +124,7 @@ export class CipherRowMenuService {
         label: this.i18nService.t("permanentlyDelete"),
         icon: "bwi-trash",
         event: (item) => ({ type: "delete", items: [{ cipher: item }] }),
-        show: (item) => item.edit && CipherViewLikeUtils.isDeleted(item),
+        show: (item) => this.canDelete(item) && CipherViewLikeUtils.isDeleted(item),
         variant: "danger",
       },
     ];
@@ -178,7 +178,15 @@ export class CipherRowMenuService {
   }
 
   private showRestore(cipher: CipherViewLike): boolean {
-    return CipherViewLikeUtils.isDeleted(cipher) && cipher.edit;
+    return CipherViewLikeUtils.isDeleted(cipher) && this.canRestore(cipher);
+  }
+
+  private canDelete(cipher: CipherViewLike): boolean {
+    return !cipher.organizationId || !!cipher.permissions?.delete;
+  }
+
+  private canRestore(cipher: CipherViewLike): boolean {
+    return !cipher.organizationId || !!cipher.permissions?.restore;
   }
 
   private canClone(cipher: CipherViewLike, collections: CollectionView[]): boolean {

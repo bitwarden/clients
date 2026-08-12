@@ -31,6 +31,7 @@ function makeCipher(
     organizationId: string | null;
     collectionIds: string[];
     type: CipherType;
+    permissions: { delete: boolean; restore: boolean } | null;
   }> = {},
 ): CipherView {
   return {
@@ -301,44 +302,102 @@ describe("CipherRowMenuService", () => {
   });
 
   describe("restore", () => {
-    it("shows when deleted and editable", () => {
+    it("shows for a deleted personal cipher", () => {
       expect(show("restore", makeCipher({ isDeleted: true }))).toBe(true);
+    });
+
+    it("shows for a deleted org cipher when permissions.restore is true", () => {
+      expect(
+        show(
+          "restore",
+          makeCipher({
+            isDeleted: true,
+            organizationId: "org-1",
+            permissions: { delete: false, restore: true },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it("hides for a deleted org cipher when permissions.restore is false", () => {
+      expect(
+        show(
+          "restore",
+          makeCipher({
+            isDeleted: true,
+            organizationId: "org-1",
+            permissions: { delete: false, restore: false },
+          }),
+        ),
+      ).toBe(false);
     });
 
     it("hides when not deleted", () => {
       expect(show("restore", makeCipher())).toBe(false);
     });
-
-    it("hides when deleted but not editable", () => {
-      expect(show("restore", makeCipher({ isDeleted: true, edit: false }))).toBe(false);
-    });
   });
 
   describe("delete", () => {
-    it("shows when editable and not deleted", () => {
+    it("shows for a personal cipher that is not deleted", () => {
       expect(show("delete", makeCipher())).toBe(true);
+    });
+
+    it("shows for an org cipher when permissions.delete is true", () => {
+      expect(
+        show(
+          "delete",
+          makeCipher({ organizationId: "org-1", permissions: { delete: true, restore: false } }),
+        ),
+      ).toBe(true);
+    });
+
+    it("hides for an org cipher when permissions.delete is false", () => {
+      expect(
+        show(
+          "delete",
+          makeCipher({ organizationId: "org-1", permissions: { delete: false, restore: false } }),
+        ),
+      ).toBe(false);
     });
 
     it("hides when already deleted (use permanentlyDelete instead)", () => {
       expect(show("delete", makeCipher({ isDeleted: true }))).toBe(false);
     });
-
-    it("hides when not editable", () => {
-      expect(show("delete", makeCipher({ edit: false }))).toBe(false);
-    });
   });
 
   describe("permanentlyDelete", () => {
-    it("shows when editable and already in trash", () => {
+    it("shows for a deleted personal cipher", () => {
       expect(show("permanentlyDelete", makeCipher({ isDeleted: true }))).toBe(true);
+    });
+
+    it("shows for a deleted org cipher when permissions.delete is true", () => {
+      expect(
+        show(
+          "permanentlyDelete",
+          makeCipher({
+            isDeleted: true,
+            organizationId: "org-1",
+            permissions: { delete: true, restore: false },
+          }),
+        ),
+      ).toBe(true);
+    });
+
+    it("hides for a deleted org cipher when permissions.delete is false", () => {
+      expect(
+        show(
+          "permanentlyDelete",
+          makeCipher({
+            isDeleted: true,
+            organizationId: "org-1",
+            permissions: { delete: false, restore: false },
+          }),
+        ),
+      ).toBe(false);
     });
 
     it("hides when not in trash (use delete instead)", () => {
       expect(show("permanentlyDelete", makeCipher())).toBe(false);
-    });
-
-    it("hides when not editable", () => {
-      expect(show("permanentlyDelete", makeCipher({ isDeleted: true, edit: false }))).toBe(false);
     });
   });
 });
