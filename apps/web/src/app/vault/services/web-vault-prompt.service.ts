@@ -69,7 +69,7 @@ export class WebVaultPromptService {
   }
 
   private openAutoConfirmFeatureDialog(organization: Organization) {
-    MultiStepPolicyEditDialogComponent.open(this.dialogService, {
+    void MultiStepPolicyEditDialogComponent.openDrawer(this.dialogService, {
       data: {
         policy: new AutoConfirmPolicy(true),
         organization: organization,

@@ -16,7 +16,6 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import { OrganizationDataOwnershipPolicyV2Component } from "./organization-data-ownership-v2.component";
 import {
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyComponent,
@@ -42,22 +41,16 @@ describe("OrganizationDataOwnershipPolicy", () => {
     expect(policy.description).toEqual("centralizeDataOwnershipDesc");
     expect(policy.type).toEqual(PolicyType.OrganizationDataOwnership);
     expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
-    expect(policy.v2?.component).toEqual(OrganizationDataOwnershipPolicyV2Component);
   });
 
-  it("hides the dialog's description in both v1 and v2 (both components render their own)", () => {
+  it("hides the dialog's description (the component renders its own)", () => {
     expect(policy.showDescription).toBe(false);
-    expect(policy.v2?.showDescription).toBe(false);
   });
 });
 
-// MultiStepPolicyEditDialogComponent renders OrganizationDataOwnershipPolicyV2Component only
-// when the dialog is opened as a drawer (PolicyDrawers flag on); otherwise it renders
-// OrganizationDataOwnershipPolicyComponent (above). See
-// multi-step-policy-edit-dialog.component.spec.ts for coverage of that gating.
-describe("OrganizationDataOwnershipPolicyV2Component", () => {
-  let component: OrganizationDataOwnershipPolicyV2Component;
-  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyV2Component>;
+describe("OrganizationDataOwnershipPolicyComponent", () => {
+  let component: OrganizationDataOwnershipPolicyComponent;
+  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyComponent>;
   let mockOrganizationService: MockProxy<OrganizationService>;
   let accountService: FakeAccountService;
 
@@ -86,7 +79,7 @@ describe("OrganizationDataOwnershipPolicyV2Component", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyV2Component);
+    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyComponent);
     component = fixture.componentInstance;
   });
 

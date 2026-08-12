@@ -57,9 +57,14 @@
     </li>
   </ul>
 
-  <bit-form-control>
-    <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
+  <bit-form-control class="tw-mb-4">
+    <input type="checkbox" bitCheckbox [formControl]="riskAccepted" id="riskAccepted" />
     <bit-label>{{ "autoConfirmCheckBoxLabel" | i18n }}</bit-label>
+  </bit-form-control>
+
+  <bit-form-control>
+    <bit-switch [formControl]="enabled" id="enabled"></bit-switch>
+    <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
   </bit-form-control>
 </ng-template>
 
@@ -71,13 +76,7 @@
     bitFormButton
     type="submit"
   >
-    @let autoConfirmEnabled = autoConfirmEnabled$ | async;
-    @let managePoliciesOnly = managePoliciesOnly$ | async;
-    @if (autoConfirmEnabled || managePoliciesOnly) {
-      {{ "save" | i18n }}
-    } @else {
-      {{ "continue" | i18n }}
-    }
+    {{ "saveAndContinue" | i18n }}
   </button>
   <button bitButton buttonType="secondary" type="button" bitDialogClose>
     {{ "cancel" | i18n }}

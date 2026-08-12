@@ -24,7 +24,7 @@ import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import { PolicyCategory } from "./pipes/policy-category";
 import { PoliciesComponent } from "./policies.component";
 import { SingleOrgPolicy } from "./policy-edit-definitions/single-org.component";
-import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
+import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
@@ -106,9 +106,8 @@ describe("PoliciesComponent", () => {
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
-    jest.spyOn(PolicyEditDialogComponent, "open").mockReturnValue({ close: jest.fn() } as any);
     jest
-      .spyOn(PolicyEditDialogComponent, "openDrawer")
+      .spyOn(PolicyEditDrawerComponent, "openDrawer")
       .mockResolvedValue({ close: jest.fn(), closed: of(undefined) } as any);
 
     await TestBed.configureTestingModule({
@@ -427,7 +426,7 @@ describe("PoliciesComponent", () => {
         );
 
         dialogOpenDrawerSpy = jest
-          .spyOn(PolicyEditDialogComponent, "openDrawer")
+          .spyOn(PolicyEditDrawerComponent, "openDrawer")
           .mockResolvedValue({ close: jest.fn(), closed: of(undefined) } as any);
 
         TestBed.resetTestingModule();
@@ -515,7 +514,7 @@ describe("PoliciesComponent", () => {
         display$: () => of(true),
       };
 
-      const openDrawerSpy = jest.spyOn(PolicyEditDialogComponent, "openDrawer");
+      const openDrawerSpy = jest.spyOn(PolicyEditDrawerComponent, "openDrawer");
 
       await component.edit(mockPolicy, mockOrg);
 
@@ -527,38 +526,6 @@ describe("PoliciesComponent", () => {
           organization: mockOrg,
         },
       });
-    });
-
-    it("should call custom dialog open method when specified", async () => {
-      const mockDialogRef = { close: jest.fn() };
-      const mockCustomDialog = {
-        open: jest.fn().mockReturnValue(mockDialogRef),
-      };
-
-      const mockPolicy: BasePolicyEditDefinition = {
-        name: "Custom Policy",
-        description: "Custom Description",
-        type: PolicyType.RequireSso,
-        category: PolicyCategory.Authentication,
-        priority: 10,
-        component: {} as any,
-        editDialogComponent: mockCustomDialog as any,
-        showDescription: true,
-        showEnabledBadge: false,
-        display$: () => of(true),
-      };
-
-      await component.edit(mockPolicy, mockOrg);
-
-      expect(mockCustomDialog.open).toHaveBeenCalled();
-      const callArgs = mockCustomDialog.open.mock.calls[0];
-      expect(callArgs[1]).toEqual({
-        data: {
-          policy: mockPolicy,
-          organization: mockOrg,
-        },
-      });
-      expect(PolicyEditDialogComponent.open).not.toHaveBeenCalled();
     });
 
     it("should pass organization to dialog", async () => {
@@ -575,7 +542,7 @@ describe("PoliciesComponent", () => {
         display$: () => of(true),
       };
 
-      const openDrawerSpy = jest.spyOn(PolicyEditDialogComponent, "openDrawer");
+      const openDrawerSpy = jest.spyOn(PolicyEditDrawerComponent, "openDrawer");
 
       await component.edit(mockPolicy, customOrg);
 
@@ -592,7 +559,6 @@ describe("PoliciesComponent", () => {
     it("should open drawer when openDrawer is present on the dialog component", async () => {
       const mockDrawerRef = { close: jest.fn(), closed: of(undefined) };
       const mockDrawerDialog = {
-        open: jest.fn(),
         openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
       };
 
@@ -619,7 +585,6 @@ describe("PoliciesComponent", () => {
           organization: mockOrg,
         },
       });
-      expect(mockDrawerDialog.open).not.toHaveBeenCalled();
     });
 
     it("clears the drawer ref once it closes, so canDeactivate doesn't re-close a stale ref", async () => {
@@ -630,7 +595,6 @@ describe("PoliciesComponent", () => {
       const closeSpy = jest.fn().mockResolvedValue({ closed: false });
       const mockDrawerRef = { close: closeSpy, closed: of(undefined) };
       const mockDrawerDialog = {
-        open: jest.fn(),
         openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
       };
 

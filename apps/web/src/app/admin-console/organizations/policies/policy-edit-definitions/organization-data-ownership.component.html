@@ -1,13 +1,12 @@
 <p>
-  {{ "centralizeDataOwnershipDesc" | i18n }}
-  <a
+  {{ "centralizeDataOwnershipDescV2" | i18n
+  }}<a
     bitLink
     href="https://bitwarden.com/resources/credential-lifecycle-management/"
     target="_blank"
-    endIcon="bwi-external-link"
-  >
-    {{ "centralizeDataOwnershipContentAnchor" | i18n }}
-  </a>
+    rel="noreferrer"
+    >{{ "centralizeDataOwnershipContentAnchor" | i18n }}</a
+  >.
 </p>
 
 <div class="tw-text-left tw-overflow-hidden tw-mb-2">
@@ -20,14 +19,14 @@
       {{ "centralizeDataOwnershipBenefit2" | i18n }}
     </li>
     <li>
-      {{ "centralizeDataOwnershipBenefit3" | i18n }}
+      {{ "centralizeDataOwnershipBenefit3V2" | i18n }}
     </li>
   </ul>
 </div>
 
-<bit-form-control>
-  <input class="tw-mt-4" type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
-  <bit-label>{{ "turnOn" | i18n }}</bit-label>
+<bit-form-control class="tw-mt-4">
+  <bit-switch [formControl]="enabled" id="enableOrganizationDataOwnershipPolicySwitch"></bit-switch>
+  <bit-label>{{ "enablePolicy" | i18n }}</bit-label>
 </bit-form-control>
 
 @if (useMyItems()) {
@@ -36,22 +35,8 @@
       type="checkbox"
       bitCheckbox
       [formControl]="data.controls.enableIndividualItemsTransfer"
-      id="enableIndividualItemsTransfer"
+      id="enableIndividualItemsTransferV2"
     />
-    <bit-label>{{ "promptUsersToMoveItems" | i18n }}</bit-label>
+    <bit-label>{{ "promptUsersToMoveItemsV2" | i18n }}</bit-label>
   </bit-form-control>
-
-  @if (enableIndividualItemsTransfer()) {
-    <bit-callout type="info">
-      {{ "promptUsersToMoveItemsCallout" | i18n }}
-      <a
-        bitLink
-        href="https://bitwarden.com/resources/credential-lifecycle-management/"
-        target="_blank"
-        endIcon="bwi-external-link"
-      >
-        {{ "centralizeDataOwnershipWarningLink" | i18n }}
-      </a>
-    </bit-callout>
-  }
 }
