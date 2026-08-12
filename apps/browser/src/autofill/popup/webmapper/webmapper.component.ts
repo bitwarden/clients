@@ -150,7 +150,16 @@ export class WebmapperComponent implements OnInit, OnDestroy {
         ),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((draft) => this.draft.set(draft));
+      .subscribe((draft) => this.applyDraft(draft));
+  }
+
+  /**
+   * Every draft change invalidates the export snapshot: it is copyable text, so one
+   * that outlived its draft is indistinguishable from a current document.
+   */
+  private applyDraft(draft: WebmapperDraft | null) {
+    this.draft.set(draft);
+    this.exportText.set(null);
   }
 
   async ngOnInit() {
@@ -194,7 +203,7 @@ export class WebmapperComponent implements OnInit, OnDestroy {
     }
     // Applied at write time rather than to the local copy: a background capture
     // can land between the panel's read and its write.
-    this.draft.set(await this.draftService.updateDraft(url.host, url.pathname, fn));
+    this.applyDraft(await this.draftService.updateDraft(url.host, url.pathname, fn));
   }
 
   keysOf(map: Record<string, SelectorEntry[]>): string[] {

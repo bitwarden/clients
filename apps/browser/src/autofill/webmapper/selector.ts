@@ -275,6 +275,14 @@ export function generateSelector(element: Element | null): GeneratedSelector {
 
   const selector = parts.join(" >>> ");
   const matches = countIn(rootOf(element), parts[parts.length - 1]);
+  // An alternate replaces `selector` wholesale, so it needs the same shadow prefix.
+  const prefix = parts.slice(0, -1);
 
-  return { selector, matches, alternates, warnings, structural };
+  return {
+    selector,
+    matches,
+    alternates: alternates.map((alternate) => [...prefix, alternate].join(" >>> ")),
+    warnings,
+    structural,
+  };
 }

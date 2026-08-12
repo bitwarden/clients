@@ -50,6 +50,54 @@ describe("generateSelector", () => {
     });
   });
 
+  describe("open shadow roots", () => {
+    const HOST_SEGMENT = "#widget";
+
+    /** Host with a stable id holding `inner`, so the composed path has a prefix. */
+    function withShadowHost(inner: string): ShadowRoot {
+      document.body.innerHTML = `<my-widget id="widget"></my-widget>`;
+      const host = document.querySelector("my-widget")!;
+      const root = host.attachShadow({ mode: "open" });
+      root.innerHTML = inner;
+      return root;
+    }
+
+    it("joins the host and inner segments with `>>>`", () => {
+      const root = withShadowHost(`<input name="username">`);
+
+      const result = generateSelector(root.querySelector("input")!);
+
+      expect(result.selector).toBe(`${HOST_SEGMENT} >>> input[name="username"]`);
+    });
+
+    it("prefixes alternates so each one can replace the chosen selector", () => {
+      // Two unique candidates for the input: [name="x"] is chosen, [type="text"]
+      // becomes the alternate the panel offers under "Use".
+      const root = withShadowHost(`<input name="x" type="text"><input type="password">`);
+
+      const result = generateSelector(root.querySelector("input")!);
+
+      expect(result.alternates).not.toHaveLength(0);
+      // The regression: a root-local alternate swapped in for the full path would
+      // stop resolving into the shadow root.
+      for (const alternate of result.alternates) {
+        expect(alternate.startsWith(`${HOST_SEGMENT} >>> `)).toBe(true);
+      }
+    });
+
+    it("leaves alternates unprefixed for a document-rooted element", () => {
+      document.body.innerHTML = `<input name="x" type="text"><input type="password">`;
+
+      const result = generateSelector(document.querySelector("input")!);
+
+      expect(result.alternates).not.toHaveLength(0);
+      for (const alternate of result.alternates) {
+        expect(alternate).not.toContain(">>>");
+        expect(document.querySelector(alternate)).toBe(document.querySelector("input"));
+      }
+    });
+  });
+
   describe("id candidates", () => {
     it("prefers a stable #id and reports it as unique", () => {
       document.body.innerHTML = `<form><input id="username"></form>`;

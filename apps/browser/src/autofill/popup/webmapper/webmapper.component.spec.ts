@@ -400,6 +400,44 @@ describe("WebmapperComponent", () => {
       await component.copyJsonc();
       expect(platformUtilsService.copyToClipboard).not.toHaveBeenCalled();
     });
+
+    // The Export box is copyable text, so a superseded document must not linger.
+    describe("the exported text does not survive a draft change", () => {
+      it("drops it when a panel action mutates the draft", async () => {
+        const draft = emptyDraft(HOST, PATH);
+        setCategory(draft, 0, "login");
+        addSelector(draft, component.fieldsSlot("username"), fieldEntry("#u"));
+        component.url.set({ host: HOST, pathname: PATH });
+        component.draft.set(draft);
+        await component.copyJsonc();
+        expect(component.exportText()).not.toBeNull();
+
+        component.addForm();
+        await flush();
+
+        expect(component.exportText()).toBeNull();
+      });
+
+      it("drops it when a background capture lands", async () => {
+        await component.ngOnInit();
+        fixture.detectChanges();
+        await flush();
+        const draft = emptyDraft(HOST, PATH);
+        setCategory(draft, 0, "login");
+        addSelector(draft, component.fieldsSlot("username"), fieldEntry("#u"));
+        draft$.next(draft);
+        await flush();
+        await component.copyJsonc();
+        expect(component.exportText()).not.toBeNull();
+
+        const captured = JSON.parse(JSON.stringify(draft)) as WebmapperDraft;
+        addSelector(captured, component.fieldsSlot("password"), fieldEntry("#p"));
+        draft$.next(captured);
+        await flush();
+
+        expect(component.exportText()).toBeNull();
+      });
+    });
   });
 
   describe("clearDraft", () => {
