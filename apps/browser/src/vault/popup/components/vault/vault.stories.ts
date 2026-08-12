@@ -69,6 +69,7 @@ import { enabledFlags, featureFlagModes } from "@bitwarden/storybook";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import AutofillService from "../../../../autofill/services/autofill.service";
+import { PopupWidthOptions } from "../../../../platform/browser/browser-popup-utils";
 import { PopupRouterCacheService } from "../../../../platform/popup/view-cache/popup-router-cache.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupAutofillService } from "../../services/vault-popup-autofill.service";
@@ -811,7 +812,15 @@ export default {
     // mock `ConfigService` at the application root. That decorator explicitly SKIPS itself when the
     // story already provides `ConfigService` via `applicationConfig` — so this file must not provide
     // one, or the modes would silently stop taking effect.
-    chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) },
+    //
+    // The viewport is pinned to the popup's own width because `popupFrame` constrains the story with
+    // CSS, while the list table's toolbar picks its presentation from `matchMedia` — so on a wide
+    // screen these would snapshot the inline chip row, which the extension never shows. Every popup
+    // width is below `md`, so the real popup always collapses the chips into the filter dialog.
+    chromatic: {
+      modes: featureFlagModes(FeatureFlag.VFO1Foundation),
+      viewports: [PopupWidthOptions.narrow],
+    },
   },
 } as Meta<VaultComponent>;
 

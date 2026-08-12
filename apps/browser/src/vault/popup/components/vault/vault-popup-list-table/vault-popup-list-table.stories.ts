@@ -40,6 +40,7 @@ import {
 import { StateProvider } from "@bitwarden/state";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
+import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import {
@@ -645,6 +646,16 @@ export const ActiveFilters: Story = {
   render: () => ({
     template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
   }),
+  parameters: {
+    // The toolbar picks its presentation from the *viewport* (`matchMedia`), not from the host
+    // element's width, so a story constrained by CSS alone still renders the wide chip row on a wide
+    // screen — the one presentation the extension never shows. Pin the widths instead: every popup
+    // size (380/480/600) is below the `md` breakpoint, so the popup always collapses the chip row
+    // into the sliders trigger + filter dialog. 1280 keeps the wide row covered for the sidebar.
+    chromatic: {
+      viewports: [PopupWidthOptions.narrow, PopupWidthOptions.default, 1280],
+    },
+  },
 };
 
 // Both collapsible sections start closed, so only their headers render. The autofill section has no
