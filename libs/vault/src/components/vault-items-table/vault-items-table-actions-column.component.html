@@ -65,7 +65,7 @@
                 bitMenuItem
                 [attr.id]="'vault-items-table_menu-item_' + rowAction.id + '-' + row.id"
                 [variant]="rowAction.variant ?? 'primary'"
-                (click)="action.emit(rowAction.event(row))"
+                (click)="handleAction(rowAction, row)"
               >
                 <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
                 {{ rowAction.label }}

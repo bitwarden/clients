@@ -6,6 +6,8 @@
   [filters]="initialFilterValues()"
   [loading]="loading()"
   [selection]="selection"
+  [virtualRowHeight]="56"
+  height="fill"
   (selectedChange)="selectedChange.emit($event)"
 >
   <!--
@@ -130,7 +132,7 @@
             bitLink
             class="tw-truncate tw-text-start"
             [title]="'editItemWithName' | i18n: row.name"
-            (click)="action.emit(itemAction()!(row))"
+            (click)="itemAction()!(row)"
           >
             {{ row.name }}
           </button>
@@ -214,6 +216,5 @@
     [table]="table"
     [rowActions]="rowActions()"
     [copyPresentation]="copyPresentation()"
-    (action)="action.emit($event)"
   />
 </bit-table-v2>

@@ -2,47 +2,68 @@
   class="vault tw-flex tw-flex-col tw-h-full tw-overflow-x-hidden"
   attr.aria-hidden="{{ showingModal }}"
 >
-  <div class="tw-pt-6 tw-px-6">
+  <div [ngClass]="vfo1Foundation() ? 'tw-pt-6 tw-px-8' : 'tw-pt-6 tw-px-6'">
     <vault-organization-user-notifications></vault-organization-user-notifications>
     <app-header>
-      <vault-new-cipher-menu
-        [canCreateCipher]="(canCreateCipher$ | async) ?? true"
-        [canCreateFolder]="true"
-        [canCreateSshKey]="true"
-        [disabled]="!((canCreateCipher$ | async) ?? true)"
-        (cipherAdded)="addCipher($event)"
-        (folderAdded)="addFolder()"
-        (onAddItemDialog)="openAddItemDialog()"
-      />
+      @if (!vfo1Foundation()) {
+        <vault-new-cipher-menu
+          [canCreateCipher]="(canCreateCipher$ | async) ?? true"
+          [canCreateFolder]="true"
+          [canCreateSshKey]="true"
+          [disabled]="!((canCreateCipher$ | async) ?? true)"
+          (cipherAdded)="addCipher($event)"
+          (folderAdded)="addFolder()"
+          (onAddItemDialog)="openAddItemDialog()"
+        />
+      }
     </app-header>
   </div>
-  <bit-search
-    class="tw-mb-4 tw-px-6"
-    [ngModel]="currentSearchText$ | async"
-    (ngModelChange)="filterSearchText($event)"
-    [placeholder]="searchPlaceholderText()"
-    appAutofocus
-  />
-  <app-vault-list
-    class="tw-h-full"
-    [ciphers]="ciphers"
-    [collections]="collectionsToDisplay"
-    [allCollections]="allCollections"
-    [allOrganizations]="allOrganizations"
-    [disabled]="refreshing"
-    [showOwner]="true"
-    [userCanArchive]="userCanArchive$ | async"
-    [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-    [placeholderText]="searchPlaceholderText()"
-    [isEmpty]="isEmpty && !performingInitialLoad"
-    [showAddCipherBtn]="showAddCipherBtn$ | async"
-    [emptyStateItem]="emptyState$ | async"
-    [showPremiumCallout]="showPremiumCallout$ | async"
-    (onEvent)="onVaultItemsEvent($event)"
-    (onAddCipher)="addCipher($event)"
-    (onAddFolder)="addFolder()"
-    (onAddItemDialog)="openAddItemDialog()"
-  />
+  @if (vfo1Foundation()) {
+    <app-vault-list-table
+      class="tw-flex-1 tw-min-h-0"
+      [ciphers]="ciphers"
+      [folders]="folders()"
+      [collections]="allCollections"
+      [organizations]="allOrganizations"
+      [loading]="refreshing || performingInitialLoad"
+      [canCreateCipher]="(canCreateCipher$ | async) ?? true"
+      [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
+      [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
+      [initialSearchText]="currentSearchText$ | async"
+      (onEvent)="onVaultItemsEvent($event)"
+      (onAddCipher)="addCipher($event)"
+      (onAddFolder)="addFolder()"
+      (onAddItemDialog)="openAddItemDialog()"
+    />
+  } @else {
+    <bit-search
+      class="tw-mb-4 tw-px-6"
+      [ngModel]="currentSearchText$ | async"
+      (ngModelChange)="filterSearchText($event)"
+      [placeholder]="searchPlaceholderText()"
+      appAutofocus
+    />
+    <app-vault-list
+      class="tw-h-full"
+      [ciphers]="ciphers"
+      [collections]="collectionsToDisplay"
+      [allCollections]="allCollections"
+      [allOrganizations]="allOrganizations"
+      [disabled]="refreshing"
+      [showOwner]="true"
+      [userCanArchive]="userCanArchive$ | async"
+      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+      [placeholderText]="searchPlaceholderText()"
+      [isEmpty]="isEmpty && !performingInitialLoad"
+      [showAddCipherBtn]="showAddCipherBtn$ | async"
+      [emptyStateItem]="emptyState$ | async"
+      [showPremiumCallout]="showPremiumCallout$ | async"
+      (onEvent)="onVaultItemsEvent($event)"
+      (onAddCipher)="addCipher($event)"
+      (onAddFolder)="addFolder()"
+      (onAddItemDialog)="openAddItemDialog()"
+    />
+  }
   @if (vaultBatchBarFeatureFlag()) {
     <bit-vault-batch-action />
   }

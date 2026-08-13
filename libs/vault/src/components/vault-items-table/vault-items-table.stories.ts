@@ -26,7 +26,6 @@ import { ButtonModule, I18nMockService, TypographyModule } from "@bitwarden/comp
 import { ConsoleLogService } from "@bitwarden/logging";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
-import { VaultItemEvent } from "../vault-item-event";
 
 import {
   DEFAULT_COPY_PRESENTATION,
@@ -314,57 +313,37 @@ const manyFilterOptionCiphers = [
   ...itemsIn("Unfiled login", 2, {}),
 ];
 
-/**
- * Web's overflow set, in the order the cipher row menu lists it. Every entry is built by the
- * client — labels are already translated, and each `event` factory produces the same
- * {@link VaultItemEvent} the real row emits.
- */
-const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView>>[] = [
+/** Web's overflow set, in the order the cipher row menu lists it. */
+const rowActions: VaultItemsTableRowAction<CipherView>[] = [
   {
     id: "favorite",
     label: "Favorite",
     icon: "bwi-star",
     show: (item) => !item.favorite,
-    event: (item) => ({ type: "toggleFavorite", item }),
+    run: () => {},
   },
   {
     id: "unfavorite",
     label: "Unfavorite",
     icon: "bwi-star",
     show: (item) => item.favorite,
-    event: (item) => ({ type: "toggleFavorite", item }),
+    run: () => {},
   },
-  {
-    id: "edit",
-    label: "Edit",
-    icon: "bwi-pencil-square",
-    event: (item) => ({ type: "editCipher", item }),
-  },
-  {
-    id: "attachments",
-    label: "Attachments",
-    icon: "bwi-paperclip",
-    event: (item) => ({ type: "viewAttachments", item }),
-  },
-  {
-    id: "clone",
-    label: "Clone",
-    icon: "bwi-files",
-    event: (item) => ({ type: "clone", item }),
-  },
+  { id: "edit", label: "Edit", icon: "bwi-pencil-square", run: () => {} },
+  { id: "attachments", label: "Attachments", icon: "bwi-paperclip", run: () => {} },
+  { id: "clone", label: "Clone", icon: "bwi-files", run: () => {} },
   {
     id: "assign-to-collections",
     label: "Assign to collections",
     icon: "bwi-collection-shared",
-    event: (item) => ({ type: "assignToCollections", items: [item] }),
+    run: () => {},
   },
   {
     id: "events",
     label: "Event logs",
     icon: "bwi-file-text",
-    // Event logs only exist for organization-owned items.
     show: (item) => item.organizationId != null,
-    event: (item) => ({ type: "viewEvents", item }),
+    run: () => {},
   },
   {
     id: "archive",
@@ -372,14 +351,14 @@ const rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView
     icon: "bwi-archive",
     // Archive is a premium feature, so a free user gets the Upgrade badge rather than the action.
     premiumGated: () => true,
-    event: (item) => ({ type: "archive", items: [item] }),
+    run: () => {},
   },
   {
     id: "delete",
     label: "Delete",
     icon: "bwi-trash",
     variant: "danger",
-    event: (item) => ({ type: "delete", items: [{ cipher: item }] }),
+    run: () => {},
   },
 ];
 
@@ -391,14 +370,14 @@ type StoryProps = {
   ciphers: CipherView[];
   organizationId?: OrganizationId;
   loading: boolean;
-  rowActions: VaultItemsTableRowAction<CipherView, VaultItemEvent<CipherView>>[];
+  rowActions: VaultItemsTableRowAction<CipherView>[];
   folders: FolderView[];
   collections: CollectionView[];
   organizations: Organization[];
   copyPresentation: VaultItemsTableCopyPresentation;
   initialFilterValues?: Partial<VaultItemsTableFilters>;
   heading?: string;
-  itemAction: (item: CipherView) => VaultItemEvent<CipherView>;
+  itemAction: (item: CipherView) => void;
 };
 
 /**
@@ -410,26 +389,27 @@ const template = `
   @if (heading) {
     <h1 bitTypography="h1">{{ heading }}</h1>
   }
-  <vault-items-table
-    [ciphers]="ciphers"
-    [organizationId]="organizationId"
-    [loading]="loading"
-    [rowActions]="rowActions"
-    [folders]="folders"
-    [collections]="collections"
-    [organizations]="organizations"
-    [copyPresentation]="copyPresentation"
-    [initialFilterValues]="initialFilterValues"
-    [itemAction]="itemAction"
-    (action)="action($event)"
-  >
-    <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
-      Import
-    </button>
-    <button slot="toolbar" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
-      Add
-    </button>
-  </vault-items-table>
+  <div style="display:flex; min-height: 600px;">
+    <vault-items-table
+      [ciphers]="ciphers"
+      [organizationId]="organizationId"
+      [loading]="loading"
+      [rowActions]="rowActions"
+      [folders]="folders"
+      [collections]="collections"
+      [organizations]="organizations"
+      [copyPresentation]="copyPresentation"
+      [initialFilterValues]="initialFilterValues"
+      [itemAction]="itemAction"
+    >
+      <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
+        Import
+      </button>
+      <button slot="toolbar" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+        Add
+      </button>
+    </vault-items-table>
+  </div>
 `;
 
 const baseProps: StoryProps = {
@@ -440,7 +420,7 @@ const baseProps: StoryProps = {
   collections,
   organizations,
   copyPresentation: DEFAULT_COPY_PRESENTATION,
-  itemAction: (item: CipherView) => ({ type: "editCipher", item }),
+  itemAction: () => {},
 };
 
 export default {
