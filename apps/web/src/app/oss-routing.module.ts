@@ -773,6 +773,16 @@ const routes: Routes = [
             component: SponsoredFamiliesComponent,
             data: { titleId: "sponsoredFamilies" } satisfies RouteDataProperties,
           },
+          {
+            path: "export",
+            loadComponent: () =>
+              import("./tools/vault-export/export-web.component").then(
+                (mod) => mod.ExportWebComponent,
+              ),
+            data: {
+              titleId: "exportNoun",
+            } satisfies RouteDataProperties,
+          },
         ],
       },
       {
@@ -790,13 +800,8 @@ const routes: Routes = [
           },
           {
             path: "export",
-            loadComponent: () =>
-              import("./tools/vault-export/export-web.component").then(
-                (mod) => mod.ExportWebComponent,
-              ),
-            data: {
-              titleId: "exportNoun",
-            } satisfies RouteDataProperties,
+            redirectTo: "/settings/export",
+            pathMatch: "full",
           },
           {
             path: "generator",
