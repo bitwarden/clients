@@ -186,10 +186,8 @@ function buildPolicyDialogMeta(
             },
           },
           {
-            // Only FillAssistPolicy's component injects this today. Providing it
-            // unconditionally is harmless for every other policy. Default to cloud so
-            // policies that gate UI on isCloud() render their full form in the story
-            // unless a story explicitly sets `isCloud: false`.
+            // Default to cloud so policies that gate UI on isCloud() render their
+            // full form in the story unless a story explicitly sets `isCloud: false`.
             provide: EnvironmentService,
             useValue: {
               environment$: of({ isCloud: () => args.isCloud ?? true }),

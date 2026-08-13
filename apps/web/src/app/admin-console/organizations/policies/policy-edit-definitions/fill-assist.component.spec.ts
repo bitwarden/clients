@@ -289,6 +289,20 @@ describe("FillAssistPolicyComponent", () => {
     expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
   });
 
+  it.each([["acme.example.com/rules/"], ["acme.example.com/rules//"]])(
+    "strips trailing slash(es) before saving: %s",
+    async (input) => {
+      // Stored value must be canonical; downstream URL composition adds its own
+      // separator when joining with the manifest filename.
+      fixture.componentRef.setInput("policy", new FillAssistPolicy());
+      component.data?.patchValue({ rulesUrl: input });
+
+      const request = await component.buildRequest();
+
+      expect(request.policy.data?.rulesUrl).toBe("https://acme.example.com/rules");
+    },
+  );
+
   it("saves the default URL as a canonical full URL when unchanged", async () => {
     fixture.componentRef.setInput("policy", new FillAssistPolicy());
 

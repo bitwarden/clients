@@ -56,9 +56,8 @@ function stripHttpsPrefix(value: string): string {
 /**
  * Matches a scheme attempt at the start of the input (per RFC 3986 scheme syntax, minus `.`
  * — we intentionally exclude `.` so this does not false-positive on hostnames like
- * `example.com:`). Matches `http:`, `ftp:`, `javascript:`, `mailto:`, `xmpp+im:`, etc.
- * The one theoretical false positive is URL-embedded credentials like `user:pass@…` —
- * effectively never used for static file hosting URLs.
+ * `example.com:`). We accept only https; this pattern catches every other scheme attempt
+ * so the validator can reject them.
  */
 const SCHEME_ATTEMPT = /^[a-z][a-z0-9+-]*:/i;
 
@@ -201,13 +200,15 @@ export class FillAssistPolicyComponent extends BasePolicyEditComponent {
   // Trim before that: the URL constructor tolerates surrounding whitespace,
   // so `"example.com/rules "` slips past the validator; without trimming here
   // the space percent-encodes when the client joins the URL with the manifest
-  // filename and silently 404s.
+  // filename and silently 404s. Also strip trailing slashes so the stored
+  // value is canonical and downstream URL composition stays consistent.
   protected override buildRequestData() {
     const data = this.data?.getRawValue();
     if (data == null) {
       return null;
     }
-    const rulesUrl = typeof data.rulesUrl === "string" ? data.rulesUrl.trim() : data.rulesUrl;
+    const rulesUrl =
+      typeof data.rulesUrl === "string" ? data.rulesUrl.trim().replace(/\/+$/, "") : data.rulesUrl;
     return {
       ...data,
       rulesUrl: rulesUrl ? HTTPS_PREFIX + stripHttpsPrefix(rulesUrl) : rulesUrl,
