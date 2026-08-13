@@ -13,7 +13,10 @@ export const Loader = Object.freeze({
    *  @remarks Not what LastPass/Keeper's "direct" import modes do today — those authenticate
    *  to the vendor's own API and decrypt the result client-side, in memory, without ever
    *  saving a file. That mechanism isn't represented by any `Loader` value yet; see the
-   *  `lastpasscsv`/`keeper` entries in `importers.ts`.
+   *  `lastpasscsv`/`keeper` entries in `models/import-options.ts`.
    */
   download: "download",
 });
+
+/** Mechanisms that load data into the importer. */
+export type DataLoader = (typeof Loader)[keyof typeof Loader];

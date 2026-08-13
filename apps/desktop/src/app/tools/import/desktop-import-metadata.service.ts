@@ -2,10 +2,10 @@ import { SystemServiceProvider } from "@bitwarden/common/tools/providers";
 import type { chromium_importer } from "@bitwarden/desktop-napi";
 import {
   ImportType,
+  ImportOptionData,
   DefaultImportMetadataService,
   ImportMetadataServiceAbstraction,
   DataLoader,
-  ImporterMetadata,
   Loader,
 } from "@bitwarden/importer-core";
 
@@ -33,9 +33,8 @@ export class DesktopImportMetadataService
       .filter(([id]) => id in this.importers)
       .map(([id, meta]) => {
         const loaders = meta.loaders.map(this.mapLoader);
-        const mapped: ImporterMetadata = {
+        const mapped: ImportOptionData = {
           ...this.importers[id as ImportType],
-          type: id as ImportType,
           loaders,
         };
         return [id, mapped] as const;
