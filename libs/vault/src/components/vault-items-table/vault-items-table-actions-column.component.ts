@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge";
@@ -39,8 +39,8 @@ import type { VaultItemsTableColumn } from "./vault-items-table.component";
  *
  * 1. **Built-in quick actions** — Launch and Copy, revealed on row hover/focus.
  * 2. **The client-specific overflow menu** — always visible, built from {@link rowActions}. An
- *    action the client reports as `premiumGated` for a row renders the Upgrade badge and opens
- *    the upgrade prompt instead of emitting.
+ *    action the client reports as `premiumGated` for a row renders the Upgrade badge instead of
+ *    a plain button, and the badge handles the upgrade prompt on click.
  *
  * Every control lives in `<bit-cell>`'s `end` slot. The cell's middle element is `flex-grow`,
  * so the end slot is pushed hard right — which anchors the overflow trigger to the same
@@ -66,7 +66,7 @@ import type { VaultItemsTableColumn } from "./vault-items-table.component";
     SkeletonTextComponent,
   ],
 })
-export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike, E> {
+export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike> {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
@@ -75,13 +75,10 @@ export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike, E> 
   readonly table = input.required<TableDef<C, VaultItemsTableColumn>>();
 
   /** The client's overflow menu actions, in display order. */
-  readonly rowActions = input<VaultItemsTableRowAction<C, E>[]>([]);
+  readonly rowActions = input<VaultItemsTableRowAction<C>[]>([]);
 
   /** How the built-in Copy quick action presents itself. */
   readonly copyPresentation = input<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
-
-  /** Emits the event a chosen row action built. */
-  readonly action = output<E>();
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
@@ -120,8 +117,12 @@ export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike, E> 
     " [&:has([aria-expanded='true'])]:tw-pointer-events-auto";
 
   /** The actions visible for `item`, honouring each action's optional `show` predicate. */
-  protected visibleActions(item: C): VaultItemsTableRowAction<C, E>[] {
+  protected visibleActions(item: C): VaultItemsTableRowAction<C>[] {
     return this.rowActions().filter((action) => action.show?.(item) ?? true);
+  }
+
+  protected handleAction(action: VaultItemsTableRowAction<C>, item: C): void {
+    void action.run(item);
   }
 
   /**
