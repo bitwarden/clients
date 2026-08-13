@@ -585,6 +585,30 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(menuItem("deleteItem")).toBeDefined();
     });
 
+    it("checks the master password reprompt for the delete item", async () => {
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+      openMenu(0);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "cipher-1" }),
+      );
+    });
+
+    it("delete dialog is not opened when the master password reprompt is not satisfied", async () => {
+      passwordRepromptService.passwordRepromptCheck.mockResolvedValue(false);
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+      openMenu(0);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+
     it("opens the delete dialog when the menu entry is clicked", async () => {
       setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
       await initComponent();
