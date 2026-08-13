@@ -675,6 +675,8 @@ export class LoginCommand {
       );
     }
 
+    // Currently unreachable via SSO — the server only populates PRF options through
+    // the WebAuthn-grant login — but kept as defense-in-depth in case that changes.
     if (userDecryptionOptions.webAuthnPrfOptions) {
       throw Response.error(
         "The CLI does not support SSO login for accounts using PRF passkey decryption." +
