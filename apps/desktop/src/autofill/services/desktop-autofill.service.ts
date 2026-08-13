@@ -264,7 +264,7 @@ export class DesktopAutofillService implements OnDestroy {
 
     const response = await this.fido2AuthenticatorService.makeCredential(
       this.convertRegistrationRequest(request),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
     return this.convertRegistrationResponse(request, response);
@@ -278,7 +278,7 @@ export class DesktopAutofillService implements OnDestroy {
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
 
@@ -293,11 +293,33 @@ export class DesktopAutofillService implements OnDestroy {
 
     const response = await this.fido2AuthenticatorService.getAssertion(
       this.convertAssertionRequest(request, assumeUserPresence),
-      { windowXy: request.clientWindow.position },
+      await this.nativeWindowObject(request),
       abortController,
     );
 
     return this.convertAssertionResponse(request, response);
+  }
+
+  /**
+   * Collects everything the FIDO2 user interface needs to know about the
+   * windows involved in a request: where to position our own UI, and which
+   * native windows an OS prompt can attach itself to.
+   */
+  private async nativeWindowObject(
+    request:
+      | PasskeyRegistrationRequest
+      | PasskeyAssertionRequest
+      | PasskeyAssertionWithoutUserInterfaceRequest,
+  ): Promise<NativeWindowObject> {
+    return {
+      windowXy: request.clientWindow.position,
+      clientWindowHandle: request.clientWindow.handle
+        ? new Uint8Array(request.clientWindow.handle)
+        : null,
+      appWindowHandle: await ipc.autofill.desktopAutofill.getAppWindowHandle(),
+      rpId: request.rpId,
+      requestContext: request.context,
+    };
   }
 
   async doNativeStatus(status: NativeStatus): Promise<void> {

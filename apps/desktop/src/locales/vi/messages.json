@@ -122,6 +122,48 @@
   "newSharedFolder": {
     "message": "Thư mục chia sẻ mới"
   },
+  "searchSharedFolder": {
+    "message": "Tìm kiếm thư mục chia sẻ"
+  },
+  "searchMyFolder": {
+    "message": "Tìm kiếm thư mục của tôi"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Xem thư mục chia sẻ - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Xóa thư mục chia sẻ"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Xóa $COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Thư mục chia sẻ này sẽ bị xóa vĩnh viễn. Các mục trong thư mục sẽ không bị xóa."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Các thư mục chia sẻ này sẽ bị xóa vĩnh viễn. Các mục trong các thư mục sẽ không bị xóa."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Các mục và thư mục chia sẻ đã chọn sẽ bị xóa vĩnh viễn."
+  },
+  "sharedFolderDeleted": {
+    "message": "Đã xóa thư mục chia sẻ"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Đã xóa các thư mục chia sẻ"
+  },
   "share": {
     "message": "Chia sẻ"
   },
@@ -477,6 +519,15 @@
   "launch": {
     "message": "Khởi chạy"
   },
+  "launchWebsiteForName": {
+    "message": "Khởi chạy trang web cho $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
   "copyValue": {
     "message": "Sao chép giá trị",
     "description": "Copy value to clipboard"
@@ -494,10 +545,10 @@
     }
   },
   "minimizeOnCopyToClipboard": {
-    "message": "Thu nhỏ sau khi sao chép vào bảng nhớ tạm"
+    "message": "Thu nhỏ sau khi sao chép vào bộ nhớ tạm"
   },
   "minimizeOnCopyToClipboardDesc": {
-    "message": "Thu nhỏ ứng dụng sau khi sao chép thông tin của một mục vào bảng nhớ tạm."
+    "message": "Thu nhỏ ứng dụng sau khi sao chép thông tin của một mục vào bộ nhớ tạm."
   },
   "toggleVisibility": {
     "message": "Bật/tắt khả năng hiển thị"
@@ -1954,15 +2005,31 @@
     "message": "Bảo mật"
   },
   "clearClipboard": {
-    "message": "Xóa bảng nhớ tạm",
+    "message": "Xóa bộ nhớ tạm",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
-    "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
+    "message": "Tự động xóa mọi thứ đã sao chép khỏi bộ nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
     "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Hiển thị các thao tác sao chép nhanh trong kho lưu trữ"
+  },
+  "copyNoteTitle": {
+    "message": "Sao chép ghi chú - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Không có chi tiết để sao chép"
   },
   "runInBackground": {
     "message": "Giữ Bitwarden chạy trong nền"
@@ -2059,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Sao chép mã xác thực"
+  },
+  "noUsername": {
+    "message": "Không có tên đăng nhập"
+  },
+  "noPassword": {
+    "message": "Không có mật khẩu"
+  },
+  "noVerificationCode": {
+    "message": "Không có mã xác minh"
+  },
+  "noNumber": {
+    "message": "Không có số"
+  },
+  "noSecurityCode": {
+    "message": "Không có mã bảo mật"
+  },
+  "copyDetailsTitle": {
+    "message": "Sao chép chi tiết cho $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Sao chép tên đăng nhập"
@@ -3162,7 +3254,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
-    "message": "Sao chép liên kết Send vào bảng nhớ tạm",
+    "message": "Sao chép liên kết Send vào bộ nhớ tạm",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkOnSave": {
@@ -3447,6 +3539,9 @@
   },
   "options": {
     "message": "Tùy chọn"
+  },
+  "moreOptions": {
+    "message": "Tùy chọn khác"
   },
   "sessionTimeout": {
     "message": "Phiên đăng nhập của bạn đã hết hạn. Vui lòng quay trở lại và thử đăng nhập lại."
@@ -4473,6 +4568,79 @@
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
   },
+  "noFileSelected": {
+    "message": "Chưa chọn tệp nào"
+  },
+  "fileChosen": {
+    "message": "Đã chọn tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Đã thêm tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Đã thêm $COUNT$ tệp: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Đã xóa tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Đã tải lên 1 tệp"
+  },
+  "filesUploaded": {
+    "message": "Đã tải lên $COUNT$ tệp",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Các tệp đã tải lên"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nhấp để tải lên hoặc kéo và thả"
+  },
+  "chooseFiles": {
+    "message": "Chọn tệp"
+  },
+  "maxFileSizeParam": {
+    "message": "Kích thước tệp tối đa: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "hoặc sao chép/dán nội dung của tập tin nhập"
   },
@@ -5024,7 +5192,7 @@
     "message": "Loại khóa SSH không được hỗ trợ"
   },
   "importSshKeyFromClipboard": {
-    "message": "Nhập khóa từ bảng nhớ tạm"
+    "message": "Nhập khóa từ bộ nhớ tạm"
   },
   "sshKeyImported": {
     "message": "Khóa SSH được nhập thành công"
@@ -5146,6 +5314,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Bạn không thể xóa các thư mục chia sẻ có quyền Chỉ xem: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Di chuyển"
   },
@@ -5244,8 +5421,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Thêm 3 nút sao chép nhanh bên cạnh các mục để sao chép tên đăng nhập, mật khẩu hoặc mã xác minh vào bộ nhớ tạm."
+  },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
+  },
+  "addToSharedFolder": {
+    "message": "Thêm vào thư mục chia sẻ"
+  },
+  "transferAndAdd": {
+    "message": "Chuyển và thêm"
+  },
+  "itemLower": {
+    "message": "mục"
+  },
+  "itemsLower": {
+    "message": "các mục"
   },
   "assignToTheseCollections": {
     "message": "Gán vào các bộ sưu tập này"
@@ -5253,8 +5445,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem mục này."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy mục này."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem các mục này."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy các mục này."
   },
   "noCollectionsAssigned": {
     "message": "Chưa có bộ sưu tập nào được gán"
@@ -5314,8 +5512,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5549,32 @@
   "successfullyAssignedCollections": {
     "message": "Đã gán vào bộ sưu tập thành công"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Đã thêm thành công các thư mục chia sẻ"
+  },
   "itemMovedToCollection": {
     "message": "Mục đã được di chuyển vào bộ sưu tập"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Đã thêm mục vào thư mục chia sẻ"
   },
   "itemMovedToCollections": {
     "message": "Mục đã được di chuyển vào các bộ sưu tập"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Đã thêm mục vào các thư mục chia sẻ"
+  },
   "itemsMovedToCollection": {
     "message": "Các mục đã được di chuyển vào bộ sưu tập"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Đã thêm các mục vào thư mục chia sẻ"
+  },
   "itemsMovedToCollections": {
     "message": "Các mục đã được di chuyển vào các bộ sưu tập"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Đã thêm các mục vào các thư mục chia sẻ"
   },
   "itemAssignedToCollections": {
     "message": "Mục đã được gán cho các bộ sưu tập"

@@ -7,7 +7,6 @@ publish = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 autofill_provider = { path = "../autofill_provider" }
-base64 = { workspace = true }
 desktop_core = { path = "../core" }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
