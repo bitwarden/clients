@@ -18,7 +18,6 @@ import { ariaDisableElement } from "../utils";
 
 export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
 
-/** Re-exported from @bitwarden/common so consumers of @bitwarden/components see no breaking change. */
 export const AvatarDefaultColors = avatarDefaultColors;
 export type AvatarColor = (typeof AvatarDefaultColors)[number];
 
