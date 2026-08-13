@@ -17,7 +17,13 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule, PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
+import {
+  ChipActionComponent,
+  IconTileComponent,
+  PopoverModule,
+  SideNavService,
+  SvgModule,
+} from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -45,7 +51,8 @@ import { WebLayoutModule } from "./web-layout.module";
     I18nPipe,
     WebLayoutModule,
     SvgModule,
-    BadgeModule,
+    ChipActionComponent,
+    IconTileComponent,
     BillingFreeFamiliesNavItemComponent,
     PopoverModule,
     CoachmarkComponent,
@@ -159,15 +166,8 @@ export class UserLayoutComponent implements OnInit {
     await this.selectItemType("archive");
   }
 
-  private vaultIdParam(vault: VaultNavItemViewModel): string | null {
-    switch (vault.type) {
-      case VaultNavItemType.Personal:
-        return Unassigned;
-      case VaultNavItemType.AllItems:
-        return null;
-      default:
-        return vault.id;
-    }
+  private vaultIdParam(vault: VaultNavItemViewModel): string {
+    return vault.type === VaultNavItemType.Personal ? Unassigned : vault.id;
   }
 
   async ngOnInit() {
