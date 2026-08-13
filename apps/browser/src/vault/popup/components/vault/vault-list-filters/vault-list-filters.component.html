@@ -10,7 +10,7 @@
             fullWidth
             formControlName="organization"
             placeholderIcon="bwi-vault"
-            [placeholderText]="'vault' | i18n"
+            [placeholderText]="'vault' | vfo1I18n: 'vaults'"
             [options]="organizations"
           >
           </bit-chip-filter>
@@ -22,7 +22,7 @@
             fullWidth
             formControlName="collection"
             [placeholderIcon]="'bwi-collection-shared' | vfo1Icon"
-            [placeholderText]="'collection' | i18n"
+            [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
             [options]="collections"
           >
           </bit-chip-filter>
@@ -34,7 +34,7 @@
             fullWidth
             placeholderIcon="bwi-folder"
             formControlName="folder"
-            [placeholderText]="'folder' | i18n"
+            [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
             [options]="folders"
           >
           </bit-chip-filter>

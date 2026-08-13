@@ -26,11 +26,13 @@ import { SendText } from "./send-text";
 const SEND_TYPE_TO_SDK: Record<SendType, SdkSendType> = {
   [SendType.Text]: SdkSendType.Text,
   [SendType.File]: SdkSendType.File,
+  [SendType.Item]: SdkSendType.Item,
 };
 
 const SEND_TYPE_FROM_SDK: Record<SdkSendType, SendType> = {
   [SdkSendType.Text]: SendType.Text,
   [SdkSendType.File]: SendType.File,
+  [SdkSendType.Item]: SendType.Item,
 };
 
 const AUTH_TYPE_TO_SDK: Record<AuthType, SdkAuthType> = {
@@ -117,10 +119,11 @@ export class Send extends Domain {
     const model = new SendView(this);
     const keyService = Utils.getContainerService().getKeyService();
     const encryptService = Utils.getContainerService().getEncryptService();
+    const legacyCompatKeyService = Utils.getContainerService().getLegacyCompatKeyService();
     const sendKeyEncryptionKey = await firstValueFrom(keyService.userKey$(userId));
     // model.key is a seed used to derive a key, not a SymmetricCryptoKey
     model.key = await encryptService.decryptBytes(this.key, sendKeyEncryptionKey);
-    model.cryptoKey = await keyService.makeSendKey(model.key);
+    model.cryptoKey = await legacyCompatKeyService.makeSendKey(model.key);
     model.name =
       this.name != null ? await encryptService.decryptString(this.name, model.cryptoKey) : null;
     model.notes =
