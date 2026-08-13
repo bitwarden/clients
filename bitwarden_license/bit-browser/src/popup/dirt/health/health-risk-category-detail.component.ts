@@ -16,14 +16,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
-  NoItemsModule,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   TypographyModule,
   ButtonModule,
   IconButtonModule,
-  SvgModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -47,8 +45,6 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     IconButtonModule,
     AppVaultIconComponent,
     I18nPipe,
-    SvgModule,
-    NoItemsModule,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
