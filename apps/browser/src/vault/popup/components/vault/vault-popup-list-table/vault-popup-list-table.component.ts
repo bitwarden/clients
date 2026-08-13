@@ -1,11 +1,13 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   OnDestroy,
@@ -125,6 +127,7 @@ export class VaultPopupListTableComponent implements OnDestroy {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly scrollLayout = inject(ScrollLayoutService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   protected readonly i18nService = inject(I18nService);
   private readonly window = inject<Window>(WINDOW);
 
@@ -287,6 +290,37 @@ export class VaultPopupListTableComponent implements OnDestroy {
   protected readonly autofillSectionKey = computed(() =>
     this.currentUriIsBlocked() ? "itemSuggestions" : "autofillSuggestions",
   );
+
+  /**
+   * The empty-slot title key, or `null` while rows are rendering. Mirrors the template's empty
+   * slot, which the table stamps whenever it has no rows to show.
+   */
+  private readonly emptyStateKey = computed(() => {
+    if (this.loading() || this.rows().length > 0) {
+      return null;
+    }
+
+    if (this.showDeactivatedOrg()) {
+      return "organizationIsDeactivated";
+    }
+
+    return this.hasSearchText() ? "noItemsMatchSearch" : "nothingToShow";
+  });
+
+  /**
+   * Announces the empty state as it appears.
+   *
+   * The message can't carry `role="status"` itself: the table stamps the empty slot with a
+   * structural `@if`, so the live region and its content would enter the DOM in the same pass and
+   * screen readers generally skip that. Announcing imperatively sidesteps the timing entirely.
+   */
+  private readonly _announceEmptyState = effect(() => {
+    const key = this.emptyStateKey();
+
+    if (key !== null) {
+      void this.liveAnnouncer.announce(this.i18nService.t(key), "polite");
+    }
+  });
 
   protected readonly favoritesOpenState = computed(
     () => this.vaultPopupSectionService.getOpenDisplayStateForSection("favorites")() ?? true,

@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ElementRef } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
 import { FormControl, FormGroup } from "@angular/forms";
@@ -89,6 +90,7 @@ describe("VaultPopupListTableComponent", () => {
   const searchText$ = new BehaviorSubject<string>("");
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
   const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
+  const liveAnnouncer = mock<LiveAnnouncer>();
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
   const configService = {
@@ -170,6 +172,7 @@ describe("VaultPopupListTableComponent", () => {
     collections$.next([]);
     folders$.next([]);
     clickItemsToAutofillVaultView$.next(true);
+    liveAnnouncer.announce.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
@@ -183,6 +186,7 @@ describe("VaultPopupListTableComponent", () => {
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersService },
         { provide: CompactModeService, useValue: compactModeService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
+        { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "test-user-id" }) } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
@@ -294,6 +298,48 @@ describe("VaultPopupListTableComponent", () => {
 
         expect(component["rows"]()).toHaveLength(1);
         expect(fixture.nativeElement.textContent).not.toContain("organizationIsDeactivated");
+      });
+
+      it("announces the notice, which the empty slot can't carry a live region for", () => {
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith("organizationIsDeactivated", "polite");
+      });
+    });
+
+    /**
+     * The table stamps the empty slot with a structural `@if`, so a live region inside it would
+     * enter the DOM alongside its content and go unannounced. These cover the imperative
+     * announcement that replaces it.
+     */
+    describe("announcements", () => {
+      it("announces the search-specific copy when a search matches nothing", () => {
+        hasSearchText$.next(true);
+        filteredCiphers$.next([]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith("noItemsMatchSearch", "polite");
+      });
+
+      it("announces the generic copy when there is nothing to show", () => {
+        hasSearchText$.next(false);
+        filteredCiphers$.next([]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith("nothingToShow", "polite");
+      });
+
+      it("stays silent while rows are rendering", () => {
+        filteredCiphers$.next([makeCipher({})]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+      });
+
+      it("stays silent while loading, so the empty copy isn't announced before rows arrive", () => {
+        loading$.next(true);
+        filteredCiphers$.next([]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).not.toHaveBeenCalled();
       });
     });
   });
