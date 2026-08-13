@@ -4,6 +4,7 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   DestroyRef,
   inject,
   NgZone,
@@ -117,6 +118,7 @@ import {
   VaultBatchActionComponent,
   VaultBatchBarService,
   VaultOrganizationUserNotificationsComponent,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -196,13 +198,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private vaultItemTransferService: VaultItemsTransferService = inject(VaultItemsTransferService);
   private platformUtilsService = inject(PlatformUtilsService);
   private totpService = inject(TotpService);
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
   private vaultBatchBarService = inject(VaultBatchBarService, { optional: true });
   private activeDrawerRef?: DialogRef<VaultItemDialogResult>;
 
-  protected activeFilter: VaultFilter = new VaultFilter();
+  protected readonly activeFilter = signal<VaultFilter>(new VaultFilter());
   protected cipherRepromptId: string | null = null;
   protected showingModal = false;
 
@@ -287,7 +290,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected allOrganizations: Organization[] = [];
   protected allCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
-  protected searchPlaceholderText: string;
+
+  protected readonly searchPlaceholderText = computed(() =>
+    this.i18nService.t(this.calculateSearchBarLocalizationString(this.activeFilter())),
+  );
   protected ciphers: C[] = [];
   protected isEmpty: boolean;
   protected currentSearchText$: Observable<string> = this.route.queryParams.pipe(
@@ -471,10 +477,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     this.routedVaultFilterBridgeService.activeFilter$
       .pipe(takeUntil(this.destroy$))
       .subscribe((activeFilter) => {
-        this.activeFilter = activeFilter;
-        this.searchPlaceholderText = this.i18nService.t(
-          this.calculateSearchBarLocalizationString(activeFilter),
-        );
+        this.activeFilter.set(activeFilter);
       });
 
     const filter$ = this.routedVaultFilterService.filter$;
@@ -786,24 +789,25 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async addCipher(type?: CipherType) {
-    const cipherType = type ?? this.activeFilter.cipherType;
+    const activeFilter = this.activeFilter();
+    const cipherType = type ?? activeFilter.cipherType;
 
     let organizationId: OrganizationId | null = null;
     let collectionIds: CollectionId[] = [];
     let folderId: string | undefined;
 
-    if (this.activeFilter.collectionId != null) {
-      const collection = this.allCollections.find((c) => c.id === this.activeFilter.collectionId);
+    if (activeFilter.collectionId != null) {
+      const collection = this.allCollections.find((c) => c.id === activeFilter.collectionId);
       if (collection) {
         organizationId = collection.organizationId as OrganizationId;
-        collectionIds = [this.activeFilter.collectionId as CollectionId];
+        collectionIds = [activeFilter.collectionId as CollectionId];
       }
-    } else if (this.activeFilter.organizationId && this.activeFilter.organizationId !== "MyVault") {
-      organizationId = this.activeFilter.organizationId as OrganizationId;
+    } else if (activeFilter.organizationId && activeFilter.organizationId !== "MyVault") {
+      organizationId = activeFilter.organizationId as OrganizationId;
     }
 
-    if (this.activeFilter.folderId && this.activeFilter.selectedFolderNode) {
-      folderId = this.activeFilter.folderId;
+    if (activeFilter.folderId && activeFilter.selectedFolderNode) {
+      folderId = activeFilter.folderId;
     }
 
     const organization = organizationId
@@ -964,10 +968,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       return "searchType";
     }
     if (vaultFilter.folderId != null && vaultFilter.folderId !== "none") {
-      return "searchFolder";
+      return this.vfo1TerminologyService.enabled() ? "searchMyFolder" : "searchFolder";
     }
     if (vaultFilter.collectionId != null) {
-      return "searchCollection";
+      return this.vfo1TerminologyService.enabled() ? "searchSharedFolder" : "searchCollection";
     }
     if (vaultFilter.organizationId != null) {
       if (vaultFilter.isMyVaultSelected) {

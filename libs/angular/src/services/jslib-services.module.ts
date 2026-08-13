@@ -198,14 +198,6 @@ import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
-import {
-  DefaultKeyGenerationService,
-  KeyGenerationService,
-} from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
-import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
@@ -382,13 +374,22 @@ import {
   DefaultBiometricStateService,
   DefaultKdfConfigService,
   DefaultKeyService,
-  DefaultUserAsymmetricKeysRegenerationApiService,
   DefaultUserAsymmetricKeysRegenerationService,
   KdfConfigService,
   KeyService,
-  UserAsymmetricKeysRegenerationApiService,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService as CryptoFunctionServiceAbstraction,
+  DefaultKeyGenerationService,
+  DefaultLegacyCompatKeyService,
+  EncryptService,
+  EncryptServiceImplementation,
+  KeyGenerationService,
+  LegacyCompatKeyService,
+  WebCryptoFunctionService,
+} from "@bitwarden/legacy-crypto";
 import {
   DefaultOrganizationInviteLinkApiService,
   DefaultOrganizationInviteLinkService,
@@ -650,6 +651,7 @@ const safeProviders: SafeProvider[] = [
       UnlockService,
       LoginStrategyCacheService,
       LoginStrategySessionTimeoutService,
+      LegacyCompatKeyService,
     ],
   }),
   safeProvider({
@@ -688,6 +690,7 @@ const safeProviders: SafeProvider[] = [
     provide: CipherServiceAbstraction,
     useFactory: (
       keyService: KeyService,
+      legacyCompatKeyService: LegacyCompatKeyService,
       domainSettingsService: DomainSettingsService,
       apiService: ApiServiceAbstraction,
       i18nService: I18nServiceAbstraction,
@@ -704,6 +707,7 @@ const safeProviders: SafeProvider[] = [
     ) =>
       new CipherService(
         keyService,
+        legacyCompatKeyService,
         domainSettingsService,
         apiService,
         i18nService,
@@ -720,6 +724,7 @@ const safeProviders: SafeProvider[] = [
       ),
     deps: [
       KeyService,
+      LegacyCompatKeyService,
       DomainSettingsService,
       ApiServiceAbstraction,
       I18nServiceAbstraction,
@@ -861,17 +866,27 @@ const safeProviders: SafeProvider[] = [
     provide: KeyService,
     useClass: DefaultKeyService,
     deps: [
-      InternalMasterPasswordServiceAbstraction,
-      KeyGenerationService,
       CryptoFunctionServiceAbstraction,
       EncryptService,
       PlatformUtilsServiceAbstraction,
       LogService,
       StateServiceAbstraction,
-      AccountServiceAbstraction,
       StateProvider,
-      KdfConfigService,
       AccountCryptographicStateService,
+    ],
+  }),
+  safeProvider({
+    provide: LegacyCompatKeyService,
+    useClass: DefaultLegacyCompatKeyService,
+    deps: [
+      InternalMasterPasswordServiceAbstraction,
+      KeyGenerationService,
+      CryptoFunctionServiceAbstraction,
+      EncryptService,
+      LogService,
+      AccountServiceAbstraction,
+      KdfConfigService,
+      KeyService,
     ],
   }),
   safeProvider({
@@ -1314,7 +1329,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MasterPasswordUnlockService,
     useClass: DefaultMasterPasswordUnlockService,
-    deps: [InternalMasterPasswordServiceAbstraction, KeyService, LogService],
+    deps: [InternalMasterPasswordServiceAbstraction, LegacyCompatKeyService, LogService],
   }),
   safeProvider({
     provide: KeyConnectorServiceAbstraction,
@@ -1323,6 +1338,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyService,
+      LegacyCompatKeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
       LogService,
@@ -1539,6 +1555,7 @@ const safeProviders: SafeProvider[] = [
       AppIdServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyService,
+      LegacyCompatKeyService,
       EncryptService,
       ApiServiceAbstraction,
       StateProvider,
@@ -1628,7 +1645,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       ApiServiceAbstraction,
       BillingApiServiceAbstraction,
-      KeyService,
+      LegacyCompatKeyService,
       EncryptService,
       I18nServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -1751,14 +1768,17 @@ const safeProviders: SafeProvider[] = [
       ApiServiceAbstraction,
       LogoutService,
       KeyService,
+      LegacyCompatKeyService,
       EncryptService,
       PolicyApiServiceAbstraction,
       InternalPolicyService,
       LogService,
       OrganizationApiServiceAbstraction,
       OrganizationUserApiService,
+      OrganizationInviteLinkApiService,
       I18nServiceAbstraction,
       GlobalStateProvider,
+      SdkService,
       ConfigService,
       DeepLinkRedirectService,
     ],
@@ -1772,6 +1792,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyService,
+      LegacyCompatKeyService,
       MasterPasswordApiServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -1795,7 +1816,7 @@ const safeProviders: SafeProvider[] = [
     provide: RegistrationFinishServiceAbstraction,
     useClass: DefaultRegistrationFinishService,
     deps: [
-      KeyService,
+      LegacyCompatKeyService,
       AccountApiServiceAbstraction,
       MasterPasswordServiceAbstraction,
       ConfigService,
@@ -1884,23 +1905,9 @@ const safeProviders: SafeProvider[] = [
     deps: [MessagingServiceAbstraction],
   }),
   safeProvider({
-    provide: UserAsymmetricKeysRegenerationApiService,
-    useClass: DefaultUserAsymmetricKeysRegenerationApiService,
-    deps: [ApiServiceAbstraction],
-  }),
-  safeProvider({
     provide: UserAsymmetricKeysRegenerationService,
     useClass: DefaultUserAsymmetricKeysRegenerationService,
-    deps: [
-      KeyService,
-      CipherServiceAbstraction,
-      UserAsymmetricKeysRegenerationApiService,
-      LogService,
-      SdkService,
-      ApiServiceAbstraction,
-      ConfigService,
-      AccountCryptographicStateService,
-    ],
+    deps: [KeyService, LogService, SdkService, ConfigService],
   }),
   safeProvider({
     provide: LoginSuccessHandlerService,
@@ -2054,7 +2061,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: RotateableKeySetService,
     useClass: DefaultRotateableKeySetService,
-    deps: [KeyService, EncryptService],
+    deps: [LegacyCompatKeyService, EncryptService],
   }),
   safeProvider({
     provide: NewDeviceVerificationComponentService,

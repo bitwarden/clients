@@ -315,6 +315,10 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     }
     const fileBytes =
       file instanceof ArrayBuffer ? new Uint8Array(file) : new Uint8Array(await file.arrayBuffer());
+    // A real `File` (web/browser/desktop) carries its own name; the CLI hands over plaintext
+    // bytes as an `ArrayBuffer` instead and sets the name on the view itself beforehand — the
+    // same split the legacy path's `SendService.encrypt` makes.
+    const fileName = file instanceof ArrayBuffer ? view.file?.fileName : file.name;
 
     return await firstValueFrom(
       this.sdkService.userClient$(userId).pipe(
@@ -325,7 +329,7 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
           using ref = sdk.take();
           const sendsClient = ref.value.sends();
           const created = await sendsClient.create_file_send(
-            this.buildSendAddRequest(view, plaintextPassword),
+            this.buildSendAddRequest(view, plaintextPassword, fileName),
             fileBytes,
           );
 
@@ -413,11 +417,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return new Send(data);
   }
 
-  private buildSendAddRequest(sendView: SendView, plaintextPassword?: string): SendAddRequest {
+  private buildSendAddRequest(
+    sendView: SendView,
+    plaintextPassword?: string,
+    fileName?: string,
+  ): SendAddRequest {
     return {
       name: sendView.name,
       notes: sendView.notes ?? undefined,
-      viewType: this.buildSendViewType(sendView),
+      viewType: this.buildSendViewType(sendView, fileName),
       maxAccessCount: sendView.maxAccessCount ?? undefined,
       disabled: sendView.disabled,
       hideEmail: sendView.hideEmail,
@@ -470,17 +478,24 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return sendView.deletionDate;
   }
 
-  private buildSendViewType(sendView: SendView): SendViewType {
+  /**
+   * @param fileName Overrides `sendView.file.fileName` for a file create. The Send form no
+   *   longer populates `sendView.file` for a new file (`FileUploadComponent` only ever hands
+   *   back a real `File`, not view metadata) — {@link createFileSend} derives the name from that
+   *   `File` directly, the same way the legacy path's `SendService.encrypt` does.
+   */
+  private buildSendViewType(sendView: SendView, fileName?: string): SendViewType {
     if (sendView.type === SendType.File) {
-      if (sendView.file == null || !sendView.file.fileName) {
+      const resolvedFileName = fileName ?? sendView.file?.fileName;
+      if (!resolvedFileName) {
         throw new Error("File send is missing a file name.");
       }
       return {
         File: {
-          id: sendView.file.id ?? undefined,
-          fileName: sendView.file.fileName,
-          size: sendView.file.size?.toString() ?? undefined,
-          sizeName: sendView.file.sizeName ?? undefined,
+          id: sendView.file?.id ?? undefined,
+          fileName: resolvedFileName,
+          size: sendView.file?.size?.toString() ?? undefined,
+          sizeName: sendView.file?.sizeName ?? undefined,
         },
       };
     }

@@ -487,6 +487,35 @@ describe("SshAgentService", () => {
 
     expect(mockStop).toHaveBeenCalled();
   });
+
+  it("when stopping the agent fails, the pipeline still acts on later state changes", async () => {
+    mockIsLoaded.mockResolvedValue(true);
+    mockStop.mockImplementation(() => rejectLater("No handler registered for 'sshagent.stop'"));
+
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    mockStop.mockClear();
+
+    enabledSubject.next(false);
+    await flush();
+    await flush();
+
+    expect(mockStop).toHaveBeenCalledTimes(1);
+
+    mockReplace.mockClear();
+
+    // Re-enabling must still push keys. Without containment the failed stop reaches the terminal
+    // handler, so the subscription is gone and the agent never repopulates.
+    enabledSubject.next(true);
+    await flush();
+    await flush();
+
+    expect(mockReplace).toHaveBeenCalledWith([{ name: "Key", privateKey: "pem", cipherId: "c1" }]);
+  });
 });
 
 describe("SshAgentService – sign request authorization", () => {

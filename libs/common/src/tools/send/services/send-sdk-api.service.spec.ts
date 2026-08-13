@@ -310,12 +310,55 @@ describe("SendSdkApiService", () => {
 
       it("reads the plaintext bytes out of a `File`", async () => {
         const file = {
+          name: "notes.txt",
           arrayBuffer: jest.fn().mockResolvedValue(plaintextBytes.buffer),
         } as unknown as File;
 
         await service.saveView(fileView(), file);
 
         expect(sendsClient.create_file_send.mock.calls[0][1]).toEqual(plaintextBytes);
+      });
+
+      // Regression: the Send form no longer populates `view.file` for a new file — a real `File`
+      // is the only source of the name in that case, the same way legacy's `SendService.encrypt`
+      // reads `file.name` directly instead of trusting the view.
+      it("derives the file name from a real `File` even when the view has no file metadata", async () => {
+        const view = fileView({ name: "plaintext-name" });
+        view.file = undefined;
+        const file = {
+          name: "from-the-real-file.txt",
+          arrayBuffer: jest.fn().mockResolvedValue(plaintextBytes.buffer),
+        } as unknown as File;
+
+        await service.saveView(view, file);
+
+        const [request] = sendsClient.create_file_send.mock.calls[0];
+        expect((request as SendAddRequest).viewType).toEqual({
+          File: expect.objectContaining({ fileName: "from-the-real-file.txt" }),
+        });
+      });
+
+      // The CLI hands over plaintext bytes as an `ArrayBuffer` and has no `File` to read a name
+      // off, so it sets `view.file.fileName` itself beforehand — that must still work.
+      it("falls back to the view's file name for an `ArrayBuffer`", async () => {
+        const view = fileView({ name: "plaintext-name" });
+        view.file = Object.assign(new SendFileView(), { fileName: "from-the-view.txt" });
+
+        await service.saveView(view, plaintextBytes.buffer);
+
+        const [request] = sendsClient.create_file_send.mock.calls[0];
+        expect((request as SendAddRequest).viewType).toEqual({
+          File: expect.objectContaining({ fileName: "from-the-view.txt" }),
+        });
+      });
+
+      it("rejects a create with no file name available from either source", async () => {
+        const view = fileView();
+        view.file = undefined;
+
+        await expect(service.saveView(view, plaintextBytes.buffer)).rejects.toThrow(
+          "File send is missing a file name.",
+        );
       });
 
       it("uploads the ciphertext and metadata the create step returned", async () => {
