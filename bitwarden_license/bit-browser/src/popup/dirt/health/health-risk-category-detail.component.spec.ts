@@ -345,6 +345,24 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
   });
 
+  describe("with an invalid category", () => {
+    it("routes no value provided back to the health overview", async () => {
+      params$.next({ category: undefined });
+
+      await initComponent();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tabs/health"]);
+    });
+
+    it("routes invalid value back to the health overview", async () => {
+      params$.next({ category: "invalid" });
+
+      await initComponent();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tabs/health"]);
+    });
+  });
+
   describe("item list", () => {
     it("renders a row per item", async () => {
       setReport(RiskCategory.Exposed, [

@@ -56,7 +56,9 @@ export class HealthRiskCategoryDetailComponent {
   readonly platformUtilsService = inject(PlatformUtilsService);
   readonly vaultHealthReportService = inject(VaultHealthReportService);
 
-  readonly category = toSignal(this.route.params.pipe(map((params) => params["category"])));
+  readonly category = toSignal<RiskCategory>(
+    this.route.params.pipe(map((params) => params["category"])),
+  );
   readonly report = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
@@ -67,8 +69,12 @@ export class HealthRiskCategoryDetailComponent {
 
   constructor() {
     effect(() => {
-      // route back to overview when report isn't generated yet
-      if (this.report() == null) {
+      // route back to overview when report isn't generated yet or category is invalid
+      if (
+        this.report() == null ||
+        this.category() == undefined ||
+        !Object.values(RiskCategory).includes(this.category()!)
+      ) {
         void this.router.navigate([HEALTH_OVERVIEW_ROUTE]);
       }
     });
