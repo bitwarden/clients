@@ -20,6 +20,7 @@
   <bit-column>
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.name; let row">
+      <!-- CL-1297 will refactor this to a bit-item, currently the focus state does not cover the full row -->
       <button
         type="button"
         (click)="onCipherSelect(row)"
@@ -28,7 +29,7 @@
           row.actions.titleKey
             | i18n: row.cipher.name : CipherViewLikeUtils.getLogin(row.cipher)?.username
         "
-        class="tw-flex tw-items-center tw-gap-2 tw-w-full tw-min-w-0 tw-p-0 tw-bg-transparent tw-border-0 tw-text-left tw-text-main tw-cursor-pointer focus-visible:tw-outline-none after:tw-content-[''] after:tw-absolute after:tw-inset-0 after:tw-rounded-lg focus-visible:after:tw-ring-2 focus-visible:after:tw-ring-inset focus-visible:after:tw-ring-primary-600"
+        class="tw-flex tw-items-center tw-gap-2 tw-w-full tw-min-w-0 tw-p-0 tw-bg-transparent tw-border-0 tw-text-left tw-text-main tw-cursor-pointer tw-rounded-lg focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
       >
         <div class="tw-justify-start tw-w-7 tw-flex tw-shrink-0">
           <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
