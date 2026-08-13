@@ -119,6 +119,7 @@ export enum FeatureFlag {
   WebAuthnRelatedOrigins = "pm-30529-webauthn-related-origins",
   PM34410AttachmentUploadProgress = "pm-34410-attachment-upload-progress",
   ManagedDeviceFramework = "pm-27719-managed-device-framework",
+  PM30935_FlightRecorderTsLogging = "pm-30935-flight-recorder-ts-logging",
 
   /* Secrets Manager */
   SecretVersioning = "sm-1587-secrets-versioning",
@@ -247,6 +248,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.WebAuthnRelatedOrigins]: FALSE,
   [FeatureFlag.PM34410AttachmentUploadProgress]: FALSE,
   [FeatureFlag.ManagedDeviceFramework]: FALSE,
+  [FeatureFlag.PM30935_FlightRecorderTsLogging]: FALSE,
 
   /* Secrets Manager */
   [FeatureFlag.SecretVersioning]: FALSE,

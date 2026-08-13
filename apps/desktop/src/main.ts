@@ -11,6 +11,7 @@ import { SsoUrlService } from "@bitwarden/auth/common";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { DefaultActiveUserAccessor } from "@bitwarden/common/auth/services/default-active-user.accessor";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
@@ -29,6 +30,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultBiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultActiveUserStateProvider,
   DefaultDerivedStateProvider,
@@ -143,9 +145,26 @@ export class Main {
       });
     }
 
-    this.logService = new ElectronLogMainService(null, app.getPath("userData"));
-
     const electronStoreBackend = new ElectronStoreBackend(app.getPath("userData"));
+
+    // Main has no ConfigService, so it reads the cached server configs straight from the store.
+    let flightRecorderEnabled = false;
+    try {
+      const configs = (electronStoreBackend.read().global_config_byServer ?? {}) as Record<
+        string,
+        { featureStates?: Record<string, unknown> }
+      >;
+      flightRecorderEnabled = Object.values(configs).some(
+        (config) => config?.featureStates?.[FeatureFlag.PM30935_FlightRecorderTsLogging] === true,
+      );
+    } catch {
+      // Ignore errors
+    }
+    const flightRecorder = new FlightRecorderLogRecorder(SdkLoadService.Ready);
+    flightRecorder.setEnabled(flightRecorderEnabled);
+
+    this.logService = new ElectronLogMainService(null, app.getPath("userData"), flightRecorder);
+
     this.storageService = new ElectronStorageService(new CachedBackend(electronStoreBackend));
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new SerializedMemoryStorageService();

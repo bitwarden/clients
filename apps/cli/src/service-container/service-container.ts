@@ -209,6 +209,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 // eslint-disable-next-line no-restricted-imports
 import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
@@ -419,6 +420,7 @@ export class ServiceContainer {
     this.logService = new ConsoleLogService(
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_DEBUG !== "true" && level <= LogLevelType.Info,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready),
     );
     this.cryptoFunctionService = new NodeCryptoFunctionService();
     this.encryptService = new EncryptServiceImplementation(

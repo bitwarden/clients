@@ -8,6 +8,15 @@ export abstract class LogService {
   abstract write(level: LogLevel, message?: any, ...optionalParams: any[]): void;
 
   /**
+   * Decides whether the log recorder records, once the feature flag gating it
+   * resolves. The first call wins, so the decision holds for the life of the
+   * process. A no-op for services with no recorder wired up.
+   */
+  enableRecorder(enabled: boolean): void {
+    // Nothing to record into by default.
+  }
+
+  /**
    * Helper wrapper around `performance.measure` to log a measurement. Should also debug-log the data.
    *
    * @param start Start time of the measurement.

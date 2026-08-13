@@ -298,6 +298,7 @@ import {
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
+import { FlightRecorderLogRecorder } from "@bitwarden/logging";
 import {
   DefaultManagedSettingsService,
   DevManagedSettingsService,
@@ -631,7 +632,11 @@ export default class MainBackground {
     };
 
     const isDev = process.env.ENV === "development";
-    this.logService = new ConsoleLogService(isDev);
+    this.logService = new ConsoleLogService(
+      isDev,
+      null,
+      new FlightRecorderLogRecorder(SdkLoadService.Ready),
+    );
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new DefaultKeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService(this.logService);

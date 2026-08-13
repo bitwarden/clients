@@ -14,4 +14,10 @@ export interface LogRecorder {
    * breaking the log call.
    */
   record(level: LogLevel, message?: any, ...optionalParams: any[]): void;
+
+  /**
+   * Decides whether to record. Events from before the first call are held until it
+   * arrives, so a recorder that is never told records nothing. The first call wins.
+   */
+  setEnabled(enabled: boolean): void;
 }
