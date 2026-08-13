@@ -131,18 +131,10 @@ export class ShadowHostHydrationTracker {
     const now = this.now();
     this.enrollUpgradedParkedHosts(now);
 
-    const batch: Element[] = [];
     // Hosts added by mutation may have been removed during the scan debounce.
-    for (const element of this.pendingMutationAddedElements) {
-      if (element.isConnected) {
-        batch.push(element);
-      }
-    }
-    for (const element of this.hostsAwaitingShadowRoot.keys()) {
-      if (element.isConnected && !this.pendingMutationAddedElements.has(element)) {
-        batch.push(element);
-      }
-    }
+    const batch = [
+      ...new Set([...this.pendingMutationAddedElements, ...this.hostsAwaitingShadowRoot.keys()]),
+    ].filter((element) => element.isConnected);
 
     const { foundNewRoot, unresolvedHosts } = this.domQueryService.checkForNewShadowRoots(
       batch,
