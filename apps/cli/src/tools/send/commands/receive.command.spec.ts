@@ -5,8 +5,10 @@ import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SendTokenService, SendAccessToken } from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PRODUCTION_REGIONS } from "@bitwarden/common/platform/services/default-environment.service";
@@ -31,6 +33,7 @@ describe("SendReceiveCommand", () => {
   const sendApiService = mock<SendApiService>();
   const apiService = mock<ApiService>();
   const sendTokenService = mock<SendTokenService>();
+  const configService = mock<ConfigService>();
 
   const testUrl = "https://send.bitwarden.com/#/send/abc123/key456";
   const testSendId = "abc123";
@@ -53,6 +56,10 @@ describe("SendReceiveCommand", () => {
 
     cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
+    // Most tests exercise the (currently default) flag-on behavior; the "flag off" describe
+    // block below overrides this to verify the pre-flag behavior is preserved.
+    configService.getFeatureFlag.mockResolvedValue(true);
+
     command = new SendReceiveCommand(
       keyService,
       encryptService,
@@ -62,6 +69,7 @@ describe("SendReceiveCommand", () => {
       sendApiService,
       apiService,
       sendTokenService,
+      configService,
     );
   });
 
@@ -496,6 +504,72 @@ describe("SendReceiveCommand", () => {
       expect(endpoints).toEqual({
         apiUrl: "https://custom.example.com/api",
         identityUrl: "https://custom.example.com/identity",
+      });
+    });
+  });
+
+  describe("Pm30110SdkSendsApi gating", () => {
+    // Regression guard: cross-instance token requests build a fresh, uncached SDK client
+    // instead of reusing the shared one. That's a real behavior change for every `bw receive`
+    // call, not just cross-instance ones, so it must stay behind the flag: with the flag off,
+    // the endpoint overrides must never reach `SendTokenService`, which is what keeps it on the
+    // shared-client path it always used before this capability existed.
+    it("does not pass endpoint overrides to the token service when the flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+      sendApiService.postSendAccess.mockResolvedValue({} as any);
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+
+      const response = await command.run(testUrl, {});
+
+      expect(response.success).toBe(true);
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.Pm30110SdkSendsApi);
+      expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId, undefined);
+    });
+
+    it("does not pass endpoint overrides to the password-auth token request when the flag is off", async () => {
+      // A prior describe block leaves queued `mockReturnValueOnce` values on this mock that
+      // `jest.clearAllMocks()` (unlike `mockReset()`) does not flush; reset it explicitly so this
+      // test isn't at the mercy of file order.
+      sendTokenService.getSendAccessToken$.mockReset();
+      configService.getFeatureFlag.mockResolvedValue(false);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(
+        of({
+          kind: "expected_server",
+          error: {
+            error: "invalid_request",
+            send_access_error_type: "password_hash_b64_required",
+          },
+        } as any),
+      );
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.getSendAccessToken$.mockReturnValue(of(mockToken));
+      sendApiService.postSendAccess.mockResolvedValue({} as any);
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+
+      const response = await command.run(testUrl, { password: "correct-password" });
+
+      expect(response.success).toBe(true);
+      expect(sendTokenService.getSendAccessToken$).toHaveBeenCalledWith(
+        testSendId,
+        expect.objectContaining({ kind: "password" }),
+        undefined,
+      );
+    });
+
+    it("still passes endpoint overrides to the token service when the flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+      sendApiService.postSendAccess.mockResolvedValue({} as any);
+      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
+
+      await command.run(testUrl, {});
+
+      expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId, {
+        apiUrl: "https://api.bitwarden.com",
+        identityUrl: "https://identity.bitwarden.com",
       });
     });
   });

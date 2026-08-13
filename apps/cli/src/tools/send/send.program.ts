@@ -123,6 +123,7 @@ export class SendProgram extends BaseProgram {
           this.serviceContainer.sendApiService,
           this.serviceContainer.apiService,
           this.serviceContainer.sendTokenService,
+          this.serviceContainer.configService,
         );
         // When invoked as `bw send receive`, the parent `send` command also declares
         // `--password`, so commander binds the flag to the parent and this subcommand's

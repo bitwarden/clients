@@ -20,9 +20,11 @@ import {
   GetSendAccessTokenError,
   SendAccessDomainCredentials,
 } from "@bitwarden/common/auth/send-access";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkEndpointOverrides } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -53,6 +55,7 @@ export class SendReceiveCommand extends DownloadCommand {
     private sendApiService: SendApiService,
     apiService: ApiService,
     private sendTokenService: SendTokenService,
+    private configService: ConfigService,
   ) {
     super(encryptService, apiService);
   }
@@ -181,14 +184,22 @@ export class SendReceiveCommand extends DownloadCommand {
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     let expiredAttempts = 0;
 
+    // Cross-instance token requests build an ephemeral SDK client instead of reusing the shared
+    // one; gate that behind the flag so `bw receive` is unchanged while it's off, matching every
+    // other Send operation this flag controls.
+    const useSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
+    const tokenEndpoints = useSdk ? endpoints : undefined;
+
     while (expiredAttempts < 3) {
       // The token has to come from the identity server of the instance hosting the Send, which is
       // not necessarily the one this CLI is signed in to.
       const response = credentials
         ? await firstValueFrom(
-            this.sendTokenService.getSendAccessToken$(sendId, credentials, endpoints),
+            this.sendTokenService.getSendAccessToken$(sendId, credentials, tokenEndpoints),
           )
-        : await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(sendId, endpoints));
+        : await firstValueFrom(
+            this.sendTokenService.tryGetSendAccessToken$(sendId, tokenEndpoints),
+          );
 
       if (response instanceof SendAccessToken) {
         return response;
