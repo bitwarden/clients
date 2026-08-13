@@ -1072,6 +1072,7 @@ export default class MainBackground {
       this.stateProvider,
       this.authRequestApiService,
       this.accountService,
+      this.unlockService,
     );
 
     // Instantiated for its constructor side-effect: registers the login session timeout

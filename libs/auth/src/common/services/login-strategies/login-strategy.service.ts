@@ -358,12 +358,14 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
           case AuthenticationType.AuthRequest:
             return new AuthRequestLoginStrategy(
               data?.authRequest ?? new AuthRequestLoginStrategyData(),
+              this.unlockService,
               this.deviceTrustService,
               ...sharedDeps,
             );
           case AuthenticationType.WebAuthn:
             return new WebAuthnLoginStrategy(
               data?.webAuthn ?? new WebAuthnLoginStrategyData(),
+              this.unlockService,
               ...sharedDeps,
             );
         }
