@@ -371,22 +371,26 @@ describe("BulkActionsBarComponent", () => {
   });
 
   describe("reserved shell width", () => {
-    // JSDOM reports zero for every geometry read, so `measureIntrinsicWidth`
-    // normally early-returns. Stub the bar and overflow host with widths that
-    // track label visibility — the shell (count display + clear button + bar
-    // padding) is wider once labels are showing.
+    // JSDOM reports zero for every geometry read, so the shell measurement
+    // normally finds nothing usable. Stub the bar and overflow host so the shell
+    // (count display + clear button + bar padding) reports `shellWidth`, which
+    // each test moves to stand in for a wider count or for labels showing.
     const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
     const COMPACT_SHELL = 100;
+    /** Compact shell with a three-digit count instead of one. */
+    const WIDE_COUNT_SHELL = 114;
     const FULL_SHELL = 180;
     const ITEMS = 200;
-    let labelsHidden: boolean;
+    let shellWidth: number;
 
-    beforeEach(() => {
-      labelsHidden = true;
+    const reserve = () => host.bar()["reservedShellWidth"]();
+
+    beforeEach(async () => {
+      shellWidth = COMPACT_SHELL;
       Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
         let width = 0;
         if (this.getAttribute("role") === "toolbar") {
-          width = (labelsHidden ? COMPACT_SHELL : FULL_SHELL) + ITEMS;
+          width = shellWidth + ITEMS;
         } else if (this.hasAttribute("bitOverflowList")) {
           width = ITEMS;
         }
@@ -403,31 +407,57 @@ describe("BulkActionsBarComponent", () => {
         } as DOMRect;
       };
 
-      host.count.set(2);
+      host.count.set(9);
       fixture.detectChanges();
+      await fixture.whenStable();
     });
 
     afterEach(() => {
       Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
     });
 
-    it("ignores a shell reading taken while the bar is not compact", () => {
-      const bar = host.bar();
+    it("refreshes the reserve when the selected-count text changes width", async () => {
+      expect(reserve()).toBe(COMPACT_SHELL);
 
-      // First pass runs at the default compact state and records the shell.
-      bar["measureIntrinsicWidth"]();
-      expect(bar["reservedShellWidth"]()).toBe(COMPACT_SHELL);
-
-      // A later pass — triggered by the action set changing on a wide viewport
-      // — reads a non-compact shell. Storing it would inflate the reserve and
-      // shrink the overflow container, overflowing actions prematurely once
-      // the viewport narrows again.
-      bar.compact.set(false);
-      labelsHidden = false;
+      // Three digits render wider than one. Left stale, the reserve over-reports
+      // the room available to the item row and the trailing action spills past
+      // the bar instead of packing into the menu.
+      shellWidth = WIDE_COUNT_SHELL;
+      host.count.set(100);
       fixture.detectChanges();
+      await fixture.whenStable();
 
-      bar["measureIntrinsicWidth"]();
-      expect(bar["reservedShellWidth"]()).toBe(COMPACT_SHELL);
+      expect(reserve()).toBe(WIDE_COUNT_SHELL);
+    });
+
+    it("ignores a shell reading taken while the bar is not compact", async () => {
+      // A non-compact shell (clear button showing its label) would inflate the
+      // reserve and overflow actions prematurely once the viewport narrows.
+      host.bar().compact.set(false);
+      shellWidth = FULL_SHELL;
+      host.count.set(100);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(reserve()).toBe(COMPACT_SHELL);
+    });
+
+    it("recaptures the reserve after a non-compact round trip", async () => {
+      host.bar().compact.set(false);
+      shellWidth = FULL_SHELL;
+      host.count.set(100);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(reserve()).toBe(COMPACT_SHELL);
+
+      // Narrowing hides the labels again, so the shell is measurable — and it
+      // has to be remeasured, since the count grew while it wasn't.
+      shellWidth = WIDE_COUNT_SHELL;
+      host.bar().compact.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(reserve()).toBe(WIDE_COUNT_SHELL);
     });
   });
 

@@ -208,6 +208,27 @@ export class BulkActionsBarComponent {
       this.overflowList().remeasure();
     });
 
+    // The shell contains the count text and the clear button, so its width tracks
+    // digit count and density — a reserve captured at `9` is wrong at `100`.
+    effect(() => {
+      this.effectiveCount();
+      // Only a compact reading is usable: a non-compact shell (clear button
+      // showing its label) would inflate the reserve.
+      if (!this.overflowList().ready() || !this.compact()) {
+        return;
+      }
+      afterNextRender(
+        () => {
+          const shellWidth = this.measureShellWidth();
+          // Detached / unrendered layout — keep the last usable reading.
+          if (shellWidth > 0) {
+            this.reservedShellWidth.set(shellWidth);
+          }
+        },
+        { injector },
+      );
+    });
+
     // FocusKeyManager captures button references at construction. Rebuild it
     // whenever the projected action set changes so it tracks the current
     // buttons; onCleanup destroys the previous manager on each rebuild and
@@ -302,10 +323,32 @@ export class BulkActionsBarComponent {
     });
   }
 
+  /**
+   * Width of everything in the bar except the overflow item row. With the items
+   * revealed, the overflow host's content is the full item row, so `bar - host`
+   * isolates the shell. Returns 0 for an unmeasurable layout (detached, jsdom).
+   */
+  private measureShellWidth(): number {
+    const barEl = this.bar()?.nativeElement;
+    const overflowEl = this.overflowHost()?.nativeElement;
+    if (!barEl || !overflowEl) {
+      return 0;
+    }
+
+    // Hidden items report zero width, so reveal them for the read. The directive
+    // re-applies the right hidden states on its next reactive pass.
+    const restore = this.primaryButtons().map((btn) =>
+      revealForMeasurement(btn.elementRef.nativeElement),
+    );
+    const shellWidth = measureWidth(barEl) - measureWidth(overflowEl);
+    restore.forEach((restoreItem) => restoreItem());
+
+    return shellWidth;
+  }
+
   private measureIntrinsicWidth(): void {
     const barEl = this.bar()?.nativeElement;
     const wrapperEl = this.wrapper().nativeElement;
-    const overflowEl = this.overflowHost()?.nativeElement;
     if (!barEl) {
       return;
     }
@@ -314,21 +357,14 @@ export class BulkActionsBarComponent {
     const primaries = this.primaryButtons();
     const labeledButtons = primaries.filter((btn) => btn !== trigger);
 
-    // Hidden items report zero width, so reveal them for both passes. The
-    // directive re-applies the right hidden states on its next reactive pass.
+    // Hidden items report zero width, so reveal them for the read. `min-width:
+    // max-content` stops a constrained flex parent from compressing the bar
+    // below its content. Mutate → measure → restore is synchronous, so the
+    // expanded state never paints. The additional-actions trigger stays
+    // icon-only by design.
     const restorePrimaries = primaries.map((btn) =>
       revealForMeasurement(btn.elementRef.nativeElement),
     );
-
-    // Pass 1: shell width. With items revealed, the overflow host's content is
-    // the full item row, so `bar - host` isolates the shell. Must precede
-    // Pass 2, which inflates the bar.
-    const shellWidth = overflowEl ? measureWidth(barEl) - measureWidth(overflowEl) : 0;
-
-    // Pass 2: full bar width. `min-width: max-content` stops a constrained flex
-    // parent from compressing the bar below its content. Mutate → measure →
-    // restore is synchronous, so the expanded state never paints. The
-    // additional-actions trigger stays icon-only by design.
     const previousMinWidth = barEl.style.minWidth;
     barEl.style.minWidth = "max-content";
     labeledButtons.forEach((btn) => btn.forceLabelVisible(true));
@@ -343,12 +379,6 @@ export class BulkActionsBarComponent {
       return;
     }
     this.initialBarWidth.set(barWidth);
-    // Only a compact reading is usable — a non-compact shell (clear button
-    // showing its label) would inflate the reserve. The first run always
-    // qualifies: `compact` starts true and is only flipped below.
-    if (shellWidth > 0 && this.compact()) {
-      this.reservedShellWidth.set(shellWidth);
-    }
     this.compact.set(wrapperEl.clientWidth < barWidth + COMPACT_THRESHOLD_BUFFER_PX);
   }
 
