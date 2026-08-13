@@ -81,7 +81,6 @@ import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
 import { SettingsDialogComponent } from "./accounts/settings-dialog.component";
-import { SettingsComponent } from "./accounts/settings.component";
 import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
@@ -118,9 +117,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   standalone: false,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
@@ -295,11 +291,7 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             break;
           case "openSettings": {
-            if (await this.configService.getFeatureFlag(FeatureFlag.DesktopSettingsDialog)) {
-              SettingsDialogComponent.open(this.dialogService);
-            } else {
-              await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
-            }
+            SettingsDialogComponent.open(this.dialogService);
             break;
           }
           case "openTroubleshootingDialog":
