@@ -7,7 +7,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -40,8 +39,8 @@ import type { VaultItemsTableColumn } from "./vault-items-table.component";
  *
  * 1. **Built-in quick actions** — Launch and Copy, revealed on row hover/focus.
  * 2. **The client-specific overflow menu** — always visible, built from {@link rowActions}. An
- *    action the client reports as `premiumGated` for a row renders the Upgrade badge and opens
- *    the upgrade prompt instead of emitting.
+ *    action the client reports as `premiumGated` for a row renders the Upgrade badge instead of
+ *    a plain button, and the badge handles the upgrade prompt on click.
  *
  * Every control lives in `<bit-cell>`'s `end` slot. The cell's middle element is `flex-grow`,
  * so the end slot is pushed hard right — which anchors the overflow trigger to the same
@@ -71,7 +70,6 @@ export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike> {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
-  private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
 
   /** The host table's definition, for typed `*bitCellDef` references. */
   readonly table = input.required<TableDef<C, VaultItemsTableColumn>>();
@@ -123,12 +121,7 @@ export class VaultItemsTableActionsColumnComponent<C extends CipherViewLike> {
     return this.rowActions().filter((action) => action.show?.(item) ?? true);
   }
 
-  /** Runs the action, or prompts for a premium upgrade if the action is gated. */
   protected handleAction(action: VaultItemsTableRowAction<C>, item: C): void {
-    if (action.premiumGated?.(item)) {
-      void this.premiumUpgradePromptService.promptForPremium();
-      return;
-    }
     void action.run(item);
   }
 
