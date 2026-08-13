@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 
@@ -29,8 +27,8 @@ export class UserConfirmComponent implements OnInit {
   publicKey: Uint8Array;
 
   loading = true;
-  fingerprint: string;
-  formPromise: Promise<any>;
+  fingerprint: string | undefined;
+  formPromise?: Promise<any>;
 
   formGroup = new FormGroup({
     dontAskAgain: new FormControl(false),
