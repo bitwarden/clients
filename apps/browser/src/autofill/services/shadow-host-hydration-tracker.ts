@@ -2,16 +2,13 @@ import { nodeIsElement } from "../utils";
 
 import { DomQueryService } from "./abstractions/dom-query.service";
 
-/** A wall-clock deadline or reading. Durations stay plain `number` — the distinction matters. */
+/** A wall-clock deadline or reading; durations stay plain `number`. */
 type EpochMs = number;
 
 /**
- * Tracks custom-element hosts that have not attached their shadow root yet, and decides when to
- * re-scan them.
- *
- * `attachShadow()` emits no mutation record, so a host observed once and never revisited is a
- * field we silently fail to autofill. Both waits below are deadline-bounded, so a host that never
- * hydrates expires instead of keeping the retry timer armed:
+ * `attachShadow()` emits no mutation record, so a custom-element host observed once and never
+ * revisited is a field we silently fail to autofill. Both waits below are deadline-bounded, so a
+ * host that never hydrates expires instead of keeping the retry timer armed:
  *
  *   parked (not `:defined`) --`:defined`--> awaiting shadow root --attachShadow--> enrolled, dropped
  */
@@ -40,12 +37,15 @@ export class ShadowHostHydrationTracker {
   private readonly overflowCap = 192;
   private readonly awaitingDefinitionCap = 64;
   private readonly pendingMutationAddedElementsCap = 256;
-  // Debounce for the post-mutation scan, and the base delay for retry backoff.
+  // Also the base delay for retry backoff.
   private readonly scanDebounceMs = 500;
 
   /**
    * @param mutationObserver handed to each scan so discovered roots are enrolled where they are
    *   found, rather than waiting for the next whole-document walk
+   * @param requestPageDetailsUpdate invoked when a scan finds a root that earlier collection
+   *   missed; the caller debounces it into a re-collection
+   * @param now injectable clock, so specs can advance deadlines without faking timers
    */
   constructor(
     private readonly domQueryService: DomQueryService,
@@ -54,13 +54,16 @@ export class ShadowHostHydrationTracker {
     private readonly now: () => EpochMs = () => Date.now(),
   ) {}
 
+  /** Candidates accumulate across batches in the debounce window, so a render burst costs one scan. */
   noteAddedNodes(mutations: MutationRecord[]): void {
     this.collectAddedShadowRootCandidates(mutations);
     if (this.pendingScan) {
       return;
     }
     this.pendingScan = true;
-    this.clearTimer("scanTimeout");
+    if (this.scanTimeout) {
+      globalThis.clearTimeout(this.scanTimeout);
+    }
     this.scanTimeout = setTimeout(() => {
       this.scanTimeout = null;
       this.runScan();
@@ -93,8 +96,14 @@ export class ShadowHostHydrationTracker {
    * would let an expired host resurrect on the next scan.
    */
   reset(): void {
-    this.clearTimer("retryTimeout");
-    this.clearTimer("scanTimeout");
+    if (this.retryTimeout) {
+      globalThis.clearTimeout(this.retryTimeout);
+      this.retryTimeout = null;
+    }
+    if (this.scanTimeout) {
+      globalThis.clearTimeout(this.scanTimeout);
+      this.scanTimeout = null;
+    }
     this.hostsAwaitingShadowRoot.clear();
     this.overflowQueue.length = 0;
     this.hostsAwaitingDefinition.clear();
@@ -230,7 +239,10 @@ export class ShadowHostHydrationTracker {
   }
 
   private scheduleRetry(): void {
-    this.clearTimer("retryTimeout");
+    if (this.retryTimeout) {
+      globalThis.clearTimeout(this.retryTimeout);
+      this.retryTimeout = null;
+    }
     if (this.hostsAwaitingShadowRoot.size === 0 && this.hostsAwaitingDefinition.size === 0) {
       this.retryRound = 0;
       return;
@@ -289,13 +301,5 @@ export class ShadowHostHydrationTracker {
       return true;
     }
     return node.firstElementChild !== null;
-  }
-
-  private clearTimer(field: "retryTimeout" | "scanTimeout"): void {
-    const handle = this[field];
-    if (handle) {
-      clearTimeout(handle as ReturnType<typeof setTimeout>);
-      this[field] = null;
-    }
   }
 }
