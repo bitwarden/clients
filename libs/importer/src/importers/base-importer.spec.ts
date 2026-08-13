@@ -178,6 +178,13 @@ describe("processFolder method", () => {
     ]);
   });
 
+  it("should trim leading slashes from folder names to prevent unnecessary creations", () => {
+    importer.processFolder(result, "\\Parent\\Child");
+
+    expect(result.folders).toHaveLength(2);
+    expect(result.folders.map((f) => f.name)).toEqual(["Parent/Child", "Parent"]);
+  });
+
   it("should handle empty or null folder names gracefully", () => {
     importer.processFolder(result, null);
     importer.processFolder(result, "");

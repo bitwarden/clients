@@ -4,6 +4,8 @@ import { firstValueFrom } from "rxjs";
 // Marked for removal when PM-30811 feature flag is unwound.
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../../abstractions/api.service";
@@ -24,6 +26,7 @@ export class DefaultChangeEmailService implements ChangeEmailService {
     private kdfConfigService: KdfConfigService,
     private apiService: ApiService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
   ) {}
 
   async requestEmailToken(masterPassword: string, newEmail: string, userId: UserId): Promise<void> {
@@ -52,9 +55,9 @@ export class DefaultChangeEmailService implements ChangeEmailService {
 
       request = new EmailTokenRequest();
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.keyService.hashMasterKey(
+      request.masterPasswordHash = await this.legacyCompatKeyService.hashMasterKey(
         masterPassword,
-        await this.keyService.getOrDeriveMasterKey(masterPassword, userId),
+        await this.legacyCompatKeyService.getOrDeriveMasterKey(masterPassword, userId),
       );
     }
 
@@ -121,17 +124,21 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       request = new EmailRequest();
       request.token = token;
       request.newEmail = newEmail;
-      request.masterPasswordHash = await this.keyService.hashMasterKey(
+      request.masterPasswordHash = await this.legacyCompatKeyService.hashMasterKey(
         masterPassword,
-        await this.keyService.getOrDeriveMasterKey(masterPassword, userId),
+        await this.legacyCompatKeyService.getOrDeriveMasterKey(masterPassword, userId),
       );
 
       const kdfConfig = await firstValueFrom(this.kdfConfigService.getKdfConfig$(userId));
       if (kdfConfig == null) {
         throw new Error("Missing kdf config");
       }
-      const newMasterKey = await this.keyService.makeMasterKey(masterPassword, newEmail, kdfConfig);
-      request.newMasterPasswordHash = await this.keyService.hashMasterKey(
+      const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        newEmail,
+        kdfConfig,
+      );
+      request.newMasterPasswordHash = await this.legacyCompatKeyService.hashMasterKey(
         masterPassword,
         newMasterKey,
       );
@@ -139,7 +146,10 @@ export class DefaultChangeEmailService implements ChangeEmailService {
       if (userKey == null) {
         throw new Error("Can't find UserKey");
       }
-      const newUserKey = await this.keyService.encryptUserKeyWithMasterKey(newMasterKey, userKey);
+      const newUserKey = await this.legacyCompatKeyService.encryptUserKeyWithMasterKey(
+        newMasterKey,
+        userKey,
+      );
       const encryptedUserKey = newUserKey[1]?.encryptedString;
       if (encryptedUserKey == null) {
         throw new Error("Missing Encrypted User Key");

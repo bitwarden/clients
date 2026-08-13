@@ -119,6 +119,9 @@
   "vault": {
     "message": "Kasa"
   },
+  "vaults": {
+    "message": "Kasalar"
+  },
   "myVault": {
     "message": "Kasam"
   },
@@ -709,7 +712,7 @@
   "launchWebsite": {
     "message": "Web sitesini aç"
   },
-  "launchWebsiteName": {
+  "launchWebsiteForName": {
     "message": "$ITEMNAME$ sitesini aç",
     "placeholders": {
       "itemname": {
@@ -1557,6 +1560,21 @@
   "copyVerificationCode": {
     "message": "Doğrulama kodunu kopyala"
   },
+  "noUsername": {
+    "message": "Kullanıcı adı yok"
+  },
+  "noPassword": {
+    "message": "Parola yok"
+  },
+  "noVerificationCode": {
+    "message": "Doğrulama kodu yok"
+  },
+  "noNumber": {
+    "message": "Numara yok"
+  },
+  "noSecurityCode": {
+    "message": "Güvenlik kodu yok"
+  },
   "attachments": {
     "message": "Ekler"
   },
@@ -1949,6 +1967,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "Kartları öneri olarak göster"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "SSH anahtarlarını öneri olarak göster"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Simge seçildiğinde önerileri göster"
@@ -5002,6 +5023,79 @@
   "noFileChosen": {
     "message": "Dosya seçilmedi"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "veya içe aktarma dosyasının içeriğini kopyalayıp yapıştırın"
   },
@@ -5618,8 +5712,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Filtreleri temizleyin veya başka bir arama yapmayı deneyin"
   },
-  "copyInfoTitle": {
-    "message": "Bilgileri kopyala - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "$ITEMNAME$ bilgilerini kopyala",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5821,17 @@
     "message": "Hiçbir değer girilmedi",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Kopyalanacak değer yok"
+  "noDetailsToCopy": {
+    "message": "Kopyalanacak bilgi yok"
   },
   "assignToCollections": {
     "message": "Koleksiyonlara ata"
+  },
+  "addToSharedFolder": {
+    "message": "Paylaşılan klasöre ekle"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "copyEmail": {
     "message": "E-postayı kopyala"
@@ -6200,8 +6300,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Yalnızca bu koleksiyonlara erişimi olan kuruluş üyeleri kayıtı görebilecektir."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Yalnızca bu koleksiyonlara erişimi olan kuruluş üyeleri kayıtları görebilecektir."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ kayıt seçtiniz. Düzenleme izniniz olmadığı için $READONLY_COUNT$ kayıtı güncelleyemezsiniz.",
@@ -6307,8 +6413,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 kayıt kalıcı olarak seçilen kuruluşa aktarılacaktır. Artık bu kayıta sahip olmayacaksınız."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ kayıt kalıcı olarak seçilen kuruluşa aktarılacaktır. Artık bu kayıtlara sahip olmayacaksınız.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6459,32 @@
   "successfullyAssignedCollections": {
     "message": "Başarıyla atanan koleksiyonlar"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -6401,10 +6534,16 @@
     "message": "Kayıt konumu"
   },
   "fileSends": {
-    "message": "Dosya Send'leri"
+    "message": "Dosya Send'leri",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Metin Send'leri"
+    "message": "Metin Send'leri",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Hesap işlemleri"
@@ -6424,7 +6563,7 @@
       }
     }
   },
-  "showQuickCopyActions": {
+  "showQuickCopyActionsInVault": {
     "message": "Kasada hızlı kopyalama komutlarını göster"
   },
   "systemDefault": {
@@ -6739,6 +6878,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Lütfen masaüstü uygulamanızı güncelleyin"
   },
@@ -6920,6 +7068,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden, deneyimini iyileştirmek için hangi simgenin veya parola değiştirme URL’sinin kullanılacağını belirlemek amacıyla kaydedilmiş hesap URI’lerini kullanır. Bu hizmeti kullandığında hiçbir bilgi toplanmaz veya kaydedilmez."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "Bu sayfayı görüntüleme izniniz yok. Farklı bir hesapla giriş yapmayı deneyin."
@@ -7431,5 +7582,14 @@
   },
   "health": {
     "message": "Sağlık"
+  },
+  "scanMyVault": {
+    "message": "Kasamı tara"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
   }
 }

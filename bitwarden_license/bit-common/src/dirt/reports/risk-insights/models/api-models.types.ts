@@ -1,6 +1,7 @@
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import { createNewSummaryData } from "../helpers";
 

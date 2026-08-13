@@ -35,7 +35,6 @@ import {
   LockService,
   LoginEmailService,
   SsoUrlService,
-  UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -63,10 +62,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
@@ -138,6 +133,13 @@ import {
   DefaultWebAuthnPrfUnlockService,
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService as CryptoFunctionServiceAbstraction,
+  EncryptService,
+  LegacyCompatKeyService,
+  WebCryptoFunctionService,
+} from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UnlockService } from "@bitwarden/unlock";
 import {
@@ -157,8 +159,8 @@ import { DesktopAuthRequestAnsweringService } from "../../auth/services/auth-req
 import { DesktopTwoFactorAuthDuoComponentService } from "../../auth/services/desktop-two-factor-auth-duo-component.service";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
@@ -383,17 +385,13 @@ const safeProviders: SafeProvider[] = [
     provide: KeyServiceAbstraction,
     useClass: ElectronKeyService,
     deps: [
-      InternalMasterPasswordServiceAbstraction,
-      KeyGenerationService,
       CryptoFunctionServiceAbstraction,
       EncryptService,
       PlatformUtilsServiceAbstraction,
       LogService,
       StateServiceAbstraction,
-      AccountServiceAbstraction,
       StateProvider,
       BiometricStateService,
-      KdfConfigService,
       DesktopBiometricsService,
       AccountCryptographicStateService,
     ],
@@ -481,7 +479,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      UserDecryptionOptionsServiceAbstraction,
+      StateProvider,
       EncryptService,
       EnvironmentService,
       PlatformUtilsServiceAbstraction,
@@ -502,6 +500,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyService,
+      LegacyCompatKeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -574,8 +573,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: DesktopAutotypeService,
-    useClass: DesktopAutotypeService,
+    provide: DesktopAutotypeMvpService,
+    useClass: DesktopAutotypeMvpService,
     deps: [
       AccountService,
       AuthService,
