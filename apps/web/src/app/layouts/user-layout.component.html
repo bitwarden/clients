@@ -4,45 +4,46 @@
 
     @if (vfo1Enabled()) {
       @if (vaultNav(); as nav) {
-        @if (nav.allItemsItem || nav.vaults.length) {
+        @if (nav.vaults.length > 1) {
           <bit-nav-item
             icon="bwi-list"
             [text]="'allItems' | i18n"
             (mainContentClicked)="selectAllItems()"
           ></bit-nav-item>
         }
-        @if (nav.myVaultItem; as myVault) {
-          <bit-nav-item
-            icon="bwi-vault"
-            [text]="myVault.label"
-            (mainContentClicked)="selectVault(myVault)"
-          ></bit-nav-item>
-        }
 
-        @if (nav.vaults.length) {
-          <bit-nav-group
-            icon="bwi-vault"
-            [text]="'vaults' | i18n"
-            [open]="true"
-            [hideActiveStyles]="true"
-          >
-            @for (vault of nav.vaults; track vault.id) {
+        <ng-template #vaultGroups>
+          @for (vault of nav.vaults; track vault.id) {
+            <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
+              <bit-icon-tile [icon]="vault.icon" variant="primary" size="sm" />
               <bit-nav-item
-                [text]="vault.label"
+                icon="bwi-list-alt"
+                [text]="'allVaultItems' | i18n"
                 (mainContentClicked)="selectVault(vault)"
               ></bit-nav-item>
-            }
-          </bit-nav-group>
+            </bit-nav-group>
+          }
+        </ng-template>
+
+        @if (nav.vaults.length === 1 && !nav.organizationDataOwnership) {
+          @let loneVault = nav.vaults[0];
+          <bit-nav-item
+            [icon]="loneVault.icon"
+            [text]="loneVault.label"
+            (mainContentClicked)="selectVault(loneVault)"
+          ></bit-nav-item>
+        } @else if (nav.organizationDataOwnership) {
+          <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
+        } @else if (nav.vaults.length > 1) {
+          <bit-nav-section [label]="'vaults' | i18n">
+            <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
+          </bit-nav-section>
         }
       }
 
-      <bit-nav-group
-        icon="bwi-wrench"
-        [text]="'tools' | i18n"
-        [open]="true"
-        [hideActiveStyles]="true"
-      >
+      <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item
+          icon="bwi-file-text"
           [text]="'reports' | i18n"
           route="reports"
           [bitPopoverAnchorFor]="reportsCoachmark.popover()"
@@ -53,30 +54,39 @@
         ></bit-nav-item>
         <app-coachmark #reportsCoachmark stepId="monitorSecurity" />
         @if (sendEnabled$ | async) {
-          <bit-nav-item [text]="'send' | i18n" route="sends"></bit-nav-item>
+          <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
         }
-        <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
-      </bit-nav-group>
+        <bit-nav-item
+          icon="bwi-generate"
+          [text]="'generator' | i18n"
+          route="tools/generator"
+        ></bit-nav-item>
+      </bit-nav-section>
 
-      <bit-nav-group
-        icon="bwi-sliders"
-        [text]="'manage' | i18n"
-        [open]="true"
-        [hideActiveStyles]="true"
-      >
-        <bit-nav-item [text]="'myFolders' | i18n"></bit-nav-item>
-        <bit-nav-item [text]="'archiveNoun' | i18n" (mainContentClicked)="selectArchive()">
+      <bit-nav-section [label]="'manage' | i18n">
+        <bit-nav-item icon="bwi-folder" [text]="'myFolders' | i18n"></bit-nav-item>
+        <bit-nav-item
+          icon="bwi-archive"
+          [text]="'archiveNoun' | i18n"
+          (mainContentClicked)="selectArchive()"
+        >
           @if (showArchivePremiumBadge()) {
-            <bit-badge slot="end" variant="primary" size="small" startIcon="bwi-premium">{{
-              "premium" | i18n
-            }}</bit-badge>
+            <button
+              type="button"
+              slot="end"
+              bit-chip-action
+              startIcon="bwi-diamond"
+              [label]="'premium' | i18n"
+              size="small"
+            ></button>
           }
         </bit-nav-item>
         <bit-nav-item
+          icon="bwi-trash"
           [text]="'trash' | i18n"
           (mainContentClicked)="selectItemType('trash')"
         ></bit-nav-item>
-        <bit-nav-group [text]="'settings' | i18n" route="settings">
+        <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
           <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
           <bit-nav-item [text]="'appearance' | i18n" route="settings/appearance"></bit-nav-item>
@@ -98,7 +108,7 @@
           <billing-free-families-nav-item></billing-free-families-nav-item>
           <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
         </bit-nav-group>
-      </bit-nav-group>
+      </bit-nav-section>
     } @else {
       <bit-nav-item icon="bwi-vault" [text]="'vaults' | i18n" route="vault"></bit-nav-item>
       @if (sendEnabled$ | async) {

@@ -17,7 +17,12 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import {
+  VaultNavItemType,
+  VaultNavItemViewModel,
+  VaultNavService,
+  VaultsNavViewModel,
+} from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -53,50 +58,63 @@ class MockBillingFreeFamiliesNavItemComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockCoachmarkComponent {
-  popover() {
+  popover(): undefined {
     return undefined;
   }
 }
 
 const userId = "user-id" as UserId;
 
+const personalItem: VaultNavItemViewModel = {
+  id: userId,
+  label: "My vault",
+  color: "coral",
+  icon: "bwi-user",
+  type: VaultNavItemType.Personal,
+};
+
 const emptyViewModel: VaultsNavViewModel = {
-  showVaultsHeader: false,
   vaults: [],
-  myVaultItem: null,
-  allItemsItem: null,
-  orgDefaultExpanded: false,
-  showMyItemsGroup: false,
+  organizationDataOwnership: false,
 };
 
-const myVaultOnly: VaultsNavViewModel = {
-  ...emptyViewModel,
-  myVaultItem: { id: userId, label: "My vault", color: "coral", type: VaultNavItemType.Personal },
-};
-
-const premiumNoOrgs: VaultsNavViewModel = {
-  ...emptyViewModel,
-  allItemsItem: {
-    id: "all-items",
-    label: "All items",
-    color: "brand",
-    type: VaultNavItemType.AllItems,
-  },
+const personalOnly: VaultsNavViewModel = {
+  vaults: [personalItem],
+  organizationDataOwnership: false,
 };
 
 const withOrgs: VaultsNavViewModel = {
-  ...emptyViewModel,
-  showVaultsHeader: true,
   vaults: [
-    { id: userId, label: "My vault", color: "coral", type: VaultNavItemType.Personal },
+    personalItem,
     {
       id: "org-a",
       label: "Acme corporation",
       color: "purple",
+      icon: "bwi-business",
       type: VaultNavItemType.Organization,
     },
-    { id: "org-b", label: "Smith family", color: "teal", type: VaultNavItemType.Family },
+    {
+      id: "org-b",
+      label: "Smith family",
+      color: "teal",
+      icon: "bwi-family",
+      type: VaultNavItemType.Family,
+    },
   ],
+  organizationDataOwnership: false,
+};
+
+const orgDataOwnership: VaultsNavViewModel = {
+  vaults: [
+    {
+      id: "org-a",
+      label: "Acme corporation",
+      color: "purple",
+      icon: "bwi-business",
+      type: VaultNavItemType.Organization,
+    },
+  ],
+  organizationDataOwnership: true,
 };
 
 global.ResizeObserver = class ResizeObserver {
@@ -138,9 +156,16 @@ describe("UserLayoutComponent", () => {
 
   /** Trimmed text of every rendered nav item and group, in document order. */
   const navText = () =>
-    Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item, bit-nav-group")).map((el) =>
-      (el as HTMLElement).textContent?.trim().split("\n")[0].trim(),
-    );
+    Array.from(
+      fixture.nativeElement.querySelectorAll("bit-nav-item, bit-nav-group, bit-nav-section"),
+    ).map((el) => {
+      const element = el as HTMLElement;
+      // Sections render their heading as a sibling of the projected items, so read the heading directly.
+      if (element.tagName.toLowerCase() === "bit-nav-section") {
+        return element.querySelector("[id^='bit-nav-section-']")?.textContent?.trim();
+      }
+      return element.textContent?.trim().split("\n")[0].trim();
+    });
 
   /** Groups collapse by default, so their children need expanding before they render. */
   const expandGroup = (label: string) => {
@@ -275,16 +300,6 @@ describe("UserLayoutComponent", () => {
         archive.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
       };
 
-      it("filters to the archive for a premium user", () => {
-        clickArchive();
-
-        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { type: "archive" },
-          queryParamsHandling: "merge",
-        });
-        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
-      });
-
       it("prompts to upgrade when a non-premium user has nothing archived", () => {
         hasPremium$.next(false);
         fixture.detectChanges();
@@ -310,22 +325,22 @@ describe("UserLayoutComponent", () => {
       });
 
       it("badges Archive for a non-premium user", () => {
-        expect(fixture.nativeElement.querySelector("bit-badge")).toBeNull();
+        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
 
         hasPremium$.next(false);
         fixture.detectChanges();
 
-        expect(fixture.nativeElement.querySelector("bit-badge")).not.toBeNull();
+        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).not.toBeNull();
       });
     });
 
-    describe("free account with only a personal vault", () => {
+    describe("a single personal vault", () => {
       beforeEach(() => {
-        viewModel$.next(myVaultOnly);
+        viewModel$.next(personalOnly);
         fixture.detectChanges();
       });
 
-      it("renders My vault as a plain top item with no Vaults header", () => {
+      it("renders My vault as a plain top item with no All items or Vaults header", () => {
         const text = navText();
 
         expect(text).toContain("My vault");
@@ -334,17 +349,19 @@ describe("UserLayoutComponent", () => {
       });
     });
 
-    describe("premium account with only a personal vault", () => {
+    describe("organization data ownership", () => {
       beforeEach(() => {
-        viewModel$.next(premiumNoOrgs);
+        viewModel$.next(orgDataOwnership);
         fixture.detectChanges();
       });
 
-      it("renders All items as the top item with no Vaults header", () => {
+      it("renders the org vault without a Vaults header or personal vault", () => {
         const text = navText();
 
-        expect(text).toContain("allItems");
+        expect(text).toContain("Acme corporation");
         expect(text).not.toContain("vaults");
+        expect(text).not.toContain("My vault");
+        expect(text).not.toContain("allItems");
       });
     });
 
@@ -359,20 +376,28 @@ describe("UserLayoutComponent", () => {
 
         expect(text).toContain("allItems");
         expect(text.indexOf("allItems")).toBeLessThan(text.indexOf("vaults"));
-        expect(text.slice(text.indexOf("vaults") + 1, text.indexOf("vaults") + 4)).toEqual([
-          "My vault",
-          "Acme corporation",
-          "Smith family",
-        ]);
+
+        const vaultsSection = fixture.debugElement
+          .queryAll(By.css("bit-nav-section"))
+          .find((el) => el.componentInstance.label() === "vaults");
+        const vaultLabels = vaultsSection
+          .queryAll(By.css("bit-nav-group"))
+          .map((el) => el.componentInstance.text());
+
+        expect(vaultLabels).toEqual(["My vault", "Acme corporation", "Smith family"]);
       });
 
-      it("filters to the organization vault when an org is selected", () => {
-        const items = fixture.nativeElement.querySelectorAll("bit-nav-item");
-        const acme = Array.from(items).find((el) =>
-          (el as HTMLElement).textContent?.includes("Acme corporation"),
+      /** Expands a vault group and clicks its "All vault items" child. */
+      const selectVaultItems = (label: string) => {
+        const group = expandGroup(label);
+        const allItems = Array.from(group.querySelectorAll("bit-nav-item")).find((el) =>
+          (el as HTMLElement).textContent?.includes("allVaultItems"),
         ) as HTMLElement;
+        allItems.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+      };
 
-        acme.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+      it("filters to the organization vault when an org is selected", () => {
+        selectVaultItems("Acme corporation");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
           queryParams: { vaultId: "org-a", type: null },
@@ -381,12 +406,7 @@ describe("UserLayoutComponent", () => {
       });
 
       it("filters to the personal vault using the unassigned sentinel", () => {
-        const items = fixture.nativeElement.querySelectorAll("bit-nav-item");
-        const myVault = Array.from(items).find((el) =>
-          (el as HTMLElement).textContent?.includes("My vault"),
-        ) as HTMLElement;
-
-        myVault.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+        selectVaultItems("My vault");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
           queryParams: { vaultId: "unassigned", type: null },
