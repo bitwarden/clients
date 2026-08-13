@@ -48,10 +48,10 @@ export class CipherActionService {
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly toastService = inject(ToastService);
 
-  private readonly _cipherActionSuccess = new Subject<void>();
+  private readonly _cipherModified = new Subject<void>();
 
   /** Emits after any action completes (success or no-op). Subscribe to trigger a vault refresh. */
-  readonly cipherActionSuccess$ = this._cipherActionSuccess.asObservable();
+  readonly cipherModified$ = this._cipherModified.asObservable();
 
   private readonly userCanArchive = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -85,7 +85,7 @@ export class CipherActionService {
       ),
     });
 
-    this._cipherActionSuccess.next();
+    this._cipherModified.next();
   }
 
   async restore(cipher: CipherViewLike): Promise<void> {
@@ -106,7 +106,7 @@ export class CipherActionService {
       this.logService.error(e);
     }
 
-    this._cipherActionSuccess.next();
+    this._cipherModified.next();
   }
 
   async archive(cipher: CipherViewLike): Promise<void> {
@@ -123,7 +123,7 @@ export class CipherActionService {
 
     await this.archiveCipherUtilitiesService.archiveCipher(fullCipher);
 
-    this._cipherActionSuccess.next();
+    this._cipherModified.next();
   }
 
   async unarchive(cipher: CipherViewLike): Promise<void> {
@@ -135,7 +135,7 @@ export class CipherActionService {
 
     await this.archiveCipherUtilitiesService.unarchiveCipher(fullCipher);
 
-    this._cipherActionSuccess.next();
+    this._cipherModified.next();
   }
 
   async viewAttachments(cipher: CipherViewLike): Promise<void> {
@@ -155,7 +155,7 @@ export class CipherActionService {
       result?.action === AttachmentDialogResult.Removed ||
       result?.action === AttachmentDialogResult.Uploaded
     ) {
-      this._cipherActionSuccess.next();
+      this._cipherModified.next();
     }
   }
 
@@ -187,7 +187,7 @@ export class CipherActionService {
     } catch (e) {
       this.logService.error(e);
     }
-    this._cipherActionSuccess.next();
+    this._cipherModified.next();
   }
 
   private async promptPassword(cipher: CipherViewLike): Promise<boolean> {

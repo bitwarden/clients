@@ -632,7 +632,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
-    this.cipherActionService.cipherActionSuccess$
+    this.cipherActionService.cipherModified$
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 

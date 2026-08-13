@@ -143,8 +143,8 @@ describe("CipherActionService", () => {
       );
     });
 
-    it("emits cipherActionSuccess$ after toggling", async () => {
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+    it("emits cipherModified$ after toggling", async () => {
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.toggleFavorite(makeCipher());
 
@@ -183,9 +183,9 @@ describe("CipherActionService", () => {
       expect(cipherService.restoreWithServer).toHaveBeenCalledWith("my-cipher", userId);
     });
 
-    it("logs error and still emits cipherActionSuccess$ when restoreWithServer throws", async () => {
+    it("logs error and still emits cipherModified$ when restoreWithServer throws", async () => {
       cipherService.restoreWithServer.mockRejectedValue(new Error("network error"));
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.restore(makeCipher({ isDeleted: true }));
 
@@ -193,8 +193,8 @@ describe("CipherActionService", () => {
       await expect(successPromise).resolves.toBeUndefined();
     });
 
-    it("emits cipherActionSuccess$ on success", async () => {
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+    it("emits cipherModified$ on success", async () => {
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.restore(makeCipher({ isDeleted: true }));
 
@@ -235,8 +235,8 @@ describe("CipherActionService", () => {
       expect(archiveCipherUtilitiesService.archiveCipher).toHaveBeenCalledWith(fullCipher);
     });
 
-    it("emits cipherActionSuccess$ after archiving", async () => {
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+    it("emits cipherModified$ after archiving", async () => {
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.archive(makeCipher());
 
@@ -268,8 +268,8 @@ describe("CipherActionService", () => {
       expect(archiveCipherUtilitiesService.unarchiveCipher).toHaveBeenCalledWith(fullCipher);
     });
 
-    it("emits cipherActionSuccess$ after unarchiving", async () => {
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+    it("emits cipherModified$ after unarchiving", async () => {
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.unarchive(makeCipher({ isArchived: true }));
 
@@ -306,28 +306,28 @@ describe("CipherActionService", () => {
       );
     });
 
-    it("emits cipherActionSuccess$ when an attachment is uploaded", async () => {
+    it("emits cipherModified$ when an attachment is uploaded", async () => {
       mockDialog(AttachmentDialogResult.Uploaded);
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.viewAttachments(makeCipher());
 
       await expect(successPromise).resolves.toBeUndefined();
     });
 
-    it("emits cipherActionSuccess$ when an attachment is removed", async () => {
+    it("emits cipherModified$ when an attachment is removed", async () => {
       mockDialog(AttachmentDialogResult.Removed);
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.viewAttachments(makeCipher());
 
       await expect(successPromise).resolves.toBeUndefined();
     });
 
-    it("does not emit cipherActionSuccess$ when dialog is closed without changes", async () => {
+    it("does not emit cipherModified$ when dialog is closed without changes", async () => {
       mockDialog(AttachmentDialogResult.Closed);
       let emitted = false;
-      service.cipherActionSuccess$.subscribe(() => (emitted = true));
+      service.cipherModified$.subscribe(() => (emitted = true));
 
       await service.viewAttachments(makeCipher());
 
@@ -404,9 +404,9 @@ describe("CipherActionService", () => {
       );
     });
 
-    it("logs error and still emits cipherActionSuccess$ when delete throws", async () => {
+    it("logs error and still emits cipherModified$ when delete throws", async () => {
       cipherService.softDeleteWithServer.mockRejectedValue(new Error("server error"));
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.delete(makeCipher());
 
@@ -414,8 +414,8 @@ describe("CipherActionService", () => {
       await expect(successPromise).resolves.toBeUndefined();
     });
 
-    it("emits cipherActionSuccess$ after deleting", async () => {
-      const successPromise = firstValueFrom(service.cipherActionSuccess$);
+    it("emits cipherModified$ after deleting", async () => {
+      const successPromise = firstValueFrom(service.cipherModified$);
 
       await service.delete(makeCipher());
 
