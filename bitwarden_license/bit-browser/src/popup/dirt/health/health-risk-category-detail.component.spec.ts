@@ -204,6 +204,10 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return rows()[index].querySelector("button[bit-item-content]")!;
   }
 
+  function noItems(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("bit-no-items");
+  }
+
   /** The row's change password CTA, or `undefined` when the row does not render one. */
   function changePasswordButton(index: number): HTMLButtonElement | undefined {
     return Array.from(
@@ -516,6 +520,38 @@ describe("HealthRiskCategoryDetailComponent", () => {
       await fixture.whenStable();
 
       expect(router.navigate).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("empty state", () => {
+    beforeEach(() => {
+      setReport(RiskCategory.Exposed, []);
+    });
+
+    it.each(categories.map((c) => [c.category, c.icon] as const))(
+      "renders the %s empty state icon",
+      async (category, icon) => {
+        params$.next({ category });
+
+        await initComponent();
+
+        expect(noItems()).not.toBeNull();
+        expect(noItemsIcon()).toBe(icon);
+      },
+    );
+
+    it("renders the shared empty state title", async () => {
+      await initComponent();
+
+      expect(text()).toContain("youreAllSet");
+    });
+
+    it("replaces the item list and count with the empty state", async () => {
+      await initComponent();
+
+      expect(rows()).toHaveLength(0);
+      expect(itemCount()).toBeUndefined();
+      expect(text()).not.toContain("exposedPasswordsDescription");
     });
   });
 

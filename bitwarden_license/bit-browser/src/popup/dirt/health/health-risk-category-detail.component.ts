@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, switchMap } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoCredentialsIcon, ReportExposedPasswords, UnlockedIcon } from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -103,17 +104,52 @@ export class HealthRiskCategoryDetailComponent {
       return [];
     }
 
-    return report.categoryItems[category] ?? [];
+    switch (category) {
+      case RiskCategory.Exposed:
+        return report.categoryItems.exposed;
+      case RiskCategory.Weak:
+        return report.categoryItems.weak;
+      case RiskCategory.Reused:
+        return report.categoryItems.reused;
+      default:
+        return [];
+    }
   });
-  readonly cipherMap = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.cipherService.cipherViews$(userId)),
-      filterOutNullish(),
-      map((ciphers) => new Map<string, CipherView>(ciphers.map((cipher) => [cipher.id, cipher]))),
-    ),
-    { initialValue: new Map<string, CipherView>() },
-  );
+  readonly contentKeys = computed<{
+    titleKey?: string;
+    descriptionKey?: string;
+    emptyKey?: string;
+  }>(() => {
+    const keys: { titleKey?: string; descriptionKey?: string; emptyKey?: string } = {};
+    switch (this.category()) {
+      case RiskCategory.Exposed:
+        keys.titleKey = "exposedPasswordsTitle";
+        keys.descriptionKey = "exposedPasswordsDescription";
+        keys.emptyKey = "exposedPasswordsEmpty";
+        break;
+      case RiskCategory.Weak:
+        keys.titleKey = "weakPasswordsTitle";
+        keys.descriptionKey = "weakPasswordsDescription";
+        keys.emptyKey = "weakPasswordsEmpty";
+        break;
+      case RiskCategory.Reused:
+        keys.titleKey = "reusedPasswordsTitle";
+        keys.descriptionKey = "reusedPasswordsDescription";
+        keys.emptyKey = "reusedPasswordsEmpty";
+        break;
+    }
+    return keys;
+  });
+  readonly emptyIcon = computed(() => {
+    switch (this.category()) {
+      case RiskCategory.Exposed:
+        return ReportExposedPasswords;
+      case RiskCategory.Weak:
+        return UnlockedIcon;
+      case RiskCategory.Reused:
+        return NoCredentialsIcon;
+    }
+  });
 
   readonly onChangePassword = async (item: CipherView) => {
     const changePasswordUrl = await this.changeLoginPasswordService.getChangePasswordUrl(item);
