@@ -597,6 +597,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (this.useLitComponents) {
+      if (!this.inlineMenuListContainer.querySelector("[data-fill-generated-password]")) {
+        this.resetInlineMenuContainer();
+      }
       this.renderLitPasswordGenerator(message.generatedPassword);
       return;
     }
