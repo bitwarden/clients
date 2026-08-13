@@ -572,9 +572,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
       expect(moreOptionsButton(0)).not.toBeNull();
       expect(moreOptionsButton(1)).not.toBeNull();
-      expect(moreOptionsButton(0)!.getAttribute("aria-label")).toBe(
-        "moreOptionsLabelNoPlaceholder",
-      );
+      expect(moreOptionsButton(0)!.getAttribute("aria-label")).toBe("options");
     });
 
     it("renders the delete item entry in the ellipsis menu", async () => {

@@ -182,7 +182,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.PasskeyLoginReport]: FALSE,
   [FeatureFlag.AccessIntelligenceReportFileStorage]: FALSE,
   [FeatureFlag.AccessIntelligenceAdoptionUxImprovements]: FALSE,
-  [FeatureFlag.BrowserExtensionHealthReport]: FALSE,
+  [FeatureFlag.BrowserExtensionHealthReport]: true,
 
   /* Vault */
   [FeatureFlag.PM32009NewItemTypes]: FALSE,
