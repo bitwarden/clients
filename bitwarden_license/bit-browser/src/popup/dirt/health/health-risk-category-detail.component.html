@@ -1,6 +1,6 @@
 @let contentKeys = HEALTH_DETAIL_CONTENTS[category()];
 <popup-page>
-  <popup-header slot="header" pageTitle="{{ contentKeys.titleKey | i18n }}" showBackButton="true">
+  <popup-header slot="header" pageTitle="{{ contentKeys?.titleKey | i18n }}" showBackButton="true">
     <ng-container slot="end">
       <app-pop-out />
       <app-current-account />
@@ -10,7 +10,7 @@
     <!-- shown while page routes back to health overview -->
   } @else if (items().length > 0) {
     <p>
-      {{ contentKeys.descriptionKey | i18n }}
+      {{ contentKeys?.descriptionKey | i18n }}
     </p>
     <bit-section>
       <bit-section-header>

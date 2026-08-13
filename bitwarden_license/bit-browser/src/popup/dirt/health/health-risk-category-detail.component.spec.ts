@@ -9,7 +9,6 @@ import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import {
   RiskCategory,
-  VaultHealthReportItem,
   VaultHealthReportView,
 } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -23,6 +22,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -98,7 +98,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let fixture: ComponentFixture<HealthRiskCategoryDetailComponent>;
   let params$: BehaviorSubject<Params>;
   let report$: BehaviorSubject<VaultHealthReportView | null>;
+  let cipherViews$: BehaviorSubject<CipherView[]>;
   let reportService: MockProxy<VaultHealthReportService>;
+  let cipherService: MockProxy<CipherService>;
   let router: MockProxy<Router>;
   let changeLoginPasswordService: MockProxy<ChangeLoginPasswordService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
@@ -127,26 +129,28 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return cipher;
   }
 
+  /** A health view flagging one cipher in exactly one category. */
+  function buildHealth(cipherId: string, category: RiskCategory): CipherHealthView {
+    return new CipherHealthView({
+      cipherId,
+      hasExposedPassword: category === RiskCategory.Exposed,
+      hasWeakPassword: category === RiskCategory.Weak,
+      hasReusedPassword: category === RiskCategory.Reused,
+      exposedCount: category === RiskCategory.Exposed ? 3 : 0,
+      reuseCount: category === RiskCategory.Reused ? 2 : 0,
+    });
+  }
+
   /**
-   * Publishes a report placing the given logins in one category's bucket. The
+   * Publishes a report placing the given logins in one category's bucket, and the
+   * logins themselves on the cipher stream the page joins against — the report
+   * carries health views only, so both halves are needed to render a row. The
    * page reads only the bucket its route names, so items land in exactly one.
    */
   function setReport(category: RiskCategory, ciphers: CipherView[]) {
-    const items = ciphers.map(
-      (cipher) =>
-        new VaultHealthReportItem(
-          cipher,
-          new CipherHealthView({
-            cipherId: cipher.id,
-            hasExposedPassword: category === RiskCategory.Exposed,
-            hasWeakPassword: category === RiskCategory.Weak,
-            hasReusedPassword: category === RiskCategory.Reused,
-            exposedCount: category === RiskCategory.Exposed ? 3 : 0,
-            reuseCount: category === RiskCategory.Reused ? 2 : 0,
-          }),
-        ),
-    );
+    const items = ciphers.map((cipher) => buildHealth(cipher.id, category));
 
+    cipherViews$.next(ciphers);
     report$.next(
       new VaultHealthReportView({
         totalCount: items.length,
@@ -199,6 +203,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
     report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
     reportService = mock<VaultHealthReportService>();
     reportService.getVaultHealthReport$.mockReturnValue(report$);
+
+    cipherViews$ = new BehaviorSubject<CipherView[]>([]);
+    cipherService = mock<CipherService>();
+    cipherService.cipherViews$.mockReturnValue(cipherViews$);
+
     setReport(RiskCategory.Exposed, [
       buildLogin({ id: "cipher-1", name: "Item 1", uris: ["https://example.com"] }),
     ]);
@@ -227,6 +236,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
           useValue: { activeAccount$: of({ id: userId } as Account) },
         },
         { provide: VaultHealthReportService, useValue: reportService },
+        { provide: CipherService, useValue: cipherService },
         { provide: ChangeLoginPasswordService, useValue: changeLoginPasswordService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
@@ -286,22 +296,14 @@ describe("HealthRiskCategoryDetailComponent", () => {
         // Highest-risk-wins means each login sits in exactly one bucket, so a
         // category page must not pick up the report's other two.
         params$.next({ category });
-        setReport(category, [buildLogin({ id: "in-category", name: "In category" })]);
+        const inCategory = buildLogin({ id: "in-category", name: "In category" });
+        const other = buildLogin({ id: "other", name: "Other category" });
+        setReport(category, [inCategory]);
         const otherCategory = categories.find((c) => c.category !== category)!.category;
         const report = report$.value!;
-        report.categoryItems[otherCategory] = [
-          new VaultHealthReportItem(
-            buildLogin({ id: "other", name: "Other category" }),
-            new CipherHealthView({
-              cipherId: "other",
-              hasExposedPassword: false,
-              hasWeakPassword: true,
-              hasReusedPassword: false,
-              exposedCount: 0,
-              reuseCount: 0,
-            }),
-          ),
-        ];
+        report.categoryItems[otherCategory] = [buildHealth("other", otherCategory)];
+        // Both logins are in the vault; only the routed bucket may render one.
+        cipherViews$.next([inCategory, other]);
 
         await initComponent();
 
@@ -331,6 +333,26 @@ describe("HealthRiskCategoryDetailComponent", () => {
     await initComponent();
 
     expect(reportService.getVaultHealthReport$).toHaveBeenCalledWith(userId);
+  });
+
+  it("reads the ciphers it joins the report against for the active account", async () => {
+    await initComponent();
+
+    expect(cipherService.cipherViews$).toHaveBeenCalledWith(userId);
+  });
+
+  it("re-renders a row when its cipher changes in the vault", async () => {
+    setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1", name: "Before" })]);
+    await initComponent();
+    expect(text()).toContain("Before");
+
+    // The report holds ids only, so a rename has to reach the row through the
+    // cipher stream rather than a rebuilt report.
+    cipherViews$.next([buildLogin({ id: "cipher-1", name: "After" })]);
+    fixture.detectChanges();
+
+    expect(text()).toContain("After");
+    expect(text()).not.toContain("Before");
   });
 
   describe("without a report", () => {

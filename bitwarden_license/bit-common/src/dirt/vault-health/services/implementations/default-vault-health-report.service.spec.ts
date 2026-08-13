@@ -9,10 +9,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import type { CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
-import {
-  VaultHealthReportItem,
-  VaultHealthReportView,
-} from "../../models/view/vault-health-report.view";
+import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 
 import { DefaultVaultHealthReportService } from "./default-vault-health-report.service";
 
@@ -88,12 +85,8 @@ describe("DefaultVaultHealthReportService", () => {
     return (await firstValueFrom(service.getVaultHealthReport$(userId)))!;
   };
 
-  /** The health views bucketed into a category, in order. */
-  const health = (items: VaultHealthReportItem[]): CipherHealthView[] =>
-    items.map((item) => item.health);
-
-  const cipherIds = (items: VaultHealthReportItem[]): string[] =>
-    items.map((item) => item.health.cipherId);
+  /** The cipher ids bucketed into a category, in order. */
+  const cipherIds = (items: CipherHealthView[]): string[] => items.map((item) => item.cipherId);
 
   // --- tests ---------------------------------------------------------------
 
@@ -124,7 +117,7 @@ describe("DefaultVaultHealthReportService", () => {
     expect(result.categoryItems.reused).toHaveLength(0);
     // The bucketed item still carries every category it is at risk in, so the
     // cross-category view is available without a separate flat list.
-    const [bucketed] = health(result.categoryItems.exposed);
+    const [bucketed] = result.categoryItems.exposed;
     expect(bucketed.hasExposedPassword).toBe(true);
     expect(bucketed.hasWeakPassword).toBe(true);
     expect(bucketed.hasReusedPassword).toBe(true);
@@ -138,7 +131,7 @@ describe("DefaultVaultHealthReportService", () => {
     expect(result.categoryItems.exposed).toHaveLength(0);
     expect(cipherIds(result.categoryItems.weak)).toEqual(["a"]);
     expect(result.categoryItems.reused).toHaveLength(0);
-    const [bucketed] = health(result.categoryItems.weak);
+    const [bucketed] = result.categoryItems.weak;
     expect(bucketed.hasWeakPassword).toBe(true);
     expect(bucketed.hasReusedPassword).toBe(true);
   });
@@ -328,15 +321,16 @@ describe("DefaultVaultHealthReportService", () => {
     });
   });
 
-  it("includes each at-risk login's cipher alongside its health metrics", async () => {
-    const a = login("a");
-    const ciphers = withRisks([{ cipher: a, risk: risk("a", { exposed: 3 }) }]);
+  it("buckets health views keyed by cipher id, without the cipher itself", async () => {
+    // The report carries no vault data; consumers join `cipherId` against their
+    // own cipher source, so the id has to survive bucketing.
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
 
     const result = await report(ciphers);
 
     const [item] = result.categoryItems.exposed;
-    expect(item).toBeInstanceOf(VaultHealthReportItem);
-    expect(item.cipher).toBe(a);
-    expect(item.health.cipherId).toBe("a");
+    expect(item).toBeInstanceOf(CipherHealthView);
+    expect(item.cipherId).toBe("a");
+    expect(item.hasExposedPassword).toBe(true);
   });
 });

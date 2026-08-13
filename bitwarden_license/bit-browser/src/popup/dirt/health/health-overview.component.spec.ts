@@ -4,10 +4,8 @@ import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import {
-  VaultHealthReportItem,
-  VaultHealthReportView,
-} from "@bitwarden/bit-common/dirt/vault-health/models";
+import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
+import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -72,8 +70,12 @@ describe("HealthOverviewComponent", () => {
   }
 
   /** Distinct at-risk logins; only the count matters to the overview. */
-  function items(count: number): VaultHealthReportItem[] {
-    return Array.from({ length: count }, () => ({}) as VaultHealthReportItem);
+  function items(count: number): CipherHealthView[] {
+    return Array.from({ length: count }, (_, index) => {
+      const health = new CipherHealthView();
+      health.cipherId = `cipher-${index}`;
+      return health;
+    });
   }
 
   async function initComponent() {
