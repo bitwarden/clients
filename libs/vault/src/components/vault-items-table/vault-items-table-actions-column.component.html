@@ -1,0 +1,79 @@
+<bit-column [width]="columnWidth()">
+  <bit-header-cell>
+    <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+  </bit-header-cell>
+
+  <bit-cell *bitCellLoading>
+    <div class="tw-flex tw-justify-end">
+      <bit-skeleton-text class="tw-w-6" />
+    </div>
+  </bit-cell>
+
+  <bit-cell *bitCellDef="table().columns.actions; let row">
+    <!--
+      Everything sits in the `end` slot so it is pushed hard right by the cell's flex-grow
+      middle element. That keeps the overflow trigger at an identical position on every row
+      while the revealed quick actions grow leftward inside this column's own track.
+    -->
+    <div slot="end" class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2">
+      <div [class]="revealClasses">
+        @if (CipherViewLikeUtils.canLaunch(row)) {
+          <button
+            type="button"
+            bitIconButton="bwi-external-link"
+            size="small"
+            [label]="'launchWebsite' | i18n"
+            (click)="launch(row)"
+          ></button>
+        }
+
+        <vault-item-copy-actions
+          class="tw-flex tw-flex-nowrap tw-items-center tw-gap-2"
+          [cipher]="row"
+          [showQuickCopyActions]="expandedCopy()"
+        />
+      </div>
+
+      @let actions = visibleActions(row);
+      @if (actions.length > 0) {
+        <button
+          type="button"
+          bitIconButton="bwi-ellipsis-v"
+          size="small"
+          [label]="'optionsForItem' | i18n: row.name"
+          [bitMenuTriggerFor]="rowMenu"
+        ></button>
+        <bit-menu #rowMenu>
+          @for (rowAction of actions; track rowAction.id) {
+            @if (rowAction.premiumGated?.(row)) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'vault-items-table_menu-item_' + rowAction.id + '-' + row.id"
+                [variant]="rowAction.variant ?? 'primary'"
+                (click)="badge.promptForPremium($event)"
+              >
+                <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
+                {{ rowAction.label }}
+                <div slot="end" class="-tw-mt-0.5" aria-hidden>
+                  <app-premium-badge #badge />
+                </div>
+              </button>
+            } @else {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'vault-items-table_menu-item_' + rowAction.id + '-' + row.id"
+                [variant]="rowAction.variant ?? 'primary'"
+                (click)="action.emit(rowAction.event(row))"
+              >
+                <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
+                {{ rowAction.label }}
+              </button>
+            }
+          }
+        </bit-menu>
+      }
+    </div>
+  </bit-cell>
+</bit-column>

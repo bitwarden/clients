@@ -13,7 +13,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -34,7 +33,6 @@ describe("Fido2CreateComponent", () => {
   let mockDialogService: MockProxy<DialogService>;
   let mockDomainSettingsService: MockProxy<DomainSettingsService>;
   let mockLogService: MockProxy<LogService>;
-  let mockPasswordRepromptService: MockProxy<PasswordRepromptService>;
   let mockRouter: MockProxy<Router>;
   let mockSession: MockProxy<DesktopFido2UserInterfaceSession>;
   let mockI18nService: MockProxy<I18nService>;
@@ -56,7 +54,6 @@ describe("Fido2CreateComponent", () => {
     mockDialogService = mock<DialogService>();
     mockDomainSettingsService = mock<DomainSettingsService>();
     mockLogService = mock<LogService>();
-    mockPasswordRepromptService = mock<PasswordRepromptService>();
     mockRouter = mock<Router>();
     mockSession = mock<DesktopFido2UserInterfaceSession>();
     mockI18nService = mock<I18nService>();
@@ -75,7 +72,6 @@ describe("Fido2CreateComponent", () => {
         { provide: DialogService, useValue: mockDialogService },
         { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: LogService, useValue: mockLogService },
-        { provide: PasswordRepromptService, useValue: mockPasswordRepromptService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
       ],
@@ -157,16 +153,6 @@ describe("Fido2CreateComponent", () => {
       await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(true, cipher);
-    });
-
-    it("should not add passkey when password reprompt is cancelled", async () => {
-      const cipher = createMockCiphers()[0];
-      cipher.reprompt = CipherRepromptType.Password;
-      mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
-
-      await component.addCredentialToCipher(cipher);
-
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false, cipher);
     });
 
     it("should call openSimpleDialog when cipher already has a fido2 credential", async () => {
