@@ -1,7 +1,8 @@
 import { SecurityStateRequest } from "@bitwarden/common/key-management/security-state/request/security-state.request";
-import { WrappedPrivateKey } from "@bitwarden/common/key-management/types";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// eslint-disable-next-line no-restricted-imports
+import { WrappedPrivateKey } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { PublicKeyEncryptionKeyPairRequestModel } from "../model/public-key-encryption-key-pair-request.model";

@@ -1,10 +1,11 @@
-import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   KeyDefinition,
   BIOMETRIC_SETTINGS_DISK,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString } from "@bitwarden/legacy-crypto";
 
 /**
  * Indicates whether the user elected to store a biometric key to unlock their vault.

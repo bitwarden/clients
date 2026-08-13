@@ -3,11 +3,11 @@ import { of } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { KeyService } from "../../abstractions/key.service";
 

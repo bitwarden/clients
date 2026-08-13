@@ -1,7 +1,7 @@
 import { Jsonify } from "type-fest";
 
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import {

@@ -4,15 +4,8 @@ import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take }
 import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncString,
-  EncryptedString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
-import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -21,7 +14,6 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
@@ -36,9 +28,18 @@ import {
   FakeStateProvider,
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  CsprngArray,
+  EncryptedString,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+  UnsignedPublicKey,
+} from "@bitwarden/legacy-crypto";
 
 import { DefaultKeyService } from "./key.service";
 

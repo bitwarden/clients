@@ -1,9 +1,10 @@
 import { spawn } from "child_process";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { biometrics, passwords } from "@bitwarden/desktop-napi";
 import { BiometricsStatus } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { isSnapStore, isFlatpak, isLinux } from "../../../utils";
 import { OsBiometricService } from "../os-biometrics.service";

@@ -3,7 +3,14 @@
 import { firstValueFrom, from, iif, map, Observable, of, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import {
+  CryptoFunctionService,
+  EncryptedString,
+  EncString,
+  KdfConfig,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -13,7 +20,6 @@ import { FeatureFlag, getFeatureFlagValue } from "../../../enums/feature-flag.en
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { USER_SERVER_CONFIG } from "../../../platform/services/config/default-config.service";
 import {
   MASTER_PASSWORD_DISK,
@@ -23,9 +29,6 @@ import {
 } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { KeyGenerationService } from "../../crypto";
-import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptedString, EncString } from "../../crypto/models/enc-string";
 import { USES_KEY_CONNECTOR } from "../../key-connector/services/key-connector.service";
 import { MASTER_PASSWORD_UNLOCK_DATA } from "../../state-definitions";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";

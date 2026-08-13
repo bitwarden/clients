@@ -2,7 +2,13 @@ import { Jsonify } from "type-fest";
 
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import {
   EncString,
   EphemeralPinEnvelopeState,
@@ -21,7 +27,6 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/state";
 
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../types/key";
 
 import { MasterPasswordUnlockData } from "./master-password/types/master-password.types";

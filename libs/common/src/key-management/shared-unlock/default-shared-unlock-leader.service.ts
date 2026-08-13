@@ -5,6 +5,8 @@ import { LockService } from "@bitwarden/auth/common";
 import { ClientType } from "@bitwarden/client-type";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SharedUnlockLeader } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 
@@ -13,7 +15,6 @@ import { EnvironmentService } from "../../platform/abstractions/environment.serv
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 

@@ -1,13 +1,12 @@
 import { firstValueFrom, Observable } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import { EncString, KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { assertNonNullish } from "../../../auth/utils";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 import {
   MasterPasswordAuthenticationData,
   MasterPasswordSalt,
