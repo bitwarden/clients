@@ -30,6 +30,7 @@ import {
   IconModule,
   DialogService,
   CenterPositionStrategy,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -60,6 +61,7 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     I18nPipe,
     MenuModule,
     IconModule,
+    NoItemsModule,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
@@ -100,56 +102,18 @@ export class HealthRiskCategoryDetailComponent {
   readonly items = computed(() => {
     const category = this.category();
     const report = this.report();
-    if (!category || !report) {
-      return [];
-    }
 
-    switch (category) {
-      case RiskCategory.Exposed:
-        return report.categoryItems.exposed;
-      case RiskCategory.Weak:
-        return report.categoryItems.weak;
-      case RiskCategory.Reused:
-        return report.categoryItems.reused;
-      default:
-        return [];
-    }
+    return category && report ? report.categoryItems[category] : [];
   });
-  readonly contentKeys = computed<{
-    titleKey?: string;
-    descriptionKey?: string;
-    emptyKey?: string;
-  }>(() => {
-    const keys: { titleKey?: string; descriptionKey?: string; emptyKey?: string } = {};
-    switch (this.category()) {
-      case RiskCategory.Exposed:
-        keys.titleKey = "exposedPasswordsTitle";
-        keys.descriptionKey = "exposedPasswordsDescription";
-        keys.emptyKey = "exposedPasswordsEmpty";
-        break;
-      case RiskCategory.Weak:
-        keys.titleKey = "weakPasswordsTitle";
-        keys.descriptionKey = "weakPasswordsDescription";
-        keys.emptyKey = "weakPasswordsEmpty";
-        break;
-      case RiskCategory.Reused:
-        keys.titleKey = "reusedPasswordsTitle";
-        keys.descriptionKey = "reusedPasswordsDescription";
-        keys.emptyKey = "reusedPasswordsEmpty";
-        break;
-    }
-    return keys;
-  });
-  readonly emptyIcon = computed(() => {
-    switch (this.category()) {
-      case RiskCategory.Exposed:
-        return ReportExposedPasswords;
-      case RiskCategory.Weak:
-        return UnlockedIcon;
-      case RiskCategory.Reused:
-        return NoCredentialsIcon;
-    }
-  });
+  readonly cipherMap = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.cipherService.cipherViews$(userId)),
+      filterOutNullish(),
+      map((ciphers) => new Map<string, CipherView>(ciphers.map((cipher) => [cipher.id, cipher]))),
+    ),
+    { initialValue: new Map<string, CipherView>() },
+  );
 
   readonly onChangePassword = async (item: CipherView) => {
     const changePasswordUrl = await this.changeLoginPasswordService.getChangePasswordUrl(item);
@@ -187,14 +151,20 @@ export class HealthRiskCategoryDetailComponent {
     [RiskCategory.Exposed]: {
       titleKey: "exposedPasswordsTitle",
       descriptionKey: "exposedPasswordsDescription",
+      emptyKey: "exposedPasswordsEmpty",
+      emptyIcon: ReportExposedPasswords,
     },
     [RiskCategory.Weak]: {
       titleKey: "weakPasswordsTitle",
       descriptionKey: "weakPasswordsDescription",
+      emptyKey: "weakPasswordsEmpty",
+      emptyIcon: UnlockedIcon,
     },
     [RiskCategory.Reused]: {
       titleKey: "reusedPasswordsTitle",
       descriptionKey: "reusedPasswordsDescription",
+      emptyKey: "reusedPasswordsEmpty",
+      emptyIcon: NoCredentialsIcon,
     },
   };
 }
