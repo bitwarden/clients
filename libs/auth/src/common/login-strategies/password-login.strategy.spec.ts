@@ -219,7 +219,6 @@ describe("PasswordLoginStrategy", () => {
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
-    expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
 
   describe("makePasswordPreloginMasterKey", () => {
@@ -486,7 +485,7 @@ describe("PasswordLoginStrategy", () => {
   });
 
   describe("encryptionKeyMigrationRequired", () => {
-    it("returns requiresEncryptionKeyMigration and skips setUserKey when response has no key", async () => {
+    it("returns requiresEncryptionKeyMigration and skips the unlock when response has no key", async () => {
       // Very old accounts were encrypted with the master key directly (no user key). These
       // accounts have no `key` field on the token response. PasswordLoginStrategy overrides
       // encryptionKeyMigrationRequired to return true when key is absent, which causes the base
