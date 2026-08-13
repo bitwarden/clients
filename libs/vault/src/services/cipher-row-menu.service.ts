@@ -43,10 +43,7 @@ export class CipherRowMenuService {
     initialValue: [] as RestrictedCipherType[],
   });
 
-  /**
-   * Returns the full row action definitions for the cipher overflow menu.
-   * Source of truth is the web vault's `VaultCipherRowComponent`.
-   */
+  /** Returns the full row action definitions for the cipher overflow menu. */
   getRowActions<C extends CipherViewLike>(
     collections: CollectionView[] = [],
     handler: (event: VaultItemEvent<C>) => void,
