@@ -99,6 +99,7 @@ export class CipherRowMenuService {
         label: this.i18nService.t("archiveVerb"),
         icon: "bwi-archive",
         run: (item) => void this.cipherActionService.archive(item),
+        premiumGated: () => !this.userCanArchive(),
         show: (item) => this.showArchive(item),
       },
       {

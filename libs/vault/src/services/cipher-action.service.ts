@@ -146,11 +146,14 @@ export class CipherActionService {
       await this.premiumUpgradePromptService.promptForPremium();
       return;
     }
+
     const dialogRef = AttachmentsV2Component.open(this.dialogService, {
       cipherId: cipher.id as CipherId,
       canEditCipher: cipher.edit,
     });
+
     const result = await firstValueFrom(dialogRef.closed);
+
     if (
       result?.action === AttachmentDialogResult.Removed ||
       result?.action === AttachmentDialogResult.Uploaded
