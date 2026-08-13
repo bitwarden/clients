@@ -19,7 +19,6 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
