@@ -19,44 +19,45 @@
       </bit-section-header>
       @for (item of items(); track item.cipherId) {
         @let cipher = cipherMap().get(item.cipherId);
-
-        <bit-item class="tw-flex tw-gap-2 tw-items-center">
-          <button bit-item-content type="button" (click)="onItemClick(cipher)">
-            <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
-              <app-vault-icon [cipher]="cipher"></app-vault-icon>
-            </div>
-            <span bitTypography="body1">
-              {{ cipher.name }}
-            </span>
-            <div slot="secondary" class="tw-flex tw-flex-col">
-              <span bitTypography="body2" class="tw-text-muted">
-                {{ cipher.login.username }}
+        @if (cipher != null) {
+          <bit-item class="tw-flex tw-gap-2 tw-items-center">
+            <button bit-item-content type="button" (click)="onItemClick(cipher)">
+              <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
+                <app-vault-icon [cipher]="cipher"></app-vault-icon>
+              </div>
+              <span bitTypography="body1">
+                {{ cipher.name }}
               </span>
-            </div>
-          </button>
-          <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
-            @if (cipher.login.uri != null) {
+              <div slot="secondary" class="tw-flex tw-flex-col">
+                <span bitTypography="body2" class="tw-text-muted">
+                  {{ cipher.login.username }}
+                </span>
+              </div>
+            </button>
+            <div slot="end" class="tw-flex tw-gap-2 tw-items-center">
+              @if (cipher.login.uri != null) {
+                <bit-item-action>
+                  <button
+                    type="button"
+                    bitButton
+                    buttonType="primaryOutline"
+                    endIcon="bwi-external-link"
+                    (click)="onChangePassword(cipher)"
+                  >
+                    {{ "changePassword" | i18n }}
+                  </button>
+                </bit-item-action>
+              }
               <bit-item-action>
                 <button
                   type="button"
-                  bitButton
-                  buttonType="primaryOutline"
-                  endIcon="bwi-external-link"
-                  (click)="onChangePassword(cipher)"
-                >
-                  {{ "changePassword" | i18n }}
-                </button>
+                  bitIconButton="bwi-more-horizontal"
+                  label="{{ 'options' | i18n }}"
+                ></button>
               </bit-item-action>
-            }
-            <bit-item-action>
-              <button
-                type="button"
-                bitIconButton="bwi-more-horizontal"
-                label="{{ 'options' | i18n }}"
-              ></button>
-            </bit-item-action>
-          </div>
-        </bit-item>
+            </div>
+          </bit-item>
+        }
       }
     </bit-section>
   }

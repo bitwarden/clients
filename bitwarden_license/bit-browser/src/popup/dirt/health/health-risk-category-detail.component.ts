@@ -16,6 +16,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   ItemModule,
   SectionComponent,
@@ -95,6 +96,7 @@ export class HealthRiskCategoryDetailComponent {
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.cipherService.cipherViews$(userId)),
+      filterOutNullish(),
       map((ciphers) => new Map<string, CipherView>(ciphers.map((cipher) => [cipher.id, cipher]))),
     ),
     { initialValue: new Map<string, CipherView>() },
