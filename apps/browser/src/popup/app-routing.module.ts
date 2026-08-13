@@ -58,7 +58,8 @@ import { platformPopoutGuard } from "../auth/popup/guards/platform-popout.guard"
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { ChangePasswordPageComponent } from "../auth/popup/settings/change-password-page.component";
 import { ExtensionDeviceManagementComponent } from "../auth/popup/settings/extension-device-management.component";
-import { AutofillTriageComponent } from "../autofill/popup/autofill-triage/autofill-triage.component";
+import { AutofillToolsComponent } from "../autofill/popup/autofill-tools/autofill-tools.component";
+import { autofillToolsDevFlagGuard } from "../autofill/popup/autofill-tools/autofill-tools.guard";
 import { DefaultPasswordManagerPromptComponent } from "../autofill/popup/default-password-manager/default-password-manager-prompt.component";
 import { DefaultPasswordManagerPromptGuard } from "../autofill/popup/default-password-manager/default-password-manager-prompt.guard";
 import { Fido2Component } from "../autofill/popup/fido2/fido2.component";
@@ -392,9 +393,11 @@ const routes: Routes = [
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {
+    // Hosts the complementary Triage + Webmapper authoring tools; the `view`
+    // query param selects which is shown first.
     path: "autofill-triage",
-    component: AutofillTriageComponent,
-    canActivate: [authGuard],
+    component: AutofillToolsComponent,
+    canActivate: [authGuard, autofillToolsDevFlagGuard],
     data: { elevation: 1 } satisfies RouteDataProperties,
   },
   {

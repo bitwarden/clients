@@ -1,0 +1,291 @@
+@if (!url()) {
+  <bit-callout type="info" [title]="'Webmapper'">
+    Open an http(s) page to start mapping form fields.
+  </bit-callout>
+} @else if (draft(); as d) {
+  <div class="tw-mb-3 tw-flex tw-items-center tw-gap-2">
+    <code class="tw-break-all">{{ url()?.host }}</code>
+    <code class="tw-break-all">{{ url()?.pathname }}</code>
+    @if (d.irrelevant) {
+      <span bitBadge variant="warning">irrelevant</span>
+    }
+  </div>
+
+  @if (issues().length) {
+    <bit-callout type="warning" [title]="'Before export'">
+      <ul class="tw-mb-0 tw-pl-4">
+        @for (issue of issues(); track issue) {
+          <li>{{ issue }}</li>
+        }
+      </ul>
+    </bit-callout>
+  }
+
+  @for (form of d.forms; track $index; let i = $index) {
+    <bit-section>
+      <div class="tw-mb-2 tw-flex tw-items-center tw-gap-2">
+        <label class="tw-flex tw-flex-1 tw-items-center tw-gap-1">
+          <input
+            [id]="'webmapper_input_active-form-' + i"
+            type="radio"
+            name="webmapper-active-form"
+            [checked]="i === d.activeFormIndex"
+            (change)="setActiveForm(i)"
+          />
+          Form {{ i }}
+        </label>
+        <!--
+          Bind selectedness per-option, not [value] on the <select>. Angular writes the
+          select's bindings before @for creates the options, so a [value] write finds no
+          matching option and is silently dropped.
+        -->
+        <select
+          [id]="'webmapper_select_category-' + i"
+          class="tw-rounded tw-border tw-border-secondary-300 tw-bg-background tw-p-1 tw-text-sm"
+          (change)="setCategory(i, $any($event.target).value)"
+        >
+          <option value="" [selected]="!form.category">— category —</option>
+          @for (cat of categories; track cat) {
+            <option [value]="cat" [selected]="cat === form.category">{{ cat }}</option>
+          }
+        </select>
+        <button
+          [id]="'webmapper_button_remove-form-' + i"
+          type="button"
+          bitButton
+          size="small"
+          (click)="removeForm(i)"
+        >
+          Remove
+        </button>
+      </div>
+
+      <!-- Container -->
+      <h3 bitTypography="h6" class="tw-mt-2">Container</h3>
+      @if (form.pendingContainer?.length) {
+        <div class="tw-rounded tw-border tw-border-dashed tw-border-primary-600 tw-p-2">
+          <p class="tw-mb-1 tw-font-semibold">Pick which element is the form container:</p>
+          @for (cand of form.pendingContainer; track $index) {
+            <div class="tw-mb-1 tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+              <button
+                [id]="'webmapper_button_use-container-' + i + '-' + $index"
+                type="button"
+                bitButton
+                size="small"
+                (click)="pickContainer(i, $index)"
+              >
+                Use
+              </button>
+              <span class="tw-text-xs tw-text-muted"
+                >{{ cand.label }} (&lt;{{ cand.tag }}&gt;)</span
+              >
+              <code class="tw-w-full tw-break-all">{{ cand.selector }}</code>
+              @if (cand.structural) {
+                <span class="tw-text-xs tw-italic tw-text-warning-600">brittle (positional)</span>
+              }
+            </div>
+          }
+          <button
+            [id]="'webmapper_button_cancel-container-' + i"
+            type="button"
+            bitButton
+            size="small"
+            (click)="cancelContainer(i)"
+          >
+            Cancel
+          </button>
+        </div>
+      } @else if (form.container?.length) {
+        @for (entry of form.container; track $index) {
+          <ng-container
+            *ngTemplateOutlet="
+              entryTpl;
+              context: { $implicit: entry, address: addressAt(i, containerSlot, $index) }
+            "
+          ></ng-container>
+        }
+      } @else {
+        <p class="tw-text-sm tw-italic tw-text-muted">
+          Right-click the page → Bitwarden → Webmapper → Pick form container…
+        </p>
+      }
+
+      <!-- Fields -->
+      <h3 bitTypography="h6" class="tw-mt-3">Fields</h3>
+      @if (keysOf(form.fields).length === 0) {
+        <p class="tw-text-sm tw-italic tw-text-muted">
+          Right-click an input → Bitwarden → Webmapper → Field › …
+        </p>
+      } @else {
+        @for (key of keysOf(form.fields); track key) {
+          <div class="tw-mb-1 tw-flex tw-gap-2">
+            <div class="tw-w-28 tw-shrink-0 tw-font-semibold">{{ key }}</div>
+            <div class="tw-flex-1">
+              @for (entry of form.fields[key]; track $index) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    entryTpl;
+                    context: { $implicit: entry, address: addressAt(i, fieldsSlot(key), $index) }
+                  "
+                ></ng-container>
+              }
+            </div>
+          </div>
+        }
+      }
+
+      <!-- Actions -->
+      <h3 bitTypography="h6" class="tw-mt-3">Actions</h3>
+      @if (keysOf(form.actions).length === 0) {
+        <p class="tw-text-sm tw-italic tw-text-muted">
+          Right-click a button → Bitwarden → Webmapper → Action › …
+        </p>
+      } @else {
+        @for (key of keysOf(form.actions); track key) {
+          <div class="tw-mb-1 tw-flex tw-gap-2">
+            <div class="tw-w-28 tw-shrink-0 tw-font-semibold">{{ key }}</div>
+            <div class="tw-flex-1">
+              @for (entry of form.actions[key]; track $index) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    entryTpl;
+                    context: { $implicit: entry, address: addressAt(i, actionsSlot(key), $index) }
+                  "
+                ></ng-container>
+              }
+            </div>
+          </div>
+        }
+      }
+    </bit-section>
+  }
+
+  @if (exportText(); as text) {
+    <bit-section>
+      <h2 bitTypography="h6">Export</h2>
+      <textarea
+        id="webmapper_textarea_export"
+        class="tw-w-full tw-rounded tw-border tw-border-secondary-300 tw-bg-background tw-p-2 tw-font-mono tw-text-xs"
+        rows="12"
+        readonly
+        [value]="text"
+      ></textarea>
+    </bit-section>
+  }
+
+  <div class="tw-mt-4 tw-flex tw-flex-wrap tw-gap-2">
+    <button id="webmapper_button_add-form" type="button" bitButton size="small" (click)="addForm()">
+      Add form
+    </button>
+    <button
+      id="webmapper_button_toggle-irrelevant"
+      type="button"
+      bitButton
+      size="small"
+      (click)="toggleIrrelevant()"
+    >
+      {{ d.irrelevant ? "Unmark irrelevant" : "Mark irrelevant" }}
+    </button>
+    <button
+      id="webmapper_button_copy-jsonc"
+      type="button"
+      bitButton
+      buttonType="primary"
+      size="small"
+      (click)="copyJsonc()"
+    >
+      Copy JSONC
+    </button>
+    <button
+      id="webmapper_button_clear"
+      type="button"
+      bitButton
+      buttonType="danger"
+      size="small"
+      (click)="clearDraft()"
+    >
+      Clear draft
+    </button>
+  </div>
+}
+
+<!-- One selector entry (used for container, fields, and actions). -->
+<ng-template #entryTpl let-entry let-address="address">
+  <div class="tw-mb-1">
+    <div class="tw-flex tw-items-center tw-gap-1">
+      @if (isEditing(address)) {
+        <input
+          [id]="'webmapper_input_edit-selector-' + addressId(address)"
+          class="tw-flex-1 tw-rounded tw-border tw-border-secondary-300 tw-bg-background tw-p-1 tw-font-mono tw-text-xs"
+          [value]="editValue()"
+          (input)="editValue.set($any($event.target).value)"
+          (keyup.enter)="saveEdit()"
+          (keyup.escape)="cancelEdit()"
+        />
+        <button
+          [id]="'webmapper_button_save-selector-' + addressId(address)"
+          type="button"
+          bitIconButton="bwi-check"
+          size="small"
+          label="Save selector"
+          (click)="saveEdit()"
+        ></button>
+        <button
+          [id]="'webmapper_button_cancel-edit-' + addressId(address)"
+          type="button"
+          bitIconButton="bwi-close"
+          size="small"
+          label="Cancel edit"
+          (click)="cancelEdit()"
+        ></button>
+      } @else {
+        <code class="tw-flex-1 tw-break-all">{{ selectorText(entry.selector) }}</code>
+        <button
+          [id]="'webmapper_button_edit-selector-' + addressId(address)"
+          type="button"
+          bitIconButton="bwi-pencil"
+          size="small"
+          label="Edit selector"
+          [disabled]="isArraySelector(entry.selector)"
+          (click)="startEdit(address, entry.selector)"
+        ></button>
+        <button
+          [id]="'webmapper_button_remove-selector-' + addressId(address)"
+          type="button"
+          bitIconButton="bwi-trash"
+          size="small"
+          label="Remove selector"
+          (click)="removeSelector(address)"
+        ></button>
+      }
+    </div>
+
+    @if (entry.warnings.length) {
+      <div class="tw-pl-2 tw-text-xs tw-italic tw-text-warning-600">
+        {{ entry.warnings.join(" · ") }}
+      </div>
+    }
+
+    @if (entry.alternates.length) {
+      <div class="tw-mt-1 tw-border-l-2 tw-border-secondary-300 tw-pl-2">
+        <div class="tw-text-xs tw-text-muted">
+          {{ entry.alternates.length }} alternate{{ entry.alternates.length === 1 ? "" : "s" }}:
+        </div>
+        @for (alt of entry.alternates; track $index) {
+          <div class="tw-flex tw-items-center tw-gap-1">
+            <button
+              [id]="'webmapper_button_use-alternate-' + addressId(address) + '-' + $index"
+              type="button"
+              bitButton
+              size="small"
+              (click)="swapAlternate(address, $index)"
+            >
+              Use
+            </button>
+            <code class="tw-flex-1 tw-break-all">{{ selectorText(alt) }}</code>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
