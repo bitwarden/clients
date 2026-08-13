@@ -456,6 +456,23 @@ describe("ShadowHostHydrationTracker", () => {
       expect(tracker["hostsAwaitingDefinition"].get(host)).toBe(firstDeadline);
     });
 
+    it("does not restart backoff for hosts that overflowed instead of taking a tracking slot", () => {
+      customElements.define("crowded-widget", class extends HTMLElement {});
+      const hosts = Array.from({ length: tracker["trackingCap"] + 40 }, () =>
+        document.createElement("crowded-widget"),
+      );
+      hosts.forEach((host) => document.body.appendChild(host));
+
+      tracker.reconcileFromScan(new Set(hosts));
+      const firstRound = tracker["retryRound"];
+
+      // The overflowed tail is re-reported by every scan. Counting it as new work would pin the
+      // sweep at the 500ms floor for the whole host lifetime on any component-heavy page.
+      tracker.reconcileFromScan(new Set(hosts));
+
+      expect(tracker["retryRound"]).toBeGreaterThan(firstRound);
+    });
+
     it("stops parking a tag once one instance has spent its full lifetime undefined", () => {
       const first = document.createElement("framework-shell");
       document.body.appendChild(first);

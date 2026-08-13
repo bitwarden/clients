@@ -167,15 +167,16 @@ export class ShadowHostHydrationTracker {
         this.parkHost(element, now);
         continue;
       }
-      if (!previousDeadlines.has(element)) {
-        sawNewHost = true;
-      }
       const expiresAt = previousDeadlines.get(element) ?? now + this.hostLifetimeMs;
       if (now >= expiresAt) {
         this.expiredHosts.add(element);
         continue;
       }
-      this.admitHost(element, expiresAt);
+      // Newly *tracked*, not newly seen: an overflowed host takes no slot, and counting it would
+      // reset the backoff every scan on any page holding more unresolved hosts than the cap.
+      if (this.admitHost(element, expiresAt) && !previousDeadlines.has(element)) {
+        sawNewHost = true;
+      }
     }
 
     this.drainOverflow(now);
@@ -188,12 +189,16 @@ export class ShadowHostHydrationTracker {
     this.scheduleRetry();
   }
 
-  private admitHost(element: Element, expiresAt: EpochMs): void {
+  /** @returns whether the host took a tracking slot — queued and dropped hosts both report false. */
+  private admitHost(element: Element, expiresAt: EpochMs): boolean {
     if (this.hostsAwaitingShadowRoot.size < this.trackingCap) {
       this.hostsAwaitingShadowRoot.set(element, expiresAt);
-    } else if (this.overflowQueue.length < this.overflowCap) {
+      return true;
+    }
+    if (this.overflowQueue.length < this.overflowCap) {
       this.overflowQueue.push(element);
     }
+    return false;
   }
 
   private drainOverflow(now: EpochMs): void {
@@ -227,8 +232,8 @@ export class ShadowHostHydrationTracker {
         this.hostsAwaitingDefinition.delete(element);
         // Overwrites an earlier `Abandoned`: proof of definition repairs a wrong verdict.
         this.tagVerdicts.set(element.tagName, TagVerdict.Defined);
-        enrolled = true;
-        this.admitHost(element, now + this.hostLifetimeMs);
+        // `admitHost` first — `||` would short-circuit past admission once one host has enrolled.
+        enrolled = this.admitHost(element, now + this.hostLifetimeMs) || enrolled;
         continue;
       }
       // Still undefined past its park deadline: give up and tombstone, so it can't re-park and
