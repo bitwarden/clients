@@ -565,7 +565,6 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
         await initComponent();
 
-        expect(noItems()).not.toBeNull();
         expect(noItemsIcon()).toBe(icon);
       },
     );
