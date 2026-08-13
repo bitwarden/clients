@@ -56,9 +56,14 @@ export class DrawerService {
     this.stack.update((s) => [...s, ref]);
   }
 
-  /** Pop the top ref off the stack. No-op if the stack is empty. */
-  pop() {
-    if (this.stack().length === 0) {
+  /**
+   * Pop the given ref off the stack. No-op unless it is currently on top.
+   *
+   * Taking the ref rather than blindly dropping the last entry means a ref that resumes an
+   * asynchronous close after the stack has moved on cannot tear down an unrelated drawer.
+   */
+  pop(ref: DrawerRef<any, any>) {
+    if (!this.isTop(ref)) {
       return;
     }
     this.stack.update((s) => s.slice(0, -1));

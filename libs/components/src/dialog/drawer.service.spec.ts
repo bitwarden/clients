@@ -23,7 +23,7 @@ describe("DrawerService", () => {
     options: { closePredicate?: (result?: any) => Promise<boolean> } = {},
   ): DrawerRef<any, any> {
     const ref: DrawerRef = new DrawerRef(
-      () => service.pop(),
+      () => service.pop(ref),
       () => service.isTop(ref),
       () => makeRef(),
       false,
@@ -33,6 +33,61 @@ describe("DrawerService", () => {
     service.push(ref);
     return ref;
   }
+
+  describe("pop", () => {
+    // These assertions are what distinguishes `pop(ref)` from a blind "drop the last entry".
+    // Without them, reverting the guard leaves the whole suite green — verified — so the
+    // protection against a resumed async close tearing down an unrelated drawer can be
+    // refactored away silently.
+    it("pops the ref when it is on top", () => {
+      const root = makeRef();
+      const top = makeRef();
+
+      service.pop(top);
+
+      expect(service.stackDepth()).toBe(1);
+      expect(service.isTop(root)).toBe(true);
+    });
+
+    it("is a no-op when the ref is buried", () => {
+      const root = makeRef();
+      const top = makeRef();
+
+      service.pop(root);
+
+      expect(service.stackDepth()).toBe(2);
+      expect(service.isTop(top)).toBe(true);
+    });
+
+    it("is a no-op when the ref is not on the stack at all", () => {
+      const top = makeRef();
+      const orphan: DrawerRef = new DrawerRef(
+        () => service.pop(orphan),
+        () => service.isTop(orphan),
+        () => makeRef(),
+        false,
+        undefined,
+        logService,
+      );
+
+      service.pop(orphan);
+
+      expect(service.stackDepth()).toBe(1);
+      expect(service.isTop(top)).toBe(true);
+    });
+
+    it("resets push mode once the last ref is popped", () => {
+      const only = makeRef();
+      service.declarePushWidth(240);
+      service.isPushMode.set(true);
+
+      service.pop(only);
+
+      expect(service.stackDepth()).toBe(0);
+      expect(service.pushWidthPx()).toBe(0);
+      expect(service.isPushMode()).toBe(false);
+    });
+  });
 
   describe("closeAll", () => {
     it("returns false and stops when an intermediate ref's predicate rejects", async () => {

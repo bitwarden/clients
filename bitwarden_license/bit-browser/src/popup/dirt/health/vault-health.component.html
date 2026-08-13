@@ -1,0 +1,16 @@
+@switch (scanState()) {
+  @case (VaultHealthScanState.Scanning) {
+    <dirt-scan-progress />
+  }
+  @case (VaultHealthScanState.Failure) {
+    <dirt-scan-failure />
+  }
+  @case (VaultHealthScanState.Results) {
+    <!--
+      The Health Overview - At-Risk Gauge and the Exposed / Weak / Reused risk
+      categories - is owned by PM-35945 and binds to `report()`. Intentionally
+      empty until that story lands; this story only routes a successful scan here.
+    -->
+    <div data-testid="scan-results"></div>
+  }
+}

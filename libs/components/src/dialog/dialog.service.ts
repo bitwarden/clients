@@ -5,7 +5,15 @@ import {
 } from "@angular/cdk/dialog";
 import { ComponentType, GlobalPositionStrategy, ScrollStrategy } from "@angular/cdk/overlay";
 import { ComponentPortal } from "@angular/cdk/portal";
-import { Injectable, Injector, TemplateRef, inject } from "@angular/core";
+import {
+  DestroyableInjector,
+  Injectable,
+  Injector,
+  Provider,
+  TemplateRef,
+  afterNextRender,
+  inject,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, firstValueFrom, map, switchMap, take } from "rxjs";
@@ -104,6 +112,21 @@ export class CenterPositionStrategy extends GlobalPositionStrategy {
   }
 }
 
+/**
+ * Wrap `injector.destroy()` so it can safely be called from more than one teardown path:
+ * `R3Injector.destroy()` throws `NG0205` if it runs a second time.
+ */
+function destroyOnce(injector: DestroyableInjector): () => void {
+  let destroyed = false;
+  return () => {
+    if (destroyed) {
+      return;
+    }
+    destroyed = true;
+    injector.destroy();
+  };
+}
+
 @Injectable()
 export class DialogService {
   private dialog = inject(CdkDialog);
@@ -138,8 +161,9 @@ export class DialogService {
     componentOrTemplateRef: ComponentType<C> | TemplateRef<C>,
     config?: DialogConfig<D, R>,
   ): DialogRef<R, C> {
-    // We need to split out our async closePredicate here because the CDK's closePredicate is sync
-    const { closePredicate, ...otherConfig } = config ?? {};
+    // We need to split out our async closePredicate here because the CDK's closePredicate is sync.
+    // `providers` is ours too — it goes into the injector we build below, not into the CDK config.
+    const { closePredicate, providers, ...otherConfig } = config ?? {};
 
     /**
      * This is a bit circular in nature:
@@ -150,9 +174,10 @@ export class DialogService {
      * This allows us to create the class instance and provide the base instance later, almost like "deferred inheritance".
      **/
     const ref = new CdkDialogRef<R, C>(this.logService, closePredicate);
-    const injector = this.createInjector({
+    const { injector, destroyProviders } = this.createInjector({
       data: config?.data,
       dialogRef: ref,
+      providers,
     });
 
     // Merge the custom config with the default config
@@ -165,7 +190,28 @@ export class DialogService {
       ...otherConfig,
     };
 
-    ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+    try {
+      ref.cdkDialogRefBase = this.dialog.open<R, D, C>(componentOrTemplateRef, _config);
+    } catch (err) {
+      /**
+       * The dialog is half-open. `Dialog.open` attaches the overlay before it creates the component
+       * and only records the dialog in `openDialogs` afterwards, so a component constructor that
+       * throws leaves an attached `cdk-dialog-container`, the enabled block-scroll strategy (the
+       * body keeps `tw-overflow-hidden`) and the `ResponsivePositionStrategy` resize listener
+       * behind, none of it reachable by `closeAll()`. That is a pre-existing CDK-side leak and not
+       * something we can clean up from here.
+       *
+       * What we can clean up is the providers injector: `ref` never receives a CDK ref to delegate
+       * to, so `closed` never emits and no other teardown path will ever run. Anything the dialog
+       * component's constructor resolved before throwing is destroyed here or never.
+       */
+      destroyProviders?.();
+      throw err;
+    }
+
+    if (destroyProviders) {
+      this.destroyProvidersWithDialog(ref.cdkDialogRefBase, destroyProviders);
+    }
 
     if (config?.restoreFocus === undefined) {
       this.setRestoreFocusEl<R, C>(ref);
@@ -205,19 +251,23 @@ export class DialogService {
      * pattern as openDialog / CdkDialogRef).
      */
     const ref: DrawerRef<R, C> = new DrawerRef<R, C>(
-      () => this.drawerService.pop(),
+      () => this.drawerService.pop(ref),
       () => this.drawerService.isTop(ref),
       (component, config) => this.stackDrawer(component, config),
       closeOnNavigation,
       config?.closePredicate,
       this.logService,
     );
-    const portal = new ComponentPortal(
-      component,
-      null,
-      this.createInjector({ data: config?.data, dialogRef: ref, drawerRef: ref }),
-    );
-    ref.portal = portal;
+    const { injector, destroyProviders } = this.createInjector({
+      data: config?.data,
+      dialogRef: ref,
+      drawerRef: ref,
+      providers: config?.providers,
+    });
+    ref.portal = new ComponentPortal(component, null, injector);
+    if (destroyProviders) {
+      this.destroyProvidersWithDrawer(ref, destroyProviders);
+    }
     this.drawerService.push(ref);
     return ref;
   }
@@ -299,13 +349,82 @@ export class DialogService {
     });
   }
 
-  /** The injector that is passed to the opened dialog */
+  /**
+   * Destroy the injector holding a dialog's own `providers` once the dialog component is gone.
+   *
+   * `ComponentRef.onDestroy` is the precise hook: Angular runs a view's directive `ngOnDestroy`
+   * hooks before the callbacks registered on the view, so a provided service is destroyed strictly
+   * after the component that injected it. It also fires for every way a CDK dialog can go away —
+   * `close()`, the backdrop, escape, `closeAll()`, the vault-lock subscription, overlay detachment
+   * and `Dialog.ngOnDestroy` — and does not fire when a `closePredicate` keeps the dialog open.
+   */
+  private destroyProvidersWithDialog<R, C>(
+    cdkRef: CdkDialogRefBase<R, C> | undefined,
+    destroyProviders: () => void,
+  ) {
+    /** There is always a CDK ref at runtime; unit tests that stub `Dialog.open` return none. */
+    if (cdkRef == null) {
+      return;
+    }
+
+    if (cdkRef.componentRef) {
+      cdkRef.componentRef.onDestroy(destroyProviders);
+      return;
+    }
+
+    /**
+     * `TemplateRef` dialogs never get a `componentRef`. `closed` is the next best hook — the CDK
+     * disposes the overlay, which destroys the dialog's view, before it emits.
+     */
+    cdkRef.closed.subscribe({ complete: destroyProviders });
+  }
+
+  /**
+   * Destroy the injector holding a drawer's own `providers` once the drawer component is gone.
+   *
+   * Drawers are the mirror image of dialogs: `closed` emits *before* the component is destroyed,
+   * because closing only pops the drawer stack and the component dies when the layout's
+   * `cdkPortalOutlet` picks up the new top-of-stack portal on the next change detection pass.
+   * `afterNextRender` lands the teardown after that pass, so a provided service is never destroyed
+   * while the drawer that injected it is still on screen.
+   *
+   * Keying off `closed` rather than the component's destruction is also what makes
+   * `DrawerRef.stack()` work: burying a drawer destroys its component but keeps its ref, its
+   * portal, and therefore this injector alive for when the child pops and the drawer is re-created.
+   */
+  private destroyProvidersWithDrawer<R, C>(ref: DrawerRef<R, C>, destroyProviders: () => void) {
+    ref.closed.subscribe({
+      complete: () => afterNextRender(destroyProviders, { injector: this.injector }),
+    });
+  }
+
+  /**
+   * Build the injector that is passed to the opened dialog or drawer.
+   *
+   * A caller's `providers` go into their own injector, nested *below* the dialog's built-in tokens
+   * so they can inject `DIALOG_DATA` / `DialogRef` and still shadow anything from the environment
+   * injector. Returns a `destroyProviders` callback when — and only when — such an injector exists;
+   * dialogs that declare no providers get exactly the injector they always got, and nothing new to
+   * tear down.
+   *
+   * Isolating the caller's providers also keeps `R3Injector.destroy()` away from the built-in
+   * tokens: it calls `ngOnDestroy()` on every instance it handed out, `useValue` ones included, so
+   * a caller `data` object that happens to have an `ngOnDestroy` must not live in the injector
+   * being destroyed.
+   *
+   * `createEnvironmentInjector` also accepts `Provider[]`, but it registers itself under the
+   * `EnvironmentInjector` token — which `DomPortalOutlet` reads to choose the environment injector
+   * for the whole overlay subtree. That would give every dialog open its own `StandaloneService`,
+   * and so its own standalone-component injector cache. `Injector.create`'s object overload takes
+   * `Provider[]` just as happily and returns a `DestroyableInjector`.
+   */
   private createInjector(opts: {
     data: unknown;
     dialogRef: DialogRef<any, any>;
     drawerRef?: DrawerRef<any, any>;
-  }): Injector {
-    return Injector.create({
+    providers?: Provider[];
+  }): { injector: Injector; destroyProviders?: () => void } {
+    const dialogInjector = Injector.create({
       providers: [
         {
           provide: DIALOG_DATA,
@@ -323,5 +442,19 @@ export class DialogService {
       ],
       parent: this.injector,
     });
+
+    if (!opts.providers?.length) {
+      return { injector: dialogInjector };
+    }
+
+    const providersInjector = Injector.create({
+      providers: opts.providers,
+      parent: dialogInjector,
+    });
+
+    return {
+      injector: providersInjector,
+      destroyProviders: destroyOnce(providersInjector),
+    };
   }
 }

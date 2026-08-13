@@ -56,7 +56,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { OrganizationUserType, OrganizationUserStatusType } from "@bitwarden/sdk-internal";
-import { I18nPipe } from "@bitwarden/ui-common";
+import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
@@ -77,6 +77,10 @@ import {
 } from "../../../shared/components/access-selector";
 import { DeleteManagedMemberWarningService } from "../../services/delete-managed-member/delete-managed-member-warning.service";
 import { MemberActionsService } from "../../services/member-actions/member-actions.service";
+// MemberActionsService depends on this; the dialog provides it on its behalf. The import cycle it
+// forms with this file (the manager opens this dialog) already exists via MemberActionsService, and
+// is safe here because the provider list is only evaluated when `open()` is called.
+import { MemberDialogManagerService } from "../../services/member-dialog-manager/member-dialog-manager.service";
 import {
   ProblemDetailsFieldMap,
   ProblemDetailsService,
@@ -735,10 +739,23 @@ export class EditMemberDialogComponent {
     dialogService: DialogService,
     config: DialogConfig<EditMemberDialogParams>,
   ) =>
-    dialogService.open<MemberDialogResult, EditMemberDialogParams>(
-      EditMemberDialogComponent,
-      config,
-    );
+    dialogService.open<MemberDialogResult, EditMemberDialogParams>(EditMemberDialogComponent, {
+      ...config,
+      /**
+       * This dialog performs member mutations itself, so it depends on services that are not
+       * `providedIn: "root"`. Declaring them here means any page can open the dialog without
+       * knowing what it needs — before this, only pages that happened to provide them worked, and
+       * the Member Access report did not (PM-41880).
+       *
+       * Add to this list whenever the dialog gains a dependency that is not root-provided.
+       */
+      providers: [
+        safeProvider(MemberActionsService),
+        safeProvider(MemberDialogManagerService),
+        safeProvider(BillingConstraintService),
+        ...(config.providers ?? []),
+      ],
+    });
 }
 
 function mapCollectionToAccessItemView(
