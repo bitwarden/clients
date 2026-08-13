@@ -57,7 +57,12 @@
                 ></button>
               </bit-item-action>
               <bit-menu #itemMenu>
-                <button bitMenuItem type="button" variant="danger" (click)="onDeleteItem(item)">
+                <button
+                  bitMenuItem
+                  type="button"
+                  variant="danger"
+                  (click)="onDeleteItem(item, cipher)"
+                >
                   <bit-icon name="bwi-delete" slot="start" />
                   {{ "deleteItem" | i18n }}
                 </button>

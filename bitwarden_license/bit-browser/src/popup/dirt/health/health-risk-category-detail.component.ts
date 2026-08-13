@@ -132,7 +132,12 @@ export class HealthRiskCategoryDetailComponent {
     });
   };
 
-  readonly onDeleteItem = async (health: CipherHealthView) => {
+  readonly onDeleteItem = async (health: CipherHealthView, cipher: CipherView) => {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
     await this.dialogService.open(HealthDeleteAtRiskItemDialogComponent, {
       positionStrategy: new CenterPositionStrategy(),
       data: {
