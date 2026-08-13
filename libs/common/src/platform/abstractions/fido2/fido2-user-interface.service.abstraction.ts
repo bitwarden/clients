@@ -84,7 +84,7 @@ export abstract class Fido2UserInterfaceSession {
    */
   abstract pickCredential(
     params: PickCredentialParams,
-  ): Promise<{ cipherId: string; userVerified: boolean }>;
+  ): Promise<{ cipherId: string | undefined; userVerified: boolean }>;
 
   /**
    * Ask the user to confirm the creation of a new credential.

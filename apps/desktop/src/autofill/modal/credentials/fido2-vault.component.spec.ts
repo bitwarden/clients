@@ -11,7 +11,6 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import {
@@ -29,7 +28,6 @@ describe("Fido2VaultComponent", () => {
   let mockCipherService: MockProxy<CipherService>;
   let mockAccountService: MockProxy<AccountService>;
   let mockLogService: MockProxy<LogService>;
-  let mockPasswordRepromptService: MockProxy<PasswordRepromptService>;
   let mockRouter: MockProxy<Router>;
   let mockSession: MockProxy<DesktopFido2UserInterfaceSession>;
   let mockI18nService: MockProxy<I18nService>;
@@ -43,7 +41,6 @@ describe("Fido2VaultComponent", () => {
     mockCipherService = mock<CipherService>();
     mockAccountService = mock<AccountService>();
     mockLogService = mock<LogService>();
-    mockPasswordRepromptService = mock<PasswordRepromptService>();
     mockRouter = mock<Router>();
     mockSession = mock<DesktopFido2UserInterfaceSession>();
     mockI18nService = mock<I18nService>();
@@ -61,7 +58,6 @@ describe("Fido2VaultComponent", () => {
         { provide: CipherService, useValue: mockCipherService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: LogService, useValue: mockLogService },
-        { provide: PasswordRepromptService, useValue: mockPasswordRepromptService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
       ],
@@ -120,11 +116,11 @@ describe("Fido2VaultComponent", () => {
     });
 
     it("should handle when no active session found", async () => {
-      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(null);
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
 
       await component.ngOnInit();
 
-      expect(component.session).toBeNull();
+      expect(component.session).toBeUndefined();
     });
 
     it("should filter out deleted ciphers", async () => {
@@ -155,33 +151,20 @@ describe("Fido2VaultComponent", () => {
       component.session = mockSession;
     });
 
-    it("should choose cipher when access is validated", async () => {
-      cipher.reprompt = CipherRepromptType.None;
-
+    it("hands the chosen cipher to the session", async () => {
       await component.chooseCipher(cipher);
 
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(cipher.id, true);
+      // Verification (master-password reprompt or OS) is handled by the session.
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(cipher);
+    });
+
+    it("closes the modal if the session is not found when cipher is chosen ", async () => {
+      component.session = undefined;
+      await component.chooseCipher(cipher);
+
+      // Verification (master-password reprompt or OS) is handled by the session.
+      expect(mockSession.confirmChosenCipher).not.toHaveBeenCalled();
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
-    });
-
-    it("should prompt for password when cipher requires reprompt", async () => {
-      cipher.reprompt = CipherRepromptType.Password;
-      mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(true);
-
-      await component.chooseCipher(cipher);
-
-      expect(mockPasswordRepromptService.showPasswordPrompt).toHaveBeenCalled();
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(cipher.id, true);
-    });
-
-    it("should not choose cipher when password reprompt is cancelled", async () => {
-      cipher.reprompt = CipherRepromptType.Password;
-      mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
-
-      await component.chooseCipher(cipher);
-
-      expect(mockPasswordRepromptService.showPasswordPrompt).toHaveBeenCalled();
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(cipher.id, false);
     });
   });
 
@@ -191,7 +174,7 @@ describe("Fido2VaultComponent", () => {
 
       await component.closeModal();
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
     });

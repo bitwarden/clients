@@ -64,14 +64,28 @@ describe("Fido2ExcludedCiphersComponent", () => {
   });
 
   describe("closeModal", () => {
-    it("should close modal and notify session when session exists", async () => {
+    it("should notify the session and let it reset the window when a session exists", async () => {
       component.session = mockSession;
+
+      await component.closeModal();
+
+      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
+      expect(mockSession.hideUi).toHaveBeenCalled();
+
+      // The session owns this teardown; the component must not duplicate it.
+      expect(mockDesktopSettingsService.setModalMode).not.toHaveBeenCalled();
+      expect(mockAccountService.setShowHeader).not.toHaveBeenCalled();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
+    it("should reset the window itself when there is no session to hand off to", async () => {
+      component.session = null;
 
       await component.closeModal();
 
       expect(mockDesktopSettingsService.setModalMode).toHaveBeenCalledWith(false);
       expect(mockAccountService.setShowHeader).toHaveBeenCalledWith(true);
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
       expect(mockRouter.navigate).toHaveBeenCalledWith(["/"]);
     });
   });
