@@ -116,7 +116,7 @@ function cipher(fixture: CipherFixture): CipherView {
   if (!fixture.organizationId && fixture.collectionIds?.length) {
     throw new Error(
       `Fixture "${fixture.name}" is in the individual vault but has shared folders; ` +
-      "only organization-owned items can belong to a shared folder.",
+        "only organization-owned items can belong to a shared folder.",
     );
   }
 
@@ -320,30 +320,30 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
     label: "Favorite",
     icon: "bwi-star",
     show: (item) => !item.favorite,
-    run: () => { },
+    run: () => {},
   },
   {
     id: "unfavorite",
     label: "Unfavorite",
     icon: "bwi-star",
     show: (item) => item.favorite,
-    run: () => { },
+    run: () => {},
   },
-  { id: "edit", label: "Edit", icon: "bwi-pencil-square", run: () => { } },
-  { id: "attachments", label: "Attachments", icon: "bwi-paperclip", run: () => { } },
-  { id: "clone", label: "Clone", icon: "bwi-files", run: () => { } },
+  { id: "edit", label: "Edit", icon: "bwi-pencil-square", run: () => {} },
+  { id: "attachments", label: "Attachments", icon: "bwi-paperclip", run: () => {} },
+  { id: "clone", label: "Clone", icon: "bwi-files", run: () => {} },
   {
     id: "assign-to-collections",
     label: "Assign to collections",
     icon: "bwi-collection-shared",
-    run: () => { },
+    run: () => {},
   },
   {
     id: "events",
     label: "Event logs",
     icon: "bwi-file-text",
     show: (item) => item.organizationId != null,
-    run: () => { },
+    run: () => {},
   },
   {
     id: "archive",
@@ -351,14 +351,14 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
     icon: "bwi-archive",
     // Archive is a premium feature, so a free user gets the Upgrade badge rather than the action.
     premiumGated: () => true,
-    run: () => { },
+    run: () => {},
   },
   {
     id: "delete",
     label: "Delete",
     icon: "bwi-trash",
     variant: "danger",
-    run: () => { },
+    run: () => {},
   },
 ];
 
@@ -418,7 +418,7 @@ const baseProps: StoryProps = {
   collections,
   organizations,
   copyPresentation: DEFAULT_COPY_PRESENTATION,
-  itemAction: () => { },
+  itemAction: () => {},
 };
 
 export default {

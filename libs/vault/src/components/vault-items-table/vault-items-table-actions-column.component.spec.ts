@@ -237,29 +237,32 @@ describe("VaultItemsTableActionsColumnComponent", () => {
   });
 
   describe("premium-gated actions", () => {
-    const archive: VaultItemsTableRowAction<CipherView, TestEvent> = {
-      id: "archive",
-      label: "Archive",
-      icon: "bwi-archive",
-      premiumGated: () => true,
-      event: (item) => ({ type: "archive", item }),
-    };
-
-    it("prompts for premium instead of emitting the action's event", async () => {
+    it("prompts for premium instead of running the action", async () => {
+      const run = jest.fn();
       host.ciphers.set([loginCipher()]);
-      host.rowActions.set([archive]);
+      host.rowActions.set([
+        { id: "archive", label: "Archive", icon: "bwi-archive", premiumGated: () => true, run },
+      ]);
       fixture.detectChanges();
 
       openMenu(0)[0].click();
       await fixture.whenStable();
 
       expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
-      expect(host.emitted).toEqual([]);
+      expect(run).not.toHaveBeenCalled();
     });
 
     it("badges the menu item so a free user sees why it is gated", () => {
       host.ciphers.set([loginCipher()]);
-      host.rowActions.set([archive]);
+      host.rowActions.set([
+        {
+          id: "archive",
+          label: "Archive",
+          icon: "bwi-archive",
+          premiumGated: () => true,
+          run: jest.fn(),
+        },
+      ]);
       fixture.detectChanges();
 
       const menuItem = openMenu(0)[0];
@@ -269,17 +272,20 @@ describe("VaultItemsTableActionsColumnComponent", () => {
       expect(menuItem.querySelector("[aria-hidden]")).not.toBeNull();
     });
 
-    it("leaves an ungated action emitting, with no badge", () => {
+    it("runs the action and shows no badge when not gated", () => {
+      const run = jest.fn();
       const cipher = loginCipher();
       host.ciphers.set([cipher]);
-      host.rowActions.set([{ ...archive, premiumGated: () => false }]);
+      host.rowActions.set([
+        { id: "archive", label: "Archive", icon: "bwi-archive", premiumGated: () => false, run },
+      ]);
       fixture.detectChanges();
 
       const menuItem = openMenu(0)[0];
       menuItem.click();
 
       expect(menuItem.querySelector("app-premium-badge")).toBeNull();
-      expect(host.emitted).toEqual([{ type: "archive", item: cipher }]);
+      expect(run).toHaveBeenCalledWith(cipher);
       expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
     });
   });
