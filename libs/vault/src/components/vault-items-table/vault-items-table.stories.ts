@@ -389,25 +389,27 @@ const template = `
   @if (heading) {
     <h1 bitTypography="h1">{{ heading }}</h1>
   }
-  <vault-items-table
-    [ciphers]="ciphers"
-    [organizationId]="organizationId"
-    [loading]="loading"
-    [rowActions]="rowActions"
-    [folders]="folders"
-    [collections]="collections"
-    [organizations]="organizations"
-    [copyPresentation]="copyPresentation"
-    [initialFilterValues]="initialFilterValues"
-    [itemAction]="itemAction"
-  >
-    <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
-      Import
-    </button>
-    <button slot="toolbar" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
-      Add
-    </button>
-  </vault-items-table>
+  <div style="display:flex; min-height: 600px;">
+    <vault-items-table
+      [ciphers]="ciphers"
+      [organizationId]="organizationId"
+      [loading]="loading"
+      [rowActions]="rowActions"
+      [folders]="folders"
+      [collections]="collections"
+      [organizations]="organizations"
+      [copyPresentation]="copyPresentation"
+      [initialFilterValues]="initialFilterValues"
+      [itemAction]="itemAction"
+    >
+      <button slot="toolbar" bitButton buttonType="secondary" type="button" startIcon="bwi-import">
+        Import
+      </button>
+      <button slot="toolbar" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+        Add
+      </button>
+    </vault-items-table>
+  </div>
 `;
 
 const baseProps: StoryProps = {
