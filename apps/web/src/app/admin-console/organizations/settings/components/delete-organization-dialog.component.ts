@@ -90,12 +90,10 @@ export class DeleteOrganizationDialogComponent implements OnInit, OnDestroy {
   deleteOrganizationRequestType: "InvalidFamiliesForEnterprise" | "RegularDelete" = "RegularDelete";
   organization!: Organization;
   organizationContentSummary: OrganizationContentSummary = new OrganizationContentSummary();
-  secret!: Verification;
 
   protected formGroup = this.formBuilder.group({
     secret: new FormControl<Verification | null>(null, [Validators.required]),
   });
-  formPromise!: Promise<void>;
 
   constructor(
     @Inject(DIALOG_DATA) private params: DeleteOrganizationDialogParams,
