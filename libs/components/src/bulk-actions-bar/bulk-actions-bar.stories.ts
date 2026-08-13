@@ -199,12 +199,6 @@ export const Default: Story = {
   }),
 };
 
-/**
- * Project `<bit-bulk-additional-action>` entries alongside the primary `<bit-bulk-action>`
- * data-holders. When at least one additional action is present, the bar renders an icon-only
- * "Additional actions" trigger at the end of the action row that opens a bar-owned menu. The
- * optional `[icon]` input renders a leading icon inside the menu item.
- */
 export const WithAdditionalActions: Story = {
   render: (args) => ({
     props: { ...args, noop },
@@ -231,13 +225,6 @@ export const WithTableSelection: Story = {
   },
 };
 
-/**
- * Wraps the bar in a narrow container that establishes a containing block for
- * its `position: fixed` wrapper (via `transform`), so the ResizeObserver-driven
- * compact mode can be exercised in Storybook: labels collapse to icons and
- * surface via tooltip once the available width drops below the bar's natural
- * width.
- */
 export const Compact: Story = {
   render: (args) => ({
     props: { ...args, noop },
@@ -250,6 +237,29 @@ export const Compact: Story = {
           <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
           <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
           <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
+        </bit-bulk-actions-bar>
+      </div>
+    `,
+  }),
+};
+
+export const WithOverflow: Story = {
+  render: (args) => ({
+    props: { ...args, noop },
+    template: /*html*/ `
+      <div
+        class="tw-relative tw-h-20 tw-border tw-border-solid tw-border-border-base"
+        style="transform: translateX(0); width: 260px; resize: horizontal; overflow: hidden"
+      >
+        <bit-bulk-actions-bar [selectedCount]="selectedCount" (clear)="clear($event)">
+          <bit-bulk-action [action]="noop" icon="bwi-folder" label="Move" />
+          <bit-bulk-action [action]="noop" icon="bwi-archive" label="Archive" />
+          <bit-bulk-action [action]="noop" icon="bwi-trash" label="Delete" />
+          <bit-bulk-action [action]="noop" icon="bwi-star" label="Favorite" />
+          <bit-bulk-action [action]="noop" icon="bwi-lock" label="Lock" />
+
+          <bit-bulk-additional-action [action]="noop" icon="bwi-upload" label="Export" />
+          <bit-bulk-additional-action [action]="noop" label="Move to organization" />
         </bit-bulk-actions-bar>
       </div>
     `,
