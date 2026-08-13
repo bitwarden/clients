@@ -6,18 +6,23 @@ import {
 } from "@bitwarden/admin-console/common";
 import { ProviderUserBulkPublicKeyResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk-public-key.response";
 import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { BulkUserDetails } from "./bulk-status.component";
 
 @Directive()
 export abstract class BaseBulkConfirmComponent implements OnInit {
   protected keyService = inject(KeyService);
+  protected legacyCompatKeyService = inject(LegacyCompatKeyService);
   protected encryptService = inject(EncryptService);
   protected i18nService = inject(I18nService);
 
@@ -50,7 +55,10 @@ export abstract class BaseBulkConfirmComponent implements OnInit {
       const newFingerprints = new Map<string, string>();
       for (const entry of publicKeysResponse.data) {
         const publicKey = Utils.fromB64ToArray(entry.key);
-        const fingerprint = await this.keyService.getFingerprint(entry.userId, publicKey);
+        const fingerprint = await this.legacyCompatKeyService.getFingerprint(
+          entry.userId,
+          publicKey,
+        );
         if (fingerprint != null) {
           newPublicKeys.set(entry.id, publicKey);
           newFingerprints.set(entry.id, fingerprint.join("-"));

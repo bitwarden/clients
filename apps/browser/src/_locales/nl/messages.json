@@ -119,6 +119,9 @@
   "vault": {
     "message": "Kluis"
   },
+  "vaults": {
+    "message": "Kluizen"
+  },
   "myVault": {
     "message": "Mijn kluis"
   },
@@ -709,8 +712,8 @@
   "launchWebsite": {
     "message": "Website openen"
   },
-  "launchWebsiteName": {
-    "message": "Start website $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Website starten voor $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1367,16 +1370,16 @@
   "additionalOptions": {
     "message": "Extra instellingen"
   },
-  "enableFillAssist": {
-    "message": "Invulassistent gebruiken"
+  "fillAssistActiveNotice": {
+    "message": "Autofill gebruikt invulassistentie op deze pagina."
   },
-  "turnOnFillAssist": {
+  "activateFillAssist": {
     "message": "Invulassistent inschakelen"
   },
-  "enableFillAssistDescription": {
+  "activateFillAssistDescription": {
     "message": "Invulassistent verbetert de nauwkeurigheid op ondersteunde websites door sitespecifieke regels te gebruiken. Er worden geen gegevens verzameld of opgeslagen wanneer je deze functie gebruikt."
   },
-  "aboutFillAssist": {
+  "aboutFillAssistLabel": {
     "message": "Over invulassistent"
   },
   "enableContextMenuItem": {
@@ -1496,6 +1499,12 @@
   "myFolders": {
     "message": "Mijn mappen"
   },
+  "addSharedFolder": {
+    "message": "Gedeelde map toevoegen"
+  },
+  "newSharedFolder": {
+    "message": "Nieuwe gedeelde map"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "Met Bitwarden voor Business kun je je kluis-items met anderen delen door gebruik te maken van een organisatie. Lees meer op de website bitwarden.com."
   },
@@ -1550,6 +1559,21 @@
   },
   "copyVerificationCode": {
     "message": "Verificatiecode kopiëren"
+  },
+  "noUsername": {
+    "message": "Geen gebruikersnaam"
+  },
+  "noPassword": {
+    "message": "Geen wachtwoord"
+  },
+  "noVerificationCode": {
+    "message": "Geen verificatiecode"
+  },
+  "noNumber": {
+    "message": "Geen nummer"
+  },
+  "noSecurityCode": {
+    "message": "Geen beveiligingscode"
   },
   "attachments": {
     "message": "Bijlagen"
@@ -1943,6 +1967,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "Kaarten als suggesties weergeven"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "SSH-sleutels als suggesties weergeven"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Suggesties weergeven wanneer pictogram is geselecteerd"
@@ -2594,6 +2621,92 @@
     "message": "Wissen",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Alle rijen selecteren"
+  },
+  "selectRow": {
+    "message": "Rij selecteren"
+  },
+  "showingItemRange": {
+    "message": "Toont $START$ - $END$ van $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rijen per pagina"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rijen per pagina",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Alle"
+  },
+  "clearAll": {
+    "message": "Alles wissen"
+  },
+  "done": {
+    "message": "Klaar"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ geselecteerd",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Vorige pagina"
+  },
+  "nextPage": {
+    "message": "Volgende pagina"
+  },
+  "goToPage": {
+    "message": "Ga naar pagina"
+  },
+  "ofPageCount": {
+    "message": "van $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Geen overeenkomende items"
+  },
   "selected": {
     "message": "Geselecteerd"
   },
@@ -3185,6 +3298,10 @@
   },
   "atRiskPasswords": {
     "message": "Risicovolle wachtwoorden"
+  },
+  "atRisk": {
+    "message": "in gevaar",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ vraagt je om één wachtwoord te wijzigen omdat deze een risico vormt.",
@@ -4028,6 +4145,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Website-prefix toevoegen",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Wanneer ingeschakeld, zal het huidige domein van de website worden gebruikt als prefix voor het gegenereerde e-mailadres",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Hostnaam",
     "description": "Part of a URL."
@@ -4799,8 +4924,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item wordt overgeslagen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "De volgende items konden niet worden gelezen en zullen niet worden meegenomen met je import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Kon deze SSH-sleutel niet importeren"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Niet-ondersteund itemtype"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Kon dit item niet importeren"
+  },
+  "identifier": {
+    "message": "Identifier"
   },
   "contact": {
     "message": "Contact"
@@ -4876,6 +5022,79 @@
   },
   "noFileChosen": {
     "message": "Geen bestand gekozen"
+  },
+  "noFileSelected": {
+    "message": "Geen bestand gekozen"
+  },
+  "fileChosen": {
+    "message": "Bestand gekozen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Bestand toegevoegd: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ bestanden toegevoegd: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Bestand verwijderd: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 bestand geüpload"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ bestanden geüpload",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Geüploade bestanden"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Klik om te uploaden of sleep en zet neer"
+  },
+  "chooseFiles": {
+    "message": "Bestanden kiezen"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. bestandsgrootte: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "of kopieer en plak de inhoud van het importbestand"
@@ -5466,6 +5685,12 @@
   "removePasskey": {
     "message": "Passkey verwijderen"
   },
+  "deletePasskey": {
+    "message": "Passkey verwijderen"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Deze passkey zal permanent worden verwijderd uit je inlogitem. Je kunt dit niet ongedaan maken."
+  },
   "passkeyRemoved": {
     "message": "Passkey verwijderd"
   },
@@ -5487,8 +5712,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Wis filters of probeer een andere zoekterm"
   },
-  "copyInfoTitle": {
-    "message": "Info kopiëren - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Gegevens voor $ITEMNAME$ kopiëren",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5596,11 +5821,17 @@
     "message": "Geen waarde ingevoerd",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Geen waarden om te kopiëren"
+  "noDetailsToCopy": {
+    "message": "Geen details om te kopiëren"
   },
   "assignToCollections": {
     "message": "Aan collecties toewijzen"
+  },
+  "addToSharedFolder": {
+    "message": "Aan gedeelde map toevoegen"
+  },
+  "transferAndAdd": {
+    "message": "Overdragen en toevoegen"
   },
   "copyEmail": {
     "message": "E-mail kopiëren"
@@ -5744,6 +5975,60 @@
   },
   "owner": {
     "message": "Eigenaar"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Gedeelde map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collectie $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Mijn map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Map $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Eigenaar $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Kluis $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Jij",
@@ -6015,8 +6300,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Alleen kluisleden met toegang tot deze gedeelde mappen kunnen het item zien."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Alleen organisatieleden met toegang tot deze collecties kunnen de items zien."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Alleen kluisleden met toegang tot deze gedeelde mappen kunnen de items zien."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Je hebt $TOTAL_COUNT$ items geselecteerd. Je kunt $READONLY_COUNT$ items niet bijwerken omdat je geen bewerkrechten hebt.",
@@ -6122,8 +6413,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item wordt permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van dit item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item wordt permanent overgedragen aan de geselecteerde kluis. Je bent niet langer de eigenaar van dit item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde organisatie. Je bent niet langer de eigenaar van deze items.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items worden permanent overgedragen aan de geselecteerde kluis. Je bent niet langer de eigenaar van deze items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6459,32 @@
   "successfullyAssignedCollections": {
     "message": "Succesvol toegewezen collecties"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Succesvol gedeelde mappen toegevoegd"
+  },
   "itemMovedToCollection": {
     "message": "Item naar collectie verplaatst"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item aan gedeelde map toegevoegd"
   },
   "itemMovedToCollections": {
     "message": "Item naar collecties verplaatst"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item aan gedeelde mappen toegevoegd"
+  },
   "itemsMovedToCollection": {
     "message": "Items naar collectie verplaatst"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items aan gedeelde map toegevoegd"
+  },
   "itemsMovedToCollections": {
     "message": "Items naar collecties verplaatst"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items aan gedeelde mappen toegevoegd"
   },
   "itemAssignedToCollections": {
     "message": "Item aan collecties toegewezen"
@@ -6216,10 +6534,16 @@
     "message": "Itemlocatie"
   },
   "fileSends": {
-    "message": "Bestanden verzenden"
+    "message": "Bestanden verzenden",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Tekst-Sends"
+    "message": "Tekst-Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item-Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Accountacties"
@@ -6239,8 +6563,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Toon snelle kopieeracties in de kluis"
+  "showQuickCopyActionsInVault": {
+    "message": "Toon snelle kopieeracties in kluis"
   },
   "systemDefault": {
     "message": "Systeemstandaard"
@@ -6554,6 +6878,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Je kunt gedeelde mappen niet verwijderen met alleen rechten voor weergeven: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Werk je desktopapplicatie bij"
   },
@@ -6735,6 +7068,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden gebruikt opgeslagen login-URI's om te bepalen welk pictogram of URL voor het wijzigen van het wachtwoord moet worden gebruikt om je ervaring te verbeteren. Er wordt geen informatie verzameld of opgeslagen wanneer je deze service gebruikt."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "3 sneltoetsen toevoegen naast items om je gebruikersnaam, wachtwoord of verificatiecode naar het klembord te kopiëren."
   },
   "noPermissionsViewPage": {
     "message": "Je hebt geen rechten om deze pagina te bekijken. Probeer in te loggen met een ander account."
@@ -7034,6 +7370,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "Wanneer ingeschakeld, wordt de ontgrendelstatus gedeeld met Bitwarden webkluizen."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Gedeelde ontgrendelen is niet beschikbaar omdat je ervoor hebt gekozen dit apparaat niet te onthouden. Probeer opnieuw aan te melden om deze instelling in te schakelen."
+  },
   "newPermissionNeeded": {
     "message": "Nieuwe machtiging vereist"
   },
@@ -7240,5 +7579,17 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Gezondheid"
+  },
+  "scanMyVault": {
+    "message": "Mijn kluis doorzoeken"
+  },
+  "introducingHealth": {
+    "message": "Introductie van gezondheid"
+  },
+  "healthIntroDescription": {
+    "message": "Controleer en verbeter de gezondheid van je kluis door het aanpassen van gelekte, zwakke en hergebruikte wachtwoorden."
   }
 }

@@ -23,11 +23,13 @@ RegisterFinishRequest {
     "masterKeyWrappedUserKey": "wrappedUserKey",
     "salt": "test@email.com",
   },
+  "openOrgInvite": undefined,
   "orgInviteToken": undefined,
   "orgSponsoredFreeFamilyPlanToken": undefined,
   "organizationUserId": undefined,
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",

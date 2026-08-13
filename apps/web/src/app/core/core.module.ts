@@ -59,6 +59,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
+import { DeepLinkRedirectService } from "@bitwarden/common/auth/deep-link-redirect";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { NoopAuthRequestAnsweringService } from "@bitwarden/common/auth/services/auth-request-answering/noop-auth-request-answering.service";
 import { ChangeEmailService } from "@bitwarden/common/auth/services/change-email/change-email.service";
@@ -140,6 +141,8 @@ import {
   SessionTimeoutSettingsComponentService,
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UnlockService } from "@bitwarden/unlock";
 import {
@@ -158,6 +161,7 @@ import {
 import {
   LinkSsoService,
   WebChangePasswordService,
+  WebDeepLinkRedirectService,
   WebLoginComponentService,
   WebLoginDecryptionOptionsService,
   WebRegistrationFinishService,
@@ -195,6 +199,11 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
 const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider(RouterService),
+  safeProvider({
+    provide: DeepLinkRedirectService,
+    useClass: WebDeepLinkRedirectService,
+    deps: [RouterService],
+  }),
   safeProvider(EventService),
   safeProvider({
     provide: POLICY_EDIT_REGISTER,
@@ -296,7 +305,7 @@ const safeProviders: SafeProvider[] = [
     provide: RegistrationFinishServiceAbstraction,
     useClass: WebRegistrationFinishService,
     deps: [
-      KeyServiceAbstraction,
+      LegacyCompatKeyService,
       AccountApiServiceAbstraction,
       MasterPasswordServiceAbstraction,
       ConfigService,
@@ -325,6 +334,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyServiceAbstraction,
+      LegacyCompatKeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -534,7 +544,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      InternalUserDecryptionOptionsServiceAbstraction,
+      StateProvider,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
@@ -551,6 +561,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       ApiService,
       KeyServiceAbstraction,
+      LegacyCompatKeyService,
     ],
   }),
 ];

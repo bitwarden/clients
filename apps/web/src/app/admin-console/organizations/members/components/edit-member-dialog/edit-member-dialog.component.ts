@@ -57,6 +57,7 @@ import {
 } from "@bitwarden/components";
 import { OrganizationUserType, OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import {
@@ -112,6 +113,7 @@ import { NestedCheckboxComponent } from "../member-dialog/nested-checkbox.compon
     TabsModule,
     AccessSelectorModule,
     NestedCheckboxComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class EditMemberDialogComponent {
@@ -134,6 +136,7 @@ export class EditMemberDialogComponent {
   private readonly validationService = inject(ValidationService);
   private readonly problemDetailsService = inject(ProblemDetailsService);
   private readonly logService = inject(LogService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly organizationUserType = OrganizationUserType;
   protected readonly PermissionMode = PermissionMode;
@@ -175,6 +178,8 @@ export class EditMemberDialogComponent {
       new_email_domain_not_claimed: "emailErrorNotClaimedDomain",
       email_already_in_use: "emailErrorAlreadyInUse",
       email_claimed_by_another_organization: "emailErrorClaimedByOrg",
+      email_taken_by_organization_member: "emailErrorAlreadyInUse",
+      email_taken_outside_organization: "emailErrorClaimedByOrg",
       member_has_master_password: "emailErrorHasMasterPassword",
       email_change_failed: "emailErrorChangeFailed",
     },
@@ -672,7 +677,9 @@ export class EditMemberDialogComponent {
         placeholders: [this.params.name],
       },
       content: {
-        key: "deleteOrganizationUserWarningDesc",
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteOrganizationUserWarningDescSharedFolders"
+          : "deleteOrganizationUserWarningDesc",
         placeholders: [this.params.name],
       },
       type: "warning",

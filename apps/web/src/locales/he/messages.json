@@ -1206,6 +1206,146 @@
   "myFolders": {
     "message": "My folders"
   },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
+  "searchSharedFolder": {
+    "message": "Search shared folder"
+  },
+  "searchMyFolder": {
+    "message": "Search My folders"
+  },
+  "addToMyFolder": {
+    "message": "Add to my folder"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Select shared folder item"
+  },
+  "viewSharedFolderWithName": {
+    "message": "View shared folder - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "This shared folder is only accessible from the admin console"
+  },
+  "editSharedFolder": {
+    "message": "Edit shared folder"
+  },
+  "deleteSharedFolder": {
+    "message": "Delete shared folder"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Delete $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ shared folder(s) will be permanently deleted.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "The selected items and shared folders will be permanently deleted."
+  },
+  "sharedFolderDeleted": {
+    "message": "Shared folder deleted"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Shared folders deleted"
+  },
+  "deletedSharedFolders": {
+    "message": "Deleted shared folders"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Upgrade to a paid plan to add more shared folders.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "Free organizations may have up to $COLLECTIONCOUNT$ shared folders. Contact your organization owner to upgrade.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "By moving an item into a shared folder, you can securely share it with other vault members."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by the following members. Shared folder items are not impacted.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "This will permanently delete all items owned by $NAME$. Shared folder items are not impacted.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Manage organization access, all shared folders, members, reporting, and security settings"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Manage all shared folders, members, reporting, and security settings"
+  },
+  "userDescSharedFolders": {
+    "message": "Access and add items to assigned shared folders"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Grant member access to shared folders by adding them to 1 or more groups."
+  },
+  "manageAllSharedFolders": {
+    "message": "Manage all shared folders"
+  },
+  "createNewSharedFolders": {
+    "message": "Create new shared folders"
+  },
+  "editAnySharedFolder": {
+    "message": "Edit any shared folder"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Delete any shared folder"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "You cannot add yourself to shared folders."
+  },
   "attachments": {
     "message": "קבצים מצורפים"
   },
@@ -1430,6 +1570,9 @@
   "item": {
     "message": "פריט"
   },
+  "itemLower": {
+    "message": "item"
+  },
   "itemDetails": {
     "message": "פרטי הפריט"
   },
@@ -1586,8 +1729,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "העתקת מידע - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1610,11 +1753,11 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "אין ערכים להעתקה"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
-  "launchWebsiteName": {
-    "message": "פתיחת אתר $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -2346,6 +2489,10 @@
   "youDoNotHavePermissions": {
     "message": "אין לך הרשאות לאוסף זה"
   },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "You do not have permissions to this shared folder",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
+  },
   "noCollectionsInList": {
     "message": "אין אוספים להצגה ברשימה."
   },
@@ -2571,6 +2718,21 @@
   },
   "copyVerificationCode": {
     "message": "העתק קוד אימות"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "copyUuid": {
     "message": "העתק UUID"
@@ -2938,6 +3100,15 @@
   "purgedOrganizationVault": {
     "message": "מחק תוכן כספת ארגונית."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Purged $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "בוצעה גישה לפריט על ידי ספק."
   },
@@ -3141,6 +3312,79 @@
   "noFileChosen": {
     "message": "לא נבחר קובץ"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "או העתק\\הדבק את תוכן הקובץ ליבוא"
   },
@@ -3156,6 +3400,9 @@
   },
   "options": {
     "message": "אפשרויות"
+  },
+  "moreOptions": {
+    "message": "More options"
   },
   "preferences": {
     "message": "העדפות"
@@ -3174,6 +3421,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "הצג סמלי אתרי אינטרנט ואחזר כתובות URL לשינוי סיסמה"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "default": {
     "message": "ברירת מחדל"
@@ -3545,6 +3795,10 @@
   },
   "orgsReportsDesc": {
     "message": "זהה וסגור פערי אבטחה בחשבונות של הארגון שלך על ידי לחיצה על הדוחות למטה.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Identify and close security gaps in your organization vault by clicking the reports below.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4059,6 +4313,15 @@
   "pendingCancellation": {
     "message": "ממתין לביטול"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "המנוי סומן כמיועד לביטול בסיום תקופת החיוב הנוכחית."
   },
@@ -4428,6 +4691,9 @@
   "organizationName": {
     "message": "שם הארגון"
   },
+  "vaultName": {
+    "message": "Vault name"
+  },
   "accountOwnedBusiness": {
     "message": "החשבון הזה נמצא בבעלות עסק."
   },
@@ -4544,6 +4810,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limited to $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "הוסף ושתף עם עד $COUNT$ משתמשים",
     "placeholders": {
@@ -4558,6 +4833,9 @@
   },
   "createUnlimitedCollections": {
     "message": "צור אוספים ללא הגבלה"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Create unlimited shared folders"
   },
   "gbEncryptedFileStorage": {
     "message": "גודל קובץ מוצפן: $SIZE$",
@@ -4665,6 +4943,9 @@
   "defaultCollection": {
     "message": "אוסף ברירת מחדל"
   },
+  "defaultSharedFolder": {
+    "message": "Default shared folder"
+  },
   "getHelp": {
     "message": "קבל עזרה"
   },
@@ -4749,6 +5030,10 @@
   "nestCollectionUnder": {
     "message": "לקנן אוסף תחת"
   },
+  "nestSharedFolderUnder": {
+    "message": "Nest shared folder under",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "בקרת גישה"
   },
@@ -4767,11 +5052,23 @@
   "viewCollection": {
     "message": "View collection"
   },
+  "viewSharedFolder": {
+    "message": "View shared folder",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "פרטי אוסף"
   },
+  "sharedFolderInfo": {
+    "message": "Shared folder info",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "האם אתה בטוח שברצונך למחוק אוסף זה?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Are you sure you want to delete this shared folder?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "ערוך חבר"
@@ -4793,6 +5090,10 @@
   },
   "inviteUserDescription": {
     "message": "Invite new users to your organization by entering their email address below."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Invite a new user to your organization vault by entering their Bitwarden account email address below. If they do not have a Bitwarden account already, they will be prompted to create a new account.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Enter up to $COUNT$ emails by separating with a comma.",
@@ -4848,6 +5149,24 @@
   },
   "owner": {
     "message": "בעלים"
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "נהל את כל ההיבטים של הארגון שלך, כולל חיובים ומנויים"
@@ -4961,8 +5280,26 @@
   "exportedOrganizationVault": {
     "message": "כספת הארגון יוצאה."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Exported $ORGNAME$ vault.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "הגדרות הארגון נערכו."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Edited $ORGNAME$ vault settings.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "פריט שנוצר $ID$.",
@@ -5157,6 +5494,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Moved item $ID$ to $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5400,6 +5750,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Created shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "אוסף שנערך $ID$.",
     "placeholders": {
@@ -5408,6 +5768,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Edited shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "אוספים שנמחקו"
@@ -5426,6 +5796,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Deleted shared folder $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Discard edits"
@@ -5511,6 +5891,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Staged user $ID$ added.",
     "placeholders": {
@@ -5547,12 +5940,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the two-factor login policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Revoked organization access for $ID$ for non-compliance with the single organization policy.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Revoked $ORGNAME$ vault access for $ID$ for non-compliance with the single organization membership policy.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5565,12 +5984,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Revoked access for $ID$ for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "הגישה לארגון שוחזרה עבור $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Restored $ORGNAME$ vault access for $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5610,8 +6055,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Edited shared folders for item $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Accepted transfer to organization ownership."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Accepted transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "משתמש שהוזמן $ID$.",
@@ -5679,12 +6142,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Created $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "נוסף ארגון $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Added $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5697,12 +6186,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Removed $ORGNAME$ vault $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "ניגש אל כספת הארגון של $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Accessed $ID$ in $ORGNAME$ vault.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6023,6 +6538,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Unable to join $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "The invite link is no longer valid."
+  },
+  "returnToLogin": {
+    "message": "Return to login"
+  },
+  "returnToRegistration": {
+    "message": "Return to registration"
+  },
   "joinOrganizationDesc": {
     "message": "הוזמנת להצטרף לארגון הרשום לעיל. בכדי להסכים, עליך להתחבר או ליצור חשבון Bitwarden חדש."
   },
@@ -6049,6 +6582,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Cannot accept invitation"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "You are already a member of this organization."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "You cannot join this organization because you are already the admin of a free organization."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "You have been revoked from this organization. Contact your admin to regain access."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Provider users may not join using this invitation link."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "You must set up two-step login in order to join this organization."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "You must verify your email address before joining an organization."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Your invitation could not be accepted because there is not an available seat."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "This domain isn't accepted by this organization. Try a different email address."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Could not accept invitation"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+  },
+  "goToLogin": {
+    "message": "Go to login"
+  },
+  "goToVault": {
+    "message": "Go to vault"
   },
   "rememberEmail": {
     "message": "זכור אימייל"
@@ -6497,6 +7096,9 @@
   },
   "inviteLink": {
     "message": "Invite link"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "lastGenerated": {
     "message": "Last generated: $DATE$",
@@ -7673,6 +8275,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Member $ID$ accepted invitation through invite link",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Require admin approval for invite link is disabled",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Require admin approval for invite link is enabled",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Member $ID$ was confirmed through invite link",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8858,14 +9477,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "משפחות המקבלות חסות"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Non-member redemptions"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "אין משפחות המקבלות חסות"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "No redemptions yet"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "No non-members have redeemed the Sponsored Family Plan."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "חברים של הארגון שלך זכאים ל־Bitwarden למשפחות בחינם. באפשרותך לתת חסות Bitwarden למשפחות עבור עובדים אשר לא חברים בארגון ה־Bitwarden שלך. נתינת חסות למי שלא חבר דורשת מקום זמין בתוך הארגון שלך."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "כאשר אתה מסיר חסות פעילה, מקום בתוך הארגון שלך יהפוך לזמין לאחר תאריך החידוש של ארגון החסות."
@@ -8873,17 +9504,26 @@
   "sponsoredFamiliesEligible": {
     "message": "אתה והמשפחה שלך זכאים ל־Bitwarden למשפחות בחינם. ממש עם הדוא\"ל האישי שלך כדי לשמור על אבטחת הנתונים שלך אפילו כשאתה לא בעבודה."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "ממש את תוכנית Bitwarden למשפחות בחינם שלך היום כדי לשמור על אבטחת הנתונים שלך אפילו כשאתה לא בעבודה."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "התוכנית Bitwarden למשפחות כוללת"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "The Bitwarden Families plan includes"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "גישת פרימיום עד 6 משתמשים"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "אוספים משותפים עבור חברי משפחה"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Shared folders for family members"
   },
   "memberFamilies": {
     "message": "חברי משפחות"
@@ -9701,6 +10341,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "שם מארח",
     "description": "Part of a URL."
@@ -10487,17 +11135,29 @@
   "editGroupMembersDesc": {
     "message": "הענק לחברים גישה לאוספים המוקצים של הקבוצה."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Grant members access to the group's assigned shared folders."
+  },
   "editGroupCollectionsDesc": {
     "message": "העתק גישה לאוספים בכך שתוסיף אותם לקבוצה זו."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Grant access to shared folders by adding them to this group."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "אתה יכול רק להקצות אוספים שאתה מנהל."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "You can only assign shared folders you manage."
   },
   "selectMembers": {
     "message": "בחר חברים"
   },
   "selectCollections": {
     "message": "בחר אוספים"
+  },
+  "selectSharedFolders": {
+    "message": "Select shared folders"
   },
   "role": {
     "message": "תפקיד"
@@ -10520,8 +11180,15 @@
   "noCollection": {
     "message": "אין אוסף"
   },
+  "noSharedFolder": {
+    "message": "No shared folder",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "לא נוספו אוספים"
+  },
+  "noSharedFoldersAdded": {
+    "message": "No shared folders added"
   },
   "noMembersAdded": {
     "message": "לא נוספו חברים"
@@ -10690,6 +11357,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Email will update on save"
+  },
+  "emailNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their email address."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "This member has a master password. Contact the member to update their email address."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "The new email must match a domain claimed by your organization."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Email is already in use by a member of your organization."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Email is already in use. You can invite them to your organization instead."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Cannot change the email of a member who has a master password."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Failed to change email. Please try again."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Cannot change the name of a member who is not claimed by the organization."
+  },
+  "nameNotClaimedHint": {
+    "message": "This member does not have a claimed account. Contact the member to update their name."
   },
   "createdDate": {
     "message": "Created date"
@@ -11381,6 +12075,30 @@
     "message": "מדיניות הארגון היחידי",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "single organization vault",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO required",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": ", and",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Account recovery administration",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "policies will turn on automatically.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "מדיניות,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11704,17 +12422,38 @@
   "collectionManagement": {
     "message": "ניהול אוספים"
   },
+  "sharedFolderManagement": {
+    "message": "Shared folders settings"
+  },
   "collectionManagementDescription": {
     "message": "הגדר את התנהגות האוספים עבור הארגון"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Configure how shared folders behave within the organization vault."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Learn more about collections"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Learn more about shared folders"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "אפשר לבעלים ולמנהלים לנהל את כל האוספים והפריטים ממסוף המנהל"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Allow owners and admins to manage all shared folders and items from the Admin Console"
+  },
   "restrictCollectionCreationDescription": {
     "message": "הגבל יצירת אוספים לבעלים ולמנהלים"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Restrict shared folder creation to owners and admins"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "הגבל מחיקת אוספים לבעלים ולמנהלים"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Restrict shared folder deletion to owners and admins"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "הגבל מחיקת פריטים לחברים עם הרשאת ",
@@ -11726,6 +12465,9 @@
   },
   "updatedCollectionManagement": {
     "message": "הגדרת ניהול אוספים עודכנה"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Updated shared folder management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "מחיר תוכנית מנהל הסיסמאות"
@@ -11757,6 +12499,10 @@
   "assignCollectionAccess": {
     "message": "הקצה גישה לאוסף"
   },
+  "assignSharedFolderAccess": {
+    "message": "Assign access",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "אוספים שנערכו"
   },
@@ -11766,8 +12512,16 @@
   "collectionEdited": {
     "message": "Collection edited"
   },
+  "sharedFolderEdited": {
+    "message": "Shared folder edited",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Collections edited"
+  },
+  "sharedFoldersEdited": {
+    "message": "Shared folders edited",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "URL של שרת"
@@ -11806,8 +12560,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Modified shared folder management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "הופעלה הגדרת הגבלת יצירת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Turned on Restrict shared folder creation setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11824,6 +12596,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Turned off Restrict shared folder creation setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "הופעלה הגדרת הגבלת מחיקת אוספים $ID$.",
     "placeholders": {
@@ -11833,8 +12614,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Turned on Restrict shared folder deletion setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "כובתה הגדרת הגבלת מחיקת אוספים $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Turned off Restrict shared folder deletion setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11869,8 +12668,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Turned on Allow owners and admins to manage all shared folders and items setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "כובתה הגדרת 'אפשר לבעלים ולמנהלים לנהל את כל האוספים והפריטים' $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Turned off Allow owners and admins to manage all shared folders and items setting $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11936,20 +12753,44 @@
   "readOnlyCollectionAccess": {
     "message": "אין לך גישה לנהל את האוסף הזה."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "You do not have access to manage this shared folder.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "חסרות הרשאות ניהול אוסף"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Missing Manage Permissions",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "הענק הרשאות ניהול אוסף כדי לאפשר ניהול אוסף מלא כולל מחיקה של אוסף."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Grant Manage permissions to allow full shared folder management including deletion of shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "הענק לקבוצות או חברים גישה לאוסף זה."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Grant groups or members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "הענק לחברים גישה לאוסף זה."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Grant members access to this shared folder.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "מנהלים יכולים לגשת ולנהל אוספים."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Administrators can access and manage shared folders.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "גישת חשבון השירות עודכנה"
@@ -12088,6 +12929,36 @@
     "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$ per year",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost (monthly billing)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Annual billing cost",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. The switch takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Your subscription will be switched to annual billing at your next renewal date.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Poor customer service",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -12142,14 +13013,23 @@
   "assignToCollections": {
     "message": "הקצה לאוספים"
   },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
   "assignToTheseCollections": {
     "message": "הקצה לאוספים אלה"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "רק חברי ארגון עם גישה לאוספים אלה יוכלו לראות את הפריט."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "רק חברי ארגון עם גישה לאוספים אלה יוכלו לראות את הפריטים."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "selectCollectionsToAssign": {
     "message": "בחר אוספים להקצות"
@@ -12160,17 +13040,32 @@
   "successfullyAssignedCollections": {
     "message": "אוספים הוקצו בהצלחה"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -12199,6 +13094,9 @@
   },
   "items": {
     "message": " פריטים "
+  },
+  "itemsLower": {
+    "message": "items"
   },
   "assignedSeats": {
     "message": "מקומות שהוקצו"
@@ -12679,6 +13577,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "צור ארגון לקוחות חדש כדי לנהל כספק. מקומות נוספים ישתקפו במחזור החיוב הבא."
   },
@@ -12812,6 +13746,10 @@
   "noCollectionsSelected": {
     "message": "לא בחרת אוספים כלשהם."
   },
+  "noSharedFoldersSelected": {
+    "message": "You have not selected any shared folders.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
+  },
   "updateName": {
     "message": "עדכן שם"
   },
@@ -12923,6 +13861,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "ערוך ביקורת של גישת חברי ארגון ברחבי קבוצות, אוספים, ופריטי אוספים. ייצוא ה־CSV מספק פירוט מפורט לכל חבר, כולל מידע על הרשאות של אוספים ותצורות חשבון."
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(אין אוסף)"
@@ -13042,8 +13983,20 @@
   "personalItemTransferWarningSingular": {
     "message": "פריט 1 יועבר לצמיתות לארגון הנבחר. לא תהיה יותר הבעלים של הפריט הזה."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ פריטים יועברו לצמיתות לארגון הנבחר. לא תהיה יותר הבעלים של הפריטים האלה.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13292,6 +14245,9 @@
   "unlimitedCollections": {
     "message": "אוספים ללא הגבלה"
   },
+  "unlimitedSharedFolders": {
+    "message": "Unlimited shared folders"
+  },
   "secureDataSharing": {
     "message": "שיתוף נתונים מאובטח"
   },
@@ -13472,6 +14428,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "User $ID$ left $ORGNAME$ vault",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "User $ID$ self-revoked from organization.",
     "placeholders": {
@@ -13483,6 +14452,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Revoked for declining transfer to organization ownership."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Revoked for declining transfer to $ORGNAME$ vault ownership.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "ה־$ORGANIZATION$ מושעה",
@@ -13533,6 +14511,15 @@
     "message": "אינך יכול להסיר אוספים עם הרשאות הצגה בלבד: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -13982,6 +14969,10 @@
   "cannotCreateCollection": {
     "message": "לארגונים חינמיים יכולים להיות עד 2 אוספים. שדרג לתוכנית בתשלום כדי להוסיף עוד אוספים."
   },
+  "cannotCreateSharedFolder": {
+    "message": "Free organizations may have up to 2 shared folders. Upgrade to a paid plan to add more shared folders.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
+  },
   "searchArchive": {
     "message": "חיפוש בארכיון"
   },
@@ -14234,6 +15225,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden ישתמש בכתובות URI של כניסות שמורות כדי לזהות באיזה סמל או URL לשינוי סיסמה יש להשתמש על מנת לשפר את החוויה שלך. לא נאסף או נשמר מידע כלשהו כאשר אתה משתמש בשירות זה."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "billingAddress": {
     "message": "כתובת לחיוב"
@@ -14488,6 +15482,9 @@
   "familiesUnlimitedCollections": {
     "message": "אוספים משפחתיים ללא הגבלה"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Unlimited family shared folders"
+  },
   "familiesSharedStorage": {
     "message": "אחסון משותף עבור מידע משפחתי חשוב"
   },
@@ -14502,6 +15499,15 @@
   },
   "limitedCollectionsV2": {
     "message": "עד $COUNT$ אוספים",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Up to $COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14919,6 +15925,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
     "message": "View all plans"
@@ -15771,6 +16780,282 @@
   },
   "copy": {
     "message": "Copy"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Access rules"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Enabled"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "When disabled, the rule is inactive and does not restrict access."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Enable rule"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Disable rule"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Access rule enabled."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Access rule disabled."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Access rule not found."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
+  },
+  "pamAccessRuleNew": {
+    "message": "New rule"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "New access rule"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Edit access rule"
+  },
+  "pamAccessRuleName": {
+    "message": "Name"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "e.g. VPN + business hours"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "General info"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Access duration"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Optional conditions"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Select collections"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "This access rule will apply to all selected collections."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Couldn't load collections. Refresh the page to try again."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "This duration will be pre-filled in access requests."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Description"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Default access duration"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Maximum access duration"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "No cap"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minutes"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minutes"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 hour"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 hours"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 hours"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 hours"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 hours"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 days"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Only one user can hold an active lease at a time"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "New requests are queued until the current lease ends or is revoked."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Allow lease extensions"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Members can extend an active lease once without a new approval, up to the maximum length below."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Maximum extension length"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "The longest a single extension may run."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Require approval"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Restrict by IP address"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Approvers"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Collection managers"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Access rule created."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Access rule updated."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Delete access rule?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Delete \"$NAME$\"? Any collections using this rule will have leasing disabled.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "No access rules yet"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Create a rule to add extra protection to sensitive collections."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Create custom rule"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Start from a template"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Use template"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Just in time"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Auto-approved • Expires after 1h • Audit logged"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Just-in-time access"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Approval required"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Human approval • 1 approver required • Audit logged"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Approval required"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "IP-restricted"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Auto-approved • IP Allowlist • Audit logged"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "IP-restricted access"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Collections"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Unassigned"
+  },
+  "pamSearchRules": {
+    "message": "Search rules"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Applies to"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Conditions"
+  },
+  "pamAccessWindow": {
+    "message": "Access window"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Last modified"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Auto-approved"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Requires approval"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP restricted"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "No access rules match your filters."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Enable"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Disable"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Access rules updated."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Access rules deleted."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Delete access rules?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ access rules will be permanently deleted. This action cannot be undone.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Only requests originating from these IP ranges will be allowed."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "CIDR range"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "e.g. 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Add CIDR range"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Remove CIDR range"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Add at least one CIDR range."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Enter a valid CIDR range."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "This CIDR range has already been added."
   },
   "paymentSuccessful": {
     "message": "Payment successful"

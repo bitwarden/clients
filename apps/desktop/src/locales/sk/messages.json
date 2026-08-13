@@ -116,6 +116,54 @@
   "myFolders": {
     "message": "Moje priečinky"
   },
+  "addSharedFolder": {
+    "message": "Pridať zdieľaný priečinok"
+  },
+  "newSharedFolder": {
+    "message": "Nový zdieľaný priečinok"
+  },
+  "searchSharedFolder": {
+    "message": "Hľadať v zdieľanom priečinku"
+  },
+  "searchMyFolder": {
+    "message": "Hľadať v mojich priečinkoch"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Zobraziť zdieľaný priečinok – $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Odstrániť zdieľaný priečinok"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Odstrániť zdieľané priečinky ($COUNT$)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Tento zdieľaný priečinok bude natrvalo odstránený. Položky v priečinku sa neodstránia."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Tieto zdieľané priečinky budú natrvalo odstránené. Položky v priečinkoch sa neodstránia."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Vybrané položky a zdieľané priečinky budú natrvalo odstránené."
+  },
+  "sharedFolderDeleted": {
+    "message": "Zdieľaný priečinok bol odstránený"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Zdieľané priečinky boli odstránené"
+  },
   "share": {
     "message": "Zdieľať"
   },
@@ -470,6 +518,15 @@
   },
   "launch": {
     "message": "Spustiť"
+  },
+  "launchWebsiteForName": {
+    "message": "Otvoriť stránku pre $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "copyValue": {
     "message": "Kopírovať hodnotu",
@@ -877,6 +934,60 @@
   },
   "owner": {
     "message": "Vlastník"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Zdieľaný priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Zbierka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Môj priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Priečinok $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Pridať pole"
@@ -1904,6 +2015,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Zobraziť ikony webových stránok a načítať adresy URL na zmenu hesla"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Zobraziť v trezore rýchle akcie kopírovania"
+  },
+  "copyNoteTitle": {
+    "message": "Skopírovať poznámku – $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Žiadne podrobnosti na kopírovanie"
+  },
   "runInBackground": {
     "message": "Ponechať Bitwarden bežať na pozadí"
   },
@@ -1999,6 +2126,31 @@
   },
   "copyVerificationCode": {
     "message": "Kopírovať overovací kód"
+  },
+  "noUsername": {
+    "message": "Žiadne používateľské meno"
+  },
+  "noPassword": {
+    "message": "Žiadne heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žiadny overovací kód"
+  },
+  "noNumber": {
+    "message": "Žiadne číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žiadny bezpečnostný kód"
+  },
+  "copyDetailsTitle": {
+    "message": "Kopírovať podrobnosti o položke $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Kopírovať používateľské meno"
@@ -2149,6 +2301,92 @@
   },
   "selectAll": {
     "message": "Vybrať Všetko"
+  },
+  "selectAllRows": {
+    "message": "Vybrať všetky riadky"
+  },
+  "selectRow": {
+    "message": "Vybrať riadok"
+  },
+  "showingItemRange": {
+    "message": "Zobrazuje sa $START$ – $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Riadkov na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ riadkov na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položiek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Všetko"
+  },
+  "clearAll": {
+    "message": "Vyčistiť všetko"
+  },
+  "done": {
+    "message": "Hotovo"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "Vybrané: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Predchádzajúca stránka"
+  },
+  "nextPage": {
+    "message": "Ďalšia stránka"
+  },
+  "goToPage": {
+    "message": "Prejsť na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žiadne zodpovedajúce položky"
   },
   "selected": {
     "message": "Vybrané"
@@ -2392,9 +2630,6 @@
   },
   "filePasswordConfirmationMismatch": {
     "message": "\"Heslo súboru\" a \"Potvrdiť heslo súboru\" sa nezhodujú."
-  },
-  "done": {
-    "message": "Hotovo"
   },
   "warning": {
     "message": "UPOZORNENIE",
@@ -3305,6 +3540,9 @@
   "options": {
     "message": "Možnosti"
   },
+  "moreOptions": {
+    "message": "Ďalšie možnosti"
+  },
   "sessionTimeout": {
     "message": "Vaša relácia vypršala. Vráťte sa späť a skúste sa prihlásiť znova."
   },
@@ -3615,6 +3853,14 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "forwarderWebsitePrefix": {
+    "message": "Pridať predponu webovej stránky",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ak je táto funkcia zapnutá, doména aktuálnej webovej stránky sa použije ako predpona pre vygenerovanú e-mailovú adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
     "message": "Názov hostiteľa",
@@ -4220,8 +4466,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude preskočená",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Nasledujúce položky sa nepodarilo načítať a nebudú zahrnuté do importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento kľúč SSH sa nepodarilo importovať"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Túto položku sa nepodarilo importovať"
+  },
+  "identifier": {
+    "message": "Identifikátor"
   },
   "contact": {
     "message": "Kontakt"
@@ -4300,6 +4567,79 @@
   },
   "noFileChosen": {
     "message": "Nebol vybratý žiadny súbor"
+  },
+  "noFileSelected": {
+    "message": "Nie je vybraný žiadny súbor"
+  },
+  "fileChosen": {
+    "message": "Vybraný súbor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Pridaný súbor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Pridané súbory ($COUNT$): $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Súbor bol odstránený: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Bol nahraný 1 súbor"
+  },
+  "filesUploaded": {
+    "message": "Počet nahraných súborov: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Nahrané súbory"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nahrajte kliknutím alebo pretiahnutím"
+  },
+  "chooseFiles": {
+    "message": "Vybrať súbory"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. veľkosť súboru: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "alebo kopírujte/vložte obsah súboru"
@@ -4695,6 +5035,12 @@
   "removePasskey": {
     "message": "Odstrániť prístupový kľúč"
   },
+  "deletePasskey": {
+    "message": "Odstrániť prístupový kľúč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento prístupový kľúč bude natrvalo odstránený z položky prihlásenia. Túto akciu nie je možné vrátiť späť."
+  },
   "passkeyRemoved": {
     "message": "Prístupový kľúč bol odstránený"
   },
@@ -4968,6 +5314,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemôžete odstrániť zdieľané priečinky s povoleniami len na zobrazenie: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Presunúť"
   },
@@ -5066,8 +5421,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden použije uložené prihlasovacie URI na určenie ikony alebo adresy URL na zmenu hesla, ktoré by sa mali použiť na zlepšenie vášho zážitku. Pri používaní tejto služby sa nezbierajú ani neukladajú žiadne informácie."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Vedľa položiek pridá 3 tlačidlá na rýchle kopírovanie, pomocou ktorých môžete skopírovať používateľské meno, heslo alebo overovací kód do schránky."
+  },
   "assignToCollections": {
     "message": "Priradiť ku zbierkam"
+  },
+  "addToSharedFolder": {
+    "message": "Pridať do zdieľaného priečinka"
+  },
+  "transferAndAdd": {
+    "message": "Presunúť a pridať"
+  },
+  "itemLower": {
+    "message": "položka"
+  },
+  "itemsLower": {
+    "message": "položky"
   },
   "assignToTheseCollections": {
     "message": "Priradiť k týmto zbierkam"
@@ -5075,8 +5445,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Položku si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Položku si budú môcť pozrieť len členovia trezora s prístupom k týmto zdieľaným priečinkom."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Položky si budú môcť pozrieť len členovia organizácie s prístupom k týmto zbierkam."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Položky si budú môcť pozrieť len členovia trezora s prístupom k týmto zdieľaným priečinkom."
   },
   "noCollectionsAssigned": {
     "message": "Neboli priradené žiadne zbierky"
@@ -5136,8 +5512,20 @@
   "personalItemTransferWarningSingular": {
     "message": "Položka sa natrvalo presunie do vybranej organizácie. Už ju nebudete vlastniť."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "Položka sa natrvalo presunie do vybraného trezora. Už ju nebudete vlastniť."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybranú organizáciu. Tieto položky už nebudú vo vašom vlastníctve.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "Položky ($PERSONAL_ITEMS_COUNT$) budú natrvalo prevedené na vybraný trezor. Tieto položky už nebudú vo vašom vlastníctve.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5161,17 +5549,32 @@
   "successfullyAssignedCollections": {
     "message": "Zbierky boli úspešne priradené"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Zdieľané priečinky boli úspešne pridané"
+  },
   "itemMovedToCollection": {
     "message": "Položka bola presunutá do zbierky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka bola pridaná do zdieľaného priečinka"
   },
   "itemMovedToCollections": {
     "message": "Položka bola presunutá do zbierok"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka bola pridaná do zdieľaných priečinkov"
+  },
   "itemsMovedToCollection": {
     "message": "Položky blli presunuté do zbierky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky pridané do zdieľaného priečinka"
+  },
   "itemsMovedToCollections": {
     "message": "Položky boli presunuté do zbierok"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky pridané do zdieľaných priečinkov"
   },
   "itemAssignedToCollections": {
     "message": "Položka bola priradená do zbierok"
