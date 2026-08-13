@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { ReplaySubject } from "rxjs";
 
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
+import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -33,6 +34,7 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
       hasReusedPassword: false,
       hasExposedPassword: false,
       exposedCount: 0,
+      reuseCount: 0,
       ...args,
     });
   }
@@ -43,7 +45,7 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
    */
   async function initComponent(data: Partial<HealthDeleteAtRiskItemDialogData> = {}) {
     const dialogData: HealthDeleteAtRiskItemDialogData = {
-      currentCategory: "exposed-passwords",
+      currentCategory: RiskCategory.Exposed,
       item: buildHealthView(),
       ...data,
     };
@@ -139,7 +141,7 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
       /** Exposed sits at the top of the hierarchy, so both lower risks can appear. */
       async function initExposed(flags: { weak: boolean; reused: boolean }) {
         await initComponent({
-          currentCategory: "exposed-passwords",
+          currentCategory: RiskCategory.Exposed,
           item: buildHealthView({
             hasExposedPassword: true,
             hasWeakPassword: flags.weak,
@@ -184,7 +186,7 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
       /** Weak sits in the middle, so only reused can appear — never weak itself. */
       async function initWeak(flags: { reused: boolean }) {
         await initComponent({
-          currentCategory: "weak-passwords",
+          currentCategory: RiskCategory.Weak,
           item: buildHealthView({
             hasWeakPassword: true,
             hasReusedPassword: flags.reused,
@@ -218,7 +220,7 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
       /** Reused sits at the bottom, so there is never a lower risk to surface. */
       it("shows no risk section even when the item is exposed and weak", async () => {
         await initComponent({
-          currentCategory: "reused-passwords",
+          currentCategory: RiskCategory.Reused,
           item: buildHealthView({
             hasExposedPassword: true,
             hasWeakPassword: true,
@@ -232,7 +234,7 @@ describe("HealthDeleteAtRiskItemDialogComponent", () => {
 
       it("shows no risk section when the item has no other risks", async () => {
         await initComponent({
-          currentCategory: "reused-passwords",
+          currentCategory: RiskCategory.Reused,
           item: buildHealthView({ hasReusedPassword: true }),
         });
 
