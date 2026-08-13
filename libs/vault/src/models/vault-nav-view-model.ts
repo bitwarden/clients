@@ -31,7 +31,7 @@ export interface VaultsNavViewModel {
    * Ordered vault items. Populated when the user has org memberships; personal vault is always
    * first, org vaults follow alphabetically by name.
    */
-  vaults: VaultNavItemViewModel[];
+  vaults: readonly VaultNavItemViewModel[];
 
   /**
    * Non-null when the user has no org memberships and is on a free plan.
