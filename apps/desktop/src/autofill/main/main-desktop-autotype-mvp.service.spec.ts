@@ -414,5 +414,21 @@ describe("MainDesktopAutotypeMvpService", () => {
         { windowTitle: "Notepad" },
       );
     });
+
+    it("should not throw on shortcut activation if the window does not exist", () => {
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
+      toggleHandler({}, true);
+
+      mockWindowMain.win = null;
+
+      // Get the registered callback
+      const registeredCallback = (globalShortcut.register as jest.Mock).mock.calls[0][1];
+
+      expect(() => registeredCallback()).not.toThrow();
+      expect(autotype_mvp.getForegroundWindowTitle).not.toHaveBeenCalled();
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        "Autotype keyboard shortcut activated, but the main window does not exist.",
+      );
+    });
   });
 });
