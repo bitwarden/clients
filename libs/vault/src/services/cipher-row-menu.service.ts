@@ -16,10 +16,15 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
-import { VaultItemEvent } from "../components/vault-item-event";
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
 
 import { CipherActionService } from "./cipher-action.service";
+
+export type CipherRowMenuHandlers<C extends CipherViewLike> = {
+  edit: (item: C) => void | Promise<void>;
+  clone: (item: C) => void | Promise<void>;
+  assignToCollections: (item: C) => void | Promise<void>;
+};
 
 /** Centralises row overflow menu action definitions for vault cipher rows across clients. */
 @Injectable({ providedIn: "root" })
@@ -46,7 +51,7 @@ export class CipherRowMenuService {
   /** Returns the full row action definitions for the cipher overflow menu. */
   getRowActions<C extends CipherViewLike>(
     collections: CollectionView[] = [],
-    handler: (event: VaultItemEvent<C>) => void,
+    handlers: CipherRowMenuHandlers<C>,
   ): VaultItemsTableRowAction<C>[] {
     return [
       {
@@ -67,7 +72,7 @@ export class CipherRowMenuService {
         id: "edit",
         label: this.i18nService.t("edit"),
         icon: "bwi-pencil-square",
-        run: (item) => handler({ type: "editCipher", item }),
+        run: (item) => void handlers.edit(item),
         show: (item) => this.showEdit(item),
       },
       {
@@ -81,14 +86,14 @@ export class CipherRowMenuService {
         id: "clone",
         label: this.i18nService.t("clone"),
         icon: "bwi-copy",
-        run: (item) => handler({ type: "clone", item }),
+        run: (item) => void handlers.clone(item),
         show: (item) => this.showClone(item, collections),
       },
       {
         id: "addToSharedFolder",
         label: this.i18nService.t("addToSharedFolder"),
         icon: "bwi-shared-folder",
-        run: (item) => handler({ type: "assignToCollections", items: [item] }),
+        run: (item) => void handlers.assignToCollections(item),
         show: (item) => this.showAssignToCollections(item),
       },
       {

@@ -89,7 +89,14 @@ describe("VaultListTableComponent", () => {
 
       component["rowActions"]();
 
-      expect(mockGetRowActions).toHaveBeenCalledWith([col], expect.any(Function));
+      expect(mockGetRowActions).toHaveBeenCalledWith(
+        [col],
+        expect.objectContaining({
+          edit: expect.any(Function),
+          clone: expect.any(Function),
+          assignToCollections: expect.any(Function),
+        }),
+      );
     });
   });
 

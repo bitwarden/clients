@@ -9,6 +9,7 @@ import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-u
 import { CalloutComponent, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  CipherRowMenuHandlers,
   CipherRowMenuService,
   NewCipherMenuComponent,
   VaultBatchBarService,
@@ -61,8 +62,15 @@ export class VaultListTableComponent<C extends CipherViewLike> {
     return search ? { search } : {};
   });
 
+  private readonly cipherRowMenuHandlers = computed<CipherRowMenuHandlers<C>>(() => ({
+    edit: (item) => this.onEvent.emit({ type: "editCipher", item }),
+    clone: (item) => this.onEvent.emit({ type: "clone", item }),
+    assignToCollections: (item) =>
+      this.onEvent.emit({ type: "assignToCollections", items: [item] }),
+  }));
+
   protected readonly rowActions = computed<VaultItemsTableRowAction<C>[]>(() =>
-    this.cipherRowMenuService.getRowActions<C>(this.collections(), (e) => this.onEvent.emit(e)),
+    this.cipherRowMenuService.getRowActions<C>(this.collections(), this.cipherRowMenuHandlers()),
   );
 
   protected readonly itemAction = (item: C): void =>

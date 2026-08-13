@@ -88,7 +88,13 @@ describe("CipherRowMenuService", () => {
 
   /** Calls the `show` predicate for the named action. */
   function show(actionId: string, cipher: CipherView, collections: CollectionView[] = []): boolean {
-    const action = service.getRowActions(collections, () => {}).find((a) => a.id === actionId);
+    const action = service
+      .getRowActions(collections, {
+        edit: () => {},
+        clone: () => {},
+        assignToCollections: () => {},
+      })
+      .find((a) => a.id === actionId);
     return action?.show?.(cipher) ?? true;
   }
 
