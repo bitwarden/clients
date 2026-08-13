@@ -1,0 +1,219 @@
+<bit-table-v2
+  #vaultTable="bitTableV2"
+  [tableDef]="table"
+  [displayedColumns]="visibleColumns()"
+  [filter]="filter"
+  [filters]="initialFilterValues()"
+  [loading]="loading()"
+  [selection]="selection"
+  (selectedChange)="selectedChange.emit($event)"
+>
+  <!--
+    The design separates the search row from the filter row with a full-bleed rule, which
+    `bit-table-toolbar` doesn't offer as an input. Until it does, we draw it from here as a
+    top border on the filter row, selected by the one thing that identifies it structurally —
+    it's the row that holds the filter chips as direct children. The negative inline margin
+    cancels the toolbar's `p-3` so the rule reaches both edges.
+
+    Two things fall out of targeting the filter row rather than the search row: below `md` the
+    toolbar hides that row, so the rule disappears with it instead of doubling up on the
+    toolbar's own bottom border; and the small-screen active-filter row holds `bit-chip`s, not
+    filter menus, so it doesn't match.
+
+    TODO: replace with a first-class `bit-table-toolbar` affordance — this couples to the
+    toolbar's internal DOM.
+  -->
+  <bit-table-toolbar
+    class="[&_div:has(>bit-filter-menu)]:-tw-mx-3 [&_div:has(>bit-filter-menu)]:tw-border-0 [&_div:has(>bit-filter-menu)]:tw-border-t [&_div:has(>bit-filter-menu)]:tw-border-solid [&_div:has(>bit-filter-menu)]:tw-border-border-base [&_div:has(>bit-filter-menu)]:tw-px-3 [&_div:has(>bit-filter-menu)]:tw-pt-2"
+  >
+    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
+
+    <!-- Page-level controls (Import, Add, ...) are the host's concern, not the table's. -->
+    <ng-content select="[slot=toolbar]" slot="end"></ng-content>
+
+    <bit-filter-menu key="type" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
+      @for (cipherType of availableCipherTypes(); track cipherType) {
+        <bit-filter-option [value]="cipherType">
+          {{ cipherTypeLabel(cipherType) | i18n }}
+        </bit-filter-option>
+      }
+    </bit-filter-menu>
+
+    <bit-filter-divider></bit-filter-divider>
+
+    <!--
+      The pointer-events override below overrides `BaseChipDirective`'s own
+      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
+    -->
+    <bit-filter-toggle
+      key="favorites"
+      [label]="'favorites' | i18n"
+      icon="bwi-star"
+      iconActive="bwi-star-f"
+      [disabled]="noFavorites()"
+      [bitTooltip]="favoritesDisabledTooltip()"
+      [style.pointer-events]="'auto'"
+    ></bit-filter-toggle>
+
+    @if (multipleVaults()) {
+      <bit-filter-menu key="vault" [placeholderText]="'vault' | i18n" multiple>
+        @if (showMyVaultOption()) {
+          <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
+        }
+        @for (organization of sortedOrganizations(); track organization.id) {
+          <bit-filter-option [value]="organization.id">{{ organization.name }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+
+    @if (showSharedFolders()) {
+      <bit-filter-menu key="sharedFolder" [placeholderText]="'sharedFolders' | i18n" multiple>
+        @if (groupSharedFolders()) {
+          @for (group of groupedSharedFolders(); track group.organizationId) {
+            <bit-filter-section [label]="group.name" collapsible>
+              @for (collection of group.collections; track collection.id) {
+                <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+              }
+            </bit-filter-section>
+          }
+        } @else {
+          @for (collection of sortedCollections(); track collection.id) {
+            <bit-filter-option [value]="collection.id">{{ collection.name }}</bit-filter-option>
+          }
+        }
+      </bit-filter-menu>
+    }
+
+    <bit-filter-menu
+      key="folder"
+      [placeholderText]="'myFolders' | i18n"
+      multiple
+      [disabled]="noFolders()"
+      [bitTooltip]="foldersDisabledTooltip()"
+      [style.pointer-events]="'auto'"
+    >
+      <bit-filter-option [value]="NO_FOLDER">{{ "noneFolder" | i18n }}</bit-filter-option>
+      @for (folder of sortedFolders(); track folder.id) {
+        <bit-filter-option [value]="folder.id">{{ folder.name }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+  </bit-table-toolbar>
+
+  <bit-no-items slot="empty">
+    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
+    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
+    <button
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      startIcon="bwi-clear"
+      [class.tw-hidden]="!hasActiveChipFilters(vaultTable)"
+      class="tw-mb-6"
+      (click)="clearChipFilters(vaultTable)"
+    >
+      {{ "clearAll" | i18n }}
+    </button>
+  </bit-no-items>
+
+  <!-- Name -->
+  <bit-column sortable defaultSort="asc" width="minmax(200px, 2fr)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      <app-vault-icon slot="start" [cipher]="row" />
+
+      <span class="tw-flex tw-min-w-0 tw-items-center tw-gap-1.5">
+        @if (itemAction()) {
+          <button
+            type="button"
+            bitLink
+            class="tw-truncate tw-text-start"
+            [title]="'editItemWithName' | i18n: row.name"
+            (click)="action.emit(itemAction()!(row))"
+          >
+            {{ row.name }}
+          </button>
+        } @else {
+          <span class="tw-truncate">{{ row.name }}</span>
+        }
+        @if (row.organizationId) {
+          <bit-icon
+            name="bwi-business"
+            class="tw-shrink-0 tw-text-muted"
+            [ariaLabel]="'organization' | i18n"
+          />
+        }
+        @if (CipherViewLikeUtils.hasAttachments(row)) {
+          <bit-icon
+            name="bwi-paperclip"
+            class="tw-shrink-0 tw-text-muted"
+            [ariaLabel]="'attachments' | i18n"
+          />
+        }
+        @if (row.favorite) {
+          <bit-icon
+            name="bwi-star-f"
+            class="tw-shrink-0 tw-text-primary-600"
+            [ariaLabel]="'favorite' | i18n"
+          />
+        }
+      </span>
+
+      <span slot="secondary">{{ subtitle(row) }}</span>
+    </bit-cell>
+
+    <!-- Two lines of content, so the default single-bar skeleton would under-represent it. -->
+    <bit-cell *bitCellLoading>
+      <bit-skeleton-text class="tw-w-1/2 tw-mb-1" />
+      <bit-skeleton-text slot="secondary" class="tw-w-1/3" />
+    </bit-cell>
+  </bit-column>
+
+  <!-- Vault -->
+  <bit-column sortable [sortFn]="sortByVault" width="minmax(140px, 1fr)">
+    <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.vault; let row">
+      <bit-icon
+        slot="start"
+        [name]="row.organizationId ? 'bwi-business' : 'bwi-user'"
+        class="tw-text-muted"
+      />
+      {{ vaultName(row) }}
+    </bit-cell>
+  </bit-column>
+
+  <!-- Shared folders -->
+  <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(140px, 1fr)">
+    <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.sharedFolders; let row">
+      <vault-items-table-chips-cell
+        [chips]="sharedFolderChips(row)"
+        icon="bwi-shared-folder"
+        [emptyLabel]="'noSharedFolder' | i18n"
+        (chipSelect)="filterTo(vaultTable, 'sharedFolder', $event)"
+      />
+    </bit-cell>
+  </bit-column>
+
+  <!-- My folders -->
+  <bit-column sortable [sortFn]="sortByFolders" width="minmax(140px, 1fr)">
+    <bit-header-cell>{{ "myFolders" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.myFolders; let row">
+      <vault-items-table-chips-cell
+        [chips]="folderChips(row)"
+        icon="bwi-folder"
+        [emptyLabel]="'noneFolder' | i18n"
+        (chipSelect)="filterTo(vaultTable, 'folder', $event)"
+      />
+    </bit-cell>
+  </bit-column>
+
+  <!-- Options -->
+  <vault-items-table-actions-column
+    [table]="table"
+    [rowActions]="rowActions()"
+    [copyPresentation]="copyPresentation()"
+    (action)="action.emit($event)"
+  />
+</bit-table-v2>
