@@ -59,7 +59,7 @@ export class CipherRowMenuService {
       {
         id: "removeFavorite",
         label: this.i18nService.t("unfavorite"),
-        icon: "bwi-star",
+        icon: "bwi-star-f",
         run: (item) => void this.cipherActionService.toggleFavorite(item),
         show: (item) => !!item.favorite && this.showFavorite(item),
       },
