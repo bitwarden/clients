@@ -652,6 +652,26 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       case "viewCipher":
         await this.viewCipher(event.item);
         break;
+      case "viewAttachments":
+        await this.cipherActionService.viewAttachments(event.item);
+        break;
+      case "restore":
+        await this.cipherActionService.restore(event.items[0]);
+        break;
+      case "delete":
+        if (event.items[0].cipher) {
+          await this.cipherActionService.delete(event.items[0].cipher);
+        }
+        break;
+      case "archive":
+        await this.cipherActionService.archive(event.items[0]);
+        break;
+      case "unarchive":
+        await this.cipherActionService.unarchive(event.items[0]);
+        break;
+      case "toggleFavorite":
+        await this.cipherActionService.toggleFavorite(event.item);
+        break;
       case "clone": {
         const cipher = await this.cipherService.getFullCipherView(event.item);
         await this.cloneCipher(cipher);
