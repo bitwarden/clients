@@ -14,6 +14,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   ItemModule,
@@ -28,6 +29,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
 
+export
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "health-risk-category-detail",
@@ -47,25 +49,15 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     I18nPipe,
   ],
 })
-export class HealthRiskCategoryDetailComponent {
+class HealthRiskCategoryDetailComponent {
   readonly router = inject(Router);
   readonly route = inject(ActivatedRoute);
   readonly accountService = inject(AccountService);
+  readonly cipherService = inject(CipherService);
   readonly changeLoginPasswordService = inject(ChangeLoginPasswordService);
   readonly passwordRepromptService = inject(PasswordRepromptService);
   readonly platformUtilsService = inject(PlatformUtilsService);
   readonly vaultHealthReportService = inject(VaultHealthReportService);
-
-  readonly category = toSignal<RiskCategory>(
-    this.route.params.pipe(map((params) => params["category"])),
-  );
-  readonly report = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
-    ),
-    { initialValue: null },
-  );
 
   constructor() {
     effect(() => {
@@ -80,6 +72,17 @@ export class HealthRiskCategoryDetailComponent {
     });
   }
 
+  readonly category = toSignal<RiskCategory>(
+    this.route.params.pipe(map((params) => params["category"])),
+  );
+  readonly report = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
+    ),
+    { initialValue: null },
+  );
+
   readonly items = computed(() => {
     const category = this.category();
     const report = this.report();
@@ -87,38 +90,16 @@ export class HealthRiskCategoryDetailComponent {
       return [];
     }
 
-    switch (category) {
-      case RiskCategory.Exposed:
-        return report.categoryItems.exposed;
-      case RiskCategory.Weak:
-        return report.categoryItems.weak;
-      case RiskCategory.Reused:
-        return report.categoryItems.reused;
-      default:
-        return [];
-    }
+    return report.categoryItems[category] ?? [];
   });
-  readonly contentKeys = computed<{
-    titleKey?: string;
-    descriptionKey?: string;
-  }>(() => {
-    const keys: { titleKey?: string; descriptionKey?: string } = {};
-    switch (this.category()) {
-      case RiskCategory.Exposed:
-        keys.titleKey = "exposedPasswordsTitle";
-        keys.descriptionKey = "exposedPasswordsDescription";
-        break;
-      case RiskCategory.Weak:
-        keys.titleKey = "weakPasswordsTitle";
-        keys.descriptionKey = "weakPasswordsDescription";
-        break;
-      case RiskCategory.Reused:
-        keys.titleKey = "reusedPasswordsTitle";
-        keys.descriptionKey = "reusedPasswordsDescription";
-        break;
-    }
-    return keys;
-  });
+  readonly cipherMap = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.cipherService.cipherViews$(userId)),
+      map((ciphers) => new Map<string, CipherView>(ciphers.map((cipher) => [cipher.id, cipher]))),
+    ),
+    { initialValue: new Map<string, CipherView>() },
+  );
 
   readonly onChangePassword = async (item: CipherView) => {
     const changePasswordUrl = await this.changeLoginPasswordService.getChangePasswordUrl(item);
@@ -135,5 +116,20 @@ export class HealthRiskCategoryDetailComponent {
     await this.router.navigate(["/view-cipher"], {
       queryParams: { cipherId: item.id, type: item.type },
     });
+  };
+
+  readonly HEALTH_DETAIL_CONTENTS = {
+    [RiskCategory.Exposed]: {
+      titleKey: "exposedPasswordsTitle",
+      descriptionKey: "exposedPasswordsDescription",
+    },
+    [RiskCategory.Weak]: {
+      titleKey: "weakPasswordsTitle",
+      descriptionKey: "weakPasswordsDescription",
+    },
+    [RiskCategory.Reused]: {
+      titleKey: "reusedPasswordsTitle",
+      descriptionKey: "reusedPasswordsDescription",
+    },
   };
 }

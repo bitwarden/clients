@@ -1,23 +1,9 @@
 import { View } from "@bitwarden/common/models/view/view";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "../risk-category";
 
 type CategoryRecord<T> = Record<RiskCategory, T>;
-
-/**
- * An item (cipher) that is flagged in the vault health report, with its associated health metrics.
- */
-export class VaultHealthReportItem implements View {
-  cipher: CipherView;
-  health: CipherHealthView;
-
-  constructor(cipher: CipherView, health: CipherHealthView) {
-    this.cipher = cipher;
-    this.health = health;
-  }
-}
 
 /**
  * The aggregated, deduplicated, scored vault-health result for the browser
@@ -39,7 +25,7 @@ export class VaultHealthReportView implements View {
    * login is at risk in, so consumers needing the cross-category view (e.g.
    * the delete-from-detail dialog) can read it here without a separate list.
    */
-  categoryItems: CategoryRecord<VaultHealthReportItem[]> = { exposed: [], weak: [], reused: [] };
+  categoryItems: CategoryRecord<CipherHealthView[]> = { exposed: [], weak: [], reused: [] };
 
   constructor(init?: Partial<VaultHealthReportView>) {
     if (init == null) {

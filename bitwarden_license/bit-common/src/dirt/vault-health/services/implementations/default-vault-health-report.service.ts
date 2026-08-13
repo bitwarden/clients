@@ -8,10 +8,7 @@ import { CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "../../models/risk-category";
-import {
-  VaultHealthReportItem,
-  VaultHealthReportView,
-} from "../../models/view/vault-health-report.view";
+import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
 /** The latest report together with the user it was built for. */
@@ -81,15 +78,12 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
     // views directly by id (no reliance on array position).
     const healthViews = risks.map((risk) => this.toCipherHealthView(risk));
     const atRisk = healthViews.filter((health) => health.isAtRisk());
-    const loginsById = new Map(logins.map((cipher) => [cipher.id, cipher]));
 
-    const categoryItems: Record<RiskCategory, VaultHealthReportItem[]> = atRisk.reduce(
-      (items: Record<RiskCategory, VaultHealthReportItem[]>, health) => {
-        // Every health view is derived from `logins`, so the lookup always hits;
-        const cipher = loginsById.get(health.cipherId);
-        items[this.highestRiskCategory(health)].push(new VaultHealthReportItem(cipher!, health));
-
-        return items;
+    const categoryItems: Record<RiskCategory, CipherHealthView[]> = atRisk.reduce(
+      (categories: Record<RiskCategory, CipherHealthView[]>, health) => {
+        const category = this.highestRiskCategory(health);
+        categories[category].push(health);
+        return categories;
       },
       { exposed: [], weak: [], reused: [] },
     );

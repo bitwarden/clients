@@ -1,5 +1,6 @@
+@let contentKeys = HEALTH_DETAIL_CONTENTS[category()];
 <popup-page>
-  <popup-header slot="header" pageTitle="{{ contentKeys().titleKey | i18n }}" showBackButton="true">
+  <popup-header slot="header" pageTitle="{{ contentKeys.titleKey | i18n }}" showBackButton="true">
     <ng-container slot="end">
       <app-pop-out />
       <app-current-account />
@@ -9,15 +10,16 @@
     <!-- shown while page routes back to health overview -->
   } @else if (items().length > 0) {
     <p>
-      {{ contentKeys().descriptionKey | i18n }}
+      {{ contentKeys.descriptionKey | i18n }}
     </p>
     <bit-section>
       <bit-section-header>
         <h2 bitTypography="h5">{{ "items" | i18n }}</h2>
         <span slot="end">{{ items().length }}</span>
       </bit-section-header>
-      @for (item of items(); track item.cipher.id) {
-        @let cipher = item.cipher;
+      @for (item of items(); track item.cipherId) {
+        @let cipher = cipherMap().get(item.cipherId);
+
         <bit-item class="tw-flex tw-gap-2 tw-items-center">
           <button bit-item-content type="button" (click)="onItemClick(cipher)">
             <div slot="start" class="tw-pr-2 tw-flex tw-items-center">
