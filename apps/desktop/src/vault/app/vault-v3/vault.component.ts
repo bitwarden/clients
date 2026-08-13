@@ -56,7 +56,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -93,8 +92,7 @@ import {
   AddItemDialogCloseResult,
   AddItemDialogComponent,
   AddItemDialogResult,
-  AttachmentsV2Component,
-  AttachmentDialogResult,
+  CipherActionService,
   CipherFormConfig,
   CipherFormConfigService,
   CollectionAssignmentResult,
@@ -102,7 +100,6 @@ import {
   DefaultCipherFormConfigService,
   DefaultVaultItemsTransferService,
   PasswordRepromptService,
-  ArchiveCipherUtilitiesService,
   VaultFilter,
   VaultFilterServiceAbstraction as VaultFilterService,
   RoutedVaultFilterBridgeService,
@@ -189,12 +186,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private cipherService = inject(CipherService);
   private premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private collectionService = inject(CollectionService);
-  private logService = inject(LogService);
   private organizationService = inject(OrganizationService);
   private restrictedItemTypesService = inject(RestrictedItemTypesService);
   private cipherArchiveService = inject(CipherArchiveService);
   private policyService = inject(PolicyService);
-  private archiveCipherUtilitiesService = inject(ArchiveCipherUtilitiesService);
+  private cipherActionService = inject(CipherActionService);
   private routedVaultFilterBridgeService = inject(RoutedVaultFilterBridgeService);
   private vaultFilterService = inject(VaultFilterService);
   private routedVaultFilterService = inject(RoutedVaultFilterService);
@@ -216,7 +212,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected readonly cipher = signal<CipherView | null>(null);
 
   private activeUserId: UserId | null = null;
-  private passwordReprompted: boolean = false;
   private userId$ = this.accountService.activeAccount$.pipe(getUserId);
   showPremiumCallout$: Observable<boolean> = this.userId$.pipe(
     switchMap((userId) =>
@@ -637,6 +632,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.refresh());
 
+    this.cipherActionService.cipherActionSuccess$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.refresh());
+
     void this.vaultItemTransferService.enforceOrganizationDataOwnership(this.activeUserId);
   }
 
@@ -653,22 +652,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       case "viewCipher":
         await this.viewCipher(event.item);
         break;
-      case "viewAttachments":
-        await this.openAttachmentsDialog(event.item.id as CipherId, event.item.edit);
-        break;
       case "clone": {
         const cipher = await this.cipherService.getFullCipherView(event.item);
         await this.cloneCipher(cipher);
-        break;
-      }
-      case "restore": {
-        const cipher = await this.cipherService.getFullCipherView(event.items[0]);
-        await this.handleRestoreEvent(cipher);
-        break;
-      }
-      case "delete": {
-        const cipher = await this.cipherService.getFullCipherView(event.items[0].cipher);
-        await this.handleDeleteEvent(cipher);
         break;
       }
       case "assignToCollections":
@@ -676,32 +662,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           const cipher = await this.cipherService.getFullCipherView(event.items[0]);
           await this.shareCipher(cipher);
         }
-        break;
-      case "archive":
-        if (event.items.length === 1) {
-          const cipher = await this.cipherService.getFullCipherView(event.items[0]);
-          if (!cipher.isDeleted && !cipher.isArchived) {
-            if (!(await firstValueFrom(this.userCanArchive$))) {
-              await this.premiumUpgradePromptService.promptForPremium();
-              return;
-            }
-
-            await this.archiveCipherUtilitiesService.archiveCipher(cipher);
-            this.refresh();
-          }
-        }
-        break;
-      case "unarchive":
-        if (event.items.length === 1) {
-          const cipher = await this.cipherService.getFullCipherView(event.items[0]);
-          if (cipher.isArchived && !cipher.isDeleted) {
-            await this.archiveCipherUtilitiesService.unarchiveCipher(cipher);
-            this.refresh();
-          }
-        }
-        break;
-      case "toggleFavorite":
-        await this.handleFavoriteEvent(event.item);
         break;
       case "editCipher": {
         const fullCipher = await this.cipherService.getFullCipherView(event.item);
@@ -729,21 +689,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     );
     if (await this.openDialog("view", formConfig)) {
       this.cipher.set(cipher);
-    }
-  }
-
-  async openAttachmentsDialog(cipherId: CipherId, canEditCipher: boolean) {
-    if (!this.userHasPremium()) {
-      await this.premiumUpgradePromptService.promptForPremium();
-      return;
-    }
-    const dialogRef = AttachmentsV2Component.open(this.dialogService, { cipherId, canEditCipher });
-    const result = await firstValueFrom(dialogRef.closed);
-    if (
-      result?.action === AttachmentDialogResult.Removed ||
-      result?.action === AttachmentDialogResult.Uploaded
-    ) {
-      this.refresh();
     }
   }
 
@@ -857,92 +802,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   restore = async (c: CipherViewLike) => {
-    await this.handleRestoreEvent(c as CipherView);
+    await this.cipherActionService.restore(c);
   };
-
-  async handleRestoreEvent(cipher: CipherView): Promise<boolean> {
-    let toastMessage;
-    if (!cipher.isDeleted) {
-      return false;
-    }
-
-    if (cipher.isArchived) {
-      toastMessage = this.i18nService.t("archivedItemRestored");
-    } else {
-      toastMessage = this.i18nService.t("restoredItem");
-    }
-
-    try {
-      await this.cipherService.restoreWithServer(cipher.id, this.activeUserId);
-      this.toastService.showToast({
-        variant: "success",
-        message: toastMessage,
-      });
-      this.refresh();
-    } catch (e) {
-      this.logService.error(e);
-    }
-
-    return true;
-  }
-
-  async handleFavoriteEvent(cipher: C) {
-    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-    const cipherFullView = await this.cipherService.getFullCipherView(cipher);
-    cipherFullView.favorite = !cipherFullView.favorite;
-    await this.cipherService.updateWithServer(cipherFullView, activeUserId);
-
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t(
-        cipherFullView.favorite ? "itemAddedToFavorites" : "itemRemovedFromFavorites",
-      ),
-    });
-
-    this.refresh();
-  }
-
-  async handleDeleteEvent(cipher: CipherView): Promise<boolean> {
-    if (!(await this.promptPassword(cipher))) {
-      return false;
-    }
-
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "deleteItem" },
-      content: {
-        key: cipher.isDeleted ? "permanentlyDeleteItemConfirmation" : "deleteItemConfirmation",
-      },
-      type: "warning",
-    });
-
-    if (!confirmed) {
-      return false;
-    }
-
-    try {
-      await (cipher.isDeleted
-        ? this.cipherService.deleteWithServer(cipher.id, this.activeUserId)
-        : this.cipherService.softDeleteWithServer(cipher.id, this.activeUserId));
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t(cipher.isDeleted ? "permanentlyDeletedItem" : "deletedItem"),
-      });
-      this.refresh();
-    } catch (e) {
-      this.logService.error(e);
-    }
-
-    return true;
-  }
-
-  protected async promptPassword(cipher: CipherView): Promise<boolean> {
-    if (cipher.reprompt === CipherRepromptType.None || this.passwordReprompted) {
-      return true;
-    }
-
-    return (this.passwordReprompted = await this.passwordRepromptService.showPasswordPrompt());
-  }
 
   private getAvailableCollections(cipher: CipherView): CollectionView[] {
     const orgId = cipher.organizationId;

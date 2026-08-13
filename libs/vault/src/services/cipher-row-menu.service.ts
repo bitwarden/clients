@@ -19,6 +19,8 @@ import {
 import { VaultItemEvent } from "../components/vault-item-event";
 import { VaultItemsTableRowAction } from "../components/vault-items-table/vault-items-table-row-action";
 
+import { CipherActionService } from "./cipher-action.service";
+
 /** Centralises row overflow menu action definitions for vault cipher rows across clients. */
 @Injectable({ providedIn: "root" })
 export class CipherRowMenuService {
@@ -26,6 +28,7 @@ export class CipherRowMenuService {
   private readonly accountService = inject(AccountService);
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
+  private readonly cipherActionService = inject(CipherActionService);
 
   /** Whether the active user has premium and can archive ciphers. */
   readonly userCanArchive = toSignal(
@@ -46,76 +49,77 @@ export class CipherRowMenuService {
    */
   getRowActions<C extends CipherViewLike>(
     collections: CollectionView[] = [],
-  ): VaultItemsTableRowAction<C, VaultItemEvent<C>>[] {
+    handler: (event: VaultItemEvent<C>) => void,
+  ): VaultItemsTableRowAction<C>[] {
     return [
       {
         id: "addFavorite",
         label: this.i18nService.t("favorite"),
         icon: "bwi-star",
-        event: (item) => ({ type: "toggleFavorite", item }),
+        run: (item) => void this.cipherActionService.toggleFavorite(item),
         show: (item) => !item.favorite && this.showFavorite(item),
       },
       {
         id: "removeFavorite",
         label: this.i18nService.t("unfavorite"),
         icon: "bwi-star",
-        event: (item) => ({ type: "toggleFavorite", item }),
+        run: (item) => void this.cipherActionService.toggleFavorite(item),
         show: (item) => !!item.favorite && this.showFavorite(item),
       },
       {
         id: "edit",
         label: this.i18nService.t("edit"),
         icon: "bwi-pencil-square",
-        event: (item) => ({ type: "editCipher", item }),
+        run: (item) => handler({ type: "editCipher", item }),
         show: (item) => this.showEdit(item),
       },
       {
         id: "attachments",
         label: this.i18nService.t("attachments"),
         icon: "bwi-paperclip",
-        event: (item) => ({ type: "viewAttachments", item }),
+        run: (item) => void this.cipherActionService.viewAttachments(item),
         show: (item) => this.showAttachments(item),
       },
       {
         id: "clone",
         label: this.i18nService.t("clone"),
         icon: "bwi-copy",
-        event: (item) => ({ type: "clone", item }),
+        run: (item) => handler({ type: "clone", item }),
         show: (item) => this.showClone(item, collections),
       },
       {
         id: "addToSharedFolder",
         label: this.i18nService.t("addToSharedFolder"),
         icon: "bwi-shared-folder",
-        event: (item) => ({ type: "assignToCollections", items: [item] }),
+        run: (item) => handler({ type: "assignToCollections", items: [item] }),
         show: (item) => this.showAssignToCollections(item),
       },
       {
         id: "archive",
         label: this.i18nService.t("archiveVerb"),
         icon: "bwi-archive",
-        event: (item) => ({ type: "archive", items: [item] }),
+        run: (item) => void this.cipherActionService.archive(item),
         show: (item) => this.showArchive(item),
       },
       {
         id: "unarchive",
         label: this.i18nService.t("unArchive"),
         icon: "bwi-undo",
-        event: (item) => ({ type: "unarchive", items: [item] }),
+        run: (item) => void this.cipherActionService.unarchive(item),
         show: (item) => this.showUnarchive(item),
       },
       {
         id: "restore",
         label: this.i18nService.t("restore"),
         icon: "bwi-undo",
-        event: (item) => ({ type: "restore", items: [item] }),
+        run: (item) => void this.cipherActionService.restore(item),
         show: (item) => this.showRestore(item),
       },
       {
         id: "delete",
         label: this.i18nService.t("delete"),
         icon: "bwi-trash",
-        event: (item) => ({ type: "delete", items: [{ cipher: item }] }),
+        run: (item) => void this.cipherActionService.delete(item),
         show: (item) => this.canDelete(item) && !CipherViewLikeUtils.isDeleted(item),
         variant: "danger",
       },
@@ -123,7 +127,7 @@ export class CipherRowMenuService {
         id: "permanentlyDelete",
         label: this.i18nService.t("permanentlyDelete"),
         icon: "bwi-trash",
-        event: (item) => ({ type: "delete", items: [{ cipher: item }] }),
+        run: (item) => void this.cipherActionService.delete(item),
         show: (item) => this.canDelete(item) && CipherViewLikeUtils.isDeleted(item),
         variant: "danger",
       },

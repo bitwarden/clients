@@ -15,6 +15,7 @@ import {
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { CipherActionService } from "./cipher-action.service";
 import { CipherRowMenuService } from "./cipher-row-menu.service";
 
 const userId = "test-user-id" as UserId;
@@ -78,6 +79,7 @@ describe("CipherRowMenuService", () => {
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
+        { provide: CipherActionService, useValue: mock<CipherActionService>() },
       ],
     });
 
@@ -86,7 +88,7 @@ describe("CipherRowMenuService", () => {
 
   /** Calls the `show` predicate for the named action. */
   function show(actionId: string, cipher: CipherView, collections: CollectionView[] = []): boolean {
-    const action = service.getRowActions(collections).find((a) => a.id === actionId);
+    const action = service.getRowActions(collections, () => {}).find((a) => a.id === actionId);
     return action?.show?.(cipher) ?? true;
   }
 
