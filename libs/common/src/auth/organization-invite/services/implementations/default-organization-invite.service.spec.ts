@@ -786,10 +786,10 @@ describe("DefaultOrganizationInviteService", () => {
 
     /**
      * Fabricates the `InviteLinkError { variant: "Api" }` shape the SDK produces when a
-     * server response fails. Mirrors `bitwarden-core::ApiError::Response`'s Display
-     * output: `Received error message from server: [{status} {reason}] {json-body}`,
-     * where `{json-body}` is the raw server error response envelope. The name/variant
-     * fields are what `isInviteLinkError` uses to identify the error.
+     * server response fails. Mirrors `bitwarden-api-base::Error::Response`'s Display
+     * output: `error in response: status code {status} {reason}: {json-body}`, where
+     * `{json-body}` is the raw server error response envelope. The name/variant fields
+     * are what `isInviteLinkError` uses to identify the error.
      */
     const makeSdkApiError = (statusCode: number, message: string): Error => {
       const reasonPhrase = statusCode === 400 ? "Bad Request" : "Internal Server Error";
@@ -802,7 +802,7 @@ describe("DefaultOrganizationInviteService", () => {
         object: "error",
       });
       const err = new Error(
-        `Received error message from server: [${statusCode} ${reasonPhrase}] ${body}`,
+        `error in response: status code ${statusCode} ${reasonPhrase}: ${body}`,
       ) as Error & { name: string; variant: string };
       err.name = "InviteLinkError";
       err.variant = "Api";
@@ -816,7 +816,7 @@ describe("DefaultOrganizationInviteService", () => {
      */
     const makeSdkApiErrorWithRawBody = (statusCode: number, body: string): Error => {
       const err = new Error(
-        `Received error message from server: [${statusCode} Bad Request] ${body}`,
+        `error in response: status code ${statusCode} Bad Request: ${body}`,
       ) as Error & { name: string; variant: string };
       err.name = "InviteLinkError";
       err.variant = "Api";
@@ -1187,7 +1187,7 @@ describe("DefaultOrganizationInviteService", () => {
       });
 
       it("returns unexpected with the raw SDK message when the body isn't valid JSON", async () => {
-        const rawSdkMessage = "Received error message from server: [400 Bad Request] not-json {";
+        const rawSdkMessage = "error in response: status code 400 Bad Request: not-json {";
         const err = makeSdkApiErrorWithRawBody(400, "not-json {");
         const result = await runWithRejection(err);
         expect(result).toEqual({ kind: "unexpected", errorMessage: rawSdkMessage });
@@ -1195,10 +1195,26 @@ describe("DefaultOrganizationInviteService", () => {
 
       it("returns unexpected with the raw SDK message when the JSON body has no string `message`", async () => {
         const body = JSON.stringify({ message: null, object: "error" });
-        const rawSdkMessage = `Received error message from server: [400 Bad Request] ${body}`;
+        const rawSdkMessage = `error in response: status code 400 Bad Request: ${body}`;
         const err = makeSdkApiErrorWithRawBody(400, body);
         const result = await runWithRejection(err);
         expect(result).toEqual({ kind: "unexpected", errorMessage: rawSdkMessage });
+      });
+
+      it("returns the classified `kind` when text trails the JSON body", async () => {
+        // Body extraction is delimited by first `{` / last `}` so a trailing suffix
+        // outside those braces doesn't derail classification.
+        const body = JSON.stringify({
+          message: "You must verify your email address before joining an organization.",
+          validationErrors: null,
+          exceptionMessage: null,
+          exceptionStackTrace: null,
+          innerExceptionMessage: null,
+          object: "error",
+        });
+        const err = makeSdkApiErrorWithRawBody(400, `${body} (trailing suffix)`);
+        const result = await runWithRejection(err);
+        expect(result).toEqual({ kind: "email-not-verified" });
       });
 
       it("returns unexpected for non-SDK Error throws (network layer, unrelated exception)", async () => {
