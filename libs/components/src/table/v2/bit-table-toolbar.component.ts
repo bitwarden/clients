@@ -9,6 +9,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../../berry/berry.component";
+import { ButtonModule } from "../../button";
 import { ChipComponent } from "../../chips";
 import { DialogService } from "../../dialog";
 import {
@@ -32,12 +33,13 @@ import { BitTableV2Component } from "./table-v2.component";
  * collapse: below `md` the chip row is hidden and replaced by a single trigger
  * (with {@link appliedCount} as a berry) that opens the filters in a dialog. The
  * filter row stays in use on small screens, showing the {@link activeFilters} as
- * dismissible chips that clear on click.
+ * dismissible chips that clear on click. On wide screens, a "Clear all" button
+ * appears alongside the chips (see {@link clearAll}) once any filter is active.
  */
 @Component({
   selector: "bit-table-toolbar",
   templateUrl: "./bit-table-toolbar.component.html",
-  imports: [I18nPipe, IconButtonModule, BerryComponent, ChipComponent],
+  imports: [I18nPipe, IconButtonModule, BerryComponent, ChipComponent, ButtonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-block tw-border-0 tw-border-b tw-border-solid tw-border-border-base",
@@ -75,5 +77,14 @@ export class BitTableToolbarComponent {
     this.dialogService.open<unknown, FilterDialogParams>(FilterDialogComponent, {
       data: { filters: this.filters() },
     });
+  }
+
+  /**
+   * Reset every projected filter's selection. Deliberately scoped to filter chips and
+   * excludes search.
+   * Mirrors {@link FilterDialogComponent.clearAll}.
+   */
+  protected clearAll(): void {
+    this.filters().forEach((filter) => filter.clear());
   }
 }
