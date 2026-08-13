@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, switchMap } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { ReportExposedPasswords, NoCredentialsIcon, UnlockedIcon } from "@bitwarden/assets/svg";
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
@@ -100,37 +99,23 @@ export class HealthRiskCategoryDetailComponent {
   readonly contentKeys = computed<{
     titleKey?: string;
     descriptionKey?: string;
-    emptyKey?: string;
   }>(() => {
-    const keys: { titleKey?: string; descriptionKey?: string; emptyKey?: string } = {};
+    const keys: { titleKey?: string; descriptionKey?: string } = {};
     switch (this.category()) {
       case RiskCategory.Exposed:
         keys.titleKey = "exposedPasswordsTitle";
         keys.descriptionKey = "exposedPasswordsDescription";
-        keys.emptyKey = "exposedPasswordsEmpty";
         break;
       case RiskCategory.Weak:
         keys.titleKey = "weakPasswordsTitle";
         keys.descriptionKey = "weakPasswordsDescription";
-        keys.emptyKey = "weakPasswordsEmpty";
         break;
       case RiskCategory.Reused:
         keys.titleKey = "reusedPasswordsTitle";
         keys.descriptionKey = "reusedPasswordsDescription";
-        keys.emptyKey = "reusedPasswordsEmpty";
         break;
     }
     return keys;
-  });
-  readonly emptyIcon = computed(() => {
-    switch (this.category()) {
-      case RiskCategory.Exposed:
-        return ReportExposedPasswords;
-      case RiskCategory.Weak:
-        return UnlockedIcon;
-      case RiskCategory.Reused:
-        return NoCredentialsIcon;
-    }
   });
 
   readonly onChangePassword = async (item: CipherView) => {

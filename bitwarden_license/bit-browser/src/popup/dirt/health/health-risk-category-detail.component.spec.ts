@@ -205,10 +205,6 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return fixture.nativeElement.querySelector("bit-section-header span[slot=end]")?.textContent;
   }
 
-  function noItems(): HTMLElement | null {
-    return fixture.nativeElement.querySelector("bit-no-items");
-  }
-
   /** The icon bound to the empty state, read off the component input rather than the rendered SVG. */
   function noItemsIcon(): BitSvg | undefined {
     return fixture.debugElement.query(By.css("bit-no-items"))?.componentInstance.icon();
@@ -499,38 +495,6 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
         "https://another.example.com/password",
       );
-    });
-  });
-
-  describe("empty state", () => {
-    beforeEach(() => {
-      setReport(RiskCategory.Exposed, []);
-    });
-
-    it.each(categories.map((c) => [c.category, c.icon] as const))(
-      "renders the %s empty state icon",
-      async (category, icon) => {
-        params$.next({ category });
-
-        await initComponent();
-
-        expect(noItems()).not.toBeNull();
-        expect(noItemsIcon()).toBe(icon);
-      },
-    );
-
-    it("renders the shared empty state title", async () => {
-      await initComponent();
-
-      expect(text()).toContain("youreAllSet");
-    });
-
-    it("replaces the item list and count with the empty state", async () => {
-      await initComponent();
-
-      expect(rows()).toHaveLength(0);
-      expect(itemCount()).toBeUndefined();
-      expect(text()).not.toContain("exposedPasswordsDescription");
     });
   });
 });
