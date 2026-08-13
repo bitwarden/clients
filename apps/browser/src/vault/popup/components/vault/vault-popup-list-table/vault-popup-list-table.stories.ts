@@ -329,6 +329,9 @@ const buildProviders = (args: StoryArgs) => {
         loading$: loading$.asObservable(),
         searchText$: searchText$.asObservable(),
         hasSearchText$: hasSearchText$.asObservable(),
+        // The table withholds its rows and shows the suspended-organization notice when true; no
+        // story exercises that state, so it stays off.
+        showDeactivatedOrg$: of(false),
         applyFilter,
       },
     },

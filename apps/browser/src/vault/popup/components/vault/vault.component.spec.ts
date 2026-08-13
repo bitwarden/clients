@@ -593,17 +593,32 @@ describe("VaultComponent", () => {
     }));
 
     /**
-     * The deactivated-org state exists to stop showing items belonging to a suspended
-     * organization, so the table must yield to it rather than render alongside it.
+     * The table carries the organization filter that produces this state, so unmounting it would
+     * leave the filter applied with no control able to clear it. It stays mounted and renders the
+     * notice (and withholds the suspended organization's rows) in its own empty slot, so the
+     * page-level block must stand down to avoid showing the message twice.
      */
-    it("unmounts the table in the deactivated-org state", fakeAsync(() => {
+    it("keeps the table mounted in the deactivated-org state", fakeAsync(() => {
       const fixture = createWithFlag(true);
 
       itemsSvc.showDeactivatedOrg$.next(true);
       tick();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeNull();
+      expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
+      // The table is stubbed here, so the notice it renders is covered in its own spec.
+      expect(fixture.nativeElement.textContent).not.toContain("organizationIsDeactivated");
+
+      flush();
+    }));
+
+    it("still renders the page-level deactivated-org notice when the flag is off", fakeAsync(() => {
+      const fixture = createWithFlag(false);
+
+      itemsSvc.showDeactivatedOrg$.next(true);
+      tick();
+      fixture.detectChanges();
+
       expect(fixture.nativeElement.textContent).toContain("organizationIsDeactivated");
 
       flush();
