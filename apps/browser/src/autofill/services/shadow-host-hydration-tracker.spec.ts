@@ -141,6 +141,30 @@ describe("ShadowHostHydrationTracker", () => {
       expect(tracker["pendingMutationAddedElements"].size).toBe(0);
       expect(tracker["pendingMutationAddedElementsOverflowed"]).toBe(false);
     });
+
+    it("requests a collection walk after overflow, since the dropped tail reached no pool", () => {
+      const cap = tracker["pendingMutationAddedElementsCap"];
+      const widgets = Array.from({ length: cap + 50 }, () => document.createElement("my-widget"));
+      widgets.forEach((widget) => document.body.appendChild(widget));
+
+      tracker.noteAddedNodes([buildMutation(widgets)]);
+      jest.advanceTimersByTime(500);
+
+      expect(requestPageDetailsUpdate).toHaveBeenCalled();
+    });
+
+    it("does not request a collection walk when the batch fit under the cap", () => {
+      jest
+        .spyOn(domQueryService, "checkForNewShadowRoots")
+        .mockReturnValue({ foundNewRoot: false, unresolvedHosts: new Set() });
+      const widget = document.createElement("my-widget");
+      document.body.appendChild(widget);
+
+      tracker.noteAddedNodes([buildMutation([widget])]);
+      jest.advanceTimersByTime(500);
+
+      expect(requestPageDetailsUpdate).not.toHaveBeenCalled();
+    });
   });
 
   describe("scan debouncing", () => {

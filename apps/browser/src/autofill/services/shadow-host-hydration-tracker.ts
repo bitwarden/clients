@@ -66,10 +66,16 @@ export class ShadowHostHydrationTracker {
     }
     this.scanTimeout = setTimeout(() => {
       this.scanTimeout = null;
+      const overflowed = this.pendingMutationAddedElementsOverflowed;
       this.runScan();
       this.pendingScan = false;
       this.pendingMutationAddedElements.clear();
       this.pendingMutationAddedElementsOverflowed = false;
+      // The tail past the cap reached no pool, and `attachShadow` emits no mutation to find it
+      // later; one collection walk re-enrolls what the batch dropped.
+      if (overflowed) {
+        this.requestPageDetailsUpdate();
+      }
     }, this.scanDebounceMs);
   }
 
@@ -282,7 +288,7 @@ export class ShadowHostHydrationTracker {
         this.pendingMutationAddedElements.add(node);
         if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
           this.pendingMutationAddedElementsOverflowed = true;
-          // Keep the capped set so the debounced scan works through it incrementally.
+          // Don't clear: the scan still covers these, and the post-overflow walk covers the rest.
           return;
         }
       }
