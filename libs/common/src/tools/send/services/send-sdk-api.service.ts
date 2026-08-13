@@ -35,6 +35,22 @@ import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.
 import { InternalSendService } from "./send.service.abstraction";
 
 /**
+ * Ceiling on plaintext size for a file send created through {@link SendSdkApiService.createFileSend}.
+ *
+ * `create_file_send`'s response carries the ciphertext as a plain JS `number[]` rather than a
+ * typed array (the SDK's `Tsify` derive doesn't special-case `Vec<u8>` — tracked upstream in
+ * PM-41234), so it costs several times the file's byte length in JS heap alone, stacked on top of
+ * the plaintext buffer already held here and the SDK's own copies in wasm linear memory. The
+ * legacy path has none of this overhead: `EncArrayBuffer` stays a compact typed array end to end.
+ *
+ * This is well under the general premium file-Send limit (500 MB) specifically because the
+ * tightest-memory context this can run in is a browser extension's MV3 service worker, not
+ * because 100 MB plaintext is unsafe on its own. Revisit once the SDK exposes the ciphertext as a
+ * typed array — at that point this guard, and the multiplier that motivates it, both go away.
+ */
+export const MAX_SDK_FILE_SEND_SIZE_BYTES = 100 * 1024 * 1024;
+
+/**
  * SDK-backed implementation of `SendApiService`. Save/removePassword mutate via the SDK
  * then refetch via legacy to keep `InternalSendService` populated with `EncString`-shaped
  * data. Methods returning wire-encrypted shapes have no SDK equivalent and are routed to
@@ -312,6 +328,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   ): Promise<SdkSendView> {
     if (file == null) {
       throw new Error("File send creation requires file data.");
+    }
+    const fileSize = file instanceof ArrayBuffer ? file.byteLength : file.size;
+    if (fileSize > MAX_SDK_FILE_SEND_SIZE_BYTES) {
+      throw new Error(
+        `File is too large to send (max ${MAX_SDK_FILE_SEND_SIZE_BYTES / (1024 * 1024)} MB).`,
+      );
     }
     const fileBytes =
       file instanceof ArrayBuffer ? new Uint8Array(file) : new Uint8Array(await file.arrayBuffer());

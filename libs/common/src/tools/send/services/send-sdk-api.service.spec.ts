@@ -28,7 +28,7 @@ import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SendApiService } from "./send-api.service";
-import { SendSdkApiService } from "./send-sdk-api.service";
+import { MAX_SDK_FILE_SEND_SIZE_BYTES, SendSdkApiService } from "./send-sdk-api.service";
 import { InternalSendService } from "./send.service.abstraction";
 
 describe("SendSdkApiService", () => {
@@ -385,6 +385,45 @@ describe("SendSdkApiService", () => {
           "File send creation requires file data.",
         );
         expect(sendsClient.create_file_send).not.toHaveBeenCalled();
+      });
+
+      // Regression guard for the PM-41234-tracked SDK gap: `encryptedFileBuffer` crosses the
+      // wasm boundary as a `number[]`, not a typed array, costing several times the file's byte
+      // length in JS heap. Until that's fixed upstream, oversized files must fail fast with a
+      // clear error rather than risk exhausting memory (worst case in a browser extension's
+      // service worker) partway through create_file_send/upload_send_file.
+      describe("file size guard", () => {
+        it("rejects an ArrayBuffer over the size limit without calling the SDK", async () => {
+          const oversized = new ArrayBuffer(MAX_SDK_FILE_SEND_SIZE_BYTES + 1);
+
+          await expect(service.saveView(fileView(), oversized)).rejects.toThrow(
+            "File is too large to send",
+          );
+          expect(sendsClient.create_file_send).not.toHaveBeenCalled();
+        });
+
+        it("rejects a `File` over the size limit without reading its contents", async () => {
+          const arrayBuffer = jest.fn();
+          const oversizedFile = {
+            name: "big.bin",
+            size: MAX_SDK_FILE_SEND_SIZE_BYTES + 1,
+            arrayBuffer,
+          } as unknown as File;
+
+          await expect(service.saveView(fileView(), oversizedFile)).rejects.toThrow(
+            "File is too large to send",
+          );
+          expect(arrayBuffer).not.toHaveBeenCalled();
+          expect(sendsClient.create_file_send).not.toHaveBeenCalled();
+        });
+
+        it("allows a file exactly at the size limit", async () => {
+          const atLimit = new ArrayBuffer(MAX_SDK_FILE_SEND_SIZE_BYTES);
+
+          await service.saveView(fileView(), atLimit);
+
+          expect(sendsClient.create_file_send).toHaveBeenCalledTimes(1);
+        });
       });
 
       describe("when the upload fails", () => {
