@@ -6,6 +6,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -36,6 +37,7 @@ export class DefaultVaultNavService extends VaultNavService {
   private readonly organizationService = inject(OrganizationService);
   private readonly policyService = inject(PolicyService);
   private readonly billingService = inject(BillingAccountProfileStateService);
+  private readonly avatarService = inject(AvatarService);
   private readonly i18nService = inject(I18nService);
 
   readonly viewModel$: Observable<VaultsNavViewModel> = this.accountService.activeAccount$.pipe(
@@ -48,9 +50,10 @@ export class DefaultVaultNavService extends VaultNavService {
         this.organizationService.memberOrganizations$(userId),
         this.billingService.hasPremiumFromAnySource$(userId),
         this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
+        this.avatarService.getUserAvatarColor$(userId),
       ]).pipe(
-        map(([orgs, hasPremium, dataOwnership]) =>
-          this.buildViewModel(account, orgs, hasPremium, dataOwnership),
+        map(([orgs, hasPremium, dataOwnership, avatarColor]) =>
+          this.buildViewModel(account, orgs, hasPremium, dataOwnership, avatarColor),
         ),
       );
     }),
@@ -61,8 +64,10 @@ export class DefaultVaultNavService extends VaultNavService {
     orgs: Organization[],
     hasPremium: boolean,
     dataOwnership: boolean,
+    avatarColor: string | null,
   ): VaultsNavViewModel {
-    const personalColor = getAvatarDefaultColor(account.id, account.name);
+    const personalColor: VaultNavColor =
+      avatarColor ?? getAvatarDefaultColor(account.id, account.name);
 
     if (orgs.length === 0) {
       if (hasPremium) {

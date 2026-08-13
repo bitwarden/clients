@@ -1,3 +1,5 @@
+import { AvatarDefaultColor } from "@bitwarden/common/platform/misc/avatar-color";
+
 export const VaultNavItemType = Object.freeze({
   Personal: "personal",
   Organization: "organization",
@@ -7,10 +9,10 @@ export const VaultNavItemType = Object.freeze({
 export type VaultNavItemType = (typeof VaultNavItemType)[keyof typeof VaultNavItemType];
 
 /**
- * The five colors drawn from the avatar palette. Kept as a string union so the service layer
- * has no compile-time dependency on @bitwarden/components.
+ * A default avatar palette color, or a user-selected custom hex color. Mirrors AvatarComponent's
+ * `color` input so nav tiles render the same color the user sees on their avatar.
  */
-export type VaultNavColor = "teal" | "coral" | "brand" | "green" | "purple";
+export type VaultNavColor = AvatarDefaultColor | string;
 
 export interface VaultNavItemViewModel {
   /** Stable identifier: userId for personal; org.id for org vaults; "all-items" sentinel. */

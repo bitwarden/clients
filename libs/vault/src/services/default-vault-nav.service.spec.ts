@@ -7,6 +7,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -46,24 +47,28 @@ describe("DefaultVaultNavService", () => {
   let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
   let billingService: MockProxy<BillingAccountProfileStateService>;
+  let avatarService: MockProxy<AvatarService>;
   let i18nService: MockProxy<I18nService>;
 
   let activeAccount$: BehaviorSubject<Account | null>;
   let memberOrgs$: BehaviorSubject<Organization[]>;
   let hasPremium$: BehaviorSubject<boolean>;
   let dataOwnership$: BehaviorSubject<boolean>;
+  let avatarColor$: BehaviorSubject<string | null>;
 
   beforeEach(() => {
     accountService = mock<AccountService>();
     organizationService = mock<OrganizationService>();
     policyService = mock<PolicyService>();
     billingService = mock<BillingAccountProfileStateService>();
+    avatarService = mock<AvatarService>();
     i18nService = mock<I18nService>();
 
     activeAccount$ = new BehaviorSubject<Account | null>(mockAccount);
     memberOrgs$ = new BehaviorSubject<Organization[]>([]);
     hasPremium$ = new BehaviorSubject<boolean>(false);
     dataOwnership$ = new BehaviorSubject<boolean>(false);
+    avatarColor$ = new BehaviorSubject<string | null>(null);
 
     accountService.activeAccount$ = activeAccount$;
     organizationService.memberOrganizations$.mockReturnValue(memberOrgs$);
@@ -71,6 +76,7 @@ describe("DefaultVaultNavService", () => {
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.OrganizationDataOwnership, userId)
       .mockReturnValue(dataOwnership$);
+    avatarService.getUserAvatarColor$.mockReturnValue(avatarColor$);
     i18nService.t.mockImplementation((key: string) => key);
 
     TestBed.configureTestingModule({
@@ -80,6 +86,7 @@ describe("DefaultVaultNavService", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
         { provide: BillingAccountProfileStateService, useValue: billingService },
+        { provide: AvatarService, useValue: avatarService },
         { provide: I18nService, useValue: i18nService },
       ],
     });
@@ -230,6 +237,16 @@ describe("DefaultVaultNavService", () => {
 
       // Assert exact parity with the shared algorithm — a different color for the same id fails.
       expect(vm.myVaultItem?.color).toBe(getAvatarDefaultColor(userId, mockAccount.name));
+    });
+
+    it("uses the user's custom avatar color for 'My vault' when one is set", async () => {
+      memberOrgs$.next([]);
+      hasPremium$.next(false);
+      avatarColor$.next("#ff0000");
+
+      const vm = await firstValueFrom(service.viewModel$);
+
+      expect(vm.myVaultItem?.color).toBe("#ff0000");
     });
 
     it("assigns brand color to the 'All items' item", async () => {
