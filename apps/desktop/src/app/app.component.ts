@@ -76,7 +76,6 @@ import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwar
 
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
-import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
@@ -97,7 +96,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   styles: [],
   template: `
     <ng-template #settings></ng-template>
-    <ng-template #premium></ng-template>
     <ng-template #loginApproval></ng-template>
     @if (showHeader$ | async) {
       <div class="header"></div>
@@ -121,9 +119,6 @@ export class AppComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
@@ -382,18 +377,6 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.navigate(["sso"], {
               queryParams: queryParams,
             });
-            break;
-          }
-          case "premiumRequired": {
-            const premiumConfirmed = await this.dialogService.openSimpleDialog({
-              title: { key: "premiumRequired" },
-              content: { key: "premiumRequiredDesc" },
-              acceptButtonText: { key: "learnMore" },
-              type: "success",
-            });
-            if (premiumConfirmed) {
-              await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
-            }
             break;
           }
           case "emailVerificationRequired": {
