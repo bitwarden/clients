@@ -47,27 +47,55 @@
       </bit-callout>
     }
 
-    <app-vault-items
-      #vaultItems
-      [ciphers]="ciphers"
-      [collections]="collections"
-      [allCollections]="allCollections"
-      [allOrganizations]="allOrganizations"
-      [disabled]="refreshing"
-      [showOwner]="true"
-      [showCollections]="false"
-      [showGroups]="false"
-      [showPremiumFeatures]="canAccessPremium"
-      [showBulkMove]="showBulkMove"
-      [showBulkTrashOptions]="filter.type === 'trash'"
-      [useEvents]="false"
-      [showAdminActions]="false"
-      [showBulkAddToCollections]="true"
-      [userCanArchive]="userCanArchive$ | async"
-      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-      (onEvent)="onVaultItemsEvent($event)"
-    >
-    </app-vault-items>
+    @if (vfo1Foundation()) {
+      <vault-items-table
+        [ciphers]="ciphers"
+        [loading]="refreshing && !performingInitialLoad"
+        [collections]="allCollections"
+        [organizations]="allOrganizations"
+      >
+        @if (filter.type !== "trash") {
+          <vault-new-cipher-menu
+            slot="toolbar"
+            [canCreateCipher]="canCreateCipher"
+            [canCreateFolder]="true"
+            [canCreateSshKey]="true"
+            [canCreateCollection]="canCreateCollections"
+            [disabled]="isOrganizationSuspended"
+            [coachmarkPopover]="addItemCoachmark.popover()"
+            [coachmarkPopoverOpen]="addItemCoachmarkOpen()"
+            [coachmarkPosition]="coachmarkService.getStepPosition('addItem')"
+            (cipherAdded)="addCipher($event)"
+            (folderAdded)="addFolder()"
+            (collectionAdded)="addCollection()"
+            (onAddItemDialog)="openAddItemDialog()"
+          />
+        }
+      </vault-items-table>
+      <app-coachmark #addItemCoachmark stepId="addItem" />
+    } @else {
+      <app-vault-items
+        #vaultItems
+        [ciphers]="ciphers"
+        [collections]="collections"
+        [allCollections]="allCollections"
+        [allOrganizations]="allOrganizations"
+        [disabled]="refreshing"
+        [showOwner]="true"
+        [showCollections]="false"
+        [showGroups]="false"
+        [showPremiumFeatures]="canAccessPremium"
+        [showBulkMove]="showBulkMove"
+        [showBulkTrashOptions]="filter.type === 'trash'"
+        [useEvents]="false"
+        [showAdminActions]="false"
+        [showBulkAddToCollections]="true"
+        [userCanArchive]="userCanArchive$ | async"
+        [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
+        (onEvent)="onVaultItemsEvent($event)"
+      >
+      </app-vault-items>
+    }
     @if (performingInitialLoad) {
       <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
         <i

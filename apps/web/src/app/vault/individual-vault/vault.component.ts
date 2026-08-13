@@ -1,6 +1,7 @@
 import {
   ChangeDetectorRef,
   Component,
+  computed,
   inject,
   NgZone,
   OnDestroy,
@@ -125,6 +126,8 @@ import {
   BULK_DELETE_DIALOG,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
+  VaultItemsTableComponent,
+  NewCipherMenuComponent,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -136,6 +139,7 @@ import {
 import { SharedModule } from "../../shared/shared.module";
 import { AssignCollectionsWebComponent } from "../components/assign-collections";
 import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
+import { CoachmarkComponent, CoachmarkService } from "../components/coachmark";
 import { VaultItemEvent } from "../components/vault-items/vault-item-event";
 import { VaultItemsComponent } from "../components/vault-items/vault-items.component";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
@@ -176,6 +180,9 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultItemsModule,
     SharedModule,
     VaultBatchActionComponent,
+    VaultItemsTableComponent,
+    NewCipherMenuComponent,
+    CoachmarkComponent,
   ],
   providers: [
     RoutedVaultFilterService,
@@ -234,6 +241,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
+  );
+
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected readonly coachmarkService = inject(CoachmarkService);
+
+  protected readonly addItemCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "addItem",
   );
 
   organizations$ = this.accountService.activeAccount$
@@ -1006,6 +1024,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const organizationId = this.addCipherOrganizationId();
     const organization = this.allOrganizations?.find((o) => o.id === organizationId);
     return !organization || organization.enabled;
+  }
+
+  /** Whether the active organization is suspended (used to disable the Add button). */
+  protected get isOrganizationSuspended(): boolean {
+    const organizationId = this.addCipherOrganizationId();
+    const organization = this.allOrganizations?.find((o) => o.id === organizationId);
+    return !!organization && !organization.enabled;
   }
 
   /**

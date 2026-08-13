@@ -389,6 +389,7 @@ describe("VaultComponent", () => {
 
       if (eventName) {
         it(`${action}s cipher from ${eventName} event`, async () => {
+          fixture.detectChanges();
           const vaultItemsComponent = fixture.debugElement.query(By.directive(VaultItemsComponent))
             .componentInstance as VaultItemsComponent<CipherViewLike>;
 

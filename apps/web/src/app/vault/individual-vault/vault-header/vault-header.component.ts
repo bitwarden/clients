@@ -9,6 +9,7 @@ import {
   Output,
   output,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
@@ -23,6 +24,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -81,6 +84,11 @@ export class VaultHeaderComponent {
   /** Computed signal for add item coachmark open state */
   protected readonly addItemCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "addItem",
+  );
+
+  protected readonly vfo1Foundation = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
   );
 
   /**
