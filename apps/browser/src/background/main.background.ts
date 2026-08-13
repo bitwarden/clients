@@ -115,14 +115,6 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
-import {
-  DefaultKeyGenerationService,
-  KeyGenerationService,
-} from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
-import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
@@ -301,8 +293,14 @@ import {
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
+  CryptoFunctionService as CryptoFunctionServiceAbstraction,
+  DefaultKeyGenerationService,
   DefaultLegacyCompatKeyService,
+  EncryptService,
+  EncryptServiceImplementation,
+  KeyGenerationService,
   LegacyCompatKeyService as LegacyCompatKeyServiceAbstraction,
+  WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { BackgroundSyncService } from "@bitwarden/platform/background-sync";
 import {
@@ -371,6 +369,7 @@ import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
+import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
@@ -1669,6 +1668,7 @@ export default class MainBackground {
       this.userVerificationService,
       this.accountService,
       this.autofillTriageService,
+      new WebmapperDraftService(this.stateProvider),
     );
 
     this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
@@ -2318,6 +2318,7 @@ export default class MainBackground {
       this.accountService,
       this.generatorHistoryService,
       this.credentialGeneratorService,
+      this.configService,
     );
 
     this.autofillBadgeUpdaterService = new AutofillBadgeUpdaterService(

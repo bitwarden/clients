@@ -283,25 +283,27 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     if (e.variant !== "Api") {
       return { kind: "unexpected", errorMessage: e.message };
     }
-    // Fragile client-side coupling to `bitwarden-core::ApiError::Response`'s Display
-    // format; accepted for MVP. Planned follow-up in next milestones: refactor the SDK to expose a better typed
-    // error variant. If the format drifts before then, extraction fails
-    // and the caller drops to `unexpected` with the raw string.
+    // Fragile client-side coupling to the SDK's `bitwarden-api-base::Error::Response`
+    // Display format; accepted for MVP. Planned follow-up in next milestones: refactor
+    // the SDK to expose a better typed error variant. If any extraction step fails,
+    // the caller drops to `unexpected` with the raw string.
     //
-    // Current format: `Received error message from server: [<status> <reason>] <json-body>`
+    // Current format: `error in response: status code <status> <reason>: <json-body>`
     // where `<json-body>` is the full server error response (`{ "message": "...", ... }`).
-    // We capture the numeric status (reason phrase discarded) and JSON-parse the body to
-    // pull the bare `.message` string that `classifyOpenOrgInviteAcceptApiError` matches on.
-    // `[\s\S]` in lieu of the `s` (dotAll) flag, which requires ES2018+.
-    const match = e.message.match(
-      /^Received error message from server: \[(\d+)[^\]]*\] ([\s\S]+)$/,
-    );
-    if (match == null) {
+    // Extract the status via `status code (\d+)` and delimit the JSON body between the
+    // first `{` and last `}`, so the classifier stays intact if surrounding Display
+    // prefix or suffix text changes as long as those anchors remain.
+    const statusMatch = e.message.match(/status code (\d+)/);
+    const bodyStart = e.message.indexOf("{");
+    const bodyEnd = e.message.lastIndexOf("}");
+    if (statusMatch == null || bodyStart === -1 || bodyEnd <= bodyStart) {
       return { kind: "unexpected", errorMessage: e.message };
     }
-    const statusCode = Number(match[1]);
+    const statusCode = Number(statusMatch[1]);
     try {
-      const { message } = JSON.parse(match[2]) as { message?: unknown };
+      const { message } = JSON.parse(e.message.slice(bodyStart, bodyEnd + 1)) as {
+        message?: unknown;
+      };
       if (typeof message === "string") {
         return this.classifyOpenOrgInviteAcceptApiError(statusCode, message);
       }
