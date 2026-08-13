@@ -42,13 +42,8 @@ import { InternalSendService } from "./send.service.abstraction";
  * PM-41234), so it costs several times the file's byte length in JS heap alone, stacked on top of
  * the plaintext buffer already held here and the SDK's own copies in wasm linear memory. The
  * legacy path has none of this overhead: `EncArrayBuffer` stays a compact typed array end to end.
- *
- * This is well under the general premium file-Send limit (500 MB) specifically because the
- * tightest-memory context this can run in is a browser extension's MV3 service worker, not
- * because 100 MB plaintext is unsafe on its own. Revisit once the SDK exposes the ciphertext as a
- * typed array — at that point this guard, and the multiplier that motivates it, both go away.
  */
-export const MAX_SDK_FILE_SEND_SIZE_BYTES = 100 * 1024 * 1024;
+export const MAX_SDK_FILE_SEND_SIZE_BYTES = 500 * 1024 * 1024;
 
 /**
  * SDK-backed implementation of `SendApiService`. Save/removePassword mutate via the SDK
