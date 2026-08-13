@@ -2,6 +2,8 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MAX_SDK_FILE_SEND_SIZE_BYTES } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
+import { ToastService } from "@bitwarden/components";
 
 import { SendFormService } from "../../abstractions/send-form.service";
 
@@ -10,16 +12,20 @@ import { SendFileDetailsComponent } from "./send-file-details.component";
 describe("SendFileDetailsComponent", () => {
   let fixture: ComponentFixture<SendFileDetailsComponent>;
   const mockSendFormService = mock<SendFormService>();
+  const mockI18nService = mock<I18nService>();
+  const mockToastService = mock<ToastService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
     mockSendFormService.sendFormConfig = { mode: "add", areSendsAllowed: true } as any;
     mockSendFormService.originalSendView.mockReturnValue(null);
+    mockI18nService.t.mockImplementation((key) => key);
 
     await TestBed.configureTestingModule({
       imports: [SendFileDetailsComponent],
       providers: [
-        { provide: I18nService, useValue: mock<I18nService>() },
+        { provide: I18nService, useValue: mockI18nService },
+        { provide: ToastService, useValue: mockToastService },
         { provide: SendFormService, useValue: mockSendFormService },
       ],
     }).compileComponents();
@@ -40,6 +46,33 @@ describe("SendFileDetailsComponent", () => {
     fixture.componentInstance.sendFileDetailsForm.controls.file.setValue(null);
 
     expect(mockSendFormService.setFile).not.toHaveBeenCalled();
+  });
+
+  it("rejects a file over the size limit with a translated toast instead of handing it off", () => {
+    const oversized = Object.defineProperty(
+      new File(["hello world"], "big.bin", { type: "application/octet-stream" }),
+      "size",
+      { value: MAX_SDK_FILE_SEND_SIZE_BYTES + 1 },
+    );
+
+    fixture.componentInstance.sendFileDetailsForm.controls.file.setValue(oversized);
+
+    expect(mockSendFormService.setFile).not.toHaveBeenCalled();
+    expect(mockToastService.showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "maxFileSize" }),
+    );
+    expect(fixture.componentInstance.sendFileDetailsForm.controls.file.value).toBeNull();
+  });
+
+  it("allows a file exactly at the size limit", () => {
+    const atLimit = Object.defineProperty(new File(["hello world"], "big.bin"), "size", {
+      value: MAX_SDK_FILE_SEND_SIZE_BYTES,
+    });
+
+    fixture.componentInstance.sendFileDetailsForm.controls.file.setValue(atLimit);
+
+    expect(mockSendFormService.setFile).toHaveBeenCalledWith(atLimit);
+    expect(mockToastService.showToast).not.toHaveBeenCalled();
   });
 
   it("disables the control in edit mode", () => {
