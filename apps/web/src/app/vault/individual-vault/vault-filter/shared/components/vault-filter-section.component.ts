@@ -110,7 +110,16 @@ export class VaultFilterSectionComponent {
     this.section().add?.action();
   }
 
+  get isCollectionTree() {
+    return this.data()?.node?.id === "AllCollections";
+  }
+
   isCollapsed(node: ITreeNodeObject) {
+    if (this.isCollectionTree) {
+      if (node.id === "AllCollections") return false;
+      // Invert logic for collections so they are collapsed by default
+      return !this.collapsedFilterNodes().has(node.id);
+    }
     return this.collapsedFilterNodes().has(node.id);
   }
 

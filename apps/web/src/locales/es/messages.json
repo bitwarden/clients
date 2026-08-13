@@ -17102,5 +17102,14 @@
         "example": "Login"
       }
     }
+  },
+  "advancedSearch": {
+    "message": "Búsqueda avanzada"
+  },
+  "matchAllTerms": {
+    "message": "Todos los términos deben coincidir (AND)"
+  },
+  "matchAnyTerm": {
+    "message": "Al menos un término (OR)"
   }
 }

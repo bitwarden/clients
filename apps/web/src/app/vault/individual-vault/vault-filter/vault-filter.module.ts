@@ -19,4 +19,4 @@ import { VaultFilterComponent } from "./components/vault-filter.component";
     },
   ],
 })
-export class VaultFilterModule {}
+export class VaultFilterModule { }

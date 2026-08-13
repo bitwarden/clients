@@ -91,10 +91,18 @@ export function createFilterFunction(filter: RoutedVaultFilterModel): FilterFunc
     if (
       filter.collectionId !== undefined &&
       filter.collectionId !== All &&
-      filter.collectionId !== Unassigned &&
-      (cipher.collectionIds == null || !cipher.collectionIds.includes(filter.collectionId as any))
+      filter.collectionId !== Unassigned
     ) {
-      return false;
+      if (cipher.collectionIds == null) {
+        return false;
+      }
+      if (filter.collectionIds && filter.collectionIds.length > 0) {
+        if (!filter.collectionIds.some(id => cipher.collectionIds.includes(id as any))) {
+          return false;
+        }
+      } else if (!cipher.collectionIds.includes(filter.collectionId as any)) {
+        return false;
+      }
     }
     // My Vault
     if (filter.organizationId === Unassigned && cipher.organizationId != null) {

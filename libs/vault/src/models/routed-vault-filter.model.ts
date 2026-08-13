@@ -31,6 +31,7 @@ export function isRoutedVaultFilterItemType(value: unknown): value is RoutedVaul
 
 export interface RoutedVaultFilterModel {
   collectionId?: CollectionId | All | Unassigned;
+  collectionIds?: string[];
   folderId?: string;
   organizationId?: OrganizationId | Unassigned;
   type?: RoutedVaultFilterItemType;

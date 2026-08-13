@@ -454,11 +454,33 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
+    const ciphers$ = combineLatest([
+      allowedCiphers$,
+      filter$,
+      this.currentSearchText$,
+      nestedCollections$,
+    ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+      concatMap(async ([ciphers, filter, searchText, collections]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
+
+        if (filter.collectionId && filter.collectionId !== All && filter.collectionId !== Unassigned && collections) {
+          const selectedCollection = ServiceUtils.getTreeNodeObjectFromList(
+            collections,
+            filter.collectionId as string,
+          );
+          if (selectedCollection) {
+            const allIds: string[] = [];
+            const collectIds = (node: TreeNode<CollectionView>) => {
+              if (node.node.id) allIds.push(node.node.id);
+              node.children?.forEach(c => collectIds(c));
+            };
+            collectIds(selectedCollection);
+            filter.collectionIds = allIds;
+          }
+        }
+
         const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
@@ -613,6 +635,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
             ciphers$,
             collections$,
             selectedCollection$,
+            this.currentSearchText$,
           ]),
         ),
         takeUntil(this.destroy$),
@@ -626,6 +649,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           ciphers,
           collections,
           selectedCollection,
+          searchText,
         ]) => {
           this.filter = filter;
           this.canAccessPremium = canAccessPremium;
@@ -643,6 +667,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
           this.performingInitialLoad = false;
           this.refreshing = false;
+
+
 
           // Explicitly mark for check to ensure the view is updated
           // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)

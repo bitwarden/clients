@@ -1,4 +1,4 @@
-<div class="tw-border tw-border-solid tw-border-secondary-300 tw-rounded" data-testid="filters">
+<div class="tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-sticky tw-top-4 tw-z-40" data-testid="filters">
   @if (!isLoaded) {
     <div class="tw-text-center tw-p-5">
       <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i>
@@ -22,26 +22,34 @@
         </a>
       </div>
       <div class="tw-p-5" data-testid="filters-body">
-        <div class="tw-mb-4">
-          <bit-search
-            id="search"
-            placeholder="{{ searchPlaceholder | i18n }}"
-            [(ngModel)]="searchText"
-            (ngModelChange)="onSearchTextChanged($event)"
-            autocomplete="off"
-            appAutofocus
-          />
-        </div>
-        @for (f of filtersList; track f) {
-          <div class="filter">
-            <app-filter-section
-              [activeFilter]="activeFilter"
-              [section]="f"
-              [isCollectionFilter]="f === filters?.collectionFilter"
-            >
-            </app-filter-section>
+        <div class="tw-mb-4 tw-flex tw-items-center tw-gap-2">
+          <div class="tw-flex-1">
+            <bit-search
+              id="search"
+              placeholder="{{ searchPlaceholder | i18n }}"
+              [(ngModel)]="searchText"
+              (ngModelChange)="onSearchTextChanged($event)"
+              autocomplete="off"
+              appAutofocus
+            />
           </div>
-        }
+          <app-advanced-search
+            [(searchText)]="searchText"
+            (searchTextChange)="onSearchTextChanged($event)"
+          ></app-advanced-search>
+        </div>
+        <div class="tw-overflow-y-auto tw-pr-2" style="max-height: calc(100vh - 220px);">
+          @for (f of filtersList; track f) {
+            <div class="filter">
+              <app-filter-section
+                [activeFilter]="activeFilter"
+                [section]="f"
+                [isCollectionFilter]="f === filters?.collectionFilter"
+              >
+              </app-filter-section>
+            </div>
+          }
+        </div>
       </div>
     </div>
   }

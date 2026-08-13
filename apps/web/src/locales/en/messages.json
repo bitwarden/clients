@@ -1845,9 +1845,6 @@
   "clearAll": {
     "message": "Clear all"
   },
-  "done": {
-    "message": "Done"
-  },
   "filtersSelected": {
     "message": "$COUNT$ selected",
     "placeholders": {
@@ -17105,5 +17102,14 @@
         "example": "Login"
       }
     }
+  },
+  "advancedSearch": {
+    "message": "Advanced Search"
+  },
+  "matchAllTerms": {
+    "message": "All terms must match (AND)"
+  },
+  "matchAnyTerm": {
+    "message": "At least one term must match (OR)"
   }
 }

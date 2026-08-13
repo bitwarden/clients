@@ -1,15 +1,9 @@
 <vault-organization-user-notifications></vault-organization-user-notifications>
 <app-vault-banners [organizations]="organizations$ | async"></app-vault-banners>
 
-<app-vault-header
-  [filter]="filter"
-  [loading]="refreshing && !performingInitialLoad"
-  [organizations]="allOrganizations"
-  [canCreateCollections]="canCreateCollections"
-  [collection]="selectedCollection"
-  (onAddCipher)="addCipher($event)"
-  (onAddCollection)="addCollection()"
-  (onAddFolder)="addFolder()"
+<app-vault-header [filter]="filter" [loading]="refreshing && !performingInitialLoad" [organizations]="allOrganizations"
+  [canCreateCollections]="canCreateCollections" [collection]="selectedCollection" (onAddCipher)="addCipher($event)"
+  (onAddCollection)="addCollection()" (onAddFolder)="addFolder()"
   (onEditCollection)="editCollection(selectedCollection.node, $event.tab)"
   (onDeleteCollection)="deleteCollection(selectedCollection.node)"
   (onOpenAddItemDialog)="openAddItemDialog()"
@@ -18,20 +12,15 @@
 <app-vault-onboarding [ciphers]="ciphers"></app-vault-onboarding>
 
 <div class="tw-flex tw-flex-row -tw-mx-2.5">
-  <div class="tw-basis-1/4 tw-max-w-1/4 tw-px-2.5">
-    <app-vault-filter
-      #vaultFilter
-      [activeFilter]="activeFilter"
-      [searchText]="currentSearchText$ | async"
-      (searchTextChanged)="filterSearchText($event)"
-      (onEditFolder)="editFolder($event)"
-    ></app-vault-filter>
+  <div class="tw-basis-1/4 tw-max-w-1/4 tw-px-2.5 tw-relative tw-z-50">
+    <app-vault-filter #vaultFilter [activeFilter]="activeFilter" [searchText]="currentSearchText$ | async"
+      (searchTextChanged)="filterSearchText($event)" (onEditFolder)="editFolder($event)"></app-vault-filter>
   </div>
   <div class="tw-basis-3/4 tw-max-w-3/4 tw-px-2.5">
     @if (activeFilter.isDeleted) {
-      <bit-callout type="warning">
-        {{ trashCleanupWarning }}
-      </bit-callout>
+    <bit-callout type="warning">
+      {{ trashCleanupWarning }}
+    </bit-callout>
     }
 
     @if (showSubscriptionEndedMessaging$ | async) {
@@ -47,27 +36,14 @@
       </bit-callout>
     }
 
-    <app-vault-items
-      #vaultItems
-      [ciphers]="ciphers"
-      [collections]="collections"
-      [allCollections]="allCollections"
-      [allOrganizations]="allOrganizations"
-      [disabled]="refreshing"
-      [showOwner]="true"
-      [showCollections]="false"
-      [showGroups]="false"
-      [showPremiumFeatures]="canAccessPremium"
-      [showBulkMove]="showBulkMove"
-      [showBulkTrashOptions]="filter.type === 'trash'"
-      [useEvents]="false"
-      [showAdminActions]="false"
-      [showBulkAddToCollections]="true"
-      [userCanArchive]="userCanArchive$ | async"
-      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-      (onEvent)="onVaultItemsEvent($event)"
-    >
+    <app-vault-items #vaultItems [ciphers]="ciphers" [collections]="collections" [allCollections]="allCollections"
+      [allOrganizations]="allOrganizations" [disabled]="refreshing" [showOwner]="true" [showCollections]="false"
+      [showGroups]="false" [showPremiumFeatures]="canAccessPremium" [showBulkMove]="showBulkMove"
+      [showBulkTrashOptions]="filter.type === 'trash'" [useEvents]="false" [showAdminActions]="false"
+      [showBulkAddToCollections]="true" [userCanArchive]="userCanArchive$ | async"
+      [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async" (onEvent)="onVaultItemsEvent($event)">
     </app-vault-items>
+
     @if (performingInitialLoad) {
       <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
         <i

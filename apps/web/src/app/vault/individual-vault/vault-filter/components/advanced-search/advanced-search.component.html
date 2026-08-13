@@ -1,0 +1,55 @@
+<div class="tw-relative tw-inline-block">
+    <button type="button" class="tw-p-2 tw-text-secondary-100 hover:tw-text-primary-100 tw-transition-colors"
+        (click)="togglePopup()" [appA11yTitle]="'advancedSearch' | i18n">
+        <i class="bwi bwi-filter bwi-fw" aria-hidden="true"></i>
+    </button>
+
+    <div *ngIf="isOpen"
+        class="tw-absolute tw-top-0 tw-left-full tw-ml-2 tw-z-50 tw-bg-background tw-border tw-border-solid tw-border-secondary-300 tw-rounded tw-shadow-lg tw-p-4 tw-w-80">
+        <div class="tw-flex tw-justify-between tw-items-center tw-mb-3">
+            <h4 class="tw-m-0 tw-font-bold">{{ 'advancedSearch' | i18n }}</h4>
+            <button class="tw-text-secondary-100" (click)="closePopup()">
+                <i class="bwi bwi-times" aria-hidden="true"></i>
+            </button>
+        </div>
+
+        <!-- Connection (AND/OR) -->
+        <div class="tw-mb-4 tw-flex tw-gap-2">
+            <label class="tw-flex tw-items-center tw-gap-2">
+                <input type="radio" name="matchType" value="and" [(ngModel)]="matchType" (change)="onFormChange()">
+                {{ 'matchAllTerms' | i18n }}
+            </label>
+            <label class="tw-flex tw-items-center tw-gap-2">
+                <input type="radio" name="matchType" value="or" [(ngModel)]="matchType" (change)="onFormChange()">
+                {{ 'matchAnyTerm' | i18n }}
+            </label>
+        </div>
+
+        <!-- Name Field -->
+        <div class="tw-mb-3">
+            <label class="tw-block tw-text-sm tw-font-bold tw-mb-1 tw-whitespace-normal">{{ 'itemName' | i18n }}</label>
+            <input type="text" class="tw-w-full tw-p-2 tw-border tw-border-secondary-300 tw-rounded tw-mb-2"
+                [placeholder]="'include' | i18n" [(ngModel)]="nameInclude" (input)="onFormChange()">
+            <input type="text" class="tw-w-full tw-p-2 tw-border tw-border-secondary-300 tw-rounded tw-bg-danger-100"
+                [placeholder]="'exclude' | i18n" [(ngModel)]="nameExclude" (input)="onFormChange()">
+        </div>
+
+        <!-- Username Field -->
+        <div class="tw-mb-3">
+            <label class="tw-block tw-text-sm tw-font-bold tw-mb-1 tw-whitespace-normal">{{ 'username' | i18n }}</label>
+            <input type="text" class="tw-w-full tw-p-2 tw-border tw-border-secondary-300 tw-rounded tw-mb-2"
+                [placeholder]="'include' | i18n" [(ngModel)]="usernameInclude" (input)="onFormChange()">
+            <input type="text" class="tw-w-full tw-p-2 tw-border tw-border-secondary-300 tw-rounded tw-bg-danger-100"
+                [placeholder]="'exclude' | i18n" [(ngModel)]="usernameExclude" (input)="onFormChange()">
+        </div>
+
+        <!-- Notes Field -->
+        <div class="tw-mb-3">
+            <label class="tw-block tw-text-sm tw-font-bold tw-mb-1 tw-whitespace-normal">{{ 'notes' | i18n }}</label>
+            <input type="text" class="tw-w-full tw-p-2 tw-border tw-border-secondary-300 tw-rounded tw-mb-2"
+                [placeholder]="'include' | i18n" [(ngModel)]="notesInclude" (input)="onFormChange()">
+            <input type="text" class="tw-w-full tw-p-2 tw-border tw-border-secondary-300 tw-rounded tw-bg-danger-100"
+                [placeholder]="'exclude' | i18n" [(ngModel)]="notesExclude" (input)="onFormChange()">
+        </div>
+    </div>
+</div>
