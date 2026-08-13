@@ -95,7 +95,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   selector: "app-root",
   styles: [],
   template: `
-    <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
     <ng-template #loginApproval></ng-template>
     @if (showHeader$ | async) {
