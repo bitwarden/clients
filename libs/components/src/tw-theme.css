@@ -336,6 +336,68 @@
   --color-bg-avatar-purple: var(--color-purple-700);
   --color-bg-avatar-purple-hover: var(--color-purple-800);
 
+  /* ========================================
+   * SEMANTIC DECORATIVE COLORS (Light Mode)
+   * Categorical color set for icon tiles and tags. `muted` is the default
+   * (no suffix); `bold` is the filled/emphasized style.
+   * ======================================== */
+
+  /* Brand */
+  --color-bg-decorative-brand: var(--color-brand-100);
+  --color-fg-decorative-brand: var(--color-brand-700);
+  --color-border-decorative-brand: var(--color-brand-200);
+  --color-bg-decorative-brand-bold: var(--color-brand-700);
+  --color-fg-decorative-brand-bold: var(--color-white);
+  --color-border-decorative-brand-bold: var(--color-brand-600);
+
+  /* Teal */
+  --color-bg-decorative-teal: var(--color-teal-100);
+  --color-fg-decorative-teal: var(--color-teal-700);
+  --color-border-decorative-teal: var(--color-teal-200);
+  --color-bg-decorative-teal-bold: var(--color-teal-700);
+  --color-fg-decorative-teal-bold: var(--color-white);
+  --color-border-decorative-teal-bold: var(--color-teal-600);
+
+  /* Green */
+  --color-bg-decorative-green: var(--color-green-100);
+  --color-fg-decorative-green: var(--color-green-700);
+  --color-border-decorative-green: var(--color-green-200);
+  --color-bg-decorative-green-bold: var(--color-green-700);
+  --color-fg-decorative-green-bold: var(--color-white);
+  --color-border-decorative-green-bold: var(--color-green-600);
+
+  /* Orange */
+  --color-bg-decorative-orange: var(--color-orange-100);
+  --color-fg-decorative-orange: var(--color-orange-600);
+  --color-border-decorative-orange: var(--color-orange-200);
+  --color-bg-decorative-orange-bold: var(--color-orange-700);
+  --color-fg-decorative-orange-bold: var(--color-white);
+  --color-border-decorative-orange-bold: var(--color-orange-600);
+
+  /* Red */
+  --color-bg-decorative-red: var(--color-red-100);
+  --color-fg-decorative-red: var(--color-red-700);
+  --color-border-decorative-red: var(--color-red-200);
+  --color-bg-decorative-red-bold: var(--color-red-700);
+  --color-fg-decorative-red-bold: var(--color-white);
+  --color-border-decorative-red-bold: var(--color-red-600);
+
+  /* Purple */
+  --color-bg-decorative-purple: var(--color-purple-100);
+  --color-fg-decorative-purple: var(--color-purple-800);
+  --color-border-decorative-purple: var(--color-purple-200);
+  --color-bg-decorative-purple-bold: var(--color-purple-700);
+  --color-fg-decorative-purple-bold: var(--color-white);
+  --color-border-decorative-purple-bold: var(--color-purple-600);
+
+  /* Gray */
+  --color-bg-decorative-gray: var(--color-gray-100);
+  --color-fg-decorative-gray: var(--color-gray-600);
+  --color-border-decorative-gray: var(--color-gray-200);
+  --color-bg-decorative-gray-bold: var(--color-gray-700);
+  --color-fg-decorative-gray-bold: var(--color-white);
+  --color-border-decorative-gray-bold: var(--color-gray-600);
+
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-gray-950-rgb), 0.05);
   --color-bg-hover-contrast: rgba(var(--color-white-rgb), 0.05);
@@ -575,6 +637,66 @@
   --color-bg-avatar-green-hover: var(--color-green-600);
   --color-bg-avatar-purple: var(--color-purple-700);
   --color-bg-avatar-purple-hover: var(--color-purple-600);
+
+  /* ========================================
+   * SEMANTIC DECORATIVE COLORS (Dark Mode Overrides)
+   * ======================================== */
+
+  /* Brand */
+  --color-bg-decorative-brand: var(--color-brand-900);
+  --color-fg-decorative-brand: var(--color-brand-300);
+  --color-border-decorative-brand: var(--color-brand-800);
+  --color-bg-decorative-brand-bold: var(--color-brand-600);
+  --color-fg-decorative-brand-bold: var(--color-white);
+  --color-border-decorative-brand-bold: var(--color-brand-500);
+
+  /* Teal */
+  --color-bg-decorative-teal: var(--color-teal-900);
+  --color-fg-decorative-teal: var(--color-teal-300);
+  --color-border-decorative-teal: var(--color-teal-800);
+  --color-bg-decorative-teal-bold: var(--color-teal-600);
+  --color-fg-decorative-teal-bold: var(--color-white);
+  --color-border-decorative-teal-bold: var(--color-teal-500);
+
+  /* Green */
+  --color-bg-decorative-green: var(--color-green-900);
+  --color-fg-decorative-green: var(--color-green-300);
+  --color-border-decorative-green: var(--color-green-800);
+  --color-bg-decorative-green-bold: var(--color-green-600);
+  --color-fg-decorative-green-bold: var(--color-white);
+  --color-border-decorative-green-bold: var(--color-green-500);
+
+  /* Orange */
+  --color-bg-decorative-orange: var(--color-orange-900);
+  --color-fg-decorative-orange: var(--color-orange-300);
+  --color-border-decorative-orange: var(--color-orange-800);
+  --color-bg-decorative-orange-bold: var(--color-orange-600);
+  --color-fg-decorative-orange-bold: var(--color-white);
+  --color-border-decorative-orange-bold: var(--color-orange-500);
+
+  /* Red */
+  --color-bg-decorative-red: var(--color-red-900);
+  --color-fg-decorative-red: var(--color-red-200);
+  --color-border-decorative-red: var(--color-red-800);
+  --color-bg-decorative-red-bold: var(--color-red-600);
+  --color-fg-decorative-red-bold: var(--color-white);
+  --color-border-decorative-red-bold: var(--color-red-500);
+
+  /* Purple */
+  --color-bg-decorative-purple: var(--color-purple-900);
+  --color-fg-decorative-purple: var(--color-purple-200);
+  --color-border-decorative-purple: var(--color-purple-800);
+  --color-bg-decorative-purple-bold: var(--color-purple-600);
+  --color-fg-decorative-purple-bold: var(--color-white);
+  --color-border-decorative-purple-bold: var(--color-purple-500);
+
+  /* Gray */
+  --color-bg-decorative-gray: var(--color-gray-800);
+  --color-fg-decorative-gray: var(--color-gray-200);
+  --color-border-decorative-gray: var(--color-gray-700);
+  --color-bg-decorative-gray-bold: var(--color-gray-600);
+  --color-fg-decorative-gray-bold: var(--color-white);
+  --color-border-decorative-gray-bold: var(--color-gray-500);
 
   /* Hover & Overlay */
   --color-bg-hover: rgba(var(--color-white-rgb), 0.05);
