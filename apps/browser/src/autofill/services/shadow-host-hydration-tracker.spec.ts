@@ -455,6 +455,69 @@ describe("ShadowHostHydrationTracker", () => {
       // Re-parking must not push the deadline out, or a tag that never defines never expires.
       expect(tracker["hostsAwaitingDefinition"].get(host)).toBe(firstDeadline);
     });
+
+    it("stops parking a tag once one instance has spent its full lifetime undefined", () => {
+      const first = document.createElement("framework-shell");
+      document.body.appendChild(first);
+
+      tracker.noteAddedNodes([buildMutation([first])]);
+      jest.advanceTimersByTime(500);
+      expect(tracker["hostsAwaitingDefinition"].has(first)).toBe(true);
+
+      // Past the park deadline: the tag is abandoned, not just this instance.
+      jest.advanceTimersByTime(65000);
+      expect(tracker["tagVerdicts"].get("FRAMEWORK-SHELL")).toBe("abandoned");
+
+      // A later render of the same selector no longer takes a slot or re-arms the sweep.
+      const second = document.createElement("framework-shell");
+      document.body.appendChild(second);
+      tracker.noteAddedNodes([buildMutation([second])]);
+      jest.advanceTimersByTime(500);
+
+      expect(tracker["hostsAwaitingDefinition"].has(second)).toBe(false);
+      expect(tracker["retryTimeout"]).toBeNull();
+    });
+
+    it("never abandons a tag that was seen :defined, so a slow definition still upgrades", () => {
+      const early = document.createElement("eventually-defined-widget");
+      document.body.appendChild(early);
+      tracker.noteAddedNodes([buildMutation([early])]);
+      jest.advanceTimersByTime(500);
+
+      jest.spyOn(early, "matches").mockImplementation((selector) => selector === ":defined");
+      jest.advanceTimersByTime(8000);
+      expect(tracker["tagVerdicts"].get("EVENTUALLY-DEFINED-WIDGET")).toBe("defined");
+
+      // A sibling that expires undefined must not poison the tag for the rest of the page.
+      const stragglerNotDefined = document.createElement("eventually-defined-widget");
+      document.body.appendChild(stragglerNotDefined);
+      tracker.noteAddedNodes([buildMutation([stragglerNotDefined])]);
+      jest.advanceTimersByTime(65000);
+
+      expect(tracker["tagVerdicts"].get("EVENTUALLY-DEFINED-WIDGET")).toBe("defined");
+    });
+
+    it("bounds the learned verdicts against a page that mints tag names", () => {
+      const cap = tracker["tagVerdictCap"];
+      for (let index = 0; index < cap + 10; index++) {
+        tracker["abandonTagName"](`MINTED-TAG-${index}`);
+      }
+
+      expect(tracker["tagVerdicts"].size).toBe(cap);
+    });
+
+    it("repairs an abandoned verdict when an instance of that tag is later seen :defined", () => {
+      tracker["abandonTagName"]("REPAIRED-WIDGET");
+      const host = document.createElement("repaired-widget");
+      document.body.appendChild(host);
+      // Already parked before the verdict landed, so the sweep still visits it.
+      tracker["hostsAwaitingDefinition"].set(host, 60000);
+
+      jest.spyOn(host, "matches").mockImplementation((selector) => selector === ":defined");
+      tracker["enrollUpgradedParkedHosts"](0);
+
+      expect(tracker["tagVerdicts"].get("REPAIRED-WIDGET")).toBe("defined");
+    });
   });
 
   describe("reconcileFromScan", () => {

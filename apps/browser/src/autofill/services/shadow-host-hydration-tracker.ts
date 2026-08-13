@@ -5,6 +5,10 @@ import { DomQueryService } from "./abstractions/dom-query.service";
 /** A wall-clock deadline or reading; durations stay plain `number`. */
 type EpochMs = number;
 
+/** What a scan has learned about a tag name. One verdict per tag, so the two can't disagree. */
+const TagVerdict = Object.freeze({ Defined: "defined", Abandoned: "abandoned" } as const);
+type TagVerdict = (typeof TagVerdict)[keyof typeof TagVerdict];
+
 /**
  * `attachShadow()` emits no mutation record, so a custom-element host observed once and never
  * revisited is a field we silently fail to autofill. Both waits below are deadline-bounded, so a
@@ -19,6 +23,7 @@ export class ShadowHostHydrationTracker {
   // Rotates FIFO when the tracking map is full — delay, not starvation.
   private overflowQueue: Element[] = [];
   private hostsAwaitingDefinition: Map<Element, EpochMs> = new Map();
+  private tagVerdicts = new Map<string, TagVerdict>();
 
   private pendingMutationAddedElements: Set<Element> = new Set();
   private pendingMutationAddedElementsOverflowed = false;
@@ -36,6 +41,8 @@ export class ShadowHostHydrationTracker {
   private readonly trackingCap = 64;
   private readonly overflowCap = 192;
   private readonly awaitingDefinitionCap = 64;
+  // Bounds the learned verdicts against a page that mints tag names.
+  private readonly tagVerdictCap = 128;
   private readonly pendingMutationAddedElementsCap = 256;
   // Also the base delay for retry backoff.
   private readonly scanDebounceMs = 500;
@@ -99,7 +106,8 @@ export class ShadowHostHydrationTracker {
 
   /**
    * `expiredHosts` deliberately survives: tombstones key on element identity, and clearing them
-   * would let an expired host resurrect on the next scan.
+   * would let an expired host resurrect on the next scan. `tagVerdicts` survives too — every caller
+   * stays in the same document, so which tags it defines has not changed.
    */
   reset(): void {
     if (this.retryTimeout) {
@@ -217,6 +225,8 @@ export class ShadowHostHydrationTracker {
       }
       if (element.matches(":defined")) {
         this.hostsAwaitingDefinition.delete(element);
+        // Overwrites an earlier `Abandoned`: proof of definition repairs a wrong verdict.
+        this.tagVerdicts.set(element.tagName, TagVerdict.Defined);
         enrolled = true;
         this.admitHost(element, now + this.hostLifetimeMs);
         continue;
@@ -226,6 +236,7 @@ export class ShadowHostHydrationTracker {
       if (now >= parkDeadline) {
         this.hostsAwaitingDefinition.delete(element);
         this.expiredHosts.add(element);
+        this.abandonTagName(element.tagName);
       }
     }
     if (enrolled) {
@@ -233,7 +244,24 @@ export class ShadowHostHydrationTracker {
     }
   }
 
+  /**
+   * A full lifetime spent undefined is the only evidence available that a tag will never register —
+   * this realm's registry can't be consulted (see {@link enrollUpgradedParkedHosts}). Skipping later
+   * instances keeps framework selectors from filling the capped pool and re-arming the sweep on
+   * every render. Cost: a definition landing after the deadline loses that tag's other instances.
+   */
+  private abandonTagName(tagName: string): void {
+    // Any existing verdict wins: `Defined` is the exemption, `Abandoned` is already recorded.
+    if (this.tagVerdicts.has(tagName) || this.tagVerdicts.size >= this.tagVerdictCap) {
+      return;
+    }
+    this.tagVerdicts.set(tagName, TagVerdict.Abandoned);
+  }
+
   private parkHost(element: Element, now: EpochMs): void {
+    if (this.tagVerdicts.get(element.tagName) === TagVerdict.Abandoned) {
+      return;
+    }
     // Stamp once — re-parking on later scans must not refresh the deadline, or an element whose
     // tag never defines would postpone expiry forever.
     if (
