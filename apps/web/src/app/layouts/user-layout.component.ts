@@ -17,7 +17,14 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
-import { BadgeModule, PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
+import {
+  BitwardenIcon,
+  ChipActionComponent,
+  IconTileComponent,
+  PopoverModule,
+  SideNavService,
+  SvgModule,
+} from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
@@ -45,7 +52,8 @@ import { WebLayoutModule } from "./web-layout.module";
     I18nPipe,
     WebLayoutModule,
     SvgModule,
-    BadgeModule,
+    ChipActionComponent,
+    IconTileComponent,
     BillingFreeFamiliesNavItemComponent,
     PopoverModule,
     CoachmarkComponent,
@@ -157,6 +165,17 @@ export class UserLayoutComponent implements OnInit {
       return;
     }
     await this.selectItemType("archive");
+  }
+
+  protected vaultTileIcon(vault: VaultNavItemViewModel): BitwardenIcon {
+    switch (vault.type) {
+      case VaultNavItemType.Organization:
+        return "bwi-business";
+      case VaultNavItemType.Family:
+        return "bwi-family";
+      default:
+        return "bwi-user";
+    }
   }
 
   private vaultIdParam(vault: VaultNavItemViewModel): string | null {

@@ -1065,6 +1065,9 @@
   "allItems": {
     "message": "All items"
   },
+  "allVaultItems": {
+    "message": "All vault items"
+  },
   "favorites": {
     "message": "Favorites"
   },

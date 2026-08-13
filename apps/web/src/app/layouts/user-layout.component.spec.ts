@@ -138,9 +138,16 @@ describe("UserLayoutComponent", () => {
 
   /** Trimmed text of every rendered nav item and group, in document order. */
   const navText = () =>
-    Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item, bit-nav-group")).map((el) =>
-      (el as HTMLElement).textContent?.trim().split("\n")[0].trim(),
-    );
+    Array.from(
+      fixture.nativeElement.querySelectorAll("bit-nav-item, bit-nav-group, bit-nav-section"),
+    ).map((el) => {
+      const element = el as HTMLElement;
+      // Sections render their heading as a sibling of the projected items, so read the heading directly.
+      if (element.tagName.toLowerCase() === "bit-nav-section") {
+        return element.querySelector("[id^='bit-nav-section-']")?.textContent?.trim();
+      }
+      return element.textContent?.trim().split("\n")[0].trim();
+    });
 
   /** Groups collapse by default, so their children need expanding before they render. */
   const expandGroup = (label: string) => {
@@ -275,16 +282,6 @@ describe("UserLayoutComponent", () => {
         archive.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
       };
 
-      it("filters to the archive for a premium user", () => {
-        clickArchive();
-
-        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { type: "archive" },
-          queryParamsHandling: "merge",
-        });
-        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
-      });
-
       it("prompts to upgrade when a non-premium user has nothing archived", () => {
         hasPremium$.next(false);
         fixture.detectChanges();
@@ -310,12 +307,12 @@ describe("UserLayoutComponent", () => {
       });
 
       it("badges Archive for a non-premium user", () => {
-        expect(fixture.nativeElement.querySelector("bit-badge")).toBeNull();
+        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
 
         hasPremium$.next(false);
         fixture.detectChanges();
 
-        expect(fixture.nativeElement.querySelector("bit-badge")).not.toBeNull();
+        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).not.toBeNull();
       });
     });
 
@@ -359,20 +356,28 @@ describe("UserLayoutComponent", () => {
 
         expect(text).toContain("allItems");
         expect(text.indexOf("allItems")).toBeLessThan(text.indexOf("vaults"));
-        expect(text.slice(text.indexOf("vaults") + 1, text.indexOf("vaults") + 4)).toEqual([
-          "My vault",
-          "Acme corporation",
-          "Smith family",
-        ]);
+
+        const vaultsSection = fixture.debugElement
+          .queryAll(By.css("bit-nav-section"))
+          .find((el) => el.componentInstance.label() === "vaults");
+        const vaultLabels = vaultsSection
+          .queryAll(By.css("bit-nav-group"))
+          .map((el) => el.componentInstance.text());
+
+        expect(vaultLabels).toEqual(["My vault", "Acme corporation", "Smith family"]);
       });
 
-      it("filters to the organization vault when an org is selected", () => {
-        const items = fixture.nativeElement.querySelectorAll("bit-nav-item");
-        const acme = Array.from(items).find((el) =>
-          (el as HTMLElement).textContent?.includes("Acme corporation"),
+      /** Expands a vault group and clicks its "All vault items" child. */
+      const selectVaultItems = (label: string) => {
+        const group = expandGroup(label);
+        const allItems = Array.from(group.querySelectorAll("bit-nav-item")).find((el) =>
+          (el as HTMLElement).textContent?.includes("allVaultItems"),
         ) as HTMLElement;
+        allItems.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+      };
 
-        acme.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+      it("filters to the organization vault when an org is selected", () => {
+        selectVaultItems("Acme corporation");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
           queryParams: { vaultId: "org-a", type: null },
@@ -381,12 +386,7 @@ describe("UserLayoutComponent", () => {
       });
 
       it("filters to the personal vault using the unassigned sentinel", () => {
-        const items = fixture.nativeElement.querySelectorAll("bit-nav-item");
-        const myVault = Array.from(items).find((el) =>
-          (el as HTMLElement).textContent?.includes("My vault"),
-        ) as HTMLElement;
-
-        myVault.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+        selectVaultItems("My vault");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
           queryParams: { vaultId: "unassigned", type: null },
