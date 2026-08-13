@@ -6,6 +6,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import {
+  BitSvg,
+  ReportExposedPasswords,
+  UnlockedIcon,
+  NoCredentialsIcon,
+} from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import {
   RiskCategory,
@@ -97,16 +103,22 @@ const categories = [
     category: RiskCategory.Exposed,
     titleKey: "exposedPasswordsTitle",
     descriptionKey: "exposedPasswordsDescription",
+    emptyKey: "exposedPasswordsEmpty",
+    icon: ReportExposedPasswords,
   },
   {
     category: RiskCategory.Weak,
     titleKey: "weakPasswordsTitle",
     descriptionKey: "weakPasswordsDescription",
+    emptyKey: "weakPasswordsEmpty",
+    icon: UnlockedIcon,
   },
   {
     category: RiskCategory.Reused,
     titleKey: "reusedPasswordsTitle",
     descriptionKey: "reusedPasswordsDescription",
+    emptyKey: "reusedPasswordsEmpty",
+    icon: NoCredentialsIcon,
   },
 ] as const;
 
@@ -204,8 +216,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return rows()[index].querySelector("button[bit-item-content]")!;
   }
 
-  function noItems(): HTMLElement | null {
-    return fixture.nativeElement.querySelector("bit-no-items");
+  /** The icon bound to the empty state, read off the component input rather than the rendered SVG. */
+  function noItemsIcon(): BitSvg | undefined {
+    return fixture.debugElement.query(By.css("bit-no-items"))?.componentInstance.icon();
   }
 
   /** The row's change password CTA, or `undefined` when the row does not render one. */
@@ -351,6 +364,18 @@ describe("HealthRiskCategoryDetailComponent", () => {
       },
     );
 
+    it.each(categories.map((c) => [c.category, c.emptyKey] as const))(
+      "renders the %s empty copy when the category has no items",
+      async (category, emptyKey) => {
+        params$.next({ category });
+        setReport(category, []);
+
+        await initComponent();
+
+        expect(text()).toContain(emptyKey);
+      },
+    );
+
     it.each(categories.map((c) => c.category))(
       "shows only the %s bucket, not the logins at risk in other categories",
       async (category) => {
@@ -374,7 +399,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
       },
     );
 
-    it("swaps the title and description when the category changes", async () => {
+    it("swaps the title, description and empty icon when the category changes", async () => {
       params$.next({ category: RiskCategory.Exposed });
       await initComponent();
       expect(pageTitle()).toBe("exposedPasswordsTitle");
@@ -387,6 +412,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(pageTitle()).toBe("reusedPasswordsTitle");
       expect(text()).toContain("reusedPasswordsDescription");
       expect(text()).not.toContain("exposedPasswordsDescription");
+
+      setReport(RiskCategory.Reused, []);
+      fixture.detectChanges();
+
+      expect(noItemsIcon()).toBe(NoCredentialsIcon);
     });
   });
 
