@@ -137,7 +137,7 @@ export class HealthRiskCategoryDetailComponent {
       positionStrategy: new CenterPositionStrategy(),
       data: {
         item: health,
-        currentCategory: this.category(),
+        currentCategory: this.category()!,
       } satisfies HealthDeleteAtRiskItemDialogData,
     });
   };
