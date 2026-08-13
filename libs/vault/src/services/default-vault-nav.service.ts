@@ -10,8 +10,8 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { getAvatarDefaultColor } from "@bitwarden/common/platform/misc/avatar-color";
 import { UserId } from "@bitwarden/common/types/guid";
+import { getAvatarDefaultColor } from "@bitwarden/components";
 
 import {
   VaultNavColor,

@@ -1,4 +1,4 @@
-import { Utils } from "./utils";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 /**
  * The five default avatar colors, in palette order. Both the Avatar component and any

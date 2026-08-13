@@ -1,4 +1,4 @@
-import { AvatarDefaultColor } from "@bitwarden/common/platform/misc/avatar-color";
+import { AvatarDefaultColor } from "@bitwarden/components";
 
 export const VaultNavItemType = Object.freeze({
   Personal: "personal",
