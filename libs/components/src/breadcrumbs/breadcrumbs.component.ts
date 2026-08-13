@@ -1,17 +1,14 @@
 import { CommonModule } from "@angular/common";
 import {
-  afterNextRender,
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
   contentChildren,
-  DestroyRef,
   effect,
   ElementRef,
   inject,
   input,
-  signal,
 } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
@@ -25,6 +22,7 @@ import {
   OverflowItemDirective,
   OverflowListDirective,
   OverflowTriggerDirective,
+  observedWidth,
 } from "../overflow-list";
 import { TypographyModule } from "../typography";
 
@@ -63,11 +61,10 @@ const TRAILING_ARROW_RESERVE_PX = { base: 48, small: 34 } as const;
 export class BreadcrumbsComponent {
   private readonly i18nService = inject(I18nService);
   private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly destroyRef = inject(DestroyRef);
   protected readonly ariaLabel = this.i18nService.t("breadcrumbs");
 
   /** Live width of the host element, observed from a stable ancestor. */
-  private readonly hostWidth = signal(0);
+  private readonly hostWidth = observedWidth(this.hostRef);
 
   /**
    * Width handed to the overflow list. Derived from the host rather than letting the list
@@ -101,16 +98,6 @@ export class BreadcrumbsComponent {
   protected readonly breadcrumbs = contentChildren(BreadcrumbComponent);
 
   constructor() {
-    const hostEl = this.hostRef.nativeElement;
-    const ro = new ResizeObserver((entries) =>
-      this.hostWidth.set(entries[0].contentBoxSize[0].inlineSize),
-    );
-    afterNextRender(() => {
-      this.hostWidth.set(hostEl.clientWidth);
-      ro.observe(hostEl);
-      this.destroyRef.onDestroy(() => ro.disconnect());
-    });
-
     // Push our size down to each child crumb so they can size projected icon tiles in step.
     effect(() => {
       const size = this.size();

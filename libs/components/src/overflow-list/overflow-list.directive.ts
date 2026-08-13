@@ -1,5 +1,4 @@
 import {
-  DestroyRef,
   Directive,
   ElementRef,
   Injector,
@@ -15,6 +14,7 @@ import {
 } from "@angular/core";
 
 import { measureWidth, revealForMeasurement } from "./measure";
+import { observedWidth } from "./observed-width";
 import { OverflowItemDirective } from "./overflow-item.directive";
 import { OverflowTriggerDirective } from "./overflow-trigger.directive";
 import { PackedItems, pack, packMiddle } from "./pack";
@@ -50,7 +50,6 @@ import { PackedItems, pack, packMiddle } from "./pack";
   },
 })
 export class OverflowListDirective {
-  private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
@@ -89,7 +88,7 @@ export class OverflowListDirective {
    */
   readonly containerWidth = input<number | null>(null);
 
-  private readonly observedContainerWidth = signal(0);
+  private readonly observedContainerWidth = observedWidth(this.hostEl);
   private readonly itemWidths = signal<readonly number[]>([]);
   private readonly triggerWidth = signal(0);
   /** The item instances that produced the current `itemWidths`; drives cache invalidation. */
@@ -196,15 +195,7 @@ export class OverflowListDirective {
   });
 
   constructor() {
-    const ro = new ResizeObserver((entries) =>
-      this.observedContainerWidth.set(entries[0].contentBoxSize[0].inlineSize),
-    );
-
-    afterNextRender(() => {
-      this.measureItems();
-      ro.observe(this.hostEl);
-      this.destroyRef.onDestroy(() => ro.disconnect());
-    });
+    afterNextRender(() => this.measureItems());
 
     // Remeasure whenever the item set changes. Compared by instance identity
     // rather than count, so a same-length swap is caught too. A new set may
