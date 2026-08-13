@@ -11,8 +11,10 @@ import {
   inject,
   input,
   signal,
+  untracked,
 } from "@angular/core";
 
+import { measureWidth, revealForMeasurement } from "./measure";
 import { OverflowItemDirective } from "./overflow-item.directive";
 import { OverflowTriggerDirective } from "./overflow-trigger.directive";
 import { PackedItems, pack, packMiddle } from "./pack";
@@ -49,6 +51,7 @@ import { PackedItems, pack, packMiddle } from "./pack";
 })
 export class OverflowListDirective {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly injector = inject(Injector);
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
   // descendants: true — items live inside @for blocks, not as direct children.
@@ -111,9 +114,9 @@ export class OverflowListDirective {
     const widths = this.itemWidths();
     const containerWidth = this.resolvedContainerWidth();
 
-    // Nothing to pack, container not measured, or a width-count mismatch (stale
-    // cache after items changed). Show the full set until the remeasure lands so
-    // packing never indexes past the current items.
+    // Nothing to pack, container not measured, or a stale cache after the item
+    // set changed. Any length mismatch falls back to the full set, so packing
+    // never indexes past the current items.
     if (count === 0 || widths.length !== count || containerWidth <= 0) {
       return { displayed: indices(count), overflow: [] };
     }
@@ -143,9 +146,12 @@ export class OverflowListDirective {
 
     // Trigger reservation consumes the whole container. `pack` treats a
     // non-positive container as "not measured" and returns all displayed,
-    // so short-circuit to "everything overflows" here.
+    // so decide here instead. A pinned item still has to stay visible.
     if (available <= 0) {
-      return { displayed: [], overflow: indices(count) };
+      const pin = this.pinIndex();
+      return pin === null
+        ? { displayed: [], overflow: indices(count) }
+        : { displayed: [pin], overflow: indices(count).filter((i) => i !== pin) };
     }
 
     return pack(widths, available, gap, this.pinIndex());
@@ -159,9 +165,37 @@ export class OverflowListDirective {
   /** True after the first measurement — consumers gate initial paint on this. */
   readonly ready = signal(false);
 
-  constructor() {
-    const injector = inject(Injector);
+  /**
+   * True when the list is hiding the overflow trigger — nothing overflowed and the
+   * trigger isn't pinned visible. False until `ready`, since the trigger is left
+   * rendered through the first measurement pass.
+   */
+  readonly triggerHidden = computed(
+    () => this.ready() && this.overflow().length === 0 && !(this.trigger()?.alwaysShow() ?? false),
+  );
 
+  /**
+   * Elements the list is currently hiding: overflowed items, plus the trigger when
+   * it's hidden. Consumers that manage focus (a roving tabindex, say) read this to
+   * tell which of their controls have become unreachable.
+   */
+  readonly hiddenElements = computed(() => {
+    const items = this.items();
+    const hidden = new Set<HTMLElement>();
+    for (const i of this.overflow()) {
+      const el = items[i]?.elementRef.nativeElement;
+      if (el) {
+        hidden.add(el);
+      }
+    }
+    const trigger = this.trigger();
+    if (trigger && this.triggerHidden()) {
+      hidden.add(trigger.elementRef.nativeElement);
+    }
+    return hidden;
+  });
+
+  constructor() {
     const ro = new ResizeObserver((entries) =>
       this.observedContainerWidth.set(entries[0].contentBoxSize[0].inlineSize),
     );
@@ -172,16 +206,21 @@ export class OverflowListDirective {
       this.destroyRef.onDestroy(() => ro.disconnect());
     });
 
-    // Remeasure whenever the item set changes. Compare by instance identity, not
-    // count, so a same-length swap (which keeps stale widths) is caught too.
+    // Remeasure whenever the item set changes. Compared by instance identity
+    // rather than count, so a same-length swap is caught too. A new set may
+    // interleave fresh and old items, so reusing prior widths per-item isn't
+    // reliable; remeasure from scratch.
     effect(() => {
       const items = this.items();
       if (items.length === 0 || sameItems(items, this.measuredItems)) {
         return;
       }
-      // Force the all-displayed fallback so consumers stamp full content before we measure.
+      // Drop stale widths on this tick so `packed` falls back to all-displayed
+      // instead of packing against measurements of a set we no longer have.
       this.itemWidths.set([]);
-      afterNextRender(() => this.measureItems(), { injector });
+      // Before the first pass this no-ops; the constructor's queued measurement
+      // reads `items()` when it runs, so it picks up the new set anyway.
+      this.remeasure();
     });
 
     // Apply the pack decision to the DOM. Trigger updates are gated on
@@ -197,12 +236,29 @@ export class OverflowListDirective {
       });
       const trigger = this.trigger();
       if (this.ready() && trigger) {
-        applyHide(
-          trigger.elementRef.nativeElement,
-          overflowList.length === 0 && !trigger.alwaysShow(),
-        );
+        applyHide(trigger.elementRef.nativeElement, this.triggerHidden());
       }
     });
+  }
+
+  /**
+   * Re-cache item widths. Call when something outside the directive changes how
+   * the same items render (density, label visibility, font size) — the directive
+   * only remeasures on its own when the item set changes.
+   *
+   * Keeps the existing widths until the new measurement lands; clearing them
+   * would flash all-displayed and overflow the row mid-resize.
+   *
+   * No-ops before the first measurement pass, so a caller can't race the
+   * directive's own initial measurement — that pass is already queued.
+   */
+  remeasure(): void {
+    // Read untracked: this runs inside callers' effects, and tracking `ready`
+    // would make every one of them re-run when it flips.
+    if (!untracked(this.ready)) {
+      return;
+    }
+    afterNextRender(() => this.measureItems(), { injector: this.injector });
   }
 
   private measureItems(): void {
@@ -219,8 +275,8 @@ export class OverflowListDirective {
         : null;
 
       this.itemWidths.set(items.map((item) => measureWidth(item.elementRef.nativeElement)));
-      // Record the set these widths belong to, so the invalidation effect
-      // compares against what was actually measured and self-corrects on races.
+      // Record what was actually measured, so the invalidation effect
+      // self-corrects if the items changed again while this pass was pending.
       this.measuredItems = items;
       if (trigger) {
         this.triggerWidth.set(measureWidth(trigger.elementRef.nativeElement));
@@ -246,10 +302,6 @@ function sameItems(
   return a.length === b.length && a.every((item, i) => item === b[i]);
 }
 
-function measureWidth(el: HTMLElement): number {
-  return Math.ceil(el.getBoundingClientRect().width);
-}
-
 /**
  * Hide an element by both setting the `hidden` attribute and an inline
  * `display: none`. The attribute alone isn't enough: consumers commonly apply
@@ -259,19 +311,4 @@ function measureWidth(el: HTMLElement): number {
 function applyHide(el: HTMLElement, hide: boolean): void {
   el.hidden = hide;
   el.style.display = hide ? "none" : "";
-}
-
-/**
- * Temporarily unhide an element so its natural width can be read. Returns a
- * function that restores the prior `hidden` and inline `display` state.
- */
-function revealForMeasurement(el: HTMLElement): () => void {
-  const prevHidden = el.hidden;
-  const prevDisplay = el.style.display;
-  el.hidden = false;
-  el.style.display = "";
-  return () => {
-    el.hidden = prevHidden;
-    el.style.display = prevDisplay;
-  };
 }
