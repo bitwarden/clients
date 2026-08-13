@@ -3,6 +3,7 @@ import { Component, ChangeDetectionStrategy, input, inject, computed } from "@an
 import { firstValueFrom } from "rxjs";
 
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
+import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -19,7 +20,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 export interface HealthDeleteAtRiskItemDialogData {
-  currentCategory: string;
+  currentCategory: RiskCategory;
   item: CipherHealthView;
 }
 
@@ -46,7 +47,7 @@ export class HealthDeleteAtRiskItemDialogComponent {
   readonly inputData = inject<HealthDeleteAtRiskItemDialogData>(DIALOG_DATA);
 
   readonly item = input<CipherHealthView>(this.inputData.item);
-  readonly currentCategory = input<string>(this.inputData.currentCategory);
+  readonly currentCategory = input<RiskCategory>(this.inputData.currentCategory);
 
   readonly additionalRisks = computed<{ showWeak: boolean; showReused: boolean }>(() => {
     const item = this.item();
@@ -54,11 +55,11 @@ export class HealthDeleteAtRiskItemDialogComponent {
 
     // only show additional risk categories when the item currently being viewed also falls into lower risk categories. respects the at-risk hierarchy: exposed > weak > reused.
     switch (category) {
-      case "exposed-passwords":
+      case RiskCategory.Exposed:
         return { showWeak: item.hasWeakPassword, showReused: item.hasReusedPassword };
-      case "weak-passwords":
+      case RiskCategory.Weak:
         return { showWeak: false, showReused: item.hasReusedPassword };
-      case "reused-passwords":
+      case RiskCategory.Reused:
       default:
         return { showWeak: false, showReused: false };
     }

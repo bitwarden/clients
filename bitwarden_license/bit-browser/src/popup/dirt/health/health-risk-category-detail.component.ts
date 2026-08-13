@@ -132,21 +132,11 @@ export class HealthRiskCategoryDetailComponent {
     });
   };
 
-  readonly onDeleteItem = async (item: CipherView) => {
-    // TODO: UPDATE - FOR TESTING ONLY
-    const cipherHealthView = new CipherHealthView({
-      cipherId: item.id,
-      hasWeakPassword: true,
-      hasReusedPassword: true,
-      hasExposedPassword: true,
-      exposedCount: 1,
-      reuseCount: 1,
-    });
-
+  readonly onDeleteItem = async (health: CipherHealthView) => {
     await this.dialogService.open(HealthDeleteAtRiskItemDialogComponent, {
       positionStrategy: new CenterPositionStrategy(),
       data: {
-        item: cipherHealthView,
+        item: health,
         currentCategory: this.category(),
       } satisfies HealthDeleteAtRiskItemDialogData,
     });
