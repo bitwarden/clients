@@ -369,6 +369,7 @@ import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
 import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
+import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
 import { SafariApp } from "../browser/safariApp";
 import { PhishingDataService } from "../dirt/phishing-detection/services/phishing-data.service";
@@ -1667,6 +1668,7 @@ export default class MainBackground {
       this.userVerificationService,
       this.accountService,
       this.autofillTriageService,
+      new WebmapperDraftService(this.stateProvider),
     );
 
     this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);

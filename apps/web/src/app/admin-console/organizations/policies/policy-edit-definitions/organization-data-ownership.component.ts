@@ -5,10 +5,11 @@ import { firstValueFrom } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { SwitchComponent } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { EncString } from "@bitwarden/sdk-internal";
 
 import { SharedModule } from "../../../../shared";
