@@ -12389,6 +12389,9 @@
   "free2PersonOrganization": {
     "message": "Free 2-person Organizations"
   },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
+  },
   "unlimitedSecrets": {
     "message": "Unlimited secrets"
   },
