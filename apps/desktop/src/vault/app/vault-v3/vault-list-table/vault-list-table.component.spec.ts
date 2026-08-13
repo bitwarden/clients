@@ -73,9 +73,12 @@ describe("VaultListTableComponent", () => {
   });
 
   describe("itemAction", () => {
-    it("produces a viewCipher event for any cipher", () => {
+    it("emits a viewCipher event for any cipher", () => {
       const cipher = cipherView();
-      expect(component["itemAction"](cipher)).toEqual({ type: "viewCipher", item: cipher });
+      const emitted: unknown[] = [];
+      component.onEvent.subscribe((e) => emitted.push(e));
+      component["itemAction"](cipher);
+      expect(emitted).toEqual([{ type: "viewCipher", item: cipher }]);
     });
   });
 
@@ -86,7 +89,7 @@ describe("VaultListTableComponent", () => {
 
       component["rowActions"]();
 
-      expect(mockGetRowActions).toHaveBeenCalledWith([col]);
+      expect(mockGetRowActions).toHaveBeenCalledWith([col], expect.any(Function));
     });
   });
 

@@ -61,11 +61,12 @@ export class VaultListTableComponent<C extends CipherViewLike> {
     return search ? { search } : {};
   });
 
-  protected readonly rowActions = computed<VaultItemsTableRowAction<C, VaultItemEvent<C>>[]>(() =>
-    this.cipherRowMenuService.getRowActions<C>(this.collections()),
+  protected readonly rowActions = computed<VaultItemsTableRowAction<C>[]>(() =>
+    this.cipherRowMenuService.getRowActions<C>(this.collections(), (e) => this.onEvent.emit(e)),
   );
 
-  protected readonly itemAction = (item: C): VaultItemEvent<C> => ({ type: "viewCipher", item });
+  protected readonly itemAction = (item: C): void =>
+    this.onEvent.emit({ type: "viewCipher", item });
 
   protected handleSelectionChange(items: readonly C[]): void {
     if (!this.batchBarService) {

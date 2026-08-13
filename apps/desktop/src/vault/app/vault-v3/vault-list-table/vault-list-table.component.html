@@ -18,7 +18,6 @@
     [rowActions]="rowActions()"
     [itemAction]="itemAction"
     [initialFilterValues]="initialFilterValues()"
-    (action)="onEvent.emit($event)"
     (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {

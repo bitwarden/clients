@@ -14,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -129,6 +130,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
       ],
     }).compileComponents();
 

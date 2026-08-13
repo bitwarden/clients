@@ -25,8 +25,6 @@ import { VaultItemsTableCopyPresentation } from "./vault-items-table-copy-presen
 import { VaultItemsTableRowAction } from "./vault-items-table-row-action";
 import { VaultItemsTableColumn } from "./vault-items-table.component";
 
-type TestEvent = { type: string; item: CipherView };
-
 /**
  * The column registers with its table by DI, so it needs a real `bit-table-v2` around it to
  * render at all. This host supplies one.
@@ -38,7 +36,6 @@ type TestEvent = { type: string; item: CipherView };
         [table]="table"
         [rowActions]="rowActions()"
         [copyPresentation]="copyPresentation()"
-        (action)="emitted = emitted.concat([$event])"
       />
     </bit-table-v2>
   `,
@@ -51,9 +48,8 @@ class HostComponent {
     CipherView,
     VaultItemsTableColumn
   >(this.ciphers);
-  readonly rowActions = signal<VaultItemsTableRowAction<CipherView, TestEvent>[]>([]);
+  readonly rowActions = signal<VaultItemsTableRowAction<CipherView>[]>([]);
   readonly copyPresentation = signal<VaultItemsTableCopyPresentation>("collapsed");
-  emitted: TestEvent[] = [];
 
   /**
    * The column's host element matches none of `bit-table-v2`'s `ng-content` selectors, so it is
@@ -136,7 +132,7 @@ describe("VaultItemsTableActionsColumnComponent", () => {
   });
 
   /** The column instance, for exercising its protected surface directly. */
-  function column(): VaultItemsTableActionsColumnComponent<CipherView, TestEvent> {
+  function column(): VaultItemsTableActionsColumnComponent<CipherView> {
     // The column isn't instantiated until the host renders.
     fixture.detectChanges();
     return host.actionsColumn();
@@ -158,44 +154,32 @@ describe("VaultItemsTableActionsColumnComponent", () => {
     return Array.from(document.querySelectorAll("[bitMenuItem]"));
   }
 
-  describe("the event factory contract", () => {
-    it("emits exactly the event the action's factory built, and builds none itself", () => {
+  describe("the run callback contract", () => {
+    it("calls the action's run callback with the row's item when the menu item is clicked", () => {
       const cipher = loginCipher();
-      const built: TestEvent = { type: "editCipher", item: cipher };
-      const factory = jest.fn().mockReturnValue(built);
+      const run = jest.fn();
 
       host.ciphers.set([cipher]);
-      host.rowActions.set([
-        { id: "edit", label: "Edit", icon: "bwi-pencil-square", event: factory },
-      ]);
+      host.rowActions.set([{ id: "edit", label: "Edit", icon: "bwi-pencil-square", run }]);
       fixture.detectChanges();
 
       openMenu(0)[0].click();
 
-      expect(factory).toHaveBeenCalledWith(cipher);
-      // Reference equality: the column passes the factory's object through untouched.
-      expect(host.emitted).toEqual([built]);
-      expect(host.emitted[0]).toBe(built);
+      expect(run).toHaveBeenCalledWith(cipher);
     });
 
-    it("gives each row's factory that row's own item", () => {
-      host.ciphers.set([
-        loginCipher({ id: "a", name: "Amazon" }),
-        loginCipher({ id: "b", name: "Apple" }),
-      ]);
-      host.rowActions.set([
-        {
-          id: "edit",
-          label: "Edit",
-          icon: "bwi-pencil-square",
-          event: (item) => ({ type: "editCipher", item }),
-        },
-      ]);
+    it("gives each row's callback that row's own item", () => {
+      const cipherA = loginCipher({ id: "a", name: "Amazon" });
+      const cipherB = loginCipher({ id: "b", name: "Apple" });
+      const run = jest.fn();
+
+      host.ciphers.set([cipherA, cipherB]);
+      host.rowActions.set([{ id: "edit", label: "Edit", icon: "bwi-pencil-square", run }]);
       fixture.detectChanges();
 
       openMenu(1)[0].click();
 
-      expect(host.emitted.map((event) => event.item.id)).toEqual(["b"]);
+      expect(run).toHaveBeenCalledWith(cipherB);
     });
   });
 
@@ -210,7 +194,7 @@ describe("VaultItemsTableActionsColumnComponent", () => {
           id: "events",
           label: "Event logs",
           icon: "bwi-file-text",
-          event: (item) => ({ type: "viewEvents", item }),
+          run: jest.fn(),
           show: (item) => item.organizationId != null,
         },
       ]);
@@ -227,7 +211,7 @@ describe("VaultItemsTableActionsColumnComponent", () => {
           id: "edit",
           label: "Edit",
           icon: "bwi-pencil-square",
-          event: (item) => ({ type: "editCipher", item }),
+          run: jest.fn(),
         },
       ]);
       fixture.detectChanges();
@@ -242,7 +226,7 @@ describe("VaultItemsTableActionsColumnComponent", () => {
           id: "edit",
           label: "Edit",
           icon: "bwi-pencil-square",
-          event: (item) => ({ type: "editCipher", item }),
+          run: jest.fn(),
           show: () => false,
         },
       ]);
