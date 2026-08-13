@@ -7024,12 +7024,6 @@
   "compactMode": {
     "message": "Compact mode"
   },
-  "beta": {
-    "message": "Beta"
-  },
-  "betaBadgeTooltip": {
-    "message": "Beta version of Bitwarden"
-  },
   "extensionWidth": {
     "message": "Extension width"
   },
