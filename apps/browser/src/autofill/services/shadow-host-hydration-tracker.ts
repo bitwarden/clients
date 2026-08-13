@@ -173,7 +173,6 @@ export class ShadowHostHydrationTracker {
 
     this.drainOverflow(now);
 
-    // Only new work restarts backoff; otherwise churn would pin it at the floor.
     if (sawNewHost) {
       this.noteNewWork();
     }
@@ -222,14 +221,12 @@ export class ShadowHostHydrationTracker {
       }
       if (element.matches(":defined")) {
         this.hostsAwaitingDefinition.delete(element);
-        // Overwrites an earlier `Abandoned`: proof of definition repairs a wrong verdict.
-        this.tagVerdicts.set(element.tagName, TagVerdict.Defined);
+        this.markTagNameDefined(element.tagName);
         // `admitHost` first — `||` would short-circuit past admission once one host has enrolled.
         enrolled = this.admitHost(element, now + this.hostLifetimeMs) || enrolled;
         continue;
       }
-      // Still undefined past its park deadline: give up and tombstone, so it can't re-park and
-      // the retry timer can eventually settle.
+      // Tombstoned, not just dropped, so it can't re-park and the retry timer can settle.
       if (now >= parkDeadline) {
         this.hostsAwaitingDefinition.delete(element);
         this.expiredHosts.add(element);
@@ -238,6 +235,16 @@ export class ShadowHostHydrationTracker {
     }
     if (enrolled) {
       this.noteNewWork();
+    }
+  }
+
+  /**
+   * `has` first, so proof of definition still repairs an `Abandoned` verdict at the cap; past it
+   * {@link abandonTagName} is a no-op too, so a dropped verdict abandons nothing.
+   */
+  private markTagNameDefined(tagName: string): void {
+    if (this.tagVerdicts.has(tagName) || this.tagVerdicts.size < this.tagVerdictCap) {
+      this.tagVerdicts.set(tagName, TagVerdict.Defined);
     }
   }
 

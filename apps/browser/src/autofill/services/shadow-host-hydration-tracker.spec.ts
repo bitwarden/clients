@@ -523,6 +523,40 @@ describe("ShadowHostHydrationTracker", () => {
       expect(tracker["tagVerdicts"].size).toBe(cap);
     });
 
+    it("bounds the learned verdicts when the minted tags are the ones that define", () => {
+      const cap = tracker["tagVerdictCap"];
+      for (let index = 0; index < cap; index++) {
+        tracker["abandonTagName"](`MINTED-TAG-${index}`);
+      }
+
+      const host = document.createElement("late-minted-widget");
+      document.body.appendChild(host);
+      tracker["hostsAwaitingDefinition"].set(host, 60000);
+      jest.spyOn(host, "matches").mockImplementation((selector) => selector === ":defined");
+      tracker["enrollUpgradedParkedHosts"](0);
+
+      expect(tracker["tagVerdicts"].size).toBe(cap);
+      expect(tracker["tagVerdicts"].has("LATE-MINTED-WIDGET")).toBe(false);
+      // The cap bounds what is learned, not what is tracked.
+      expect(tracker["hostsAwaitingShadowRoot"].has(host)).toBe(true);
+    });
+
+    it("repairs an abandoned verdict at the cap, where a new verdict would be dropped", () => {
+      const cap = tracker["tagVerdictCap"];
+      for (let index = 0; index < cap; index++) {
+        tracker["abandonTagName"](`MINTED-TAG-${index}`);
+      }
+
+      const host = document.createElement("minted-tag-0");
+      document.body.appendChild(host);
+      tracker["hostsAwaitingDefinition"].set(host, 60000);
+      jest.spyOn(host, "matches").mockImplementation((selector) => selector === ":defined");
+      tracker["enrollUpgradedParkedHosts"](0);
+
+      expect(tracker["tagVerdicts"].get("MINTED-TAG-0")).toBe("defined");
+      expect(tracker["tagVerdicts"].size).toBe(cap);
+    });
+
     it("repairs an abandoned verdict when an instance of that tag is later seen :defined", () => {
       tracker["abandonTagName"]("REPAIRED-WIDGET");
       const host = document.createElement("repaired-widget");
