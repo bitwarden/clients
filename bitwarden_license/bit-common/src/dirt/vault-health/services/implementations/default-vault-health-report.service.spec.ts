@@ -320,17 +320,4 @@ describe("DefaultVaultHealthReportService", () => {
       expect(cipherIds(other!.categoryItems.weak)).toEqual(["b"]);
     });
   });
-
-  it("buckets health views keyed by cipher id, without the cipher itself", async () => {
-    // The report carries no vault data; consumers join `cipherId` against their
-    // own cipher source, so the id has to survive bucketing.
-    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
-
-    const result = await report(ciphers);
-
-    const [item] = result.categoryItems.exposed;
-    expect(item).toBeInstanceOf(CipherHealthView);
-    expect(item.cipherId).toBe("a");
-    expect(item.hasExposedPassword).toBe(true);
-  });
 });

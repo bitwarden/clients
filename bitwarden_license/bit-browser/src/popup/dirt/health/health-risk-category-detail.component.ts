@@ -29,7 +29,6 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
 
-export
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "health-risk-category-detail",
@@ -49,7 +48,7 @@ export
     I18nPipe,
   ],
 })
-class HealthRiskCategoryDetailComponent {
+export class HealthRiskCategoryDetailComponent {
   readonly router = inject(Router);
   readonly route = inject(ActivatedRoute);
   readonly accountService = inject(AccountService);
