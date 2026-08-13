@@ -435,13 +435,13 @@ describe("CipherActionService", () => {
         expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
       });
 
-      it("skips reprompt on the second call once the user has already passed", async () => {
+      it("prompts on every call so a lock/unlock cycle resets the gate", async () => {
         const cipher = makeCipher({ reprompt: CipherRepromptType.Password });
 
         await service.delete(cipher);
         await service.delete(cipher);
 
-        expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalledTimes(1);
+        expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalledTimes(2);
       });
     });
   });

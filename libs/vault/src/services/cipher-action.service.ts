@@ -53,9 +53,6 @@ export class CipherActionService {
   /** Emits after any action completes (success or no-op). Subscribe to trigger a vault refresh. */
   readonly cipherActionSuccess$ = this._cipherActionSuccess.asObservable();
 
-  /** Tracks whether the user has already passed a master-password reprompt this session. */
-  private passwordReprompted = false;
-
   private readonly userCanArchive = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
@@ -194,10 +191,9 @@ export class CipherActionService {
   }
 
   private async promptPassword(cipher: CipherViewLike): Promise<boolean> {
-    if (cipher.reprompt === CipherRepromptType.None || this.passwordReprompted) {
-      return true;
-    }
-
-    return (this.passwordReprompted = await this.passwordRepromptService.showPasswordPrompt());
+    return (
+      cipher.reprompt === CipherRepromptType.None ||
+      (await this.passwordRepromptService.showPasswordPrompt())
+    );
   }
 }
