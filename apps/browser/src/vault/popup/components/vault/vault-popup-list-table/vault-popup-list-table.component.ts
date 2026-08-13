@@ -17,6 +17,7 @@ import { filter, map, Subject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { DeactivatedOrg, NoResults } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -139,6 +140,10 @@ export class VaultPopupListTableComponent implements OnDestroy {
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
+  /** Empty-slot icons: the default no-results graphic, or the suspended-organization one. */
+  protected readonly noResultsIcon = NoResults;
+  protected readonly deactivatedIcon = DeactivatedOrg;
+
   protected searchText: string = "";
   private readonly searchText$ = new Subject<string>();
 
@@ -146,13 +151,30 @@ export class VaultPopupListTableComponent implements OnDestroy {
     initialValue: true,
   });
 
-  protected readonly rows = toSignal(this.listTableService.rows$, {
-    initialValue: [] as VaultTableRow[],
-  });
-
   protected readonly hasSearchText = toSignal(this.listTableService.hasSearchText$, {
     initialValue: false,
   });
+
+  /**
+   * Whether the selected organization filter points at a suspended organization. The toolbar stays
+   * mounted in this state so the filter that caused it remains clearable — unmounting the table
+   * would strip the chips and the search box along with it.
+   */
+  protected readonly showDeactivatedOrg = toSignal(this.listTableService.showDeactivatedOrg$, {
+    initialValue: false,
+  });
+
+  private readonly allRows = toSignal(this.listTableService.rows$, {
+    initialValue: [] as VaultTableRow[],
+  });
+
+  /**
+   * A suspended organization's ciphers still match its own filter, so they have to be withheld
+   * here rather than by `filterFunction$` — otherwise the list would show items belonging to an
+   * organization the user can no longer act on. Emptying the rows also hands the state over to the
+   * table's empty slot, which renders the notice.
+   */
+  protected readonly rows = computed(() => (this.showDeactivatedOrg() ? [] : this.allRows()));
 
   protected readonly table = defineTable<VaultTableRow, "name">(this.rows);
 

@@ -88,6 +88,7 @@ describe("VaultPopupListTableComponent", () => {
   const loading$ = new BehaviorSubject<boolean>(false);
   const searchText$ = new BehaviorSubject<string>("");
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
+  const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
   const configService = {
@@ -111,6 +112,7 @@ describe("VaultPopupListTableComponent", () => {
     loading$: loading$.asObservable(),
     searchText$: searchText$.asObservable(),
     hasSearchText$: hasSearchText$.asObservable(),
+    showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     applyFilter: jest.fn(),
   };
 
@@ -160,6 +162,7 @@ describe("VaultPopupListTableComponent", () => {
     loading$.next(false);
     searchText$.next("");
     hasSearchText$.next(false);
+    showDeactivatedOrg$.next(false);
     compactModeEnabled$.next(false);
     filterForm.reset({ organization: null, collection: null, folder: null, cipherType: null });
     cipherTypes$.next([]);
@@ -257,6 +260,41 @@ describe("VaultPopupListTableComponent", () => {
       expect(text).toContain("nothingToShow");
       expect(text).not.toContain("noItemsMatchSearch");
       expect(text).not.toContain("clearFiltersOrTryAnother");
+    });
+
+    /**
+     * A suspended organization's ciphers match its own filter, so the rows have to be withheld
+     * here — and the table has to stay mounted regardless, since it carries the only control that
+     * can clear the filter responsible for the state.
+     */
+    describe("deactivated organization", () => {
+      beforeEach(() => {
+        filteredCiphers$.next([makeCipher({ organizationId: "org-1" })]);
+        showDeactivatedOrg$.next(true);
+        fixture.detectChanges();
+      });
+
+      it("withholds the rows and shows the deactivated notice", () => {
+        expect(component["rows"]()).toEqual([]);
+
+        const text = fixture.nativeElement.textContent;
+        expect(text).toContain("organizationIsDeactivated");
+        expect(text).toContain("contactYourOrgAdmin");
+        expect(text).not.toContain("nothingToShow");
+      });
+
+      it("keeps the toolbar mounted so the filter stays clearable", () => {
+        expect(fixture.nativeElement.querySelector("bit-table-toolbar")).not.toBeNull();
+        expect(fixture.nativeElement.querySelector("bit-search")).not.toBeNull();
+      });
+
+      it("restores the rows once the filter moves off the suspended organization", () => {
+        showDeactivatedOrg$.next(false);
+        fixture.detectChanges();
+
+        expect(component["rows"]()).toHaveLength(1);
+        expect(fixture.nativeElement.textContent).not.toContain("organizationIsDeactivated");
+      });
     });
   });
 
