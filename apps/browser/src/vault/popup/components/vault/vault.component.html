@@ -87,13 +87,13 @@
     }
     @if (vaultState === VaultStateEnum.Empty) {
       <vault-organization-user-notifications
-        class="tw-flex tw-flex-col"
+        class="-tw-mx-5 -tw-mt-3 tw-px-2 tw-flex tw-flex-col"
       ></vault-organization-user-notifications>
     } @else {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <vault-organization-user-notifications
-        class="tw-flex tw-flex-col"
+        class="-tw-mx-5 -tw-mt-3 tw-px-2 tw-flex tw-flex-col"
       ></vault-organization-user-notifications>
 
       @if (showHasItemsVaultSpotlight$ | async) {
