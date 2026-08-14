@@ -55,7 +55,7 @@ const SERVER_TARGETING_RULES_META = KeyDefinition.record<TargetingRulesDataMeta,
 );
 
 /**
- * Cache key for Fill Assist targeting-rules metadata. Compound so that two
+ * Cache key for fill assist targeting-rules metadata. Compound so that two
  * accounts on the same server with different effective feed URLs get separate
  * cache entries — no cross-account bleed on account switch.
  */
@@ -122,7 +122,7 @@ export class TargetingRulesDataService {
       this._triggerUpdate$.next(false);
     });
 
-    // Trigger a fetch when the Fill Assist policy changes, so the fetcher
+    // Trigger a fetch when the fill assist policy changes, so the fetcher
     // re-checks against a possibly-new effective URL / cache key.
     this.domainSettingsService.fillAssistPolicy$.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this._triggerUpdate$.next(false);

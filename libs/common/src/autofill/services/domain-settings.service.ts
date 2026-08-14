@@ -43,7 +43,7 @@ import { FormContent, TargetingRulesByDomain } from "../types";
 import { matchTargetingRulesForUrl } from "../utils/targeting-rules";
 
 /**
- * Cache key for Fill Assist targeting rules. Compound so that two accounts on
+ * Cache key for fill assist targeting rules. Compound so that two accounts on
  * the same server with different effective rules-feed URLs (e.g. one member of
  * an org with a custom policy, one without) get separate cache entries — no
  * cross-account bleed during account switch.
@@ -165,7 +165,7 @@ export abstract class DomainSettingsService {
   setEnableFillAssist: (newValue: boolean) => Promise<void>;
 
   /**
-   * Org policy state for Fill Assist. Emits `null` when no policy applies to
+   * Org policy state for fill assist. Emits `null` when no policy applies to
    * the active account, or `{ rulesUrl?: string }` when one does — `rulesUrl`
    * is present only for a well-formed https URL. Any-org-applies-globally: if
    * any of the user's orgs has the policy enabled, it applies to the whole
@@ -175,14 +175,14 @@ export abstract class DomainSettingsService {
   fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
 
   /**
-   * The effective Fill Assist rules-feed URL, in priority order: org policy's
+   * The effective fill assist rules-feed URL, in priority order: org policy's
    * custom URL (if it differs from the Bitwarden default) → server config's
    * URL → hardcoded default. Always ends with a trailing slash.
    */
   effectiveFillAssistRulesUrl$: Observable<string>;
 
   /**
-   * Resolved state for enabling Fill Assist, combining the feature flag, the
+   * Resolved state for enabling fill assist, combining the feature flag, the
    * user setting, and the org policy with user-explicit-wins semantics: if the
    * user has explicitly set the toggle (true or false), their choice wins. If
    * the user has never touched the toggle ("pristine"), the org policy default

@@ -795,7 +795,7 @@ describe("DefaultDomainSettingsService", () => {
       expect(result).toEqual({ rulesUrl });
     });
 
-    it("returns the first policy when multiple orgs have Fill Assist policies (any-org-applies)", async () => {
+    it("returns the first policy when multiple orgs have fill assist policies (any-org-applies)", async () => {
       fillAssistPolicyMock$.next([
         makeFillAssistPolicy({ rulesUrl: "https://first-org.example.com/rules" }),
         makeFillAssistPolicy({ rulesUrl: "https://second-org.example.com/rules" }),
