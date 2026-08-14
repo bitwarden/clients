@@ -25,6 +25,7 @@ import {
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
 import { NoItemsComponent } from "../../no-items/no-items.component";
@@ -46,8 +47,8 @@ import { TableDef } from "./table-def";
 import { TableSelectionConfig, TableSelectionModel } from "./table-selection-model";
 import { TableVirtualScrollStrategy } from "./table-virtual-scroll.strategy";
 
-/** Grid track width for the internal selection (checkbox) column. */
-const SELECTION_COLUMN_WIDTH = "40px";
+/** Grid track width for the internal selection column: the 24px checkbox plus the cell's `tw-px-4`. */
+const SELECTION_COLUMN_WIDTH = "56px";
 
 /**
  * Fixed heights (px) of group headers when virtualized. The scroll strategy needs
@@ -172,6 +173,7 @@ type RenderItem<T> =
     BitCellComponent,
     BitHeaderRowComponent,
     BitRowComponent,
+    CheckboxModule,
     IconComponent,
     NoItemsComponent,
     SkeletonTextComponent,
@@ -566,7 +568,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   protected groupHeaderClass(level: number): string {
     if (this.presentation() !== "list") {
-      return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-b-shadow tw-bg-background-alt tw-px-3 tw-py-2 tw-text-sm tw-font-bold tw-text-muted";
+      return "tw-flex tw-items-center tw-border-0 tw-border-b tw-border-solid tw-border-border-base tw-bg-bg-secondary tw-px-4 tw-py-2 tw-text-sm tw-font-bold tw-text-fg-body";
     }
     // Match the extension's section/subsection type: top = `h6` (text-sm, main,
     // medium); subgroup = the muted subheader (text-xs, muted, medium), indented.
