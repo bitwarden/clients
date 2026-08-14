@@ -61,7 +61,18 @@ export class ShadowHostHydrationTracker {
     private readonly now: () => EpochMs = () => Date.now(),
   ) {}
 
-  /** Candidates accumulate across batches in the debounce window, so a render burst costs one scan. */
+  /**
+   * Handles DOM additions surfaced by the MutationObserver, coalescing them into
+   * a single debounced page scan.
+   *
+   * Shadow-root candidates are collected on every call, so that batches arriving
+   * before a pending scan fires still contribute their candidates. The scan
+   * itself is armed once per burst: the first call starts a `scanDebounceMs`
+   * timer and further calls before it fires are absorbed, yielding at most one
+   * scan.
+   *
+   * @param mutations - Mutation records batched by the observer.
+   */
   noteAddedNodes(mutations: MutationRecord[]): void {
     this.collectAddedShadowRootCandidates(mutations);
     if (this.pendingScan) {
