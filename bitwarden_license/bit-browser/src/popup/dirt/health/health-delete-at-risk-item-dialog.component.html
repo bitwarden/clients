@@ -29,7 +29,7 @@
     }
   </div>
   <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
-    <button bitButton type="button" buttonType="danger" (click)="onDeleteItem()">
+    <button bitButton type="button" buttonType="danger" [bitAction]="onDeleteItem">
       {{ "delete" | i18n }}
     </button>
     <button bitButton type="button" bitDialogClose>{{ "cancel" | i18n }}</button>

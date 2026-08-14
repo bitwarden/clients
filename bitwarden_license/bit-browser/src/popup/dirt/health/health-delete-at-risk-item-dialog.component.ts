@@ -16,6 +16,7 @@ import {
   SectionHeaderComponent,
   IconTileComponent,
   CardComponent,
+  AsyncActionsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -36,6 +37,7 @@ export interface HealthDeleteAtRiskItemDialogData {
     IconTileComponent,
     CardComponent,
     I18nPipe,
+    AsyncActionsModule,
   ],
 })
 export class HealthDeleteAtRiskItemDialogComponent {
