@@ -8,6 +8,7 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use dirs;
 use hex::decode;
+use itertools::Itertools;
 use rusqlite::{params, Connection};
 
 mod platform;
@@ -292,6 +293,13 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
             account_name: info.gaia_id.clone(),
             account_email: info.user_name.clone(),
         })
+        // info_cache is a HashMap with random iteration order, sort for a stable UI
+        .sorted_by(|a, b| {
+            a.name
+                .to_lowercase()
+                .cmp(&b.name.to_lowercase())
+                .then_with(|| a.folder.cmp(&b.folder))
+        })
         .collect()
 }
 
@@ -547,6 +555,30 @@ mod tests {
         assert_eq!(p3.name, "N3");
         assert_eq!(p3.account_name.as_deref(), Some("A3"));
         assert_eq!(p3.account_email, None);
+    }
+
+    #[test]
+    fn test_get_profile_info_sorted_by_name_then_folder() {
+        let local_state = make_local_state(vec![
+            ("Profile 2", "banana", None, None),
+            ("Profile 10", "Apple", None, None),
+            ("Profile 3", "apple", None, None),
+            ("Profile 1", "Cherry", None, None),
+        ]);
+        let infos = get_profile_info(&local_state);
+        let order = infos
+            .iter()
+            .map(|p| (p.name.as_str(), p.folder.as_str()))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            order,
+            vec![
+                ("Apple", "Profile 10"),
+                ("apple", "Profile 3"),
+                ("banana", "Profile 2"),
+                ("Cherry", "Profile 1"),
+            ]
+        );
     }
 
     #[test]

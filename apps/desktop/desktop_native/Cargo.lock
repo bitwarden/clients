@@ -950,6 +950,7 @@ dependencies = [
  "desktop_objc",
  "dirs",
  "hex",
+ "itertools",
  "oo7",
  "pbkdf2 0.13.0",
  "rand 0.9.3",
