@@ -562,7 +562,7 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     this.cipherService.updateLastUsedIndexForUrl(key);
   }
 
-  private activeUserId(): Promise<UserId | undefined> {
+  private activeUserId(): Promise<UserId | null> {
     return firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
   }
 

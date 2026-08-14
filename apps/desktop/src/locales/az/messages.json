@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Sevimlilər"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Sevimlilərdən sil"
   },
@@ -116,11 +119,56 @@
   "myFolders": {
     "message": "Qovluqlarım"
   },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
   "addSharedFolder": {
     "message": "Paylaşılan qovluq əlavə et"
   },
   "newSharedFolder": {
     "message": "Yeni paylaşılan qovluq"
+  },
+  "searchSharedFolder": {
+    "message": "Paylaşılan qovluqda axtar"
+  },
+  "searchMyFolder": {
+    "message": "Qovluqlarımda axtar"
+  },
+  "viewSharedFolderWithName": {
+    "message": "$NAME$ - paylaşılan qovluğa bax",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Paylaşılan qovluğu sil"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "$COUNT$ paylaşılan qovluğu sil",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Bu paylaşılan qovluq həmişəlik silinəcək. Qovluqdakı elementlər silinməyəcək."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Bu paylaşılan qovluqlar həmişəlik silinəcək. Qovluqlardakı elementlər silinməyəcək."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Seçilmiş elementlər və paylaşılan qovluqlar həmişəlik silinəcək."
+  },
+  "sharedFolderDeleted": {
+    "message": "Paylaşılan qovluq silindi"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Paylaşılan qovluqlar silindi"
   },
   "share": {
     "message": "Paylaş"
@@ -476,6 +524,18 @@
   },
   "launch": {
     "message": "Başlat"
+  },
+  "launchWebsiteForName": {
+    "message": "$ITEMNAME$ veb saytını başlat",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Dəyəri kopyala",
@@ -1964,6 +2024,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Veb sayt ikonlarını göstər və parol dəyişdirmə URL-lərini al"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
+  },
+  "copyNoteTitle": {
+    "message": "Notu kopyala - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Kopyalanacaq detal yoxdur"
+  },
   "runInBackground": {
     "message": "Bitwarden-i arxaplanda çalışan halda saxla"
   },
@@ -2059,6 +2135,31 @@
   },
   "copyVerificationCode": {
     "message": "Doğrulama kodunu kopyala"
+  },
+  "noUsername": {
+    "message": "İstifadəçi adı yoxdur"
+  },
+  "noPassword": {
+    "message": "Parol yoxdur"
+  },
+  "noVerificationCode": {
+    "message": "Doğrulama kodu yoxdur"
+  },
+  "noNumber": {
+    "message": "Nömrə yoxdur"
+  },
+  "noSecurityCode": {
+    "message": "Təhlükəsizlik kodu yoxdur"
+  },
+  "copyDetailsTitle": {
+    "message": "$ITEMNAME$ detallarını kopyala",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "İstifadəçi adını kopyala"
@@ -3448,6 +3549,30 @@
   "options": {
     "message": "Seçimlər"
   },
+  "moreOptions": {
+    "message": "Daha çox seçim"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Seansınızın vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
   },
@@ -4473,6 +4598,79 @@
   "noFileChosen": {
     "message": "Heç bir fayl seçilməyib"
   },
+  "noFileSelected": {
+    "message": "Heç bir fayl seçilməyib"
+  },
+  "fileChosen": {
+    "message": "Fayl seçildi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Fayl əlavə olundu: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fayl əlavə olundu: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Fayl silindi: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fayl yükləndi"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fayl yükləndi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Yüklənən fayllar"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Yükləmək üçün kliklə və ya sürükləyib burax"
+  },
+  "chooseFiles": {
+    "message": "Faylları seç"
+  },
+  "maxFileSizeParam": {
+    "message": "Maksimum fayl ölçüsü: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "və ya daxilə köçürmə faylının məzmununu kopyalayın/yapışdırın"
   },
@@ -5146,6 +5344,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "\"Yalnız baxma\" icazələrinə sahib paylaşılan qovluqları silə bilməzsiniz: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Daşı"
   },
@@ -5244,8 +5451,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden, təcrübənizi təkmilləşdirmək üçün hansı ikonun və ya parol dəyişdirmə URL-sinin istifadə olunmalı olduğunu müəyyənləşdirmək məqsədilə saxlanılmış giriş URL-lərini istifadə edəcək. Bu xidməti istifadə etdiyiniz zaman heç bir məlumat yığılmır və ya saxlanılmır."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "İstifadəçi adınızı, parolunuzu və ya doğrulama kodunuzu lövhəyə kopyalamaq üçün elementlərin yanına 3 cəld kopyalama düyməsi əlavə edin."
+  },
   "assignToCollections": {
     "message": "Kolleksiyalara təyin et"
+  },
+  "addToSharedFolder": {
+    "message": "Paylaşılan qovluğa əlavə et"
+  },
+  "transferAndAdd": {
+    "message": "Transfer və əlavə etmə"
+  },
+  "itemLower": {
+    "message": "element"
+  },
+  "itemsLower": {
+    "message": "elementlər"
   },
   "assignToTheseCollections": {
     "message": "Bu kolleksiyalara təyin et"
@@ -5253,8 +5475,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Yalnız bu kolleksiyalara erişimi olan təşkilat üzvləri bu elementi görə biləcək."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Yalnız bu paylaşılan qovluqlara erişimi olan seyf üzvləri bu elementi görə biləcək."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Yalnız bu kolleksiyalara erişimi olan təşkilat üzvləri bu elementləri görə biləcək."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Yalnız bu paylaşılan qovluqlara erişimi olan seyf üzvləri elementləri görə biləcək."
   },
   "noCollectionsAssigned": {
     "message": "Heç bir kolleksiya təyin edilmədi"
@@ -5314,8 +5542,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 element seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 element seçilmiş seyfə həmişəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ element seçilmiş təşkilata birdəfəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ element seçilmiş seyfə həmişəlik transfer ediləcək. Artıq bu elementlərə sahib olmaya bilməyəcəksiniz.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5579,32 @@
   "successfullyAssignedCollections": {
     "message": "Uğurla təyin edilən kolleksiyalar"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Paylaşılan qovluqlar uğurla əlavə edildi"
+  },
   "itemMovedToCollection": {
     "message": "Element kolleksiyaya daşındı"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Element paylaşılan qovluğa əlavə edildi"
   },
   "itemMovedToCollections": {
     "message": "Element kolleksiyalara daşındı"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Element paylaşılan qovluqlara əlavə edildi"
+  },
   "itemsMovedToCollection": {
     "message": "Elementlər kolleksiyaya daşındı"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Elementlər paylaşılan qovluğa əlavə edildi"
+  },
   "itemsMovedToCollections": {
     "message": "Elementlər kolleksiyalara daşındı"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Elementlər paylaşılan qovluqlara əlavə edildi"
   },
   "itemAssignedToCollections": {
     "message": "Element kolleksiyalara təyin olundu"

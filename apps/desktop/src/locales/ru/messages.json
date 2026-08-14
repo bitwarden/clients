@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Избранные"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Удалить из избранного"
   },
@@ -116,11 +119,56 @@
   "myFolders": {
     "message": "Мои папки"
   },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
   "addSharedFolder": {
     "message": "Добавить общую папку"
   },
   "newSharedFolder": {
     "message": "Новая общая папка"
+  },
+  "searchSharedFolder": {
+    "message": "Поиск в общей папке"
+  },
+  "searchMyFolder": {
+    "message": "Поиск в моих папках"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Просмотр общей папки - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Удалить общую папку"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Удалить $COUNT$ общих папок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Эта общая папка будет удалена безвозвратно. Элементы из папки удалены не будут."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Эти общие папки будут удалены безвозвратно. Элементы в папках удалены не будут."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Выбранные элементы и общие папки будут удалены навсегда."
+  },
+  "sharedFolderDeleted": {
+    "message": "Общая папка удалена"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Общие папки удалены"
   },
   "share": {
     "message": "Поделиться"
@@ -476,6 +524,18 @@
   },
   "launch": {
     "message": "Перейти"
+  },
+  "launchWebsiteForName": {
+    "message": "Открыть сайт для $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Скопировать значение",
@@ -1964,6 +2024,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Показывать значки сайтов и извлекать URL изменения пароля"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Показать быстрые действия копирования в хранилище"
+  },
+  "copyNoteTitle": {
+    "message": "Скопировать заметку - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Нет информации для копирования"
+  },
   "runInBackground": {
     "message": "Оставить Bitwarden работать в фоновом режиме"
   },
@@ -2059,6 +2135,31 @@
   },
   "copyVerificationCode": {
     "message": "Скопировать код подтверждения"
+  },
+  "noUsername": {
+    "message": "Нет имени пользователя"
+  },
+  "noPassword": {
+    "message": "Нет пароля"
+  },
+  "noVerificationCode": {
+    "message": "Нет кода подтверждения"
+  },
+  "noNumber": {
+    "message": "Нет номера"
+  },
+  "noSecurityCode": {
+    "message": "Нет кода безопасности"
+  },
+  "copyDetailsTitle": {
+    "message": "Скопировать информацию для $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Скопировать имя пользователя"
@@ -3448,6 +3549,30 @@
   "options": {
     "message": "Опции"
   },
+  "moreOptions": {
+    "message": "Больше опций"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Время вашей сессии истекло. Пожалуйста, вернитесь и попробуйте войти снова."
   },
@@ -4473,6 +4598,79 @@
   "noFileChosen": {
     "message": "Файл не выбран"
   },
+  "noFileSelected": {
+    "message": "Файл не выбран"
+  },
+  "fileChosen": {
+    "message": "Выбран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Файл добавлен: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Добавлено $COUNT$ файлов: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Файл удален: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл загружен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файлов загружено",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Загруженные файлы"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Нажмите для загрузки или перетащите сюда"
+  },
+  "chooseFiles": {
+    "message": "Выберите файлы"
+  },
+  "maxFileSizeParam": {
+    "message": "Макс. размер файла: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или скопируйте и вставьте содержимое импортируемого файла"
   },
@@ -5146,6 +5344,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Вы не можете удалить общие папки с правами только на просмотр: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Переместить"
   },
@@ -5244,8 +5451,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Добавьте 3 кнопки быстрого копирования рядом с элементами, чтобы скопировать в буфер обмена свой логин, пароль или код подтверждения."
+  },
   "assignToCollections": {
     "message": "Назначить коллекциям"
+  },
+  "addToSharedFolder": {
+    "message": "Добавить в общую папку"
+  },
+  "transferAndAdd": {
+    "message": "Трансфер и добавление"
+  },
+  "itemLower": {
+    "message": "элемент"
+  },
+  "itemsLower": {
+    "message": "элементы"
   },
   "assignToTheseCollections": {
     "message": "Назначить этим коллекциям"
@@ -5253,8 +5475,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Только пользователи хранилища, имеющие доступ к этим общим папкам, смогут видеть элемент."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Только пользователи хранилища, имеющие доступ к этим общим папкам, смогут видеть элементы."
   },
   "noCollectionsAssigned": {
     "message": "Коллекции не назначены"
@@ -5314,8 +5542,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 элемент будет навсегда передан выбранной организации. Вы больше не будете владельцем этих элементов."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 элемент будет навсегда передан выбранному хранилищу. Вы больше не будете владельцем этих элементов."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы выбранной организации. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы выбранному хранилищу. Вы больше не будете владельцем этих элементов.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5579,32 @@
   "successfullyAssignedCollections": {
     "message": "Коллекции успешно назначены"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Общие папки успешно добавлены"
+  },
   "itemMovedToCollection": {
     "message": "Элемент перемещен в коллекцию"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Элемент добавлен в общую папку"
   },
   "itemMovedToCollections": {
     "message": "Элемент перемещен в коллекции"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Элемент добавлен в общие папки"
+  },
   "itemsMovedToCollection": {
     "message": "Элементы перемещены в коллекцию"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Элементы добавлены в общую папку"
+  },
   "itemsMovedToCollections": {
     "message": "Элементы перемещены в коллекции"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Элементы добавлены в общие папки"
   },
   "itemAssignedToCollections": {
     "message": "Элемент присвоен коллекциям"
