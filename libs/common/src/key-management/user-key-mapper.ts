@@ -1,6 +1,7 @@
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UserKeyState } from "@bitwarden/sdk-internal";
 
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 import { SdkRecordMapper } from "../platform/services/sdk/client-managed-state";
 import { UserKeyDefinition } from "../platform/state";
 import { UserKey } from "../types/key";
