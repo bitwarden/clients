@@ -295,6 +295,9 @@ export class OrganizationVaultExportService
 
     encCiphers = allCiphers.filter(
       (f) =>
+        // Exclude PAM-gated ("partial") rows: their sensitive fields are server-suppressed, so
+        // exporting them would emit blank/corrupt entries.
+        f.partialData == null &&
         f.deletedDate == null &&
         f.organizationId == organizationId &&
         encCollections.some((eC) => f.collectionIds.some((cId) => eC.id === cId)) &&
