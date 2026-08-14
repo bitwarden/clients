@@ -73,7 +73,8 @@ export function isConfinedSnap() {
   }
   try {
     const cgroup = fs.readFileSync("/proc/self/cgroup", "utf8");
-    return /snap\.bitwarden(-beta)?\b/.test(cgroup);
+    const CONFINED_SNAP_CGROUP = new RegExp(`snap\\.(${SNAP_STORE_NAMES.join("|")})(?![\\w-])`);
+    return CONFINED_SNAP_CGROUP.test(cgroup);
   } catch {
     return false; // can't confirm -> treat as not-snap -> isolate
   }
