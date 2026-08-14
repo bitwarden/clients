@@ -320,4 +320,35 @@ describe("DefaultVaultHealthReportService", () => {
       expect(cipherIds(other!.categoryItems.weak)).toEqual(["b"]);
     });
   });
+
+  describe("deleteItemFromReport", () => {
+    it("removes the item from the report and decrements counts", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        { cipher: login("c"), risk: risk("c", { exposed: 2 }) },
+      ]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      service.deleteItemFromReport("a", "exposed", userId);
+      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+
+      expect(updated!.atRiskCount).toBe(2);
+      expect(updated!.totalCount).toBe(2);
+      expect(cipherIds(updated!.categoryItems.exposed)).toEqual(["c"]);
+      expect(cipherIds(updated!.categoryItems.weak)).toEqual(["b"]);
+    });
+
+    it("does nothing if the userId does not match the current report", async () => {
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      service.deleteItemFromReport("a", "exposed", "other-user-id" as UserId);
+      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+
+      expect(updated!.atRiskCount).toBe(1);
+      expect(updated!.totalCount).toBe(1);
+      expect(updated!.categoryItems.exposed).toHaveLength(1);
+    });
+  });
 });
