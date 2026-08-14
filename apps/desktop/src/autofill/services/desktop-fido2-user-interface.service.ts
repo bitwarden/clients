@@ -37,9 +37,19 @@ import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view"
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
+
+import {
+  DesktopFido2UserVerificationService,
+  Fido2UserVerificationOperation,
+  UserVerificationCanceled,
+} from "./desktop-fido2-user-verification.service.abstraction";
 
 /**
  * This type is used to pass the window position from the native UI
@@ -106,6 +116,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     private messagingService: MessagingService,
     private router: Router,
     private desktopSettingsService: DesktopSettingsService,
+    private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
   ) {}
   private currentSession: any;
@@ -136,6 +147,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       this.desktopSettingsService,
       abortController,
       nativeWindowObject,
+      this.userVerificationService,
       this.passwordRepromptService,
     );
 
@@ -154,6 +166,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private desktopSettingsService: DesktopSettingsService,
     private abortController: AbortController,
     private windowObject: NativeWindowObject,
+    private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
   ) {}
 
@@ -161,6 +174,11 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private updatedCipher: CipherView | undefined = undefined;
 
+  /**
+   * Whether the user unlocked their vault as part of this ceremony. Unlocking
+   * already verifies the user, so the OS is not asked to do it a second time.
+   */
+  private vaultUnlockedDuringCeremony: boolean = false;
   private rpId = new BehaviorSubject<string | null>(null);
   private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
@@ -223,9 +241,18 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         return { cipherId: undefined, userVerified: false };
       }
 
-      const userVerified = await this.verifyWithReprompt(chosenCipher);
+      const username = fido2UserNameFromCipher(chosenCipher);
+      const userVerified = await this.verifyUser(
+        "assertion",
+        username,
+        userVerification,
+        chosenCipher,
+        { signal: this.abortController.signal },
+      );
 
       return { cipherId: chosenCipher.id, userVerified };
+    } catch (error) {
+      throw this.mapUserVerificationCancellation(error);
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode
       await this.hideUi();
@@ -306,7 +333,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     credentialName,
     userName,
     userHandle,
-    userVerification,
+    userVerification: needsUserVerification,
     rpId,
   }: NewCredentialParams): Promise<{ cipherId: string | undefined; userVerified: boolean }> {
     this.logService.debug(
@@ -314,31 +341,51 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       credentialName,
       userName,
       userHandle,
-      userVerification,
+      needsUserVerification,
       rpId,
     );
     this.rpId.next(rpId);
 
+    const abortSignal = this.abortController.signal;
     try {
       await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
 
       // Wait for the UI to wrap up
       const confirmation = await this.waitForUiNewCredentialConfirmation({
-        signal: this.abortController.signal,
+        signal: abortSignal,
       });
       if (!confirmation) {
         return { cipherId: undefined, userVerified: false };
       }
 
-      // Abort before persisting anything so a dismissed reprompt never leaves a
+      // Confirming in our own UI establishes user presence, so we only verify
+      // when the relying party asked for it or the chosen cipher requires a
+      // master-password reprompt. `verifyUser` decides which prompt to show.
+      const operation = this.updatedCipher ? "overwrite" : "registration";
+      const userVerified = await this.verifyUser(
+        operation,
+        userName,
+        needsUserVerification,
+        this.updatedCipher,
+        { signal: abortSignal },
+      );
+
+      // Abort before persisting anything so a failed verification never leaves a
       // dangling cipher or an unwanted overwrite.
-      if (this.updatedCipher && !(await this.verifyWithReprompt(this.updatedCipher))) {
+      const repromptRequired =
+        this.updatedCipher && this.updatedCipher.reprompt !== CipherRepromptType.None;
+      const verificationExpected = needsUserVerification || repromptRequired;
+      if (verificationExpected && !userVerified) {
+        this.logService.warning(
+          "[DesktopFido2UserInterfaceSession]",
+          "Aborting credential creation because user verification was unsuccessful",
+        );
         return { cipherId: undefined, userVerified: false };
       }
 
       if (this.updatedCipher) {
         await this.updateCredential(this.updatedCipher);
-        return { cipherId: this.updatedCipher.id, userVerified: userVerification };
+        return { cipherId: this.updatedCipher.id, userVerified };
       } else {
         // Create the cipher
         const createdCipher = await this.createCipher({
@@ -346,10 +393,12 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
           userName,
           rpId,
           userHandle,
-          userVerification,
+          userVerification: needsUserVerification,
         });
-        return { cipherId: createdCipher.id, userVerified: userVerification };
+        return { cipherId: createdCipher.id, userVerified };
       }
+    } catch (error) {
+      throw this.mapUserVerificationCancellation(error);
     } finally {
       // Make sure to clean up so the app is never stuck in modal mode
       await this.hideUi();
@@ -488,14 +537,18 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         throw new Error("Could not retrieve vault unlock status");
       }
 
-      if (status2 === AuthenticationStatus.Unlocked) {
-        await this.router.navigate(["/"]);
-      }
-
       if (status2 !== AuthenticationStatus.Unlocked) {
         await this.hideUi();
         throw new Error("Vault is not unlocked");
       }
+
+      // The user authenticated to Bitwarden to get here, which satisfies user
+      // verification for the rest of this ceremony.
+      this.vaultUnlockedDuringCeremony = true;
+      // TODO: Navigate straight to the next modal screen instead of home. The
+      // caller shows its own route immediately afterwards, so routing through
+      // "/" flashes the main vault screen in between.
+      await this.router.navigate(["/"]);
     }
   }
 
@@ -522,45 +575,109 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   /**
-   * Reprompts for the master password when the chosen cipher requires it.
+   * Verifies the user for the chosen cipher, choosing the strongest form of
+   * verification already available before falling back to the OS prompt:
    *
-   * @returns whether the user may proceed with the cipher.
+   * 1. A master-password reprompt on the cipher is itself user verification, so
+   *    satisfy the requirement with it rather than prompting the OS.
+   * 2. Otherwise, unlocking the vault during this ceremony already verified the
+   *    user.
+   * 3. Otherwise verify through the OS when the relying party asked for it.
+   *
+   * The reprompt is checked before the vault-unlock shortcut because unlocking
+   * may have used a method other than the master password (PIN, biometrics),
+   * which does not satisfy a master-password reprompt.
+   *
+   * @throws {UserVerificationCanceled} if the user dismissed the prompt.
    */
-  private async verifyWithReprompt(cipher: CipherView): Promise<boolean> {
-    switch (cipher.reprompt) {
+  private async verifyUser(
+    operation: Fido2UserVerificationOperation,
+    username: string,
+    needsUserVerification: boolean,
+    cipher: CipherViewLike | undefined,
+    { signal }: { signal: AbortSignal },
+  ): Promise<boolean> {
+    const repromptType = cipher?.reprompt ?? CipherRepromptType.None;
+    switch (repromptType) {
       case CipherRepromptType.None:
-        return true;
+        break;
       case CipherRepromptType.Password:
-        return await this.repromptMasterPassword();
+        // TODO: Elide this prompt when the vault was unlocked with the master
+        // password during this ceremony, since that already satisfies the reprompt.
+        if (!(await this.passwordRepromptService.enabled())) {
+          // An account with no master password can't be reprompted for one, so
+          // the flag is inert — `PasswordRepromptService.showPasswordPrompt`
+          // reports success without prompting for exactly this reason. Treat the
+          // cipher as unprotected and verify by the usual means below, rather
+          // than reporting a verification that never happened.
+          break;
+        }
+        if (!(await this.passwordRepromptService.showPasswordPrompt())) {
+          throw new UserVerificationCanceled();
+        }
+        return true;
       default:
         // The user deliberately protected this cipher with a method this build
         // doesn't recognize. Refuse the ceremony rather than substituting a
         // different check or letting it through unverified.
         this.logService.error(
           "[DesktopFido2UserInterfaceSession]",
-          `Refusing to use a cipher protected by unrecognized reprompt type ${cipher.reprompt}`,
+          `Refusing to use a cipher protected by unrecognized reprompt type ${repromptType}`,
         );
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
     }
-  }
 
-  /**
-   * Prompts the user for their master password.
-   *
-   * @returns whether the user entered it. Accounts without a master password
-   * report unverified: `showPasswordPrompt` reports success without prompting
-   * when there is no master password to ask for, and no user verification
-   * actually took place.
-   */
-  private async repromptMasterPassword(): Promise<boolean> {
-    if (!(await this.passwordRepromptService.enabled())) {
+    if (this.vaultUnlockedDuringCeremony) {
       this.logService.info(
         "[DesktopFido2UserInterfaceSession]",
-        "Cannot reprompt for the master password because the account does not have one",
+        "Skipping user verification because the user unlocked their vault during this ceremony",
       );
+      return true;
+    }
+
+    if (!needsUserVerification) {
       return false;
     }
 
-    return await this.passwordRepromptService.showPasswordPrompt();
+    const modalMode = await firstValueFrom(this.desktopSettingsService.modalMode$);
+    const isShowing = modalMode?.isModalModeActive ?? false;
+    const windowHandle = isShowing
+      ? this.windowObject.appWindowHandle
+      : this.windowObject.clientWindowHandle;
+
+    return await this.userVerificationService.verify(
+      {
+        operation,
+        username,
+        rpId: this.windowObject.rpId,
+        requestContext: this.windowObject.requestContext,
+        // Attach the prompt to whichever window the user is looking at.
+        windowHandle,
+      },
+      { signal },
+    );
   }
+
+  /**
+   * Translates a dismissed verification prompt into the error the authenticator
+   * reports to the relying party, and passes anything else through untouched.
+   */
+  private mapUserVerificationCancellation(error: unknown): unknown {
+    if (!(error instanceof UserVerificationCanceled)) {
+      return error;
+    }
+
+    this.logService.info(
+      "[DesktopFido2UserInterfaceSession]",
+      "User cancelled during user verification. Aborting the request.",
+    );
+    return new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
+  }
+}
+
+function fido2UserNameFromCipher(cipherView: CipherViewLike): string {
+  const login = CipherViewLikeUtils.getLogin(cipherView);
+  const username =
+    (login?.fido2Credentials ?? []).at(0)?.userName ?? login?.username ?? cipherView.name;
+  return username;
 }
