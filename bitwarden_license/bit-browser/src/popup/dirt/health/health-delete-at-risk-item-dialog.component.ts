@@ -55,7 +55,7 @@ export class HealthDeleteAtRiskItemDialogComponent {
     const item = this.item();
     const category = this.currentCategory();
 
-    // only show additional risk categories when the item currently being viewed also falls into lower risk categories. respects the at-risk hierarchy: exposed > weak > reused.
+    // only show additional risk categories when the item currently being viewed also falls into lower risk categories. respects the at-risk hierarchy: exposed > weak > reused (implemented in DefaultVaultHealthReportService.highestRiskCategory)
     switch (category) {
       case RiskCategory.Exposed:
         return { showWeak: item.hasWeakPassword, showReused: item.hasReusedPassword };
