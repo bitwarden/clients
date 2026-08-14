@@ -9,7 +9,11 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import {
+  FakeAccountService,
+  mockAccountInfoWith,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -37,7 +41,17 @@ describe("ProfileComponent", () => {
   beforeEach(async () => {
     apiService = mock<ApiService>();
     toastService = mock<ToastService>();
-    accountService = mockAccountServiceWith(userId);
+    accountService = mockAccountServiceWith(userId, { emailVerified: false });
+    // The fake doesn't wire setAccountEmailVerified back into activeAccount$ like its other
+    // setters do; patch it here so these tests can observe the component's reactive updates.
+    jest
+      .spyOn(accountService, "setAccountEmailVerified")
+      .mockImplementation(async (id, emailVerified) => {
+        accountService.activeAccountSubject.next({
+          id,
+          ...mockAccountInfoWith({ emailVerified }),
+        });
+      });
 
     apiService.getProfile.mockResolvedValue(buildProfile(false));
 
@@ -64,7 +78,7 @@ describe("ProfileComponent", () => {
   });
 
   describe("email verification indicator", () => {
-    it("shows the verified badge when the email is verified", async () => {
+    it("shows the verified badge when the profile fetch reports the email is verified", async () => {
       apiService.getProfile.mockResolvedValue(buildProfile(true));
 
       await component.ngOnInit();
@@ -79,9 +93,7 @@ describe("ProfileComponent", () => {
       expect(verifyButton).toBeNull();
     });
 
-    it("shows the verify email button when the email is not verified", async () => {
-      apiService.getProfile.mockResolvedValue(buildProfile(false));
-
+    it("shows the verify email button when the profile fetch indicates the email is not verified", async () => {
       await component.ngOnInit();
       fixture.detectChanges();
 
@@ -92,6 +104,23 @@ describe("ProfileComponent", () => {
 
       expect(badge).toBeNull();
       expect(verifyButton).not.toBeNull();
+    });
+
+    it("refreshes AccountService from the profile fetch on init, even if the cached account state is stale", async () => {
+      // Simulate a sync-gated AccountService cache that never picked up the verification
+      // (the server doesn't bump the account revision date on email confirmation).
+      accountService.activeAccountSubject.next({
+        id: userId,
+        ...mockAccountInfoWith({ emailVerified: false }),
+      });
+      apiService.getProfile.mockResolvedValue(buildProfile(true));
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      expect(accountService.setAccountEmailVerified).toHaveBeenCalledWith(userId, true);
+      const badge = fixture.debugElement.nativeElement.querySelector("[bitbadge]");
+      expect(badge).not.toBeNull();
     });
   });
 

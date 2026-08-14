@@ -8,6 +8,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UpdateProfileRequest } from "@bitwarden/common/auth/models/request/update-profile.request";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ProfileResponse } from "@bitwarden/common/models/response/profile.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -39,6 +40,10 @@ export class ProfileComponent implements OnInit {
 
   protected readonly email = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.email ?? "")),
+  );
+
+  protected readonly emailVerified = toSignal(
+    this.accountService.activeAccount$.pipe(map((account) => account?.emailVerified ?? false)),
   );
 
   // Live value of the name field so the avatar initials update as the user types.
@@ -76,6 +81,12 @@ export class ProfileComponent implements OnInit {
 
     const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     this.fingerprintMaterial.set(userId);
+
+    // The server doesn't bump the account revision date on email confirmation, so
+    // syncs that filter on an updated revision date won't update or emit here for email
+    // verification performed on the same tab. Refresh it from the profile fetch above
+    // (loaded with the component) instead of relying on AccountService's last-synced value.
+    await this.accountService.setAccountEmailVerified(userId, profile.emailVerified);
 
     const publicKey = (await firstValueFrom(
       this.keyService.userPublicKey$(userId),
@@ -116,10 +127,25 @@ export class ProfileComponent implements OnInit {
   };
 
   protected readonly verifyEmail = async () => {
-    await this.apiService.postAccountVerifyEmail();
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("checkInboxForVerification"),
-    });
+    try {
+      await this.apiService.postAccountVerifyEmail();
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("checkInboxForVerification"),
+      });
+    } catch (error: unknown) {
+      if (error instanceof ErrorResponse && error.message.includes("Email already verified.")) {
+        // The server rejects re-verification once the email is confirmed; this can happen if the
+        // badge hasn't refreshed yet on the initiating tab after verifying in another tab/session.
+        const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+        await this.accountService.setAccountEmailVerified(userId, true);
+        this.toastService.showToast({
+          variant: "info",
+          message: this.i18nService.t("emailAlreadyVerified"),
+        });
+        return;
+      }
+      throw error;
+    }
   };
 }

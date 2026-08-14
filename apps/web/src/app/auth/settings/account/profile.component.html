@@ -19,7 +19,7 @@
           <bit-form-field>
             <bit-label>{{ "email" | i18n }}</bit-label>
             <input bitInput [value]="email()" readonly />
-            @if (profile.emailVerified) {
+            @if (emailVerified()) {
               <span
                 bitBadge
                 variant="success"

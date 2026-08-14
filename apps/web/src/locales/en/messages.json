@@ -6417,6 +6417,9 @@
   "emailVerifiedV2": {
     "message": "Email verified"
   },
+  "emailAlreadyVerified": {
+    "message": "Email already verified"
+  },
   "emailVerifiedFailed": {
     "message": "Unable to verify your email. Try sending a new verification email."
   },
