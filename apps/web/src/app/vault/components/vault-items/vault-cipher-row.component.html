@@ -4,7 +4,7 @@
       type="checkbox"
       bitCheckbox
       appStopProp
-      [disabled]="disabled || decryptionFailure"
+      [disabled]="disabled || decryptionFailure || isPartial"
       [checked]="checked"
       (change)="$event ? this.checkedToggled.next() : null"
       [attr.aria-label]="'vaultItemSelect' | i18n"
@@ -95,6 +95,13 @@
     >
       {{ permissionText }}
     </p>
+  </td>
+}
+@if (showControlledAccess) {
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+    @if (leaseBadge) {
+      <ng-container *ngComponentOutlet="leaseBadge; inputs: { cipher: cipher }" />
+    }
   </td>
 }
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
@@ -293,31 +300,31 @@
             <bit-menu-divider></bit-menu-divider>
           }
         }
-        @if (showFavorite) {
+        @if (showFavorite && !isPartial) {
           <button bitMenuItem type="button" (click)="toggleFavorite()">
             <i class="bwi bwi-fw bwi-star" aria-hidden="true"></i>
             {{ (cipher.favorite ? "unfavorite" : "favorite") | i18n }}
           </button>
         }
-        @if (!isDeleted && canEditCipher) {
+        @if (!isDeleted && canEditCipher && !isPartial) {
           <button bitMenuItem type="button" (click)="editCipher()">
             <i class="bwi bwi-fw bwi-pencil-square" aria-hidden="true"></i>
             {{ "edit" | i18n }}
           </button>
         }
-        @if (showAttachments) {
+        @if (showAttachments && !isPartial) {
           <button bitMenuItem type="button" (click)="attachments()">
             <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
             {{ "attachments" | i18n }}
           </button>
         }
-        @if (showClone) {
+        @if (showClone && !isPartial) {
           <button bitMenuItem type="button" (click)="clone()">
             <i class="bwi bwi-fw bwi-files" aria-hidden="true"></i>
             {{ "clone" | i18n }}
           </button>
         }
-        @if (showAssignToCollections) {
+        @if (showAssignToCollections && !isPartial) {
           <button bitMenuItem type="button" (click)="assignToCollections()">
             <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
             {{ "assignToCollections" | vfo1I18n: "addToSharedFolder" }}
@@ -329,7 +336,7 @@
             {{ "eventLogs" | i18n }}
           </button>
         }
-        @if (showArchiveButton) {
+        @if (showArchiveButton && !isPartial) {
           @if (userCanArchive) {
             <button bitMenuItem (click)="archive()" type="button">
               <i class="bwi bwi-fw bwi-archive" aria-hidden="true"></i>
@@ -348,20 +355,20 @@
           }
         }
 
-        @if (showUnArchiveButton) {
+        @if (showUnArchiveButton && !isPartial) {
           <button bitMenuItem (click)="unarchive()" type="button">
             <i class="bwi bwi-fw bwi-unarchive" aria-hidden="true"></i>
             {{ "unArchive" | i18n }}
           </button>
         }
 
-        @if (isDeleted && canRestoreCipher) {
+        @if (isDeleted && canRestoreCipher && !isPartial) {
           <button bitMenuItem (click)="restore()" type="button">
             <i class="bwi bwi-fw bwi-undo" aria-hidden="true"></i>
             {{ "restore" | i18n }}
           </button>
         }
-        @if (canDeleteCipher) {
+        @if (canDeleteCipher && !isPartial) {
           <button bitMenuItem variant="danger" (click)="deleteCipher()" type="button">
             <bit-icon fixedWidth name="bwi-trash" slot="start" />
             {{ (isDeleted ? "permanentlyDelete" : "delete") | i18n }}

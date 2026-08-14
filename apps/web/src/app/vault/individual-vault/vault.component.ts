@@ -436,8 +436,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         }),
       );
 
+    // The vault list is the one surface that renders PAM-gated ("partial") rows — it shows the
+    // "Controlled access" badge on them — so it opts into the partials-inclusive stream. Every
+    // other consumer uses `cipherListViews$`, which excludes partials.
     const _ciphers = this.cipherService
-      .cipherListViews$(activeUserId)
+      .cipherListViewsWithPartials$(activeUserId)
       .pipe(filter((c) => c !== null));
 
     /**
