@@ -16,6 +16,7 @@ import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
+  AutoConfirmPolicy,
   MultiStepPolicyEditModalComponent,
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
@@ -164,7 +165,7 @@ describe("WebVaultPromptService", () => {
       });
 
       const passedPolicy = openSpy.mock.calls[0][1].data.policy;
-      expect(passedPolicy.firstTimeDialog).toBe(true);
+      expect(passedPolicy).toBeInstanceOf(AutoConfirmPolicy);
 
       dialogClosedSubject.next(null);
     }));

@@ -39,10 +39,6 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
 
-  constructor(readonly firstTimeDialog: boolean = false) {
-    super();
-  }
-
   override display$(organization: Organization): Observable<boolean> {
     return of(organization.useAutomaticUserConfirmation);
   }
