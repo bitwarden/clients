@@ -46,7 +46,9 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
   }
 
   /**
-   * Delete an item from an existing vault health report, without rebuilding the report.
+   * Delete an item from an existing vault health report, without rebuilding the
+   * report. Publishes a new report to `getVaultHealthReport$` with the item
+   * removed and the counts and score adjusted.
    *
    * @param cipherId the id of the cipher/item to be deleted from the report
    * @param category the risk category the cipher/item belongs to
@@ -59,18 +61,25 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       return;
     }
 
-    const report = current.report;
-    const itemIndex = report.categoryItems[category].findIndex(
-      (item) => item.cipherId === cipherId,
-    );
+    const { report } = current;
+    const items = report.categoryItems[category].filter((item) => item.cipherId !== cipherId);
+    if (items.length === report.categoryItems[category].length) {
+      return;
+    }
 
-    // remove the deleted item from report
-    report.categoryItems[category].splice(itemIndex, 1);
-    report.atRiskCount--;
-    report.totalCount--;
+    const atRiskCount = report.atRiskCount - 1;
+    const totalCount = report.totalCount - 1;
 
-    // update subject
-    this.report.next({ userId, report });
+    this.report.next({
+      userId,
+      report: new VaultHealthReportView({
+        ...report,
+        atRiskCount,
+        totalCount,
+        score: totalCount === 0 ? 0 : atRiskCount / totalCount,
+        categoryItems: { ...report.categoryItems, [category]: items },
+      }),
+    });
   }
 
   /**
