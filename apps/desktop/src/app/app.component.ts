@@ -98,7 +98,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   template: `
     <ng-template #settings></ng-template>
     <ng-template #premium></ng-template>
-    <ng-template #loginApproval></ng-template>
     @if (showHeader$ | async) {
       <div class="header"></div>
     }
@@ -124,10 +123,6 @@ export class AppComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
-  loginApprovalModalRef: ViewContainerRef;
 
   showHeader$ = this.accountService.showHeader$;
   loading = false;
