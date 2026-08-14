@@ -142,10 +142,19 @@ export class ShadowHostHydrationTracker {
     const now = this.now();
     this.enrollUpgradedParkedHosts(now);
 
-    // Hosts added by mutation may have been removed during the scan debounce.
-    const batch = [
-      ...new Set([...this.pendingMutationAddedElements, ...this.hostsAwaitingShadowRoot.keys()]),
-    ].filter((element) => element.isConnected);
+    // Hosts added by mutation may have been removed during the scan debounce. Neither source can
+    // hold internal duplicates, so the pending set doubles as the cross-source dedup.
+    const batch: Element[] = [];
+    for (const element of this.pendingMutationAddedElements) {
+      if (element.isConnected) {
+        batch.push(element);
+      }
+    }
+    for (const host of this.hostsAwaitingShadowRoot.keys()) {
+      if (!this.pendingMutationAddedElements.has(host) && host.isConnected) {
+        batch.push(host);
+      }
+    }
 
     const { foundNewRoot, unresolvedHosts } = this.domQueryService.checkForNewShadowRoots(
       batch,

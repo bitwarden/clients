@@ -332,6 +332,26 @@ describe("ShadowHostHydrationTracker", () => {
       expect(tracker["hostsAwaitingShadowRoot"].has(hosts[cap + 5])).toBe(true);
       expect(tracker["overflowQueue"].length).toBe(0);
     });
+
+    it("scans a re-reported host once, though it sits in both the pending and tracked pools", () => {
+      customElements.define("rerendered-login", class extends HTMLElement {});
+      const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
+      const host = document.createElement("rerendered-login");
+      document.body.appendChild(host);
+
+      // First scan tracks it: `:defined`, but no shadow root yet.
+      tracker.noteAddedNodes([buildMutation([host])]);
+      jest.advanceTimersByTime(500);
+      expect(tracker["hostsAwaitingShadowRoot"].has(host)).toBe(true);
+
+      // Re-parenting re-reports a host that tracking already holds, so both pools name it.
+      tracker.noteAddedNodes([buildMutation([host])]);
+      expect(tracker["pendingMutationAddedElements"].has(host)).toBe(true);
+      jest.advanceTimersByTime(500);
+
+      // A duplicate would re-walk the same subtree in `scanForNewShadowRootInSubtree`.
+      expect(checkSpy.mock.lastCall?.[0]).toEqual([host]);
+    });
   });
 
   describe("hosts awaiting definition", () => {
