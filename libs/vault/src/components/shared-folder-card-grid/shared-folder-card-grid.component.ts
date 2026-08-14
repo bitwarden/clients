@@ -189,28 +189,24 @@ export class SharedFolderCardGridComponent {
         return;
       }
 
-      const overflowCardsCount = this.overflowCards().length;
       // The disclosure renders above its own trigger, so the rows that just appeared are behind the
       // user's focus and would otherwise go unnoticed by a screen reader.
-      let message: string;
-      if (overflowCardsCount === 1) {
-        message = untracked(() =>
-          this.i18nService.t(
+      const message = untracked(() => {
+        const overflowCardsCount = this.overflowCards().length;
+        if (overflowCardsCount === 1) {
+          return this.i18nService.t(
             this.vfo1TerminologyService.enabled()
               ? "moreSharedFoldersShownAboveSingular"
               : "moreCollectionsShownAboveSingular",
-          ),
+          );
+        }
+        return this.i18nService.t(
+          this.vfo1TerminologyService.enabled()
+            ? "moreSharedFoldersShownAbove"
+            : "moreCollectionsShownAbove",
+          overflowCardsCount,
         );
-      } else {
-        message = untracked(() =>
-          this.i18nService.t(
-            this.vfo1TerminologyService.enabled()
-              ? "moreSharedFoldersShownAbove"
-              : "moreCollectionsShownAbove",
-            overflowCardsCount,
-          ),
-        );
-      }
+      });
 
       void this.liveAnnouncer.announce(message, "polite");
     });
