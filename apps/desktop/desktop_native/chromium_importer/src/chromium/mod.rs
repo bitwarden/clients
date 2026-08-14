@@ -151,6 +151,8 @@ pub async fn import_logins(
     #[cfg(not(target_os = "macos"))]
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
 
+    validate_profile_id(&local_state, profile_id)?;
+
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
         .map_err(|e| anyhow!("Failed to get crypto service: {}", e))?;
 
@@ -291,6 +293,14 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
             account_email: info.user_name.clone(),
         })
         .collect()
+}
+
+fn validate_profile_id(local_state: &LocalState, profile_id: &str) -> Result<()> {
+    if local_state.profile.info_cache.contains_key(profile_id) {
+        Ok(())
+    } else {
+        Err(anyhow!("Unknown browser profile: {}", profile_id))
+    }
 }
 
 struct EncryptedLogin {
@@ -537,5 +547,26 @@ mod tests {
         assert_eq!(p3.name, "N3");
         assert_eq!(p3.account_name.as_deref(), Some("A3"));
         assert_eq!(p3.account_email, None);
+    }
+
+    #[test]
+    fn test_validate_profile_id_accepts_known_profile() {
+        let local_state = make_local_state(vec![
+            ("Default", "User 1", None, None),
+            ("Profile 1", "User 2", None, None),
+        ]);
+        assert!(validate_profile_id(&local_state, "Default").is_ok());
+        assert!(validate_profile_id(&local_state, "Profile 1").is_ok());
+    }
+
+    #[test]
+    fn test_validate_profile_id_rejects_unknown_and_traversal() {
+        let local_state = make_local_state(vec![("Default", "User 1", None, None)]);
+        for profile_id in ["Profile 99", "..", "../../x", "/abs", "", "default"] {
+            assert!(
+                validate_profile_id(&local_state, profile_id).is_err(),
+                "expected rejection for {profile_id:?}"
+            );
+        }
     }
 }
