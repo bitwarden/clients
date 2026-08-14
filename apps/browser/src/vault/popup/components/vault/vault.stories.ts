@@ -30,7 +30,14 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CollectionId, OrganizationId, PolicyId, UserId } from "@bitwarden/common/types/guid";
+import {
+  CipherId,
+  CollectionId,
+  OrganizationId,
+  PolicyId,
+  SecurityTaskId,
+  UserId,
+} from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
@@ -43,7 +50,12 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { TaskService } from "@bitwarden/common/vault/tasks";
+import {
+  SecurityTask,
+  SecurityTaskStatus,
+  SecurityTaskType,
+  TaskService,
+} from "@bitwarden/common/vault/tasks";
 import {
   CompactModeService,
   DialogService,
@@ -243,6 +255,16 @@ type StoryArgs = {
   showPremiumUpsell?: boolean;
   /** When true, an enabled OrganizationUserNotification policy is present so the banner renders. */
   showOrgNotification?: boolean;
+  /**
+   * Number of pending at-risk-password tasks. Each is bound to one of the story's real ciphers, so
+   * anything above `ALL_ITEM_CIPHERS.length` is capped.
+   */
+  atRiskPasswordCount?: number;
+  /**
+   * Shows the at-risk callout's success variant instead: a completed task, no pending ones, and
+   * prior interaction recorded in state.
+   */
+  showAtRiskSecuredBanner?: boolean;
 };
 
 /**
@@ -275,6 +297,46 @@ const buildNotificationPolicies = (args: StoryArgs) => {
   return [policy];
 };
 
+/**
+ * Tasks backing `vault-at-risk-password-callout`.
+ *
+ * `AtRiskPasswordCalloutService.pendingTasks$` joins each task to a cipher by `cipherId` and keeps
+ * only those the user can edit and whose password they can view — so tasks have to point at ciphers
+ * the story actually provides, and `CipherService.cipherViews$` has to return them (it reports `[]`
+ * for the other stories). `baseCipher` already sets `edit` and `viewPassword`.
+ */
+const buildAtRiskTask = (
+  cipherId: PopupCipherViewLike["id"],
+  status: SecurityTaskStatus,
+): SecurityTask =>
+  new SecurityTask({
+    id: nextId() as SecurityTaskId,
+    organizationId: STORY_ORG_ID,
+    cipherId: cipherId as CipherId,
+    type: SecurityTaskType.UpdateAtRiskCredential,
+    status,
+    creationDate: FIXED_REVISION_DATE,
+    revisionDate: FIXED_REVISION_DATE,
+  });
+
+const buildAtRiskTasks = (args: StoryArgs) => {
+  if (args.showAtRiskSecuredBanner) {
+    // The success banner requires a completed task AND zero pending ones.
+    return {
+      pending: [] as SecurityTask[],
+      completed: [buildAtRiskTask(ALL_ITEM_CIPHERS[0].id, SecurityTaskStatus.Completed)],
+    };
+  }
+
+  const count = Math.min(args.atRiskPasswordCount ?? 0, ALL_ITEM_CIPHERS.length);
+  return {
+    pending: ALL_ITEM_CIPHERS.slice(0, count).map((cipher) =>
+      buildAtRiskTask(cipher.id, SecurityTaskStatus.Pending),
+    ),
+    completed: [] as SecurityTask[],
+  };
+};
+
 const buildProviders = (args: StoryArgs) => {
   const emptyVault$ = new BehaviorSubject(args.emptyVault ?? false);
   const noFilteredResults$ = new BehaviorSubject(args.noFilteredResults ?? false);
@@ -286,6 +348,10 @@ const buildProviders = (args: StoryArgs) => {
   const allItems = populated ? [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS] : [];
 
   const activeNudges = new Set(args.activeNudges ?? []);
+  const atRiskTasks = buildAtRiskTasks(args);
+  // The at-risk callout's service joins tasks to ciphers, so these have to be visible to it. Only
+  // the at-risk stories populate this — elsewhere it stays `[]` so no callout renders.
+  const atRiskCiphers = atRiskTasks.pending.length > 0 ? ALL_ITEM_CIPHERS : [];
 
   return [
     // `vault-fade-in-out` uses Angular animations (`@fadeInOut`); without an animations provider
@@ -365,7 +431,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         // No decryption failures, so the failure dialog never opens during a snapshot.
         failedToDecryptCiphers$: () => of([]),
-        cipherViews$: () => of([]),
+        cipherViews$: () => of(atRiskCiphers),
         ciphers$: () => of({}),
       },
     },
@@ -421,10 +487,21 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { policiesByType$: () => of(buildNotificationPolicies(args)) },
     },
     {
+      // Both the org-notifications and at-risk services read state through `getUser`, keyed by
+      // their own `UserKeyDefinition`. Everything defaults to `null` (nothing dismissed); only the
+      // at-risk key carries a value, because its success banner is gated on prior interaction.
       provide: StateProvider,
       useValue: {
         getUserState$: () => of(null),
-        getUser: () => ({ state$: of(null), update: () => Promise.resolve() }),
+        // Matched on the literal key rather than importing `AT_RISK_PASSWORD_CALLOUT_KEY`, which
+        // `@bitwarden/vault` doesn't re-export — not worth widening its public API for a story.
+        getUser: (_userId: UserId, key: { key: string }) => ({
+          state$:
+            key?.key === "atRiskPasswords" && args.showAtRiskSecuredBanner
+              ? of({ hasInteractedWithTasks: true, tasksBannerDismissed: false })
+              : of(null),
+          update: () => Promise.resolve(),
+        }),
       },
     },
     { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
@@ -455,7 +532,10 @@ const buildProviders = (args: StoryArgs) => {
     { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(false) } },
     {
       provide: TaskService,
-      useValue: { pendingTasks$: () => of([]), completedTasks$: () => of([]) },
+      useValue: {
+        pendingTasks$: () => of(atRiskTasks.pending),
+        completedTasks$: () => of(atRiskTasks.completed),
+      },
     },
     {
       provide: PlatformUtilsService,
@@ -709,6 +789,30 @@ export const WithPremiumSpotlight: Story = buildStory({
 
 export const WithHasItemsNudge: Story = buildStory({
   activeNudges: [NudgeType.HasVaultItems],
+});
+
+/**
+ * The at-risk-password callout's warning banner. Rendered only in the non-Empty branch, above every
+ * other above-scroll-area child, and bleeds past the container's horizontal padding via its own
+ * `-tw-m-5 tw-px-2` — so this is the story to check that bleed against the container edges.
+ */
+export const WithAtRiskPasswords: Story = buildStory({ atRiskPasswordCount: 3 });
+
+/** Singular copy: `reviewXAtRiskPassword` rather than its plural key. */
+export const WithSingleAtRiskPassword: Story = buildStory({ atRiskPasswordCount: 1 });
+
+/** The success variant — a completed task, nothing pending, and prior interaction in state. */
+export const WithAtRiskPasswordsSecured: Story = buildStory({ showAtRiskSecuredBanner: true });
+
+/**
+ * The at-risk callout and the org-notification banner stacked, which is where their bleed has to
+ * agree: both sit in `above-scroll-area`, and any horizontal mismatch shows as one banner stopping
+ * short of the other. Needs `pm-31948-org-user-notification-banner` ticked in the Feature Flags
+ * panel for the lower banner to appear — see `WithNotifications`.
+ */
+export const WithAtRiskPasswordsAndNotifications: Story = buildStory({
+  atRiskPasswordCount: 2,
+  showOrgNotification: true,
 });
 
 /**
