@@ -22,7 +22,7 @@ export const PolicyOn: Story = {
 
 /**
  * The drawer with the VFO1 terminology flag on — the prerequisite callout renders "single
- * organization vault policy" terminology per Figma.
+ * organization membership policy" terminology per Figma.
  */
 export const PolicyOnVfo1Enabled: Story = {
   args: { enabled: true },
