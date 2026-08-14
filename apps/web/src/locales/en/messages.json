@@ -1183,6 +1183,9 @@
   "collections": {
     "message": "Collections"
   },
+  "controlledAccess": {
+    "message": "Controlled access"
+  },
   "firstName": {
     "message": "First name"
   },
