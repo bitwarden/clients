@@ -250,4 +250,26 @@ describe("EnterBillingAddressComponent", () => {
 
     expect(hint()).toBeNull();
   });
+
+  it("does not clear an existing tax ID on open when the country can't enter one", () => {
+    setup({
+      type: "update",
+      supportsTaxId: true,
+      existing: {
+        country: "US",
+        postalCode: "12345",
+        line1: null,
+        line2: null,
+        city: null,
+        state: null,
+        taxId: { code: "us_ein", value: "12-3456789" },
+      },
+    });
+
+    expect(component.group.controls.taxId.value).toBe("12-3456789");
+    expect(getBillingAddressFromControls(component.group.getRawValue()).taxId).toEqual({
+      code: "us_ein",
+      value: "12-3456789",
+    });
+  });
 });

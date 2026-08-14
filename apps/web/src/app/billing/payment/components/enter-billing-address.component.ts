@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
+import { map, Observable, pairwise, startWith, Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -210,15 +210,18 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
       }),
     );
 
-    this.supportsTaxId$.pipe(takeUntil(this.destroy$)).subscribe((supportsTaxId) => {
-      if (supportsTaxId) {
-        this.group.controls.taxId.enable();
-      } else {
-        this.group.controls.taxId.disable();
-        // getRawValue() includes disabled controls, so clear the value rather than just disabling.
-        this.group.controls.taxId.reset();
-      }
-    });
+    this.supportsTaxId$
+      .pipe(startWith(undefined), pairwise(), takeUntil(this.destroy$))
+      .subscribe(([previouslySupported, supportsTaxId]) => {
+        if (supportsTaxId) {
+          this.group.controls.taxId.enable();
+        } else {
+          this.group.controls.taxId.disable();
+          if (previouslySupported) {
+            this.group.controls.taxId.reset();
+          }
+        }
+      });
   }
 
   ngOnDestroy() {
