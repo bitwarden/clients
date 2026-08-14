@@ -104,6 +104,8 @@ export class BitHeaderCellComponent {
   protected readonly sortButtonClasses = [
     "tw-min-w-max",
     "tw-p-1",
+    // Pulled back out of the cell's padding so the label lines up with the body cells.
+    "-tw-mx-1",
     "tw-border-0",
     "tw-rounded",
     "tw-font-medium",
