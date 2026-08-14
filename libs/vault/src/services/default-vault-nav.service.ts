@@ -7,10 +7,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { getAvatarDefaultColor } from "@bitwarden/components";
 
 import {
@@ -23,12 +21,8 @@ import {
 import { VaultNavService } from "./vault-nav.service";
 
 const EMPTY_VIEW_MODEL: VaultsNavViewModel = {
-  showVaultsHeader: false,
   vaults: [],
-  myVaultItem: null,
-  allItemsItem: null,
-  orgDefaultExpanded: false,
-  showMyItemsGroup: false,
+  organizationDataOwnership: false,
 };
 
 @Injectable()
@@ -36,7 +30,6 @@ export class DefaultVaultNavService extends VaultNavService {
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
   private readonly policyService = inject(PolicyService);
-  private readonly billingService = inject(BillingAccountProfileStateService);
   private readonly avatarService = inject(AvatarService);
   private readonly i18nService = inject(I18nService);
 
@@ -45,15 +38,14 @@ export class DefaultVaultNavService extends VaultNavService {
       if (!account) {
         return of(EMPTY_VIEW_MODEL);
       }
-      const userId = account.id as UserId;
+      const userId = account.id;
       return combineLatest([
         this.organizationService.memberOrganizations$(userId),
-        this.billingService.hasPremiumFromAnySource$(userId),
         this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
         this.avatarService.getUserAvatarColor$(userId),
       ]).pipe(
-        map(([orgs, hasPremium, dataOwnership, avatarColor]) =>
-          this.buildViewModel(account, orgs, hasPremium, dataOwnership, avatarColor),
+        map(([orgs, dataOwnership, avatarColor]) =>
+          this.buildViewModel(account, orgs, dataOwnership, avatarColor),
         ),
       );
     }),
@@ -62,35 +54,11 @@ export class DefaultVaultNavService extends VaultNavService {
   private buildViewModel(
     account: Account,
     orgs: Organization[],
-    hasPremium: boolean,
     dataOwnership: boolean,
     avatarColor: string | null,
   ): VaultsNavViewModel {
     const personalColor: VaultNavColor =
       avatarColor ?? getAvatarDefaultColor(account.id, account.name);
-
-    if (orgs.length === 0) {
-      if (hasPremium) {
-        return {
-          ...EMPTY_VIEW_MODEL,
-          allItemsItem: {
-            id: "all-items",
-            label: this.i18nService.t("allItems"),
-            color: "brand",
-            type: VaultNavItemType.AllItems,
-          },
-        };
-      }
-      return {
-        ...EMPTY_VIEW_MODEL,
-        myVaultItem: {
-          id: account.id,
-          label: this.i18nService.t("myVault"),
-          color: personalColor,
-          type: VaultNavItemType.Personal,
-        },
-      };
-    }
 
     const personalItem: VaultNavItemViewModel = {
       id: account.id,
@@ -111,13 +79,12 @@ export class DefaultVaultNavService extends VaultNavService {
             : VaultNavItemType.Organization,
       }));
 
+    // Under OrganizationDataOwnership the personal vault is not a peer; it surfaces as "My items" in the org section.
+    const vaults = dataOwnership ? sortedOrgItems : [personalItem, ...sortedOrgItems];
+
     return {
-      showVaultsHeader: !dataOwnership,
-      vaults: [personalItem, ...sortedOrgItems],
-      myVaultItem: null,
-      allItemsItem: null,
-      orgDefaultExpanded: dataOwnership,
-      showMyItemsGroup: dataOwnership,
+      vaults,
+      organizationDataOwnership: dataOwnership,
     };
   }
 
