@@ -46,6 +46,7 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import {
   MY_VAULT_ID,
+  FilterOptionCounts,
   VaultPopupListFiltersService,
 } from "../../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
@@ -141,12 +142,20 @@ describe("VaultPopupListTableComponent", () => {
   const collections$ = new BehaviorSubject<ChipFilterOption<CollectionView>[]>([]);
   const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
 
+  const filterOptionCounts$ = new BehaviorSubject<FilterOptionCounts>({
+    cipherType: new Map(),
+    organization: new Map(),
+    collection: new Map(),
+    folder: new Map(),
+  });
+
   const vaultPopupListFiltersService = {
     filterForm,
     cipherTypes$: cipherTypes$.asObservable(),
     organizations$: organizations$.asObservable(),
     collections$: collections$.asObservable(),
     folders$: folders$.asObservable(),
+    filterOptionCounts$: filterOptionCounts$.asObservable(),
   };
 
   const compactModeEnabled$ = new BehaviorSubject<boolean>(false);
@@ -156,6 +165,9 @@ describe("VaultPopupListTableComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    // `clearAllMocks` resets calls but not implementations, so restore the default open state —
+    // otherwise a test that seeds a section collapsed leaks that into the ones after it.
+    vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     featureFlag$.next(false);
     currentTabIsOnBlocklist$.next(false);
     autoFillCiphers$.next([]);
@@ -244,6 +256,64 @@ describe("VaultPopupListTableComponent", () => {
    * from an empty vault — both leave it with zero rows. The empty state is projected for that
    * reason, so these assert the rendered copy rather than the absence of something.
    */
+  describe("collapsible sections", () => {
+    /** The rendered collapse toggle for a section, found by its header label. */
+    const headerToggle = (label: string): HTMLButtonElement | undefined =>
+      Array.from(
+        fixture.nativeElement.querySelectorAll<HTMLButtonElement>("button[aria-expanded]"),
+      ).find((button) => button.textContent?.includes(label));
+
+    /**
+     * Renders the table with both collapsible sections populated.
+     *
+     * The table virtualizes its rows into a `height="fill"` viewport, which measures 0 in JSDOM and
+     * so renders nothing — the host needs a real height before the group headers exist to click.
+     */
+    const render = async () => {
+      favoriteCiphers$.next([makeCipher({ id: "fav-1", favorite: true })]);
+      filteredCiphers$.next([makeCipher({ id: "all-1" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it("persists the collapsed state when the user collapses a section", async () => {
+      await render();
+
+      const toggle = headerToggle("favorites");
+      expect(toggle).toBeDefined();
+      expect(toggle!.getAttribute("aria-expanded")).toBe("true");
+
+      toggle!.click();
+      fixture.detectChanges();
+
+      expect(vaultPopupSectionService.updateSectionOpenStoredState).toHaveBeenCalledWith(
+        "favorites",
+        false,
+      );
+      expect(headerToggle("favorites")!.getAttribute("aria-expanded")).toBe("false");
+    });
+
+    it("persists the expanded state when the user re-expands a section", async () => {
+      // Seeded collapsed before the first render, so the click is an expand. Set here rather than
+      // by rebuilding the fixture: a second live fixture fights the first over the scroll host.
+      vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => false);
+      await render();
+
+      const toggle = headerToggle("favorites");
+      expect(toggle!.getAttribute("aria-expanded")).toBe("false");
+
+      toggle!.click();
+      fixture.detectChanges();
+
+      expect(vaultPopupSectionService.updateSectionOpenStoredState).toHaveBeenCalledWith(
+        "favorites",
+        true,
+      );
+    });
+  });
+
   describe("empty state", () => {
     it("shows the search-specific copy and recovery hint when a search matches nothing", () => {
       hasSearchText$.next(true);
