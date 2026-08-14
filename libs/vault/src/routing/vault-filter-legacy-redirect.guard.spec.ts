@@ -222,17 +222,11 @@ describe("vaultFilterLegacyRedirectGuard", () => {
     });
 
     describe("legacy key clearing", () => {
-      it("nulls out all legacy keys so Angular's merge strategy removes them", async () => {
+      it("clears out all legacy keys", async () => {
         await runGuard(makeRoute({ type: "login" }));
 
         const { queryParams } = router.createUrlTree.mock.calls[0][1];
-        expect(queryParams["type"]).toBeNull();
-        expect(queryParams["folderId"]).toBeNull();
-        expect(queryParams["collectionId"]).toBeNull();
-        expect(queryParams["sharedFolderId"]).toBeNull();
-        expect(queryParams["organizationId"]).toBeNull();
-        expect(queryParams["vaultId"]).toBeNull();
-        expect(queryParams["search"]).toBeNull();
+        expect(Object.keys(queryParams)).toEqual(["vault.type"]);
       });
     });
 
