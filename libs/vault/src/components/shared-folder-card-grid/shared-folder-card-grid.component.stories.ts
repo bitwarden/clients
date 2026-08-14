@@ -115,8 +115,10 @@ export default {
               sharedFolderSingular: (count) => `${count} shared folder`,
               moreCollectionsShownAbove: (count) =>
                 `${count} more collections shown above this button`,
+              moreCollectionsShownAboveSingular: `1 more collection shown above this button`,
               moreSharedFoldersShownAbove: (count) =>
                 `${count} more shared folders shown above this button`,
+              moreSharedFoldersShownAboveSingular: `1 more shared folder shown above this button`,
               showAll: "Show all",
               showLess: "Show less",
             }),

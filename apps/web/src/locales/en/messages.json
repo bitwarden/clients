@@ -1290,6 +1290,10 @@
       }
     }
   },
+  "moreCollectionsShownAboveSingular": {
+    "message": "1 more collection shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of collections is expanded. The revealed collections render above the button that expanded them."
+  },
   "moreSharedFoldersShownAbove": {
     "message": "$COUNT$ more shared folders shown above this button",
     "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them.",
@@ -1299,6 +1303,10 @@
         "example": "3"
       }
     }
+  },
+  "moreSharedFoldersShownAboveSingular": {
+    "message": "1 more shared folder shown above this button",
+    "description": "Announced to screen readers when a collapsed grid of shared folders is expanded. The revealed shared folders render above the button that expanded them."
   },
   "myFolder": {
     "message": "My folder"
