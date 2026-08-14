@@ -164,10 +164,7 @@ describe("VaultItemsComponent", () => {
               ),
             },
           },
-          {
-            provide: VaultCopyButtonsService,
-            useValue: { showQuickCopyActions$: of(false) },
-          },
+          { provide: VaultCopyButtonsService, useValue: { showQuickCopyActions$: of(false) } },
           ...(provideBadge ? [{ provide: VAULT_ROW_LEASE_BADGE, useValue: TestLeaseBadge }] : []),
         ],
       });
