@@ -75,8 +75,8 @@
           (click)="item.group.toggle()"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-          <!-- Count only on top-level group headers. -->
-          @if (item.level === 0) {
+          <!-- Count only on non-empty top-level group headers. -->
+          @if (item.level === 0 && item.count > 0) {
             <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
           }
           <bit-icon
@@ -93,11 +93,23 @@
           [style.height.px]="forceHeight ? headerHeight(item.level) : null"
         >
           <ng-container *ngTemplateOutlet="item.group.headerTemplate()"></ng-container>
-          @if (item.level === 0) {
+          @if (item.level === 0 && item.count > 0) {
             <span class="tw-ms-auto tw-font-normal">{{ item.count }}</span>
           }
         </div>
       }
+    </div>
+  } @else if (item.kind === "groupEmpty") {
+    <!-- An empty group's `slot="empty"` content, spanning every column. -->
+    <div role="row">
+      <div
+        role="cell"
+        [attr.aria-colspan]="columnCount()"
+        class="tw-px-1 tw-py-2"
+        [style.height.px]="forceHeight ? headerHeight(item.level) : null"
+      >
+        <ng-container *ngTemplateOutlet="item.group.emptyTemplate()"></ng-container>
+      </div>
     </div>
   } @else {
     <bit-row>
