@@ -102,8 +102,11 @@ export class HealthRiskCategoryDetailComponent {
   readonly items = computed(() => {
     const category = this.category();
     const report = this.report();
+    if (!category || !report) {
+      return [];
+    }
 
-    return category && report ? report.categoryItems[category] : [];
+    return report.categoryItems[category] ?? [];
   });
   readonly cipherMap = toSignal(
     this.accountService.activeAccount$.pipe(
