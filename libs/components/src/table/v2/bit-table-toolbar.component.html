@@ -37,7 +37,7 @@
     small-screen active-filter chips below.
   -->
   <div
-    class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-4 tw-py-3 empty:tw-hidden"
+    class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-5 tw-py-3.5 empty:tw-hidden"
     [class.tw-hidden]="!isLargeScreen()"
   >
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
@@ -65,7 +65,7 @@
     on click. Rendered only when there's at least one (no empty row, no item count).
   -->
   @if (!isLargeScreen() && activeFilters().length) {
-    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-4 tw-py-3">
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-5 tw-py-3">
       @for (filter of activeFilters(); track filter.key()) {
         <bit-chip
           [label]="appliedLabel(filter)"
