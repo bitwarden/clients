@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Kedvencek"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Feladat összefoglaló"
   },
@@ -1205,6 +1208,9 @@
   },
   "myFolders": {
     "message": "Saját mappák"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
@@ -1764,6 +1770,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Én"
@@ -3403,6 +3412,24 @@
   },
   "moreOptions": {
     "message": "További opciók"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Beállítások"
@@ -15796,7 +15823,7 @@
     "message": "Diagnosztikai naplók mentése"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "Ezt a beállítást a szervezet lezeli."
+    "message": "Ezt a beállítást a szervezet kezeli."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "A szervezet a munkamenet maximális munkamenet időkifutását $HOURS$ órára és $MINUTES$ percre állította be.",

@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Favourites"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Task summary"
   },
@@ -1205,6 +1208,9 @@
   },
   "myFolders": {
     "message": "My folders"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Add shared folder"
@@ -1764,6 +1770,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Me"
@@ -3403,6 +3412,24 @@
   },
   "moreOptions": {
     "message": "More options"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Preferences"
@@ -6584,16 +6611,16 @@
     }
   },
   "openOrgInviteAcceptFailed": {
-    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+    "message": "Unable to accept invitation. Ask an organisation admin to send a new invitation link."
   },
   "openOrgInviteAcceptFailedTitle": {
     "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
-    "message": "You are already a member of this organization."
+    "message": "You are already a member of this organisation."
   },
   "openOrgInviteAcceptEmailDomainNotAllowed": {
-    "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
+    "message": "Emails matching $DOMAIN$ are not allowed in this organisation.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -6602,10 +6629,10 @@
     }
   },
   "openOrgInviteAcceptFreeAdminLimit": {
-    "message": "You cannot join this organization because you are already the admin of a free organization."
+    "message": "You cannot join this organisation because you are already the admin of a free organisation."
   },
   "openOrgInviteAcceptOrgAccessRevoked": {
-    "message": "You have been revoked from this organization. Contact your admin to regain access."
+    "message": "You have been revoked from this organisation. Contact your admin to regain access."
   },
   "openOrgInviteAcceptProviderUser": {
     "message": "Provider users may not join using this invitation link."
@@ -6614,16 +6641,16 @@
     "message": "Something went wrong, please reload the page to try again."
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
-    "message": "An organization you are already a member of only allows its members to belong to one organization."
+    "message": "An organisation you are already a member of only allows its members to belong to one organisation."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
-    "message": "The organization you are trying to join only allows its members to belong to one organization."
+    "message": "The organisation you are trying to join only allows its members to belong to one organisation."
   },
   "openOrgInviteAcceptTwoFactorRequired": {
-    "message": "You must set up two-step login in order to join this organization."
+    "message": "You must set up two-step login in order to join this organisation."
   },
   "openOrgInviteAcceptEmailNotVerified": {
-    "message": "You must verify your email address before joining an organization."
+    "message": "You must verify your email address before joining an organisation."
   },
   "openOrgInviteAcceptUnexpected": {
     "message": "Something went wrong, please reload the page to try again."
@@ -6635,13 +6662,13 @@
     "message": "Something went wrong, please reload the page to try again."
   },
   "openOrgInviteEmailDomainNotAllowed": {
-    "message": "This domain isn't accepted by this organization. Try a different email address."
+    "message": "This domain isn't accepted by this organisation. Try a different email address."
   },
   "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
     "message": "Could not accept invitation"
   },
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
-    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+    "message": "Could not decrypt the organisation invite. Try again using the same browser to start and finish the signup process."
   },
   "goToLogin": {
     "message": "Go to login"
@@ -9496,7 +9523,7 @@
     "message": "Members of your organisation are eligible for Free Bitwarden Families. You can sponsor Free Bitwarden Families for employees who are not a member of your Bitwarden organisation. Sponsoring a non-member requires an available seat within your organisation."
   },
   "sponsorshipFreeBitwardenFamiliesV2": {
-    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organisation, but this will require available seats within your organisation."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "When you remove an active sponsorship, a seat within your organisation will be available after the renewal date of the sponsored organisation."
@@ -15927,7 +15954,7 @@
     "message": "Open the subscription page on your Bitwarden cloud account and download your licence file. Then return to this screen and upload it below."
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
-    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+    "message": "Open the subscription page on your Bitwarden account and download your licence file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
     "message": "View all plans"
