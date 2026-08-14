@@ -163,10 +163,18 @@ export class SharedFolderCardGridComponent {
    * rather than markup.
    */
   protected readonly countSegments = computed(() => {
-    const sentence = this.i18nService.t(
-      this.vfo1TerminologyService.enabled() ? "sharedFolderCount" : "collectionCount",
-      COUNT_TOKEN,
-    );
+    let sentence = "";
+    if (this.count() === 1) {
+      sentence = this.i18nService.t(
+        this.vfo1TerminologyService.enabled() ? "sharedFolderSingular" : "collectionCountSingular",
+        COUNT_TOKEN,
+      );
+    } else {
+      sentence = this.i18nService.t(
+        this.vfo1TerminologyService.enabled() ? "sharedFolderCount" : "collectionCount",
+        COUNT_TOKEN,
+      );
+    }
 
     const [before, after = ""] = sentence.split(COUNT_TOKEN);
     return { before, count: this.count(), after };

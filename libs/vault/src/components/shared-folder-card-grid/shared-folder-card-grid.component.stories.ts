@@ -110,7 +110,9 @@ export default {
               collectionsInParent: (name) => `Collections in ${name}`,
               sharedFoldersInParent: (name) => `Shared folders in ${name}`,
               collectionCount: (count) => `${count} collections`,
+              collectionCountSingular: (count) => `${count} collection`,
               sharedFolderCount: (count) => `${count} shared folders`,
+              sharedFolderSingular: (count) => `${count} shared folder`,
               moreCollectionsShownAbove: (count) =>
                 `${count} more collections shown above this button`,
               moreSharedFoldersShownAbove: (count) =>

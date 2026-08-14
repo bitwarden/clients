@@ -1253,12 +1253,30 @@
       }
     }
   },
+  "collectionCountSingular": {
+    "message": "$COUNT$ collection",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "sharedFolderCount": {
     "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "16"
+      }
+    }
+  },
+  "sharedFolderSingular": {
+    "message": "$COUNT$ shared folder",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
       }
     }
   },
