@@ -134,7 +134,7 @@ export class ProfileComponent implements OnInit {
         message: this.i18nService.t("checkInboxForVerification"),
       });
     } catch (error: unknown) {
-      if (error instanceof ErrorResponse && error.message.includes("Email already verified.")) {
+      if (error instanceof ErrorResponse && error.message?.includes("Email already verified.")) {
         // The server rejects re-verification once the email is confirmed; this can happen if the
         // badge hasn't refreshed yet on the initiating tab after verifying in another tab/session.
         const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
