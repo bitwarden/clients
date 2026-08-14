@@ -1,5 +1,5 @@
 import { inject, Injectable } from "@angular/core";
-import { combineLatest, map, Observable, of, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, shareReplay, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -7,10 +7,10 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getAvatarDefaultColor } from "@bitwarden/components";
 
+import { getOrgIconForTier } from "../components/org-icon.directive";
 import {
   VaultNavColor,
   VaultNavItemType,
@@ -49,6 +49,7 @@ export class DefaultVaultNavService extends VaultNavService {
         ),
       );
     }),
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   private buildViewModel(
@@ -64,6 +65,7 @@ export class DefaultVaultNavService extends VaultNavService {
       id: account.id,
       label: this.i18nService.t("myVault"),
       color: personalColor,
+      icon: "bwi-user",
       type: VaultNavItemType.Personal,
     };
 
@@ -73,22 +75,26 @@ export class DefaultVaultNavService extends VaultNavService {
         id: org.id,
         label: org.name,
         color: this.orgColor(org),
-        type:
-          org.productTierType === ProductTierType.Families
-            ? VaultNavItemType.Family
-            : VaultNavItemType.Organization,
+        icon: getOrgIconForTier(org.productTierType),
+        type: this.orgType(org),
       }));
 
-    // Under OrganizationDataOwnership the personal vault is not a peer; it surfaces as "My items" in the org section.
-    const vaults = dataOwnership ? sortedOrgItems : [personalItem, ...sortedOrgItems];
+    const ownershipApplies = dataOwnership && sortedOrgItems.length > 0;
+    const vaults = ownershipApplies ? sortedOrgItems : [personalItem, ...sortedOrgItems];
 
     return {
       vaults,
-      organizationDataOwnership: dataOwnership,
+      organizationDataOwnership: ownershipApplies,
     };
   }
 
+  private orgType(org: Organization): VaultNavItemType {
+    return getOrgIconForTier(org.productTierType) === "bwi-family"
+      ? VaultNavItemType.Family
+      : VaultNavItemType.Organization;
+  }
+
   private orgColor(org: Organization): VaultNavColor {
-    return org.productTierType === ProductTierType.Families ? "teal" : "purple";
+    return this.orgType(org) === VaultNavItemType.Family ? "teal" : "purple";
   }
 }

@@ -1,4 +1,4 @@
-import { AvatarColor } from "@bitwarden/components";
+import { AvatarColor, BitwardenIcon } from "@bitwarden/components";
 
 export const VaultNavItemType = Object.freeze({
   Personal: "personal",
@@ -19,6 +19,7 @@ export interface VaultNavItemViewModel {
   /** Already i18n-resolved display label. */
   label: string;
   color: VaultNavColor;
+  icon: BitwardenIcon;
   type: VaultNavItemType;
 }
 
@@ -32,8 +33,8 @@ export interface VaultsNavViewModel {
   vaults: readonly VaultNavItemViewModel[];
 
   /**
-   * True when the OrganizationDataOwnership policy applies. The org section starts expanded and
-   * renders a "My items" group within it.
+   * True when the OrganizationDataOwnership policy applies and `vaults` holds at least one org. The
+   * org section starts expanded and renders a "My items" group within it.
    */
   organizationDataOwnership: boolean;
 }
