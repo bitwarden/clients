@@ -2,10 +2,11 @@ import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { AccountService } from "../../auth/abstractions/account.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 
 /**
  * A poller that checks for all users whether they have transitioned from a locked state to an unlocked state.
