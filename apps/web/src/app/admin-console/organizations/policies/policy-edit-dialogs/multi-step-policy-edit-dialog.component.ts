@@ -183,19 +183,4 @@ export class MultiStepPolicyEditDialogComponent
       config,
     );
   };
-
-  /**
-   * Opens this dialog as a modal rather than a side drawer. Used for contexts outside the Admin
-   * Console policies page (e.g. the first-time auto-confirm feature prompt shown from the vault
-   * page), where a more attention-grabbing modal presentation is desired rather than a drawer.
-   */
-  static readonly open = (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => {
-    return dialogService.open<PolicyEditDialogResult, PolicyEditDialogData>(
-      MultiStepPolicyEditDialogComponent,
-      config,
-    );
-  };
 }
