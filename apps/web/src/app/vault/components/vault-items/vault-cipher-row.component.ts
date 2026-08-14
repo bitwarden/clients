@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import {
   Component,
+  computed,
   EventEmitter,
   HostListener,
   Inject,
@@ -13,6 +14,7 @@ import {
   Type,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -31,7 +33,7 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { VaultCopyButtonsService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   CollectionPermission,
@@ -53,6 +55,21 @@ import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
+
+  private readonly quickCopyIconFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
+  private readonly quickCopyActionsSetting = toSignal(
+    this.vaultCopyButtonsService.showQuickCopyActions$,
+    { initialValue: false },
+  );
+
+  protected readonly showQuickCopyActions = computed(
+    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
+  );
 
   protected RowHeightClass = RowHeightClass;
 

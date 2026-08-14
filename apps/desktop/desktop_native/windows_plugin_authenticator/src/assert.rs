@@ -8,12 +8,10 @@ use autofill_provider::{
     PasskeyAssertionWithoutUserInterfaceRequest, Position, TimedCallback, UserVerification,
     WindowDetails,
 };
+use desktop_core::autofill::create_context_string;
 use win_webauthn::{plugin::PluginGetAssertionRequest, CborWriter};
 
-use crate::{
-    ipc::IpcClient,
-    util::{create_context_string, HwndExt},
-};
+use crate::{ipc::IpcClient, util::HwndExt};
 
 pub fn get_assertion(
     ipc_client: &dyn IpcClient,

@@ -52,6 +52,8 @@ libs/tools                                                     @bitwarden/team-t
 ## Dirt (Data Insights & Reporting) team files ##
 apps/browser/src/dirt                   @bitwarden/team-data-insights-and-reporting-dev
 apps/web/src/app/dirt                   @bitwarden/team-data-insights-and-reporting-dev
+apps/cli/src/dirt                       @bitwarden/team-data-insights-and-reporting-dev
+bitwarden_license/bit-browser/src/popup/dirt  @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-common/src/dirt   @bitwarden/team-data-insights-and-reporting-dev
 bitwarden_license/bit-web/src/app/dirt  @bitwarden/team-data-insights-and-reporting-dev
 libs/dirt                               @bitwarden/team-data-insights-and-reporting-dev
@@ -167,7 +169,7 @@ libs/common/src/autofill                         @bitwarden/team-autofill-dev
 ## Desktop Native team files ##
 apps/desktop/src/autofill                         @bitwarden/team-desktop-native-dev
 apps/desktop/desktop_native/autotype              @bitwarden/team-desktop-native-dev
-apps/desktop/desktop_native/napi/src/autotype.rs  @bitwarden/team-desktop-native-dev
+apps/desktop/desktop_native/napi/src/autotype_mvp.rs  @bitwarden/team-desktop-native-dev
 
 ## Desktop Native team files + SSH working group co-owned files ##
 apps/desktop/desktop_native/core/src/ssh_agent                 @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
@@ -226,6 +228,7 @@ apps/cli/src/key-management                       @bitwarden/team-key-management
 bitwarden_license/bit-web/src/app/key-management  @bitwarden/team-key-management-dev
 libs/key-management                               @bitwarden/team-key-management-dev
 libs/key-management-ui                            @bitwarden/team-key-management-dev
+libs/legacy-crypto                                @bitwarden/team-key-management-dev
 libs/user-crypto-management                       @bitwarden/team-key-management-dev
 libs/common/src/key-management                    @bitwarden/team-key-management-dev
 libs/unlock                                       @bitwarden/team-key-management-dev

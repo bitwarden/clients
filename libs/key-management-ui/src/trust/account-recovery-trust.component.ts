@@ -15,7 +15,8 @@ import {
   LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 type AccountRecoveryTrustDialogData = {
   /** display name of the user */
@@ -52,14 +53,14 @@ export class AccountRecoveryTrustComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected params: AccountRecoveryTrustDialogData,
     private formBuilder: FormBuilder,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logService: LogService,
     private dialogRef: DialogRef<boolean>,
   ) {}
 
   async ngOnInit() {
     try {
-      const fingerprint = await this.keyService.getFingerprint(
+      const fingerprint = await this.legacyCompatKeyService.getFingerprint(
         this.params.orgId,
         this.params.publicKey,
       );

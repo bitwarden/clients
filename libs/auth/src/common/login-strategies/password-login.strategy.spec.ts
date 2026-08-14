@@ -38,6 +38,8 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -68,6 +70,7 @@ describe("PasswordLoginStrategy", () => {
 
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -98,6 +101,7 @@ describe("PasswordLoginStrategy", () => {
 
     passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -125,9 +129,9 @@ describe("PasswordLoginStrategy", () => {
     passwordPreloginService.getPreloginData$.mockReturnValue(
       of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
     );
-    keyService.makeMasterKey.mockResolvedValue(masterKey);
+    legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
 
-    keyService.hashMasterKey
+    legacyCompatKeyService.hashMasterKey
       .calledWith(masterPassword, expect.anything())
       .mockResolvedValue(hashedPassword);
 
@@ -139,6 +143,7 @@ describe("PasswordLoginStrategy", () => {
       policyService,
       passwordPreloginService,
       unlockService,
+      legacyCompatKeyService,
       accountService,
       masterPasswordService,
       keyService,
@@ -214,7 +219,6 @@ describe("PasswordLoginStrategy", () => {
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).not.toHaveBeenCalled();
     expect(masterPasswordService.mock.decryptUserKeyWithMasterKey).not.toHaveBeenCalled();
-    expect(keyService.setUserKey).not.toHaveBeenCalled();
   });
 
   describe("makePasswordPreloginMasterKey", () => {
@@ -481,7 +485,7 @@ describe("PasswordLoginStrategy", () => {
   });
 
   describe("encryptionKeyMigrationRequired", () => {
-    it("returns requiresEncryptionKeyMigration and skips setUserKey when response has no key", async () => {
+    it("returns requiresEncryptionKeyMigration and skips the unlock when response has no key", async () => {
       // Very old accounts were encrypted with the master key directly (no user key). These
       // accounts have no `key` field on the token response. PasswordLoginStrategy overrides
       // encryptionKeyMigrationRequired to return true when key is absent, which causes the base

@@ -2,6 +2,8 @@ export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
+export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
+export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export {
   CopyCipherFieldService,
@@ -9,6 +11,10 @@ export {
   CopyFieldAction,
 } from "./services/copy-cipher-field.service";
 export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directive";
+export {
+  VaultCopyButtonsService,
+  CopyButtonDisplayMode,
+} from "./services/vault-copy-buttons.service";
 export { OrgIconDirective } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
@@ -36,6 +42,7 @@ export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
+export * from "./components/show-quick-copy-actions-details-popover/show-quick-copy-actions-details-popover.component";
 export * from "./components/vault-items-transfer";
 export { VaultItem, compareVaultItems } from "./components/vault-item";
 export { VaultOrganizationUserNotificationsComponent } from "./components/vault-organization-user-notifications/vault-organization-user-notifications.component";
@@ -44,6 +51,7 @@ export {
   OrganizationUserNotificationBannerData,
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
+export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";

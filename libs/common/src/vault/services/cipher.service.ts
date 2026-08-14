@@ -14,6 +14,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -112,6 +114,7 @@ export class CipherService implements CipherServiceAbstraction {
 
   constructor(
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private domainSettingsService: DomainSettingsService,
     private apiService: ApiService,
     private i18nService: I18nService,
@@ -642,8 +645,13 @@ export class CipherService implements CipherServiceAbstraction {
       return [];
     }
 
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
+    if (!userId) {
+      throw new Error("User ID is required");
+    }
+    const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
+    const key = orgKeys?.[organizationId as OrganizationId] ?? null;
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
-    const key = await this.keyService.getOrgKey(organizationId);
     const decCiphers: CipherView[] = await Promise.all(
       ciphers.map(async (cipher) => {
         return await cipher.decrypt(key);
@@ -1104,7 +1112,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     const encFileName = await this.encryptService.encryptString(filename, cipherKeyOrVaultKey);
 
-    const attachmentKey = await this.keyService.makeDataEncKey(cipherKeyOrVaultKey);
+    const attachmentKey = await this.legacyCompatKeyService.makeDataEncKey(cipherKeyOrVaultKey);
     const encData = await this.encryptService.encryptFileData(
       new Uint8Array(data),
       attachmentKey[0],
