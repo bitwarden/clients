@@ -23,12 +23,19 @@ describe("RuntimeBackground collection dispatch", () => {
   let autofillOrchestrator: MockProxy<AutofillOrchestrator>;
   let main: MockProxy<MainBackground>;
   let accountService: MockProxy<AccountService>;
+  let logService: MockProxy<LogService>;
 
   const tab = createChromeTabMock({ id: 1 });
   const sender = { frameId: 0, tab } as chrome.runtime.MessageSender;
   const extensionUrl = "chrome-extension://abc/";
-  // The popup identifies itself as an extension page by its extension-origin url.
-  const popupSender = { url: `${extensionUrl}popup/index.html` } as chrome.runtime.MessageSender;
+  // The popup identifies itself as internal by its extension origin (top-level frame, no frameId).
+  const popupSender = { origin: "chrome-extension://abc" } as chrome.runtime.MessageSender;
+  // A content script: carries a tab and a web-page origin, so the internal-sender guard rejects it on
+  // the origin mismatch. Shared by the security tests as the canonical untrusted sender.
+  const contentScriptSender = {
+    ...sender,
+    origin: "https://evil.example.com",
+  } as chrome.runtime.MessageSender;
 
   beforeEach(() => {
     // The ctor wires an onInstalled listener that the shared chrome mock omits.
@@ -39,6 +46,7 @@ describe("RuntimeBackground collection dispatch", () => {
     main = mock<MainBackground>();
     accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as any);
+    logService = mock<LogService>();
 
     runtimeBackground = new RuntimeBackground(
       main,
@@ -48,7 +56,7 @@ describe("RuntimeBackground collection dispatch", () => {
       undefined as any,
       undefined as any,
       undefined as any,
-      mock<LogService>(),
+      logService,
       undefined as any,
       undefined as any,
       accountService,
@@ -59,6 +67,12 @@ describe("RuntimeBackground collection dispatch", () => {
       undefined as any,
       autofillOrchestrator,
     );
+  });
+
+  afterEach(() => {
+    // BrowserApi statics are spied per-test; restore so a spy's call history never leaks into the
+    // next test (these tests build identically-shaped senders, which would otherwise alias).
+    jest.restoreAllMocks();
   });
 
   describe("collectPageDetailsForPopup", () => {
@@ -77,17 +91,36 @@ describe("RuntimeBackground collection dispatch", () => {
       expect(result).toBe(pageDetails);
     });
 
-    it("rejects a request from a content-script sender (not an extension page)", async () => {
+    it("security: rejects a request from a content-script sender (not an extension page)", async () => {
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(tab);
       autofillOrchestrator.collectPageDetails.mockResolvedValue([]);
+      // Assert the handler consults `BrowserApi.senderIsInternal`, so that the boundary cannot be silently
+      // removed without this failing. The spy calls through to detect regressions inside the guard.
+      const senderIsInternalSpy = jest.spyOn(BrowserApi, "senderIsInternal");
 
-      // `sender` carries a tab and reports a web-page url, i.e. a content script.
-      const result = await runtimeBackground.processMessageWithSender(
+      await runtimeBackground.processMessageWithSender(
         { command: "collectPageDetailsForPopup", tabId: 1 },
-        { ...sender, url: "https://evil.example.com" } as chrome.runtime.MessageSender,
+        contentScriptSender,
       );
 
+      expect(senderIsInternalSpy).toHaveBeenCalledWith(contentScriptSender, logService);
+      // Logging the rejection is part of the security requirement, not incidental: the warning is the
+      // observable record that the boundary fired on this sender.
+      expect(logService.warning).toHaveBeenCalled();
       expect(autofillOrchestrator.collectPageDetails).not.toHaveBeenCalled();
+    });
+
+    // Functional contract for a rejected sender, kept separate from the security invariant above: the
+    // return shape may change without weakening the boundary. Rejection is forced here so the shape is
+    // pinned independently of how a sender is judged internal.
+    it("returns an empty array when the sender is rejected", async () => {
+      jest.spyOn(BrowserApi, "senderIsInternal").mockReturnValue(false);
+
+      const result = await runtimeBackground.processMessageWithSender(
+        { command: "collectPageDetailsForPopup", tabId: 1 },
+        contentScriptSender,
+      );
+
       expect(result).toEqual([]);
     });
 
@@ -129,14 +162,33 @@ describe("RuntimeBackground collection dispatch", () => {
       expect(result).toEqual({ didAutofill: true, totp: "totp-123" });
     });
 
-    it("rejects a content-script sender without fetching or filling", async () => {
-      const result = await runtimeBackground.processMessageWithSender(
+    it("security: rejects a content-script sender without fetching or filling", async () => {
+      // Assert the handler consults `BrowserApi.senderIsInternal`, so that the boundary cannot be silently
+      // removed without this failing. The spy calls through to detect regressions inside the guard.
+      const senderIsInternalSpy = jest.spyOn(BrowserApi, "senderIsInternal");
+
+      await runtimeBackground.processMessageWithSender(
         { command: "fillCipherForPopup", tabId: 1, cipherId: "cipher-1" },
-        { ...sender, url: "https://evil.example.com" } as chrome.runtime.MessageSender,
+        contentScriptSender,
       );
 
+      expect(senderIsInternalSpy).toHaveBeenCalledWith(contentScriptSender, logService);
+      // Logging the rejection is part of the security requirement: the warning is the
+      // observable record that the boundary fired on this sender.
+      expect(logService.warning).toHaveBeenCalled();
       expect(cipherService.getAllDecrypted).not.toHaveBeenCalled();
       expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+    });
+
+    // Functional contract for a rejected sender.
+    it("returns a no-fill result when the sender is rejected", async () => {
+      jest.spyOn(BrowserApi, "senderIsInternal").mockReturnValue(false);
+
+      const result = await runtimeBackground.processMessageWithSender(
+        { command: "fillCipherForPopup", tabId: 1, cipherId: "cipher-1" },
+        contentScriptSender,
+      );
+
       expect(result).toEqual({ didAutofill: false });
     });
 

@@ -142,18 +142,6 @@ export default class RuntimeBackground {
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
   }
 
-  /**
-   * True when the message sender is one of the extension's own pages, identified by its
-   * extension-origin url. A content script reports the injected page's url
-   * instead, so this rejects a content script trying to drive an extension-page-only message.
-   *
-   * Fails closed on a missing url.
-   */
-  private isExtensionPageSender(sender: chrome.runtime.MessageSender): boolean {
-    const extensionUrl = BrowserApi.getRuntimeURL("");
-    return !!extensionUrl && !!sender.url?.startsWith(extensionUrl);
-  }
-
   // Messages that need the chrome sender and send back a response need to be registered in this method.
   async processMessageWithSender(msg: any, sender: chrome.runtime.MessageSender) {
     switch (msg.command) {
@@ -166,7 +154,7 @@ export default class RuntimeBackground {
       case "collectPageDetailsForPopup": {
         // The popup runs in the foreground and cannot call the background orchestrator directly, so
         // it round-trips here.
-        if (!this.isExtensionPageSender(sender)) {
+        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
           return [];
         }
         const targetTab = await BrowserApi.getTab(msg.tabId);
@@ -180,7 +168,7 @@ export default class RuntimeBackground {
         // The cipher is referenced by id and re-fetched below so decrypted vault data never crosses
         // the message channel.
         const noFill: AutoFillResult = { didAutofill: false };
-        if (!this.isExtensionPageSender(sender)) {
+        if (!BrowserApi.senderIsInternal(sender, this.logService)) {
           return noFill;
         }
         const targetTab = await BrowserApi.getTab(msg.tabId);
@@ -199,7 +187,7 @@ export default class RuntimeBackground {
           return noFill;
         }
         // The only sender of `fillCipherForPopup` is an extension page, as confirmed by the
-        // `isExtensionPageSender(sender)` guard above, so this is never reachable from a
+        // `BrowserApi.senderIsInternal(sender)` guard above, so this is never reachable from a
         // content-script-placed message.
         // eslint-disable-next-line no-restricted-syntax
         return await this.autofillOrchestrator.unsafeAutofillTabWithCipher(targetTab, cipher);

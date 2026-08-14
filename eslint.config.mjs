@@ -899,6 +899,6 @@ function unsafeAutofillTabWithCipherSyntaxRule() {
     selector:
       "CallExpression[callee.type='MemberExpression'][callee.property.name='unsafeAutofillTabWithCipher']",
     message:
-      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is an extension page (e.g. isExtensionPageSender), and disable this rule inline with that justification. See orchestrator.design.md for additional information.",
+      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestrator.design.md for additional information.",
   };
 }
