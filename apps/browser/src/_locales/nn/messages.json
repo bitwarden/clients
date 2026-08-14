@@ -10,20 +10,20 @@
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Er ein heime, på jobb eller på farten, so held Bitwarden trygt på alle passord, passlyklar og all ømtolug data",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Log in or create a new account to access your secure vault."
   },
   "inviteAccepted": {
-    "message": "Invitation accepted"
+    "message": "Godtok innbydinga"
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Opprett ein konto"
   },
   "newToBitwarden": {
-    "message": "New to Bitwarden?"
+    "message": "Ny på Bitwarden?"
   },
   "logInWithPasskey": {
     "message": "Log in with passkey"
@@ -41,7 +41,7 @@
     "message": "Log in"
   },
   "setAStrongPassword": {
-    "message": "Set a strong password"
+    "message": "Set eit sterkt passord"
   },
   "finishCreatingYourAccountBySettingAPassword": {
     "message": "Finish creating your account by setting a password"
@@ -56,7 +56,7 @@
     "message": "Close"
   },
   "submit": {
-    "message": "Submit"
+    "message": "Send inn"
   },
   "emailAddress": {
     "message": "Email address"
@@ -114,28 +114,28 @@
     "message": "Finish joining this organization by setting a master password."
   },
   "tab": {
-    "message": "Tab"
+    "message": "Fane"
   },
   "vault": {
-    "message": "Vault"
+    "message": "Kvelv"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "Kvelv"
   },
   "myVault": {
-    "message": "My vault"
+    "message": "Kvelvet mitt"
   },
   "allVaults": {
-    "message": "All vaults"
+    "message": "Alle kvelv"
   },
   "tools": {
-    "message": "Tools"
+    "message": "Verktøy"
   },
   "settings": {
-    "message": "Settings"
+    "message": "Innstillingar"
   },
   "currentTab": {
-    "message": "Current tab"
+    "message": "Noverande fane"
   },
   "copyPassword": {
     "message": "Copy password"
@@ -251,7 +251,7 @@
     "message": "No matching logins"
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Ingen kort"
   },
   "noIdentities": {
     "message": "No identities"
@@ -260,7 +260,7 @@
     "message": "Add login"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Legg til eit kort"
   },
   "addIdentityMenu": {
     "message": "Add identity"
@@ -281,7 +281,7 @@
     "message": "Add item"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "E-postaddresse på konto"
   },
   "requestHint": {
     "message": "Request hint"
@@ -296,7 +296,7 @@
     "message": "Hint"
   },
   "continue": {
-    "message": "Continue"
+    "message": "Haldt fram"
   },
   "sendVerificationCode": {
     "message": "Send a verification code to your email"
@@ -314,19 +314,19 @@
     "message": "Confirm your identity to continue."
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Brigda hovudpassord"
   },
   "continueToWebApp": {
-    "message": "Continue to web app?"
+    "message": "Haldt fram til nett-app?"
   },
   "continueToWebAppDesc": {
-    "message": "Explore more features of your Bitwarden account on the web app."
+    "message": "Utforsk fleire funksjonar i Bitwarden-kontoen din i nettappen."
   },
   "continueToHelpCenter": {
-    "message": "Continue to Help Center?"
+    "message": "Haldt fram til hjelpesenteret?"
   },
   "continueToHelpCenterDesc": {
-    "message": "Learn more about how to use Bitwarden on the Help Center."
+    "message": "Lær meir om korleis ein nyttar Bitwarden på hjelpesenteret."
   },
   "continueToBrowserExtensionStore": {
     "message": "Continue to browser extension store?"
@@ -352,19 +352,19 @@
     "message": "Log out"
   },
   "aboutBitwarden": {
-    "message": "About Bitwarden"
+    "message": "Om Bitwarden"
   },
   "about": {
-    "message": "About"
+    "message": "Om"
   },
   "moreFromBitwarden": {
-    "message": "More from Bitwarden"
+    "message": "Meir frå Bitwarden"
   },
   "continueToBitwardenDotCom": {
-    "message": "Continue to bitwarden.com?"
+    "message": "Haldt fram til bitwarden.com?"
   },
   "bitwardenForBusiness": {
-    "message": "Bitwarden for Business"
+    "message": "Bitwarden for verksemder"
   },
   "bitwardenAuthenticator": {
     "message": "Bitwarden Authenticator"
@@ -421,16 +421,16 @@
     }
   },
   "newFolder": {
-    "message": "New folder"
+    "message": "Ny mappe"
   },
   "folderName": {
-    "message": "Folder name"
+    "message": "Namn på mappe"
   },
   "folderHintText": {
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "Ingen mapper er lagde til"
   },
   "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
@@ -439,19 +439,19 @@
     "message": "Are you sure you want to permanently delete this folder?"
   },
   "deleteFolder": {
-    "message": "Delete folder"
+    "message": "Sletta mappa"
   },
   "folders": {
-    "message": "Folders"
+    "message": "Mapper"
   },
   "noFolders": {
-    "message": "There are no folders to list."
+    "message": "Det er ingen mapper å syna."
   },
   "helpFeedback": {
-    "message": "Help & feedback"
+    "message": "Hjelp og tilbakemelding"
   },
   "helpCenter": {
-    "message": "Bitwarden Help center"
+    "message": "Bitwarden-hjelpesenter"
   },
   "communityForums": {
     "message": "Explore Bitwarden community forums"
@@ -460,16 +460,16 @@
     "message": "Contact Bitwarden support"
   },
   "sync": {
-    "message": "Sync"
+    "message": "Synkroniser"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Synkroniser no"
   },
   "lastSync": {
     "message": "Last sync:"
   },
   "passGen": {
-    "message": "Password generator"
+    "message": "Passordsmed"
   },
   "generator": {
     "message": "Generator",
@@ -479,13 +479,13 @@
     "message": "Automatically generate strong, unique passwords for your logins."
   },
   "bitWebVaultApp": {
-    "message": "Bitwarden web app"
+    "message": "Bitwarden-nettapp"
   },
   "select": {
-    "message": "Select"
+    "message": "Vel"
   },
   "generatePassword": {
-    "message": "Generate password"
+    "message": "Skapa passord"
   },
   "generatePassphrase": {
     "message": "Generate passphrase"
@@ -500,16 +500,55 @@
     "message": "Username generated"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "Skapa e-postadressa"
   },
   "regeneratePassword": {
     "message": "Regenerate password"
   },
   "options": {
-    "message": "Options"
+    "message": "Val"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
   },
   "length": {
-    "message": "Length"
+    "message": "Lengd"
   },
   "include": {
     "message": "Include",
@@ -544,7 +583,7 @@
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
-    "message": "Number of words"
+    "message": "Ordtal"
   },
   "wordSeparator": {
     "message": "Word separator"
@@ -571,27 +610,27 @@
     "description": "Indicates that a policy limits the credential generator screen."
   },
   "searchVault": {
-    "message": "Search vault"
+    "message": "Søk i kvelven"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Tilbakestill søket"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arkiv",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arkiv",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Tak ut or arkivet"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Ting i arkivet"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Ingen ting i arkivet"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
@@ -609,10 +648,10 @@
     "message": "Once archived, this item will be excluded from search results and autofill suggestions."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arkivert"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Tak ut or arkivet og lagra"
   },
   "upgradeToUseArchive": {
     "message": "A premium membership is required to use Archive."
@@ -628,7 +667,7 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Arkiver oppføringa",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
@@ -641,16 +680,16 @@
     "message": "Edit"
   },
   "view": {
-    "message": "View"
+    "message": "Sjå"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Sjå alt"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Syn alt"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Sjå mindre"
   },
   "viewLogin": {
     "message": "View login"
@@ -662,10 +701,10 @@
     "message": "Item information"
   },
   "username": {
-    "message": "Username"
+    "message": "Brukarnamn"
   },
   "password": {
-    "message": "Password"
+    "message": "Passord"
   },
   "totp": {
     "message": "Authenticator secret"
@@ -722,7 +761,7 @@
     }
   },
   "website": {
-    "message": "Website"
+    "message": "Nettstad"
   },
   "toggleVisibility": {
     "message": "Toggle visibility"
@@ -731,10 +770,10 @@
     "message": "Manage"
   },
   "other": {
-    "message": "Other"
+    "message": "Anna"
   },
   "unlockMethods": {
-    "message": "Unlock options"
+    "message": "Opplåsingsval"
   },
   "unlockMethodNeeded": {
     "message": "Set up an unlock method in Settings"
@@ -743,13 +782,13 @@
     "message": "Session timeout"
   },
   "otherOptions": {
-    "message": "Other options"
+    "message": "Andre val"
   },
   "rateExtension": {
     "message": "Rate the extension"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Feilsøking"
   },
   "experiencingAnIssue": {
     "message": "Experiencing an issue?"
@@ -762,7 +801,7 @@
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Lasta ned"
   },
   "browserNotSupportClipboard": {
     "message": "Your web browser does not support easy clipboard copying. Copy it manually instead."
@@ -780,16 +819,16 @@
     "message": "Your vault is locked. Verify your identity to continue."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Kvelven din er låst"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Kontoen din er låst"
   },
   "or": {
-    "message": "or"
+    "message": "eller"
   },
   "unlock": {
-    "message": "Unlock"
+    "message": "Lås opp"
   },
   "loggedInAsOn": {
     "message": "Logged in as $EMAIL$ on $HOSTNAME$.",
@@ -832,34 +871,34 @@
     "message": "Immediately"
   },
   "tenSeconds": {
-    "message": "10 seconds"
+    "message": "10 sekundar"
   },
   "twentySeconds": {
-    "message": "20 seconds"
+    "message": "20 sekundar"
   },
   "thirtySeconds": {
-    "message": "30 seconds"
+    "message": "30 sekundar"
   },
   "oneMinute": {
-    "message": "1 minute"
+    "message": "1 minutt"
   },
   "twoMinutes": {
-    "message": "2 minutes"
+    "message": "2 minuttar"
   },
   "fiveMinutes": {
-    "message": "5 minutes"
+    "message": "5 minuttar"
   },
   "fifteenMinutes": {
-    "message": "15 minutes"
+    "message": "15 minuttar"
   },
   "thirtyMinutes": {
-    "message": "30 minutes"
+    "message": "30 minuttar"
   },
   "oneHour": {
-    "message": "1 hour"
+    "message": "1 time"
   },
   "fourHours": {
-    "message": "4 hours"
+    "message": "4 timar"
   },
   "onLocked": {
     "message": "On system lock"
@@ -874,10 +913,10 @@
     "message": "On browser restart"
   },
   "never": {
-    "message": "Never"
+    "message": "Aldri"
   },
   "security": {
-    "message": "Security"
+    "message": "Tryggleik"
   },
   "confirmMasterPassword": {
     "message": "Confirm master password"
@@ -1035,10 +1074,10 @@
     "message": "Are you sure you want to log out?"
   },
   "yes": {
-    "message": "Yes"
+    "message": "Ja"
   },
   "no": {
-    "message": "No"
+    "message": "Nei"
   },
   "noAuth": {
     "message": "Anyone with the link"
@@ -1047,16 +1086,16 @@
     "message": "Anyone with a password set by you"
   },
   "location": {
-    "message": "Location"
+    "message": "Stad"
   },
   "unexpectedError": {
-    "message": "An unexpected error has occurred."
+    "message": "Det har oppstått ein uventa feil."
   },
   "nameRequired": {
-    "message": "Name is required."
+    "message": "Namn er påkravt."
   },
   "addedFolder": {
-    "message": "Folder added"
+    "message": "La til mappa"
   },
   "twoStepLoginConfirmation": {
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
@@ -1065,16 +1104,16 @@
     "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Haldt fram til nettappen?"
   },
   "editedFolder": {
-    "message": "Folder saved"
+    "message": "Lagra mappa"
   },
   "deleteFolderConfirmation": {
     "message": "Are you sure you want to delete this folder?"
   },
   "deletedFolder": {
-    "message": "Folder deleted"
+    "message": "Mappa vart sletta"
   },
   "gettingStartedTutorial": {
     "message": "Getting started tutorial"
@@ -1083,10 +1122,10 @@
     "message": "Watch our getting started tutorial to learn how to get the most out of the browser extension."
   },
   "syncingComplete": {
-    "message": "Syncing complete"
+    "message": "Synkroniseringa er fullført"
   },
   "syncingFailed": {
-    "message": "Syncing failed"
+    "message": "Synkroniseringa gjekk gale"
   },
   "passwordCopied": {
     "message": "Password copied"
@@ -1109,23 +1148,23 @@
     }
   },
   "newUri": {
-    "message": "New URI"
+    "message": "Ny URI"
   },
   "addDomain": {
-    "message": "Add domain",
+    "message": "Legg til eit domene",
     "description": "'Domain' here refers to an internet domain name (e.g. 'bitwarden.com') and the message in whole described the act of putting a domain value into the context."
   },
   "addedItem": {
-    "message": "Item added"
+    "message": "Oppføringa er lagd til"
   },
   "editedItem": {
-    "message": "Item saved"
+    "message": "Oppføringa er lagra"
   },
   "savedWebsite": {
-    "message": "Saved website"
+    "message": "Lagra nettstad"
   },
   "savedWebsites": {
-    "message": "Saved websites ( $COUNT$ )",
+    "message": "Lagra nettstader ( $COUNT$ )",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1134,28 +1173,28 @@
     }
   },
   "deleteItemConfirmation": {
-    "message": "Do you really want to send to the trash?"
+    "message": "Vil du verkeleg leggja denne i papirkorga?"
   },
   "deletedItem": {
-    "message": "Item sent to trash"
+    "message": "Oppføringa vart lagd i papirkorga"
   },
   "overwritePassword": {
-    "message": "Overwrite password"
+    "message": "Skriv over passord"
   },
   "overwritePasswordConfirmation": {
-    "message": "Are you sure you want to overwrite the current password?"
+    "message": "Er du trygg på at du vil skriva over det noverande passordet?"
   },
   "overwriteUsername": {
-    "message": "Overwrite username"
+    "message": "Skriv over brukarnamnet"
   },
   "overwriteUsernameConfirmation": {
-    "message": "Are you sure you want to overwrite the current username?"
+    "message": "Er du trygg på at du vil skrive over det noverande brukarnamnet?"
   },
   "searchFolder": {
-    "message": "Search folder"
+    "message": "Søk i mappe"
   },
   "searchCollection": {
-    "message": "Search collection"
+    "message": "Søk i samling"
   },
   "searchType": {
     "message": "Search type"
@@ -7591,5 +7630,113 @@
   },
   "healthIntroDescription": {
     "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Your vault is healthy",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Your vault risk is high",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "No exposed passwords",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 exposed password",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ exposed passwords",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Exposed in data breaches",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "None of your passwords were found in data breaches",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "No weak passwords",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 weak password",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ weak passwords",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Too short or simple",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "All your passwords are strong",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "No reused passwords",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 reused password",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ reused passwords",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Reused for several logins",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "All your passwords are unique",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Risks identified",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "No items need attention",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }
