@@ -290,8 +290,11 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
   });
 
   describe("policySteps", () => {
-    it("reuses step 0's title and step 1 (title/content/footer/sideEffect) unchanged", () => {
-      expect(component.policySteps[0].titleContent).toBe((component as any).step0Title);
+    it("does not set a custom title for step 0, so the drawer falls back to the policy name", () => {
+      expect(component.policySteps[0].titleContent).toBeUndefined();
+    });
+
+    it("reuses step 1 (title/content/footer/sideEffect) unchanged", () => {
       expect(component.policySteps[1].titleContent).toBe((component as any).step1Title);
       expect(component.policySteps[1].bodyContent).toBe((component as any).step1Content);
       expect(component.policySteps[1].footerContent).toBe((component as any).step1Footer);

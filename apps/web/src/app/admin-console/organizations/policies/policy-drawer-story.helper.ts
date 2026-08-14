@@ -16,7 +16,6 @@ import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/res
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
@@ -127,12 +126,6 @@ export function policyDrawerMeta(
             // for every other policy.
             provide: EncryptService,
             useValue: { encryptString: () => Promise.resolve({ encryptedString: "encrypted" }) },
-          },
-          {
-            // Only MultiStepPolicyEditDialogComponent-based policies inject this, but providing it
-            // unconditionally is harmless for the plain drawer component.
-            provide: ConfigService,
-            useValue: { getFeatureFlag$: () => of(true) },
           },
           {
             // Only AutoConfirmPolicy's component injects these, but providing them
