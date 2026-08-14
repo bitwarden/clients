@@ -36,6 +36,26 @@ import { Password } from "./password";
 import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
 
+/**
+ * `SdkCipher` plus the PAM partial-cipher envelope. `sdk-internal` does not declare
+ * `partialData` on `Cipher` yet, so the field is bridged here to keep the SDK mappers
+ * round-tripping it (a gated row loses its marker if the field is dropped). The extra member is
+ * optional, so a plain `SdkCipher` remains assignable and no caller needs to change.
+ *
+ * The Rust side is done but unpublished: `Cipher::partial_data` was added by sdk-internal commit
+ * b19f4d40 ("decrypt server-restricted (PAM-gated) partial ciphers") in
+ * `crates/bitwarden-vault/src/cipher/cipher.rs`, and generates as `partialData?: string`,
+ * identical to this alias — building those bindings locally type-checks every call site here with
+ * the alias removed. The field is not on `main`, only on the `pam/uat` branch, so no `main.*`
+ * build carries it. Collapse this into `SdkCipher` once it ships.
+ *
+ * Bumping the SDK that far is not a version bump alone. SDK commit 99ffb6ef ("Use state bridge
+ * instead of platform state") also dropped `UserKeyState` and `EphemeralPinEnvelopeState`, which
+ * `libs/common/src/key-management` still imports; those call sites need migrating in the same
+ * change. The `partial` bridge in `cipher.view.ts` is released by the same SDK bump.
+ */
+type SdkCipherWithPartialData = SdkCipher & { partialData?: string };
+
 export class Cipher extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
 
@@ -461,10 +481,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   /**
    * Maps Cipher to SDK format.
    *
-   * @returns {SdkCipher} The SDK cipher object.
+   * @returns {SdkCipherWithPartialData} The SDK cipher object.
    */
-  toSdkCipher(): SdkCipher {
-    const sdkCipher: SdkCipher = {
+  toSdkCipher(): SdkCipherWithPartialData {
+    const sdkCipher: SdkCipherWithPartialData = {
       id: this.id ? asUuid(this.id) : undefined,
       organizationId: this.organizationId ? asUuid(this.organizationId) : undefined,
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
@@ -557,7 +577,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
    * Maps an SDK Cipher object to a Cipher
    * @param sdkCipher - The SDK Cipher object
    */
-  static fromSdkCipher(sdkCipher?: SdkCipher): Cipher | undefined {
+  static fromSdkCipher(sdkCipher?: SdkCipherWithPartialData): Cipher | undefined {
     if (sdkCipher == null) {
       return undefined;
     }
