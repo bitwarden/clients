@@ -8,6 +8,13 @@ import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common"
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
@@ -28,13 +35,9 @@ import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.serv
 import { AbstractStorageService } from "../../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../../platform/enums";
 import { StorageOptions } from "../../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { DEVICE_TRUST_DISK_LOCAL, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey, DeviceKey } from "../../../types/key";
-import { CryptoFunctionService } from "../../crypto/abstractions/crypto-function.service";
-import { EncryptService } from "../../crypto/abstractions/encrypt.service";
-import { EncString } from "../../crypto/models/enc-string";
 import { RotateableKeySet } from "../../keys/models/rotateable-key-set";
 import { DeviceTrustServiceAbstraction } from "../abstractions/device-trust.service.abstraction";
 

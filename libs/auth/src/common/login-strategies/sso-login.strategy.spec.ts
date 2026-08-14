@@ -202,7 +202,7 @@ describe("SsoLoginStrategy", () => {
     await ssoLoginStrategy.logIn(credentials);
 
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
-    expect(keyService.setUserKey).not.toHaveBeenCalled();
+    expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
     expect(accountCryptographicStateService.setAccountCryptographicState).not.toHaveBeenCalled();
   });
 
@@ -300,16 +300,14 @@ describe("SsoLoginStrategy", () => {
       deviceTrustService.getDeviceKey.mockResolvedValue(mockDeviceKey);
       deviceTrustService.decryptUserKeyWithDeviceKey.mockResolvedValue(mockUserKey);
 
-      const cryptoSvcSetUserKeySpy = jest.spyOn(keyService, "setUserKey");
-
       // Act
       await ssoLoginStrategy.logIn(credentials);
 
       // Assert
       expect(deviceTrustService.getDeviceKey).toHaveBeenCalledTimes(1);
       expect(deviceTrustService.decryptUserKeyWithDeviceKey).toHaveBeenCalledTimes(1);
-      expect(cryptoSvcSetUserKeySpy).toHaveBeenCalledTimes(1);
-      expect(cryptoSvcSetUserKeySpy).toHaveBeenCalledWith(mockUserKey, userId);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledTimes(1);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(userId, mockUserKey);
     });
 
     it("does not set the user key when deviceKey is missing", async () => {
@@ -327,7 +325,7 @@ describe("SsoLoginStrategy", () => {
       await ssoLoginStrategy.logIn(credentials);
 
       // Assert
-      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
     });
 
     describe.each([
@@ -348,7 +346,7 @@ describe("SsoLoginStrategy", () => {
         await ssoLoginStrategy.logIn(credentials);
 
         // Assert
-        expect(keyService.setUserKey).not.toHaveBeenCalled();
+        expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
       });
     });
 
@@ -367,7 +365,7 @@ describe("SsoLoginStrategy", () => {
       await ssoLoginStrategy.logIn(credentials);
 
       // Assert
-      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
     });
 
     it("logs when a device key is found but no decryption keys were received in token response", async () => {
@@ -549,7 +547,7 @@ describe("SsoLoginStrategy", () => {
         userId,
         undefined,
       );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(userId, userKey);
     });
   });
 });
