@@ -71,6 +71,22 @@ export class CipherView implements View, InitializerMetadata {
   key?: EncString;
 
   /**
+   * True when this view was decrypted from a server-restricted (PAM-gated) cipher: only the
+   * name and (for logins) URIs are populated, every secret field is absent. Sourced from the
+   * SDK's `partial` flag (see {@link CipherView.fromSdkCipherView}). UI gating surfaces — the
+   * row badge, the cipher-view banner, and edit-blocking — key off this.
+   */
+  partial = false;
+
+  /**
+   * Client-only, transient companion to {@link partial}: set on a full cipher served under an
+   * active PAM lease (full data, so `partial` is false). Never sent by the server, persisted,
+   * or serialized — its producer (the leased-cipher fetcher) stamps it directly on the view.
+   * Lets gating surfaces keep rendering lease state once a lease lands.
+   */
+  leaseGated?: boolean;
+
+  /**
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
@@ -99,6 +115,10 @@ export class CipherView implements View, InitializerMetadata {
     // Old locally stored ciphers might have reprompt == null. If so set it to None.
     this.reprompt = c.reprompt ?? CipherRepromptType.None;
     this.key = c.key;
+    // Derive the gating flag from the persisted envelope. The SDK decrypt path sets it from
+    // the SDK view instead (see fromSdkCipherView); `leaseGated` has no domain source — its
+    // producer stamps it on the view directly.
+    this.partial = c.partialData != null;
   }
 
   private get item(): ItemView | undefined {
@@ -238,6 +258,8 @@ export class CipherView implements View, InitializerMetadata {
     view.organizationUseTotp = obj.organizationUseTotp ?? false;
     view.localData = obj.localData ? obj.localData : undefined;
     view.permissions = obj.permissions ? CipherPermissionsApi.fromJSON(obj.permissions) : undefined;
+    // `leaseGated` is deliberately absent — it must not survive serialization.
+    view.partial = obj.partial ?? false;
     view.reprompt = obj.reprompt ?? CipherRepromptType.None;
     view.decryptionFailure = obj.decryptionFailure ?? false;
     if (obj.creationDate) {
@@ -342,6 +364,8 @@ export class CipherView implements View, InitializerMetadata {
     cipherView.archivedDate = obj.archivedDate == null ? undefined : new Date(obj.archivedDate);
     cipherView.reprompt = obj.reprompt ?? CipherRepromptType.None;
     cipherView.key = obj.key ? EncString.fromJSON(obj.key) : undefined;
+    // The SDK marks a restricted (PAM-gated) view partial; carry it onto the client view.
+    cipherView.partial = obj.partial ?? false;
 
     switch (obj.type) {
       case CipherType.Card:
