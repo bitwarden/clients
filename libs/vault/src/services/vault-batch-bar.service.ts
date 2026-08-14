@@ -170,10 +170,15 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** True when the batch bar is actively visible: feature flag on and at least one item selected. */
   readonly barVisible = computed(() => this.batchBarFlag() && this.selectedCount() > 0);
 
-  /** Selected items that are ciphers. */
+  /**
+   * Selected items that are ciphers, excluding partial (PAM-gated) rows. Partials are read-only
+   * and already unselectable in the list; filtering them here is a defense-in-depth net so a
+   * gated cipher can never be the target of a bulk action (move/archive/delete/assign) even if it
+   * reaches the selection some other way.
+   */
   readonly selectedCiphers = computed(() =>
     this.selected()
-      .filter((i) => i.cipher !== undefined)
+      .filter((i) => i.cipher !== undefined && !CipherViewLikeUtils.isPartial(i.cipher))
       .map((i) => i.cipher as C),
   );
 
@@ -554,7 +559,12 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     const { isOrgVault, organization: org } = this.config();
     const selected = this.selection.selected;
     const ciphers = selected
-      .filter((i) => i.collection === undefined && i.cipher !== undefined)
+      .filter(
+        (i) =>
+          i.collection === undefined &&
+          i.cipher !== undefined &&
+          !CipherViewLikeUtils.isPartial(i.cipher),
+      )
       .map((i) => i.cipher as C);
     const collections = selected
       .filter((i) => i.collection !== undefined)
