@@ -37,19 +37,16 @@ const routes: Routes = [
     ],
   },
   {
-    path: "",
+    // Mounted on "pam" rather than an empty-path shell: this module is registered before
+    // OssRoutingModule, so an empty-path route here matches "/" and its authGuard fires
+    // before the root redirectGuard can send anonymous users to /login.
+    path: "pam",
     component: UserLayoutComponent,
-    canActivate: [deepLinkGuard(), authGuard],
-    children: [
-      {
-        path: "pam",
-        canActivate: [canAccessFeature(FeatureFlag.Pam)],
-        loadChildren: () =>
-          import("./pam/access-requests/access-requests-routing.module").then(
-            (m) => m.AccessRequestsRoutingModule,
-          ),
-      },
-    ],
+    canActivate: [deepLinkGuard(), authGuard, canAccessFeature(FeatureFlag.Pam)],
+    loadChildren: () =>
+      import("./pam/access-requests/access-requests-routing.module").then(
+        (m) => m.AccessRequestsRoutingModule,
+      ),
   },
 ];
 
