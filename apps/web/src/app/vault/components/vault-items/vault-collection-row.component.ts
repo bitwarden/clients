@@ -86,6 +86,9 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() showPermissionsColumn: boolean;
 
+  // eslint-disable-next-line @angular-eslint/prefer-signals
+  @Input() showControlledAccess: boolean;
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onEvent = new EventEmitter<VaultItemEvent<C>>();

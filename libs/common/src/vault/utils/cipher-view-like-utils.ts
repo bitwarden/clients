@@ -406,6 +406,16 @@ export class CipherViewLikeUtils {
   };
 
   /**
+   * @returns `true` when the cipher is a PAM-gated ("partial") row — the server suppressed its
+   * sensitive fields, so the decrypted view carries only name + login URIs. Such a cipher must
+   * be kept out of the default cipher streams (autofill, export, key rotation, etc.); only the
+   * vault list opts into them via `cipherListViewsWithPartials$`.
+   */
+  static isPartial = (cipher: CipherViewLike): boolean => {
+    return "partial" in cipher ? !!cipher.partial : false;
+  };
+
+  /**
    * Returns the notes from the cipher.
    *
    * @param cipher - The cipher to extract notes from (either `CipherView` or `CipherListView`)
