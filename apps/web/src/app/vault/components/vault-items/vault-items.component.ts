@@ -1,8 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { SelectionModel } from "@angular/cdk/collections";
-import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { Component, EventEmitter, Input, Output, Signal, inject } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
   Observable,
   combineLatest,
@@ -47,6 +47,7 @@ import {
   convertToPermission,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 
 // Fixed manual row height required due to how cdk-virtual-scroll works
 export const RowHeight = 76.5;
@@ -161,6 +162,13 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     optional: true,
   }) as VaultBatchBarService<C> | null;
 
+  /**
+   * Host-provided "Controlled access" badge seam. Its presence (a privileged-access feature is
+   * installed) is what surfaces the Controlled access column; unprovided, the column is absent
+   * and the table is unchanged.
+   */
+  protected readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
+
   protected editableItems: VaultItem<C>[] = [];
   protected dataSource = new TableDataSource<VaultItem<C>>();
   private readonly _localSelection = new SelectionModel<VaultItem<C>>(
@@ -178,6 +186,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected showCopyAndLaunchActions$: Observable<boolean>;
   protected showQuickCopyActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
+  private readonly pamEnabled: Signal<boolean>;
 
   private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
@@ -195,6 +204,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
       this.vaultCopyButtonsService.showQuickCopyActions$,
     ]).pipe(map(([flagEnabled, settingEnabled]) => flagEnabled && settingEnabled));
+
+    this.pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+      initialValue: false,
+    });
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
@@ -286,7 +299,19 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   }
 
   get showExtraColumn() {
-    return this.showCollections || this.showGroups || this.showOwner;
+    return this.showCollections || this.showGroups || this.showOwner || this.showControlledAccess;
+  }
+
+  /**
+   * Whether to render the "Controlled access" column. Shown only when the PAM feature flag is
+   * enabled, the viewer actually has PAM enabled — i.e. at least one organization in view has the
+   * Privileged Access capability (`usePam`) — and a host provides the badge seam. Otherwise the
+   * column is absent and the table is unchanged.
+   */
+  get showControlledAccess() {
+    return (
+      this.pamEnabled() && this.leaseBadge != null && this.allOrganizations.some((o) => o.usePam)
+    );
   }
 
   /**
@@ -444,46 +469,53 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     this.onEvent.emit(event);
   }
 
+  /**
+   * Selected ciphers eligible for a bulk action, with partial (PAM-gated) rows removed. Partials
+   * are read-only and already unselectable (see {@link editableItems} and the row checkbox); this
+   * is a defense-in-depth net so a gated cipher can never be re-encrypted or otherwise modified by
+   * a bulk action even if it reaches the selection some other way.
+   */
+  private selectedCiphersForBulkAction(): C[] {
+    return this.selection.selected
+      .filter((item) => item.cipher !== undefined && !CipherViewLikeUtils.isPartial(item.cipher))
+      .map((item) => item.cipher);
+  }
+
   protected bulkMoveToFolder() {
     this.event({
       type: "moveToFolder",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selectedCiphersForBulkAction(),
     });
   }
 
   protected bulkArchive() {
     this.event({
       type: "archive",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selectedCiphersForBulkAction(),
     });
   }
 
   protected bulkUnarchive() {
     this.event({
       type: "unarchive",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selectedCiphersForBulkAction(),
     });
   }
 
   protected bulkRestore() {
     this.event({
       type: "restore",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selectedCiphersForBulkAction(),
     });
   }
 
   protected bulkDelete() {
     this.event({
       type: "delete",
-      items: this.selection.selected,
+      // Keep collections; drop partial (PAM-gated) ciphers — they must not be bulk-deleted.
+      items: this.selection.selected.filter(
+        (item) => item.cipher === undefined || !CipherViewLikeUtils.isPartial(item.cipher),
+      ),
     });
   }
 
@@ -565,10 +597,14 @@ export class VaultItemsComponent<C extends CipherViewLike> {
       .map((cipher) => ({ cipher }));
     const items: VaultItem<C>[] = [].concat(collections).concat(ciphers);
 
-    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted
+    // Ciphers are selectable only if the user can edit them; collections only if they can be edited or deleted.
+    // PAM-gated ("partial") ciphers are never selectable — they are read-only, so keeping them out of
+    // the selection prevents any bulk action (move/share/delete/archive) from modifying them.
     this.editableItems = items.filter(
       (item) =>
-        (item.cipher !== undefined && this.canEditCipher(item.cipher)) ||
+        (item.cipher !== undefined &&
+          this.canEditCipher(item.cipher) &&
+          !CipherViewLikeUtils.isPartial(item.cipher)) ||
         (item.collection !== undefined &&
           (this.canEditCollection(item.collection) || this.canDeleteCollection(item.collection))),
     );
@@ -588,9 +624,7 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected assignToCollections() {
     this.event({
       type: "assignToCollections",
-      items: this.selection.selected
-        .filter((item) => item.cipher !== undefined)
-        .map((item) => item.cipher),
+      items: this.selectedCiphersForBulkAction(),
     });
   }
 
