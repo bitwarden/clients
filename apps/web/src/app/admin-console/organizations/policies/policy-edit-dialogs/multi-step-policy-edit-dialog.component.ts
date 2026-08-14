@@ -8,6 +8,7 @@ import {
   ViewContainerRef,
   WritableSignal,
   computed,
+  inject,
   signal,
   viewChild,
 } from "@angular/core";
@@ -28,6 +29,7 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import {
@@ -68,18 +70,37 @@ export class MultiStepPolicyEditDialogComponent
    */
   protected readonly isV2 = computed(() => !!this.dialogRef.isDrawer && !!this.policy.v2);
 
+  private readonly terminology = inject(Vfo1TerminologyService);
+
+  /**
+   * [legacy, VFO1] i18n key pair for the dialog/drawer title, honoring the same v2-then-base
+   * fallback used by {@link PolicyEditDrawerComponent.titleKeys} - `v2`'s overrides only apply
+   * when {@link isV2} is true, so they can't leak into the plain v1 modal.
+   */
+  private readonly titleKeys = computed<[string, string]>(() => {
+    const legacy = (this.isV2() && this.policy.v2?.name) || this.policy.name;
+    const next =
+      this.policy.nameVfo1 ?? (this.isV2() ? this.policy.v2?.nameVfo1 : undefined) ?? legacy;
+    return [legacy, next];
+  });
+
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
       return undefined;
     }
-    return this.isV2() ? this.i18nService.t(this.policy.name) : this.i18nService.t("editPolicy");
+    if (!this.isV2()) {
+      return this.i18nService.t("editPolicy");
+    }
+    const [legacy, next] = this.titleKeys();
+    return this.i18nService.t(this.terminology.enabled() ? next : legacy);
   });
 
   protected readonly dialogSubtitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.() || this.isV2()) {
       return undefined;
     }
-    return this.i18nService.t(this.policy.name);
+    const [legacy, next] = this.titleKeys();
+    return this.i18nService.t(this.terminology.enabled() ? next : legacy);
   });
 
   /**
@@ -94,11 +115,22 @@ export class MultiStepPolicyEditDialogComponent
       : this.policy.showDescription,
   );
 
-  protected readonly descriptionKey = computed(() =>
-    this.isV2()
-      ? (this.policy.v2?.description ?? this.policy.description)
-      : this.policy.description,
-  );
+  /**
+   * [legacy, VFO1] i18n key pair for the dialog body description. See {@link titleKeys}.
+   */
+  private readonly descriptionKeys = computed<[string, string]>(() => {
+    const legacy = (this.isV2() && this.policy.v2?.description) || this.policy.description;
+    const next =
+      this.policy.descriptionVfo1 ??
+      (this.isV2() ? this.policy.v2?.descriptionVfo1 : undefined) ??
+      legacy;
+    return [legacy, next];
+  });
+
+  protected readonly descriptionKey = computed(() => {
+    const [legacy, next] = this.descriptionKeys();
+    return this.terminology.enabled() ? next : legacy;
+  });
 
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(

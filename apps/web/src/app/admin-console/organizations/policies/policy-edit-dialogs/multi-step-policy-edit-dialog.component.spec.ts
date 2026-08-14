@@ -22,6 +22,7 @@ import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
@@ -405,7 +406,11 @@ describe("MultiStepPolicyEditDialogComponent", () => {
    * description) leaking into the modal when the `PolicyDrawers` flag is off.
    */
   describe("Real MasterPasswordPolicy / OrganizationDataOwnershipPolicy rendering (no v2 leak)", () => {
-    async function setupRealPolicy(policy: BasePolicyEditDefinition, isDrawer: boolean) {
+    async function setupRealPolicy(
+      policy: BasePolicyEditDefinition,
+      isDrawer: boolean,
+      vfo1Enabled = false,
+    ) {
       const data: PolicyEditDialogData = {
         policy,
         organization: {
@@ -428,7 +433,11 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       const dRef = mock<DialogRef<PolicyEditDialogResult>>();
       (dRef as any).isDrawer = isDrawer;
       const configService = mock<ConfigService>();
-      configService.getFeatureFlag$.mockReturnValue(of(isDrawer));
+      // The `PolicyDrawers` and `VFO1Foundation` flags are independent - keep them decoupled here
+      // so tests can exercise VFO1 terminology in both drawer and modal rendering.
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        of(flag === FeatureFlag.VFO1Foundation ? vfo1Enabled : isDrawer),
+      );
       const authService = mock<AuthService>();
       authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
       const policyService = mock<PolicyService>();
@@ -529,6 +538,31 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         );
         expect(component.dialogTitle()).toBe("centralizeDataOwnership");
         expect(fixture.nativeElement.querySelector("[bitBadge]")).not.toBeNull();
+      });
+
+      // Regression test: the drawer title used to always render `policy.name`, ignoring
+      // `nameVfo1` entirely, so the VFO1 terminology flag never reached the drawer's title.
+      it("uses the VFO1 name as the title when the VFO1Foundation flag is also on (drawer)", async () => {
+        const { component } = await setupRealPolicy(
+          new OrganizationDataOwnershipPolicy(),
+          true,
+          true,
+        );
+
+        expect(component.dialogTitle()).toBe("centralizeDataOwnershipVfo1");
+      });
+
+      // Regression test: the v1 modal's subtitle (shown next to the "Edit policy" title) had the
+      // same gap - it always rendered `policy.name`, never `policy.nameVfo1`.
+      it("uses the VFO1 name as the subtitle when the VFO1Foundation flag is on (modal)", async () => {
+        const { component } = await setupRealPolicy(
+          new OrganizationDataOwnershipPolicy(),
+          false,
+          true,
+        );
+
+        expect(component.dialogTitle()).toBe("editPolicy");
+        expect(component.dialogSubtitle()).toBe("centralizeDataOwnershipVfo1");
       });
     });
 
