@@ -1,4 +1,5 @@
-import { VerifyingKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
+// eslint-disable-next-line no-restricted-imports
+import { VerifyingKey, WrappedSigningKey } from "@bitwarden/legacy-crypto";
 import { SignatureAlgorithm } from "@bitwarden/sdk-internal";
 
 export class SignatureKeyPairRequestModel {
