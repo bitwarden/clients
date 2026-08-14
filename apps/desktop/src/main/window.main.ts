@@ -1,5 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as fs from "fs";
 import { once } from "node:events";
 import { pathToFileURL } from "node:url";
 import * as path from "path";
@@ -21,7 +22,7 @@ import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { cleanUserAgent, isDev } from "../utils";
 
-import { isLinux, isMac, isMacAppStore, isSnapStore, isWindows } from "./platform-utils.main";
+import { isLinux, isMac, isMacAppStore, isWindows, SNAP_STORE_NAMES } from "./platform-utils.main";
 import { resolveProtocolPath } from "./protocol";
 
 // customFileOrigin = `${customFileScheme}://${customFileHost}`
@@ -41,6 +42,43 @@ protocol.registerSchemesAsPrivileged([
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
+
+/**
+ * Whether this process is *actually running inside* snap's strict confinement sandbox.
+ *
+ * Distinct from `isSnapStore()` in ./platform-utils.main, which answers "was this build
+ * installed from the Snap Store?" by reading the `SNAP` / `SNAP_NAME` env vars. Env vars are
+ * attacker-controlled and leak into child processes, so `isSnapStore()` can be made to return
+ * `true` for a process that is not confined at all.
+ *
+ * This function instead uses two signals a caller cannot set from the environment:
+ * `process.execPath` (the real binary path, under the snap's read-only mount) and the snap
+ * cgroup snapd places the process in. Prefer it over `isSnapStore()` for any decision that
+ * must not be spoofable — notably whether to enable process isolation, which breaks the
+ * xdg-desktop-portal file picker under confinement.
+ *
+ * Unconfirmed detection returns `false` (treated as not-snap), so isolation is applied rather
+ * than skipped.
+ *
+ * Lives here rather than alongside `isSnapStore()` because reading the cgroup needs `fs`, and
+ * platform-utils.main is bundled into the sandboxed preload where Node builtins fail to load.
+ */
+export function isConfinedSnap() {
+  if (!isLinux()) {
+    return false;
+  }
+  // execPath is the real binary path, not settable via env
+  if (!SNAP_STORE_NAMES.some((name) => process.execPath.startsWith(`/snap/${name}/`))) {
+    return false;
+  }
+  try {
+    const cgroup = fs.readFileSync("/proc/self/cgroup", "utf8");
+    return /snap\.bitwarden(-beta)?\b/.test(cgroup);
+  } catch {
+    return false; // can't confirm -> treat as not-snap -> isolate
+  }
+}
+
 export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
@@ -199,7 +237,7 @@ export class WindowMain {
 
           if (!isDev()) {
             // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
-            if (!isSnapStore()) {
+            if (!isConfinedSnap()) {
               this.logService.info(
                 "[Process Isolation] Isolating process from debuggers and memory dumps",
               );
