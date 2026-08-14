@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Obľúbené"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Odstrániť z obľúbených"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "Moje priečinky"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
@@ -527,6 +533,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Kopírovať hodnotu",
@@ -3542,6 +3551,27 @@
   },
   "moreOptions": {
     "message": "Ďalšie možnosti"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Vaša relácia vypršala. Vráťte sa späť a skúste sa prihlásiť znova."

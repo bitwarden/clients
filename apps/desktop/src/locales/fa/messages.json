@@ -11,6 +11,9 @@
   "favorites": {
     "message": "مورد علاقه"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "حذف از مورد علاقه"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "پوشه‌های من"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "افزودن پوشه‌ی مشترک"
@@ -527,6 +533,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "کپی مقدار",
@@ -2207,7 +2216,7 @@
     "message": "گزینه‌های ورود اضافی دو مرحله‌ای مانند YubiKey و Duo."
   },
   "premiumSignUpReports": {
-    "message": "گزارش‌های بهداشت کلمه عبور، سلامت حساب و نقض داده‌ها برای ایمن نگهداشتن گاوصندوق شما."
+    "message": "بهداشت کلمات عبور، وضعیت امنیت حساب‌های کاربری و گزارش‌های نشت اطلاعات برای حفظ امنیت گاوصندوق شما."
   },
   "premiumSignUpTotp": {
     "message": "تولید کننده کد تأیید (2FA) از نوع TOTP برای ورودهای موجود در گاوصندوقتان."
@@ -2493,7 +2502,7 @@
     "message": "بررسی کنید که آیا کلمه عبور افشا شده است."
   },
   "passwordExposed": {
-    "message": "این کلمه عبور $VALUE$ بار در نقض داده‌ها افشا شده است. باید آن را تغییر دهید.",
+    "message": "این کلمه عبور در نشت‌های اطلاعاتی $VALUE$ بار افشا شده است. باید آن را تغییر دهید.",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -2502,7 +2511,7 @@
     }
   },
   "passwordSafe": {
-    "message": "این کلمه عبور در هیچ یک از نقض‌های داده شناخته شده یافت نشد. استفاده از آن باید ایمن باشد."
+    "message": "این کلمه عبور در هیچ یک از نشت‌های اطلاعاتی شناخته شده پیدا نشده است. استفاده از آن باید امن باشد."
   },
   "baseDomain": {
     "message": "دامنه پایه",
@@ -3543,6 +3552,27 @@
   "moreOptions": {
     "message": "گزینه‌های بیشتر"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "زمان نشست شما به پایان رسید. لطفاً برگردید و دوباره وارد سیستم شوید."
   },
@@ -4081,16 +4111,16 @@
     "message": "کلمه عبور اصلی افشا شده"
   },
   "exposedMasterPasswordDesc": {
-    "message": "کلمه عبور در افشای داده پیدا شد. از یک کلمه عبور منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟"
+    "message": "کلمه عبور در نشت اطلاعاتی پیدا شده است. برای محافظت از حساب خود، از یک کلمه عبور منحصربه‌فرد استفاده کنید. آیا مطمئن هستید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟"
   },
   "weakAndExposedMasterPassword": {
     "message": "کلمه عبور اصلی ضعیف و افشا شده"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "کلمه عبور ضعیف شناسایی و در یک افشای داده پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از این کلمه عبور استفاده کنید؟"
+    "message": "کلمه عبور ضعیف شناسایی و در یک نشت اطلاعاتی پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئن هستید که می‌خواهید از این کلمه عبور استفاده کنید؟"
   },
   "checkForBreaches": {
-    "message": "بررسی نقض‌های داده شناخته شده برای این کلمه عبور"
+    "message": "بررسی نشت‌های اطلاعاتی شناخته شده برای این کلمه عبور"
   },
   "loggedInExclamation": {
     "message": "وارد شده!"

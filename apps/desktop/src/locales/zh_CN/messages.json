@@ -11,6 +11,9 @@
   "favorites": {
     "message": "收藏夹"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "取消收藏"
   },
@@ -116,6 +119,9 @@
   "myFolders": {
     "message": "我的文件夹"
   },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
   "addSharedFolder": {
     "message": "添加共享文件夹"
   },
@@ -123,13 +129,13 @@
     "message": "新增共享文件夹"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "搜索共享文件夹"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "搜索我的文件夹"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "查看共享文件夹 - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +144,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "删除共享文件夹"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "删除 $COUNT$ 个共享文件夹",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +156,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "此共享文件夹将被永久删除。文件夹中的项目将不会被删除。"
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "这些共享文件夹将被永久删除。文件夹中的项目将不会被删除。"
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "所选项目和共享文件夹将被永久删除。"
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "共享文件夹已删除"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "共享文件夹已删除"
   },
   "share": {
     "message": "共享"
@@ -520,13 +526,16 @@
     "message": "前往"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "前往 $ITEMNAME$ 的网站",
     "placeholders": {
       "itemname": {
         "content": "$1",
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "复制值",
@@ -2016,10 +2025,10 @@
     "message": "显示网站图标并获取更改密码的 URL"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "在密码库中显示快速复制操作"
   },
   "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
+    "message": "复制备注 - $ITEMNAME$",
     "description": "Title for a button copies a note to the clipboard.",
     "placeholders": {
       "itemname": {
@@ -2029,7 +2038,7 @@
     }
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "没有可复制的详细信息"
   },
   "runInBackground": {
     "message": "保持 Bitwarden 在后台运行"
@@ -2128,22 +2137,22 @@
     "message": "复制验证码"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "没有用户名"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "没有密码"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "没有验证码"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "没有号码"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "没有安全码"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "复制 $ITEMNAME$ 的详细信息",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -3541,7 +3550,28 @@
     "message": "选项"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "更多选项"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "您的会话已超时。请返回然后尝试重新登录。"
@@ -4569,7 +4599,7 @@
     "message": "未选择文件"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "未选择文件"
   },
   "fileChosen": {
     "message": "File chosen: $FILE_NAME$",
@@ -4612,10 +4642,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 个文件已上传"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ 个文件已上传",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4630,10 +4660,10 @@
     "message": "Click to upload or drag and drop"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "选择文件"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "最大文件大小：$SIZE$ MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5315,7 +5345,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "您无法移除仅拥有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -5422,22 +5452,22 @@
     "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "在项目旁边添加 3 个快速复制按钮，以将您的用户名、密码或验证码复制到剪贴板。"
   },
   "assignToCollections": {
     "message": "分配到集合"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "添加到共享文件夹"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "转移并添加"
   },
   "itemLower": {
-    "message": "item"
+    "message": "项目"
   },
   "itemsLower": {
-    "message": "items"
+    "message": "项目"
   },
   "assignToTheseCollections": {
     "message": "分配到这些集合"
@@ -5513,7 +5543,7 @@
     "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 个项目将永久转移到所选密码库。您将不再拥有该项目。"
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
@@ -5525,7 +5555,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选密码库。您将不再拥有这些项目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5550,31 +5580,31 @@
     "message": "成功分配了集合"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "成功添加了共享文件夹"
   },
   "itemMovedToCollection": {
     "message": "项目已移动到集合"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "项目已添加到共享文件夹"
   },
   "itemMovedToCollections": {
     "message": "项目已移动到集合"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "项目已添加到共享文件夹"
   },
   "itemsMovedToCollection": {
     "message": "项目已移动到集合"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "项目已添加到共享文件夹"
   },
   "itemsMovedToCollections": {
     "message": "项目已移动到集合"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "项目已添加到共享文件夹"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"

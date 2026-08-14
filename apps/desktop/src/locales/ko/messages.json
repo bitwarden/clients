@@ -11,6 +11,9 @@
   "favorites": {
     "message": "즐겨찾기"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "즐겨찾기 해제"
   },
@@ -36,37 +39,37 @@
     "message": "SSH 키"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "은행 계좌"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "웹사이트 또는 앱"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "신용카드 또는 체크카드"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "개인 정보"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "중요 텍스트"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "서버 로그인 토큰"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "은행 계좌 세부 정보"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "여권"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "여권 세부 정보"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "여권 추가됨"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "여행 서류"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -75,10 +78,10 @@
     "message": "Organize shared items"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "면허"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "운전면허 또는 ID"
   },
   "chooseItemToAdd": {
     "message": "Choose item to add"
@@ -105,28 +108,31 @@
     "message": "공유됨"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "공유 폴더"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "공유 폴더"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "내 폴더"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "내 폴더"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "공유 폴더 추가"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "새 공유 폴더"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "공유 폴더 검색"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "내 폴더 검색"
   },
   "viewSharedFolderWithName": {
     "message": "View shared folder - $NAME$",
@@ -211,163 +217,163 @@
     }
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "로그인 보기",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "카드 보기",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "신원 보기",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "메모 보기",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "보안 메모 보기",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "SSH 키 보기",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "은행 계좌 보기",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "면허 보기",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "여권 보기",
     "description": "Header for view passport item type"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "로그인 추가",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "카드 추가",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "신원 추가",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "메모 추가",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "보안 메모 추가",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "SSH 키 추가",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "은행 계좌 추가",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "면허 추가",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "여권 추가",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "새 로그인",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "새 카드",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "새 신원",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "새 메모",
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "새 보안 메모",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "새 SSH 키",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "새 은행 계좌",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "새 면허",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "새 여권",
     "description": "Header for new passport item type"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "로그인 편집",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "카드 편집",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "신원 편집",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "메모 편집",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "보안 메모 편집",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "로그인 편집",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "카드 편집",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "신원 편집",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "메모 편집",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "SSH 키 편집",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "은행 계좌 편집",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "면허 편집",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "여권 편집",
     "description": "Header for edit passport item type"
   },
   "name": {
@@ -427,19 +433,19 @@
     "message": "공유할 텍스트"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "새 텍스트",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "새 파일",
     "description": "Header for new file send"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "텍스트 편집",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "파일 편집",
     "description": "Header for edit file send"
   },
   "deleteSendPermanentConfirmation": {
@@ -447,19 +453,19 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "로그인 보기",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "카드 보기",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "신원 보기",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "메모 보기",
     "description": "Header for view note item type"
   },
   "create": {
@@ -528,6 +534,9 @@
       }
     }
   },
+  "launchWebsite": {
+    "message": "Launch website"
+  },
   "copyValue": {
     "message": "값 복사",
     "description": "Copy value to clipboard"
@@ -585,7 +594,7 @@
     "message": "여권 번호"
   },
   "sex": {
-    "message": "Sex"
+    "message": "성별"
   },
   "copySex": {
     "message": "Copy sex"
@@ -896,10 +905,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "앱 (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "앱 (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -915,16 +924,16 @@
     "message": "웹사이트 추가"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "웹사이트 또는 앱 추가"
   },
   "app": {
-    "message": "App"
+    "message": "앱"
   },
   "deleteWebsite": {
     "message": "웹사이트 삭제"
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "$LABEL$ 삭제",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -1139,7 +1148,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "$NAME$ 다운로드",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1209,13 +1218,13 @@
     }
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "개인 키 복사"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "공개 키 복사"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "핑거프린트 복사"
   },
   "length": {
     "message": "길이"
@@ -1352,7 +1361,7 @@
     "message": "파일"
   },
   "photo": {
-    "message": "Photo"
+    "message": "사진"
   },
   "selectFile": {
     "message": "파일을 선택하세요."
@@ -1394,7 +1403,7 @@
     "message": "로그인"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in to Bitwarden"
+    "message": "Bitwarden에 로그인"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Enter the code sent to your email"
@@ -1491,13 +1500,13 @@
     "message": "설정"
   },
   "accountEmail": {
-    "message": "Account email"
+    "message": "계정 이메일"
   },
   "requestHint": {
-    "message": "Request hint"
+    "message": "힌트 요청"
   },
   "requestPasswordHint": {
-    "message": "Request password hint"
+    "message": "비밀번호 힌트 요청"
   },
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Enter your account email address and your password hint will be sent to you"
@@ -2240,19 +2249,19 @@
     }
   },
   "month": {
-    "message": "month"
+    "message": "월"
   },
   "monthly": {
-    "message": "Monthly"
+    "message": "월간"
   },
   "year": {
-    "message": "year"
+    "message": "년"
   },
   "annually": {
-    "message": "Annually"
+    "message": "연간"
   },
   "annual": {
-    "message": "Annual"
+    "message": "연간"
   },
   "refreshComplete": {
     "message": "새로 고침 완료"
@@ -2261,13 +2270,13 @@
     "message": "비밀번호 변경 기록"
   },
   "generatorHistory": {
-    "message": "Generator history"
+    "message": "생성기 기록"
   },
   "clearGeneratorHistoryTitle": {
-    "message": "Clear generator history"
+    "message": "생성기 기록 지우기"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "계속하면 모든 항목이 생성기 기록에서 영구적으로 삭제됩니다. 계속하시겠습니까?"
   },
   "clear": {
     "message": "삭제",
@@ -2303,10 +2312,10 @@
     "message": "모두 선택"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "행 모두 선택"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "행 선택"
   },
   "showingItemRange": {
     "message": "Showing $START$ - $END$ of $TOTAL$",
@@ -2347,16 +2356,16 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "모두"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "모두 지우기"
   },
   "done": {
     "message": "완료"
   },
   "filter": {
-    "message": "Filter"
+    "message": "필터"
   },
   "filtersSelected": {
     "message": "$COUNT$ selected",
@@ -2368,7 +2377,7 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "이전 페이지"
   },
   "nextPage": {
     "message": "Next page"
@@ -2538,7 +2547,7 @@
     "message": "Show match detection"
   },
   "hideMatchDetectionNoPlaceholder": {
-    "message": "Hide match detection"
+    "message": "일치 인식 숨김"
   },
   "toggleOptions": {
     "message": "표시 / 숨기기"
@@ -2554,7 +2563,7 @@
     "message": "끝내기"
   },
   "show": {
-    "message": "Show",
+    "message": "표시",
     "description": "Tray menu item that brings the Bitwarden window to the foreground."
   },
   "hideToTray": {
@@ -3434,7 +3443,7 @@
     }
   },
   "vaultTimeoutTooLarge": {
-    "message": "볼트 제한 시간이 조직에서 설정한 제한을 초과합니다."
+    "message": "보관함 제한 시간이 조직에서 설정한 제한을 초과합니다."
   },
   "vaultTimeoutPolicyInEffect": {
     "message": "Your organization policies have set your maximum allowed vault timeout to $HOURS$ hour(s) and $MINUTES$ minute(s).",
@@ -3542,6 +3551,27 @@
   },
   "moreOptions": {
     "message": "More options"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "세션 시간이 초과되었습니다. 다시 로그인해주세요."
@@ -6112,13 +6142,13 @@
     "message": "Name on account"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "계좌 유형"
   },
   "bankAccountTypeCompany": {
-    "message": "Company"
+    "message": "기업"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual"
+    "message": "개인"
   },
   "accountNumber": {
     "message": "Account number"
@@ -6182,25 +6212,25 @@
     "message": "Copy passport number"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "당좌"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "저축"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "예금증서"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "한도대출"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "투자/중개"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "단기금융시장"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "기타"
   },
   "newBankAccountNudgeTitle": {
     "message": "Securely store your bank details"

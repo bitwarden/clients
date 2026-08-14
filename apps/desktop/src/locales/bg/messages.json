@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Любими"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Премахване от любимите"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "Моите папки"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
@@ -527,6 +533,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Копиране на стойността",
@@ -3542,6 +3551,27 @@
   },
   "moreOptions": {
     "message": "Още настройки"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Сесията Ви изтече. Моля, върнете се назад и се опитайте да влезете отново."

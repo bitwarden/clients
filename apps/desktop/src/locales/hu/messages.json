@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Kedvencek"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Nem kedvenc"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "Saját mappák"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
@@ -527,6 +533,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Érték másolása",
@@ -3543,6 +3552,27 @@
   "moreOptions": {
     "message": "További opciók"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "A munkamenet lejárt. Lépjünk vissza és próbáljunk újra bejelentkezni."
   },
@@ -5857,7 +5887,7 @@
     "message": "Oldalnavigáció átméretezés"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "Ezt a beállítást a szervezet lezeli."
+    "message": "Ezt a beállítást a szervezet kezeli."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "A szervezet a munkamenet maximális munkamenet időkifutását $HOURS$ órára és $MINUTES$ percre állította be.",

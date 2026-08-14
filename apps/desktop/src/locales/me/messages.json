@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriti"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Unfavorite"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "My folders"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Add shared folder"
@@ -527,6 +533,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Kopiraj vrijednost",
@@ -3542,6 +3551,27 @@
   },
   "moreOptions": {
     "message": "More options"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Your session has timed out. Please go back and try logging in again."
