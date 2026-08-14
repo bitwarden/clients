@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject, throwError } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
@@ -56,13 +56,26 @@ describe("HealthOverviewComponent", () => {
   let reportService: MockProxy<VaultHealthReportService>;
   let logService: MockProxy<LogService>;
 
-  /** A distinct at-risk login; the fields are irrelevant to the overview. */
-  function healthView(): CipherHealthView {
-    return {} as CipherHealthView;
+  /** What the report service publishes; null until a scan has completed. */
+  let report$: BehaviorSubject<VaultHealthReportView | null>;
+
+  /**
+   * Mirrors the service contract: the report is published as the result of a
+   * scan, not returned from the call, so nothing is available until it runs.
+   */
+  function scanYields(report: VaultHealthReportView) {
+    reportService.buildVaultHealthReport.mockImplementation(async () => {
+      report$.next(report);
+    });
   }
 
+  /** Distinct at-risk logins; only the count matters to the overview. */
   function items(count: number): CipherHealthView[] {
-    return Array.from({ length: count }, () => healthView());
+    return Array.from({ length: count }, (_, index) => {
+      const health = new CipherHealthView();
+      health.cipherId = `cipher-${index}`;
+      return health;
+    });
   }
 
   async function initComponent() {
@@ -91,7 +104,11 @@ describe("HealthOverviewComponent", () => {
     cipherService = mock<CipherService>();
     cipherService.cipherViews$.mockReturnValue(of([] as CipherView[]));
 
+    report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
     reportService = mock<VaultHealthReportService>();
+    reportService.getVaultHealthReport$.mockReturnValue(report$);
+    reportService.buildVaultHealthReport.mockResolvedValue(undefined);
+
     logService = mock<LogService>();
 
     await TestBed.configureTestingModule({
@@ -115,9 +132,7 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("passes the at-risk and total counts to the gauge", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10, score: 0.1 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10, score: 0.1 }));
 
     await initComponent();
 
@@ -126,9 +141,7 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("shows the at-risk heading and count when any password is at risk", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
 
     await initComponent();
 
@@ -138,9 +151,7 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("shows the healthy heading when no passwords are at risk", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 }));
 
     await initComponent();
 
@@ -151,9 +162,7 @@ describe("HealthOverviewComponent", () => {
   it("keeps the same count line in the clean state, reading zero of the total", async () => {
     // The design shows "0 of 200 passwords need fixing" when nothing is at
     // risk, so the line is not swapped for a differently-phrased one.
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 }));
 
     await initComponent();
 
@@ -161,9 +170,7 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("labels the category list with a section header", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
 
     await initComponent();
 
@@ -172,9 +179,7 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("renders the three categories in Exposed, Weak, Reused order", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
 
     await initComponent();
 
@@ -191,9 +196,7 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("gives every category its own zero-state title and description", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 100, atRiskCount: 0 }));
 
     await initComponent();
 
@@ -210,14 +213,12 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("renders every category even when its count is zero", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(
-        new VaultHealthReportView({
-          totalCount: 100,
-          atRiskCount: 7,
-          categoryItems: { exposed: items(7), weak: [], reused: [] },
-        }),
-      ),
+    scanYields(
+      new VaultHealthReportView({
+        totalCount: 100,
+        atRiskCount: 7,
+        categoryItems: { exposed: items(7), weak: [], reused: [] },
+      }),
     );
 
     await initComponent();
@@ -227,14 +228,12 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("uses each category's deduplicated item count", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(
-        new VaultHealthReportView({
-          totalCount: 100,
-          atRiskCount: 10,
-          categoryItems: { exposed: items(7), weak: items(2), reused: items(1) },
-        }),
-      ),
+    scanYields(
+      new VaultHealthReportView({
+        totalCount: 100,
+        atRiskCount: 10,
+        categoryItems: { exposed: items(7), weak: items(2), reused: items(1) },
+      }),
     );
 
     await initComponent();
@@ -255,14 +254,12 @@ describe("HealthOverviewComponent", () => {
     // completes, the user is stranded on a permanent "healthy" reading.
     const ciphers$ = new BehaviorSubject<CipherView[] | null>(null);
     cipherService.cipherViews$.mockReturnValue(ciphers$ as never);
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 }));
 
     await initComponent();
 
     // Nothing should have been scanned off the null.
-    expect(reportService.buildVaultHealthReport$).not.toHaveBeenCalled();
+    expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
     expect(gauge()).toBeNull();
 
     // The real ciphers arrive; now it scans, exactly once, with those ciphers.
@@ -271,14 +268,15 @@ describe("HealthOverviewComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledWith(real, userId);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledWith(real, userId);
     expect(gauge()?.value()).toBe(12);
     expect(text()).toContain("yourVaultRiskIsHigh");
   });
 
   it("renders nothing until the report resolves", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(new Subject<VaultHealthReportView>());
+    // A scan that never settles, so the service never publishes a report.
+    reportService.buildVaultHealthReport.mockReturnValue(new Promise<void>(() => {}));
 
     await initComponent();
 
@@ -287,7 +285,7 @@ describe("HealthOverviewComponent", () => {
   });
 
   it("renders an empty vault without error", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(of(new VaultHealthReportView()));
+    scanYields(new VaultHealthReportView());
 
     await initComponent();
 
@@ -300,24 +298,20 @@ describe("HealthOverviewComponent", () => {
   it("scans once and does not rescan when the vault changes", async () => {
     const ciphers$ = new BehaviorSubject<CipherView[]>([]);
     cipherService.cipherViews$.mockReturnValue(ciphers$);
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      of(new VaultHealthReportView({ totalCount: 1, atRiskCount: 0 })),
-    );
+    scanYields(new VaultHealthReportView({ totalCount: 1, atRiskCount: 0 }));
 
     await initComponent();
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
 
     // A vault edit must not re-run the breach lookup.
     ciphers$.next([{} as CipherView]);
     await fixture.whenStable();
 
-    expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+    expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
   });
 
   it("logs the error and renders nothing when the scan fails", async () => {
-    reportService.buildVaultHealthReport$.mockReturnValue(
-      throwError(() => new Error("HIBP unavailable")),
-    );
+    reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
 
     await initComponent();
 

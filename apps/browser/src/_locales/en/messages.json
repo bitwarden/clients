@@ -7738,5 +7738,23 @@
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Exposed passwords"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+  },
+  "weakPasswordsTitle": {
+    "message": "Weak passwords"
+  },
+  "weakPasswordsDescription": {
+    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+  },    
+  "reusedPasswordsTitle": {
+    "message": "Reused passwords"
+  },
+  "reusedPasswordsDescription": {
+    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
   }
 }

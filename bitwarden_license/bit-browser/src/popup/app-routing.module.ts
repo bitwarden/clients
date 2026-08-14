@@ -5,6 +5,7 @@ import { authGuard } from "@bitwarden/angular/auth/guards";
 import { RouteDataProperties } from "@bitwarden/browser/popup/app-routing.module";
 import { TabsV2Component } from "@bitwarden/browser/popup/tabs-v2.component";
 
+import { HealthRiskCategoryDetailComponent } from "./dirt/health/health-risk-category-detail.component";
 import { HealthComponent } from "./dirt/health/health.component";
 import { canAccessHealth } from "./dirt/health/services/health-access.service";
 
@@ -28,6 +29,12 @@ const routes: Routes = [
         data: { elevation: 0 } satisfies RouteDataProperties,
       },
     ],
+  },
+  {
+    path: "health/:category",
+    component: HealthRiskCategoryDetailComponent,
+    canActivate: [authGuard, canAccessHealth],
+    data: { elevation: 1 } satisfies RouteDataProperties,
   },
 ];
 
