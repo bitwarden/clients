@@ -1,7 +1,7 @@
 import { Injector, WritableSignal, runInInjectionContext, signal } from "@angular/core";
 import { TestBed, discardPeriodicTasks, fakeAsync, tick } from "@angular/core/testing";
 import { FormBuilder } from "@angular/forms";
-import { BehaviorSubject, skipWhile } from "rxjs";
+import { BehaviorSubject, firstValueFrom, skipWhile } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { ViewCacheService } from "@bitwarden/angular/platform/view-cache";
@@ -35,6 +35,7 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 import {
   CachedFilterState,
   MY_VAULT_ID,
+  NO_FOLDER_COUNT_KEY,
   VaultPopupListFiltersService,
 } from "./vault-popup-list-filters.service";
 
@@ -636,6 +637,110 @@ describe("VaultPopupListFiltersService", () => {
 
         service.filterForm.patchValue({ organization });
       });
+    });
+  });
+
+  describe("filterOptionCounts$", () => {
+    const countedCiphers = [
+      { id: "1", type: CipherType.Login, collectionIds: [], organizationId: null },
+      {
+        id: "2",
+        type: CipherType.Login,
+        collectionIds: [],
+        folderId: "folder-a",
+        organizationId: null,
+      },
+      {
+        id: "3",
+        type: CipherType.Card,
+        collectionIds: [asUuid("cbcae898-9f9a-48eb-863e-edf92e3ad7e0")],
+        organizationId: "org-1",
+      },
+      {
+        id: "4",
+        type: CipherType.Identity,
+        collectionIds: [asUuid("cbcae898-9f9a-48eb-863e-edf92e3ad7e0")],
+        folderId: "folder-a",
+        organizationId: "org-1",
+      },
+    ] as unknown as CipherView[];
+
+    /**
+     * The latest counts for a set of ciphers. `cipherListViews$` is a `BehaviorSubject` shared
+     * across the suite and `filterOptionCounts$` replays, so a bare `subscribe` would see the
+     * previous test's emission first — take the value settled after this test's own input.
+     */
+    const countsFor = async (ciphers: CipherView[]) => {
+      cipherListViews$.next({ ...ciphers });
+      return await firstValueFrom(service.filterOptionCounts$);
+    };
+
+    it("counts the items belonging to each cipher type", async () => {
+      const counts = await countsFor(countedCiphers);
+
+      expect(counts.cipherType.get(CipherType.Login)).toBe(2);
+      expect(counts.cipherType.get(CipherType.Card)).toBe(1);
+      expect(counts.cipherType.get(CipherType.Identity)).toBe(1);
+    });
+
+    it("counts organization-less ciphers under My vault", async () => {
+      const counts = await countsFor(countedCiphers);
+
+      expect(counts.organization.get(MY_VAULT_ID)).toBe(2);
+      expect(counts.organization.get("org-1")).toBe(2);
+    });
+
+    it("counts a cipher toward every collection it belongs to", async () => {
+      const sharedByTwo = {
+        id: "5",
+        type: CipherType.Login,
+        collectionIds: [
+          asUuid("cbcae898-9f9a-48eb-863e-edf92e3ad7e0"),
+          asUuid("dbcae898-9f9a-48eb-863e-edf92e3ad7e1"),
+        ],
+        organizationId: "org-1",
+      } as unknown as CipherView;
+
+      const counts = await countsFor([...countedCiphers, sharedByTwo]);
+
+      expect(counts.collection.get("cbcae898-9f9a-48eb-863e-edf92e3ad7e0")).toBe(3);
+      expect(counts.collection.get("dbcae898-9f9a-48eb-863e-edf92e3ad7e1")).toBe(1);
+    });
+
+    it("counts folderless ciphers under the no-folder key", async () => {
+      const counts = await countsFor(countedCiphers);
+
+      expect(counts.folder.get("folder-a")).toBe(2);
+      expect(counts.folder.get(NO_FOLDER_COUNT_KEY)).toBe(2);
+    });
+
+    it("excludes deleted ciphers from every count", async () => {
+      // `CipherViewLikeUtils.isDeleted` reads `isDeleted` on a `CipherView` (it only consults
+      // `deletedDate` for a `CipherListView`), and these fixtures are the former.
+      const deleted = {
+        id: "6",
+        type: CipherType.Login,
+        collectionIds: [],
+        organizationId: null,
+        isDeleted: true,
+      } as unknown as CipherView;
+
+      const counts = await countsFor([...countedCiphers, deleted]);
+
+      expect(counts.cipherType.get(CipherType.Login)).toBe(2);
+    });
+
+    it("counts the whole vault regardless of which filters are applied", async () => {
+      service.filterForm.patchValue({ organization: { id: "org-1" } as Organization });
+
+      const counts = await countsFor(countedCiphers);
+
+      // Absolute, not faceted: the org filter narrows the list but leaves every count alone.
+      expect(counts.cipherType.get(CipherType.Login)).toBe(2);
+      expect(counts.cipherType.get(CipherType.Card)).toBe(1);
+      expect(counts.cipherType.get(CipherType.Identity)).toBe(1);
+      expect(counts.organization.get(MY_VAULT_ID)).toBe(2);
+      expect(counts.organization.get("org-1")).toBe(2);
     });
   });
 

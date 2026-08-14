@@ -457,6 +457,14 @@ const buildProviders = (args: StoryArgs) => {
         collections$: of(FILTER_COLLECTION_OPTIONS),
         folders$: of(FILTER_FOLDER_OPTIONS),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
+        // Empty maps: the chips' option counts fall back to zero. The list-table stories are where
+        // counts are exercised against real ciphers; these stories cover the page around them.
+        filterOptionCounts$: of({
+          cipherType: new Map(),
+          organization: new Map(),
+          collection: new Map(),
+          folder: new Map(),
+        }),
         // `app-vault-list-filters` binds this directly to a `[formGroup]`, so it has to be a real
         // FormGroup with the controls the template names.
         filterForm: new FormBuilder().group({

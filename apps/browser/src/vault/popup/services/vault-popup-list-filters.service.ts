@@ -92,6 +92,62 @@ const INITIAL_FILTERS: PopupListFilter = {
   cipherType: null,
 };
 
+/** Whether a cipher satisfies every filter in `filters`. Backs `filterFunction$`. */
+function matchesFilters(cipher: PopupCipherViewLike, filters: Partial<PopupListFilter>): boolean {
+  // Vault popup lists never show deleted ciphers
+  if (CipherViewLikeUtils.isDeleted(cipher)) {
+    return false;
+  }
+
+  if (filters.cipherType != null && CipherViewLikeUtils.getType(cipher) !== filters.cipherType) {
+    return false;
+  }
+
+  if (filters.collection && !cipher.collectionIds?.includes(asUuid(filters.collection.id!))) {
+    return false;
+  }
+
+  if (filters.folder) {
+    if (!filters.folder.id) {
+      // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+      if (cipher.folderId) {
+        return false;
+      }
+    } else if (cipher.folderId !== filters.folder.id) {
+      return false;
+    }
+  }
+
+  const isMyVault = filters.organization?.id === MY_VAULT_ID;
+
+  if (isMyVault) {
+    if (cipher.organizationId != null) {
+      return false;
+    }
+  } else if (filters.organization) {
+    if (cipher.organizationId !== filters.organization.id) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Item counts for each filter dimension's options, keyed by the option's identity: the
+ * `CipherType` for `cipherType`, and the entity id for the object-valued dimensions ("Items with
+ * no folder" has no id, so it counts under {@link NO_FOLDER_COUNT_KEY}).
+ */
+export type FilterOptionCounts = {
+  cipherType: Map<CipherType, number>;
+  organization: Map<string, number>;
+  collection: Map<string, number>;
+  folder: Map<string, number>;
+};
+
+/** The `folder` count key for the "Items with no folder" option, which has no id of its own. */
+export const NO_FOLDER_COUNT_KEY = "";
+
 @Injectable({
   providedIn: "root",
 })
@@ -239,53 +295,55 @@ export class VaultPopupListFiltersService {
     this.filters$.pipe(
       map(
         (filters) => (ciphers: PopupCipherViewLike[]) =>
-          ciphers.filter((cipher) => {
-            // Vault popup lists never shows deleted ciphers
-            if (CipherViewLikeUtils.isDeleted(cipher)) {
-              return false;
-            }
-
-            if (
-              filters.cipherType !== null &&
-              CipherViewLikeUtils.getType(cipher) !== filters.cipherType
-            ) {
-              return false;
-            }
-
-            if (
-              filters.collection &&
-              !cipher.collectionIds?.includes(asUuid(filters.collection.id!))
-            ) {
-              return false;
-            }
-
-            if (filters.folder) {
-              if (!filters.folder.id) {
-                // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
-                if (cipher.folderId) {
-                  return false;
-                }
-              } else if (cipher.folderId !== filters.folder.id) {
-                return false;
-              }
-            }
-
-            const isMyVault = filters.organization?.id === MY_VAULT_ID;
-
-            if (isMyVault) {
-              if (cipher.organizationId != null) {
-                return false;
-              }
-            } else if (filters.organization) {
-              if (cipher.organizationId !== filters.organization.id) {
-                return false;
-              }
-            }
-
-            return true;
-          }),
+          ciphers.filter((cipher) => matchesFilters(cipher, filters)),
       ),
     );
+
+  /**
+   * Absolute item counts for every filter option: how many of the vault's items belong to each
+   * option, independent of what's currently filtered.
+   *
+   * The applied filters deliberately don't narrow these — an option reads the same whether or not
+   * other chips are set, so the numbers stay stable as the user moves through the menus. Deleted
+   * items are still excluded, since they're never listed.
+   */
+  filterOptionCounts$: Observable<FilterOptionCounts> = this.activeUserId$.pipe(
+    switchMap((userId) => this.cipherService.cipherListViews$(userId)),
+    map((cipherViews) => {
+      const ciphers = cipherViews ? Object.values(cipherViews) : [];
+      const counts: FilterOptionCounts = {
+        cipherType: new Map<CipherType, number>(),
+        organization: new Map<string, number>(),
+        collection: new Map<string, number>(),
+        folder: new Map<string, number>(),
+      };
+
+      const increment = <K>(map: Map<K, number>, key: K) => {
+        map.set(key, (map.get(key) ?? 0) + 1);
+      };
+
+      for (const cipher of ciphers) {
+        if (CipherViewLikeUtils.isDeleted(cipher)) {
+          continue;
+        }
+
+        increment(counts.cipherType, CipherViewLikeUtils.getType(cipher));
+
+        // Ciphers outside an organization belong to the synthetic "My vault" option.
+        increment(counts.organization, cipher.organizationId ?? MY_VAULT_ID);
+
+        // A cipher can sit in several collections, so it counts toward each of them.
+        for (const collectionId of cipher.collectionIds ?? []) {
+          increment(counts.collection, collectionId);
+        }
+
+        increment(counts.folder, cipher.folderId ?? NO_FOLDER_COUNT_KEY);
+      }
+
+      return counts;
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
 
   /**
    * All available cipher types (filtered by policy restrictions and feature flags)

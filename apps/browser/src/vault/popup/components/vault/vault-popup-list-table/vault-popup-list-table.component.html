@@ -36,7 +36,9 @@
       [unsetLabel]="'all' | i18n"
     >
       @for (option of cipherTypeOptions(); track option.value) {
-        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        <bit-filter-option [value]="option.value" [count]="cipherTypeCount(option.value)">{{
+          option.label
+        }}</bit-filter-option>
       }
     </bit-filter-menu>
 
@@ -49,7 +51,9 @@
         [unsetLabel]="'all' | i18n"
       >
         @for (option of organizationOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          <bit-filter-option [value]="option.value" [count]="organizationCount(option.value)">{{
+            option.label
+          }}</bit-filter-option>
         }
       </bit-filter-menu>
     }
@@ -63,7 +67,9 @@
         [unsetLabel]="'all' | i18n"
       >
         @for (option of collectionOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">{{
+            option.label
+          }}</bit-filter-option>
         }
       </bit-filter-menu>
     }
@@ -77,7 +83,9 @@
         [unsetLabel]="'all' | i18n"
       >
         @for (option of folderOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+          <bit-filter-option [value]="option.value" [count]="folderCount(option.value)">{{
+            option.label
+          }}</bit-filter-option>
         }
       </bit-filter-menu>
     }

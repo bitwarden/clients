@@ -55,7 +55,11 @@ import { OrgIconDirective, Vfo1I18nPipe } from "@bitwarden/vault";
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import { VaultPopupListFiltersService } from "../../../services/vault-popup-list-filters.service";
+import {
+  FilterOptionCounts,
+  NO_FOLDER_COUNT_KEY,
+  VaultPopupListFiltersService,
+} from "../../../services/vault-popup-list-filters.service";
 import {
   VaultPopupListTableService,
   VaultTableRow,
@@ -212,6 +216,40 @@ export class VaultPopupListTableComponent implements OnDestroy {
    */
   protected readonly collectionOptions = computed(() => flattenOptions(this.collectionTree()));
   protected readonly folderOptions = computed(() => flattenOptions(this.folderTree()));
+
+  /**
+   * Item counts per filter option, shown to the right of each option row.
+   *
+   * The table can't derive these itself: `bit-table-v2` counts its own rows, which are already
+   * narrowed by `filterFunction$` upstream, so every unselected option would read zero. The
+   * service counts the whole vault instead.
+   */
+  private readonly optionCounts = toSignal(this.listFiltersService.filterOptionCounts$, {
+    initialValue: {
+      cipherType: new Map(),
+      organization: new Map(),
+      collection: new Map(),
+      folder: new Map(),
+    } as FilterOptionCounts,
+  });
+
+  /** An option's count, defaulting to zero so a dimension with no matches still renders a number. */
+  protected cipherTypeCount(type: CipherType): number {
+    return this.optionCounts().cipherType.get(type) ?? 0;
+  }
+
+  protected organizationCount(organization: Organization): number {
+    return this.optionCounts().organization.get(organization.id) ?? 0;
+  }
+
+  protected collectionCount(collection: CollectionView): number {
+    return this.optionCounts().collection.get(collection.id) ?? 0;
+  }
+
+  /** "Items with no folder" has no id, so it counts under {@link NO_FOLDER_COUNT_KEY}. */
+  protected folderCount(folder: FolderView): number {
+    return this.optionCounts().folder.get(folder.id ?? NO_FOLDER_COUNT_KEY) ?? 0;
+  }
 
   protected readonly itemHeight = toSignal(
     this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 59))),
