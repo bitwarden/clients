@@ -7,6 +7,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getAvatarDefaultColor } from "@bitwarden/components";
 
@@ -89,9 +90,13 @@ export class DefaultVaultNavService extends VaultNavService {
   }
 
   private orgType(org: Organization): VaultNavItemType {
-    return getOrgIconForTier(org.productTierType) === "bwi-family"
-      ? VaultNavItemType.Family
-      : VaultNavItemType.Organization;
+    switch (org.productTierType) {
+      case ProductTierType.Free:
+      case ProductTierType.Families:
+        return VaultNavItemType.Family;
+      default:
+        return VaultNavItemType.Organization;
+    }
   }
 
   private orgColor(org: Organization): VaultNavColor {
