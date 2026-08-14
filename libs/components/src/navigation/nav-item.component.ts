@@ -7,14 +7,28 @@ import {
   signal,
   computed,
   model,
+  contentChildren,
 } from "@angular/core";
 import { RouterModule, RouterLinkActive } from "@angular/router";
 
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { SideNavService } from "./side-nav.service";
+
+/**
+ * Utility classes for the focus-visible-within ring. Exported so snapshot stories can force the
+ * focused state directly — focus-visible-within is JS-driven (see `fvwStyles`) and has no CSS
+ * variant to trigger — without duplicating (and drifting from) the class list.
+ */
+export const FVW_RING_CLASSES =
+  "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-border-nav-focus tw-bg-bg-nav-hover";
+
+/** Version 1 keeps the inset ring; the outset ring above is a version 2 design change. */
+export const FVW_RING_CLASSES_V1 =
+  "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover";
 
 // Resolves a circular dependency between `NavItemComponent` and `NavItemGroup` when using standalone components.
 export abstract class NavGroupAbstraction {
@@ -39,18 +53,38 @@ export class NavItemComponent extends NavBaseComponent {
    * Base padding for nav items (in rem)
    * This provides the initial indentation for nav items before depth-based padding
    */
-  protected readonly TREE_BASE_PADDING = 2.25;
+  private readonly TREE_BASE_PADDING = 2.25;
 
   /**
    * Padding increment per tree depth level (in rem)
    * Each nested level adds this amount of padding to visually indicate hierarchy
    */
-  protected readonly TREE_DEPTH_PADDING = 1.5;
+  private readonly TREE_DEPTH_PADDING = 1.5;
 
   /**
    * Forces active styles to be shown, regardless of the `routerLinkActiveOptions`
    */
   readonly forceActiveStyles = input<boolean>(false);
+
+  /**
+   * Leading tile projected directly into this item's `start` slot (standalone use). A composing
+   * nav-group re-projects its tile instead, which this query cannot see — see `hasForwardedIconTile`.
+   */
+  private readonly startSlotTiles = contentChildren(IconTileComponent);
+
+  /**
+   * Set by a composing nav-group when it forwards a `[slot=start]` icon tile into this item.
+   * Re-projected content is invisible to `startSlotTiles`, so the group reports it explicitly.
+   */
+  readonly hasForwardedIconTile = input(false);
+
+  /**
+   * Whether this item's `start` slot holds an icon tile that should act as its leading glyph
+   * (inside the interactive element) and its collapsed-rail glyph.
+   */
+  protected readonly hasStartIconTile = computed(
+    () => this.hasForwardedIconTile() || this.startSlotTiles().length > 0,
+  );
 
   protected readonly sideNavService = inject(SideNavService);
   private readonly parentNavGroup = inject(NavGroupAbstraction, { optional: true });
@@ -92,6 +126,18 @@ export class NavItemComponent extends NavBaseComponent {
   readonly ariaCurrentWhenActive = input<RouterLinkActive["ariaCurrentWhenActive"]>("page");
 
   /**
+   * `aria-expanded` for the interactive element. Set by a composing component (e.g. a nav group)
+   * when the item's main row toggles expandable content instead of a dedicated button. Left
+   * `undefined` for plain nav items so no attribute is rendered.
+   */
+  readonly ariaExpanded = input<boolean | undefined>(undefined);
+
+  /**
+   * `aria-controls` for the interactive element — the id of the region the item expands/collapses.
+   */
+  readonly ariaControls = input<string | undefined>(undefined);
+
+  /**
    * By default, a navigation will put the user's focus on the `main` element.
    *
    * If the user's focus should be moved to another element upon navigation end, pass a selector
@@ -115,11 +161,12 @@ export class NavItemComponent extends NavBaseComponent {
    * styles, so the entire component can have an outline.
    */
   protected readonly focusVisibleWithin = signal(false);
-  protected readonly fvwStyles = computed(() =>
-    this.focusVisibleWithin()
-      ? "tw-z-10 tw-rounded tw-outline-none tw-ring tw-ring-inset tw-ring-border-nav-focus tw-bg-bg-nav-hover"
-      : "",
-  );
+  protected readonly fvwStyles = computed(() => {
+    if (!this.focusVisibleWithin()) {
+      return "";
+    }
+    return this.sideNavService.version() === "vfo1" ? FVW_RING_CLASSES : FVW_RING_CLASSES_V1;
+  });
 
   protected onFocusIn(target: EventTarget) {
     this.focusVisibleWithin.set((target as HTMLElement).matches("[data-fvw]:focus-visible"));
@@ -127,6 +174,22 @@ export class NavItemComponent extends NavBaseComponent {
 
   protected onFocusOut() {
     this.focusVisibleWithin.set(false);
+  }
+
+  /**
+   * Routes clicks in the trailing `end` slot: clicks on a control (e.g. a consumer action button)
+   * stay contained and don't trigger the row, while clicks on decorative content — like a nav
+   * group's collapse chevron — behave like a click on the row itself.
+   */
+  protected onEndSlotClick(event: MouseEvent) {
+    const isInteractive = (event.target as HTMLElement).closest(
+      "a, button, input, select, textarea, [role='button']",
+    );
+    if (isInteractive) {
+      event.stopPropagation();
+    } else {
+      this.mainContentClicked.emit();
+    }
   }
 
   constructor() {

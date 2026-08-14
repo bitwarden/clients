@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { NavigationModule } from "@bitwarden/components";
@@ -29,6 +31,9 @@ describe("DesktopSideNavComponent", () => {
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   beforeEach(async () => {
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [DesktopSideNavComponent, NavigationModule],
       providers: [
@@ -39,6 +44,10 @@ describe("DesktopSideNavComponent", () => {
         {
           provide: GlobalStateProvider,
           useValue: fakeGlobalStateProvider,
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     }).compileComponents();

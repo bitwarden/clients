@@ -1,5 +1,21 @@
 <!-- This a higher order component that composes `NavItemComponent`  -->
 @if (!hideIfEmpty() || nestedNavComponents().length > 0) {
+  <ng-container *ngTemplateOutlet="groupContent"></ng-container>
+}
+
+<ng-template #defaultContent>
+  <div
+    [attr.id]="contentId"
+    [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
+    role="group"
+    class="tw-flex tw-flex-col"
+    [class]="sideNavService.version() === 'vfo1' ? 'tw-gap-0.5' : ''"
+  >
+    <ng-content></ng-content>
+  </div>
+</ng-template>
+
+<ng-template #groupContent>
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"
@@ -12,9 +28,40 @@
     [hideActiveStyles]="parentHideActiveStyles()"
     [ariaCurrentWhenActive]="ariaCurrent()"
     [forceActiveStyles]="forceActiveStyles()"
+    [ariaExpanded]="!toggleInStartSlot() ? open() : undefined"
+    [ariaControls]="!toggleInStartSlot() ? contentId : undefined"
+    [hasForwardedIconTile]="!toggleInStartSlot() && hasStartSlotTile()"
   >
+    @if (toggleInStartSlot()) {
+      <ng-container slot="start" *ngTemplateOutlet="collapseToggle"></ng-container>
+    } @else {
+      <!-- Consumer leading content, forwarded only for v2 top-level groups. -->
+      <ng-container slot="start">
+        <ng-content select="[slot=start]"></ng-content>
+      </ng-container>
+    }
+    <!-- ngProjectAs so the re-projected tile (invisible to static-node matching) reaches the item's tile slot. -->
+    @if (!toggleInStartSlot()) {
+      <ng-container ngProjectAs="bit-icon-tile">
+        <ng-content select="bit-icon-tile"></ng-content>
+      </ng-container>
+    }
+    <ng-container slot="end">
+      <ng-content select="[slot=end]"></ng-content>
+      @if (!toggleInStartSlot()) {
+        <bit-icon
+          class="tw-pointer-events-none"
+          [class]="open() ? 'tw-transform tw-transition-transform tw-rotate-180' : ''"
+          name="bwi-angle-down"
+          aria-hidden="true"
+          data-testid="nav-group-collapse-arrow"
+        ></bit-icon>
+      }
+    </ng-container>
+  </bit-nav-item>
+
+  <ng-template #collapseToggle>
     <button
-      slot="start"
       type="button"
       class="tw-ms-auto"
       [class]="!open() ? 'tw-transform tw-rotate-[-90deg]' : ''"
@@ -27,20 +74,28 @@
       [label]="['toggleCollapse' | i18n, text()].join(' ')"
       data-testid="nav-group-collapse-arrow"
     ></button>
-    <ng-container slot="end">
-      <ng-content select="[slot=end]"></ng-content>
-    </ng-container>
-  </bit-nav-item>
+  </ng-template>
   <!-- [attr.aria-controls] of the above button expects a unique ID on the controlled element -->
   @if (sideNavOpen()) {
     @if (open()) {
-      <div
-        [attr.id]="contentId"
-        [attr.aria-label]="[text(), 'submenu' | i18n].join(' ')"
-        role="group"
-      >
-        <ng-content></ng-content>
-      </div>
+      @if (sideNavService.version() === "default") {
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+      } @else {
+        <!-- Magic number needed for visual consistency -->
+        <div class="tw-ps-[19px] tw-pt-1">
+          <div
+            class="tw-flex tw-flex-col tw-gap-0.5 tw-ps-3"
+            [class.tw-items-center]="!sideNavOpen()"
+            [class]="
+              treeDepth() === 0
+                ? 'tw-border-0 tw-border-s tw-border-solid tw-border-border-nav-divider'
+                : ''
+            "
+          >
+            <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
+          </div>
+        </div>
+      }
     }
   }
-}
+</ng-template>

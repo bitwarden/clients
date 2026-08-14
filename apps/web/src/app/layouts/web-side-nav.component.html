@@ -1,8 +1,13 @@
 <bit-side-nav [variant]="variant()">
+  <!-- ngProjectAs so the re-projected logo reaches the side nav's logo slot instead of falling
+  through to its wildcard slot, which v2 renders in the nav body rather than the header row. -->
+  <ng-content select="bit-nav-logo" ngProjectAs="bit-nav-logo"></ng-content>
   <ng-content></ng-content>
 
   <ng-container slot="product-switcher">
-    <bit-nav-divider></bit-nav-divider>
+    @if (sideNavService.version() === "default") {
+      <bit-nav-divider></bit-nav-divider>
+    }
     <navigation-product-switcher></navigation-product-switcher>
   </ng-container>
 </bit-side-nav>

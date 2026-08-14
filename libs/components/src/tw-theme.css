@@ -97,9 +97,11 @@
   --color-brand-500: #418bfb;
   --color-brand-600: #2a70f4;
   --color-brand-700: #175ddc;
+  --color-brand-700-rgb: 23, 93, 220;
   --color-brand-800: #0d43af;
   --color-brand-900: #0c3276;
   --color-brand-950: #162455;
+  --color-brand-800-rgb: 13, 67, 175;
   --color-brand-950-rgb: 22, 36, 85;
 
   /* Gray Colors */
@@ -112,7 +114,9 @@
   --color-gray-500: #62748e;
   --color-gray-600: #45556c;
   --color-gray-700: #314158;
+  --color-gray-700-rgb: 49, 65, 88;
   --color-gray-800: #1d293d;
+  --color-gray-800-rgb: 29, 41, 61;
   --color-gray-900: #0f172b;
   --color-gray-950: #020618;
   --color-gray-950-rgb: 2, 6, 24;
@@ -447,23 +451,33 @@
    * SIDENAV CUSTOM COLORS (Light mode)
    * ======================================== */
 
-  /* Sidenav Foreground */
+  /* Global — shared by both variants */
+  --color-nav-border: rgba(var(--color-white-rgb), 0.25);
+  --color-nav-fg-body: var(--color-white);
+  --color-nav-fg-heading: var(--color-gray-400);
+  --color-nav-border-focus: var(--color-white);
+
+  /* Brand family — Password Manager, Secrets Manager */
+  --color-nav-bg-brand-soft: var(--color-brand-800);
+  --color-nav-bg-brand: var(--color-brand-950);
+  --color-nav-bg-brand-hover: rgba(var(--color-brand-700-rgb), 0.25);
+
+  /* Admin family — Admin Console, Provider Portal, Business Unit Portal */
+  --color-nav-bg-admin-soft: var(--color-gray-700);
+  --color-nav-bg-admin: var(--color-gray-800);
+  --color-nav-bg-admin-hover: rgba(var(--color-gray-700-rgb), 0.6);
+
+  /* Original variant tokens — retained for the default side-nav (see [data-nav-version="default"]) */
   --color-nav-fg-primary: var(--color-white);
   --color-nav-fg-secondary: var(--color-gray-900);
-
-  /* Sidenav Background */
   --color-nav-bg-primary: var(--color-brand-800);
   --color-nav-bg-secondary: var(--color-gray-100);
   --color-nav-bg-primary-strong: var(--color-brand-900);
   --color-nav-bg-secondary-strong: var(--color-gray-300);
-
-  /* Sidenav Hover */
   --color-nav-bg-primary-hover: rgba(var(--color-black-rgb), 0.2);
   --color-nav-bg-secondary-hover: rgba(var(--color-brand-950-rgb), 0.1);
   --color-nav-bg-primary-hover-strong: rgba(var(--color-black-rgb), 0.45);
   --color-nav-bg-secondary-hover-strong: rgba(var(--color-brand-950-rgb), 0.25);
-
-  /* Sidenav Border */
   --color-nav-border-primary: var(--color-brand-700);
   --color-nav-border-secondary: var(--color-gray-200);
   --color-nav-border-primary-focus: var(--color-white);
@@ -746,27 +760,55 @@
     * SIDENAV CUSTOM COLORS (Dark mode)
     * ======================================== */
 
-  /* Sidenav Foreground */
+  /* Global — shared by both variants */
+  --color-nav-border: rgba(var(--color-white-rgb), 0.25);
+  --color-nav-fg-body: var(--color-white);
+  --color-nav-border-focus: var(--color-white);
+
+  /* Brand family — Password Manager, Secrets Manager */
+  --color-nav-bg-brand-soft: var(--color-gray-700);
+  --color-nav-bg-brand: var(--color-gray-800);
+  --color-nav-bg-brand-hover: rgba(var(--color-gray-700-rgb), 0.6);
+
+  /* Admin family — Admin Console, Provider Portal, Business Unit Portal */
+  --color-nav-bg-admin-soft: var(--color-gray-800);
+  --color-nav-bg-admin: var(--color-gray-950);
+  --color-nav-bg-admin-hover: rgba(var(--color-gray-800-rgb), 0.6);
+
+  /* Original variant tokens — retained for the default side-nav (see [data-nav-version="default"]) */
   --color-nav-fg-primary: var(--color-white);
   --color-nav-fg-secondary: var(--color-white);
-
-  /* Sidenav Background */
   --color-nav-bg-primary: var(--color-gray-800);
   --color-nav-bg-secondary: var(--color-gray-800);
   --color-nav-bg-primary-strong: var(--color-gray-600);
   --color-nav-bg-secondary-strong: var(--color-gray-600);
-
-  /* Sidenav Hover */
   --color-nav-bg-primary-hover: rgba(var(--color-gray-400-rgb), 0.2);
   --color-nav-bg-secondary-hover: rgba(var(--color-gray-400-rgb), 0.2);
   --color-nav-bg-primary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
   --color-nav-bg-secondary-hover-strong: rgba(var(--color-gray-400-rgb), 0.6);
-
-  /* Sidenav Border */
   --color-nav-border-primary: var(--color-gray-700);
   --color-nav-border-secondary: var(--color-gray-700);
   --color-nav-border-primary-focus: var(--color-white);
   --color-nav-border-secondary-focus: var(--color-white);
+}
+
+/**========================================
+ * DEFAULT SIDENAV PALETTE
+ * ========================================
+ * The Tailwind nav tokens (bg-nav, fg-nav, nav-divider, nav-focus, …) map to the new vfo1
+ * `brand`/`admin`/global families. The default side-nav instead uses the original variant
+ * palette, so `bit-side-nav` marks its `<nav>` with `data-nav-version` and these overrides
+ * redirect the shared tokens back to the original variables. Declared on the same element as the
+ * secondary-variant remap (the `<nav>`) so the `var()` chains resolve per-variant, then inherit to
+ * the projected nav items. */
+[data-nav-version="default"] {
+  --color-nav-fg-body: var(--color-nav-fg-primary);
+  --color-nav-fg-heading: var(--color-nav-fg-primary);
+  --color-nav-border: var(--color-nav-border-primary);
+  --color-nav-border-focus: var(--color-nav-border-primary-focus);
+  --color-nav-bg-brand: var(--color-nav-bg-primary);
+  --color-nav-bg-brand-soft: var(--color-nav-bg-primary-strong);
+  --color-nav-bg-brand-hover: var(--color-nav-bg-primary-hover);
 }
 
 /* Render browser-drawn form control UI (date picker, spin buttons, select dropdowns) dark so it
