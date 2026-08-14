@@ -3,25 +3,22 @@ import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import {
-  AttachmentsV2Component,
   DefaultCipherFormConfigService,
   PasswordRepromptService,
   VaultItemDialogComponent,
 } from "@bitwarden/vault";
+
+import { AssignCollectionsWebComponent } from "../components/assign-collections";
 
 import { WebVaultItemActionsService } from "./vault-item-actions.service";
 
@@ -31,17 +28,14 @@ describe("WebVaultItemActionsService", () => {
 
   let service: WebVaultItemActionsService;
   let cipherService: MockProxy<CipherService>;
-  let cipherArchiveService: MockProxy<CipherArchiveService>;
   let cipherFormConfigService: MockProxy<DefaultCipherFormConfigService>;
   let dialogService: MockProxy<DialogService>;
-  let messagingService: MockProxy<MessagingService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
-  let premiumUpgradePromptService: MockProxy<PremiumUpgradePromptService>;
   let router: MockProxy<Router>;
   let toastService: MockProxy<ToastService>;
 
   let itemDialogOpen: jest.SpyInstance;
-  let attachmentsDialogOpen: jest.SpyInstance;
+  let assignCollectionsDialogOpen: jest.SpyInstance;
 
   /** A plain personal login, no reprompt. */
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
@@ -56,12 +50,9 @@ describe("WebVaultItemActionsService", () => {
 
   beforeEach(() => {
     cipherService = mock<CipherService>();
-    cipherArchiveService = mock<CipherArchiveService>();
     cipherFormConfigService = mock<DefaultCipherFormConfigService>();
     dialogService = mock<DialogService>();
-    messagingService = mock<MessagingService>();
     passwordRepromptService = mock<PasswordRepromptService>();
-    premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
     router = mock<Router>();
     toastService = mock<ToastService>();
 
@@ -83,8 +74,8 @@ describe("WebVaultItemActionsService", () => {
     itemDialogOpen = jest
       .spyOn(VaultItemDialogComponent, "open")
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
-    attachmentsDialogOpen = jest
-      .spyOn(AttachmentsV2Component, "open")
+    assignCollectionsDialogOpen = jest
+      .spyOn(AssignCollectionsWebComponent, "open")
       .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
 
     TestBed.configureTestingModule({
@@ -92,14 +83,10 @@ describe("WebVaultItemActionsService", () => {
         WebVaultItemActionsService,
         { provide: AccountService, useValue: accountService },
         { provide: CipherService, useValue: cipherService },
-        { provide: CipherArchiveService, useValue: cipherArchiveService },
         { provide: DefaultCipherFormConfigService, useValue: cipherFormConfigService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nService },
-        { provide: LogService, useValue: mock<LogService>() },
-        { provide: MessagingService, useValue: messagingService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
-        { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
         { provide: Router, useValue: router },
         { provide: ToastService, useValue: toastService },
       ],
@@ -131,23 +118,10 @@ describe("WebVaultItemActionsService", () => {
       expect(itemDialogOpen).not.toHaveBeenCalled();
     });
 
-    it("does not open the attachments dialog when the prompt is refused", async () => {
-      await service.viewAttachments(protectedCipher(), true, []);
+    it("does not open the assign dialog when the prompt is refused", async () => {
+      await service.assignToCollections(protectedCipher(), []);
 
-      expect(attachmentsDialogOpen).not.toHaveBeenCalled();
-    });
-
-    it("does not archive when the prompt is refused", async () => {
-      await service.archive(protectedCipher());
-
-      expect(cipherArchiveService.archiveWithServer).not.toHaveBeenCalled();
-    });
-
-    it("does not delete when the prompt is refused", async () => {
-      await service.delete(protectedCipher());
-
-      expect(cipherService.softDeleteWithServer).not.toHaveBeenCalled();
-      expect(cipherService.deleteWithServer).not.toHaveBeenCalled();
+      expect(assignCollectionsDialogOpen).not.toHaveBeenCalled();
     });
 
     it("still opens the dialog for an unprotected item", async () => {
@@ -256,121 +230,39 @@ describe("WebVaultItemActionsService", () => {
     });
   });
 
-  describe("viewAttachments", () => {
-    it("prompts for premium instead of opening for a personal item without premium", async () => {
-      await service.viewAttachments(buildCipher(), false, []);
+  describe("assignToCollections", () => {
+    const collection = (id: string, organizationId: string) =>
+      ({ id, organizationId }) as CollectionView;
 
-      expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
-      expect(attachmentsDialogOpen).not.toHaveBeenCalled();
-    });
-
-    it("prompts to upgrade the organization when it has no storage allocated", async () => {
+    it("offers only the owning organization's collections", async () => {
       const orgCipher = buildCipher({ organizationId: "org-1" });
-      const organization = { id: "org-1", maxStorageGb: 0 } as Organization;
+      const mine = collection("collection-1", "org-1");
+      const theirs = collection("collection-2", "org-2");
 
-      await service.viewAttachments(orgCipher, false, [organization]);
+      await service.assignToCollections(orgCipher, [mine, theirs]);
 
-      expect(messagingService.send).toHaveBeenCalledWith("upgradeOrganization", {
-        organizationId: "org-1",
-      });
-      expect(attachmentsDialogOpen).not.toHaveBeenCalled();
-    });
-
-    it("opens for a personal item when the user has premium", async () => {
-      await service.viewAttachments(buildCipher(), true, []);
-
-      expect(attachmentsDialogOpen).toHaveBeenCalled();
-    });
-  });
-
-  describe("archive", () => {
-    it("archives once confirmed", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      await service.archive(buildCipher());
-
-      expect(cipherArchiveService.archiveWithServer).toHaveBeenCalledWith(cipherId, userId);
-    });
-
-    it("does not archive when the confirmation is declined", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-
-      await service.archive(buildCipher());
-
-      expect(cipherArchiveService.archiveWithServer).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("unarchive", () => {
-    it("unarchives without a confirmation step", async () => {
-      await service.unarchive(buildCipher());
-
-      expect(cipherArchiveService.unarchiveWithServer).toHaveBeenCalledWith(cipherId, userId);
-    });
-  });
-
-  describe("delete", () => {
-    it("soft deletes an item that is not already in the trash", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      await service.delete(buildCipher());
-
-      expect(cipherService.softDeleteWithServer).toHaveBeenCalledWith(cipherId, userId);
-      expect(cipherService.deleteWithServer).not.toHaveBeenCalled();
-    });
-
-    it("permanently deletes an item already in the trash", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(true);
-
-      await service.delete(buildCipher({ deletedDate: new Date() }));
-
-      expect(cipherService.deleteWithServer).toHaveBeenCalledWith(cipherId, userId);
-      expect(cipherService.softDeleteWithServer).not.toHaveBeenCalled();
-    });
-
-    it("does not delete when the confirmation is declined", async () => {
-      dialogService.openSimpleDialog.mockResolvedValue(false);
-
-      await service.delete(buildCipher());
-
-      expect(cipherService.softDeleteWithServer).not.toHaveBeenCalled();
-    });
-
-    it("reports missing permissions instead of deleting an item the user cannot edit", async () => {
-      await service.delete(buildCipher({ edit: false }));
-
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "missingPermissions" }),
+      expect(assignCollectionsDialogOpen).toHaveBeenCalledWith(
+        dialogService,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            organizationId: "org-1",
+            availableCollections: [mine],
+          }),
+        }),
       );
-      expect(cipherService.softDeleteWithServer).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("restore", () => {
-    it("restores an item in the trash", async () => {
-      await service.restore(buildCipher({ deletedDate: new Date() }));
-
-      expect(cipherService.restoreWithServer).toHaveBeenCalledWith(cipherId, userId);
     });
 
-    it("ignores an item that is not deleted", async () => {
-      await service.restore(buildCipher());
+    it("offers no collections for a personal item, leaving the destination to the dialog", async () => {
+      await service.assignToCollections(buildCipher(), [collection("collection-1", "org-1")]);
 
-      expect(cipherService.restoreWithServer).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("toggleFavorite", () => {
-    it("flips the flag and persists it", async () => {
-      const fullView = buildCipher({ favorite: false });
-      cipherService.getFullCipherView.mockResolvedValue(fullView);
-
-      await service.toggleFavorite(fullView);
-
-      expect(fullView.favorite).toBe(true);
-      expect(cipherService.updateWithServer).toHaveBeenCalledWith(fullView, userId);
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "itemAddedToFavorites" }),
+      expect(assignCollectionsDialogOpen).toHaveBeenCalledWith(
+        dialogService,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            organizationId: undefined,
+            availableCollections: [],
+          }),
+        }),
       );
     });
   });

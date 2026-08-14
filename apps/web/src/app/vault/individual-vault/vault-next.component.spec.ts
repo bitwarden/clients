@@ -5,14 +5,11 @@ import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -20,7 +17,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { CipherRowMenuHandlers, CipherRowMenuService } from "@bitwarden/vault";
 
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
@@ -31,16 +28,13 @@ describe("VaultNextComponent", () => {
 
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
+  let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
 
   let ciphers$: Subject<CipherView[] | null>;
   let folders$: BehaviorSubject<FolderView[]>;
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
-  let userCanArchive$: BehaviorSubject<boolean>;
-  let hasPremium$: BehaviorSubject<boolean>;
-  let orgDataOwnership$: BehaviorSubject<boolean>;
-  let vfo1Enabled: boolean;
 
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
     const cipher = new CipherView();
@@ -67,30 +61,30 @@ describe("VaultNextComponent", () => {
    */
   const component = () => fixture.componentInstance as any;
 
-  const rowActions = () => component().rowActions() as any[];
-  const rowAction = (id: string) => rowActions().find((action) => action.id === id);
+  /** The row menu handlers the component hands `CipherRowMenuService`. */
+  const handlers = (): CipherRowMenuHandlers<CipherView> => {
+    component().rowActions();
+    return cipherRowMenuService.getRowActions.mock.calls.at(-1)![1];
+  };
 
   beforeEach(async () => {
     ciphers$ = new Subject<CipherView[] | null>();
     folders$ = new BehaviorSubject<FolderView[]>([]);
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
-    userCanArchive$ = new BehaviorSubject(true);
-    hasPremium$ = new BehaviorSubject(true);
-    orgDataOwnership$ = new BehaviorSubject(false);
-    vfo1Enabled = false;
 
     itemActions = mock<WebVaultItemActionsService>();
 
+    cipherRowMenuService = mock<CipherRowMenuService>();
+    cipherRowMenuService.getRowActions.mockReturnValue([]);
+
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
-    restrictedItemTypesService.restricted$ = of([]);
+    // `restricted$` is readonly on the service, so it can't be assigned onto the mock.
+    Object.defineProperty(restrictedItemTypesService, "restricted$", { value: of([]) });
     restrictedItemTypesService.isCipherRestricted.mockReturnValue(false);
 
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: userId } as Account);
-
-    const i18nService = mock<I18nService>();
-    i18nService.t.mockImplementation((key: string) => key);
 
     const cipherService = mock<CipherService>();
     cipherService.cipherListViews$.mockReturnValue(ciphers$ as never);
@@ -101,38 +95,24 @@ describe("VaultNextComponent", () => {
     const collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$.mockReturnValue(collections$);
 
+    // Needed only by the projected toolbar button's i18n pipe.
+    const i18nService = mock<I18nService>();
+    i18nService.t.mockImplementation((key: string) => key);
+
     const organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(organizations$);
-
-    const cipherArchiveService = mock<CipherArchiveService>();
-    cipherArchiveService.userCanArchive$.mockReturnValue(userCanArchive$);
-
-    const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
-    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(hasPremium$);
-
-    const policyService = mock<PolicyService>();
-    policyService.policyAppliesToUser$.mockReturnValue(orgDataOwnership$);
-
-    const vfo1TerminologyService = mock<Vfo1TerminologyService>();
-    vfo1TerminologyService.enabled = (() => vfo1Enabled) as never;
-    vfo1TerminologyService.iconClass.mockImplementation((icon) =>
-      vfo1Enabled && icon === "bwi-collection-shared" ? "bwi-shared-folder" : icon,
-    );
 
     await TestBed.configureTestingModule({
       imports: [VaultNextComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
-        { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
-        { provide: CipherArchiveService, useValue: cipherArchiveService },
+        { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
-        { provide: PolicyService, useValue: policyService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
-        { provide: Vfo1TerminologyService, useValue: vfo1TerminologyService },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -187,7 +167,7 @@ describe("VaultNextComponent", () => {
       expect(
         component()
           .ciphers()
-          .map((c) => c.id),
+          .map((c: CipherView) => c.id),
       ).toEqual(["visible"]);
     });
   });
@@ -200,7 +180,7 @@ describe("VaultNextComponent", () => {
       expect(
         component()
           .folders()
-          .map((f) => f.id),
+          .map((f: FolderView) => f.id),
       ).toEqual(["folder-1"]);
     });
 
@@ -218,120 +198,29 @@ describe("VaultNextComponent", () => {
   });
 
   describe("row actions", () => {
-    it("gates archive behind premium when the user cannot archive", () => {
-      expect(rowAction("archive").premiumGated(buildCipher())).toBe(false);
+    it("builds the menu from the shared service, scoped to the user's collections", () => {
+      const collection = { id: "collection-1" } as CollectionView;
+      const menu = [{ id: "edit" }] as any[];
+      cipherRowMenuService.getRowActions.mockReturnValue(menu);
 
-      userCanArchive$.next(false);
+      collections$.next([collection]);
       fixture.detectChanges();
 
-      expect(rowAction("archive").premiumGated(buildCipher())).toBe(true);
+      expect(component().rowActions()).toBe(menu);
+      expect(cipherRowMenuService.getRowActions).toHaveBeenLastCalledWith(
+        [collection],
+        expect.anything(),
+      );
     });
 
-    it("shows favorite or unfavorite based on the item's current state", () => {
-      expect(rowAction("favorite").show(buildCipher({ favorite: false }))).toBe(true);
-      expect(rowAction("favorite").show(buildCipher({ favorite: true }))).toBe(false);
-      expect(rowAction("unfavorite").show(buildCipher({ favorite: true }))).toBe(true);
-      expect(rowAction("unfavorite").show(buildCipher({ favorite: false }))).toBe(false);
-    });
-
-    it("hides attachments for an archived item once archive access is lost", () => {
-      const archived = buildCipher({ archivedDate: new Date() });
-      expect(rowAction("attachments").show(archived)).toBe(true);
-
-      userCanArchive$.next(false);
-      fixture.detectChanges();
-
-      expect(rowAction("attachments").show(archived)).toBe(false);
-    });
-
-    it("hides clone for an archived item when organization data ownership is enforced", () => {
-      const archived = buildCipher({ archivedDate: new Date() });
-      expect(rowAction("clone").show(archived)).toBe(true);
-
-      orgDataOwnership$.next(true);
-      fixture.detectChanges();
-
-      expect(rowAction("clone").show(archived)).toBe(false);
-    });
-
-    it("only offers assign-to-shared-folders when the user belongs to an organization", () => {
-      expect(rowAction("assignToCollections").show(buildCipher())).toBe(false);
-
-      organizations$.next([{ id: "org-1" } as Organization]);
-      fixture.detectChanges();
-
-      expect(rowAction("assignToCollections").show(buildCipher())).toBe(true);
-    });
-
-    it("uses shared folder terminology when the VFO1 flag is on", () => {
-      expect(rowAction("assignToCollections").label).toBe("assignToCollections");
-
-      vfo1Enabled = true;
-      // The label is read through the terminology service, so force a recompute.
-      organizations$.next([{ id: "org-1" } as Organization]);
-      fixture.detectChanges();
-
-      expect(rowAction("assignToCollections").label).toBe("addToSharedFolder");
-    });
-
-    it("hides restore and unarchive for an ordinary item, and shows them for their own state", () => {
-      expect(rowAction("restore").show(buildCipher())).toBe(false);
-      expect(rowAction("restore").show(buildCipher({ deletedDate: new Date() }))).toBe(true);
-
-      expect(rowAction("unarchive").show(buildCipher())).toBe(false);
-      expect(rowAction("unarchive").show(buildCipher({ archivedDate: new Date() }))).toBe(true);
-    });
-
-    it("marks delete as destructive and hides it without edit permission", () => {
-      expect(rowAction("delete").variant).toBe("danger");
-      expect(rowAction("delete").show(buildCipher({ edit: false }))).toBe(false);
-    });
-  });
-
-  describe("dispatching actions", () => {
-    const dispatch = async (event: unknown) => {
-      await (fixture.componentInstance as any).onAction(event);
-    };
-
-    it("opens the read-only view when an item's name is activated", async () => {
+    it("routes edit and clone to the web dialogs", async () => {
       const item = buildCipher();
 
-      await dispatch((fixture.componentInstance as any).itemAction(item));
-
-      expect(itemActions.view).toHaveBeenCalledWith(item);
-      expect(itemActions.edit).not.toHaveBeenCalled();
-    });
-
-    it("routes each event to its handler", async () => {
-      const item = buildCipher();
-
-      await dispatch({ type: "editCipher", item });
-      await dispatch({ type: "clone", item });
-      await dispatch({ type: "toggleFavorite", item });
-      await dispatch({ type: "archive", items: [item] });
-      await dispatch({ type: "unarchive", items: [item] });
-      await dispatch({ type: "restore", items: [item] });
-      await dispatch({ type: "delete", items: [{ cipher: item }] });
+      await handlers().edit(item);
+      await handlers().clone(item);
 
       expect(itemActions.edit).toHaveBeenCalledWith(item);
       expect(itemActions.clone).toHaveBeenCalledWith(item);
-      expect(itemActions.toggleFavorite).toHaveBeenCalledWith(item);
-      expect(itemActions.archive).toHaveBeenCalledWith(item);
-      expect(itemActions.unarchive).toHaveBeenCalledWith(item);
-      expect(itemActions.restore).toHaveBeenCalledWith(item);
-      expect(itemActions.delete).toHaveBeenCalledWith(item);
-    });
-
-    it("passes premium state and organizations to the attachments handler", async () => {
-      const item = buildCipher();
-      const organization = { id: "org-1" } as Organization;
-      organizations$.next([organization]);
-      hasPremium$.next(false);
-      fixture.detectChanges();
-
-      await dispatch({ type: "viewAttachments", item });
-
-      expect(itemActions.viewAttachments).toHaveBeenCalledWith(item, false, [organization]);
     });
 
     it("passes the user's collections to the assign handler", async () => {
@@ -340,21 +229,26 @@ describe("VaultNextComponent", () => {
       collections$.next([collection]);
       fixture.detectChanges();
 
-      await dispatch({ type: "assignToCollections", items: [item] });
+      await handlers().assignToCollections(item);
 
       expect(itemActions.assignToCollections).toHaveBeenCalledWith(item, [collection]);
     });
+  });
 
-    it("ignores a delete event carrying no cipher", async () => {
-      await dispatch({ type: "delete", items: [{ collection: {} as CollectionView }] });
+  describe("item activation", () => {
+    it("opens the read-only view when an item's name is activated", async () => {
+      const item = buildCipher();
 
-      expect(itemActions.delete).not.toHaveBeenCalled();
+      await component().itemAction(item);
+
+      expect(itemActions.view).toHaveBeenCalledWith(item);
+      expect(itemActions.edit).not.toHaveBeenCalled();
     });
   });
 
   describe("toolbar", () => {
     it("opens the add-item form", async () => {
-      await (fixture.componentInstance as any).addItem();
+      await component().addItem();
 
       expect(itemActions.add).toHaveBeenCalled();
     });
