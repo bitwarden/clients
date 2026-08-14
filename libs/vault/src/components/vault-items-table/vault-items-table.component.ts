@@ -45,8 +45,6 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { VaultItemEvent } from "../vault-item-event";
-
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
   VaultItemsTableChip,
@@ -158,7 +156,6 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
  * Project page-level buttons into the toolbar with `slot="toolbar"`.
  *
  * @typeParam C - The cipher shape, either `CipherView` or the lighter `CipherListView`.
- * @typeParam E - The event type the client's actions produce. Defaults to `VaultItemEvent`.
  *
  * @example
  * ```html
@@ -168,8 +165,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
  *   [folders]="folders()"
  *   [collections]="collections()"
  *   [organizations]="organizations()"
- *   [itemAction]="editCipher"
- *   (action)="onAction($event)"
+ *   [itemAction]="viewCipher"
  * >
  *   <button slot="toolbar" bitButton buttonType="primary" type="button">Add</button>
  * </vault-items-table>
@@ -179,6 +175,9 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
   selector: "vault-items-table",
   templateUrl: "./vault-items-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-flex tw-flex-col tw-flex-1 tw-min-h-0",
+  },
   imports: [
     BitCellComponent,
     BitCellDefDirective,
@@ -201,7 +200,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     VaultItemsTableChipsCellComponent,
   ],
 })
-export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEvent<C>> {
+export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
 
   /** The rows to display. */
@@ -211,7 +210,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   readonly loading = input(false, { transform: booleanAttribute });
 
   /** The client's overflow menu actions. */
-  readonly rowActions = input<VaultItemsTableRowAction<C, E>[]>([]);
+  readonly rowActions = input<VaultItemsTableRowAction<C>[]>([]);
 
   /** How the built-in Copy quick action presents itself. */
   readonly copyPresentation = input<VaultItemsTableCopyPresentation>(DEFAULT_COPY_PRESENTATION);
@@ -248,13 +247,9 @@ export class VaultItemsTableComponent<C extends CipherViewLike, E = VaultItemEve
   readonly initialFilterValues = input<Partial<VaultItemsTableFilters>>();
 
   /**
-   * Builds the event emitted when a row's name is activated. Omit to render the name as plain
-   * text rather than a button.
+   * Runs when a row's name is activated. Omit to render the name as plain text rather than a button.
    */
-  readonly itemAction = input<(item: C) => E>();
-
-  /** Emits the event built by the chosen `rowActions` entry, or by `itemAction`. */
-  readonly action = output<E>();
+  readonly itemAction = input<(item: C) => void | Promise<void>>();
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
