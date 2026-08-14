@@ -82,9 +82,7 @@ describe("keyService", () => {
   });
 
   const setUserKeyState = (userId: UserId, userKey: UserKey | null) => {
-    stateProvider.singleUser
-      .getFake(userId, USER_KEY)
-      .nextState(userKey == null ? null : ({ "": userKey } as Record<string, UserKey>));
+    stateProvider.singleUser.getFake(userId, USER_KEY).nextState(userKey);
   };
 
   afterEach(() => {
@@ -660,9 +658,7 @@ describe("keyService", () => {
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
-      userKeyState.nextState(
-        fakeUserKey == null ? null : ({ "": fakeUserKey } as Record<string, UserKey>),
-      );
+      userKeyState.nextState(fakeUserKey);
       return [fakeUserKey, fakeMasterKey];
     }
 

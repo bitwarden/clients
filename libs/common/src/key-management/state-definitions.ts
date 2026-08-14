@@ -11,7 +11,6 @@ import {
 } from "@bitwarden/legacy-crypto";
 import {
   EncString,
-  EphemeralPinEnvelopeState,
   PasswordProtectedKeyEnvelope,
   V2UpgradeToken,
   WebAuthnPrfUnlockData,
@@ -40,7 +39,7 @@ import { MasterPasswordUnlockData } from "./master-password/types/master-passwor
 /**
  * The UserKey, held in memory while the account is unlocked.
  */
-export const USER_KEY = UserKeyDefinition.record<UserKey>(CRYPTO_MEMORY, "userKey", {
+export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
   // Prevents the state from caching and rxjs observable becoming hot observable.
@@ -138,7 +137,7 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
  * The ephemeral (stored in memory) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
-  UserKeyDefinition.record<EphemeralPinEnvelopeState>(
+  new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
     PIN_MEMORY,
     "pinProtectedUserKeyEnvelopeEphemeral",
     {
