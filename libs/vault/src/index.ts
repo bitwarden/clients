@@ -15,7 +15,7 @@ export {
   VaultCopyButtonsService,
   CopyButtonDisplayMode,
 } from "./services/vault-copy-buttons.service";
-export { OrgIconDirective } from "./components/org-icon.directive";
+export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
@@ -67,11 +67,14 @@ export * from "./models/routed-vault-filter.model";
 export * from "./models/routed-vault-filter-bridge.model";
 export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
+export * from "./models/vault-nav-view-model";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
 export * from "./services/bulk-delete.service";
+export { VaultNavService } from "./services/vault-nav.service";
+export { DefaultVaultNavService } from "./services/default-vault-nav.service";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,
