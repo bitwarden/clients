@@ -25,16 +25,16 @@ import { BitwardenIcon, BITWARDEN_ICONS } from "../shared/icon";
 import { SvgComponent } from "../svg";
 import { I18nMockService } from "../utils";
 
-import { StatusLayoutComponent } from "./status-layout.component";
+import { StatusLockupComponent } from "./status-lockup.component";
 
 export default {
-  title: "Component Library/Status Layout",
-  component: StatusLayoutComponent,
+  title: "Component Library/Status Lockup",
+  component: StatusLockupComponent,
   decorators: [
     moduleMetadata({
       imports: [
         ButtonModule,
-        StatusLayoutComponent,
+        StatusLockupComponent,
         SvgComponent,
         IconTileComponent,
         IconComponent,
@@ -56,7 +56,7 @@ export default {
 } as Meta;
 
 /** Additional typing is for story-only knobs. */
-type Story = StoryObj<StatusLayoutComponent & { svg?: BitSvg; icon?: BitwardenIcon }>;
+type Story = StoryObj<StatusLockupComponent & { svg?: BitSvg; icon?: BitwardenIcon }>;
 
 const Svgs = {
   EmptyTrash,
@@ -78,7 +78,7 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <bit-status-layout class="tw-text-main">
+    <bit-status-lockup class="tw-text-main">
       <bit-svg slot="graphic" [content]="svg"></bit-svg>
       <ng-container slot="title">No items found</ng-container>
       <ng-container slot="description">
@@ -93,7 +93,7 @@ export const Default: Story = {
           <bit-icon name="bwi-plus" />
           New item
       </button>
-    </bit-status-layout>
+    </bit-status-lockup>
     `,
   }),
   args: {
@@ -112,7 +112,7 @@ export const Small: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <bit-status-layout class="tw-text-main" size="small">
+    <bit-status-lockup class="tw-text-main" size="small">
       <bit-svg slot="graphic" [content]="svg"></bit-svg>
       <ng-container slot="title">No items found</ng-container>
       <ng-container slot="description">
@@ -127,7 +127,7 @@ export const Small: Story = {
           <bit-icon name="bwi-plus" />
           New item
       </button>
-    </bit-status-layout>
+    </bit-status-lockup>
     `,
   }),
   args: {
@@ -148,7 +148,7 @@ export const Responsive: Story = {
     template: /*html*/ `
     <div class="tw-border tw-border-solid tw-border-secondary-300 tw-resize-x tw-overflow-auto"
     style="width: 24rem; max-width: 100%;">
-      <bit-status-layout class="tw-text-main">
+      <bit-status-lockup class="tw-text-main">
         <bit-svg slot="graphic" [content]="svg"></bit-svg>
         <ng-container slot="title">No items found</ng-container>
         <ng-container slot="description">
@@ -163,7 +163,7 @@ export const Responsive: Story = {
             <bit-icon name="bwi-plus" />
             New item
         </button>
-      </bit-status-layout>
+      </bit-status-lockup>
     </div>
     `,
   }),
@@ -187,7 +187,7 @@ export const WithIconTile: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <bit-status-layout class="tw-text-main">
+    <bit-status-lockup class="tw-text-main">
       <bit-icon-tile slot="graphic" [icon]="icon"></bit-icon-tile>
       <ng-container slot="title">No items found</ng-container>
       <ng-container slot="description">
@@ -202,7 +202,7 @@ export const WithIconTile: Story = {
           <bit-icon name="bwi-plus" />
           New item
       </button>
-    </bit-status-layout>
+    </bit-status-lockup>
     `,
   }),
   args: {
@@ -221,7 +221,7 @@ export const NoGraphic: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <bit-status-layout class="tw-text-main">
+    <bit-status-lockup class="tw-text-main">
       <ng-container slot="title">No items found</ng-container>
       <ng-container slot="description">
         Your description here. It could be a bit of a longer description, but ideally not too long for this type of component. Enough to give some context!
@@ -235,7 +235,7 @@ export const NoGraphic: Story = {
           <bit-icon name="bwi-plus" />
           New item
       </button>
-    </bit-status-layout>
+    </bit-status-lockup>
     `,
   }),
 };
@@ -244,13 +244,13 @@ export const NoButton: Story = {
   render: (args) => ({
     props: args,
     template: /*html*/ `
-    <bit-status-layout class="tw-text-main">
+    <bit-status-lockup class="tw-text-main">
       <bit-svg slot="graphic" [content]="svg"></bit-svg>
       <ng-container slot="title">No items found</ng-container>
       <ng-container slot="description">
         Your description here. It could be a bit of a longer description, but ideally not too long for this type of component. Enough to give some context!
       </ng-container>
-    </bit-status-layout>
+    </bit-status-lockup>
     `,
   }),
   args: {

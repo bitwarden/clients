@@ -102,7 +102,7 @@
     </bit-table>
   </div>
   @if (isEmpty()) {
-    <bit-status-layout>
+    <bit-status-lockup>
       <bit-svg slot="graphic" [content]="emptyStateItem()?.icon"></bit-svg>
       <div slot="title">
         {{ emptyStateItem()?.title | i18n }}
@@ -123,6 +123,6 @@
           slot="button"
         />
       }
-    </bit-status-layout>
+    </bit-status-lockup>
   }
 </cdk-virtual-scroll-viewport>

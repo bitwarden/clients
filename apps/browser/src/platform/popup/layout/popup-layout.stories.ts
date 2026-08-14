@@ -43,7 +43,7 @@ import {
   I18nMockService,
   IconButtonModule,
   ItemModule,
-  StatusLayoutComponent,
+  StatusLockupComponent,
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
@@ -725,7 +725,7 @@ export default {
         MockSettingsPageComponent,
         MockVaultPagePoppedComponent,
         MockVaultTablePageComponent,
-        StatusLayoutComponent,
+        StatusLockupComponent,
         VaultComponent,
         ScrollingModule,
         ItemModule,
@@ -1003,11 +1003,11 @@ export const CenteredContent: Story = {
               class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main tw-flex-col"
             >
               <h2 bitTypography="h2" class="tw-mb-6">Page with no content</h2>
-              <bit-status-layout>
+              <bit-status-lockup>
                 <bit-svg slot="graphic" [content]="icon"></bit-svg>
                 <ng-container slot="title">Before centering a div</ng-container>
                 <ng-container slot="description">One must first center oneself</ng-container>
-              </bit-status-layout>
+              </bit-status-lockup>
             </div>
           </popup-page>
         </popup-tab-navigation>

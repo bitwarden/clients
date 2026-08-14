@@ -1,11 +1,11 @@
 import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
 
-import * as stories from "./status-layout.stories";
+import * as stories from "./status-lockup.stories";
 
 <Meta of={stories} />
 
 ```ts
-import { StatusLayoutComponent } from "@bitwarden/components";
+import { StatusLockupComponent } from "@bitwarden/components";
 ```
 
 <Title />
@@ -16,15 +16,15 @@ import { StatusLayoutComponent } from "@bitwarden/components";
 
 ## Usage
 
-Use the status layout to fill a content area when there is important context to communicate about
+Use the status lockup to fill a content area when there is important context to communicate about
 the current view. This includes empty states, error states, permission restrictions, onboarding
 prompts, and completion confirmations.
 
-The status layout should be the primary focus of the content area it occupies. Do not place it
+The status lockup should be the primary focus of the content area it occupies. Do not place it
 alongside other content that competes for attention — it is designed to stand alone as the sole
 message within its container.
 
-Use the base size for full-page layouts or tables where the status layout has ample room to breathe.
+Use the base size for full-page layouts or tables where the status lockup has ample room to breathe.
 Use small size for narrower containers such as side panels, drawers, or secondary content areas. The
 component will automatically use the small size when the container is smaller than the md breakpoint
 (768px).
@@ -40,7 +40,7 @@ All content is projected through named slots.
 - `[slot=button]` — optional; one or more actions. Multiple buttons are spaced automatically.
 
 ```html
-<bit-status-layout>
+<bit-status-lockup>
   <bit-svg slot="graphic" [content]="NoResults"></bit-svg>
   <ng-container slot="title">{{ "noItemsFound" | i18n }}</ng-container>
   <ng-container slot="description">{{ "noItemsFoundDesc" | i18n }}</ng-container>
@@ -48,7 +48,7 @@ All content is projected through named slots.
     <bit-icon name="bwi-plus" />
     {{ "newItem" | i18n }}
   </button>
-</bit-status-layout>
+</bit-status-lockup>
 ```
 
 ### Graphic

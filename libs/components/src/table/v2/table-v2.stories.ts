@@ -1086,7 +1086,7 @@ export const SelectableSubset: Story = {
 
 /**
  * When no rows render (in column-def mode) — empty data, or a filter that
- * excluded everything — the table shows a default `<bit-status-layout>`. Project
+ * excluded everything — the table shows a default `<bit-status-lockup>`. Project
  * `slot="empty"` to override it with your own empty state.
  */
 export const Empty: Story = {

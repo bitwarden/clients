@@ -64,7 +64,7 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import {
   BannerModule,
   DialogService,
-  StatusLayoutComponent,
+  StatusLockupComponent,
   ToastService,
   TooltipDirective,
 } from "@bitwarden/components";
@@ -125,7 +125,7 @@ const SearchTextDebounceInterval = 200;
     VaultItemsModule,
     SharedModule,
     BannerModule,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     OrganizationFreeTrialWarningComponent,
     OrganizationResellerRenewalWarningComponent,
     VaultBatchActionComponent,

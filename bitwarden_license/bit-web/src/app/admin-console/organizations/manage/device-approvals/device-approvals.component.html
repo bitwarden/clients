@@ -98,8 +98,8 @@
   </ng-template>
 </bit-table>
 
-<bit-status-layout class="tw-text-main" *ngIf="!loading && tableDataSource.data.length == 0">
+<bit-status-lockup class="tw-text-main" *ngIf="!loading && tableDataSource.data.length == 0">
   <bit-svg slot="graphic" [content]="DevicesIcon"></bit-svg>
   <ng-container slot="title">{{ "noDeviceRequests" | i18n }}</ng-container>
   <ng-container slot="description">{{ "noDeviceRequestsDesc" | i18n }}</ng-container>
-</bit-status-layout>
+</bit-status-lockup>

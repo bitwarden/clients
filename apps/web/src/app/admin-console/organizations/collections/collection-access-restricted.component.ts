@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { RestrictedView } from "@bitwarden/assets/svg";
-import { ButtonModule, StatusLayoutComponent } from "@bitwarden/components";
+import { ButtonModule, StatusLockupComponent } from "@bitwarden/components";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
@@ -11,8 +11,8 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "collection-access-restricted",
-  imports: [SharedModule, ButtonModule, StatusLayoutComponent, Vfo1I18nPipe],
-  template: `<bit-status-layout class="tw-mt-2 tw-block">
+  imports: [SharedModule, ButtonModule, StatusLockupComponent, Vfo1I18nPipe],
+  template: `<bit-status-lockup class="tw-mt-2 tw-block">
     <bit-svg slot="graphic" [content]="icon"></bit-svg>
     <span slot="title" class="tw-mt-4 tw-block">{{
       "youDoNotHavePermissions" | vfo1I18n: "youDoNotHavePermissionsSharedFolder"
@@ -38,7 +38,7 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
     >
       <i aria-hidden="true" class="bwi bwi-users"></i> {{ "viewAccess" | i18n }}
     </button>
-  </bit-status-layout>`,
+  </bit-status-lockup>`,
 })
 export class CollectionAccessRestrictedComponent {
   protected icon = RestrictedView;

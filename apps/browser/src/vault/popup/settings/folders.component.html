@@ -36,7 +36,7 @@
         }
       </bit-item-group>
     } @else {
-      <bit-status-layout class="tw-h-full tw-flex tw-items-center">
+      <bit-status-lockup class="tw-h-full tw-flex tw-items-center">
         <bit-svg slot="graphic" [content]="NoFoldersIcon"></bit-svg>
         <ng-container slot="title">{{ "noFoldersAdded" | i18n }}</ng-container>
         <ng-container slot="description">{{ "createFoldersToOrganize" | i18n }}</ng-container>
@@ -51,7 +51,7 @@
         >
           {{ "newFolder" | i18n }}
         </button>
-      </bit-status-layout>
+      </bit-status-lockup>
     }
   }
 </popup-page>

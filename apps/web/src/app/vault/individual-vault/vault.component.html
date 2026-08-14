@@ -80,7 +80,7 @@
     }
     @if (isEmpty && !performingInitialLoad) {
       <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start tw-flex-1">
-        <bit-status-layout>
+        <bit-status-lockup>
           <bit-svg slot="graphic" [content]="(emptyState$ | async)?.icon"></bit-svg>
           <div slot="title">
             {{ (emptyState$ | async)?.title | i18n }}
@@ -100,7 +100,7 @@
               {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
             </button>
           }
-        </bit-status-layout>
+        </bit-status-lockup>
       </div>
     }
   </div>

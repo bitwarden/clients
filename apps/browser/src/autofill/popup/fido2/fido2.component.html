@@ -51,7 +51,7 @@
               }
             }
             @if (!displayedCiphers.length) {
-              <bit-status-layout>
+              <bit-status-lockup>
                 <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
                 <ng-container slot="title">{{
                   (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
@@ -70,7 +70,7 @@
                 >
                   {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
                 </button>
-              </bit-status-layout>
+              </bit-status-lockup>
             }
           </bit-section>
         }
@@ -102,7 +102,7 @@
                 ></app-fido2-cipher-row>
               }
             } @else {
-              <bit-status-layout>
+              <bit-status-lockup>
                 <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
                 <ng-container slot="title">{{
                   (hasSearched ? "noItemsMatchSearch" : "noMatchingLoginsForSite") | i18n
@@ -120,7 +120,7 @@
                 >
                   {{ (hasSearched ? "multiSelectClearAll" : "savePasskeyNewLogin") | i18n }}
                 </button>
-              </bit-status-layout>
+              </bit-status-lockup>
             }
           </bit-section>
         }

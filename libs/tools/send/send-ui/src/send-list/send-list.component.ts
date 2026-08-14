@@ -6,7 +6,7 @@ import { NoResults, NoSendsIcon } from "@bitwarden/assets/svg";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import {
   ButtonModule,
-  StatusLayoutComponent,
+  StatusLockupComponent,
   SpinnerComponent,
   SvgComponent,
   TableDataSource,
@@ -37,7 +37,7 @@ export type SendListState = (typeof SendListState)[keyof typeof SendListState];
     CommonModule,
     JslibModule,
     ButtonModule,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     SpinnerComponent,
     SendSearchComponent,
     SendTableComponent,

@@ -5,7 +5,7 @@ import {
   CardComponent,
   IconTileComponent,
   ItemModule,
-  StatusLayoutComponent,
+  StatusLockupComponent,
   TypographyModule,
   SvgComponent,
 } from "@bitwarden/components";
@@ -30,7 +30,7 @@ import { NoAccessRulesIcon } from "../no-access-rules.icon";
     CardComponent,
     IconTileComponent,
     ItemModule,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     SvgComponent,
     I18nPipe,
   ],

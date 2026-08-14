@@ -14,7 +14,7 @@ import {
   DialogService,
   IconButtonModule,
   ItemModule,
-  StatusLayoutComponent,
+  StatusLockupComponent,
   SvgComponent,
 } from "@bitwarden/components";
 import { AddEditFolderDialogComponent, Vfo1I18nPipe } from "@bitwarden/vault";
@@ -34,7 +34,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     PopupPageComponent,
     PopupHeaderComponent,
     ItemModule,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     IconButtonModule,
     ButtonModule,
     AsyncActionsModule,

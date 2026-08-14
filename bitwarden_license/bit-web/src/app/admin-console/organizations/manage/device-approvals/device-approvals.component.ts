@@ -20,7 +20,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import {
   TableDataSource,
-  StatusLayoutComponent,
+  StatusLockupComponent,
   ToastService,
   IconModule,
 } from "@bitwarden/components";
@@ -52,7 +52,7 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared/shared.module";
       ],
     }),
   ] satisfies SafeProvider[],
-  imports: [SharedModule, StatusLayoutComponent, HeaderModule, IconModule],
+  imports: [SharedModule, StatusLockupComponent, HeaderModule, IconModule],
 })
 export class DeviceApprovalsComponent implements OnInit, OnDestroy {
   tableDataSource = new TableDataSource<PendingAuthRequestWithFingerprintView>();

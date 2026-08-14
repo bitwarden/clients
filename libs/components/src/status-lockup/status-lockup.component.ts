@@ -14,16 +14,16 @@ import { TypographyDirective } from "../typography/typography.directive";
 import { BREAKPOINTS } from "../utils/responsive-utils";
 
 /**
- * The status layout component is a centered lockup used to communicate a state or error to the user
+ * The status lockup component is a centered lockup used to communicate a state or error to the user
  * through a combination of illustration, heading, body text, and an optional call-to-action button.
  */
 @Component({
-  selector: "bit-status-layout",
-  templateUrl: "./status-layout.component.html",
+  selector: "bit-status-lockup",
+  templateUrl: "./status-lockup.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TypographyDirective],
 })
-export class StatusLayoutComponent {
+export class StatusLockupComponent {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -33,7 +33,7 @@ export class StatusLayoutComponent {
    */
   readonly size = input<"base" | "small">("base");
 
-  /** Whether the element the status layout renders into is under the `md` breakpoint. */
+  /** Whether the element the status lockup renders into is under the `md` breakpoint. */
   private readonly containerIsNarrow = signal(false);
 
   /** The size actually rendered, once the container has been taken into account. */
@@ -43,7 +43,7 @@ export class StatusLayoutComponent {
 
   constructor() {
     // Measured off the parent with a ResizeObserver rather than a CSS container query: a container
-    // query can only measure `bit-status-layout`'s own box, and consumers routinely make that box a
+    // query can only measure `bit-status-lockup`'s own box, and consumers routinely make that box a
     // flex item, which shrink-to-fits its content instead of filling the space available to it.
     afterNextRender(() => {
       const container = this.measurableContainer();

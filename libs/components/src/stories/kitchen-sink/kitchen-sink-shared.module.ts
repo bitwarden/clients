@@ -30,7 +30,7 @@ import { RadioButtonModule } from "../../radio-button";
 import { SearchModule } from "../../search";
 import { SectionComponent } from "../../section";
 import { SelectModule } from "../../select";
-import { StatusLayoutComponent } from "../../status-layout";
+import { StatusLockupComponent } from "../../status-lockup";
 import { SvgComponent, SvgModule } from "../../svg";
 import { TableModule } from "../../table";
 import { TabsModule } from "../../tabs";
@@ -65,7 +65,7 @@ import { TypographyModule } from "../../typography";
     LinkModule,
     MenuModule,
     NavigationModule,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     PopoverModule,
     ProgressBarComponent,
     RadioButtonModule,
@@ -106,7 +106,7 @@ import { TypographyModule } from "../../typography";
     LinkModule,
     MenuModule,
     NavigationModule,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     PopoverModule,
     ProgressBarComponent,
     RadioButtonModule,

@@ -30,7 +30,7 @@ import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter
 import { IconComponent } from "../../icon/icon.component";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
-import { StatusLayoutComponent } from "../../status-layout/status-layout.component";
+import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
 import { SvgComponent } from "../../svg";
 import { ParamState, ParamValue, queryParamStore } from "../../utils";
 import { SortDirection, SortFn } from "../table-data-source";
@@ -175,7 +175,7 @@ type RenderItem<T> =
     BitHeaderRowComponent,
     BitRowComponent,
     IconComponent,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     SkeletonTextComponent,
     SvgComponent,
     SyncScrollLeftDirective,

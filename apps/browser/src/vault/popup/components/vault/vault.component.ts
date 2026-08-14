@@ -45,7 +45,7 @@ import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loa
 import {
   ButtonModule,
   DialogService,
-  StatusLayoutComponent,
+  StatusLockupComponent,
   ScrollLayoutService,
   SvgComponent,
   ToastService,
@@ -103,7 +103,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     PopupHeaderComponent,
     PopOutComponent,
     CurrentAccountComponent,
-    StatusLayoutComponent,
+    StatusLockupComponent,
     JslibModule,
     CommonModule,
     AutofillVaultListItemsComponent,

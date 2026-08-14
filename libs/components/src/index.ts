@@ -49,7 +49,7 @@ export * from "./shared/compact-mode.service";
 export * from "./skeleton";
 export * from "./spinner";
 export * from "./spinner-lockup";
-export * from "./status-layout";
+export * from "./status-lockup";
 export * from "./stepper";
 export * from "./switch";
 export * from "./table";
