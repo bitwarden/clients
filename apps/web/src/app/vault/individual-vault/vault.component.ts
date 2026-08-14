@@ -1098,7 +1098,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     if (!cipherView) {
       return;
     }
-    await ShareItemDrawerComponent.openDrawer(this.dialogService, cipherView);
+    await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher: cipherView } });
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {

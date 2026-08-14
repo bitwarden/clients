@@ -6,7 +6,7 @@ import {
   DIALOG_DATA,
   DialogModule,
   DialogRef,
-  DialogService,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { ShareItemFormComponent } from "@bitwarden/vault";
@@ -20,7 +20,7 @@ export interface ShareItemDrawerData {
   templateUrl: "share-item-drawer.component.html",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DialogModule, ButtonModule, I18nPipe, ShareItemFormComponent],
+  imports: [DialogModule, ButtonModule, I18nPipe, ShareItemFormComponent, IconModule],
 })
 export class ShareItemDrawerComponent {
   private readonly dialogRef = inject(DialogRef);
@@ -33,11 +33,5 @@ export class ShareItemDrawerComponent {
 
   protected async close(): Promise<void> {
     await this.dialogRef.close();
-  }
-
-  static async openDrawer(dialogService: DialogService, cipher: CipherView) {
-    return dialogService.openDrawer(ShareItemDrawerComponent, {
-      data: { cipher },
-    });
   }
 }

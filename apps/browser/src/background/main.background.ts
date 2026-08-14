@@ -1204,7 +1204,7 @@ export default class MainBackground {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.configService,
+      this.cipherEncryptionService,
     );
     const legacySendApiService = new SendApiService(
       this.apiService,

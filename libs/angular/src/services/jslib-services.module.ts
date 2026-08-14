@@ -972,7 +972,7 @@ const safeProviders: SafeProvider[] = [
       KeyGenerationService,
       SendStateProviderAbstraction,
       EncryptService,
-      ConfigService,
+      CipherEncryptionService,
     ],
   }),
   safeProvider({

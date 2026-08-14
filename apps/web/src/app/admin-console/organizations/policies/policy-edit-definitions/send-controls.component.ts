@@ -103,7 +103,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     whoCanAccess: WhoCanAccessType.Any,
     allowedDomains: null,
     disableHideEmail: false,
-    allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
+    allowedSendTypes: [[SendType.Text, SendType.File, SendType.Item], [Validators.required]],
     deletionHours: null,
   });
   readonly enableSendControl = new FormControl<boolean>(false);
@@ -129,6 +129,13 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
       listName: this.i18nService.t("sendTypeFile"),
       labelName: this.i18nService.t("sendTypeFile"),
       value: SendType.File,
+    },
+    {
+      id: SendType.Item.toString(),
+      icon: "bwi-lock",
+      listName: this.i18nService.t("item"),
+      labelName: this.i18nService.t("item"),
+      value: SendType.Item,
     },
   ]).asReadonly();
 
@@ -232,7 +239,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     const policyResponseData =
       (this.policyResponse()?.data as SendControlsPolicyData) ?? new SendControlsPolicyData();
     if (policyResponseData.allowedSendTypes == null) {
-      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File];
+      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File, SendType.Item];
     }
     if (policyResponseData.whoCanAccess == null) {
       policyResponseData.whoCanAccess = WhoCanAccessType.Any;

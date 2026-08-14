@@ -4,7 +4,6 @@
       [title]="cipher().name"
       [subtitle]="cipherSubtitle()"
       [startIcon]="cipherTypeIcon()"
-      [(open)]="accordionExpanded"
       variant="subtle"
     >
       <span bitTypography="body2" class="tw-mb-2 tw-block tw-font-semibold">{{
@@ -13,13 +12,13 @@
       <div class="tw-flex tw-flex-col tw-gap-2">
         @for (collection of collections(); track collection.id) {
           <div class="tw-flex tw-items-center tw-gap-2">
-            <i class="bwi bwi-collection tw-text-muted" aria-hidden="true"></i>
+            <bit-icon name="bwi-collection" class="tw-text-muted" />
             <span bitTypography="body2" class="tw-text-muted">{{ collection.name }}</span>
           </div>
         }
         @if (folder(); as currentFolder) {
           <div class="tw-flex tw-items-center tw-gap-2">
-            <i class="bwi bwi-folder tw-text-muted" aria-hidden="true"></i>
+            <bit-icon name="bwi-folder" class="tw-text-muted" />
             <span bitTypography="body2" class="tw-text-muted">{{ currentFolder.name }}</span>
           </div>
         }
@@ -90,7 +89,7 @@
             [class.tw-border-secondary-100]="!last"
             [class.tw-border-solid]="!last"
           >
-            <i class="bwi bwi-share-link tw-text-primary-600 tw-shrink-0" aria-hidden="true"></i>
+            <bit-icon name="bwi-share-link" class="tw-text-primary-600 tw-shrink-0" />
             <div class="tw-flex tw-flex-col tw-min-w-0 tw-flex-1">
               <span bitTypography="body2" class="tw-truncate">{{
                 linkEmailDisplay(link.emails)
