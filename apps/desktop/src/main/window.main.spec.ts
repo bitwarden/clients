@@ -178,8 +178,23 @@ describe("isConfinedSnap", () => {
     expect(isConfinedSnap()).toBe(true);
   });
 
+  // Fedora, Arch and openSUSE mount snaps at /var/lib/snapd/snap; execPath is canonicalized, so
+  // it carries that root rather than the /snap compatibility symlink.
+  it("returns true on distros that mount snaps outside /snap", () => {
+    setExecPath("/var/lib/snapd/snap/bitwarden/x1/opt/Bitwarden/bitwarden");
+    setCgroup(confinedCgroup("bitwarden"));
+    expect(isConfinedSnap()).toBe(true);
+  });
+
   it("returns false when execPath is outside a snap mount", () => {
     setExecPath("/opt/Bitwarden/bitwarden");
+    expect(isConfinedSnap()).toBe(false);
+  });
+
+  // snapd's per-user data dir is user-writable, so a copy planted there must not pass as confined.
+  it("returns false for a snap-lookalike path under the user's home", () => {
+    setExecPath("/home/user/snap/bitwarden/current/opt/Bitwarden/bitwarden");
+    setCgroup(confinedCgroup("bitwarden"));
     expect(isConfinedSnap()).toBe(false);
   });
 

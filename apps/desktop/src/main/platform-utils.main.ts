@@ -15,6 +15,17 @@ export function isAppImage() {
   return isLinux() && "APPIMAGE" in process.env;
 }
 
+/**
+ * snapd's snap mount directory is `/snap` on Debian-family distros and `/var/lib/snapd/snap` on
+ * Fedora, Arch, openSUSE and others (where `/snap` is at most a compatibility symlink).
+ * `process.execPath` is canonicalized, so it carries the distro's real root, never the symlink.
+ *
+ * Both roots are root-owned and hold read-only squashfs mounts. Matching them as a *prefix* is
+ * what makes the check unspoofable: a user-writable lookalike — notably snapd's own per-user
+ * data dir `~/snap/<name>/<rev>/` — must not satisfy it.
+ */
+export const SNAP_MOUNT_DIRS = ["/snap", "/var/lib/snapd/snap"];
+
 // snapd sets SNAP (mount path) and SNAP_NAME for confined snaps. Match our snap name
 // specifically so SNAP_* vars leaking from a parent snap process into a non-snap build
 // (AppImage/deb/rpm launched from within another snap) don't produce a false positive.

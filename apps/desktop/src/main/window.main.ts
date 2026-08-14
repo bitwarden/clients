@@ -22,7 +22,14 @@ import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 import { cleanUserAgent, isDev } from "../utils";
 
-import { isLinux, isMac, isMacAppStore, isWindows, SNAP_STORE_NAMES } from "./platform-utils.main";
+import {
+  isLinux,
+  isMac,
+  isMacAppStore,
+  isWindows,
+  SNAP_STORE_NAMES,
+  SNAP_MOUNT_DIRS,
+} from "./platform-utils.main";
 import { resolveProtocolPath } from "./protocol";
 
 // customFileOrigin = `${customFileScheme}://${customFileHost}`
@@ -42,6 +49,18 @@ protocol.registerSchemesAsPrivileged([
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
+
+/**
+ * Every path prefix a Bitwarden snap's real binary can sit under — one per snap name per snapd
+ * mount root, e.g. `/snap/bitwarden/` and `/var/lib/snapd/snap/bitwarden-beta/`. See
+ * {@link SNAP_MOUNT_DIRS} for why there is more than one root.
+ *
+ * The trailing slash matters: without it, `bitwarden` would also match a hypothetical
+ * `bitwarden-evil` snap. (The cgroup check below guards the same edge with `(?![\w-])`.)
+ */
+const SNAP_EXEC_PATH_PREFIXES = SNAP_MOUNT_DIRS.flatMap((dir) =>
+  SNAP_STORE_NAMES.map((name) => `${dir}/${name}/`),
+);
 
 /**
  * Whether this process is *actually running inside* snap's strict confinement sandbox.
@@ -67,8 +86,11 @@ export function isConfinedSnap() {
   if (!isLinux()) {
     return false;
   }
-  // execPath is the real binary path, not settable via env
-  if (!SNAP_STORE_NAMES.some((name) => process.execPath.startsWith(`/snap/${name}/`))) {
+
+  // Is the running binary under one of our snaps' read-only mounts? execPath is the real,
+  // canonicalized path of the current executable, so — unlike SNAP / SNAP_NAME — nothing in the
+  // caller's environment can fake it.
+  if (!SNAP_EXEC_PATH_PREFIXES.some((prefix) => process.execPath.startsWith(prefix))) {
     return false;
   }
   try {
