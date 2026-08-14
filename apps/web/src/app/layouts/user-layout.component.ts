@@ -12,6 +12,8 @@ import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstra
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
@@ -48,6 +50,16 @@ export class UserLayoutComponent implements OnInit {
 
   protected readonly coachmarkService = inject(CoachmarkService);
   protected readonly sideNavService = inject(SideNavService);
+  private readonly configService = inject(ConfigService);
+
+  protected readonly exportRoute = computed(() => {
+    const vfo1Enabled = this.vfo1Enabled();
+    return vfo1Enabled ? "/settings/export" : "/tools/export";
+  });
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+  );
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
