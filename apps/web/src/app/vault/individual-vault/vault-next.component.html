@@ -15,6 +15,17 @@
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
 >
+  <button
+    slot="toolbar"
+    id="vault-next_button_import"
+    type="button"
+    bitButton
+    startIcon="bwi-download"
+    buttonType="secondary"
+    (click)="openImportDialog()"
+  >
+    {{ "importNoun" | i18n }}
+  </button>
   <vault-new-cipher-menu
     slot="toolbar"
     [canCreateCipher]="true"

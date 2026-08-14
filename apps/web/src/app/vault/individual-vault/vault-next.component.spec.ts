@@ -126,6 +126,7 @@ describe("VaultNextComponent", () => {
       imports: [VaultNextComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
+        { provide: DialogService, useValue: mock<DialogService>() },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
