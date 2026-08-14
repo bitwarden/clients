@@ -25,7 +25,8 @@ import {
   SpinnerComponent,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 
@@ -68,7 +69,7 @@ export class SendViewComponent implements OnInit {
   decKey!: SymmetricCryptoKey;
 
   constructor(
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private i18nService: I18nService,
@@ -93,10 +94,10 @@ export class SendViewComponent implements OnInit {
         this.authRequired.emit();
         return;
       }
-      const response = await this.sendApiService.postSendAccessV2(accessToken);
+      const response = await this.sendApiService.postSendAccess(accessToken);
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
-      this.decKey = await this.keyService.makeSendKey(keyArray);
+      this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
       const decSend = await sendAccess.decrypt(this.decKey);
       // TEMPORARY: Inject mock item data until the backend supports item-type Sends.
       if (decSend.type === SendType.Item) {

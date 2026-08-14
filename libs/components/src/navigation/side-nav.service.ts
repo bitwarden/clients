@@ -10,6 +10,8 @@ const BIT_SIDE_NAV_WIDTH_KEY_DEF = new KeyDefinition<number>(BIT_SIDE_NAV_DISK, 
   deserializer: (s) => s,
 });
 
+export type SideNavVersion = "default" | "vfo1";
+
 @Injectable({
   providedIn: "root",
 })
@@ -19,7 +21,19 @@ export class SideNavService {
   readonly MIN_OPEN_WIDTH = 15;
   readonly MAX_OPEN_WIDTH = 24;
 
+  /**
+   * Width of the collapsed nav (icon strip / siderail).
+   *
+   * Applied explicitly when closed because the v2 layout's content lives inside a
+   * `container-type: size` element, which reports zero intrinsic width and would
+   * otherwise let the nav collapse to nothing. Matches the siderail width the layout
+   * reserves for the closed nav.
+   */
+  readonly CLOSED_WIDTH = 4;
+
   private rootFontSizePx: number;
+
+  readonly version = signal<SideNavVersion>("default");
 
   /**
    * Whether the side navigation is open or closed.

@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Избранные"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Сводка по задаче"
   },
@@ -1205,6 +1208,149 @@
   },
   "myFolders": {
     "message": "Мои папки"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "addSharedFolder": {
+    "message": "Добавить общую папку"
+  },
+  "newSharedFolder": {
+    "message": "Новая общая папка"
+  },
+  "searchSharedFolder": {
+    "message": "Поиск в общей папке"
+  },
+  "searchMyFolder": {
+    "message": "Поиск в моих папках"
+  },
+  "addToMyFolder": {
+    "message": "Добавить в мою папку"
+  },
+  "sharedFolderItemSelect": {
+    "message": "Выберите элемент общей папки"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Просмотр общей папки - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "Эта общая папка доступна только из консоли администратора"
+  },
+  "editSharedFolder": {
+    "message": "Изменить общую папку"
+  },
+  "deleteSharedFolder": {
+    "message": "Удалить общую папку"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Удалить $COUNT$ общих папок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "Общая папка $NAME$ будет удалена безвозвратно. Элементы из папки удалены не будут.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Эти общие папки будут удалены безвозвратно. Элементы в папках удалены не будут."
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ общих папок(-ки) будут удалены навсегда.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Выбранные элементы и общие папки будут удалены навсегда."
+  },
+  "sharedFolderDeleted": {
+    "message": "Общая папка удалена"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Общие папки удалены"
+  },
+  "deletedSharedFolders": {
+    "message": "Общие папки удалены"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "В бесплатных организациях может быть до $COLLECTIONCOUNT$ общих папок. Перейдите на платный план, чтобы добавить больше общих папок.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "В бесплатных организациях может быть до $COLLECTIONCOUNT$ общих папок. Свяжитесь с владельцем вашей организации для обновления.",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "Переместив элемент в общую папку, вы можете безопасно поделиться им с другими участниками хранилища."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Это приведет к безвозвратному удалению всех элементов, принадлежащих следующим пользователям. Элементы общих папок не затрагиваются.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Это приведет к окончательному удалению всех элементов, принадлежащих $NAME$. Элементы общих папок не затрагиваются.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Управление доступом к организации, всеми общими папками, пользователями, отчетностью и настройками безопасности"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Управление общими папками, пользователями, отчетами и настройками безопасности"
+  },
+  "userDescSharedFolders": {
+    "message": "Доступ и добавление элементов в соответствующие общие папки"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Предоставьте участникам доступ к общим папкам, добавив их в 1 или несколько групп."
+  },
+  "manageAllSharedFolders": {
+    "message": "Управление всеми общими папками"
+  },
+  "createNewSharedFolders": {
+    "message": "Создать новую общую папку"
+  },
+  "editAnySharedFolder": {
+    "message": "Изменить любую общую папку"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Удалить любую общую папку"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Нельзя добавить самого себя в общие папки."
   },
   "attachments": {
     "message": "Вложения"
@@ -1430,6 +1576,9 @@
   "item": {
     "message": "Элемент"
   },
+  "itemLower": {
+    "message": "элемент"
+  },
   "itemDetails": {
     "message": "Информация об элементе"
   },
@@ -1586,8 +1735,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Скопировать информацию - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Скопировать информацию для $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1610,17 +1759,20 @@
     "message": "Значение не введено",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Нет значений для копирования"
+  "noDetailsToCopy": {
+    "message": "Нет информации для копирования"
   },
-  "launchWebsiteName": {
-    "message": "Открыть сайт $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Открыть сайт для $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Мое"
@@ -2346,6 +2498,10 @@
   "youDoNotHavePermissions": {
     "message": "У вас нет прав на эту коллекцию"
   },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "У вас нет прав на эту общую папку",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
+  },
   "noCollectionsInList": {
     "message": "Нет коллекций для отображения."
   },
@@ -2571,6 +2727,21 @@
   },
   "copyVerificationCode": {
     "message": "Скопировать код подтверждения"
+  },
+  "noUsername": {
+    "message": "Нет имени пользователя"
+  },
+  "noPassword": {
+    "message": "Нет пароля"
+  },
+  "noVerificationCode": {
+    "message": "Нет кода подтверждения"
+  },
+  "noNumber": {
+    "message": "Нет номера"
+  },
+  "noSecurityCode": {
+    "message": "Нет кода безопасности"
   },
   "copyUuid": {
     "message": "Скопировать UUID"
@@ -2938,6 +3109,15 @@
   "purgedOrganizationVault": {
     "message": "Хранилище организации очищено."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Хранилище $ORGNAME$ очищено.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Хранилище, доступное провайдеру."
   },
@@ -3141,6 +3321,79 @@
   "noFileChosen": {
     "message": "Файл не выбран"
   },
+  "noFileSelected": {
+    "message": "Файл не выбран"
+  },
+  "fileChosen": {
+    "message": "Выбран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Файл добавлен: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Добавлено $COUNT$ файлов: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Файл удален: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл загружен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файлов загружено",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Загруженные файлы"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Нажмите для загрузки или перетащите сюда"
+  },
+  "chooseFiles": {
+    "message": "Выберите файлы"
+  },
+  "maxFileSizeParam": {
+    "message": "Макс. размер файла: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или скопируйте и вставьте содержимое импортируемого файла"
   },
@@ -3156,6 +3409,27 @@
   },
   "options": {
     "message": "Опции"
+  },
+  "moreOptions": {
+    "message": "Больше опций"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Настройки"
@@ -3174,6 +3448,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Показывать значки сайтов и извлекать URL изменения пароля"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Показать быстрые действия копирования в хранилище"
   },
   "default": {
     "message": "По умолчанию"
@@ -3545,6 +3822,10 @@
   },
   "orgsReportsDesc": {
     "message": "Выявите и устраните проблемы с безопасностью в аккаунтах вашей организации, просмотрев отчеты ниже.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Выявите и устраните проблемы с безопасностью в хранилище вашей организации, просмотрев отчеты ниже.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4059,6 +4340,15 @@
   "pendingCancellation": {
     "message": "Ожидание отмены"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Вы переходите на ежегодное выставление счетов $DATE$. Указанный план и цены отражают вашу предстоящую годовую подписку.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "Подписка была помечена для отмены в конце текущего платежного периода."
   },
@@ -4428,6 +4718,9 @@
   "organizationName": {
     "message": "Название организации"
   },
+  "vaultName": {
+    "message": "Название хранилища"
+  },
   "accountOwnedBusiness": {
     "message": "Этот аккаунт принадлежит компании."
   },
@@ -4544,6 +4837,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Ограничено до $COUNT$ общих папок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Добавление и совместное использование с $COUNT$ пользователями",
     "placeholders": {
@@ -4558,6 +4860,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Создание неограниченных коллекций"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Создать неограниченное количество общих папок"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ зашифрованного хранилища файлов",
@@ -4665,6 +4970,9 @@
   "defaultCollection": {
     "message": "Коллекция по умолчанию"
   },
+  "defaultSharedFolder": {
+    "message": "Общая папка по умолчанию"
+  },
   "getHelp": {
     "message": "Получить помощь"
   },
@@ -4749,6 +5057,10 @@
   "nestCollectionUnder": {
     "message": "Разместить коллекцию под:"
   },
+  "nestSharedFolderUnder": {
+    "message": "Разместить общую папку в",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "Контроль доступа"
   },
@@ -4767,11 +5079,23 @@
   "viewCollection": {
     "message": "Посмотреть коллекцию"
   },
+  "viewSharedFolder": {
+    "message": "Просмотр общей папки",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "Информация о коллекции"
   },
+  "sharedFolderInfo": {
+    "message": "Информация об общей папке",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "Вы действительно хотите удалить эту коллекцию?"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "Вы хотите удалить эту общую папку?",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "Изменить участника"
@@ -4793,6 +5117,10 @@
   },
   "inviteUserDescription": {
     "message": "Пригласите новых пользователей в свою организацию, указав ниже их адреса email."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Пригласите нового пользователя в хранилище вашей организации, введя адрес email его аккаунта Bitwarden ниже. Если у него пока нет аккаунта Bitwarden, то будет предложено его создать.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Введите до $COUNT$ адресов email, разделяя их запятой.",
@@ -4848,6 +5176,24 @@
   },
   "owner": {
     "message": "Владелец"
+  },
+  "ownerAriaLabel": {
+    "message": "Владелец $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Хранилище $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "Управление всеми аспектами деятельности вашей организации, включая биллинг и подписки"
@@ -4961,8 +5307,26 @@
   "exportedOrganizationVault": {
     "message": "Хранилище организации экспортировано."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Хранилище $ORGNAME$ экспортировано.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Настройки организации изменены."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Настройки хранилища $ORGNAME$ изменены.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Создан элемент $ID$.",
@@ -5157,6 +5521,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Перемещен элемент $ID$ в хранилище $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5400,6 +5777,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "Создана общая папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "Изменена коллекция $ID$.",
     "placeholders": {
@@ -5408,6 +5795,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "Изменена общая папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "Коллекция удалена"
@@ -5426,6 +5823,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "Удалена общая папка $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "Отменить изменения"
@@ -5511,6 +5918,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Отозван доступ $ID$ к хранилищу $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Пользователь $ID$ добавлен во временную среду.",
     "placeholders": {
@@ -5547,12 +5967,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Доступ $ID$ к хранилищу $ORGNAME$ был отозван в связи с несоблюдением политики двухфакторной аутентификации.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Доступ организации с идентификатором $ID$ был отозван в связи с несоблюдением политики единой организации.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Доступ $ID$ к хранилищу $ORGNAME$ был отозван в связи с несоблюдением политики единой авторизации.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5565,12 +6011,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Доступ пользователя $ID$ был отозван из-за отказа от передачи прав владения хранилищем $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Восстановлен доступ к организации для $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Восстановлен доступ $ID$ к хранилищу $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5610,8 +6082,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Изменены общие папки для элемента $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Принятая передача в собственность организации."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Одобрен трансфер прав собственности на хранилище $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Приглашен пользователь $ID$.",
@@ -5679,12 +6169,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "Создано хранилище $ORGNAME$ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Добавлена организация $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "Добавлено хранилище $ORGNAME$ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5697,12 +6213,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "Удалено хранилище $ORGNAME$ $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Доступ к хранилищу организации $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "Получен доступ $ID$ в хранилище $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6023,6 +6565,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Не удается присоединиться к $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Сылка-приглашение больше не действует."
+  },
+  "returnToLogin": {
+    "message": "Вернуться к авторизации"
+  },
+  "returnToRegistration": {
+    "message": "Вернуться к регистрации"
+  },
   "joinOrganizationDesc": {
     "message": "Вас пригласили присоединиться к организации, указанной выше. Чтобы принять приглашение, вам необходимо войти или создать новую учетную запись Bitwarden."
   },
@@ -6049,6 +6609,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Невозможно принять приглашение. Попросите администратора организации отправить ссылку-приглашение."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Не удается принять приглашение"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Вы уже являетесь членом этой организации."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "В этой организации не разрешены email, содержащие $DOMAIN$.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Вы не можете присоединиться к этой организации, поскольку вы уже являетесь администратором бесплатной организации."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Вы были исключены из этой организации. Обратитесь к администратору, чтобы восстановить доступ."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Пользователи провайдера не могут присоединиться, используя эту ссылку-приглашение."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Организация, членом которой вы уже являетесь, позволяет своим членам принадлежать только к одной организации."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Организация, к которой вы пытаетесь присоединиться, позволяет своим членам принадлежать только к одной организации."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Чтобы присоединиться к этой организации, необходимо настроить двухэтапную аутентификацию."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Перед тем как присоединиться к организации, необходимо подтвердить свой адрес email."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Ваше приглашение не может быть принято, так как свободных мест нет."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Этот домен не поддерживается данной организацией. Попробуйте использовать другой адрес email."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Не удалось принять приглашение"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Не удалось расшифровать приглашение организации. Попробуйте еще раз, используя тот же браузер, чтобы начать и завершить процесс регистрации."
+  },
+  "goToLogin": {
+    "message": "Перейти ко входу"
+  },
+  "goToVault": {
+    "message": "Перейти в хранилище"
   },
   "rememberEmail": {
     "message": "Запомнить email"
@@ -6497,6 +7123,9 @@
   },
   "inviteLink": {
     "message": "Пригласительная ссылка"
+  },
+  "transferAndAdd": {
+    "message": "Трансфер и добавление"
   },
   "lastGenerated": {
     "message": "Сгенерирована: $DATE$",
@@ -7673,6 +8302,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "Пользователь $ID$ принял приглашение по ссылке",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "Требование одобрения администратором пригласительных ссылок отключено",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "Требование одобрения администратором пригласительных ссылок включено",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "Участник $ID$ подтвержден по ссылке-приглашению",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8858,14 +9504,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Спонсируемые семьи"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Non-member redemptions"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Нет спонсируемых семей"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "No redemptions yet"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Здесь будут показаны планы семей, не являющихся спонсорскими"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "No non-members have redeemed the Sponsored Family Plan."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Члены вашей организации имеют право на бесплатный план Bitwarden Families. Вы можете спонсировать бесплатный Bitwarden Families для сотрудников, которые не являются членами вашей организации Bitwarden. Для спонсирования сотрудника, не являющегося членом организации, необходимо наличие свободного места в вашей организации."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Когда вы прекращаете активное спонсорство, место в вашей организации будет доступно после даты продления спонсируемой организации."
@@ -8873,10 +9531,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Вам и вашей семье доступен бесплатный план Bitwarden Families. Используйте свой личный адрес электронной почты, чтобы защитить данные даже тогда, когда вы не на работе."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Воспользуйтесь бесплатным планом Bitwarden Families сегодня, чтобы обеспечить безопасность ваших данных, даже когда вы не на работе."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "План Bitwarden Families включает"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "План Bitwarden Families включает"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -8884,6 +9548,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Общие коллекции для членов семьи"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Общие папки для членов семьи"
   },
   "memberFamilies": {
     "message": "Члены семей"
@@ -9701,6 +10368,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Добавить префикс сайта",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Если эта опция включена, домен текущего сайта будет использоваться в качестве префикса для сгенерированного адреса email",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Имя хоста",
     "description": "Part of a URL."
@@ -10487,17 +11162,29 @@
   "editGroupMembersDesc": {
     "message": "Предоставить участникам группы доступ к назначенным коллекциям."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Предоставить участникам группы доступ к назначенным общим папкам."
+  },
   "editGroupCollectionsDesc": {
     "message": "Предоставить доступ к коллекциям, при добавлении их в эту группу."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Предоставить доступ к общим папкам, при добавлении их в эту группу."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Вы можете назначать только те коллекции, которыми управляете."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Вы можете назначать только те общие папки, которыми управляете."
   },
   "selectMembers": {
     "message": "Выбрать участников"
   },
   "selectCollections": {
     "message": "Выбрать коллекции"
+  },
+  "selectSharedFolders": {
+    "message": "Выберите общие папки"
   },
   "role": {
     "message": "Роль"
@@ -10520,8 +11207,15 @@
   "noCollection": {
     "message": "Нет коллекций"
   },
+  "noSharedFolder": {
+    "message": "Нет общей папки",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "Нет добавленных коллекций"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Нет добавленных общих папок"
   },
   "noMembersAdded": {
     "message": "Нет добавленных участников"
@@ -10690,6 +11384,33 @@
   },
   "emailUpdateOnSave": {
     "message": "Email обновится при сохранении"
+  },
+  "emailNotClaimedHint": {
+    "message": "У этого пользователя нет подтвержденного аккаунта. Свяжитесь с ним, чтобы обновить его адрес email."
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "У этого пользователя есть мастер-пароль. Свяжитесь с ним, чтобы обновить его адрес email."
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "Новый адрес email должен соответствовать домену, который использует ваша организация."
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "Этот адрес email уже используется одним из сотрудников вашей организации."
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "Адрес email уже используется. Вы можете пригласить его в вашу организацию."
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "Невозможно изменить адрес email пользователя, у которого есть мастер-пароль."
+  },
+  "emailErrorChangeFailed": {
+    "message": "Не удалось изменить адрес email. Пожалуйста, попробуйте снова."
+  },
+  "nameErrorNotClaimed": {
+    "message": "Невозможно изменить имя пользователя, который не принят в организацию."
+  },
+  "nameNotClaimedHint": {
+    "message": "У этого пользователя нет подтвержденного аккаунта. Свяжитесь с ним, чтобы обновить его имя."
   },
   "createdDate": {
     "message": "Дата создания"
@@ -11381,6 +12102,30 @@
     "message": "одна организация",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "единое хранилище организации",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "обязательное использование единого входа (SSO)",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": " и",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "политики управления восстановлением аккаунтов",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "будут включены автоматически.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "политика,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11704,17 +12449,38 @@
   "collectionManagement": {
     "message": "Управление коллекцией"
   },
+  "sharedFolderManagement": {
+    "message": "Настройки общих папок"
+  },
   "collectionManagementDescription": {
     "message": "Конфигурация коллекций для организации"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "Настройте поведение общих папок в хранилище организации."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Узнайте больше о коллекциях"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Узнайте больше об общих папках"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "Разрешить владельцам и администраторам управлять всеми коллекциями и элементами из консоли администратора"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Разрешить владельцам и администраторам управлять всеми общими папками и элементами из консоли администратора"
+  },
   "restrictCollectionCreationDescription": {
     "message": "Ограничить создание коллекций владельцами и администраторами"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Ограничить создание общих папок владельцами и администраторами"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Ограничить удаление коллекций владельцами и администраторами"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Ограничить удаление общих папок владельцами и администраторами"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Ограничить удаление элемента пользователями с ",
@@ -11726,6 +12492,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Настройки управления коллекцией обновлены"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Настройки управления общими папками обновлены"
   },
   "passwordManagerPlanPrice": {
     "message": "Стоимость плана Менеджер паролей"
@@ -11757,6 +12526,10 @@
   "assignCollectionAccess": {
     "message": "Назначить доступ к коллекциям"
   },
+  "assignSharedFolderAccess": {
+    "message": "Назначить доступ",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
+  },
   "editedCollections": {
     "message": "Изменение коллекции"
   },
@@ -11766,8 +12539,16 @@
   "collectionEdited": {
     "message": "Коллекция изменена"
   },
+  "sharedFolderEdited": {
+    "message": "Общая папка изменена",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "Коллекции изменены"
+  },
+  "sharedFoldersEdited": {
+    "message": "Общие папки изменены",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "URL сервера"
@@ -11806,8 +12587,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Изменена настройка управления общими папками $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "Включен параметр ограничения создания коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Включен параметр создания общей папки $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11824,6 +12623,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Отключен параметр создания общей папки $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "Включен параметр ограничения удаления коллекции $ID$.",
     "placeholders": {
@@ -11833,8 +12641,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Включен параметр удаления общей папки $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "Отключен параметр ограничения удаления коллекции $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Отключен параметр удаления общей папки $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11869,8 +12695,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Включен параметр Разрешить владельцам и администраторам управлять всеми настройками общих папок и элементов $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Отключен параметр Разрешить владельцам и администраторам управлять всеми настройками коллекций и элементов $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Отключен параметр Разрешить владельцам и администраторам управлять всеми настройками общих папок и элементов $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11936,20 +12780,44 @@
   "readOnlyCollectionAccess": {
     "message": "У вас нет доступа к управлению этой коллекцией."
   },
+  "readOnlySharedFolderAccess": {
+    "message": "У вас нет доступа к управлению этой общей папкой.",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "Отсутствуют разрешения на управление коллекцией"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "Отсутствуют права доступа к управлению",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "Представить разрешения на управление коллекцией, включая ее удаление."
   },
+  "grantManagePermissionsWarning": {
+    "message": "Предоставить права на управление, что разрешил полное распоряжение общими папками, включая их удаление.",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "Предоставить группам или участникам доступ к этой коллекции."
+  },
+  "grantSharedFolderAccess": {
+    "message": "Предоставить группам или участникам доступ к этой общей папке.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "Предоставить участникам доступ к этой коллекции."
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "Предоставить участникам доступ к этой общей папке.",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "Администраторы могут получать доступ к коллекциям и управлять ими."
+  },
+  "adminSharedFolderAccess": {
+    "message": "Администраторы могут получать доступ и управлять общими папками.",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "Доступ сервисного аккаунта изменен"
@@ -12088,6 +12956,36 @@
     "message": "Реорганизация, приобретение, смена приоритетов или нам больше не нужен менеджер паролей.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Переключитесь на ежегодное выставление счетов и сэкономьте $SAVINGS$ в год",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Текущая стоимость (помесячная оплата)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Стоимость при ежегодном выставлении счетов",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Указанные цены указаны до учета применимых налогов. Изменение вступит в силу со следующей даты продления.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Перейти на ежегодное выставление счетов",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Ваша подписка будет переведена на ежегодный режим оплаты при следующем продлении.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Плохое обслуживание клиентов",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -12142,14 +13040,23 @@
   "assignToCollections": {
     "message": "Назначить коллекциям"
   },
+  "addToSharedFolder": {
+    "message": "Добавить в общую папку"
+  },
   "assignToTheseCollections": {
     "message": "Назначить этим коллекциям"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Только пользователи хранилища, имеющие доступ к этим общим папкам, смогут видеть элемент."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Только члены организации, имеющие доступ к этим коллекциям, смогут видеть элементы."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Только пользователи хранилища, имеющие доступ к этим общим папкам, смогут видеть элементы."
   },
   "selectCollectionsToAssign": {
     "message": "Выбрать коллекции для назначения"
@@ -12160,17 +13067,32 @@
   "successfullyAssignedCollections": {
     "message": "Коллекции успешно назначены"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Общие папки успешно добавлены"
+  },
   "itemMovedToCollection": {
     "message": "Элемент перемещен в коллекцию"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Элемент добавлен в общую папку"
   },
   "itemMovedToCollections": {
     "message": "Элемент перемещен в коллекции"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Элемент добавлен в общие папки"
+  },
   "itemsMovedToCollection": {
     "message": "Элементы перемещены в коллекцию"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Элементы добавлены в общую папку"
+  },
   "itemsMovedToCollections": {
     "message": "Элементы перемещены в коллекции"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Элементы добавлены в общие папки"
   },
   "itemAssignedToCollections": {
     "message": "Элемент присвоен коллекциям"
@@ -12199,6 +13121,9 @@
   },
   "items": {
     "message": "Элементы"
+  },
+  "itemsLower": {
+    "message": "элементы"
   },
   "assignedSeats": {
     "message": "Назначенные места"
@@ -12679,6 +13604,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "Общая папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Коллекция $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Моя папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Папка $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "Создайте новую клиентскую организацию для управления ею в качестве провайдера. Дополнительные места будут отражены в следующем биллинговом цикле."
   },
@@ -12812,6 +13773,10 @@
   "noCollectionsSelected": {
     "message": "Вы не выбрали ни одной коллекции."
   },
+  "noSharedFoldersSelected": {
+    "message": "Вы не выбрали ни одной общей папки.",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
+  },
   "updateName": {
     "message": "Обновить название"
   },
@@ -12923,6 +13888,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "Аудит доступа членов организации к группам, коллекциям и элементам коллекций. Экспорт в формате CSV содержит подробную разбивку по членам, включая информацию о разрешениях на коллекции и конфигурациях учетных записей."
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "Аудит доступа пользователей к группам, коллекциям и элементам коллекций. Экспорт в формате CSV содержит подробную разбивку по членам, включая информацию о разрешениях на коллекции и конфигурациях учетных записей."
   },
   "memberAccessReportNoCollection": {
     "message": "(Нет коллекций)"
@@ -13042,8 +14010,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 элемент будет навсегда передан выбранной организации. Вы больше не будете владельцем этих элементов."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 элемент будет навсегда передан выбранному хранилищу. Вы больше не будете владельцем этих элементов."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы выбранной организации. Вы больше не будете владельцем этих элементов.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ элементов будут навсегда переданы выбранному хранилищу. Вы больше не будете владельцем этих элементов.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13292,6 +14272,9 @@
   "unlimitedCollections": {
     "message": "Неограниченное количество коллекций"
   },
+  "unlimitedSharedFolders": {
+    "message": "Неограниченное количество общих папок"
+  },
   "secureDataSharing": {
     "message": "Защищенный обмен данными"
   },
@@ -13472,6 +14455,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Пользователь $ID$ покинул хранилище $ORGNAME$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "Пользователь $ID$ исключил себя из организации.",
     "placeholders": {
@@ -13483,6 +14479,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Отозван в связи с отказом в передаче в собственность организации."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Права отозваны в связи с отказом от передачи прав владения на хранилище $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ приостановлена",
@@ -13533,6 +14538,15 @@
     "message": "Вы не можете удалить коллекции с правами только на просмотр: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Вы не можете удалить общие папки с правами только на просмотр: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -13982,6 +14996,10 @@
   "cannotCreateCollection": {
     "message": "В бесплатных организациях может быть до 2 коллекций. Перейдите на платный план, чтобы добавить больше коллекций."
   },
+  "cannotCreateSharedFolder": {
+    "message": "В бесплатных организациях может быть до 2 общих папок. Перейдите на платный план, чтобы добавить больше общих папок.",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
+  },
   "searchArchive": {
     "message": "Поиск в архиве"
   },
@@ -14234,6 +15252,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden будет использовать сохраненные URI логинов, чтобы определить, какой значок или URL для смены пароля следует использовать для улучшения вашего взаимодействия. При использовании этого сервиса никакая информация не собирается и не сохраняется."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Добавьте 3 кнопки быстрого копирования рядом с элементами, чтобы скопировать в буфер обмена свой логин, пароль или код подтверждения."
   },
   "billingAddress": {
     "message": "Платежный адрес"
@@ -14488,6 +15509,9 @@
   "familiesUnlimitedCollections": {
     "message": "Неограниченные семейные коллекции"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Неограниченное число общих семейных папок"
+  },
   "familiesSharedStorage": {
     "message": "Общее хранилище для важной семейной информации"
   },
@@ -14502,6 +15526,15 @@
   },
   "limitedCollectionsV2": {
     "message": "До $COUNT$ коллекций",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "До $COUNT$ общих папок",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14919,6 +15952,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Откройте страницу подписки в своем аккаунте Bitwarden cloud и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Откройте страницу подписки в своем аккаунте Bitwarden и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
   },
   "viewAllPlans": {
     "message": "Посмотреть все планы"
@@ -15771,6 +16807,282 @@
   },
   "copy": {
     "message": "Скопировать"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Правила доступа"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Включено"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Если правило отключено, оно неактивно и не ограничивает доступ."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Включить правило"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Отключить правило"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Правило доступа включено."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Правило доступа отключено."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Правило доступа не найдено."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Установите правила, определяющие, кто может запрашивать доступ к конфиденциальным учетным данным, при каких условиях и на какой срок."
+  },
+  "pamAccessRuleNew": {
+    "message": "Новое правило"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Новое правило доступа"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Изменить правило доступа"
+  },
+  "pamAccessRuleName": {
+    "message": "Название"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "например, VPN + рабочие часы"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Общая информация"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Продолжительность доступа"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Дополнительные условия"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Выбрать коллекции"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Это правило доступа будет применяться ко всем выбранным коллекциям."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Не удалось загрузить коллекции. Обновите страницу, чтобы повторить попытку."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Этот срок будет введен автоматически в запросах на доступ."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Описание"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Продолжительность доступа по умолчанию"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Максимальная продолжительность доступа"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Без лимита"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Продолжительность любой отдельной аренды ограничивается максимум этим сроком, независимо от того, что запрашивает заявитель."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 минут"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 минут"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 час"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 часа"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 часа"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 часов"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 часа"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 дней"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Только один пользователь может одновременно иметь активную аренду"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Новые запросы помещаются в очередь до тех пор, пока текущий срок аренды не истечет или не будет аннулирован."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Разрешить продление срока аренды"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Пользователи могут продлить действующую аренду один раз без получения нового разрешения, но не более чем на максимальный срок, указанный ниже."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Максимальная продолжительность продления"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "Как долго может длиться продление."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Требовать одобрения"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Ограничить по IP-адресу"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Утверждающие"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Менеджеры коллекции"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Правило доступа создано."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Правило доступа обновлено."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Удалить правило доступа?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Удалить \"$NAME$\"? Для любых коллекций, использующих это правило, аренда будет отключена.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Пока нет правил доступа"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Создайте правило, чтобы добавить дополнительную защиту конфиденциальным коллекциям."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Создать пользовательское правило"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Начать с шаблона"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Использовать шаблон"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Самое время"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Автоматически одобрено • Срок действия истекает через 1 час • Зарегистрировано в журнале аудита"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Доступ по мере необходимости"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Требуется одобрение"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Одобрение человеком • Требуется 1 утверждающий • Занесено в журнал аудита"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Требуется одобрение"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "Ограничено по IP-адресу"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Автоматическое одобрение • Список разрешенных IP-адресов • Занесено в журнал аудита"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "Доступ с ограничением по IP-адресу"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Коллекции"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Неназначенные"
+  },
+  "pamSearchRules": {
+    "message": "Поиск правил"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Применяется к"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Условия"
+  },
+  "pamAccessWindow": {
+    "message": "Окно доступа"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Последнее изменение"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Автоматически одобрено"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Требуется одобрение"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "Ограничено по IP-адресу"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Ни одно правило доступа не соответствует вашим фильтрам."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Включить"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Выключить"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Правила доступа обновлены."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Правила доступа удалены."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Удалить правила доступа?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ правил доступа будут окончательно удалены. Это действие нельзя отменить.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Будут разрешены лишь запросы, поступающие с этих диапазонов IP-адресов."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "Диапазон CIDR"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "например 10.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Добавить диапазон CIDR"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Удалить диапазон CIDR"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Добавьте как минимум один диапазон CIDR."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Введите действительный диапазон CIDR."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Этот диапазон CIDR уже добавлен."
   },
   "paymentSuccessful": {
     "message": "Платеж выполнен"

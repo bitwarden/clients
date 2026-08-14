@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Oblíbené"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Odebrat z oblíbených"
   },
@@ -115,6 +118,57 @@
   },
   "myFolders": {
     "message": "Moje složky"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "addSharedFolder": {
+    "message": "Přidat sdílenou složku"
+  },
+  "newSharedFolder": {
+    "message": "Nová sdílená složka"
+  },
+  "searchSharedFolder": {
+    "message": "Prohledat sdílenou složku"
+  },
+  "searchMyFolder": {
+    "message": "Prohledat Moje složky"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Zobrazit sdílenou složku - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Smazat sdílenou složku"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Smazat $COUNT$ sdílených složek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Tato sdílená složka bude trvale smazána. Položky ve složce nebudou smazány."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Tyto sdílené složky budou trvale smazány. Položky ve složkách nebudou smazány."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Vybrané položky a sdílené složky budou trvale smazány."
+  },
+  "sharedFolderDeleted": {
+    "message": "Sdílená složka byla smazána"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Sdílené složky byly smazány"
   },
   "share": {
     "message": "Sdílet"
@@ -470,6 +524,18 @@
   },
   "launch": {
     "message": "Spustit"
+  },
+  "launchWebsiteForName": {
+    "message": "Spustit web pro $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Kopírovat hodnotu",
@@ -877,6 +943,60 @@
   },
   "owner": {
     "message": "Vlastník"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Sdílená složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Sbírka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Moje složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Složka $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Vlastník $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Trezor $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "addField": {
     "message": "Přidat pole"
@@ -1720,7 +1840,7 @@
     "message": "Účet"
   },
   "loading": {
-    "message": "Načítání..."
+    "message": "Načítání…"
   },
   "lockVault": {
     "message": "Uzamknout trezor"
@@ -1904,6 +2024,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Zobrazit ikony webových stránek a načíst URL adresy pro změnu hesla"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Zobrazit tlačítka pro rychlé kopírování v trezoru"
+  },
+  "copyNoteTitle": {
+    "message": "Kopírovat poznámku - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Žádné podrobnosti ke kopírování"
+  },
   "runInBackground": {
     "message": "Nechat Bitwarden běžet na pozadí"
   },
@@ -1944,7 +2080,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Zkontrolovat aktualizace..."
+    "message": "Zkontrolovat aktualizace…"
   },
   "version": {
     "message": "Verze $VERSION_NUM$",
@@ -1999,6 +2135,31 @@
   },
   "copyVerificationCode": {
     "message": "Kopírovat ověřovací kód"
+  },
+  "noUsername": {
+    "message": "Žádné uživatelské jméno"
+  },
+  "noPassword": {
+    "message": "Žádné heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žádný ověřovací kód"
+  },
+  "noNumber": {
+    "message": "Žádné číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žádný bezpečnostní kód"
+  },
+  "copyDetailsTitle": {
+    "message": "Kopírovat podrobnosti pro $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Kopírovat uživatelské jméno"
@@ -2149,6 +2310,92 @@
   },
   "selectAll": {
     "message": "Označit vše"
+  },
+  "selectAllRows": {
+    "message": "Vybrat všechny řádky"
+  },
+  "selectRow": {
+    "message": "Vybrat řádek"
+  },
+  "showingItemRange": {
+    "message": "Zobrazování $START$ - $END$ z $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Řádků na stránku"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ řádků na stránku",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ položek",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Vše"
+  },
+  "clearAll": {
+    "message": "Vymazat vše"
+  },
+  "done": {
+    "message": "Hotovo"
+  },
+  "filter": {
+    "message": "Filtr"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ vybráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Předchozí stránka"
+  },
+  "nextPage": {
+    "message": "Další stránka"
+  },
+  "goToPage": {
+    "message": "Přejít na stránku"
+  },
+  "ofPageCount": {
+    "message": "z $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Žádné odpovídající položky"
   },
   "selected": {
     "message": "Vybráno"
@@ -2392,9 +2639,6 @@
   },
   "filePasswordConfirmationMismatch": {
     "message": "\"Heslo souboru\" a \"Potvrzení hesla souboru\" se neshodují."
-  },
-  "done": {
-    "message": "Hotovo"
   },
   "warning": {
     "message": "VAROVÁNÍ",
@@ -3064,7 +3308,7 @@
     "message": "Přečíst bezpečnostní klíč"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Čeká se na interakci s bezpečnostním klíčem..."
+    "message": "Čeká se na interakci s bezpečnostním klíčem…"
   },
   "hideMyEmail": {
     "message": "Skrýt moji e-mailovou adresu před příjemci"
@@ -3304,6 +3548,30 @@
   },
   "options": {
     "message": "Volby"
+  },
+  "moreOptions": {
+    "message": "Více voleb"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Vypršel časový limit relace. Vraťte se zpět a zkuste se znovu přihlásit."
@@ -3615,6 +3883,14 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "forwarderWebsitePrefix": {
+    "message": "Přidat předponu webových stránek",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Pokud je povoleno, bude doména aktuální webové stránky použita jako předpona pro vygenerovanou e-mailovou adresu",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
     "message": "Název hostitele",
@@ -4113,7 +4389,7 @@
     "message": "-- Pište pro filtrování --"
   },
   "multiSelectLoading": {
-    "message": "Načítání voleb..."
+    "message": "Načítání voleb…"
   },
   "multiSelectNotFound": {
     "message": "Nebyly nalezeny žádné položky"
@@ -4220,8 +4496,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ položka bude přeskočena",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "Následující položky nelze přečíst a nebudou zahrnuty do Vašeho importu:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Tento klíč SSH nelze importovat"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nepodporovaný typ položky"
+  },
+  "importSkipReasonGeneric": {
+    "message": "Tuto položku nelze importovat"
+  },
+  "identifier": {
+    "message": "Identifikátor"
   },
   "contact": {
     "message": "Kontakt"
@@ -4300,6 +4597,79 @@
   },
   "noFileChosen": {
     "message": "Není vybrán žádný soubor"
+  },
+  "noFileSelected": {
+    "message": "Nebyl vybrán žádný soubor"
+  },
+  "fileChosen": {
+    "message": "Byl vybrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Byl přidán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Bylo přidáno $COUNT$ souborů: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Byl odebrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 soubor byl nahrán"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ souborů bylo nahráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Nahrané soubory"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Klepnutím nahrajte nebo přetáhněte a pusťte"
+  },
+  "chooseFiles": {
+    "message": "Vybrat soubory"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. velikost souboru: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "nebo zkopírujte a vložte obsah souboru"
@@ -4396,7 +4766,7 @@
     "message": "E-mail LastPass"
   },
   "importingYourAccount": {
-    "message": "Importování Vašeho účtu..."
+    "message": "Importování Vašeho účtu…"
   },
   "lastPassMFARequired": {
     "message": "Je vyžadováno vícefaktorové ověření LastPass"
@@ -4695,6 +5065,12 @@
   "removePasskey": {
     "message": "Odebrat přístupový klíč"
   },
+  "deletePasskey": {
+    "message": "Smazat přístupový klíč"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Tento přístupový klíč bude trvale smazán z Vašeho přihlášení. Toto nelze vrátit zpět."
+  },
   "passkeyRemoved": {
     "message": "Přístupový klíč byl odebrán"
   },
@@ -4968,6 +5344,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemůžete odebrat sdílené složky s oprávněními jen pro zobrazení: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Přesunout"
   },
@@ -5066,8 +5451,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Přidá vedle položek 3 tlačítka pro rychlé kopírování, pomocí kterých můžete zkopírovat své uživatelské jméno, heslo nebo ověřovací kód do schránky."
+  },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
+  },
+  "addToSharedFolder": {
+    "message": "Přidat do sdílené složky"
+  },
+  "transferAndAdd": {
+    "message": "Převést a přidat"
+  },
+  "itemLower": {
+    "message": "položka"
+  },
+  "itemsLower": {
+    "message": "položky"
   },
   "assignToTheseCollections": {
     "message": "Přiřadit k těmto sbírkám"
@@ -5075,8 +5475,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položku."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položky."
   },
   "noCollectionsAssigned": {
     "message": "Nebyly přiřazeny žádné sbírky"
@@ -5136,8 +5542,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybraného trezoru. Tuto položku již nebudete vlastnit."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybraného trezoru. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5161,17 +5579,32 @@
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Sdílené složky byly úspěšně přidány"
+  },
   "itemMovedToCollection": {
     "message": "Položka byla přesunuta do sbírky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka byla přidána do sdílené složky"
   },
   "itemMovedToCollections": {
     "message": "Položka byla přesunuta do sbírek"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka byla přidána do sdílených složek"
+  },
   "itemsMovedToCollection": {
     "message": "Položky byly přesunuty do sbírky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky byly přidány do sdílené složky"
+  },
   "itemsMovedToCollections": {
     "message": "Položky byly přesunuty do sbírek"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky byly přidány do sdílených složek"
   },
   "itemAssignedToCollections": {
     "message": "Položka byla přiřazena do sbírek"
@@ -5263,7 +5696,7 @@
     "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
-    "message": "Více...",
+    "message": "Více…",
     "description": "This is used in the context of a breadcrumb navigation, indicating that there are more items in the breadcrumb trail that are not currently displayed."
   },
   "next": {

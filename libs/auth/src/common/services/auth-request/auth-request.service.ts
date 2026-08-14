@@ -24,6 +24,9 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
@@ -53,11 +56,13 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private appIdService: AppIdService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private authRequestApiService: AuthRequestApiServiceAbstraction,
     private accountService: AccountService,
+    private unlockService: UnlockService,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
     this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
@@ -159,7 +164,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       authReqResponse.key,
       authReqPrivateKey,
     );
-    await this.keyService.setUserKey(userKey, userId);
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
   }
 
   // Decryption helpers
@@ -182,7 +187,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   }
 
   async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
-    return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
+    return (await this.legacyCompatKeyService.getFingerprint(email.toLowerCase(), publicKey)).join(
+      "-",
+    );
   }
 
   emitAdminLoginApproved(): void {

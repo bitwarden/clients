@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "收藏夹"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "任务摘要"
   },
@@ -1195,16 +1198,159 @@
     "message": "已共享"
   },
   "sharedFolder": {
-    "message": "共享的文件夹"
+    "message": "共享文件夹"
   },
   "sharedFolders": {
-    "message": "共享的文件夹"
+    "message": "共享文件夹"
   },
   "myFolder": {
     "message": "我的文件夹"
   },
   "myFolders": {
     "message": "我的文件夹"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "addSharedFolder": {
+    "message": "添加共享文件夹"
+  },
+  "newSharedFolder": {
+    "message": "新增共享文件夹"
+  },
+  "searchSharedFolder": {
+    "message": "搜索共享文件夹"
+  },
+  "searchMyFolder": {
+    "message": "搜索我的文件夹"
+  },
+  "addToMyFolder": {
+    "message": "添加到我的文件夹"
+  },
+  "sharedFolderItemSelect": {
+    "message": "选择共享文件夹项目"
+  },
+  "viewSharedFolderWithName": {
+    "message": "查看共享文件夹 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "sharedFolderAdminConsoleManaged": {
+    "message": "此共享文件夹只能从 Admin Console 访问"
+  },
+  "editSharedFolder": {
+    "message": "编辑共享文件夹"
+  },
+  "deleteSharedFolder": {
+    "message": "删除共享文件夹"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "删除 $COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "共享文件夹 $NAME$ 将被永久删除。文件夹中的项目将不会被删除。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "这些共享文件夹将被永久删除。文件夹中的项目将不会被删除。"
+  },
+  "deleteSelectedSharedFoldersDesc": {
+    "message": "$COUNT$ 个共享文件夹将被永久删除。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "150"
+      }
+    }
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "所选项目和共享文件夹将被永久删除。"
+  },
+  "sharedFolderDeleted": {
+    "message": "共享文件夹已删除"
+  },
+  "sharedFoldersDeleted": {
+    "message": "共享文件夹已删除"
+  },
+  "deletedSharedFolders": {
+    "message": "删除了共享文件夹"
+  },
+  "freeOrgMaxSharedFolderReachedManageBilling": {
+    "message": "免费版组织最多拥有 $COLLECTIONCOUNT$ 个共享文件夹。请升级到付费版方案以添加更多共享文件夹。",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "freeOrgMaxSharedFolderReachedNoManageBilling": {
+    "message": "免费版组织最多拥有 $COLLECTIONCOUNT$ 个共享文件夹。请联系您的组织所有者升级。",
+    "placeholders": {
+      "COLLECTIONCOUNT": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "coachmarkShareWithSharedFoldersDescription": {
+    "message": "通过将项目移动到共享文件夹，您可以与其他密码库成员安全地共享该项目。"
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "这将永久删除下列成员拥有的所有项目。共享文件夹中的项目不受影响。",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "这将永久删除 $NAME$ 拥有的所有项目。共享文件夹中的项目不受影响。",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "管理组织的访问权限、所有共享文件夹、成员、报告，以及安全设置"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "管理所有共享文件夹、成员、报告，以及安全设置"
+  },
+  "userDescSharedFolders": {
+    "message": "访问并将项目添加到已分配的共享文件夹"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "通过将共享文件夹添加到 1 个或多个群组，授予成员对共享文件夹的访问权限。"
+  },
+  "manageAllSharedFolders": {
+    "message": "管理所有共享文件夹"
+  },
+  "createNewSharedFolders": {
+    "message": "创建新共享文件夹"
+  },
+  "editAnySharedFolder": {
+    "message": "编辑任何共享文件夹"
+  },
+  "deleteAnySharedFolder": {
+    "message": "删除任何共享文件夹"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "您不能将自己添加到共享文件夹。"
   },
   "attachments": {
     "message": "附件"
@@ -1430,6 +1576,9 @@
   "item": {
     "message": "项目"
   },
+  "itemLower": {
+    "message": "项目"
+  },
   "itemDetails": {
     "message": "项目详细信息"
   },
@@ -1586,8 +1735,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "复制信息 - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "复制 $ITEMNAME$ 的详细信息",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1610,10 +1759,10 @@
     "message": "未输入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "没有可复制的值"
+  "noDetailsToCopy": {
+    "message": "没有可复制的详细信息"
   },
-  "launchWebsiteName": {
+  "launchWebsiteForName": {
     "message": "前往 $ITEMNAME$ 的网站",
     "placeholders": {
       "itemname": {
@@ -1621,6 +1770,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "打开网站"
   },
   "me": {
     "message": "我"
@@ -1656,13 +1808,13 @@
     "message": "全选"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "选择所有行"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "选择行"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "显示 $START$ - $END$ / $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -1679,10 +1831,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "每页行数"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "每页 $COUNT$ 行",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1691,7 +1843,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ 个项目",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1700,10 +1852,10 @@
     }
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "清除全部"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "已选择 $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1712,16 +1864,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "上一页"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "下一页"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "跳转至..."
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "/ $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1730,7 +1882,7 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "没有匹配的项目"
   },
   "deselectAll": {
     "message": "取消全选"
@@ -2346,6 +2498,10 @@
   "youDoNotHavePermissions": {
     "message": "您没有此集合的权限"
   },
+  "youDoNotHavePermissionsSharedFolder": {
+    "message": "您没有此共享文件夹的权限",
+    "description": "VFO1 terminology feature flag variant of youDoNotHavePermissions"
+  },
   "noCollectionsInList": {
     "message": "没有可列出的集合。"
   },
@@ -2516,7 +2672,7 @@
     "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "collectionsDesc": {
-    "message": "编辑与其共享此项目的集合。只有具有这些集合访问权限的组织用户才能看到此项目。"
+    "message": "编辑与其共享此项目的集合。只有拥有这些集合访问权限的组织用户才能看到此项目。"
   },
   "deleteSelectedItemsDesc": {
     "message": "$COUNT$ 个项目将被发送到回收站。",
@@ -2571,6 +2727,21 @@
   },
   "copyVerificationCode": {
     "message": "复制验证码"
+  },
+  "noUsername": {
+    "message": "没有用户名"
+  },
+  "noPassword": {
+    "message": "没有密码"
+  },
+  "noVerificationCode": {
+    "message": "没有验证码"
+  },
+  "noNumber": {
+    "message": "没有号码"
+  },
+  "noSecurityCode": {
+    "message": "没有安全码"
   },
   "copyUuid": {
     "message": "复制 UUID"
@@ -2938,6 +3109,15 @@
   "purgedOrganizationVault": {
     "message": "清空了组织密码库。"
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "清空了 $ORGNAME$ 密码库。",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "密码库被提供商访问。"
   },
@@ -3046,7 +3226,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ 个项目将被跳过",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3058,13 +3238,13 @@
     "message": "以下项目无法读取，将不会包含在您的导入中："
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "此 SSH 密钥无法导入"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "不受支持的项目类型"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "此项目无法导入"
   },
   "contact": {
     "message": "联系人"
@@ -3141,6 +3321,79 @@
   "noFileChosen": {
     "message": "未选择文件"
   },
+  "noFileSelected": {
+    "message": "未选择文件"
+  },
+  "fileChosen": {
+    "message": "选择的文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "添加的文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ 个文件已添加：$FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "移除的文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 个文件已上传"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ 个文件已上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "已上传的文件"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "点击上传或拖放"
+  },
+  "chooseFiles": {
+    "message": "选择文件"
+  },
+  "maxFileSizeParam": {
+    "message": "最大文件大小：$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "或复制/粘贴要导入的文件内容"
   },
@@ -3156,6 +3409,27 @@
   },
   "options": {
     "message": "选项"
+  },
+  "moreOptions": {
+    "message": "更多选项"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "偏好设置"
@@ -3174,6 +3448,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "显示网站图标并获取更改密码的 URL"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "在密码库中显示快速复制操作"
   },
   "default": {
     "message": "默认"
@@ -3545,6 +3822,10 @@
   },
   "orgsReportsDesc": {
     "message": "点击下面的报告，识别并消除您的组织账户中的安全漏洞。",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "点击下面的报告，识别并消除您的组织密码库中的安全漏洞。",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4042,13 +4323,13 @@
     "message": "取消订阅"
   },
   "completeCancellation": {
-    "message": "Complete cancellation"
+    "message": "完成取消"
   },
   "helpUsImprove": {
-    "message": "Help us improve. Why are you canceling?"
+    "message": "帮助我们改进。请问您为什么取消？"
   },
   "additionalDetails": {
-    "message": "Additional details"
+    "message": "更多详细信息"
   },
   "subscriptionExpiration": {
     "message": "订阅过期"
@@ -4058,6 +4339,15 @@
   },
   "pendingCancellation": {
     "message": "待取消"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "您将于 $DATE$ 切换为按年计费。所显示的方案和价格反映的是您即将生效的年度订阅。",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "此订阅在当前计费周期结束前已标记为取消。"
@@ -4428,6 +4718,9 @@
   "organizationName": {
     "message": "组织名称"
   },
+  "vaultName": {
+    "message": "密码库名称"
+  },
   "accountOwnedBusiness": {
     "message": "此账户由商业用户拥有。"
   },
@@ -4544,6 +4837,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "仅限 $COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "添加并最多与 $COUNT$ 位用户共享",
     "placeholders": {
@@ -4558,6 +4860,9 @@
   },
   "createUnlimitedCollections": {
     "message": "创建不限数量的集合"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "创建不限数量的共享文件夹"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ 加密文件存储空间",
@@ -4665,6 +4970,9 @@
   "defaultCollection": {
     "message": "默认集合"
   },
+  "defaultSharedFolder": {
+    "message": "默认共享文件夹"
+  },
   "getHelp": {
     "message": "获取帮助"
   },
@@ -4749,6 +5057,10 @@
   "nestCollectionUnder": {
     "message": "嵌套于集合下"
   },
+  "nestSharedFolderUnder": {
+    "message": "嵌套于共享文件夹下",
+    "description": "VFO1 terminology feature flag variant of nestCollectionUnder"
+  },
   "accessControl": {
     "message": "访问控制"
   },
@@ -4767,11 +5079,23 @@
   "viewCollection": {
     "message": "查看集合"
   },
+  "viewSharedFolder": {
+    "message": "查看共享文件夹",
+    "description": "VFO1 terminology feature flag variant of viewCollection"
+  },
   "collectionInfo": {
     "message": "集合信息"
   },
+  "sharedFolderInfo": {
+    "message": "共享文件夹信息",
+    "description": "VFO1 terminology feature flag variant of collectionInfo"
+  },
   "deleteCollectionConfirmation": {
     "message": "确定要删除此集合吗？"
+  },
+  "deleteSharedFolderConfirmation": {
+    "message": "确定要删除此共享文件夹吗？",
+    "description": "VFO1 terminology feature flag variant of deleteCollectionConfirmation"
   },
   "editMember": {
     "message": "编辑成员"
@@ -4793,6 +5117,10 @@
   },
   "inviteUserDescription": {
     "message": "在下面输入他们的电子邮箱地址，以邀请新用户加入您的组织。"
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "在下面输入他们的 Bitwarden 账户电子邮箱地址，以邀请新用户加入您的组织密码库。如果他们还没有 Bitwarden 账户，将提示他们创建一个新账户。",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "使用逗号分隔最多输入 $COUNT$ 个电子邮箱。",
@@ -4848,6 +5176,24 @@
   },
   "owner": {
     "message": "所有者"
+  },
+  "ownerAriaLabel": {
+    "message": "所有者 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "密码库 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "ownerDesc": {
     "message": "管理您组织的所有方面，包括计费和订阅"
@@ -4961,8 +5307,26 @@
   "exportedOrganizationVault": {
     "message": "导出了组织密码库。"
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "导出了 $ORGNAME$ 密码库。",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "编辑了组织设置。"
+  },
+  "editedOrgSettingsWithName": {
+    "message": "编辑了 $ORGNAME$ 密码库设置。",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "创建了项目 $ID$。",
@@ -5157,6 +5521,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "移动了项目 $ID$ 到 $ORGNAME$ 密码库。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5400,6 +5777,16 @@
       }
     }
   },
+  "createdSharedFolderId": {
+    "message": "创建了共享文件夹 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of createdCollectionId"
+  },
   "editedCollectionId": {
     "message": "编辑了集合 $ID$。",
     "placeholders": {
@@ -5408,6 +5795,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "editedSharedFolderId": {
+    "message": "编辑了共享文件夹 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of editedCollectionId"
   },
   "deletedCollections": {
     "message": "删除了集合"
@@ -5426,6 +5823,16 @@
         "example": "Server Passwords"
       }
     }
+  },
+  "deletedSharedFolderId": {
+    "message": "删除了共享文件夹 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Server Passwords"
+      }
+    },
+    "description": "VFO1 terminology feature flag variant of deletedCollectionId"
   },
   "discardEditsTitle": {
     "message": "放弃编辑"
@@ -5503,11 +5910,24 @@
     }
   },
   "revokedUserId": {
-    "message": "撤销了 $ID$ 的组织访问权限。",
+    "message": "撤销了 $ID$ 对组织的访问权限。",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdWithOrgName": {
+    "message": "撤销了 $ID$ 对 $ORGNAME$ 密码库的访问权限。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5539,25 +5959,51 @@
     "message": "拒绝了将项目转移到组织"
   },
   "revokedUserIdTwoFactorNonCompliance": {
-    "message": "因不符合双重验证组织策略，撤销了 $ID$ 的组织访问权限。",
+    "message": "因不符合双重验证组织策略，撤销了 $ID$ 对组织的访问权限。",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "因不符合双重验证登录策略，撤销了 $ID$ 对 $ORGNAME$ 密码库的访问权限。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
   "revokedUserIdSingleOrganizationNonCompliance": {
-    "message": "因不符合单一组织策略，撤销了 $ID$ 的组织访问权限。",
+    "message": "因不符合单一组织策略，撤销了 $ID$ 对组织的访问权限。",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "因不符合单一组织成员资格策略，撤销了 $ID$ 对 $ORGNAME$ 密码库的访问权限。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
   "revokedUserIdDeclinedTransfer": {
-    "message": "因拒绝转移至组织所有权，撤销了 $ID$ 的组织访问权限。",
+    "message": "因拒绝转移至组织所有权，撤销了 $ID$ 对组织的访问权限。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5565,12 +6011,38 @@
       }
     }
   },
-  "restoredUserId": {
-    "message": "恢复了 $ID$ 的组织访问权限。",
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "因拒绝转移至 $ORGNAME$ 密码库所有权，撤销了 $ID$ 的访问权限。",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
+  "restoredUserId": {
+    "message": "恢复了 $ID$ 对组织的访问权限。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "恢复了 $ID$ 对 $ORGNAME$ 密码库的访问权限。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5610,8 +6082,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "编辑了项目 $ID$ 的共享文件夹。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "接受了转移至组织所有权。"
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "接受了转移至 $ORGNAME$ 密码库所有权。",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "邀请了用户 $ID$。",
@@ -5679,12 +6169,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "创建了 $ORGNAME$ 密码库 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "添加了组织 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "添加了 $ORGNAME$ 密码库 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5697,12 +6213,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "移除了 $ORGNAME$ 密码库 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "访问了 $ID$ 组织密码库。",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "访问了 $ORGNAME$ 密码库中的 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6023,6 +6565,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "无法加入 $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "邀请链接已失效。"
+  },
+  "returnToLogin": {
+    "message": "返回登录"
+  },
+  "returnToRegistration": {
+    "message": "返回注册"
+  },
   "joinOrganizationDesc": {
     "message": "您已被邀请加入上面的组织。要接受邀请，您需要登录或者创建一个新的 Bitwarden 账户。"
   },
@@ -6049,6 +6609,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "无法接受邀请。请向组织管理员请求发送新的邀请链接。"
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "无法接受邀请"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "您已经是这个组织的成员。"
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "此组织不允许使用与 $DOMAIN$ 匹配的电子邮箱地址。",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "由于您已经是某个免费版组织的管理员，您不能加入这个组织。"
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "您已经从此组织中被撤销。请联系您的管理员以重新获取访问权限。"
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "提供商用户不能使用此邀请链接加入。"
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "出错了，请重新加载页面以重试。"
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "您已经是其成员的组织只允许其成员属于一个组织。"
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "您正在尝试加入的组织只允许其成员属于一个组织。"
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "您必须设置两步登录才能加入这个组织。"
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "您必须验证您的电子邮箱地址，然后才能加入组织。"
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "出错了，请重新加载页面以重试。"
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "由于没有可用的席位，您的邀请无法被接受。"
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "出错了，请重新加载页面以重试。"
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "此域名未被这个组织接受。请尝试其他电子邮箱地址。"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "无法接受邀请"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "无法解密组织邀请。请使用同一浏览器重新开始并完成注册流程。"
+  },
+  "goToLogin": {
+    "message": "前往登录"
+  },
+  "goToVault": {
+    "message": "前往密码库"
   },
   "rememberEmail": {
     "message": "记住电子邮箱"
@@ -6235,7 +6861,7 @@
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "maxSeatCost": {
-    "message": "最大潜在的席位成本"
+    "message": "最大潜在的席位费用"
   },
   "addSeats": {
     "message": "添加席位",
@@ -6478,7 +7104,7 @@
     "message": "随时。"
   },
   "byEmail": {
-    "message": "通过电子邮箱"
+    "message": "通过电子邮件"
   },
   "byLink": {
     "message": "通过链接"
@@ -6497,6 +7123,9 @@
   },
   "inviteLink": {
     "message": "邀请链接"
+  },
+  "transferAndAdd": {
+    "message": "转移并添加"
   },
   "lastGenerated": {
     "message": "上次生成：$DATE$",
@@ -6839,10 +7468,10 @@
     "message": "为所有成员生成的密码选择一组最低要求。"
   },
   "generatedPassword": {
-    "message": "生成了密码"
+    "message": "生成的密码"
   },
   "generatedPassphrase": {
-    "message": "生成了密码短语"
+    "message": "生成的密码短语"
   },
   "masterPasswordPolicyInEffect": {
     "message": "一个或多个组织策略要求您的主密码满足以下要求："
@@ -7305,11 +7934,11 @@
     "message": "已到期"
   },
   "expiringSoon": {
-    "message": "Expiring soon",
+    "message": "即将到期",
     "description": "Badge label shown on an access token that will expire within the warning threshold."
   },
   "tokenActive": {
-    "message": "Active",
+    "message": "有效",
     "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
@@ -7673,6 +8302,23 @@
   },
   "inviteLinkEventAccepted": {
     "message": "成员 $ID$ 通过邀请链接接受了邀请",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "「要求管理员批准邀请链接」已禁用",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "「要求管理员批准邀请链接」已启用",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "成员 $ID$ 已通过邀请链接完成确认",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8630,7 +9276,7 @@
     "message": "进一步了解设备保护"
   },
   "sessionTimeoutConfirmationOnSystemLockTitle": {
-    "message": "「系统锁定时」只适用于浏览器和桌面 App"
+    "message": "「系统锁定时」仅适用于浏览器和桌面 App"
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
     "message": "由于移动端和网页 App 不支持该选项，将使用「App 重启时」作为其最大允许的超时。"
@@ -8858,14 +9504,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "赞助的家庭"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "非成员兑换"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "没有赞助的家庭"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "没有兑换记录"
   },
   "noSponsoredFamiliesDetails": {
     "message": "已赞助的非成员家庭版方案将显示在这里"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "没有非成员兑现赞助的家庭版方案。"
+  },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版。您可以为不是您的 Bitwarden 组织成员的员工赞助免费的 Bitwarden 家庭版。赞助非成员需要您的组织内有可用的席位。"
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版。您可以为不是您的 Bitwarden 组织成员的员工赞助免费的 Bitwarden 家庭版。赞助非成员要求您的组织内有可用的席位。"
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "您的成员有资格兑换赞助的家庭版方案。您可以为不是您的 Bitwarden 组织成员的员工赞助家庭版方案，但这要求您的组织内有可用的席位。"
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "当您移除某个活动赞助，在被赞助组织的续费日期之后，您的组织中将释放一个可用的席位。"
@@ -8873,17 +9531,26 @@
   "sponsoredFamiliesEligible": {
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "您和您的家人有资格获得赞助的家庭版方案，而无需额外的费用。使用您的个人电子邮箱兑换此方案，以确保您的数据安全，并将其与您的 Bitwarden 工作账户分开。"
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "立即兑换免费的 Bitwarden 家庭版方案，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "Bitwarden 家庭版方案包含"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "Bitwarden 家庭版方案包含"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最多 6 位高级版访问权限的用户"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
-    "message": "为家庭成员提供共享集合"
+    "message": "适用于家庭成员的共享集合"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "适用于家庭成员的共享文件夹"
   },
   "memberFamilies": {
     "message": "成员家庭"
@@ -8925,7 +9592,7 @@
     "message": "输入您的个人电子邮箱以兑换 Bitwarden 家庭版"
   },
   "sponsoredFamiliesLeaveCopy": {
-    "message": "如果您移除邀请或您被从赞助组织中移除，您的家庭版赞助将在下一个续费日到期。"
+    "message": "如果您移除邀请或您被移出赞助组织，您的家庭版赞助将在下一次续费日期到期。"
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "接受现有组织的邀请或创建一个新的家庭版组织。"
@@ -9298,7 +9965,7 @@
     "message": "如果实体 ID 不是 URL，则必填。"
   },
   "offerNoLongerValid": {
-    "message": "此优惠不再可用。请联系组织管理员获取更多信息。"
+    "message": "此优惠已失效。请联系组织管理员获取更多信息。"
   },
   "openIdOptionalCustomizations": {
     "message": "个性化（可选）"
@@ -9701,6 +10368,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "添加网站前缀",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "启用后，当前网站的域名将被用作生成电子邮箱地址的前缀",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "主机名",
     "description": "Part of a URL."
@@ -10098,7 +10773,7 @@
     "message": "永久删除机密"
   },
   "secretProjectAssociationDescription": {
-    "message": "选择要将此机密与其相关联的工程。仅有权访问这些工程的组织用户能查看该机密。",
+    "message": "选择要将此机密与其相关联的工程。只有拥有这些工程访问权限的组织用户能看到此机密。",
     "description": "A prompt explaining how secrets can be associated with projects."
   },
   "selectProjects": {
@@ -10487,17 +11162,29 @@
   "editGroupMembersDesc": {
     "message": "授予成员对该群组已分配的集合的访问权限。"
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "授予成员对该群组已分配的共享文件夹的访问权限。"
+  },
   "editGroupCollectionsDesc": {
     "message": "通过将集合添加到此群组来授予对集合的访问权限。"
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "通过将共享文件夹添加到此群组来授予对共享文件夹的访问权限。"
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "您只能分配您管理的集合。"
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "您只能分配您管理的共享文件夹。"
   },
   "selectMembers": {
     "message": "选择成员"
   },
   "selectCollections": {
     "message": "选择集合"
+  },
+  "selectSharedFolders": {
+    "message": "选择共享文件夹"
   },
   "role": {
     "message": "角色"
@@ -10520,8 +11207,15 @@
   "noCollection": {
     "message": "没有集合"
   },
+  "noSharedFolder": {
+    "message": "没有共享文件夹",
+    "description": "VFO1 terminology feature flag variant of noCollection"
+  },
   "noCollectionsAdded": {
     "message": "未添加任何集合"
+  },
+  "noSharedFoldersAdded": {
+    "message": "未添加任何共享文件夹"
   },
   "noMembersAdded": {
     "message": "未添加任何成员"
@@ -10690,6 +11384,33 @@
   },
   "emailUpdateOnSave": {
     "message": "电子邮箱将在保存时更新"
+  },
+  "emailNotClaimedHint": {
+    "message": "此成员尚未认领账户。请联系成员更新其电子邮箱地址。"
+  },
+  "emailHasMasterPasswordHint": {
+    "message": "此成员设置了主密码。请联系成员更新其电子邮箱地址。"
+  },
+  "emailErrorNotClaimedDomain": {
+    "message": "新的电子邮箱地址必须匹配组织声明的域名。"
+  },
+  "emailErrorAlreadyInUse": {
+    "message": "电子邮箱地址已被组织中的某个成员使用。"
+  },
+  "emailErrorClaimedByOrg": {
+    "message": "电子邮箱地址已被使用。您可以改为邀请他们加入您的组织。"
+  },
+  "emailErrorHasMasterPassword": {
+    "message": "无法更改已设置主密码的成员的电子邮箱地址。"
+  },
+  "emailErrorChangeFailed": {
+    "message": "更改电子邮箱地址失败。请重试。"
+  },
+  "nameErrorNotClaimed": {
+    "message": "无法更改未被组织声明的成员的名称。"
+  },
+  "nameNotClaimedHint": {
+    "message": "此成员尚未认领账户。请联系成员更新其名称。"
   },
   "createdDate": {
     "message": "创建日期"
@@ -11381,6 +12102,30 @@
     "message": "单一组织",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "单一组织密码库",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "要求 SSO",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": "，",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": "，以及",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "账户恢复管理",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "策略将自动启用。",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "策略，",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11483,7 +12228,7 @@
     "message": "设备批准"
   },
   "deviceApprovalsDesc": {
-    "message": "批准下面的登录请求以允许请求的成员完成登录。未批准的请求将在 1 周后到期。请在批准前验证成员的信息。"
+    "message": "批准下面的登录请求以允许请求的成员完成登录。未批准的请求将在 1 周后到期。请在批准前验证成员信息。"
   },
   "deviceInfo": {
     "message": "设备信息"
@@ -11704,17 +12449,38 @@
   "collectionManagement": {
     "message": "集合管理"
   },
+  "sharedFolderManagement": {
+    "message": "共享文件夹设置"
+  },
   "collectionManagementDescription": {
     "message": "配置组织的集合行为"
+  },
+  "sharedFolderManagementDescription": {
+    "message": "配置共享文件夹在组织密码库中的行为。"
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "进一步了解集合"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "进一步了解共享文件夹"
   },
   "allowAdminAccessToAllCollectionItemsDescription": {
     "message": "允许所有者和管理员从 Admin Console 管理所有集合和项目"
   },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "允许所有者和管理员从 Admin Console 管理所有共享文件夹和项目"
+  },
   "restrictCollectionCreationDescription": {
     "message": "限制为仅所有者和管理员可以创建集合"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "限制为仅所有者和管理员可以创建共享文件夹"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "限制为仅所有者和管理员可以删除集合"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "限制为仅所有者和管理员可以删除共享文件夹"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "限制为仅具有以下权限的成员可以删除项目：",
@@ -11726,6 +12492,9 @@
   },
   "updatedCollectionManagement": {
     "message": "更新了集合管理设置"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "更新了共享文件夹管理设置"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager 方案价格"
@@ -11749,13 +12518,17 @@
     "message": "服务账户限制（可选）"
   },
   "maxServiceAccountCost": {
-    "message": "最大潜在的服务账户成本"
+    "message": "最大潜在的服务账户费用"
   },
   "loggedInExclamation": {
     "message": "已登录！"
   },
   "assignCollectionAccess": {
     "message": "分配集合访问权限"
+  },
+  "assignSharedFolderAccess": {
+    "message": "分配访问权限",
+    "description": "VFO1 terminology feature flag variant of assignCollectionAccess"
   },
   "editedCollections": {
     "message": "编辑了集合"
@@ -11766,8 +12539,16 @@
   "collectionEdited": {
     "message": "集合已编辑"
   },
+  "sharedFolderEdited": {
+    "message": "共享文件夹已编辑",
+    "description": "VFO1 terminology feature flag variant of collectionEdited"
+  },
   "collectionsEdited": {
     "message": "集合已编辑"
+  },
+  "sharedFoldersEdited": {
+    "message": "共享文件夹已编辑",
+    "description": "VFO1 terminology feature flag variant of collectionsEdited"
   },
   "baseUrl": {
     "message": "服务器 URL"
@@ -11806,8 +12587,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "修改了共享文件夹管理设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
     "message": "启用了限制集合创建设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "启用了限制共享文件夹创建设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11824,6 +12623,15 @@
       }
     }
   },
+  "limitSharedFolderCreationDisabled": {
+    "message": "停用了限制共享文件夹创建设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionEnabled": {
     "message": "启用了限制集合删除设置 $ID$。",
     "placeholders": {
@@ -11833,8 +12641,26 @@
       }
     }
   },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "启用了限制共享文件夹删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionDeletionDisabled": {
     "message": "停用了限制集合删除设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "停用了限制共享文件夹删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11869,8 +12695,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "启用了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "停用了允许所有者和管理员管理所有集合和项目设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "停用了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -11936,20 +12780,44 @@
   "readOnlyCollectionAccess": {
     "message": "您没有管理此集合的权限。"
   },
+  "readOnlySharedFolderAccess": {
+    "message": "您没有管理此共享文件夹的权限。",
+    "description": "VFO1 terminology feature flag variant of readOnlyCollectionAccess"
+  },
   "grantManageCollectionWarningTitle": {
     "message": "缺少「管理集合」权限"
+  },
+  "grantManagePermissionsWarningTitle": {
+    "message": "缺少「管理」权限",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarningTitle. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
   },
   "grantManageCollectionWarning": {
     "message": "授予「管理集合」权限以允许完整的集合管理，包括删除集合。"
   },
+  "grantManagePermissionsWarning": {
+    "message": "授予「管理」权限以允许完整的共享文件夹管理，包括删除共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of grantManageCollectionWarning. The Manage permission is shortened to 'Manage' rather than following the usual collection -> shared folder renaming pattern."
+  },
   "grantCollectionAccess": {
     "message": "授予群组或成员对此集合的访问权限。"
+  },
+  "grantSharedFolderAccess": {
+    "message": "授予群组或成员对此共享文件夹的访问权限。",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccess"
   },
   "grantCollectionAccessMembersOnly": {
     "message": "授予成员对此集合的访问权限。"
   },
+  "grantSharedFolderAccessMembersOnly": {
+    "message": "授予成员对此共享文件夹的访问权限。",
+    "description": "VFO1 terminology feature flag variant of grantCollectionAccessMembersOnly"
+  },
   "adminCollectionAccess": {
     "message": "管理员可以访问和管理集合。"
+  },
+  "adminSharedFolderAccess": {
+    "message": "管理员可以访问和管理共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of adminCollectionAccess"
   },
   "serviceAccountAccessUpdated": {
     "message": "服务账户访问权限已更新"
@@ -12053,7 +12921,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyMissingFeaturesHintV2": {
-    "message": "Something we needed wasn't available.",
+    "message": "我们需要的某些功能没有提供。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexLabel": {
@@ -12061,15 +12929,15 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyTooComplexHintV2": {
-    "message": "Onboarding, admin, or day-to-day use was too complex.",
+    "message": "配置、 管理或日常使用过于复杂。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueLabelV2": {
-    "message": "Cost was too high",
+    "message": "费用太高",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughValueHintV2": {
-    "message": "The price doesn't match what we're getting out of it.",
+    "message": "价格与我们获得的实际价值不匹配。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageLabel": {
@@ -12077,7 +12945,7 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNotEnoughUsageHintV2": {
-    "message": "We couldn't get people to actually use it.",
+    "message": "我们无法让成员真正去使用它。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedLabel": {
@@ -12085,19 +12953,49 @@
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyNeedsChangedHintV2": {
-    "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
+    "message": "重组、收购、优先级调整，或者我们不再需要密码管理器了。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "切换为按年计费，节省 $SAVINGS$ /年",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "当前费用（按月计费）",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "按年计费费用",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "所显示的价格为税前价格。该切换将在您的下一次续费日期生效。",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "切换为按年计费",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "您的订阅将在下一次续费日期切换为按年计费。",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
-    "message": "Poor customer service",
+    "message": "客户服务体验太差",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyPoorServiceHint": {
-    "message": "We didn't get the help we needed from support or customer service.",
+    "message": "我们没有从技术支持或客户服务那里获得所需的帮助。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
   "cancelSurveyOtherPlaceholder": {
-    "message": "Describe your reason for canceling",
+    "message": "请描述您取消的原因",
     "description": "Label and placeholder for the text area shown when 'Other' is selected in the cancel survey."
   },
   "freeForOneYear": {
@@ -12142,14 +13040,23 @@
   "assignToCollections": {
     "message": "分配到集合"
   },
+  "addToSharedFolder": {
+    "message": "添加到共享文件夹"
+  },
   "assignToTheseCollections": {
     "message": "分配到这些集合"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这个项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到此项目。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到此项目。"
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到这些项目。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到这些项目。"
   },
   "selectCollectionsToAssign": {
     "message": "选择要分配的集合"
@@ -12160,17 +13067,32 @@
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "成功添加了共享文件夹"
+  },
   "itemMovedToCollection": {
     "message": "项目已移动到集合"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "项目已添加到共享文件夹"
   },
   "itemMovedToCollections": {
     "message": "项目已移动到集合"
   },
+  "itemAddedToSharedFolders": {
+    "message": "项目已添加到共享文件夹"
+  },
   "itemsMovedToCollection": {
     "message": "项目已移动到集合"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "项目已添加到共享文件夹"
+  },
   "itemsMovedToCollections": {
     "message": "项目已移动到集合"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "项目已添加到共享文件夹"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
@@ -12198,6 +13120,9 @@
     "message": "编辑字段"
   },
   "items": {
+    "message": "项目"
+  },
+  "itemsLower": {
     "message": "项目"
   },
   "assignedSeats": {
@@ -12456,7 +13381,7 @@
     "message": "机器账户限制（可选）"
   },
   "maxMachineAccountCost": {
-    "message": "最大潜在的机器账户成本"
+    "message": "最大潜在的机器账户费用"
   },
   "machineAccountAccessUpdated": {
     "message": "机器账户访问权限已更新"
@@ -12679,6 +13604,42 @@
       }
     }
   },
+  "sharedFolderAriaLabel": {
+    "message": "共享文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "集合 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "我的文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
   "createNewClientToManageAsProvider": {
     "message": "创建一个新的客户组织作为提供商来管理。附加席位将反映在下一个计费周期中。"
   },
@@ -12812,6 +13773,10 @@
   "noCollectionsSelected": {
     "message": "您尚未选择任何集合。"
   },
+  "noSharedFoldersSelected": {
+    "message": "您尚未选择任何共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of noCollectionsSelected"
+  },
   "updateName": {
     "message": "更新名称"
   },
@@ -12923,6 +13888,9 @@
   },
   "memberAccessReportPageDesc": {
     "message": "审计组织成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "审计成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
   },
   "memberAccessReportNoCollection": {
     "message": "（无集合）"
@@ -13042,8 +14010,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 个项目将永久转移到所选密码库。您将不再拥有该项目。"
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选密码库。您将不再拥有这些项目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13292,6 +14272,9 @@
   "unlimitedCollections": {
     "message": "不限数量的集合"
   },
+  "unlimitedSharedFolders": {
+    "message": "不限数量的共享文件夹"
+  },
   "secureDataSharing": {
     "message": "安全数据共享"
   },
@@ -13472,6 +14455,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "用户 $ID$ 退出了 $ORGNAME$ 密码库",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "用户 $ID$ 从组织中自行撤销。",
     "placeholders": {
@@ -13483,6 +14479,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "因拒绝转移至组织所有权而被撤销。"
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "因拒绝转移至 $ORGNAME$ 密码库所有权而被撤销。",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "$ORGANIZATION$ 已暂停",
@@ -13497,7 +14502,7 @@
     "message": "联系您的组织所有者寻求帮助。"
   },
   "suspendedOwnerOrgMessage": {
-    "message": "要重新访问您的组织，请添加一个付款方式。"
+    "message": "要重新获取您的组织的访问权限，请添加一个付款方式。"
   },
   "deleteMembers": {
     "message": "删除成员"
@@ -13533,6 +14538,15 @@
     "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "您无法移除仅拥有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -13596,7 +14610,7 @@
     "message": "处理中"
   },
   "claimedDomainsDescription": {
-    "message": "声明域名以拥有成员账户。使用已声明域名的成员登录时将跳过 SSO 标识符页面，管理员也可以删除已声明的账户。"
+    "message": "声明域名以拥有成员账户。使用已声明域名的成员登录时将跳过 SSO 标识符页面，管理员也可以删除已认领的账户。"
   },
   "invalidDomainNameClaimMessage": {
     "message": "输入的格式无效。格式：mydomain.com。子域名需要单独的条目进行声明。"
@@ -13926,7 +14940,7 @@
     }
   },
   "userkeyRotationDisclaimerAccountRecoveryOrgsText": {
-    "message": "启用了账户恢复功能的组织 $ORG_NAME$ 的指纹短语。",
+    "message": "已启用账户恢复的组织 $ORG_NAME$ 的指纹短语。",
     "placeholders": {
       "org_name": {
         "content": "$1",
@@ -13981,6 +14995,10 @@
   },
   "cannotCreateCollection": {
     "message": "免费版组织最多拥有 2 个集合。请升级到付费版方案以添加更多集合。"
+  },
+  "cannotCreateSharedFolder": {
+    "message": "免费版组织最多拥有 2 个共享文件夹。请升级到付费版方案以添加更多共享文件夹。",
+    "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
     "message": "搜索归档"
@@ -14235,6 +15253,9 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "在项目旁边添加 3 个快速复制按钮，以将您的用户名、密码或验证码复制到剪贴板。"
+  },
   "billingAddress": {
     "message": "计费地址"
   },
@@ -14488,6 +15509,9 @@
   "familiesUnlimitedCollections": {
     "message": "不限数量的家庭集合"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "不限数量的家庭共享文件夹"
+  },
   "familiesSharedStorage": {
     "message": "为重要的家庭信息提供共享存储"
   },
@@ -14502,6 +15526,15 @@
   },
   "limitedCollectionsV2": {
     "message": "最多 $COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "最多 $COUNT$ 个共享文件夹",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -14920,6 +15953,9 @@
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "打开您的 Bitwarden 云账户的订阅页面，下载您的许可证文件。然后返回此界面，在下方上传该文件。"
   },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "打开您的 Bitwarden 账户上的订阅页面，下载您的许可证文件。然后返回此界面，并在下方上传它。"
+  },
   "viewAllPlans": {
     "message": "查看所有方案"
   },
@@ -15241,7 +16277,7 @@
     "message": "时间段"
   },
   "of": {
-    "message": "of"
+    "message": "的"
   },
   "coachmarkImportTitle": {
     "message": "快速导入您的密码"
@@ -15259,7 +16295,7 @@
     "message": "安全地与他人共享项目"
   },
   "coachmarkShareWithCollectionsDescription": {
-    "message": "通过将项目移入集合，您可以与组织中的其他人安全地共享该项目。"
+    "message": "通过将项目移动到集合，您可以与组织中的其他人安全地共享该项目。"
   },
   "coachmarkMonitorSecurityTitle": {
     "message": "监测您的密码安全性"
@@ -15771,6 +16807,282 @@
   },
   "copy": {
     "message": "复制"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "访问规则"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "已启用"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "禁用后，该规则将处于非有效状态，并且不会限制访问。"
+  },
+  "pamAccessRuleEnable": {
+    "message": "启用规则"
+  },
+  "pamAccessRuleDisable": {
+    "message": "禁用规则"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "访问规则已启用。"
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "访问规则已禁用。"
+  },
+  "pamAccessRuleNotFound": {
+    "message": "未找到访问规则。"
+  },
+  "pamAccessRulesSubheading": {
+    "message": "设置规则来控制谁可以在何种条件下以及多长时间内请求访问敏感的凭据。"
+  },
+  "pamAccessRuleNew": {
+    "message": "新增规则"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "新增访问规则"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "编辑访问规则"
+  },
+  "pamAccessRuleName": {
+    "message": "名称"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "例如：VPN + 工作时间"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "常规信息"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "访问持续时间"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "可选条件"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "选择集合"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "此访问规则将适用于所有选定的集合。"
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "无法加载集合。请刷新页面以重试。"
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "此持续时间将预填到访问请求中。"
+  },
+  "pamAccessRuleDescription": {
+    "message": "描述"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "默认访问持续时间"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "最大访问持续时间"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "无上限"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "无论请求者申请多长时间，单次租约将被限制在此时长内。"
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 分钟"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 分钟"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 小时"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 小时"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 小时"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 小时"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 小时"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 天"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "同一时间只能有一名用户持有有效租约"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "新的请求将进入队列，直到当前租约结束或被撤销。"
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "允许租约延期"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "成员可以在无需重新审批的情况下，将有效租约延期一次，最长不超过下方的最大时长。"
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "最大延期时长"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "单次延期允许持续的最长时间。"
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "需要批准"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "通过 IP 地址限制"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "审批人"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "集合管理员"
+  },
+  "pamAccessRuleCreated": {
+    "message": "访问规则已创建。"
+  },
+  "pamAccessRuleUpdated": {
+    "message": "访问规则已更新。"
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "删除访问规则吗？"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "删除「$NAME$」吗？使用此规则的所有集合将禁用租约功能。",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "暂无访问规则"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "创建规则，为敏感的集合添加额外的保护。"
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "创建自定义规则"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "从模板开始"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "使用模板"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "即时"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "自动批准 • 1 小时后过期 • 记录审计日志"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "即时访问"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "需要批准"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "人工批准 • 需要 1 名审批人 • 记录审计日志"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "需要批准"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "IP 限制"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "自动批准 • IP 允许列表 • 记录审计日志"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "IP 限制的访问"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "集合"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "未分配"
+  },
+  "pamSearchRules": {
+    "message": "搜索规则"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "适用于"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "条件"
+  },
+  "pamAccessWindow": {
+    "message": "访问窗口"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "最近修改"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "自动批准"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "需要批准"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "IP 限制"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "没有匹配您的筛选规则的访问规则。"
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "启用"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "禁用"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "访问规则已更新。"
+  },
+  "pamAccessRulesDeleted": {
+    "message": "访问规则已删除。"
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "删除访问规则吗？"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ 条访问规则将被永久删除。此操作无法撤消。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "仅允许来自这些 IP 范围的请求。"
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "CIDR 范围"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "例如：10.0.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "添加 CIDR 范围"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "移除 CIDR 范围"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "添加至少一个 CIDR 范围。"
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "请输入一个有效的 CIDR 范围。"
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "此 CIDR 范围已添加。"
   },
   "paymentSuccessful": {
     "message": "付款成功"
