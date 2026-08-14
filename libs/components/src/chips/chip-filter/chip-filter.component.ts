@@ -41,6 +41,11 @@ export type ChipFilterOption<T> = Omit<Option<T>, "icon"> & {
 
 /**
  * `<bit-chip-filter>` is a select element that is commonly used to filter items in lists or tables.
+ *
+ * @deprecated Use `bit-filter-menu` (from the `filter-menu` family) instead. It's the successor:
+ * built on the same chip primitives, but composable (`bit-filter-option` / `bit-filter-section`),
+ * host-agnostic, and integrates with `bit-table-v2` by self-registering with its
+ * `FILTER_HOST` when projected in.
  */
 @Component({
   selector: "bit-chip-filter",
@@ -163,7 +168,7 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
       // to avoid re-focusing when the menu state changes. We only want to focus during
       // submenu navigation, not on initial open/close.
       if (items.length > 0 && trigger?.isOpen) {
-        currentMenu?.keyManager?.setFirstItemActive();
+        currentMenu?.keyManager()?.setFirstItemActive();
       }
     });
   }

@@ -1,12 +1,21 @@
+import { map, Observable } from "rxjs";
+
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../abstractions/policy/new-policy.service";
 import { PolicyData } from "../../models/data/policy.data";
+import { Policy } from "../../models/domain/policy";
 
 import { POLICIES_NEW } from "./policy-state";
 
 export class DefaultNewPolicyService implements InternalNewPolicyService {
   constructor(private stateProvider: StateProvider) {}
+
+  policies$(userId: UserId): Observable<Policy[]> {
+    return this.policyState(userId).state$.pipe(
+      map((policiesMap) => Object.values(policiesMap || {}).map((f) => new Policy(f))),
+    );
+  }
 
   private policyState(userId: UserId) {
     return this.stateProvider.getUser(userId, POLICIES_NEW);

@@ -8,22 +8,27 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
-import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { SshAgentService } from "../../autofill/services/ssh-agent.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { ServerCommunicationConfigService } from "../../platform/services/server-communication-config/server-communication-config.service";
@@ -44,7 +49,6 @@ export class InitService {
     private twoFactorService: TwoFactorService,
     private notificationsService: ServerNotificationsService,
     private platformUtilsService: PlatformUtilsServiceAbstraction,
-    private stateService: StateServiceAbstraction,
     private keyService: KeyServiceAbstraction,
     private nativeMessagingService: NativeMessagingService,
     private themingService: AbstractThemingService,
@@ -55,9 +59,15 @@ export class InitService {
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
     private autofillService: DesktopAutofillService,
-    private autotypeService: DesktopAutotypeService,
+    private autotypeMvpService: DesktopAutotypeMvpService,
     private sdkLoadService: SdkLoadService,
+    private ipcService: IpcService,
+    private sharedUnlockLeaderService: SharedUnlockLeaderService,
+    private configService: ConfigService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
+    private biometricsService: BiometricsService,
+    private unlockService: UnlockService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
@@ -67,6 +77,8 @@ export class InitService {
   init() {
     return async () => {
       await this.sdkLoadService.loadAndInit();
+      await this.ipcService.init();
+      await this.biometricsService.setUnlockService(this.unlockService);
       await this.sshAgentService.init();
       this.nativeMessagingService.init();
       await this.migrationRunner.waitForCompletion(); // Desktop will run migrations in the main process
@@ -102,12 +114,19 @@ export class InitService {
       this.versionService.init();
       this.updateRestartService.init();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
+      const containerService = new ContainerService(
+        this.keyService,
+        this.encryptService,
+        this.legacyCompatKeyService,
+      );
       containerService.attachToGlobal(this.win);
 
+      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
+        await this.sharedUnlockLeaderService.start();
+      }
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
-      await this.autotypeService.init();
+      await this.autotypeMvpService.init();
     };
   }
 }

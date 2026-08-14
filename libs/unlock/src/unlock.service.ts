@@ -1,5 +1,6 @@
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
 
@@ -57,4 +58,14 @@ export abstract class UnlockService {
    * @throws If decryption fails or the key is invalid
    */
   abstract unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
+
+  /**
+   * Registers an action to be run when a user is unlocked through this service.
+   *
+   * @param action Callback invoked after a successful unlock with the user id and the
+   *   freshly-decrypted user key.
+   */
+  abstract registerOnUnlockAction(
+    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+  ): void;
 }

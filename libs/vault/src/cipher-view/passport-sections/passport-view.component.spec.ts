@@ -4,7 +4,7 @@ import { mock } from "jest-mock-extended";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { EventCollectionService } from "@bitwarden/common/dirt/event-logs";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -100,6 +100,63 @@ describe("PassportViewComponent", () => {
       const copyButton = compiled.querySelector('[appCopyField="passportNumber"]');
 
       expect(copyButton).toBeTruthy();
+    });
+
+    it("renders appCopyField buttons for given name and surname", () => {
+      const passportView = new PassportView();
+      passportView.givenName = "Jane";
+      passportView.surname = "Doe";
+
+      const cipher = new CipherView();
+      cipher.type = CipherType.Passport;
+      cipher.id = "test-id";
+
+      fixture.componentRef.setInput("passport", passportView);
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      const compiled = fixture.nativeElement as HTMLElement;
+      expect(compiled.querySelector('[appCopyField="givenName"]')).toBeTruthy();
+      expect(compiled.querySelector('[appCopyField="surname"]')).toBeTruthy();
+    });
+  });
+
+  describe("toggleNationalIdentificationNumberVisible", () => {
+    it("collects a toggle event when the value becomes visible", async () => {
+      const passportView = new PassportView();
+      passportView.nationalIdentificationNumber = "NID-001";
+
+      const cipher = new CipherView();
+      cipher.type = CipherType.Passport;
+      cipher.id = "test-id";
+      cipher.organizationId = "org-id";
+
+      fixture.componentRef.setInput("passport", passportView);
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      await fixture.componentInstance.toggleNationalIdentificationNumberVisible(true);
+
+      expect(collect).toHaveBeenCalledWith(
+        EventType.Cipher_ClientToggledNationalIdentificationNumberVisible,
+        "test-id",
+        false,
+        "org-id",
+      );
+    });
+
+    it("does not collect a toggle event when the value is hidden", async () => {
+      const passportView = new PassportView();
+      const cipher = new CipherView();
+      cipher.type = CipherType.Passport;
+
+      fixture.componentRef.setInput("passport", passportView);
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      await fixture.componentInstance.toggleNationalIdentificationNumberVisible(false);
+
+      expect(collect).not.toHaveBeenCalled();
     });
   });
 });

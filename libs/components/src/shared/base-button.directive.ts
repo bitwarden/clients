@@ -229,8 +229,8 @@ export const getButtonColorStyles = ({
   ];
 
   const baseDisabledStyles = [
-    "aria-disabled:!tw-text-fg-disabled",
-    "hover:!tw-text-fg-disabled",
+    "aria-disabled:!tw-text-fg-inactive",
+    "hover:!tw-text-fg-inactive",
     "aria-disabled:tw-cursor-default",
     "hover:tw-no-underline",
   ];
@@ -253,7 +253,7 @@ export const getButtonColorStyles = ({
     } else {
       baseStyles.push(
         ...baseDisabledStyles,
-        "aria-disabled:!tw-bg-bg-disabled",
+        "aria-disabled:!tw-bg-bg-inactive",
         "hover:tw-bg-bg-hover",
         "aria-disabled:tw-border-border-base",
         "aria-disabled:hover:tw-border-border-base",

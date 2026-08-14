@@ -41,13 +41,15 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
+import { FakeAccountService, makeEncString, mockAccountServiceWith } from "@bitwarden/common/spec";
 import {
   PasswordStrengthServiceAbstraction,
   PasswordStrengthService,
 } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -127,6 +129,7 @@ describe("LoginStrategy", () => {
 
   let passwordPreloginService: MockProxy<PasswordPreloginService>;
   let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let apiService: MockProxy<ApiService>;
   let tokenService: MockProxy<TokenService>;
@@ -156,6 +159,7 @@ describe("LoginStrategy", () => {
 
     passwordPreloginService = mock<PasswordPreloginService>();
     keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     apiService = mock<ApiService>();
     tokenService = mock<TokenService>();
@@ -182,7 +186,7 @@ describe("LoginStrategy", () => {
     passwordPreloginService.getPreloginData$.mockReturnValue(
       of(new PasswordPreloginData(PBKDF2KdfConfig.createDefault())),
     );
-    keyService.makeMasterKey.mockResolvedValue({} as any);
+    legacyCompatKeyService.makeMasterKey.mockResolvedValue({} as any);
 
     // The base class is abstract so we test it via PasswordLoginStrategy
     passwordLoginStrategy = new PasswordLoginStrategy(
@@ -191,6 +195,7 @@ describe("LoginStrategy", () => {
       policyService,
       passwordPreloginService,
       unlockService,
+      legacyCompatKeyService,
       accountService as unknown as AccountService,
       masterPasswordService,
       keyService,
@@ -335,6 +340,43 @@ describe("LoginStrategy", () => {
         userId,
       );
     });
+
+    it("sets account cryptographic state when accountKeysResponseModel is present", async () => {
+      const accountKeysData = {
+        publicKeyEncryptionKeyPair: {
+          publicKey: "testPublicKey",
+          wrappedPrivateKey: "testPrivateKey",
+        },
+      };
+
+      const tokenResponse = identityTokenResponseFactory();
+      tokenResponse.key = makeEncString("mockEncryptedUserKey");
+      // Add accountKeysResponseModel to the response
+      (tokenResponse as any).accountKeysResponseModel = {
+        publicKeyEncryptionKeyPair: accountKeysData.publicKeyEncryptionKeyPair,
+        toWrappedAccountCryptographicState: jest.fn().mockReturnValue({
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        }),
+      };
+
+      apiService.postIdentityToken.mockResolvedValue(tokenResponse);
+
+      await passwordLoginStrategy.logIn(credentials);
+
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
+        {
+          V1: {
+            private_key: "testPrivateKey",
+          },
+        },
+        userId,
+      );
+    });
   });
 
   describe("Two-factor authentication", () => {
@@ -472,6 +514,7 @@ describe("LoginStrategy", () => {
         policyService,
         passwordPreloginService,
         unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,
@@ -535,6 +578,7 @@ describe("LoginStrategy", () => {
         policyService,
         passwordPreloginService,
         unlockService,
+        legacyCompatKeyService,
         accountService as AccountService,
         masterPasswordService,
         keyService,

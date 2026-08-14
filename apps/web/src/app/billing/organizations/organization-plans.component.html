@@ -47,6 +47,12 @@
           @let hasDirectory = selectableProduct.hasDirectory;
           @let usersGetPremium = selectableProduct.usersGetPremium;
           @let trialPeriodDays = selectableProduct.trialPeriodDays;
+          @let effectiveTrial = trialLength() ?? trialPeriodDays;
+          @let showTrialOffer =
+            tier != productTypes.Free &&
+            effectiveTrial &&
+            createOrganization() &&
+            !upgradingFromPremium;
 
           <div class="tw-mb-3">
             <bit-radio-button [value]="tier" (change)="changedProduct()">
@@ -65,8 +71,8 @@
                     @if (hasPolicies) {
                       <li>{{ "includeEnterprisePolicies" | i18n }}</li>
                     }
-                    @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
-                      <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
+                    @if (showTrialOffer) {
+                      <li>{{ "xDayFreeTrial" | i18n: effectiveTrial }}</li>
                     }
                   </ul>
                 } @else {
@@ -75,9 +81,9 @@
                       <li>{{ "includeAllTeamsStarterFeatures" | i18n }}</li>
                       <li>{{ "chooseMonthlyOrAnnualBilling" | i18n }}</li>
                       <li>{{ "abilityToAddMoreThanNMembers" | i18n: 10 }}</li>
-                      @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
+                      @if (showTrialOffer) {
                         <li>
-                          {{ "xDayFreeTrial" | i18n: trialPeriodDays }}
+                          {{ "xDayFreeTrial" | i18n: effectiveTrial }}
                         </li>
                       }
                     </ul>
@@ -97,13 +103,22 @@
                         <li>{{ "addShareUnlimitedUsers" | i18n }}</li>
                       }
                       @if (pm.maxCollections) {
-                        <li>{{ "limitedCollections" | i18n: pm.maxCollections }}</li>
+                        <li>
+                          {{
+                            "limitedCollections"
+                              | vfo1I18n: "limitedSharedFolders" : pm.maxCollections
+                          }}
+                        </li>
                       }
                       @if (pm.maxAdditionalSeats) {
                         <li>{{ "addShareLimitedUsers" | i18n: pm.maxAdditionalSeats }}</li>
                       }
                       @if (!pm.maxCollections) {
-                        <li>{{ "createUnlimitedCollections" | i18n }}</li>
+                        <li>
+                          {{
+                            "createUnlimitedCollections" | vfo1I18n: "createUnlimitedSharedFolders"
+                          }}
+                        </li>
                       }
                       @if (pm.baseStorageGb) {
                         <li>{{ "gbEncryptedFileStorage" | i18n: pm.baseStorageGb + " GB" }}</li>
@@ -126,8 +141,8 @@
                       @if (tier != productTypes.Free) {
                         <li>{{ "priorityCustomerSupport" | i18n }}</li>
                       }
-                      @if (trialPeriodDays && createOrganization() && !upgradingFromPremium) {
-                        <li>{{ "xDayFreeTrial" | i18n: trialPeriodDays }}</li>
+                      @if (showTrialOffer) {
+                        <li>{{ "xDayFreeTrial" | i18n: effectiveTrial }}</li>
                       }
                     </ul>
                   }

@@ -7,11 +7,14 @@ import {
   BusinessSubscriptionPricingTierIds,
   PersonalSubscriptionPricingTierIds,
 } from "@bitwarden/common/billing/types/subscription-pricing-tier";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { AccountBillingClient } from "../../../../clients/account-billing.client";
 import { PreviewInvoiceClient } from "../../../../clients/preview-invoice.client";
@@ -30,9 +33,10 @@ describe("PremiumOrgUpgradeService", () => {
   let previewInvoiceClient: jest.Mocked<PreviewInvoiceClient>;
   let subscriberBillingClient: jest.Mocked<SubscriberBillingClient>;
   let syncService: jest.Mocked<SyncService>;
-  let keyService: jest.Mocked<KeyService>;
+  let legacyCompatKeyService: jest.Mocked<LegacyCompatKeyService>;
   let encryptService: jest.Mocked<EncryptService>;
   let i18nService: jest.Mocked<I18nService>;
+  let configService: jest.Mocked<ConfigService>;
 
   const mockAccount = { id: "user-id", email: "test@bitwarden.com" } as Account;
   const mockPlanDetails: PremiumOrgUpgradePlanDetails = {
@@ -76,7 +80,7 @@ describe("PremiumOrgUpgradeService", () => {
     syncService = {
       fullSync: jest.fn().mockResolvedValue(undefined),
     } as any;
-    keyService = {
+    legacyCompatKeyService = {
       makeOrgKey: jest
         .fn()
         .mockResolvedValue([{ encryptedString: "org-key-encrypted" }, "org-key-decrypted"]),
@@ -90,6 +94,9 @@ describe("PremiumOrgUpgradeService", () => {
     i18nService = {
       t: jest.fn().mockReturnValue("Default Collection"),
     } as any;
+    configService = {
+      getFeatureFlag: jest.fn().mockResolvedValue(false),
+    } as any;
 
     TestBed.configureTestingModule({
       providers: [
@@ -99,9 +106,10 @@ describe("PremiumOrgUpgradeService", () => {
         { provide: SubscriberBillingClient, useValue: subscriberBillingClient },
         { provide: SyncService, useValue: syncService },
         { provide: AccountService, useValue: { activeAccount$: of(mockAccount) } },
-        { provide: KeyService, useValue: keyService },
+        { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },
         { provide: EncryptService, useValue: encryptService },
         { provide: I18nService, useValue: i18nService },
+        { provide: ConfigService, useValue: configService },
       ],
     });
 
@@ -127,14 +135,42 @@ describe("PremiumOrgUpgradeService", () => {
         cadence: "annually",
         billingAddress: mockBillingAddress,
       });
-      expect(keyService.makeOrgKey).toHaveBeenCalledWith("user-id");
-      expect(keyService.makeKeyPair).toHaveBeenCalledWith("org-key-decrypted");
+      expect(legacyCompatKeyService.makeOrgKey).toHaveBeenCalledWith("user-id");
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith("org-key-decrypted");
       expect(encryptService.encryptString).toHaveBeenCalledWith(
         "Default Collection",
         "org-key-decrypted",
       );
       expect(syncService.fullSync).toHaveBeenCalledWith(true);
       expect(result).toBe("new-org-id");
+    });
+
+    it("names the default collection using the collection terminology when the VFO1 flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        mockPlanDetails.tier,
+        mockBillingAddress,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultCollection");
+    });
+
+    it("names the default collection using the shared-folder terminology when the VFO1 flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await service.upgradeToOrganization(
+        mockAccount,
+        "Test Organization",
+        mockPlanDetails.tier,
+        mockBillingAddress,
+      );
+
+      expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
+      expect(i18nService.t).toHaveBeenCalledWith("defaultSharedFolder");
     });
 
     it("should throw an error when payment method is an unverified bank account", async () => {
@@ -232,7 +268,7 @@ describe("PremiumOrgUpgradeService", () => {
     });
 
     it("should propagate error if key generation fails", async () => {
-      keyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
+      legacyCompatKeyService.makeOrgKey.mockRejectedValue(new Error("Key generation failed"));
       await expect(
         service.upgradeToOrganization(
           mockAccount,

@@ -2,11 +2,11 @@
 // @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
 
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { KeyGenerationService } from "../../../key-management/crypto";
 import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../../key-management/crypto/models/enc-string";
@@ -138,6 +138,14 @@ export class SendService implements InternalSendServiceAbstraction {
         } else {
           fileData = await this.parseFile(send, file, model.cryptoKey, userId);
         }
+      } else if (model.file.fileName) {
+        // When editing an existing File Send and using the SDK (`pm-30110-sdk-sends-api` feature flag is on)
+        // the `file.fileName` field is required for the edit to succeed (this is enforced both by the SDK and
+        // by `send-sdk-api.service` even though the server doesn't perform any edits with the field).
+        send.file.fileName = await this.encryptService.encryptString(
+          model.file.fileName,
+          model.cryptoKey,
+        );
       }
     }
 

@@ -3,7 +3,8 @@
 import { Observable } from "rxjs";
 
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { CipherFormConfig } from "@bitwarden/vault";
+
+import { CipherFormConfig } from "..";
 
 import { AdditionalOptionsSectionComponent } from "./components/additional-options/additional-options-section.component";
 import { AutofillOptionsComponent } from "./components/autofill-options/autofill-options.component";

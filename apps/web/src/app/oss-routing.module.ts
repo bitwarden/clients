@@ -16,6 +16,7 @@ import {
 import { LoginViaWebAuthnComponent } from "@bitwarden/angular/auth/login-via-webauthn/login-via-webauthn.component";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -64,7 +65,9 @@ import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizatio
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { AuthWebRoute, AuthWebRouteSegment } from "./auth/constants/auth-web-route.constant";
 import { deepLinkGuard } from "./auth/guards/deep-link/deep-link.guard";
-import { AcceptOrganizationComponent } from "./auth/organization-invite/accept-organization.component";
+import { AcceptOrgDirectInviteComponent } from "./auth/organization-invite/accept-org-direct-invite.component";
+import { AcceptOrgOpenInviteComponent } from "./auth/organization-invite/accept-org-open-invite.component";
+import { OpenOrgInviteLinkInvalidComponent } from "./auth/organization-invite/open-org-invite-link-invalid.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
 import { AccountComponent } from "./auth/settings/account/account.component";
@@ -73,6 +76,7 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
+import { PremiumCheckoutSuccessComponent } from "./billing/individual/premium-checkout/premium-checkout-success.component";
 import { SponsoredFamiliesComponent } from "./billing/settings/sponsored-families.component";
 import { CompleteTrialInitiationComponent } from "./billing/trial-initiation/complete-trial-initiation/complete-trial-initiation.component";
 import { freeTrialTextResolver } from "./billing/trial-initiation/complete-trial-initiation/resolver/free-trial-text.resolver";
@@ -123,9 +127,9 @@ const routes: Routes = [
       },
       { path: "verify-email", component: VerifyEmailTokenComponent },
       {
-        path: AuthWebRoute.AcceptOrganizationInvite,
+        path: AuthWebRoute.AcceptOrgDirectInvite,
         canActivate: [deepLinkGuard()],
-        component: AcceptOrganizationComponent,
+        component: AcceptOrgDirectInviteComponent,
         data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
       },
       {
@@ -212,11 +216,35 @@ const routes: Routes = [
         ],
       },
       {
+        // Open organization invite link landing. The component handles both
+        // authenticated and unauthenticated users so no unauthGuardFn here.
+        // `deepLinkGuard` persists the URL so SSO + JIT flows can replay it after auth.
+        // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop
+        // `canAccessFeature(FeatureFlag.GenerateInviteLink)` from `canActivate`.
+        path: "join/:organizationId/:inviteLinkCode",
+        canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), deepLinkGuard()],
+        component: AcceptOrgOpenInviteComponent,
+        data: { titleId: "joinOrganization", doNotSaveUrl: false } satisfies RouteDataProperties,
+      },
+      {
+        // Consolidated error view for the pre-auth open org invite link domain check
+        // when the server returns 404. Reached via `router.navigate` from
+        // `LoginComponent` / `RegistrationStartComponent`; component reads
+        // `orgName` + `returnTo` query params to configure the anon-layout title
+        // and the CTA. Feature-flag guarded so a stale link cannot land here after
+        // the feature is disabled.
+        // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop
+        // `canAccessFeature(FeatureFlag.GenerateInviteLink)` from `canActivate`.
+        path: "organization-invite-link-invalid",
+        canActivate: [canAccessFeature(FeatureFlag.GenerateInviteLink), unauthGuardFn()],
+        component: OpenOrgInviteLinkInvalidComponent,
+      },
+      {
         path: AuthRoute.Login,
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: {
-            key: "logInToBitwarden",
+            key: "loginPageEmailEntryScreenTitle",
           },
           pageIcon: VaultIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
@@ -603,6 +631,16 @@ const routes: Routes = [
             outlet: "secondary",
           },
         ],
+      },
+      {
+        path: "premium/checkout/success",
+        data: {
+          titleId: "paymentSuccessful",
+          pageIcon: null,
+          doNotSaveUrl: true,
+          maxWidth: "lg",
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [{ path: "", component: PremiumCheckoutSuccessComponent }],
       },
       {
         path: AuthRoute.ChangePassword,

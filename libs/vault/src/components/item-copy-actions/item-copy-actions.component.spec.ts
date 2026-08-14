@@ -1,8 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
+import { mock } from "jest-mock-extended";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -12,6 +16,8 @@ import {
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
 import { CipherListView, CopyableCipherFields } from "@bitwarden/sdk-internal";
 
+import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+
 import { VaultItemCopyActionsComponent } from "./item-copy-actions.component";
 
 describe("VaultItemCopyActionsComponent", () => {
@@ -19,11 +25,15 @@ describe("VaultItemCopyActionsComponent", () => {
   let component: VaultItemCopyActionsComponent;
 
   let i18nService: jest.Mocked<I18nService>;
+  let copyCipherFieldService: jest.Mocked<CopyCipherFieldService>;
 
   beforeEach(async () => {
     i18nService = {
       t: jest.fn((key: string) => `translated-${key}`),
     } as unknown as jest.Mocked<I18nService>;
+
+    copyCipherFieldService = mock<CopyCipherFieldService>();
+    copyCipherFieldService.totpAllowed.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [
@@ -34,7 +44,12 @@ describe("VaultItemCopyActionsComponent", () => {
         MenuModule,
         VaultItemCopyActionsComponent,
       ],
-      providers: [{ provide: I18nService, useValue: i18nService }],
+      providers: [
+        { provide: I18nService, useValue: i18nService },
+        { provide: CopyCipherFieldService, useValue: copyCipherFieldService },
+        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: CipherService, useValue: mock<CipherService>() },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(VaultItemCopyActionsComponent);
@@ -71,6 +86,118 @@ describe("VaultItemCopyActionsComponent", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+  });
+
+  describe("quick copy action labels", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+    });
+
+    const labelFor = (icon: string) =>
+      fixture.debugElement
+        .query(By.css(`button[bitIconButton="${icon}"]`))
+        ?.nativeElement.getAttribute("aria-label");
+
+    it("uses the copy labels when the login fields are populated", () => {
+      (component.cipher() as any).__copyable = { username: true, password: true, totp: true };
+
+      fixture.detectChanges();
+
+      expect(labelFor("bwi-user")).toBe("translated-copyUsername");
+      expect(labelFor("bwi-key")).toBe("translated-copyPassword");
+      expect(labelFor("bwi-clock")).toBe("translated-copyVerificationCode");
+    });
+
+    it("uses the empty-state labels when the login fields are not populated", () => {
+      (component.cipher() as any).__copyable = { username: false, password: false, totp: false };
+
+      fixture.detectChanges();
+
+      expect(labelFor("bwi-user")).toBe("translated-noUsername");
+      expect(labelFor("bwi-key")).toBe("translated-noPassword");
+      expect(labelFor("bwi-clock")).toBe("translated-noVerificationCode");
+    });
+
+    describe("card cipher", () => {
+      beforeEach(() => {
+        (component.cipher() as CipherView).type = CipherType.Card;
+      });
+
+      it("uses the copy labels when the card fields are populated", () => {
+        (component.cipher() as any).__copyable = { cardNumber: true, securityCode: true };
+
+        fixture.detectChanges();
+
+        expect(labelFor("bwi-hashtag")).toBe("translated-copyNumber");
+        expect(labelFor("bwi-key")).toBe("translated-copySecurityCode");
+      });
+
+      it("uses the empty-state labels when the card fields are not populated", () => {
+        (component.cipher() as any).__copyable = { cardNumber: false, securityCode: false };
+
+        fixture.detectChanges();
+
+        expect(labelFor("bwi-hashtag")).toBe("translated-noNumber");
+        expect(labelFor("bwi-key")).toBe("translated-noSecurityCode");
+      });
+    });
+  });
+
+  describe("disabled input", () => {
+    beforeEach(() => {
+      jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(false);
+      fixture.componentRef.setInput("showQuickCopyActions", true);
+      (component.cipher() as any).__copyable = { username: true, password: true, totp: true };
+    });
+
+    const disabledFor = (icon: string) =>
+      fixture.debugElement
+        .query(By.css(`button[bitIconButton="${icon}"]`))
+        ?.nativeElement.getAttribute("aria-disabled");
+
+    it("leaves copy actions enabled by default", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBeNull();
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
+    });
+
+    it("disables copy actions when disabled is true", async () => {
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBe("true");
+      expect(disabledFor("bwi-clock")).toBe("true");
+    });
+
+    it("keeps empty-value copy actions disabled after disabled toggles off (list refresh)", async () => {
+      // A login with no username: the username quick-copy button should always be disabled.
+      (component.cipher() as any).__copyable = { username: false, password: true, totp: true };
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // Simulate a list refresh toggling the disabled input true -> false.
+      fixture.componentRef.setInput("disabled", true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      fixture.componentRef.setInput("disabled", false);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      // The empty username button must remain disabled; the populated ones become enabled again.
+      expect(disabledFor("bwi-user")).toBe("true");
+      expect(disabledFor("bwi-key")).toBeNull();
+      expect(disabledFor("bwi-clock")).toBeNull();
+    });
   });
 
   describe("findSingleCopyableItem", () => {
@@ -491,9 +618,55 @@ describe("VaultItemCopyActionsComponent", () => {
 
       expect(component.hasDriversLicenseValues).toBe(false);
     });
+
+    it("computes hasBankAccountValues from bankAccount fields", () => {
+      (component.cipher() as CipherView).bankAccount = {
+        nameOnAccount: "Jane Doe",
+        accountNumber: null,
+        routingNumber: null,
+        branchNumber: null,
+        pin: null,
+        iban: null,
+        swiftCode: null,
+      } as any;
+
+      expect(component.hasBankAccountValues).toBe(true);
+
+      (component.cipher() as CipherView).bankAccount = {
+        nameOnAccount: null,
+        accountNumber: null,
+        routingNumber: null,
+        branchNumber: null,
+        pin: null,
+        iban: null,
+        swiftCode: null,
+      } as any;
+
+      expect(component.hasBankAccountValues).toBe(false);
+    });
+
+    it("computes hasPassportValues from passport fields", () => {
+      (component.cipher() as CipherView).passport = {
+        givenName: "Jane",
+        surname: null,
+        passportNumber: null,
+        nationalIdentificationNumber: null,
+      } as any;
+
+      expect(component.hasPassportValues).toBe(true);
+
+      (component.cipher() as CipherView).passport = {
+        givenName: null,
+        surname: null,
+        passportNumber: null,
+        nationalIdentificationNumber: null,
+      } as any;
+
+      expect(component.hasPassportValues).toBe(false);
+    });
   });
 
-  describe("has*Values in list view", () => {
+  describe("has Values in list view", () => {
     beforeEach(() => {
       jest.spyOn(CipherViewLikeUtils, "isCipherListView").mockReturnValue(true);
     });
@@ -586,15 +759,47 @@ describe("VaultItemCopyActionsComponent", () => {
       expect(component.hasDriversLicenseValues).toBe(true);
 
       (component.cipher() as CipherListView).copyableFields = [
+        "DriversLicenseFirstName",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasDriversLicenseValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
         "LoginUsername",
       ] as CopyableCipherFields[];
 
       expect(component.hasDriversLicenseValues).toBe(false);
     });
 
+    it("uses copyableFields for bank account values", () => {
+      (component.cipher() as CipherListView).copyableFields = [
+        "BankAccountSwift",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasBankAccountValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "BankAccountNameOnAccount",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasBankAccountValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "LoginUsername",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasBankAccountValues).toBe(false);
+    });
+
     it("uses copyableFields for passport values", () => {
       (component.cipher() as CipherListView).copyableFields = [
-        "PassportPassportNumber",
+        "PassportNationalIdentificationNumber",
+      ] as CopyableCipherFields[];
+
+      expect(component.hasPassportValues).toBe(true);
+
+      (component.cipher() as CipherListView).copyableFields = [
+        "PassportGivenName",
       ] as CopyableCipherFields[];
 
       expect(component.hasPassportValues).toBe(true);

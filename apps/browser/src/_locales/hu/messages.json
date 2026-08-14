@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "A szervezet egyszeri bejelentkezést igényel."
   },
-  "welcomeBack": {
-    "message": "Üdvözlet újra"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Bejelentkezés"
   },
   "setAStrongPassword": {
     "message": "Erős jelszó beállítása"
@@ -119,6 +119,9 @@
   "vault": {
     "message": "Széf"
   },
+  "vaults": {
+    "message": "Széfek"
+  },
   "myVault": {
     "message": "Saját széf"
   },
@@ -167,6 +170,9 @@
   "copyPassportNumber": {
     "message": "Útlevélszám másolása"
   },
+  "copyNationalIdentificationNumber": {
+    "message": "Nemzeti azonosító szám másolása"
+  },
   "copyFirstName": {
     "message": "Személynév másolása"
   },
@@ -211,8 +217,13 @@
     "message": "Kitöltés",
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
-  "autoFill": {
-    "message": "Automatikus kitöltés"
+  "autofillNoun": {
+    "message": "Automatikus kitöltés",
+    "description": "Noun"
+  },
+  "autofillVerb": {
+    "message": "Automatikus kitöltés",
+    "description": "Verb"
   },
   "autoFillLogin": {
     "message": "Automatikus kitöltés bejelentkezés"
@@ -281,8 +292,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "Adjuk meg fiók email címét és elküldésre kerül a jelszóra vonatkozó tipp."
   },
-  "getMasterPasswordHint": {
-    "message": "Kérj mesterjelszó emlékeztetőt"
+  "hint": {
+    "message": "Tipp"
   },
   "continue": {
     "message": "Folytatás"
@@ -384,6 +395,9 @@
   },
   "save": {
     "message": "Mentés"
+  },
+  "saveAndFill": {
+    "message": "Mentés és kitöltés"
   },
   "move": {
     "message": "Áthelyezés"
@@ -494,6 +508,45 @@
   "options": {
     "message": "Beállítások"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
   "length": {
     "message": "Hossz"
   },
@@ -603,6 +656,23 @@
   "upgradeToUseArchive": {
     "message": "Az Archívum használatához prémium tagság szükséges."
   },
+  "archiveItemsPlural": {
+    "message": "$NUM$ elem archiválása",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Elem archiválása",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Az archiválás után ezek az elemek kizárásra kerülnek a keresési eredményekből és az automatikus kitöltési javaslatokból."
+  },
   "itemRestored": {
     "message": "Az elem visszaállításra került."
   },
@@ -681,7 +751,7 @@
   "launchWebsite": {
     "message": "Webhely indítása"
   },
-  "launchWebsiteName": {
+  "launchWebsiteForName": {
     "message": "$ITEMNAME$ webhely elindítása",
     "placeholders": {
       "itemname": {
@@ -959,7 +1029,7 @@
     "message": "Kijelentkezett"
   },
   "loggedOutDesc": {
-    "message": "Kijelentkezett fiókjából."
+    "message": "Megtörtént a kijelentkezés a fiókból."
   },
   "loginExpired": {
     "message": "Bejelentkezési munkamenete lejárt."
@@ -967,8 +1037,8 @@
   "logIn": {
     "message": "Bejelentkezés"
   },
-  "logInToBitwarden": {
-    "message": "Bejelentkezés a Bitwardenbe"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Bejelentkezés"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Adjuk meg az email címre elküldött kódot."
@@ -995,10 +1065,10 @@
     "message": "Lejárt hivatkozás"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Kérem kezdje újra a regisztrációt, vagy próbáljon meg bejelentkezni."
+    "message": "Kezdjük újra a regisztrációt vagy próbáljunk meg bejelentkezni."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "Lehetséges, hogy már rendelkezik fiókkal"
+    "message": "Lehetséges, hogy már rendelkezünk fiókkal."
   },
   "logOutConfirmation": {
     "message": "Biztos benne, hogy ki szeretnél jelentkezni?"
@@ -1059,6 +1129,10 @@
   },
   "passwordCopied": {
     "message": "Jelszó másolva"
+  },
+  "passwordAnnounceSpace": {
+    "message": "szóköz",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1296,7 +1370,7 @@
     "description": "Error message shown when the system fails to save login details."
   },
   "saveFailureDetails": {
-    "message": "Ja ne! Nem tudtuk elmenteni. Próbálja meg beírni a kézzel.",
+    "message": "Nem lehetett ezt elmenteni. Próbáljuk meg beírni manuálisan.",
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
@@ -1335,8 +1409,17 @@
   "additionalOptions": {
     "message": "Kiegészítő opciók"
   },
-  "enableFillAssist": {
-    "message": "Kitöltési segédlet használata"
+  "fillAssistActiveNotice": {
+    "message": "Az automatikus kitöltés a Kitöltési segédet használja ezen az oldalon."
+  },
+  "activateFillAssist": {
+    "message": "Kitöltési segéd bekapcsolása"
+  },
+  "activateFillAssistDescription": {
+    "message": "A kitöltési segédl a webhely specifikus szabályok használatával javítja az automatikus kitöltési pontosságot a támogatott webhelyeken. A funkció használatakor nincs adat gyűjtés vagy mentés."
+  },
+  "aboutFillAssistLabel": {
+    "message": "A kitöltési segédről"
   },
   "enableContextMenuItem": {
     "message": "Helyi menü opciók megjelenítése"
@@ -1414,8 +1497,8 @@
   "accountRestricted": {
     "message": "Korlátozott fiók"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "A “Fájl jelszó”  és a  “Fájl jelszó megerősítés“ nem egyezik."
+  "filePasswordConfirmationMismatch": {
+    "message": "A “Fájl jelszó” és a “Fájl jelszó megerősítés“ nem egyezik."
   },
   "warning": {
     "message": "FIGYELEM",
@@ -1428,8 +1511,8 @@
   "confirmVaultExport": {
     "message": "Széf exportálás megerősítése"
   },
-  "exportWarningDesc": {
-    "message": "Ez az exportálás titkosítás nélkül tartalmazza a széfadatokat. Nem célszerű az exportált fájlt nem biztonságos csatornákon tárolni és tovább küldeni (például emailben). A felhasználás után erősen ajánlott a törlés."
+  "exportUnencryptedWarningDesc": {
+    "message": "Ez az exportálás titkosítás nélkül tartalmazza a széfadatokat. Nem célszerű az exportált fájlt nem biztonságos csatornákon tárolni és továbbküldeni (például emailben). A felhasználás után erősen ajánlott a törlés."
   },
   "encExportKeyWarningDesc": {
     "message": "Ez az exportálás titkosítja az adatokat a fiók titkosítási kulcsával. Ha valaha a diók forgatási kulcsa más lesz, akkor újra exportálni kell, mert nem lehet visszafejteni ezt az exportálási fájlt."
@@ -1442,6 +1525,24 @@
   },
   "shared": {
     "message": "Megosztott"
+  },
+  "sharedFolder": {
+    "message": "Megosztott mappa"
+  },
+  "sharedFolders": {
+    "message": "Megosztott mappák"
+  },
+  "myFolder": {
+    "message": "Saját mappa"
+  },
+  "myFolders": {
+    "message": "Saját mappák"
+  },
+  "addSharedFolder": {
+    "message": "Megosztott mappa hozzadása"
+  },
+  "newSharedFolder": {
+    "message": "Új megosztott mappa"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "A Bitwarden for Business lehetővé teszi a széf elemeinek megosztását másokkal egy szervezet használatával. További információ a bitwarden.com webhelyen."
@@ -1498,6 +1599,21 @@
   "copyVerificationCode": {
     "message": "Ellenőrző kód másolása"
   },
+  "noUsername": {
+    "message": "Nincs felhasználónév"
+  },
+  "noPassword": {
+    "message": "Nincs jelszó"
+  },
+  "noVerificationCode": {
+    "message": "Nincs ellenőrző kód"
+  },
+  "noNumber": {
+    "message": "Nincs szám"
+  },
+  "noSecurityCode": {
+    "message": "Nincs biztonsági kód"
+  },
   "attachments": {
     "message": "Mellékletek"
   },
@@ -1530,6 +1646,12 @@
   },
   "file": {
     "message": "Fájl"
+  },
+  "photo": {
+    "message": "Fotó"
+  },
+  "unknown": {
+    "message": "Ismeretlen"
   },
   "fileToShare": {
     "message": "Megosztandó fájl"
@@ -1567,7 +1689,7 @@
   "premiumSignUpAndGet": {
     "message": "Regisztráció a prémium tagságra az alábbi funkciókért:"
   },
-  "ppremiumSignUpStorage": {
+  "premiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
   },
   "premiumSignUpStorageV2": {
@@ -1594,17 +1716,17 @@
   "restartPremium": {
     "message": "Prémium előfizetés újraindítása"
   },
-  "ppremiumSignUpReports": {
-    "message": "Jelszó higiénia, fiók biztonság és adatszivárgási jelentések a széf biztonsága érdekében."
+  "premiumSignUpReports": {
+    "message": "Jelszó higiénia, felhasználói fiók biztonság és adatszivárgási jelentések a széf biztonsága érdekében."
   },
-  "ppremiumSignUpTotp": {
-    "message": "TOTP ellenőrző kód (2FA) generátor a széfedben lévő bejelentkezésekhez."
+  "premiumSignUpTotp": {
+    "message": "TOTP ellenőrző kód (2FA) generátor a széfbe bejelentkezésekhez."
   },
-  "ppremiumSignUpSupport": {
-    "message": "Kiemelt ügyfélszolgálati."
+  "premiumSignUpSupport": {
+    "message": "Elsőbbségi ügyfél támogatás."
   },
-  "ppremiumSignUpFuture": {
-    "message": "Minden jövőbeli prémium funkció. Hamarosan jön még több."
+  "premiumSignUpFuture": {
+    "message": "Minden jövőbeli prémium funkció. Hamarosan jön még több!"
   },
   "premiumPurchase": {
     "message": "Prémium funkció megvásárlása"
@@ -1694,7 +1816,7 @@
   "passkeyAuthenticationFailed": {
     "message": "A hozzáférési kulcs hitelesítés sikertelen volt."
   },
-  "useADifferentLogInMethod": {
+  "useDifferentLoginMethod": {
     "message": "Más bejelentkezési mód használata"
   },
   "awaitingSecurityKeyInteraction": {
@@ -1791,6 +1913,9 @@
   "iconsUrl": {
     "message": "Ikonok szerver webcím"
   },
+  "sendUrl": {
+    "message": "Send szerver webcím"
+  },
   "environmentSaved": {
     "message": "A környezeti webcímek mentésre kerültek."
   },
@@ -1824,6 +1949,18 @@
   },
   "confirmAutofillDesc": {
     "message": "Ez a webhely nem egyezik a mentett bejelentkezési adatokkal. Mielőtt kitöltenénk a bejelentkezés hitelesítő adatokat, győződjünk meg arról, hogy megbízható webhelyről van-e szó."
+  },
+  "loginNeverMatchTitle": {
+    "message": "A bejelentkezési adatok nem egyeznek."
+  },
+  "loginNeverMatchDesc": {
+    "message": "Ez a webhely nem egyezik azzal, amelyet ehhez a bejelentkezéshez mentettünk. Az automatikus kitöltés előtt ellenőrizzük, hogy megbízható webhelyen tartózkodunk-e."
+  },
+  "uriMatchRule": {
+    "message": "URI egyezési szabály"
+  },
+  "neverMatch": {
+    "message": "Sosincs egyezés"
   },
   "loginHasNoSiteSaved": {
     "message": "A bejelentkezés nem mentett webhelyet."
@@ -1869,6 +2006,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "A kártyák megjelenítése javaslatként"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Az SSH kulcsok megjelenítése javaslatként"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Javaslatok megjelenítése a az ikon kiválasztásakor"
@@ -2001,11 +2141,32 @@
   "brand": {
     "message": "Márka"
   },
+  "birthDay": {
+    "message": "Születési nap"
+  },
+  "birthMonth": {
+    "message": "Születési hónap"
+  },
+  "birthYear": {
+    "message": "Születési év"
+  },
+  "expirationDay": {
+    "message": "Lejárati dátum"
+  },
   "expirationMonth": {
     "message": "Lejárati hónap"
   },
   "expirationYear": {
     "message": "Lejárati év"
+  },
+  "issueDay": {
+    "message": "Kiállítási nap"
+  },
+  "issueMonth": {
+    "message": "Kiállítási hónap"
+  },
+  "issueYear": {
+    "message": "Kiállítási év"
   },
   "monthly": {
     "message": "hónap"
@@ -2100,6 +2261,51 @@
   "passportNumber": {
     "message": "Útlevélszám"
   },
+  "dateOfBirth": {
+    "message": "Születési dátum"
+  },
+  "sex": {
+    "message": "Nem"
+  },
+  "copySex": {
+    "message": "Nem másolása"
+  },
+  "birthPlace": {
+    "message": "Születési hely"
+  },
+  "copyBirthPlace": {
+    "message": "Születési hely másolása"
+  },
+  "nationality": {
+    "message": "Állampolgárság"
+  },
+  "copyNationality": {
+    "message": "Állampolgárság másolása"
+  },
+  "issuingCountry": {
+    "message": "Kiállító ország"
+  },
+  "copyIssuingCountry": {
+    "message": "Kiállító ország másolása"
+  },
+  "passportType": {
+    "message": "Útlevél típus"
+  },
+  "copyPassportType": {
+    "message": "Útlevél típus másolása"
+  },
+  "nationalIdentificationNumber": {
+    "message": "Nemzeti azonosító szám"
+  },
+  "issuingAuthority": {
+    "message": "Kiállító hatóság"
+  },
+  "copyIssuingAuthority": {
+    "message": "Kiállító hatóság/hivatal másolása"
+  },
+  "issueDate": {
+    "message": "Kiállítási dátum"
+  },
   "licenseNumber": {
     "message": "Vezetői engedély száma"
   },
@@ -2160,6 +2366,9 @@
   "bankAccount": {
     "message": "Bankszámla"
   },
+  "bankAccountDetails": {
+    "message": "Bankszámla adatok"
+  },
   "typeNote": {
     "message": "Jegyzet"
   },
@@ -2190,6 +2399,18 @@
   "typeBankAccountSubtitle": {
     "message": "Banki adatok"
   },
+  "typePassport": {
+    "message": "Útlevél"
+  },
+  "passportDetails": {
+    "message": "Útlevél adatok"
+  },
+  "passportAdded": {
+    "message": "Az útlevél hozzáadásra került."
+  },
+  "typePassportSubtitle": {
+    "message": "Utazási dokumentum"
+  },
   "typeDriversLicense": {
     "message": "Licensz"
   },
@@ -2199,44 +2420,47 @@
   "driversLicenseDetails": {
     "message": "Licensz részletek"
   },
-  "dateOfBirth": {
-    "message": "Születési dátum"
-  },
-  "birthMonth": {
-    "message": "Születési hónap"
-  },
-  "birthDay": {
-    "message": "Születési nap"
-  },
-  "birthYear": {
-    "message": "Születési év"
-  },
-  "issuingCountry": {
-    "message": "Kiállító ország"
-  },
   "issuingState": {
     "message": "Kiállító állam/tartomány"
   },
-  "issuingAuthority": {
-    "message": "Kiállító hatóság"
-  },
-  "issueDate": {
-    "message": "Kiállítási dátum"
-  },
-  "issueMonth": {
-    "message": "Kiállítási hónap"
-  },
-  "issueDay": {
-    "message": "Kiállítási nap"
-  },
-  "issueYear": {
-    "message": "Kiállítási év"
-  },
-  "expirationDay": {
-    "message": "Lejárati dátum"
-  },
   "licenseClass": {
     "message": "Licensz osztály"
+  },
+  "addItemHeaderLogin": {
+    "message": "Bejelentkezés hozzáadása",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Kártya hozzáadása",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Személyazonossság hozzáadása",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Jegyzet hozzáadása",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Biztonságos jegyzet hozzáadása",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "SSH kulcs hozzáadása",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Bankszámla hozzáadása",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Licensz hozzáadása",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Útlevél hozzáadása",
+    "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
     "message": "Új bejelentkezés",
@@ -2253,6 +2477,10 @@
   "newItemHeaderNote": {
     "message": "Új jegyzet",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "Új biztonságos jegyzet",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "Új SSH kulcs",
@@ -2291,6 +2519,26 @@
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
+    "message": "Jegyzet szerkesztése",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Biztonságos jegyzet szerkesztése",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Bejelentkezés szerkesztése",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Kártya szerkesztése",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Személyazonossság szerkesztése",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
     "message": "Jegyzet szerkesztése",
     "description": "Header for edit note item type"
   },
@@ -2334,6 +2582,10 @@
     "message": "Jegyzet megtekintése",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "Biztonságos jegyzet megtekintése",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "SSH kulcs megtekintése",
     "description": "Header for view SSH key item type"
@@ -2362,7 +2614,7 @@
   "clearGeneratorHistoryTitle": {
     "message": "Beenerátor előzmények kiürítése"
   },
-  "cleargGeneratorHistoryDescription": {
+  "clearGeneratorHistoryDescription": {
     "message": "Ha folytatjuk, az összes bejegyzés véglegesen törlődik a generátor előzményeiből. Biztosan folytatjuk?"
   },
   "back": {
@@ -2407,6 +2659,121 @@
   "clear": {
     "message": "Kiürítés",
     "description": "To clear something out. example: To clear browser history."
+  },
+  "selectAllRows": {
+    "message": "Összes sor kiválasztása"
+  },
+  "selectRow": {
+    "message": "Sor kiválasztása"
+  },
+  "showingItemRange": {
+    "message": "$START$ - $END$ / $TOTAL$ megjelenítése",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Sorok száma oldalanként"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ sor oldalanként",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ elem",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "Összes"
+  },
+  "clearAll": {
+    "message": "Összes törlése"
+  },
+  "done": {
+    "message": "Kész"
+  },
+  "filter": {
+    "message": "Szűrő"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ lett kiválasztva.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Előző oldal"
+  },
+  "nextPage": {
+    "message": "Következő oldal"
+  },
+  "goToPage": {
+    "message": "Ugrás oldalra:"
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "Nincsenek egyező elemek."
+  },
+  "selected": {
+    "message": "Kiválasztva"
+  },
+  "selectedLowercase": {
+    "message": "kiválasztva",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
+  },
+  "bulkActionsBar": {
+    "message": "Tömeges műveletek"
+  },
+  "bulkActionsBarAnnouncement": {
+    "message": "$COUNT$ elem lett kiválasztva. A tömeges műveletek sáv mostantól elérhető a képernyő alján. Nyomjuk meg $SHORTCUTBINDING$ gombot, hogy a fókuszt a tömeges művelet sávra váltsuk.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "shortcutBinding": {
+        "content": "$2",
+        "example": "Ctrl+B"
+      }
+    }
+  },
+  "selectionCleared": {
+    "message": "A kiválasztás kiürítésre került."
+  },
+  "additionalActions": {
+    "message": "Kiegészítő műveletek"
   },
   "checkPassword": {
     "message": "A jelszóvédelemi állapot ellenőrzése."
@@ -2783,8 +3150,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Az új mesterjelszó nem felel meg a szabály követelményeknek."
   },
-  "receiveMarketingEmailsV2": {
-    "message": "Tanácsokat, bejelentéseket, kutatási lehetőségeket kaphat a Bitwarden-től a postaládájába."
+  "receiveMarketingEmails": {
+    "message": "Frissítések fogadása a Bitwardentől a postaládában."
   },
   "unsubscribe": {
     "message": "Leiratkozás"
@@ -2858,10 +3225,10 @@
   "nativeMessagingWrongUserDesc": {
     "message": "Az asztali alkalmazás egy másik fiókba van bejelentkezve. Ellenőrizzük, hogy mindkét alkalmazást azonos fiókba van bejelentkezve."
   },
-  "nativeMessagingWrongUserTitle": {
+  "nativeMessagingAccountMismatchTitle": {
     "message": "A fiók nem egyezik."
   },
-  "nativeMessagingWrongUserKeyTitle": {
+  "nativeMessagingBiometricKeyMismatchTitle": {
     "message": "A biometrikus kulcs nem egyezik."
   },
   "nativeMessagingWrongUserKeyDesc": {
@@ -2897,17 +3264,17 @@
   "biometricsFailedDesc": {
     "message": "A biometrikus adatokat nem lehet kitölteni, fontoljuk meg a mesterjelszó használatát vagy a kijelentkezést. Ha ez továbbra is fennáll, forduljunk a Bitwarden ügyfélszolgálatához."
   },
-  "nativeMessaginPermissionErrorTitle": {
+  "nativeMessagingPermissionErrorTitle": {
     "message": "A jogosultság nincs megadva."
   },
-  "nativeMessaginPermissionErrorDesc": {
-    "message": "A Bitwarden Desktop alkalmazással való kommunikáció engedélye nélkül nem adhatunk meg biometrikus adatokat a böngésző kiterjesztésében. Próbáljuk újra."
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "A Bitwarden Desktop Application alkalmazással kommunikáció engedély nélkül nem lehet biometrikus adatokat biztosítani a böngésző bővítményben. Próbáljuk újra."
   },
-  "nativeMessaginPermissionSidebarTitle": {
-    "message": "Engedélykérési hiba történt."
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "Jogosultság kérési hiba történt."
   },
-  "nativeMessaginPermissionSidebarDesc": {
-    "message": "Ez a művelet nem hajtható végre az oldalsávon. Próbáljuk meg újra a műveletet a felbukkanó ablakban."
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "Ez a művelet nem hajtható végre az oldalsávon. Próbáljuk meg újra a műveletet a felbukkanó vagy a kiugró ablakban."
   },
   "personalOwnershipSubmitError": {
     "message": "Egy vállalati házirend miatt korlátozásra került az elemek személyes tárolóba történő mentése. Módosítsuk a Tulajdon opciót egy szervezetre és válasszunk az elérhető gyűjtemények közül."
@@ -2971,6 +3338,10 @@
   "atRiskPasswords": {
     "message": "Veszélyes jelszavak"
   },
+  "atRisk": {
+    "message": "veszélyben",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ egy jelszó megváltoztatását kéri, mert az kockázatos.",
     "placeholders": {
@@ -3027,6 +3398,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "Tekintsük át és módosítsunk $COUNT$ kockázatnak kitett jelszót.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "1 veszélyeztetett jelszó felülvizsgálata"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "$COUNT$ veszélyeztetett jelszó felülvizsgálata",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3230,6 +3613,10 @@
   },
   "createSend": {
     "message": "Új Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Send elem hozzáadása",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -3699,7 +4086,7 @@
       }
     }
   },
-  "forwaderInvalidToken": {
+  "forwarderInvalidToken": {
     "message": "$SERVICENAME$ API vezérjel érvénytelen.",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
@@ -3709,7 +4096,7 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
+  "forwarderInvalidTokenWithMessage": {
     "message": "$SERVICENAME$ API vezérjel érvénytelen: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
@@ -3723,8 +4110,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot szolgáltatóval segítségért.",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ elutasította a kérést. Vegyük fel a kapcsolatot a szolgáltatóval segítségért.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3733,7 +4120,7 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
+  "forwarderInvalidOperationWithMessage": {
     "message": "$SERVICENAME$ elutasította a kérést: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
@@ -3797,6 +4184,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Webhely előtag hozzáadása",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "Ha engedélyezve van, az aktuális webhely tartománya a generált email cím előtagjaként kerül felhasználásra.",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "Kiszolglónév",
     "description": "Part of a URL."
@@ -3810,7 +4205,7 @@
   "ssoKeyConnectorError": {
     "message": "Kulcs csatlakozó hiba: ellenőrizzük, hogy a kulcs csatlakozó rendelkezésre áll-e és megfelelően működik-e."
   },
-  "premiumSubcriptionRequired": {
+  "premiumSubscriptionRequired": {
     "message": "Prémium előfizetés szükséges"
   },
   "organizationIsDisabled": {
@@ -3854,9 +4249,6 @@
         "example": "Jun 15, 2015"
       }
     }
-  },
-  "loginWithMasterPassword": {
-    "message": "Bejelentkezés mesterjelszóval"
   },
   "newAroundHere": {
     "message": "Új felhasználó vagyunk?"
@@ -4304,6 +4696,9 @@
   "multipleInputEmails": {
     "message": "1 vagy több email cím érvénytelen."
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Az email címzett lista nem haladhatja meg a 2500 karaktert. Távolítsunk el egy vagy több címzettet a folytatáshoz."
+  },
   "inputTrimValidator": {
     "message": "A bevitel nem tartalmazhat csak fehér szóköz karaktert.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4369,12 +4764,6 @@
   "autofillOnPageLoadSetToDefault": {
     "message": "Az automatikus kitöltés az oldal betöltésekor az alapértelmezett beállítás használatára lett beállítva.",
     "description": "Toast message for informing the user that autofill on page load has been set to the default setting."
-  },
-  "cannotAutofill": {
-    "message": "Nem lehetséges az automatikus kitöltés."
-  },
-  "cannotAutofillExactMatch": {
-    "message": "Az alapértelmezett egyezés beállítása 'Pontos egyezés'. Az aktuális webhely nem egyezik pontosan az ezzel az elemmel mentett bejelentkezési adatokkal."
   },
   "okay": {
     "message": "OK"
@@ -4565,6 +4954,72 @@
   "importNothingError": {
     "message": "Semmi nem lett importálva."
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ elem kimarad.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ elem kimarad.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "A következő elemeket nem sikerült olvasni és nem szerepelnek az importálásban:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "Ezt az SSH kulcsot nem sikerült importálni."
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Nem támogatott elemtípus."
+  },
+  "importSkipReasonGeneric": {
+    "message": "Ezt az elemet nem sikerült importálni."
+  },
+  "identifier": {
+    "message": "Azonosító"
+  },
+  "contact": {
+    "message": "Kapcsolat"
+  },
+  "membership": {
+    "message": "Tagság"
+  },
+  "passport": {
+    "message": "Útlevél"
+  },
+  "driverLicense": {
+    "message": "Vezetői engedély"
+  },
+  "ssnCard": {
+    "message": "Személyi igazolvány"
+  },
+  "birthCertificate": {
+    "message": "Születési anyakönyvi kivonat"
+  },
+  "databaseCredentials": {
+    "message": "Adatbázis hitelesítő adatok"
+  },
+  "serverCredentials": {
+    "message": "Szerver hitelesítések"
+  },
+  "softwareLicense": {
+    "message": "Szoftver licensz"
+  },
+  "healthInsurance": {
+    "message": "Egészségbiztosítás"
+  },
+  "wifiCredentials": {
+    "message": "Wifi hitelesítések"
+  },
   "importEncKeyError": {
     "message": "Hiba történt az exportált fájl visszafejtése során. A titkosítási kulcs nem egyezik meg az adatok exportálásához használt titkosítási kulccsal."
   },
@@ -4607,6 +5062,79 @@
   "noFileChosen": {
     "message": "Nincs kiválasztott fájl."
   },
+  "noFileSelected": {
+    "message": "Nincs kiválasztott fájl."
+  },
+  "fileChosen": {
+    "message": "Kiválasztott fájl: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "A fájl hozzáadásra került: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ fájl hozzáadásra került: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "A fájl eltávolításra: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 fájl lett feltöltve."
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ fájl lett feltöltve.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Feltöltött fájlok"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Kattints a feltöltéshez vagy vonszolás ide"
+  },
+  "chooseFiles": {
+    "message": "Fájlok kiválasztása"
+  },
+  "maxFileSizeParam": {
+    "message": "Maximális fájlméret: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "vagy vágólapon vigyük be fájl tartalmat"
   },
@@ -4628,6 +5156,30 @@
   },
   "confirmFilePassword": {
     "message": "Fájl jelszó megerősítés"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass mesterjelszó"
+  },
+  "addKeyFile": {
+    "message": "Kulcs fájl hozzáadása"
+  },
+  "keyFileUpload": {
+    "message": "Kulcs fájl feltöltés"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX fájl feltöltés"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Elfogadott formátumok: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Az adatok nincsenek megfelelően formázva. Ellenőrizzük az importálás fájlt és próbáljuk újra."
+  },
+  "kdbxWrongFileType": {
+    "message": "Ez a fájl nem érvényes KeePass adatbázis (.kdbx). Válasszunk egy .kdbx fájlt, és próbáljuk újra."
+  },
+  "kdbxFileTooLarge": {
+    "message": "Ez a KeePass adatbázis túl nagy az importáláshoz."
   },
   "exportSuccess": {
     "message": "A széfadatok exportálásra kerültek."
@@ -4731,6 +5283,9 @@
   "multifactorAuthenticationFailed": {
     "message": "A többtényezős hitelesítés sikertelen volt."
   },
+  "keeperConnectionError": {
+    "message": "Probléma merült fel a Keeperrel kommunikációval. Próbáljuk meg újra az importálást."
+  },
   "includeSharedFolders": {
     "message": "Megosztott mappák is"
   },
@@ -4782,6 +5337,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Illesszük be a LastPass-fiókhoz társított YubiKey eszközt a számítógép USB portjába, majd érintsük meg annak gombját."
+  },
+  "keeperEmail": {
+    "message": "Keeper email cím"
+  },
+  "keeperEmailHint": {
+    "message": "Adjuk meg a Keeper bekelentkezéshez használt email. címet."
+  },
+  "dataCenterLocation": {
+    "message": "Adatközpont hely"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper mesterjelszó"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Adjuk meg a Keeper mesterjelszót."
+  },
+  "twoFactorCodePrompt": {
+    "message": "Adjuk meg a kódot a kéttényezős módból."
+  },
+  "totpCodePrompt": {
+    "message": "Adjuk meg a hitelesítő alkalmazás által generált kódot."
+  },
+  "smsCodePrompt": {
+    "message": "Adjuk meg a szöveges üzenetben küldött kódot."
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Adjuk meg a Keeper DNA által generált kódot."
+  },
+  "adminApproval": {
+    "message": "Adminisztrátori megerősítés"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "Elküldésre került egy adminisztrátori jóváhagyási kérelem az adminisztrátornak."
+  },
+  "method": {
+    "message": "Mód"
+  },
+  "directImporter": {
+    "message": "Közvetlen importáló"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO hitelesítés szükséges."
+  },
+  "keeperSsoDesc": {
+    "message": "A Keeper fiókhoz SSO hitelesítés szükséges. Töltsük ki a bejelentkezést a megnyitott böngészőablakban, majd illesszük be az oldalon látható tokent."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Töltsük ki a bejelentkezést a megnyitott böngésző fülön. A token automatikusan rögzítésre kerül."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper hitelesítés szükséges."
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper eszköz jóváhagyás szükséges."
+  },
+  "selectApprovalMethod": {
+    "message": "Jóváhagyási módok"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Eszköz jóváhagyás szükséges."
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Hagyjuk jóvá ezt az eszközt a mód kiválasztásával lentebb."
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Kéttényezős módok"
+  },
+  "emailVerification": {
+    "message": "Email cím ellenörzés"
+  },
+  "approvalEmailDesc": {
+    "message": "Ellenőrizzük az email címet és írjuk be az alábbi ellenőrző kódot."
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "A Keeper Push értesítés elküldésre került a jóváhagyott eszközre."
+  },
+  "keeperPushSent": {
+    "message": "A Keeper Push értesítés elküldésre került."
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "A jóváhagyási kérelem törlésre kerül."
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Biztos, hogy el akarunk menni? Az adminisztrátori jóváhagyási kérelem törlésre kerül."
+  },
+  "cancelRequest": {
+    "message": "Kérelem törlése"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper kéttényezős hitelesítés szükséges."
+  },
+  "mfaPushDesc": {
+    "message": "A bejelentkezési kérelem jóváhagyása a hitelesítési alkalmazásban. Ez a párbeszédpanel automatikusan bezárul."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Válasszuk ki a kéttényezős módot."
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Válasszuk ki, hogyan szeretnénk igazolni a személyazonosságot."
+  },
+  "authenticatorAppTotp": {
+    "message": "Hitelesítő alkalmazás (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Szöveges üzenet (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Biztonsági másokat kódok"
+  },
+  "securityKeyU2f": {
+    "message": "Biztonsági kulcs (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Biztonsági kulcs (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA ellenőrzés"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "A Keeper DNS értesítés jóváhagyása az eszközün."
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Válasszuk a Keeper DNS módot."
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Válasszuk ki, hogyan szeretnénk ellenőrizni a Keeper DNS-t."
+  },
+  "pushNotification": {
+    "message": "Push értesítések"
+  },
+  "enterCodeManually": {
+    "message": "Kód megadása manuálisan"
+  },
+  "twoFactorAuthentication": {
+    "message": "Kéttényezős hitelesítés"
+  },
+  "unknownMethod": {
+    "message": "Ismeretlen mód"
+  },
+  "selectDuoMethod": {
+    "message": "Duo mód kiválasztása"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Válasszuk ki, hogyan szeretnénk ellenőrizni a Duo Security-t."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Telefonhívás"
+  },
+  "duoVerification": {
+    "message": "Duo ellenőrzés"
+  },
+  "duoPushWaiting": {
+    "message": "A Duo push értesítés jóváhagyása az eszközön."
+  },
+  "duoSmsWaiting": {
+    "message": "Szöveges üzenet lett elküldve a telefonra. A folytatáshoz írjuk be a kódot a Duo alkalmazásban."
+  },
+  "duoVoiceWaiting": {
+    "message": "Fogadjuk a Duo telefonhívást és kövessük az utasításokat."
+  },
+  "tryAnotherMethod": {
+    "message": "Másik módszer kipróbálása"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "A Keeper fiókhoz olyan kéttényezős hitelesítési módszerre van szükség, amelyet a közvetlen importáló jelenleg nem támogat."
   },
   "switchAccount": {
     "message": "Fiók váltása"
@@ -4897,6 +5641,20 @@
     "message": "Legyen a Bitwarden az alapértelmezett jelszókezelő",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Tegyük jobbá az automatikus kitöltés élményét.",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "Felkérést kapunk, hogy adjunk $BROWSER$ böngésző jogosultságote a Bitwarden alapértelmezett jelszókezelőjévé alakításához.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "A Bitwarden nem állítható be alapértelmezett jelszókezelőként.",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4908,6 +5666,37 @@
   "makeDefault": {
     "message": "Legyen alapértelmezett",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Legyen a Bitwarden az alapértelmezett böngésző jelszókezelő."
+  },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Legyen a Bitwarden az alapértelmezett jelszókezelő",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Kapcsoljuk ki a böngésző automatikus kitöltési beállításait az ütközések elkerülése érdekében.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Böngésző beállítások kezelése",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "a böngésző felszólításából, hogy adjunk engedélyt a Bitwardennek a beállítások módosítására."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "A böngésző beépített jelszókezelője kikapcsolásra kerül, hogy biztonságos bejelentkezési élményt kapjunk."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Legyen a Bitwarden az alapértelmezett jelszókezelő"
+  },
+  "allow": {
+    "message": "Engedélyezés",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Kihagyás"
   },
   "saveCipherAttemptSuccess": {
     "message": "A hitelesítések sikeresen mentésre kerültek.",
@@ -4935,6 +5724,12 @@
   "removePasskey": {
     "message": "Jelszó eltávolítása"
   },
+  "deletePasskey": {
+    "message": "Belépőkulcs törlése"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "Ez a belépőkulcs véglegesen törlődik a bejelentkezési elemből. Ezt nem lehet visszavonni."
+  },
   "passkeyRemoved": {
     "message": "A jelszó eltávolításra került."
   },
@@ -4956,8 +5751,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
   },
-  "copyInfoTitle": {
-    "message": "Infó másolása - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Adatok másolása: $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5061,11 +5856,21 @@
       }
     }
   },
-  "noValuesToCopy": {
-    "message": "Nincsenek másolandó értékek."
+  "noValueEntered": {
+    "message": "Nincs megadva érték.",
+    "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
+  },
+  "noDetailsToCopy": {
+    "message": "Nincsenek másolandó adatok."
   },
   "assignToCollections": {
     "message": "Hozzárendelés gyűjteményhez"
+  },
+  "addToSharedFolder": {
+    "message": "Hozzáadás megosztott mappához"
+  },
+  "transferAndAdd": {
+    "message": "Átvitel és hozzáadás"
   },
   "copyEmail": {
     "message": "Email cím másolása"
@@ -5159,6 +5964,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "Bejelentkezés megtekintése",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "Kártya megtekintése",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "Személyazonosság megtekintése",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "Jegyzet megtekintése",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Létrehozás",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Gyűjtemény hozzáadása"
+  },
   "new": {
     "message": "Új"
   },
@@ -5186,6 +6014,60 @@
   },
   "owner": {
     "message": "Tulajdonos"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Megosztott mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Gyűjtemény $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "Saját mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Mappa $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Tulajdonos $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Széf $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "Saját magam",
@@ -5343,11 +6225,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "Alkalmazás (URI)"
+  },
+  "appUriCount": {
+    "message": "Alkalmazás(URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "A webhely hozzáadásra került."
   },
   "addWebsite": {
     "message": "Webhely hozzáadása"
+  },
+  "addWebsiteOrApp": {
+    "message": "Webhely vagy alkalmazás hozzáadása"
+  },
+  "app": {
+    "message": "Alkalmazás"
   },
   "deleteWebsite": {
     "message": "Webhely törlése"
@@ -5438,8 +6339,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemet."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemet."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Csak az ezekhez a megosztott mappákhoz hozzáféréssel rendelkező széf tagok láthatják az elemeket."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ elemeket jelölt ki. Nem frissítheti a $READONLY_COUNT$ részét, mert nem rendelkezik szerkesztési jogosultsággal.",
@@ -5477,7 +6384,7 @@
   "linkedHelpText": {
     "message": "Csatolt mező használata, ha egy adott webhely automatikus kitöltésével kapcsolatos problémákat tapasztalunk."
   },
-  "linkedLabelHelpText": {
+  "linkedFieldLabelHelpText": {
     "message": "Adjuk meg a mező html azonosítóját, nevét, aria címkéjét vagy helyőrét."
   },
   "editField": {
@@ -5545,8 +6452,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 elem véglegesen áthelyezésre kerül a szervezethez. Többé nem Önhöz fog tartozni az elem."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 elem véglegesen áthelyezésre kerül a kiválasztott széfbe. Többé nem tulajdonoljuk ezt az elemet."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ elemek véglegesen áthelyezésre kerülnek a kiválasztott szervezethez. Többé nem Önhöz fognak tartozni az elemek.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ véglegesen átkerül a kiválasztott széfhez. A továbbiakban nem leszünk az elemek tulajdonosa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5578,6 +6497,39 @@
   },
   "successfullyAssignedCollections": {
     "message": "Sikerült a gyűjteményhez való hozzárendelés"
+  },
+  "successfullyAddedSharedFolders": {
+    "message": "A megosztott mappák sikeresen hozzáadásra kerültek."
+  },
+  "itemMovedToCollection": {
+    "message": "Az elem átkerült a gyűjteményhez:"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Az elem hozzáadásra került a megosztott mappához."
+  },
+  "itemMovedToCollections": {
+    "message": "Az elem átkerült a gyűjteményekhez:"
+  },
+  "itemAddedToSharedFolders": {
+    "message": "Az elem hozzáadásra került a megosztott mappákhoz."
+  },
+  "itemsMovedToCollection": {
+    "message": "Az elemek átkerültek a gyűjteményhez:"
+  },
+  "itemsAddedToSharedFolder": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappához."
+  },
+  "itemsMovedToCollections": {
+    "message": "Az elemek átkerültek a gyűjteményekhez:"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Az elemek hozzáadásra kerültek a megosztott mappákhoz."
+  },
+  "itemAssignedToCollections": {
+    "message": "Az elem hozzárendelésre került a gyűjteményekhez."
+  },
+  "itemsAssignedToCollections": {
+    "message": "Az elemek hozzárendelésre kerültek a gyűjteményekhez."
   },
   "nothingSelected": {
     "message": "Nem választott ki semmit."
@@ -5621,10 +6573,16 @@
     "message": "Elem helyek"
   },
   "fileSends": {
-    "message": "Fájl küldés"
+    "message": "Fájl küldés",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Szöveg küldés"
+    "message": "Szöveg küldés",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Send elem",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Fiókműveletek"
@@ -5644,8 +6602,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Gyors másolási műveletek megjelenítése a Széfen"
+  "showQuickCopyActionsInVault": {
+    "message": "Gyors másolási műveletek megjelenítése a széfben"
   },
   "systemDefault": {
     "message": "Rendszer alapértelmezett"
@@ -5748,9 +6706,6 @@
   },
   "unlockPinSet": {
     "message": "PIN beállítás feloldása"
-  },
-  "unlockWithBiometricSet": {
-    "message": "Feloldás biometrikusan"
   },
   "authenticating": {
     "message": "Hitelesítés"
@@ -5962,6 +6917,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nem távolíthatók el a csak megtekintési engedéllyel bíró megosztott mappák: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Frissítsük az asztali alkalmazást."
   },
@@ -6144,6 +7108,9 @@
   "permitCipherDetailsDescription": {
     "message": "A Bitwarden mentett bejelentkezési webcímeket használ annak azonosítására, hogy melyik ikont vagy jelszó webcímet kell használni az élmény javítása érdekében. A szolgáltatás használatakor nincs információ gyűjtés vagy mentés."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adjunk hozzá 3 gyorsmásoló gombot az elemek mellé a felhasználónév, a jelszó vagy az ellenőrző kód vágólapra másolásához."
+  },
   "noPermissionsViewPage": {
     "message": "Nincs jogosultság az oldal megtekintéséhez. Próbáljunk meg másik fiókkal bejelentkezni."
   },
@@ -6159,6 +7126,10 @@
   },
   "next": {
     "message": "Következő"
+  },
+  "breadcrumbs": {
+    "message": "Morzsamenük",
+    "description": "Accessible label for the breadcrumb navigation landmark."
   },
   "moreBreadcrumbs": {
     "message": "További morzsamenük",
@@ -6265,7 +7236,7 @@
     "message": "Időkifutási művelet"
   },
   "sessionTimeoutSettingsManagedByOrganization": {
-    "message": "Ezt a beállítást a szervezet lezeli."
+    "message": "Ezt a beállítást a szervezet kezeli."
   },
   "sessionTimeoutSettingsPolicySetMaximumTimeoutToHoursMinutes": {
     "message": "A szervezet a munkamenet maximális munkamenet időkifutását $HOURS$ órára és $MINUTES$ percre állította be.",
@@ -6423,6 +7394,36 @@
   "userVerificationFailed": {
     "message": "A felhasználó ellenőrzése sikertelen volt."
   },
+  "sharedUnlock": {
+    "message": "Megosztott feloldás"
+  },
+  "sharedUnlockWithDesktop": {
+    "message": "Feloldás megosztása asztali eszközzel"
+  },
+  "sharedUnlockWithDesktopDescription": {
+    "message": "Ha engedélyezve van, a feloldási állapot megosztásra kerül a Bitwarden Desktop alkalmazással."
+  },
+  "sharedUnlockWithWeb": {
+    "message": "Feloldás megosztása web széffel"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "Ha engedélyezve van, a feloldási állapot megosztásra kerül a Bitwarden web széffel."
+  },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "A megosztott feloldás nem érhető el, mert azt választottuk, hogy nem emlékszünk erre az eszközre. A beállítás engedélyezéséhez próbáljunk meg újra bejelentkezni."
+  },
+  "newPermissionNeeded": {
+    "message": "Új jogosultság szükséges"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "A megosztott feloldás használatához a Bitwardennek jogosultságra van szüksége az asztali alkalmazással kommunikáláshoz. Amikor folytatjuk, a böngésző kérni fogja annak jóváhagyását."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "A Bitwarden zárol és újratölt. A jóváhagyás után a bővítmény újratöltődik és lezárja a széfet."
+  },
+  "biometricPermissionDesc": {
+    "message": "A biometrikus feloldás használatához a Bitwardennek jogosultságra van szüksége az asztali alkalmazással  kommunikáláshoz. Amikor folytatjuk, a böngésző kérni fogja annak jóváhagyását."
+  },
   "enterMonth": {
     "message": "A hónap megadása."
   },
@@ -6478,6 +7479,9 @@
   "searchBankAccount": {
     "message": "Bankfiók keresése"
   },
+  "searchPassport": {
+    "message": "Útlevelek keresése"
+  },
   "copyAccountNumber": {
     "message": "Számlaszám másolása"
   },
@@ -6489,6 +7493,15 @@
   },
   "copyIban": {
     "message": "IBAN másolása"
+  },
+  "copyNameOnAccount": {
+    "message": "Számlatulajdonos név másolása"
+  },
+  "copyBranchNumber": {
+    "message": "Fiókszám másolása"
+  },
+  "copySwiftCode": {
+    "message": "SWIFT kód másolása"
   },
   "bankAccountTypeChecking": {
     "message": "Ellenőrzés"
@@ -6513,6 +7526,9 @@
   },
   "downloadFailed": {
     "message": "A letöltés sikertelen volt."
+  },
+  "more": {
+    "message": "Továbbiak"
   },
   "maxAccessCount": {
     "message": "Maximális elérési szám",
@@ -6551,11 +7567,176 @@
     "message": "Folyamatjelző sáv",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
-  "saveSendEditsFailed": {
-    "message": "A Send elem szerkesztések mentése nem sikerült.",
-    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
-  },
   "hideEmailPolicyInEffect": {
     "message": "A szervezetnek az email cím láthatóságára van szüksége. Kapcsoljuk ki az \"Email cím elrejtése a nézők elől\" opciót a mentéshez."
+  },
+  "domainNotAllowed": {
+    "message": "Csak a következő tartományokat tartalmazza: $DOMAINS$. Tekintsük át és próbáljuk újra.",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Nem felel meg a szervezet Send szabályzatának.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "A Send elem szerkesztéséhez készítsünk másolatot. Ha ez a Send elem a beállított törlési dátumon lejárhat, nincs szükség műveletre.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Másolat létrehozása"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "A szöveges Send elemek nem engedélyezettek a szervezet számára.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "A szöveges Send elemek nem engedélyezettek a szervezet számára.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "Ez a Send elem automatikusan lejár a beállított törlési dátumnál.",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "errorImportingMyItemsMultiCollection": {
+    "message": "Nem importálhatunk olyan elemeket a Saját elemekbe, amelyek több gyűjtemény részei."
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Nem lehet menteni az elemet. Meg kell erősíteni a szervezetet az elemek mentéséhez."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Az elemeknek nem lehet több melléklete ugyanazzal a fájlnévvel."
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ beállította ezt a törlési dátumot.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "health": {
+    "message": "Egészség"
+  },
+  "scanMyVault": {
+    "message": "Saját széf átvizsgálás"
+  },
+  "introducingHealth": {
+    "message": "Egészség bemutatás"
+  },
+  "healthIntroDescription": {
+    "message": "Figyeljük és javítsuk a széf állapotát a kitett, gyenge és újrafelhasznált jelszavak javításával."
+  },
+  "yourVaultIsHealthy": {
+    "message": "A széf megfelelően működik.",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "A széf kockázatos.",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ / $TOTAL$ jelszó javításra szorul.",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "Nincsenek kiszivárgott jelszavak.",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 kiszivárgott jelszó van.",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ kiszivárgott jelszó van.",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Adatszivárgásnak kitett.",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "Egyik jelszó sem kitett adatszivárgásnak.",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "Nincsenek gyenge jelszavak.",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 gyenge jelszó van.",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ gyenge jelszó van.",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Túl rövid vagy egsszerű",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "Az összes jelszó erős.",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "Nincsenek újrahasznált jelszavak.",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 újrahasznált jelszó van.",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ újrahasznált jelszó van.",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Több bejelentkezéshez újrafelhasznált",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "Az összes jelszó egyedi.",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Azonosított kockázatok",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "Egyik elem sem igényel figyelmet.",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }

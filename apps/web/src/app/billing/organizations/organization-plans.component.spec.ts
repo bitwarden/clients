@@ -15,7 +15,7 @@ import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/a
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
+import { InitiationPath, PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { DiscountTierType } from "@bitwarden/common/billing/enums/discount-tier-type.enum";
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
@@ -28,12 +28,15 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { DiscountTypes } from "@bitwarden/pricing";
 import {
   AccountBillingClient,
   PreviewInvoiceClient,
   SubscriberBillingClient,
 } from "@bitwarden/web-vault/app/billing/clients";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 
 import { OrganizationInformationComponent } from "../../admin-console/organizations/create/organization-information.component";
 import { PremiumOrgUpgradeService } from "../individual/upgrade/premium-org-upgrade-payment/services/premium-org-upgrade.service";
@@ -203,6 +206,7 @@ const setupMockUpgradeOrganization = (
     useSecretsManager?: boolean;
     smSeats?: number;
     smServiceAccounts?: number;
+    smServiceAccountsGrace?: number;
   } = {},
 ) => {
   const {
@@ -216,6 +220,7 @@ const setupMockUpgradeOrganization = (
     useSecretsManager = false,
     smSeats,
     smServiceAccounts,
+    smServiceAccountsGrace,
   } = orgConfig;
 
   const mockOrganization = {
@@ -238,6 +243,7 @@ const setupMockUpgradeOrganization = (
     planType,
     smSeats,
     smServiceAccounts,
+    smServiceAccountsGrace,
   } as any);
 
   return mockOrganization;
@@ -381,6 +387,7 @@ describe("OrganizationPlansComponent", () => {
   let mockI18nService: jest.Mocked<I18nService>;
   let mockPlatformUtilsService: jest.Mocked<PlatformUtilsService>;
   let mockKeyService: jest.Mocked<KeyService>;
+  let mockLegacyCompatKeyService: jest.Mocked<LegacyCompatKeyService>;
   let mockEncryptService: jest.Mocked<EncryptService>;
   let mockRouter: jest.Mocked<Router>;
   let mockSyncService: jest.Mocked<SyncService>;
@@ -434,10 +441,13 @@ describe("OrganizationPlansComponent", () => {
     } as any;
 
     mockKeyService = {
-      makeOrgKey: jest.fn(),
-      makeKeyPair: jest.fn(),
       orgKeys$: jest.fn().mockReturnValue(of({})),
       providerKeys$: jest.fn().mockReturnValue(of({})),
+    } as any;
+
+    mockLegacyCompatKeyService = {
+      makeOrgKey: jest.fn(),
+      makeKeyPair: jest.fn(),
     } as any;
 
     mockEncryptService = {
@@ -590,6 +600,7 @@ describe("OrganizationPlansComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: KeyService, useValue: mockKeyService },
+        { provide: LegacyCompatKeyService, useValue: mockLegacyCompatKeyService },
         { provide: EncryptService, useValue: mockEncryptService },
         { provide: Router, useValue: mockRouter },
         { provide: SyncService, useValue: mockSyncService },
@@ -980,6 +991,49 @@ describe("OrganizationPlansComponent", () => {
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(true);
     });
 
+    it("defaults the create request to the in-product initiation path", async () => {
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.NewOrganizationCreationInProduct,
+        }),
+      );
+    });
+
+    it("sends the provided initiation path on the create request", async () => {
+      fixture.componentRef.setInput(
+        "initiationPath",
+        InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+      );
+
+      patchOrganizationForm(component, {
+        name: "New Org",
+        billingEmail: "test@example.com",
+      });
+
+      mockOrganizationApiService.create.mockResolvedValue({
+        id: "new-org-id",
+      } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
+        }),
+      );
+    });
+
     it("should emit onSuccess after successful creation", async () => {
       const onSuccessSpy = jest.spyOn(component.onSuccess, "emit");
 
@@ -1255,6 +1309,29 @@ describe("OrganizationPlansComponent", () => {
 
       expect(component["familiesSponsorshipDiscount"]).toBe(products[0].PasswordManager.basePrice);
     });
+
+    it("should use createCloudHosted and not upgradeFromPremium when accepting sponsorship with a premium subscription", async () => {
+      hasPremiumPersonallySubject.next(true);
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      patchOrganizationForm(component, {
+        name: "My Family Org",
+        billingEmail: "test@example.com",
+        productTier: ProductTierType.Families,
+        plan: PlanType.FamiliesAnnually,
+      });
+      patchBillingAddress(component);
+      setupMockPaymentMethodComponent(component, "mock_token", "card");
+
+      mockOrganizationApiService.create.mockResolvedValue({ id: "new-family-org-id" } as any);
+
+      await component.submit();
+
+      expect(mockOrganizationApiService.create).toHaveBeenCalled();
+      expect(mockPremiumOrgUpgradeService.upgradeToOrganization).not.toHaveBeenCalled();
+    });
   });
 
   describe("upgrade flow", () => {
@@ -1363,6 +1440,62 @@ describe("OrganizationPlansComponent", () => {
 
       expect(upgradeComponent.secretsManagerForm.controls.userSeats.value).toBe(5);
       expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(25);
+    });
+
+    it("should subtract permanent migration-grace accounts when prefilling additional service accounts", async () => {
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+          smServiceAccountsGrace: 10,
+        },
+      );
+
+      const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan, baseServiceAccount 50
+
+      const upgradeComponent = upgradeFixture.componentInstance;
+      upgradeFixture.detectChanges();
+      await upgradeFixture.whenStable();
+
+      upgradeComponent.changedProduct();
+
+      // 75 used - 50 base - 10 grace = 15 billable
+      expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(15);
+    });
+
+    it("should clamp prefilled additional service accounts to zero when grace exceeds the billable count", async () => {
+      const mockOrganization = setupMockUpgradeOrganization(
+        mockOrganizationApiService,
+        organizationsSubject,
+        {
+          productTierType: ProductTierType.Teams,
+          useSecretsManager: true,
+          planType: PlanType.TeamsAnnually,
+          smSeats: 5,
+          smServiceAccounts: 75,
+          smServiceAccountsGrace: 30,
+        },
+      );
+
+      const upgradeFixture = TestBed.createComponent(OrganizationPlansComponent);
+      upgradeFixture.componentRef.setInput("organizationId", mockOrganization.id);
+      upgradeFixture.componentRef.setInput("currentPlan", mockPasswordManagerPlans[2]); // Teams plan, baseServiceAccount 50
+
+      const upgradeComponent = upgradeFixture.componentInstance;
+      upgradeFixture.detectChanges();
+      await upgradeFixture.whenStable();
+
+      upgradeComponent.changedProduct();
+
+      // 75 used - 50 base - 30 grace = -5 -> clamped to 0
+      expect(upgradeComponent.secretsManagerForm.controls.additionalServiceAccounts.value).toBe(0);
     });
 
     it("should enable SM by default when enableSecretsManagerByDefault is true", async () => {
@@ -1535,7 +1668,7 @@ describe("OrganizationPlansComponent", () => {
       const mockOrgKey = {} as any;
       const mockProviderKey = {} as any;
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         mockOrgKey,
       ] as any);
@@ -1544,7 +1677,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1608,7 +1741,7 @@ describe("OrganizationPlansComponent", () => {
       const mockOrgShareKey = {} as any;
       mockKeyService.orgKeys$.mockReturnValue(of({ "org-123": mockOrgShareKey }));
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1650,7 +1783,7 @@ describe("OrganizationPlansComponent", () => {
         state: "CA",
       });
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         {} as any,
       ] as any);
@@ -1659,7 +1792,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1678,6 +1811,49 @@ describe("OrganizationPlansComponent", () => {
       });
     });
 
+    it("should include trialLength in org creation request when trialLength input is set", async () => {
+      fixture.componentRef.setInput("trialLength", 14);
+
+      component["formGroup"].patchValue({
+        name: "Trial Org",
+        billingEmail: "trial@example.com",
+        productTier: ProductTierType.Enterprise,
+        plan: PlanType.EnterpriseAnnually,
+        additionalSeats: 10,
+      });
+
+      component["billingFormGroup"].controls.billingAddress.patchValue({
+        country: "US",
+        postalCode: "12345",
+        line1: "123 Street",
+        city: "City",
+        state: "CA",
+      });
+
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
+        { encryptedString: "mock-key" },
+        {} as any,
+      ] as any);
+
+      mockEncryptService.encryptString.mockResolvedValue({
+        encryptedString: "mock-collection",
+      } as any);
+
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
+        "public-key",
+        { encryptedString: "private-key" },
+      ] as any);
+
+      mockOrganizationApiService.create.mockResolvedValue({ id: "trial-org-id" } as any);
+
+      setupMockPaymentMethodComponent(component, "mock-token", "mock-type");
+
+      await component.submit();
+
+      const request = mockOrganizationApiService.create.mock.calls[0][0];
+      expect(request.trialLength).toBe(14);
+    });
+
     it("should not navigate away when in trial flow", async () => {
       component["isInTrialFlow"] = true;
 
@@ -1688,7 +1864,7 @@ describe("OrganizationPlansComponent", () => {
         plan: PlanType.Free,
       });
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         {} as any,
       ] as any);
@@ -1697,7 +1873,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -1994,6 +2170,67 @@ describe("OrganizationPlansComponent", () => {
       expect(paymentDesc.length).toBeGreaterThan(0);
     });
 
+    it("should use paymentChargedWithTrialSpecificLength with plan's trialPeriodDays when on a trial plan and no custom trialLength", () => {
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
+      component.changedProduct();
+
+      const paymentDesc = component.paymentDesc;
+
+      expect(paymentDesc).not.toBeNull();
+      expect(mockI18nService.t).toHaveBeenCalledWith(
+        "paymentChargedWithTrialSpecificLength",
+        DEFAULT_TRIAL_LENGTH_DAYS,
+      );
+    });
+
+    it("should use paymentChargedWithTrialSpecificLength with custom trialLength when provided", () => {
+      fixture.componentRef.setInput("trialLength", 14);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
+      component.changedProduct();
+
+      const paymentDesc = component.paymentDesc;
+
+      expect(paymentDesc).not.toBeNull();
+      expect(mockI18nService.t).toHaveBeenCalledWith("paymentChargedWithTrialSpecificLength", 14);
+    });
+
+    it("should not show trial when trialLength input is 0", () => {
+      fixture.componentRef.setInput("trialLength", 0);
+      component["formGroup"].controls.productTier.setValue(ProductTierType.Enterprise);
+      component.changedProduct();
+
+      expect(component.freeTrial()).toBe(false);
+    });
+
+    it("should not show trial when trialPeriodDays is 0", () => {
+      component["passwordManagerPlans"] = [
+        {
+          type: PlanType.EnterpriseAnnually,
+          productTier: ProductTierType.Enterprise,
+          name: "Enterprise",
+          isAnnual: true,
+          canBeUsedByBusiness: true,
+          trialPeriodDays: 0,
+          upgradeSortOrder: 4,
+          displaySortOrder: 4,
+          PasswordManager: {
+            basePrice: 0,
+            seatPrice: 72,
+            hasAdditionalSeatsOption: true,
+            hasAdditionalStorageOption: true,
+            hasPremiumAccessOption: true,
+            baseStorageGb: 1,
+            additionalStoragePricePerGb: 4,
+            premiumAccessOptionPrice: 40,
+          },
+          SecretsManager: null,
+        } as PlanResponse,
+      ];
+      component["formGroup"].controls.plan.setValue(PlanType.EnterpriseAnnually);
+
+      expect(component.freeTrial()).toBe(false);
+    });
+
     it("should display tax ID field for business plans", () => {
       component["formGroup"].controls.productTier.setValue(ProductTierType.Free);
       expect(component["showTaxIdField"]()).toBe(false);
@@ -2218,7 +2455,7 @@ describe("OrganizationPlansComponent", () => {
       // Leave billing form empty
       component["billingFormGroup"].reset();
 
-      mockKeyService.makeOrgKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeOrgKey.mockResolvedValue([
         { encryptedString: "mock-key" },
         {} as any,
       ] as any);
@@ -2227,7 +2464,7 @@ describe("OrganizationPlansComponent", () => {
         encryptedString: "mock-collection",
       } as any);
 
-      mockKeyService.makeKeyPair.mockResolvedValue([
+      mockLegacyCompatKeyService.makeKeyPair.mockResolvedValue([
         "public-key",
         { encryptedString: "private-key" },
       ] as any);
@@ -2285,6 +2522,16 @@ describe("OrganizationPlansComponent", () => {
         await newFixture.whenStable();
 
         expect(newComponent.canUpgradeFromPremium()).toBe(false);
+      });
+
+      it("should be false when accepting a sponsorship even with premium personally", async () => {
+        hasPremiumPersonallySubject.next(true);
+        fixture.componentRef.setInput("acceptingSponsorship", true);
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.canUpgradeFromPremium()).toBe(false);
       });
     });
 

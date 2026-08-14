@@ -9,8 +9,10 @@ export type SharedFlags = {
 // required to avoid linting errors when there are no flags
 export type SharedDevFlags = {
   noopNotifications: boolean;
+  skipWelcomeOnInstall: boolean;
   configRetrievalIntervalMs: number;
   showRiskInsightsDebug: boolean;
+  fillAssistDevTools: boolean;
   testPhishingUrls: string[];
 };
 

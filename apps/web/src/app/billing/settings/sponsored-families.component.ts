@@ -38,6 +38,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { FreeFamiliesPolicyService } from "../services/free-families-policy.service";
@@ -69,6 +70,7 @@ interface RequestSponsorshipForm {
     SponsoringOrgRowComponent,
     TableModule,
     TypographyModule,
+    Vfo1I18nPipe,
   ],
 })
 export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
@@ -123,7 +125,7 @@ export class SponsoredFamiliesComponent implements OnInit, OnDestroy {
 
     this.availableSponsorshipOrgs$ = combineLatest([
       this.organizationService.organizations$(userId),
-      this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorshipPolicy, userId),
+      this.policyService.policiesByType$(PolicyType.FreeFamiliesSponsorship, userId),
     ]).pipe(
       map(([organizations, policies]) =>
         organizations

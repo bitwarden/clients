@@ -31,12 +31,14 @@ import {
   TypographyModule,
   CardComponent,
   ButtonComponent,
+  IconModule,
 } from "@bitwarden/components";
 import {
   CanDeleteCipherDirective,
   DecryptionFailureDialogComponent,
   OrgIconDirective,
   PasswordRepromptService,
+  Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -66,6 +68,8 @@ import { ROUTES_AFTER_EDIT_DELETION } from "../services/vault-popup-after-deleti
     OrgIconDirective,
     CardComponent,
     ButtonComponent,
+    IconModule,
+    Vfo1I18nPipe,
   ],
 })
 export class ArchiveComponent {

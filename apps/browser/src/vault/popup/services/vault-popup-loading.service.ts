@@ -1,7 +1,8 @@
 import { inject, Injectable } from "@angular/core";
 import { combineLatest, map, shareReplay, startWith } from "rxjs";
 
-import { VaultPopupCopyButtonsService } from "./vault-popup-copy-buttons.service";
+import { VaultCopyButtonsService } from "@bitwarden/vault";
+
 import { VaultPopupItemsService } from "./vault-popup-items.service";
 import { VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
 
@@ -11,7 +12,7 @@ import { VaultPopupListFiltersService } from "./vault-popup-list-filters.service
 export class VaultPopupLoadingService {
   private vaultPopupItemsService = inject(VaultPopupItemsService);
   private vaultPopupListFiltersService = inject(VaultPopupListFiltersService);
-  private vaultCopyButtonsService = inject(VaultPopupCopyButtonsService);
+  private vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
   /** Loading state of the vault */
   loading$ = combineLatest([

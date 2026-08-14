@@ -1,13 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, model } from "@angular/core";
 
 export type BerryVariant =
-  | "primary"
-  | "subtle"
-  | "success"
-  | "warning"
-  | "danger"
-  | "accentPrimary"
-  | "contrast";
+  "primary" | "subtle" | "success" | "warning" | "danger" | "accentPrimary" | "contrast";
 
 /**
  * The berry component is a compact visual indicator used to display short,
@@ -24,7 +18,7 @@ export type BerryVariant =
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     "[class]": "containerClasses()",
-    "[class.tw-hidden]": "!content() && type() === 'count'",
+    "[class.!tw-hidden]": "!content() && type() === 'count'",
   },
 })
 export class BerryComponent {
@@ -38,7 +32,7 @@ export class BerryComponent {
   readonly value = input<number>();
   readonly type = input<"status" | "count">("count");
 
-  protected readonly content = computed(() => {
+  readonly content = computed(() => {
     const value = this.value();
     const type = this.type();
 

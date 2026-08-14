@@ -1,21 +1,23 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
-import { emptyGuid, UserId } from "@bitwarden/common/types/guid";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { makeStaticByteArray, mockContainerService, mockEnc } from "../../../../../spec";
 import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../../platform/services/container.service";
+import { emptyGuid, UserId } from "../../../../types/guid";
 import { UserKey } from "../../../../types/key";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 
+import { Send } from "./send";
 import { SendText } from "./send-text";
 
 describe("Send", () => {
@@ -129,6 +131,7 @@ describe("Send", () => {
 
     const encryptService = mock<EncryptService>();
     const keyService = mock<KeyService>();
+    const legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService.decryptBytes
       .calledWith(send.key, userKey)
       .mockResolvedValue(makeStaticByteArray(32));
@@ -141,10 +144,14 @@ describe("Send", () => {
       }
       return Promise.resolve(null);
     });
-    keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
+    legacyCompatKeyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
     keyService.userKey$.calledWith(userId).mockReturnValue(of(userKey));
 
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(
+      keyService,
+      encryptService,
+      legacyCompatKeyService,
+    );
 
     const view = await send.decrypt(userId);
 
@@ -177,16 +184,22 @@ describe("Send", () => {
   describe("Email parsing", () => {
     let encryptService: jest.Mocked<EncryptService>;
     let keyService: jest.Mocked<KeyService>;
+    let legacyCompatKeyService: jest.Mocked<LegacyCompatKeyService>;
     const userKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
     const userId = emptyGuid as UserId;
 
     beforeEach(() => {
       encryptService = mock<EncryptService>();
       keyService = mock<KeyService>();
+      legacyCompatKeyService = mock<LegacyCompatKeyService>();
       encryptService.decryptBytes.mockResolvedValue(makeStaticByteArray(32));
-      keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
+      legacyCompatKeyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
       keyService.userKey$.mockReturnValue(of(userKey));
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+      (window as any).bitwardenContainerService = new ContainerService(
+        keyService,
+        encryptService,
+        legacyCompatKeyService,
+      );
     });
 
     it("should parse single email", async () => {
@@ -266,16 +279,22 @@ describe("Send", () => {
   describe("Null handling for name and notes decryption", () => {
     let encryptService: jest.Mocked<EncryptService>;
     let keyService: jest.Mocked<KeyService>;
+    let legacyCompatKeyService: jest.Mocked<LegacyCompatKeyService>;
     const userKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
     const userId = emptyGuid as UserId;
 
     beforeEach(() => {
       encryptService = mock<EncryptService>();
       keyService = mock<KeyService>();
+      legacyCompatKeyService = mock<LegacyCompatKeyService>();
       encryptService.decryptBytes.mockResolvedValue(makeStaticByteArray(32));
-      keyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
+      legacyCompatKeyService.makeSendKey.mockResolvedValue("cryptoKey" as any);
       keyService.userKey$.mockReturnValue(of(userKey));
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+      (window as any).bitwardenContainerService = new ContainerService(
+        keyService,
+        encryptService,
+        legacyCompatKeyService,
+      );
     });
 
     it("should return null for name when name is null", async () => {

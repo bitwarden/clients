@@ -32,7 +32,8 @@ import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-acce
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { DownloadCommand } from "../../../commands/download.command";
@@ -44,7 +45,7 @@ export class SendReceiveCommand extends DownloadCommand {
   private decKey: SymmetricCryptoKey;
 
   constructor(
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
     private platformUtilsService: PlatformUtilsService,
@@ -88,9 +89,16 @@ export class SendReceiveCommand extends DownloadCommand {
   private async getApiUrl(url: URL) {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
-    if (url.origin === "https://send.bitwarden.com") {
-      return "https://api.bitwarden.com";
-    } else if (url.origin === urls.api) {
+
+    // Check if the URL origin matches any known region's send domain
+    const matchingRegion = this.environmentService
+      .availableRegions()
+      .find((r) => r.urls.send != null && r.urls.send === url.origin);
+    if (matchingRegion != null) {
+      return matchingRegion.urls.api;
+    }
+
+    if (url.origin === urls.api) {
       return url.origin;
     } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
       return urls.api;
@@ -334,10 +342,10 @@ export class SendReceiveCommand extends DownloadCommand {
     options: OptionValues,
   ): Promise<Response> {
     try {
-      const sendResponse = await this.sendApiService.postSendAccessV2(accessToken, apiUrl);
+      const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
 
       const sendAccess = new SendAccess(sendResponse);
-      this.decKey = await this.keyService.makeSendKey(keyArray);
+      this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
       const decryptedView = await sendAccess.decrypt(this.decKey);
 
       if (options.obj != null) {
@@ -350,7 +358,7 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success();
 
         case SendType.File: {
-          const downloadData = await this.sendApiService.getSendFileDownloadDataV2(
+          const downloadData = await this.sendApiService.getSendFileDownloadData(
             decryptedView,
             accessToken,
             apiUrl,

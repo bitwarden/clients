@@ -14,7 +14,8 @@ import {
   DialogConfig,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PasswordHistoryViewComponent } from "@bitwarden/vault";
+
+import { PasswordHistoryViewComponent } from "../..";
 
 /**
  * The parameters for the password history dialog.

@@ -89,7 +89,7 @@ describe("NotificationBackground", () => {
   const accountService = mock<AccountService>();
   const organizationService = mock<OrganizationService>();
   const fido2Background = mock<Fido2Background>();
-  fido2Background.isCredentialRequestInProgress.mockReturnValue(false);
+  fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValue(false);
   const changeLoginPasswordService = mock<ChangeLoginPasswordService>();
 
   const userId = "testId" as UserId;
@@ -1118,7 +1118,7 @@ describe("NotificationBackground", () => {
         expectSkippedCheckingNotification();
       });
 
-      it("skips checking if a notification should trigger if a fido2 credential request is in progress for the tab", async () => {
+      it("skips checking if a notification should trigger when a passkey picker is active for the tab", async () => {
         const formEntryData: ModifyLoginCipherFormData = {
           newPassword: "",
           password: "",
@@ -1127,7 +1127,7 @@ describe("NotificationBackground", () => {
         };
 
         activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
-        fido2Background.isCredentialRequestInProgress.mockReturnValueOnce(true);
+        fido2Background.shouldDeferVaultNotificationsForPasskeyUi.mockReturnValueOnce(true);
 
         await notificationBackground.triggerCipherNotification(formEntryData, tab);
 
@@ -3355,17 +3355,17 @@ describe("NotificationBackground", () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "checkNotificationQueue",
         };
-        const currenTab = createChromeTabMock({ id: 2 });
+        const currentTab = createChromeTabMock({ id: 2 });
         notificationBackground["notificationQueue"] = [
-          mock<AddLoginQueueMessage>({ tab: currenTab }),
+          mock<AddLoginQueueMessage>({ tab: currentTab }),
         ];
-        getTabFromCurrentWindowSpy.mockResolvedValueOnce(currenTab);
+        getTabFromCurrentWindowSpy.mockResolvedValueOnce(currentTab);
 
         sendMockExtensionMessage(message, mock<chrome.runtime.MessageSender>({ tab: null }));
         await flushPromises();
 
         expect(getTabFromCurrentWindowSpy).toHaveBeenCalledWith();
-        expect(doNotificationQueueCheckSpy).toHaveBeenCalledWith(currenTab);
+        expect(doNotificationQueueCheckSpy).toHaveBeenCalledWith(currentTab);
       });
     });
 

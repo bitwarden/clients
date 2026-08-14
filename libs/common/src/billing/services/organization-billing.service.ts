@@ -1,8 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -10,8 +9,10 @@ import { OrganizationApiServiceAbstraction as OrganizationApiService } from "../
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { OrganizationKeysRequest } from "../../admin-console/models/request/organization-keys.request";
 import { OrganizationResponse } from "../../admin-console/models/response/organization.response";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { SyncService } from "../../platform/sync";
 import { OrgKey } from "../../types/key";
@@ -37,11 +38,12 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   constructor(
     private apiService: ApiService,
     private billingApiService: BillingApiServiceAbstraction,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiService,
     private syncService: SyncService,
+    private configService: ConfigService,
   ) {}
 
   async purchaseSubscription(
@@ -120,10 +122,11 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
   }
 
   private async makeOrganizationKeys(activeUserId: UserId): Promise<OrganizationKeys> {
-    const [encryptedKey, key] = await this.keyService.makeOrgKey<OrgKey>(activeUserId);
-    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(key);
+    const [encryptedKey, key] = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(activeUserId);
+    const [publicKey, encryptedPrivateKey] = await this.legacyCompatKeyService.makeKeyPair(key);
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const encryptedCollectionName = await this.encryptService.encryptString(
-      this.i18nService.t("defaultCollection"),
+      this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),
       key,
     );
     return {

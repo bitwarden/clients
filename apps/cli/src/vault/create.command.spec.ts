@@ -71,9 +71,13 @@ describe("CreateCommand", () => {
     organizationService.organizations$.mockReturnValue(
       of([{ id: validOrgId, organizationUserId: orgUserId }] as any),
     );
-    keyService.getOrgKey.mockResolvedValue(mockOrgKey);
+    keyService.orgKeys$.mockReturnValue(of({ [validOrgId]: mockOrgKey } as any));
     encryptService.encryptString.mockResolvedValue(mockEncString);
-    apiService.postCollection.mockResolvedValue({ id: "new-collection-id" } as any);
+    apiService.postCollection.mockResolvedValue({
+      id: "new-collection-id",
+      groups: [],
+      users: [],
+    } as any);
 
     command = new CreateCommand(
       cipherService,
@@ -91,22 +95,39 @@ describe("CreateCommand", () => {
   });
 
   describe("createOrganizationCollection", () => {
-    it("returns bad request when organizationId option is missing", async () => {
+    it("falls back to the request's organizationId when the option is missing", async () => {
       const result = await command["createOrganizationCollection"](
         makeRequest(),
         makeOptions({ organizationId: null }),
       );
-      expect(result.success).toBe(false);
-      expect(result.message).toContain("`organizationid` option is required");
+      expect(result.success).toBe(true);
+      expect(apiService.postCollection).toHaveBeenCalledWith(validOrgId, expect.anything());
     });
 
-    it("returns bad request when organizationId option is empty string", async () => {
+    it("falls back to the request's organizationId when the option is an empty string", async () => {
       const result = await command["createOrganizationCollection"](
         makeRequest(),
         makeOptions({ organizationId: "" }),
       );
+      expect(result.success).toBe(true);
+    });
+
+    it("falls back to the option's organizationId when the request does not provide one", async () => {
+      const result = await command["createOrganizationCollection"](
+        makeRequest({ organizationId: null }),
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      expect(apiService.postCollection).toHaveBeenCalledWith(validOrgId, expect.anything());
+    });
+
+    it("returns bad request when organizationId is missing from both the option and the request", async () => {
+      const result = await command["createOrganizationCollection"](
+        makeRequest({ organizationId: null }),
+        makeOptions({ organizationId: null }),
+      );
       expect(result.success).toBe(false);
-      expect(result.message).toContain("`organizationid` option is required");
+      expect(result.message).toContain("An organization id is required");
     });
 
     it("returns bad request when organizationId is not a valid GUID", async () => {
@@ -125,7 +146,7 @@ describe("CreateCommand", () => {
         makeOptions(),
       );
       expect(result.success).toBe(false);
-      expect(result.message).toContain("`organizationid` option does not match request object");
+      expect(result.message).toContain("does not match");
     });
 
     it("returns bad request when collection name is empty string", async () => {
@@ -156,7 +177,7 @@ describe("CreateCommand", () => {
     });
 
     it("returns error when no org encryption key is found", async () => {
-      keyService.getOrgKey.mockResolvedValue(null);
+      keyService.orgKeys$.mockReturnValue(of(null));
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
       expect(result.message).toContain("No encryption key for this organization");
@@ -166,7 +187,7 @@ describe("CreateCommand", () => {
       accountService.activeAccount$ = of(null);
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
-      expect(result.message).toContain("No user found");
+      expect(result.message).toContain("Null or undefined account");
     });
 
     it("creates collection successfully with groups and users provided", async () => {
@@ -212,6 +233,25 @@ describe("CreateCommand", () => {
       const result = await command["createOrganizationCollection"](makeRequest(), makeOptions());
       expect(result.success).toBe(false);
       expect(result.message).toContain("API error");
+    });
+
+    it("response groups/users reflect server values, not request values", async () => {
+      const requestGroups = [
+        { id: "fake-group-id", readOnly: false, hidePasswords: false, manage: true },
+      ];
+      apiService.postCollection.mockResolvedValue({
+        id: "new-collection-id",
+        groups: [],
+        users: [],
+      } as any);
+      const result = await command["createOrganizationCollection"](
+        makeRequest({ groups: requestGroups }),
+        makeOptions(),
+      );
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.groups).toEqual([]);
+      expect(data.users).toEqual([]);
     });
   });
 });

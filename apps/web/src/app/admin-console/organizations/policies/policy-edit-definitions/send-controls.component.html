@@ -1,32 +1,50 @@
-<bit-callout type="warning">
-  {{ "sendControlsExemption" | i18n }}
-</bit-callout>
-
-<bit-form-control>
-  <input type="checkbox" bitCheckbox [formControl]="enabled" id="enabled" />
-  <bit-label>{{ "turnOn" | i18n }}</bit-label>
-</bit-form-control>
-
 <div [formGroup]="data">
-  <h3 bitTypography="h3" class="tw-mt-4">{{ "options" | i18n }}</h3>
-  <bit-form-control>
-    <input
-      type="checkbox"
-      bitCheckbox
-      formControlName="disableSend"
-      id="disableSend"
-      [disabled]="!enabled.value"
-    />
-    <bit-label>{{ "disableSend" | i18n }}</bit-label>
+  <bit-form-control class="tw-mt-4">
+    <bit-switch [formControl]="enableSendControl" id="enableSendControlsPolicySwitch"></bit-switch>
+    <bit-label class="tw-text-sm">{{ "sendControlsPolicySwitchLabelV2" | i18n }}</bit-label>
   </bit-form-control>
-  <bit-form-control>
-    <input
-      type="checkbox"
-      bitCheckbox
-      formControlName="disableHideEmail"
-      id="disableHideEmail"
-      [disabled]="!enabled.value"
-    />
-    <bit-label>{{ "disableHideEmail" | i18n }}</bit-label>
-  </bit-form-control>
+  <div [hidden]="!sendFeatureAllowed()">
+    <bit-form-field>
+      <bit-label>{{ "sendTypes" | i18n }}</bit-label>
+      <bit-multi-select
+        [formControl]="allowedSendTypesMultiSelectControl"
+        [baseItems]="allSendTypeOptions()"
+        [disabled]="!enabled.value"
+      ></bit-multi-select>
+    </bit-form-field>
+    <bit-form-field>
+      <bit-label>{{ "sendControlAccessOptions" | i18n }}</bit-label>
+      <bit-select formControlName="whoCanAccess">
+        @for (accessOption of sendAccessOptions; track accessOption.value) {
+          <bit-option [label]="accessOption.label" [value]="accessOption.value"></bit-option>
+        }
+      </bit-select>
+    </bit-form-field>
+    @if (showDomains()) {
+      <bit-form-field class="tw-mt-2">
+        <bit-label>{{ "allowedDomains" | i18n }}</bit-label>
+        <input bitInput type="text" formControlName="allowedDomains" />
+        <bit-hint>{{ allowedDomainsHint() }}</bit-hint>
+      </bit-form-field>
+    }
+    <bit-hint class="tw-mb-2">{{ "additionalOptions" | i18n }}</bit-hint>
+    <bit-form-control>
+      <bit-label>{{ "enforceDeletionDate" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox [formControl]="showDeletionHours" />
+    </bit-form-control>
+    @if (showDeletionHours.value) {
+      <bit-form-field>
+        <bit-label>{{ "sendDeletionDate" | i18n }}</bit-label>
+        <bit-select formControlName="deletionHours">
+          @for (option of deletionHoursOptions; track option.value) {
+            <bit-option [value]="option.value" [label]="option.label"></bit-option>
+          }
+        </bit-select>
+      </bit-form-field>
+    }
+    <bit-form-control disableMargin>
+      <input type="checkbox" bitCheckbox formControlName="disableHideEmail" id="disableHideEmail" />
+      <bit-label>{{ "sendControlHideEmailDescription" | i18n }}</bit-label>
+    </bit-form-control>
+  </div>
 </div>

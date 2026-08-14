@@ -175,7 +175,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
   // so might be worth moving this logic to a common place (base login strategy or a separate service?)
-  protected override async setUserKey(
+  protected override async unlock(
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
@@ -322,7 +322,8 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (userKey) {
-      await this.keyService.setUserKey(userKey, userId);
+      // TDE unlock during SSO login; the user key comes from DeviceTrustService.decryptUserKeyWithDeviceKey.
+      await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
     }
   }
 
@@ -340,19 +341,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(userKey, userId);
-  }
-
-  protected override async setAccountCryptographicState(
-    tokenResponse: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    if (tokenResponse.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        tokenResponse.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
   }
 
   exportCache(): CacheData {
@@ -401,7 +390,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing userKeyEncryptedPrivateKey from the server, but
-    // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
+    // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavailable here for TDE org users on untrusted devices.
     // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
     // - UserDecryptionOptions.hasMasterPassword is false -- user doesn't have a master password.
     // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector

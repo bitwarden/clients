@@ -1,5 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as path from "path";
+
 import { filter, firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -13,7 +15,6 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { BankAccountExport } from "@bitwarden/common/models/export/bank-account.export";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
@@ -39,6 +40,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
@@ -63,6 +66,7 @@ export class GetCommand extends DownloadCommand {
     private totpService: TotpService,
     private auditService: AuditService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     encryptService: EncryptService,
     private searchService: SearchService,
     protected apiService: ApiService,
@@ -415,7 +419,7 @@ export class GetCommand extends DownloadCommand {
 
     return await this.saveAttachmentToFile(
       url,
-      attachments[0].fileName,
+      path.basename(attachments[0].fileName ?? `BitwardenAttachment-${Date.now()}`),
       decryptBufferFn,
       options.output,
     );
@@ -649,12 +653,12 @@ export class GetCommand extends DownloadCommand {
       if (publicKey == null) {
         return Response.error("No public key available for the active user.");
       }
-      fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+      fingerprint = await this.legacyCompatKeyService.getFingerprint(activeUserId, publicKey);
     } else if (Utils.isGuid(id)) {
       try {
         const response = await this.apiService.getUserPublicKey(id);
         const pubKey = Utils.fromB64ToArray(response.publicKey);
-        fingerprint = await this.keyService.getFingerprint(id, pubKey);
+        fingerprint = await this.legacyCompatKeyService.getFingerprint(id, pubKey);
       } catch {
         // empty - handled by the null check below
       }

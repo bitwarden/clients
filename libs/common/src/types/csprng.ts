@@ -1,9 +1,5 @@
-import { Opaque } from "type-fest";
-
-// You would typically use these types when you want to create a type that
-// represents an array or string value generated from a
-// cryptographic secure pseudorandom number generator (CSPRNG)
-
-export type CsprngArray = Opaque<Uint8Array, "CSPRNG">;
-
-export type CsprngString = Opaque<string, "CSPRNG">;
+/**
+ * @deprecated Moved to `@bitwarden/legacy-crypto`. These primitives are being retired in favour of
+ * the SDK — do not add new callers. Contact the Key Management team.
+ */
+export type { CsprngArray, CsprngString } from "@bitwarden/legacy-crypto/types/csprng";

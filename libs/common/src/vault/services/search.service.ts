@@ -15,6 +15,9 @@ export const SearchTextDebounceInterval = 100; // milliseconds
 
 export class SearchService implements SearchServiceAbstraction {
   private readonly immediateSearchLocales: string[] = ["zh-CN", "zh-TW", "ja", "ko", "vi"];
+  // Immediately search for CJK characters as they can represent complete search terms, regardless of the active locale.
+  private readonly immediateSearchQueryRegex =
+    /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u;
   private readonly defaultSearchableMinLength: number = 2;
   private searchableMinLength: number = this.defaultSearchableMinLength;
 
@@ -47,6 +50,10 @@ export class SearchService implements SearchServiceAbstraction {
 
     query = normalizeSearchQuery(query);
 
+    if (this.immediateSearchQueryRegex.test(query)) {
+      return true;
+    }
+
     // Regular queries only require a minimum length
     return query.length >= this.searchableMinLength;
   }
@@ -61,7 +68,7 @@ export class SearchService implements SearchServiceAbstraction {
     query: string,
     ciphers: C[],
   ): Promise<C[]> {
-    // Callers may still pass in null even thogh they are not supposed to per the parameter type
+    // Callers may still pass in null even though they are not supposed to per the parameter type
     if (query == null || query.trim() === "") {
       return ciphers;
     }
@@ -95,31 +102,67 @@ export class SearchService implements SearchServiceAbstraction {
   }
 
   searchCiphersBasic<C extends CipherViewLike>(ciphers: C[], query: string) {
-    query = normalizeSearchQuery(query.trim().toLowerCase());
+    // Basic search works by splitting the query into parts. Each part must occur somewhere in the vault item.
+    // A vault item consists of targets. A target is extracted from the various information in the vault item, such as name, notes.
+    //
+    // For each part in the query, at least one target must contain the part.
+    // If all query parts are found in the vault item target, then the vault item matches the search.
+    //
+    // Example:
+    // {
+    //    name: "Email Work MyCompany",
+    //    username: "alice@mycompany.com",
+    //    notes: "Archived"
+    // }
+    //
+    // Valid queries:
+    // - "email work"
+    // - "alice mycompany"
+    // - "alice archived"
+    // - "work email"
+    // - "mycomp mail" (matches on MyCompany and Email)
+    //
+    // This allows a user to not have to remember the exact order they used when creating the item,
+    // leading to a more consistent search experience.
+    const terms = normalizeSearchQuery(query.trim().toLowerCase()).split(/\s+/).filter(Boolean);
+
     return ciphers.filter((c) => {
-      if (c.name != null && c.name.toLowerCase().indexOf(query) > -1) {
-        return true;
-      }
-      if (query.length >= 8 && uuidAsString(c.id).startsWith(query)) {
-        return true;
-      }
-      const subtitle = CipherViewLikeUtils.subtitle(c);
-      if (subtitle != null && subtitle.toLowerCase().indexOf(query) > -1) {
-        return true;
-      }
+      return terms.every((term) => {
+        if (c.name != null && normalizeSearchQuery(c.name.toLowerCase()).indexOf(term) > -1) {
+          return true;
+        }
+        if (term.length >= 8 && uuidAsString(c.id).startsWith(term)) {
+          return true;
+        }
+        const subtitle = CipherViewLikeUtils.subtitle(c);
+        if (subtitle != null && normalizeSearchQuery(subtitle.toLowerCase()).indexOf(term) > -1) {
+          return true;
+        }
 
-      const login = CipherViewLikeUtils.getLogin(c);
+        const login = CipherViewLikeUtils.getLogin(c);
+        if (
+          login &&
+          login.uris?.length &&
+          login.uris?.some((loginUri) => {
+            if (!loginUri?.uri) {
+              return false;
+            }
+            const hostname = CipherViewLikeUtils.getUriHostname(loginUri);
+            if (hostname === undefined) {
+              return false;
+            }
+            return normalizeSearchQuery(hostname.toLowerCase()).indexOf(term) > -1;
+          })
+        ) {
+          return true;
+        }
 
-      if (
-        login &&
-        login.uris?.length &&
-        login.uris?.some(
-          (loginUri) => loginUri?.uri && loginUri.uri.toLowerCase().indexOf(query) > -1,
-        )
-      ) {
-        return true;
-      }
-      return false;
+        const notes = CipherViewLikeUtils.getNotes(c);
+        if (notes && normalizeSearchQuery(notes.toLowerCase()).indexOf(term) > -1) {
+          return true;
+        }
+        return false;
+      });
     });
   }
 

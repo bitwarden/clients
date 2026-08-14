@@ -8,10 +8,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { RegistrationFinishService } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -58,15 +55,12 @@ describe("CompleteTrialInitiationComponent", () => {
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
         { provide: ConfigService, useValue: mockConfigService },
         { provide: LogService, useValue: mock<LogService>() },
-        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
-        { provide: PolicyService, useValue: mock<PolicyService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: RouterService, useValue: mock<RouterService>() },
         {
           provide: OrganizationBillingServiceAbstraction,
           useValue: mockOrganizationBillingService,
         },
-        { provide: OrganizationInviteService, useValue: mock<OrganizationInviteService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: RegistrationFinishService, useValue: mock<RegistrationFinishService>() },
         { provide: ValidationService, useValue: mock<ValidationService>() },
@@ -144,6 +138,47 @@ describe("CompleteTrialInitiationComponent", () => {
       await fixture.whenStable();
 
       expect(component.trialLength).toBe(7);
+    });
+
+    it("should read salesAssistedToken from query params", async () => {
+      mockActivatedRoute.queryParams.next({
+        salesAssistedToken: "sales-assisted-token-123",
+        product: ProductType.PasswordManager,
+        productTier: ProductTierType.Enterprise,
+      });
+
+      await component.ngOnInit();
+      await fixture.whenStable();
+
+      expect(component.salesAssistedToken).toBe("sales-assisted-token-123");
+    });
+  });
+
+  describe("finishRegistration()", () => {
+    it("should forward salesAssistedToken to finishRegistration", async () => {
+      const registrationFinishService = TestBed.inject(
+        RegistrationFinishService,
+      ) as MockProxy<RegistrationFinishService>;
+      registrationFinishService.finishRegistration.mockResolvedValue(undefined);
+
+      component.email = "test@example.com";
+      component.emailVerificationToken = "email-verification-token";
+      component.salesAssistedToken = "sales-assisted-token-123";
+
+      const passwordInputResult = {} as any;
+      await component.finishRegistration(passwordInputResult);
+
+      expect(registrationFinishService.finishRegistration).toHaveBeenCalledWith(
+        "test@example.com",
+        passwordInputResult,
+        "email-verification-token",
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        "sales-assisted-token-123",
+      );
     });
   });
 

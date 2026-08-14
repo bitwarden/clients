@@ -9,6 +9,7 @@ import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/id
 import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -32,6 +33,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
 
   constructor(
     data: WebAuthnLoginStrategyData,
+    private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -59,7 +61,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
 
-  protected override async setUserKey(idTokenResponse: IdentityTokenResponse, userId: UserId) {
+  protected override async unlock(idTokenResponse: IdentityTokenResponse, userId: UserId) {
     const masterKeyEncryptedUserKey = idTokenResponse.key;
 
     if (masterKeyEncryptedUserKey) {
@@ -95,19 +97,10 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
       );
 
       if (userKey) {
-        await this.keyService.setUserKey(userKey as UserKey, userId);
+        // TODO: PRF decryption should move into the SDK so this can use a dedicated PRF unlock method.
+        await this.unlockService.unlockWithDecryptedUserKey(userId, userKey as UserKey);
       }
     }
-  }
-
-  protected override async setAccountCryptographicState(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.accountCryptographicStateService.setAccountCryptographicState(
-      response.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-      userId,
-    );
   }
 
   exportCache(): CacheData {

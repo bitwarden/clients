@@ -8,10 +8,14 @@ pub mod sshagent_v2 {
     use std::{sync::Arc, time::Duration};
 
     use async_trait::async_trait;
-    use napi::threadsafe_function::ThreadsafeFunction;
+    use napi::{
+        bindgen_prelude::{JsValuesTupleIntoVec, Promise},
+        threadsafe_function::ThreadsafeFunction,
+    };
     use ssh_agent::{
         ApprovalError, ApprovalRequester, BitwardenSSHAgent, InMemoryEncryptedKeyStore,
         SIGNamespace as SSHSIGNamespace, SignApprovalRequest as SSHSignApprovalRequest,
+        UnparsedSSHKeyData,
     };
     use tokio::time::timeout;
     use tracing::{debug, error};
@@ -63,6 +67,7 @@ pub mod sshagent_v2 {
         pub process_name: Option<String>,
         pub is_forwarding: bool,
         pub namespace: Option<SIGNamespace>,
+        pub host_fingerprint: Option<String>,
     }
 
     impl From<ssh_agent::SignRequest> for SignRequest {
@@ -72,9 +77,14 @@ pub mod sshagent_v2 {
                     alg: r.public_key.alg,
                     blob: r.public_key.blob,
                 },
-                process_name: r.process_name,
-                is_forwarding: r.is_forwarding,
+                process_name: r.connection.process_name,
+                is_forwarding: r
+                    .connection
+                    .session_bind
+                    .as_ref()
+                    .is_some_and(|s| s.is_forwarding),
                 namespace: r.namespace.map(Into::into),
+                host_fingerprint: r.connection.session_bind.map(|s| s.host_fingerprint),
             }
         }
     }
@@ -104,8 +114,26 @@ pub mod sshagent_v2 {
 
     /// Interface for the agent to request approval for ssh operations from Electron.
     struct ElectronApprovalRequester {
-        // Callback used to approve signing data
-        sign_callback: Arc<ThreadsafeFunction<SignRequestData, bool>>,
+        sign_callback: Arc<ThreadsafeFunction<SignRequestData, Promise<bool>>>,
+        list_callback: Arc<ThreadsafeFunction<(), Promise<bool>>>,
+    }
+
+    async fn invoke_callback<T: 'static + JsValuesTupleIntoVec>(
+        callback: &ThreadsafeFunction<T, Promise<bool>>,
+        arg: T,
+    ) -> Result<bool, ApprovalError> {
+        timeout(APPROVAL_CALLBACK_TIMEOUT, async {
+            let promise = callback
+                .call_async(Ok(arg))
+                .await
+                .map_err(|e| ApprovalError::HandlerFailed(e.into()))?;
+            promise
+                .await
+                .map_err(|e| ApprovalError::HandlerFailed(e.into()))
+        })
+        .await
+        .map_err(|_| ApprovalError::Timeout)
+        .flatten()
     }
 
     #[async_trait]
@@ -114,21 +142,23 @@ pub mod sshagent_v2 {
             &self,
             request: SSHSignApprovalRequest,
         ) -> Result<bool, ApprovalError> {
-            let request = SignRequestData::from(request);
+            debug!("Sending sign approval request to Electron.");
 
-            debug!(?request, "Sending sign approval request to Electron.");
-
-            let is_approved = timeout(APPROVAL_CALLBACK_TIMEOUT, async {
-                self.sign_callback
-                    .call_async(Ok(request))
-                    .await
-                    .map_err(|e| ApprovalError::HandlerFailed(e.into()))
-            })
-            .await
-            .map_err(|_| ApprovalError::Timeout)
-            .flatten()?;
+            let is_approved =
+                invoke_callback(&self.sign_callback, SignRequestData::from(request)).await?;
 
             debug!(%is_approved, "Sign approval response from Electron.");
+
+            Ok(is_approved)
+        }
+
+        async fn request_list_approval(&self) -> Result<bool, ApprovalError> {
+            debug!("Sending list approval request to Electron.");
+
+            let is_approved = invoke_callback(&self.list_callback, ()).await?;
+
+            debug!(%is_approved, "List approval response from Electron.");
+
             Ok(is_approved)
         }
     }
@@ -139,25 +169,19 @@ pub mod sshagent_v2 {
         ///
         /// # Arguments
         ///
-        /// * `unlock_callback` - Allows agent to vault unlock
         /// * `sign_callback` - Allows agent to get approval for sign requests
-        #[napi(
-            factory,
-            // ts_args_type overrides the generated TypeScript parameter type. The Rust type
-            // `ThreadsafeFunction<T, bool>` would generate `(arg: T) => boolean`, but the
-            // callback returns a Promise. `call_async` awaits the Promise and deserializes the
-            // resolved value as `bool`, so `bool` is the correct Rust type — the mismatch is
-            // only in the generated TypeScript declaration.
-            ts_args_type = "signCallback: (data: SignRequestData) => Promise<boolean>"
-        )]
+        /// * `list_callback` - Allows agent to get approval for list key requests
+        #[napi(factory)]
         #[allow(clippy::unused_async)]
         pub async fn serve(
-            sign_callback: ThreadsafeFunction<SignRequestData, bool>,
+            sign_callback: ThreadsafeFunction<SignRequestData, Promise<bool>>,
+            list_callback: ThreadsafeFunction<(), Promise<bool>>,
         ) -> napi::Result<Self> {
             debug!("Creating agent and starting server.");
 
             let approval_handler = ElectronApprovalRequester {
                 sign_callback: Arc::new(sign_callback),
+                list_callback: Arc::new(list_callback),
             };
 
             let keystore = InMemoryEncryptedKeyStore::default();
@@ -187,16 +211,17 @@ pub mod sshagent_v2 {
 
         #[napi]
         pub fn replace(&mut self, new_keys: Vec<SSHKeyData>) -> napi::Result<()> {
-            let parsed = new_keys
+            let keys = new_keys
                 .into_iter()
-                .map(|k| {
-                    ssh_agent::SSHKeyData::from_private_key_pem(&k.private_key, k.name, k.cipher_id)
-                        .map_err(|e| napi::Error::from_reason(e.to_string()))
+                .map(|k| UnparsedSSHKeyData {
+                    private_key_pem: k.private_key,
+                    name: k.name,
+                    cipher_id: k.cipher_id,
                 })
-                .collect::<napi::Result<Vec<_>>>()?;
+                .collect();
 
             self.agent
-                .replace(parsed)
+                .replace(ssh_agent::SSHKeyData::from_private_key_pems(keys))
                 .map_err(|e| napi::Error::from_reason(e.to_string()))
         }
     }

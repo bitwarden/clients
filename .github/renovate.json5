@@ -4,10 +4,37 @@
   enabledManagers: ["cargo", "github-actions", "npm", "custom.regex"],
   customManagers: [
     {
+      // Pinned binary cargo tools declared in [workspace.metadata.bin]. These are
+      // not real dependency tables, so Renovate's native cargo manager ignores
+      // them. The `locked = true` field is the discriminator that keeps this regex
+      // from also matching [workspace.dependencies] entries of the same shape.
       customType: "regex",
-      fileMatch: ["apps/desktop/desktop_native/cargo-tool-versions"],
-      matchStrings: ["(?<depName>[a-z][a-z0-9-]+)=(?<currentValue>[\\d.]+)"],
+      fileMatch: ["apps/desktop/desktop_native/Cargo\\.toml$"],
+      matchStrings: [
+        '(?<depName>[a-z][a-z0-9_-]*)\\s*=\\s*\\{\\s*version\\s*=\\s*"=?(?<currentValue>\\d+\\.\\d+\\.\\d+)"\\s*,\\s*locked\\s*=\\s*true',
+      ],
       datasourceTemplate: "crate",
+      versioningTemplate: "cargo",
+    },
+    {
+      // Bootstrap pin for cargo-run-bin across the CI workflows,
+      // scripts/prepare-env-rust.mjs, and the devcontainer. Keep these in sync.
+      // build.js is deliberately absent: it invokes cargo-xwin directly rather than
+      // through `cargo bin`, so it pins no cargo-run-bin version.
+      customType: "regex",
+      fileMatch: [
+        "^\\.github/workflows/.*\\.ya?ml$",
+        "scripts/prepare-env-rust\\.mjs$",
+        "\\.devcontainer/common/post-create-command\\.sh$",
+      ],
+      matchStrings: [
+        "cargo install (?<depName>cargo-run-bin) --locked --version (?<currentValue>\\d+\\.\\d+\\.\\d+)",
+        // JS const form: const CARGO_RUN_BIN_VERSION = "x" (in scripts/prepare-env-rust.mjs).
+        'CARGO_RUN_BIN_VERSION\\s*=\\s*"(?<currentValue>\\d+\\.\\d+\\.\\d+)"',
+      ],
+      depNameTemplate: "cargo-run-bin",
+      datasourceTemplate: "crate",
+      versioningTemplate: "cargo",
     },
     {
       // Keep electronVersion in electron-builder.json in sync with the electron package.
@@ -116,7 +143,7 @@
       reviewers: ["team:team-autofill-dev"],
     },
     {
-      matchPackageNames: ["ed25519", "mockall", "pkcs8", "serial_test"],
+      matchPackageNames: ["mockall", "serial_test"],
       description: "Autofill-Desktop owned dependencies",
       commitMessagePrefix: "[deps] Desktop Native:",
       reviewers: ["team:team-desktop-native-dev"],
@@ -203,7 +230,6 @@
         "pkg",
         "postcss",
         "postcss-loader",
-        "rand",
         "rxjs",
         "sass",
         "sass-loader",
@@ -266,7 +292,6 @@
         "@angular/compiler",
         "@angular/core",
         "@angular/forms",
-        "@angular/platform-browser-dynamic",
         "@angular/platform-browser",
         "@angular/platform",
         "@angular/router",
@@ -305,6 +330,7 @@
       matchPackageNames: [
         "@microsoft/signalr-protocol-msgpack",
         "@microsoft/signalr",
+        "@bufbuild/protobuf",
         "@types/jsdom",
         "@types/papaparse",
         "@types/zxcvbn",
@@ -313,7 +339,7 @@
         "clap",
         "jsdom",
         "jszip",
-        "oidc-client-ts",
+        "oauth4webapi",
         "papaparse",
         "utf-8-validate",
         "verifysign",
@@ -365,6 +391,8 @@
         "linux-keyutils",
         "memsec",
         "node-forge",
+        "rand",
+        "rand_core",
         "rsa",
         "russh-cryptovec",
         "sha2",
@@ -476,6 +504,23 @@
         "electron",
         "electron-builder",
         "electron-updater",
+      ],
+    },
+    {
+      // Add snapcraft compatibility note to electron-builder PRs
+      matchPackageNames: ["electron-builder"],
+      prBodyNotes: [
+        "⚠️ **Snapcraft Compatibility Check Required**",
+        "",
+        "electron-builder 26.x + core22 requires snapcraft ≤8.x due to deprecated 'snap pack' command.",
+        "Currently pinned to `8.x/stable` in `.github/workflows/build-desktop.yml` (lines 205, 362)",
+        "",
+        "**If upgrading to electron-builder ≥27.0.0:**",
+        "- Test if electron-builder v27 + core22 works with snapcraft 9.x",
+        "- OR migrate to core24 in `apps/desktop/electron-builder.json` (requires ubuntu-24.04 runners)",
+        "- If compatible, remove `--channel=8.x/stable` pin from workflow",
+        "",
+        "Related: BRE-2018",
       ],
     },
 

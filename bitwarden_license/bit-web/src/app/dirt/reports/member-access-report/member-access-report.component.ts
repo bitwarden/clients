@@ -15,7 +15,6 @@ import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -29,16 +28,19 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import { ExportHelper } from "@bitwarden/vault-export-core";
 import {
   CoreOrganizationModule,
   GroupApiService,
 } from "@bitwarden/web-vault/app/admin-console/organizations/core";
+import { EditMemberDialogComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/edit-member-dialog";
 import {
-  openUserAddEditDialog,
   MemberDialogResult,
   MemberDialogTab,
-} from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog";
+} from "@bitwarden/web-vault/app/admin-console/organizations/members/components/member-dialog/member-dialog.types";
 import { exportToCSV } from "@bitwarden/web-vault/app/dirt/reports/report-utils";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -54,7 +56,14 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
 @Component({
   selector: "member-access-report",
   templateUrl: "member-access-report.component.html",
-  imports: [SharedModule, SearchModule, HeaderModule, CoreOrganizationModule, IconModule],
+  imports: [
+    SharedModule,
+    SearchModule,
+    HeaderModule,
+    CoreOrganizationModule,
+    IconModule,
+    Vfo1I18nPipe,
+  ],
   providers: [
     safeProvider({
       provide: MemberAccessReportServiceAbstraction,
@@ -71,6 +80,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
         CipherService,
         LogService,
         GroupApiService,
+        Vfo1TerminologyService,
       ],
     }),
   ],
@@ -165,7 +175,7 @@ export class MemberAccessReportComponent implements OnInit {
   };
 
   edit = async (user: MemberAccessReportView): Promise<void> => {
-    const dialog = openUserAddEditDialog(this.dialogService, {
+    const dialog = EditMemberDialogComponent.open(this.dialogService, {
       data: {
         kind: "Edit",
         name: this.userNamePipe.transform(user),

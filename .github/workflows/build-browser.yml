@@ -51,6 +51,7 @@ jobs:
     outputs:
       repo_url: ${{ steps.gen_vars.outputs.repo_url }}
       adj_build_number: ${{ steps.gen_vars.outputs.adj_build_number }}
+      beta_number: ${{ steps.gen_vars.outputs.beta_number }}
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
       has_secrets: ${{ steps.check-secrets.outputs.has_secrets }}
     steps:
@@ -68,6 +69,17 @@ jobs:
 
           echo "repo_url=$repo_url" >> "$GITHUB_OUTPUT"
           echo "adj_build_number=$adj_build_num" >> "$GITHUB_OUTPUT"
+
+          # beta-release.json holds the beta ordinal, which is bumped on rc for a
+          # second beta off the same base version. The Chrome Web Store rejects an
+          # upload that does not out-rank the previous one in the same listing.
+          beta_number=$(jq -r '.betaNumber' apps/browser/beta-release.json)
+          if [[ ! "$beta_number" =~ ^[0-9]+$ ]]; then
+            echo "[!] Invalid beta ordinal '$beta_number'; expected a positive integer"
+            exit 1
+          fi
+          echo "Setting beta ordinal to $beta_number"
+          echo "beta_number=$beta_number" >> "$GITHUB_OUTPUT"
 
       - name: Get Node Version
         id: retrieve-node-version
@@ -180,10 +192,12 @@ jobs:
           mkdir -p browser-source/apps/browser
           cp -r apps/browser/* browser-source/apps/browser
 
-          # Copy bitwarden_license/bit-browser to the Browser source directory
+          # Copy bitwarden_license/bit-browser and its bit-common dependency to the Browser source directory
           if [[ ${{matrix.license_type.include_bitwarden_license_folder}} == "true" ]]; then
             mkdir -p browser-source/bitwarden_license/bit-browser
             cp -r bitwarden_license/bit-browser/* browser-source/bitwarden_license/bit-browser
+            mkdir -p browser-source/bitwarden_license/bit-common
+            cp -r bitwarden_license/bit-common/* browser-source/bitwarden_license/bit-common
           fi
 
           # Copy libs to Browser source directory
@@ -193,7 +207,7 @@ jobs:
           zip -r browser-source.zip browser-source
 
       - name: Upload browser source
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{matrix.license_type.archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
           path: browser-source.zip
@@ -236,6 +250,12 @@ jobs:
             artifact_name: "dist-chrome-MV3"
             artifact_name_dev: "dev-chrome-MV3"
             archive_name_dev: "dev-chrome.zip"
+          - name: "chrome-beta"
+            npm_command_suffix: "beta:chrome"
+            archive_name: "dist-chrome.zip"
+            artifact_name: "dist-chrome-MV3-beta"
+            artifact_name_dev: "dev-chrome-MV3-beta"
+            archive_name_dev: "dev-chrome-beta.zip"
           - name: "edge"
             npm_command_suffix: "edge"
             archive_name: "dist-edge.zip"
@@ -272,7 +292,7 @@ jobs:
           npm --version
 
       - name: Download browser source
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ${{matrix.license_type.source_archive_name_prefix}}browser-source-${{ env._BUILD_NUMBER }}.zip
 
@@ -349,12 +369,16 @@ jobs:
               exit 1
           fi
 
+      # The chrome-beta npm script stamps BETA_NUMBER into the built manifest via
+      # update-manifest-beta.sh.
       - name: Build extension
+        env:
+          BETA_NUMBER: ${{ needs.setup.outputs.beta_number }}
         run: npm run ${{matrix.license_type.npm_command_prefix}}${{ matrix.browser.npm_command_suffix }}
         working-directory: browser-source/apps/browser
 
       - name: Upload extension artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name }}-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name }}
@@ -367,7 +391,7 @@ jobs:
 
       - name: Upload dev extension artifact
         if: ${{ matrix.browser.archive_name_dev != '' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ matrix.license_type.artifact_prefix }}${{ matrix.browser.artifact_name_dev }}-${{ env._BUILD_NUMBER }}.zip
           path: browser-source/apps/browser/dist/${{matrix.license_type.archive_name_prefix}}${{ matrix.browser.archive_name_dev }}
@@ -547,7 +571,7 @@ jobs:
           ls -la
 
       - name: Upload Safari artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{matrix.license_type.archive_name_prefix}}dist-safari-${{ env._BUILD_NUMBER }}.zip
           path: apps/browser/dist/${{matrix.license_type.archive_name_prefix}}dist-safari.zip

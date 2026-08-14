@@ -1,12 +1,12 @@
-import { combineLatest, timer } from "rxjs";
-import { filter, concatMap } from "rxjs/operators";
-
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { toTsBiometricsStatus } from "@bitwarden/common/key-management/biometrics-status-mapper";
+import { fromTsUserId } from "@bitwarden/common/key-management/utils";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import {
@@ -16,46 +16,51 @@ import {
   KeyService,
   BiometricStateService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import {
+  ipcRequestAuthenticateBiometrics,
+  ipcRequestGetBiometricsStatus,
+  ipcRequestUnlockBiometrics,
+} from "@bitwarden/sdk-internal";
 
 import { NativeMessagingBackground } from "../../background/nativeMessaging.background";
+import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class BackgroundBrowserBiometricsService extends BiometricsService {
-  BACKGROUND_POLLING_INTERVAL = 30_000;
+  BIOMETRICS_NO_INTERACTION_TIMEOUT = 500;
+  BIOMETRICS_INTERACTION_TIMEOUT = 60_000;
 
   constructor(
     private nativeMessagingBackground: () => NativeMessagingBackground,
+    private configService: () => ConfigService,
     private logService: LogService,
     private keyService: KeyService,
     private biometricStateService: BiometricStateService,
     private messagingService: MessagingService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private pinService: PinServiceAbstraction,
+    private ipcService: () => IpcService,
   ) {
     super();
-    // Always connect to the native messaging background if biometrics are enabled, not just when it is used
-    // so that there is no wait when used.
-    const biometricsEnabled = this.biometricStateService.biometricUnlockEnabled$();
-
-    combineLatest([timer(0, this.BACKGROUND_POLLING_INTERVAL), biometricsEnabled])
-      .pipe(
-        filter(([_, enabled]) => enabled),
-        filter(([_]) => !this.nativeMessagingBackground().connected),
-        concatMap(async () => {
-          try {
-            await this.nativeMessagingBackground().connect();
-            await this.getBiometricsStatus();
-          } catch {
-            // Ignore
-          }
-        }),
-      )
-      .subscribe();
   }
 
   async authenticateWithBiometrics(): Promise<boolean> {
-    try {
-      await this.ensureConnected();
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      try {
+        return await ipcRequestAuthenticateBiometrics(
+          this.ipcService().client,
+          AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
+        );
+      } catch {
+        return false;
+      }
+    }
 
+    if (!this.nativeMessagingBackground().connected) {
+      return false;
+    }
+
+    try {
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.AuthenticateWithBiometrics,
       });
@@ -67,6 +72,14 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatus(): Promise<BiometricsStatus> {
+    if (!(await BrowserApi.permissionsGranted(["nativeMessaging"]))) {
+      return BiometricsStatus.NativeMessagingPermissionMissing;
+    }
+
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      return BiometricsStatus.Available;
+    }
+
     try {
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.GetBiometricsStatus,
@@ -84,9 +97,40 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async unlockWithBiometricsForUser(userId: UserId): Promise<UserKey | null> {
-    try {
-      await this.ensureConnected();
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      // Handle SDK-based biometric unlock
+      try {
+        const response = await ipcRequestUnlockBiometrics(
+          this.ipcService().client,
+          fromTsUserId(userId),
+          AbortSignal.timeout(this.BIOMETRICS_INTERACTION_TIMEOUT),
+        );
+        if (response.user_key) {
+          const userKey = SymmetricCryptoKey.fromSdk(response.user_key) as UserKey;
+          if (!(await this.keyService.validateUserKey(userKey, userId))) {
+            this.logService.info("Biometric unlock for user failed: invalid user key");
+            return null;
+          }
 
+          await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
+          await this.keyService.setUserKey(userKey, userId);
+          // to update badge and other things
+          this.messagingService.send("switchAccount", { userId });
+          return userKey;
+        } else {
+          return null;
+        }
+      } catch (e) {
+        this.logService.info("Biometric unlock for user failed", e);
+        return null;
+      }
+    }
+
+    if (!this.nativeMessagingBackground().connected) {
+      return null;
+    }
+
+    try {
       const response = await this.nativeMessagingBackground().callCommand({
         command: BiometricsCommands.UnlockWithBiometricsForUser,
         userId: userId,
@@ -95,13 +139,14 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
         // In case the requesting foreground context dies (popup), the userkey should still be set, so the user is unlocked / the setting should be enabled
         const decodedUserkey = Utils.fromB64ToArray(response.userKeyB64);
         const userKey = new SymmetricCryptoKey(decodedUserkey) as UserKey;
-        if (await this.keyService.validateUserKey(userKey, userId)) {
-          await this.biometricStateService.setBiometricUnlockEnabled(true);
-          await this.keyService.setUserKey(userKey, userId);
-          await this.pinService.userUnlocked(userId);
+        try {
+          await this.unlockService!.unlockWithDecryptedUserKey(userId, userKey);
+          await this.biometricStateService.setBiometricUnlockEnabled(true, userId);
           // to update badge and other things
           this.messagingService.send("switchAccount", { userId });
           return userKey;
+        } catch (e) {
+          this.logService.info("Biometric unlock for user failed during unlock or validation", e);
         }
       } else {
         return null;
@@ -115,8 +160,23 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
   }
 
   async getBiometricsStatusForUser(id: UserId): Promise<BiometricsStatus> {
+    if (await this.configService().getFeatureFlag(FeatureFlag.BiometricsSDKIPC)) {
+      try {
+        const status = await ipcRequestGetBiometricsStatus(
+          this.ipcService().client,
+          fromTsUserId(id),
+          AbortSignal.timeout(this.BIOMETRICS_NO_INTERACTION_TIMEOUT),
+        );
+        return toTsBiometricsStatus(status);
+      } catch {
+        return BiometricsStatus.DesktopDisconnected;
+      }
+    }
+
     try {
-      await this.ensureConnected();
+      if (!this.nativeMessagingBackground().connected) {
+        return BiometricsStatus.DesktopDisconnected;
+      }
 
       return (
         await this.nativeMessagingBackground().callCommand({
@@ -128,15 +188,6 @@ export class BackgroundBrowserBiometricsService extends BiometricsService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
       return BiometricsStatus.DesktopDisconnected;
-    }
-  }
-
-  // the first time we call, this might use an outdated version of the protocol, so we drop the response
-  private async ensureConnected() {
-    if (!this.nativeMessagingBackground().connected) {
-      await this.nativeMessagingBackground().callCommand({
-        command: BiometricsCommands.GetBiometricsStatus,
-      });
     }
   }
 

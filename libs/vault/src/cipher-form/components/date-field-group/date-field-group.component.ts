@@ -57,7 +57,7 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
 
   // These callbacks are reassigned by Angular's ControlValueAccessor interface
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
-  private onChange = (value: string) => {};
+  private onChange = (value: string | undefined) => {};
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
   private onTouched = () => {};
   // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
@@ -116,7 +116,7 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
     this.internalForm.patchValue(parts, { emitEvent: false });
   }
 
-  registerOnChange(fn: (value: string) => void): void {
+  registerOnChange(fn: (value: string | undefined) => void): void {
     this.onChange = fn;
   }
 
@@ -133,7 +133,29 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
   }
 
   validate(): ValidationErrors | null {
-    return this.internalForm.invalid ? { invalidDate: true } : null;
+    const monthControl = this.internalForm.get("month")! as AbstractControl<string>;
+    const dayControl = this.internalForm.get("day")! as AbstractControl<string>;
+    const yearControl = this.internalForm.get("year")! as AbstractControl<string>;
+
+    const values = [
+      monthControl.value?.trim(),
+      dayControl.value?.trim(),
+      yearControl.value?.trim(),
+    ];
+
+    const anyFilled = values.some((v) => !!v);
+    const allFilled = values.every((v) => !!v);
+
+    if (!anyFilled) {
+      return null;
+    }
+
+    if (!allFilled || this.internalForm.invalid) {
+      const fieldCount = values.filter((v) => !v).length || 1;
+      return { invalidDate: true, fieldCount };
+    }
+
+    return null;
   }
 
   registerOnValidatorChange(fn: () => void): void {
@@ -170,19 +192,20 @@ export class DateFieldGroupComponent implements OnInit, ControlValueAccessor, Va
 
   /**
    * Combines month, day, year into a YYYY-MM-DD string with zero-padding.
-   * Returns "" when all parts are empty.
+   * Returns undefined when the date is empty or incomplete, so the SDK receives
+   * an absent value (None) rather than an unparseable empty string.
    */
   private combineDate(
     month: string | null | undefined,
     day: string | null | undefined,
     year: string | null | undefined,
-  ): string {
+  ): string | undefined {
     if (!month && !day && !year) {
-      return "";
+      return undefined;
     }
     if (!month || !day || !year) {
-      // Partial dates are allowed as input, but not returned unless all empty
-      return "";
+      // Partial dates are allowed as input, but not returned unless complete
+      return undefined;
     }
     const monthPadded = String(month).padStart(2, "0");
     const dayPadded = String(day).padStart(2, "0");

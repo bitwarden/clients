@@ -40,6 +40,8 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { Cart, CartSummaryComponent, Discount } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import {
@@ -100,11 +102,13 @@ export type UpgradePaymentParams = {
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     BillingServicesModule,
+    Vfo1I18nPipe,
   ],
   templateUrl: "./upgrade-payment.component.html",
 })
 export class UpgradePaymentComponent implements OnInit, AfterViewInit {
   private readonly INITIAL_TAX_VALUE = 0;
+  protected readonly defaultTrialDays = DEFAULT_TRIAL_LENGTH_DAYS;
   protected readonly selectedPlanId = input.required<PersonalSubscriptionPricingTierId>();
   protected readonly account = input.required<Account>();
   protected readonly fromMarketing = input<string | null>(null);
