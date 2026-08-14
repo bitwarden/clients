@@ -162,6 +162,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       try {
         const cipherKey = await encryptService.unwrapSymmetricKey(this.key, userKeyOrOrgKey);
         cipherDecryptionKey = cipherKey;
+        model.key = cipherKey;
         bypassValidation = false;
       } catch {
         model.name = "[error: cannot decrypt]";

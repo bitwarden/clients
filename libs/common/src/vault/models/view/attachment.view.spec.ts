@@ -54,7 +54,7 @@ describe("AttachmentView", () => {
   describe("toSdkAttachmentView", () => {
     it("should convert AttachmentView to SdkAttachmentView", () => {
       const mockKey = {
-        toBase64: jest.fn().mockReturnValue("keyB64"),
+        toSdk: jest.fn().mockReturnValue("keyB64"),
       } as any;
 
       const attachmentView = new AttachmentView();

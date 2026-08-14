@@ -292,7 +292,7 @@ describe("CipherView", () => {
       cipherView.organizationId = "000f2a6e-da5e-4726-87ed-1c5c77322c3c";
       cipherView.folderId = "41b22db4-8e2a-4ed2-b568-f1186c72922f";
       cipherView.collectionIds = ["b0473506-3c3c-4260-a734-dfaaf833ab6f"];
-      cipherView.key = { toBase64: () => "some-key-b64" } as any;
+      cipherView.key = { toSdk: () => "some-key-b64" } as any;
       cipherView.name = "name";
       cipherView.notes = "notes";
       cipherView.type = CipherType.Login;
@@ -504,7 +504,7 @@ describe("CipherView", () => {
       cipherView.reprompt = CipherRepromptType.Password;
       cipherView.revisionDate = new Date("2022-01-02T12:00:00.000Z");
       cipherView.archivedDate = new Date("2022-01-03T12:00:00.000Z");
-      cipherView.key = { toBase64: () => "cipher-key-b64" } as any;
+      cipherView.key = { toSdk: () => "cipher-key-b64" } as any;
 
       const mockField = new RealFieldView();
       mockField.name = "testField";

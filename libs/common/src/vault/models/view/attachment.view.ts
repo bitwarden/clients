@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { AttachmentView as SdkAttachmentView, SymmetricKey } from "@bitwarden/sdk-internal";
+import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
 import { DECRYPT_ERROR } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
@@ -61,7 +61,7 @@ export class AttachmentView implements View {
       size: this.size,
       sizeName: this.sizeName,
       fileName: this.fileName,
-      key: (this.key?.toBase64() ?? undefined) as SymmetricKey | undefined,
+      key: this.key?.toSdk(),
     };
   }
 
@@ -93,6 +93,6 @@ export class AttachmentView implements View {
    * In this case, the attachment is encrypted with the user's user-key
    */
   isLegacyAttachment(): boolean {
-    return this.key == null;
+    return this.key == null && !this.hasDecryptionError;
   }
 }

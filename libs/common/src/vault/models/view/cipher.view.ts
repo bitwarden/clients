@@ -5,7 +5,6 @@ import {
   CiphersClient,
   CipherViewType,
   CipherView as SdkCipherView,
-  SymmetricKey,
 } from "@bitwarden/sdk-internal";
 
 import { View } from "../../../models/view/view";
@@ -24,7 +23,6 @@ import { AttachmentView } from "./attachment.view";
 import { BankAccountView } from "./bank-account.view";
 import { CardView } from "./card.view";
 import { DriversLicenseView } from "./drivers-license.view";
-import { Fido2CredentialView } from "./fido2-credential.view";
 import { FieldView } from "./field.view";
 import { IdentityView } from "./identity.view";
 import { ItemView } from "./item.view";
@@ -341,11 +339,6 @@ export class CipherView implements View, InitializerMetadata {
         break;
       case CipherType.Login:
         cipherView.login = obj.login ? LoginView.fromSdkLoginView(obj.login) : new LoginView();
-        if (obj.login?.fido2Credentials?.length) {
-          cipherView.login.fido2Credentials = obj.login.fido2Credentials
-            .map((cred) => Fido2CredentialView.fromSdkFido2CredentialView(cred))
-            .filter((cred): cred is Fido2CredentialView => !!cred);
-        }
         break;
       case CipherType.SecureNote:
         cipherView.secureNote = obj.secureNote
@@ -427,7 +420,7 @@ export class CipherView implements View, InitializerMetadata {
       revisionDate: this.revisionDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       attachments: this.attachments?.map((a) => a.toSdkAttachmentView()),
-      key: (this.key?.toBase64() ?? undefined) as SymmetricKey | undefined,
+      key: this.key?.toSdk(),
     };
 
     // If the cipher has FIDO2 credentials, we need to set them on the SDK edit request
@@ -532,7 +525,7 @@ export class CipherView implements View, InitializerMetadata {
       deletedDate: this.deletedDate?.toISOString(),
       archivedDate: this.archivedDate?.toISOString(),
       reprompt: this.reprompt ?? CipherRepromptType.None,
-      key: (this.key?.toBase64() ?? undefined) as any,
+      key: this.key?.toSdk(),
       // Cipher type specific properties are set in the switch statement below
       // CipherView initializes each with default constructors (undefined values)
       // The SDK does not expect those undefined values and will throw exceptions

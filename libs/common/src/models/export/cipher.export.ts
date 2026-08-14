@@ -44,7 +44,12 @@ export class CipherExport {
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
-    view.key = req.key != null ? SymmetricCryptoKey.fromString(req.key) : undefined;
+    try {
+      view.key = req.key != null ? SymmetricCryptoKey.fromString(req.key) : undefined;
+    } catch {
+      // Old exports stored the wrapped EncString key which cannot be used on import
+      view.key = undefined;
+    }
 
     if (req.fields != null) {
       view.fields = req.fields.map((f) => FieldExport.toView(f));
