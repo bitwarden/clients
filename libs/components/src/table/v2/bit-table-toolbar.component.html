@@ -4,13 +4,7 @@
   into a single trigger + dialog on small screens (responsive view).
 -->
 <div class="tw-flex tw-flex-col">
-  <div
-    class="tw-flex tw-flex-wrap tw-items-center tw-gap-3 tw-p-5"
-    [class.tw-border-0]="hasFilterRow()"
-    [class.tw-border-b]="hasFilterRow()"
-    [class.tw-border-solid]="hasFilterRow()"
-    [class.tw-border-border-base]="hasFilterRow()"
-  >
+  <div [class]="searchRowClasses()">
     <!-- Caps any projected search at ~400px; an empty slot collapses to nothing. -->
     <div class="tw-flex tw-min-w-0 tw-flex-1 tw-max-w-[25rem]">
       <ng-content select="bit-search"></ng-content>

@@ -69,6 +69,17 @@ export class BitTableToolbarComponent {
     this.isLargeScreen() ? this.hasFilters() : this.activeFilters().length > 0,
   );
 
+  protected readonly searchRowClasses = computed(() => [
+    "tw-flex",
+    "tw-flex-wrap",
+    "tw-items-center",
+    "tw-gap-3",
+    "tw-p-5",
+    ...(this.hasFilterRow()
+      ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
+      : []),
+  ]);
+
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
   protected appliedLabel(filter: FilterPresenter): string {
     const summary = filter.summary();
