@@ -29,6 +29,9 @@ export interface CoachmarkStep {
   /** Whether this step is only shown to organizational users */
   requiresOrganization?: boolean;
 
+  /** Whether this step is only shown to users with at least one collection */
+  requiresCollections?: boolean;
+
   /** Route to navigate to before showing this step */
   route?: string;
 }
@@ -59,6 +62,7 @@ export const COACHMARK_STEPS: CoachmarkStep[] = [
     position: "right-center",
     learnMoreUrl: "https://bitwarden.com/help/about-collections/",
     requiresOrganization: true,
+    requiresCollections: true,
     route: "/vault",
   },
   {

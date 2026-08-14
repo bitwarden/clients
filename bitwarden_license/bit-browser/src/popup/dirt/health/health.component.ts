@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, computed, inject, effect } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { Observable, catchError, filter, map, of, startWith, switchMap, take } from "rxjs";
+import { Observable, catchError, filter, from, map, of, startWith, switchMap, take } from "rxjs";
 
 import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -74,9 +74,9 @@ export class HealthComponent {
    * The vault scan's lifecycle, or null before it has been started.
    *
    * Read through a single `toSignal`, so there is exactly one subscription no
-   * matter how many times the template reads it. Splitting this into multiple
-   * `toSignal` calls would open one subscription each and repeat the breach
-   * lookup.
+   * matter how many times the template reads it. The report service caches, so
+   * a second read would no longer repeat the breach lookup, but a second
+   * subscription would re-enter the pipeline and trigger a second scan.
    */
   private readonly scan = toSignal<HealthScanState | null>(
     toObservable(this.userId).pipe(
@@ -148,7 +148,20 @@ export class HealthComponent {
       // The scan does an external breach lookup; a vault edit must not re-run it.
       take(1),
       switchMap((ciphers) =>
-        this.vaultHealthReportService.buildVaultHealthReport$(ciphers, userId),
+        // buildVaultHealthReport publishes the report into the service rather
+        // than returning it, so the category detail views can still read it
+        // once this tab is destroyed (/health/:category is a sibling route, not
+        // a child, so it cannot inherit the result from here). Rejections still
+        // propagate, which is what drives the failure state below.
+        from(this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)).pipe(
+          // The service publishes synchronously before the promise resolves, so
+          // this read always sees the scan we just ran, never a stale one.
+          switchMap(() =>
+            this.vaultHealthReportService
+              .getVaultHealthReport$(userId)
+              .pipe(filterOutNullish(), take(1)),
+          ),
+        ),
       ),
       map((report): HealthScanState => ({ status: "success", report })),
       catchError((error: unknown): Observable<HealthScanState> => {

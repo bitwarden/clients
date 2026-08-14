@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Preferiti"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Rimuovi dai preferiti"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "Le mie cartelle"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Aggiungi cartella condivisa"
@@ -527,6 +533,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Copia valore",
@@ -3542,6 +3551,27 @@
   },
   "moreOptions": {
     "message": "Altre opzioni"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "La tua sessione è scaduta. Torna indietro e prova ad accedere di nuovo."

@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, ReplaySubject, Subject, throwError } from "rxjs";
+import { BehaviorSubject, of, ReplaySubject, Subject } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
@@ -89,6 +89,23 @@ describe("HealthComponent", () => {
   let cipherService: MockProxy<CipherService>;
   let reportService: MockProxy<VaultHealthReportService>;
   let logService: MockProxy<LogService>;
+  /** Stands in for the report the service publishes and replays per user. */
+  let published: BehaviorSubject<VaultHealthReportView | null>;
+
+  /**
+   * Makes a build publish `report` and then resolve, which is the contract the
+   * root depends on: the report is readable by the time the promise settles.
+   */
+  function publishesOnBuild(report: VaultHealthReportView) {
+    reportService.buildVaultHealthReport.mockImplementation(async () => {
+      published.next(report);
+    });
+  }
+
+  /** Leaves a build in flight forever, so the scan never completes. */
+  function buildNeverSettles() {
+    reportService.buildVaultHealthReport.mockReturnValue(new Promise<void>(() => {}));
+  }
 
   /** Creates the component and flushes the microtask that writes the state. */
   async function initComponent() {
@@ -144,7 +161,13 @@ describe("HealthComponent", () => {
     cipherService.cipherViews$.mockReturnValue(of([] as CipherView[]));
 
     reportService = mock<VaultHealthReportService>();
-    reportService.buildVaultHealthReport$.mockReturnValue(of(new VaultHealthReportView()));
+    // Mirror the real service: buildVaultHealthReport publishes the report and
+    // resolves void, and getVaultHealthReport$ replays whatever was published.
+    // The publish happens before the promise resolves, exactly as the
+    // implementation does it, so a read after the build sees the fresh report.
+    published = new BehaviorSubject<VaultHealthReportView | null>(null);
+    reportService.getVaultHealthReport$.mockReturnValue(published);
+    publishesOnBuild(new VaultHealthReportView());
 
     logService = mock<LogService>();
 
@@ -217,12 +240,12 @@ describe("HealthComponent", () => {
       await initComponent();
 
       expect(intro()).not.toBeNull();
-      expect(reportService.buildVaultHealthReport$).not.toHaveBeenCalled();
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
 
       hasRunScan$.next(true);
       await settle();
 
-      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
     });
 
     it("scans automatically on a later visit, with no prompt", async () => {
@@ -232,12 +255,12 @@ describe("HealthComponent", () => {
       await settle();
 
       expect(intro()).toBeNull();
-      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
     });
 
     it("shows the scan progress view while the scan is running", async () => {
       hasRunScan$.next(true);
-      reportService.buildVaultHealthReport$.mockReturnValue(new Subject<VaultHealthReportView>());
+      buildNeverSettles();
 
       await initComponent();
       await settle();
@@ -249,9 +272,7 @@ describe("HealthComponent", () => {
 
     it("hands the report to the Health Overview once the scan succeeds", async () => {
       hasRunScan$.next(true);
-      reportService.buildVaultHealthReport$.mockReturnValue(
-        of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
-      );
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
 
       await initComponent();
       await settle();
@@ -262,11 +283,26 @@ describe("HealthComponent", () => {
       expect(scanError()).toBeNull();
     });
 
+    it("renders the report the service published, not a locally held copy", async () => {
+      // The scan has to publish through the service, because /health/:category
+      // is a sibling route rather than a child: this component is destroyed on
+      // navigation, and HealthRiskCategoryDetailComponent reads the report from
+      // getVaultHealthReport$ alone, bouncing back here when it is null. Keeping
+      // the result only in this component's own state would compile and quietly
+      // break every category row, so pin the read path.
+      hasRunScan$.next(true);
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 40, atRiskCount: 7 }));
+
+      await initComponent();
+      await settle();
+
+      expect(reportService.getVaultHealthReport$).toHaveBeenCalledWith(userId);
+      expect(overview()?.report().atRiskCount).toBe(7);
+    });
+
     it("shows the scan failure view when the scan fails", async () => {
       hasRunScan$.next(true);
-      reportService.buildVaultHealthReport$.mockReturnValue(
-        throwError(() => new Error("HIBP unavailable")),
-      );
+      reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
 
       await initComponent();
       await settle();
@@ -278,9 +314,7 @@ describe("HealthComponent", () => {
 
     it("logs the error when the scan fails", async () => {
       hasRunScan$.next(true);
-      reportService.buildVaultHealthReport$.mockReturnValue(
-        throwError(() => new Error("HIBP unavailable")),
-      );
+      reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
 
       await initComponent();
       await settle();
@@ -298,15 +332,13 @@ describe("HealthComponent", () => {
       hasRunScan$.next(true);
       const ciphers$ = new BehaviorSubject<CipherView[] | null>(null);
       cipherService.cipherViews$.mockReturnValue(ciphers$ as never);
-      reportService.buildVaultHealthReport$.mockReturnValue(
-        of(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 })),
-      );
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 40, atRiskCount: 12 }));
 
       await initComponent();
       await settle();
 
       // Nothing should have been scanned off the null; the tab is still scanning.
-      expect(reportService.buildVaultHealthReport$).not.toHaveBeenCalled();
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
       expect(scanning()).not.toBeNull();
 
       // The real ciphers arrive; now it scans, exactly once, with those ciphers.
@@ -314,8 +346,8 @@ describe("HealthComponent", () => {
       ciphers$.next(real);
       await settle();
 
-      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
-      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledWith(real, userId);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledWith(real, userId);
       expect(overview()?.report().atRiskCount).toBe(12);
     });
 
@@ -329,9 +361,7 @@ describe("HealthComponent", () => {
         id === nextUserId ? nextUserScan$ : hasRunScan$,
       );
       hasRunScan$.next(true);
-      reportService.buildVaultHealthReport$.mockReturnValue(
-        of(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 })),
-      );
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
 
       await initComponent();
       await settle();
@@ -350,13 +380,13 @@ describe("HealthComponent", () => {
 
       await initComponent();
       await settle();
-      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
 
       // A vault edit must not re-run the breach lookup.
       ciphers$.next([{} as CipherView]);
       await settle();
 
-      expect(reportService.buildVaultHealthReport$).toHaveBeenCalledTimes(1);
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
     });
   });
 
