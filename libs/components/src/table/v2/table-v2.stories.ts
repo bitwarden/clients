@@ -831,6 +831,43 @@ export const GroupedVirtualized: Story = {
   }),
 };
 
+/**
+ * A group's `collapsed` state is a two-way model. A consumer can seed the initial state with
+ * `[collapsed]` — here the "Cards" group starts collapsed — and persist user toggles by listening
+ * to `(collapsedChange)`.
+ */
+export const GroupedInitiallyCollapsed: Story = {
+  render: () => ({
+    props: {
+      table: groupedTable,
+      trackBy: (_: number, item: GroupedRow) => item.id,
+      isLogin: (row: GroupedRow) => row.type === "login",
+      isCard: (row: GroupedRow) => row.type === "card",
+      isNote: (row: GroupedRow) => row.type === "note",
+    },
+    template: `
+      <bit-layout>
+        <bit-table-v2
+          [tableDef]="table"
+          presentation="list"
+          [virtualRowHeight]="44"
+          [trackBy]="trackBy"
+          [height]="8"
+        >
+          <bit-column sortable defaultSort="asc">
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+
+          <bit-row-group collapsible [match]="isLogin">Logins</bit-row-group>
+          <bit-row-group collapsible [collapsed]="true" [match]="isCard">Cards</bit-row-group>
+          <bit-row-group collapsible [match]="isNote">Notes</bit-row-group>
+        </bit-table-v2>
+      </bit-layout>
+    `,
+  }),
+};
+
 type WideRow = {
   id: number;
   name: string;
