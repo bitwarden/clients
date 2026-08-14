@@ -27,7 +27,11 @@
       (onEditFolder)="editFolder($event)"
     ></app-vault-filter>
   </div>
-  <div class="tw-basis-3/4 tw-max-w-3/4 tw-px-2.5">
+  <div
+    class="tw-basis-3/4 tw-max-w-3/4 tw-px-2.5"
+    [class.tw-flex]="vfo1Foundation()"
+    [class.tw-flex-col]="vfo1Foundation()"
+  >
     @if (activeFilter.isDeleted) {
       <bit-callout type="warning">
         {{ trashCleanupWarning }}
@@ -50,7 +54,7 @@
     @if (vfo1Foundation()) {
       <vault-items-table
         [ciphers]="ciphers"
-        [loading]="refreshing && !performingInitialLoad"
+        [loading]="performingInitialLoad || refreshing"
         [collections]="allCollections"
         [organizations]="allOrganizations"
       >
@@ -96,7 +100,7 @@
       >
       </app-vault-items>
     }
-    @if (performingInitialLoad) {
+    @if (performingInitialLoad && !vfo1Foundation()) {
       <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start">
         <i
           class="bwi bwi-spinner bwi-spin tw-text-muted"
@@ -106,7 +110,7 @@
         <span class="tw-sr-only">{{ "loading" | i18n }}</span>
       </div>
     }
-    @if (isEmpty && !performingInitialLoad) {
+    @if (isEmpty && !performingInitialLoad && !vfo1Foundation()) {
       <div class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start tw-flex-1">
         <bit-no-items [icon]="(emptyState$ | async)?.icon">
           <div slot="title">
