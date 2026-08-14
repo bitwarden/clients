@@ -255,6 +255,9 @@ export class IndividualVaultExportService
       this.cipherService.getAll(activeUserId).then((c) => {
         ciphers = c.filter(
           (f) =>
+            // Exclude PAM-gated ("partial") rows: their sensitive fields are server-suppressed, so
+            // exporting them would emit blank/corrupt entries.
+            f.partialData == null &&
             f.deletedDate == null &&
             !this.restrictedItemTypesService.isCipherRestricted(f, restrictions),
         );
