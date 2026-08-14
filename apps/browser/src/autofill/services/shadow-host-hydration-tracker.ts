@@ -37,7 +37,7 @@ export class ShadowHostHydrationTracker {
   private readonly hostLifetimeMs = 30000;
   // Longer than a hydration wait so a slow-loading definition still upgrades, but finite.
   private readonly awaitingDefinitionLifetimeMs = 60000;
-  private readonly retryCapMs = 8000;
+  private readonly maxRetryDelayMs = 8000;
   private readonly trackingCap = 64;
   private readonly overflowCap = 192;
   private readonly awaitingDefinitionCap = 64;
@@ -296,15 +296,15 @@ export class ShadowHostHydrationTracker {
       this.retryRound = 0;
       return;
     }
-    // Exponential backoff (deadlines bound total work). Parked-only: sweep at cap cadence.
+    // Exponential backoff (deadlines bound total work). Parked-only: sweep at the slowest cadence.
     const delay =
       this.hostsAwaitingShadowRoot.size === 0
-        ? this.retryCapMs
+        ? this.maxRetryDelayMs
         : Math.min(
             // Clamp the exponent: `<<` is a 32-bit shift, so an unclamped round would
-            // eventually wrap to a tiny delay. 5 already exceeds the cap (500 << 5 = 16s).
+            // eventually wrap to a tiny delay. 5 already exceeds the max (500 << 5 = 16s).
             this.scanDebounceMs << Math.min(this.retryRound, 5),
-            this.retryCapMs,
+            this.maxRetryDelayMs,
           );
     this.retryRound++;
     this.retryTimeout = setTimeout(() => {
