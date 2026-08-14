@@ -1,5 +1,5 @@
 import { DIALOG_DATA } from "@angular/cdk/dialog";
-import { Component, ChangeDetectionStrategy, input, inject, computed } from "@angular/core";
+import { Component, ChangeDetectionStrategy, inject, computed } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
@@ -48,19 +48,16 @@ export class HealthDeleteAtRiskItemDialogComponent {
   readonly dialogRef = inject(DialogRef);
   readonly inputData = inject<HealthDeleteAtRiskItemDialogData>(DIALOG_DATA);
 
-  readonly item = input<CipherHealthView>(this.inputData.item);
-  readonly currentCategory = input<RiskCategory>(this.inputData.currentCategory);
+  readonly item = this.inputData.item;
+  readonly currentCategory = this.inputData.currentCategory;
 
   readonly additionalRisks = computed<{ showWeak: boolean; showReused: boolean }>(() => {
-    const item = this.item();
-    const category = this.currentCategory();
-
     // only show additional risk categories when the item currently being viewed also falls into lower risk categories. respects the at-risk hierarchy: exposed > weak > reused (implemented in DefaultVaultHealthReportService.highestRiskCategory)
-    switch (category) {
+    switch (this.currentCategory) {
       case RiskCategory.Exposed:
-        return { showWeak: item.hasWeakPassword, showReused: item.hasReusedPassword };
+        return { showWeak: this.item.hasWeakPassword, showReused: this.item.hasReusedPassword };
       case RiskCategory.Weak:
-        return { showWeak: false, showReused: item.hasReusedPassword };
+        return { showWeak: false, showReused: this.item.hasReusedPassword };
       case RiskCategory.Reused:
       default:
         return { showWeak: false, showReused: false };
@@ -73,7 +70,7 @@ export class HealthDeleteAtRiskItemDialogComponent {
       return;
     }
 
-    await this.cipherService.softDeleteWithServer(this.item().cipherId, user.id);
+    await this.cipherService.softDeleteWithServer(this.item.cipherId, user.id);
 
     this.toastService.showToast({
       message: this.i18nService.t("deletedItem"),
