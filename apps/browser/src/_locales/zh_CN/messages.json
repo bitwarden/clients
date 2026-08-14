@@ -120,7 +120,7 @@
     "message": "密码库"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "密码库"
   },
   "myVault": {
     "message": "我的密码库"
@@ -508,6 +508,45 @@
   "options": {
     "message": "选项"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "没有共享文件夹"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "编辑项目 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "密码库中没有项目"
+  },
   "length": {
     "message": "长度"
   },
@@ -713,7 +752,7 @@
     "message": "打开网站"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "前往 $ITEMNAME$ 的网站",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1561,19 +1600,19 @@
     "message": "复制验证码"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "没有用户名"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "没有密码"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "没有验证码"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "没有号码"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "没有安全码"
   },
   "attachments": {
     "message": "附件"
@@ -1969,7 +2008,7 @@
     "message": "将支付卡显示为建议"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "将 SSH 密钥显示为建议"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "选择图标时显示建议"
@@ -5024,10 +5063,10 @@
     "message": "未选择文件"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "未选择文件"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "已选择文件: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5036,7 +5075,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "已添加文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5045,7 +5084,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "$COUNT$已添加文件$FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5058,7 +5097,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "已移除文件: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5067,10 +5106,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1个文件已上传"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ 文件已上传",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5079,16 +5118,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "已上传文件"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "点击上传或将文件拖放至此"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "选择文件"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "最大文件大小：$SIZE$ MB",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5713,7 +5752,7 @@
     "message": "清除筛选或尝试其他搜索词"
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "复制详情：$ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5822,16 +5861,16 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "没有可复制的详细信息"
   },
   "assignToCollections": {
     "message": "分配到集合"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "添加到共享文件夹"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "转移并添加"
   },
   "copyEmail": {
     "message": "复制电子邮箱"
@@ -6414,7 +6453,7 @@
     "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 个项目将永久转移到所选密码库。您将不再拥有该项目。"
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
@@ -6426,7 +6465,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选密码库。您将不再拥有这些项目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6460,31 +6499,31 @@
     "message": "成功分配了集合"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "成功添加了共享文件夹"
   },
   "itemMovedToCollection": {
     "message": "项目已移动到集合"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "项目已添加到共享文件夹"
   },
   "itemMovedToCollections": {
     "message": "项目已移动到集合"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "项目已添加到共享文件夹"
   },
   "itemsMovedToCollection": {
     "message": "项目已移动到集合"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "项目已添加到共享文件夹"
   },
   "itemsMovedToCollections": {
     "message": "项目已移动到集合"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "项目已添加到共享文件夹"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
@@ -6542,7 +6581,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "itemSends": {
-    "message": "Item Sends",
+    "message": "Send 项目",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
@@ -6564,7 +6603,7 @@
     }
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "在密码库中显示快速复制操作"
   },
   "systemDefault": {
     "message": "跟随系统"
@@ -6822,7 +6861,7 @@
     "message": "大写"
   },
   "generatedPassword": {
-    "message": "生成了密码"
+    "message": "生成的密码"
   },
   "compactMode": {
     "message": "紧凑模式"
@@ -6879,7 +6918,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "您无法移除仅拥有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -7070,7 +7109,7 @@
     "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "在项目旁边添加 3 个快速复制按钮，以将您的用户名、密码或验证码复制到剪贴板。"
   },
   "noPermissionsViewPage": {
     "message": "您没有查看此页面的权限。请尝试使用其他账户登录。"
@@ -7584,12 +7623,120 @@
     "message": "健康度"
   },
   "scanMyVault": {
-    "message": "Scan my vault"
+    "message": "扫描我的密码库"
   },
   "introducingHealth": {
-    "message": "Introducing Health"
+    "message": "健康状况介绍"
   },
   "healthIntroDescription": {
-    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+    "message": "通过修改已泄露、强度较弱以及重复使用的密码，监控并改善你的密码库安全状态。"
+  },
+  "yourVaultIsHealthy": {
+    "message": "您的密码库状态良好",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "您的密码库风险较高",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$TOTAL$个密码中有$AT_RISK$个需要修复",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "没有密码泄露",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1个已泄露的密码",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$已泄露密码",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "已泄露的密码描述",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "未在数据泄露事件中发现你的任何密码",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "没有弱密码",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1个弱密码",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$个弱密码",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "过短或过于简单",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "您所有的密码安全性都很高",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "没有重复使用的密码",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1个重复使用的密码",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$个重复使用的密码",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "多次登录重复使用",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "您所有的密码均是唯一的",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "已识别的风险",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "无任何需关注的项目",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }

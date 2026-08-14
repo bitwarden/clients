@@ -2,8 +2,6 @@ import { firstValueFrom } from "rxjs";
 
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { WEBAUTHN_PRF_OPTIONS } from "@bitwarden/common/key-management/state-definitions";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -12,6 +10,8 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { WebAuthnPrfUnlockOption } from "@bitwarden/sdk-internal";
 import { StateProvider } from "@bitwarden/state";
 
