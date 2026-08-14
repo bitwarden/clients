@@ -1,0 +1,36 @@
+@if (showPremiumCallout()) {
+  <div class="tw-m-4">
+    <bit-callout type="subtle" [title]="'premiumSubscriptionEnded' | i18n">
+      <div>{{ "premiumSubscriptionEndedDesc" | i18n }}</div>
+      <a bitLink href="#" appStopClick (click)="navigateToGetPremium()">
+        {{ "restartPremium" | i18n }}
+      </a>
+    </bit-callout>
+  </div>
+}
+<div class="tw-px-8 tw-pb-6 tw-flex tw-flex-col tw-flex-1 tw-min-h-0">
+  <vault-items-table
+    [ciphers]="ciphers()"
+    [folders]="folders()"
+    [collections]="collections()"
+    [organizations]="organizations()"
+    [loading]="loading()"
+    [rowActions]="rowActions()"
+    [itemAction]="itemAction"
+    [initialFilterValues]="initialFilterValues()"
+    (selectedChange)="handleSelectionChange($event)"
+  >
+    @if (showAddCipherBtn()) {
+      <vault-new-cipher-menu
+        slot="toolbar"
+        [canCreateCipher]="canCreateCipher()"
+        [canCreateFolder]="true"
+        [canCreateSshKey]="true"
+        [disabled]="!canCreateCipher()"
+        (cipherAdded)="onAddCipher.emit($event)"
+        (folderAdded)="onAddFolder.emit()"
+        (onAddItemDialog)="onAddItemDialog.emit()"
+      />
+    }
+  </vault-items-table>
+</div>
