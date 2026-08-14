@@ -392,12 +392,7 @@ export class SshAgentService implements OnDestroy {
                 // can connect and the app can prompt for vault unlock when needed.
                 // When locked, cipherViews$ emits null (caught by the filter below),
                 // so replace() is not called and existing keys are left in the native store.
-                return from(ipc.autofill.sshAgent.isLoaded()).pipe(
-                  concatMap(async (loaded) => {
-                    if (!loaded) {
-                      await ipc.autofill.sshAgent.init(useV2);
-                    }
-                  }),
+                return from(this.ensureAgentRunning(useV2)).pipe(
                   // Subscribe to live cipher data for the active account.
                   switchMap(() => this.cipherService.cipherViews$(account.id)),
                   // Skip emissions before cipher data is available (e.g. during initial decrypt).
@@ -456,10 +451,25 @@ export class SshAgentService implements OnDestroy {
     this.destroy$.complete();
   }
 
+  // Starts the agent server unless it is already running.
+  private async ensureAgentRunning(useV2: boolean): Promise<void> {
+    try {
+      if (!(await ipc.autofill.sshAgent.isLoaded())) {
+        await ipc.autofill.sshAgent.init(useV2);
+      }
+    } catch (e) {
+      this.logService.error("Failed to start the SSH agent server", e);
+    }
+  }
+
+  // Stops the agent server if it is running.
   private async stopAgent(): Promise<void> {
-    const loaded = await ipc.autofill.sshAgent.isLoaded();
-    if (loaded) {
-      await ipc.autofill.sshAgent.stop();
+    try {
+      if (await ipc.autofill.sshAgent.isLoaded()) {
+        await ipc.autofill.sshAgent.stop();
+      }
+    } catch (e) {
+      this.logService.error("Failed to stop the SSH agent server", e);
     }
   }
 

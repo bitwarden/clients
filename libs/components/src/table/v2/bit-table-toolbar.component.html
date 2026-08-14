@@ -41,6 +41,19 @@
     [class.tw-hidden]="!isLargeScreen()"
   >
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
+    @if (appliedCount()) {
+      <button
+        id="bit-table-toolbar_button_clear-all"
+        bitButton
+        buttonType="subtleGhost"
+        size="small"
+        type="button"
+        startIcon="bwi-clear"
+        (click)="clearAll()"
+      >
+        {{ "clearAll" | i18n }}
+      </button>
+    }
     @if (table && hasFilters()) {
       <span class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-text-fg-body-subtle">
         {{ "itemCount" | i18n: itemCount() }}

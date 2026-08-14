@@ -344,8 +344,9 @@ filter: (row, f) =>
 - **Top row** — the `<bit-search>` (capped at ~400px) and any `slot="end"` controls (buttons, etc.),
   right-aligned.
 - **Filter row** — the filter chips, with a live "N items" count at the end. Separate groups of
-  chips with `<bit-filter-divider>`. On small screens this row collapses into a single trigger and
-  dialog.
+  chips with `<bit-filter-divider>`. Once any filter is active, a "Clear all" button appears after
+  the chips to reset them in one click — search is untouched. On small screens this row collapses
+  into a single trigger and dialog.
 
 The toolbar holds no filter state itself — chips register with the table automatically when
 projected in, and a projected `<bit-search>` is adopted as the `search` filter (see

@@ -119,6 +119,9 @@
   "vault": {
     "message": "Трезор"
   },
+  "vaults": {
+    "message": "Трезори"
+  },
   "myVault": {
     "message": "Моят трезор"
   },
@@ -505,6 +508,45 @@
   "options": {
     "message": "Опции"
   },
+  "optionsForItem": {
+    "message": "Опции за $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Няма споделена папка"
+  },
+  "filterByName": {
+    "message": "Филтриране по $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Отбелязвайте елементи като любими, за да ги филтрирате тук."
+  },
+  "foldersFilterTooltip": {
+    "message": "Добавете папки към елементите, за да ги филтрирате тук."
+  },
+  "editItemWithName": {
+    "message": "Редактиране на елемент – $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "Няма елементи в трезора"
+  },
   "length": {
     "message": "Дължина"
   },
@@ -709,8 +751,8 @@
   "launchWebsite": {
     "message": "Посещаване на уеб сайта"
   },
-  "launchWebsiteName": {
-    "message": "Отваряне на уеб сайта $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1557,6 +1599,21 @@
   "copyVerificationCode": {
     "message": "Копиране на кода за потвърждаване"
   },
+  "noUsername": {
+    "message": "Няма потребителско име"
+  },
+  "noPassword": {
+    "message": "Няма парола"
+  },
+  "noVerificationCode": {
+    "message": "Няма код за потвърждаване"
+  },
+  "noNumber": {
+    "message": "Няма номер"
+  },
+  "noSecurityCode": {
+    "message": "Няма код за сигурност"
+  },
   "attachments": {
     "message": "Прикачвания"
   },
@@ -1949,6 +2006,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "Показване на карти като предложения"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Показване на SSH ключове като предложения"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Показване на предложения когато иконката е избрана"
@@ -5002,6 +5062,79 @@
   "noFileChosen": {
     "message": "Не е избран файл"
   },
+  "noFileSelected": {
+    "message": "Няма избрани файлове"
+  },
+  "fileChosen": {
+    "message": "Избран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Добавен файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ файла са добавени: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Премахната файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл е качен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файла са качени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Качени файлове"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Щракнете за качване, или влачете и пуснете тук"
+  },
+  "chooseFiles": {
+    "message": "Изберете файлове"
+  },
+  "maxFileSizeParam": {
+    "message": "Максимален размер на файл: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или поставете съдържанието му"
   },
@@ -5618,8 +5751,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
-  "copyInfoTitle": {
-    "message": "Копиране на информацията – $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Копиране на подробностите за $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5860,17 @@
     "message": "Няма въведена стойност",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Няма стойности за копиране"
+  "noDetailsToCopy": {
+    "message": "Няма подробности за копиране"
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
+  },
+  "addToSharedFolder": {
+    "message": "Добавяне към споделена папка"
+  },
+  "transferAndAdd": {
+    "message": "Прехвърляне и добавяне"
   },
   "copyEmail": {
     "message": "Копиране на е-пощата"
@@ -6200,8 +6339,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елемента."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елемента."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елементите."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елементите."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Избрали сте $TOTAL_COUNT$ елемента Не можете да промените $READONLY_COUNT$ от елементите, тъй като нямате право за редактиране.",
@@ -6307,8 +6452,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в избрания трезор. Вече няма да притежавате този елемент."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избрания трезор. Вече няма да притежавате тези елементи.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6498,32 @@
   "successfullyAssignedCollections": {
     "message": "Успешно свързване на колекциите"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Споделените папки са добавени успешно"
+  },
   "itemMovedToCollection": {
     "message": "Елементът е преместен в колекция"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Елементът е добавен към споделена папка"
   },
   "itemMovedToCollections": {
     "message": "Елементът е преместен в колекции"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Елементът е добавен към споделени папки"
+  },
   "itemsMovedToCollection": {
     "message": "Елементите са преместени в колекция"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Елементите са добавени към споделена папка"
+  },
   "itemsMovedToCollections": {
     "message": "Елементите са преместени в колекции"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Елементите са добавени към споделени папки"
   },
   "itemAssignedToCollections": {
     "message": "Елементът е добавен към колекции"
@@ -6401,10 +6573,16 @@
     "message": "Местоположение на елемента"
   },
   "fileSends": {
-    "message": "Файлови изпращания"
+    "message": "Файлови изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Текстови изпращания"
+    "message": "Текстови изпращания",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Изпращания на елементи",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Действия по регистрацията"
@@ -6424,7 +6602,7 @@
       }
     }
   },
-  "showQuickCopyActions": {
+  "showQuickCopyActionsInVault": {
     "message": "Показване на действията за бързо копиране в трезора"
   },
   "systemDefault": {
@@ -6739,6 +6917,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Не можете да премахвате споделени папки с права „Само за преглед“: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Моля, обновете самостоятелното приложение"
   },
@@ -6920,6 +7107,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Добавяне на 3 бутона за бързо копиране до елементите, с които могат да се копират потребителското име, паролата и кода за потвърждаване."
   },
   "noPermissionsViewPage": {
     "message": "Нямате права за преглед на тази страница. Опитайте да се впишете с друг акаунт."
@@ -7431,5 +7621,122 @@
   },
   "health": {
     "message": "Здраве"
+  },
+  "scanMyVault": {
+    "message": "Сканиране на трезора"
+  },
+  "introducingHealth": {
+    "message": "Представяме: Състоянието на сигурността"
+  },
+  "healthIntroDescription": {
+    "message": "Наблюдавайте и подобрявайте състоянието на сигурността на трезора си, променяте паролите, които са слаби, преизползвани или са били разкрити."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Вашият трезор е в добро състояние",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Вашият трезор е под висок риск",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ от $TOTAL$ пароли имат нужда от внимание",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "Няма разобличени пароли",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 разобличена парола",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ разобличени пароли",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Разобличени при изтичания на данни",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "Нито една от паролите Ви не е намерена в известни изтичания на данни",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "Няма слаби пароли",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 слаба парола",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ слаби пароли",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Твърде кратка или проста",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "Всичките Ви пароли са силни",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "Няма преизползвани пароли",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 преизползвана парола",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ преизползвани пароли",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Преизползвана за няколко различни места",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "Всичките Ви пароли са уникални",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Открити рискове",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "Няма нуждаещи се от внимание елементи",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }

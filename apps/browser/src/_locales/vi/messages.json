@@ -119,6 +119,9 @@
   "vault": {
     "message": "Kho lưu trữ"
   },
+  "vaults": {
+    "message": "Kho"
+  },
   "myVault": {
     "message": "Kho lưu trữ của tôi"
   },
@@ -505,6 +508,45 @@
   "options": {
     "message": "Tùy chọn"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
   "length": {
     "message": "Độ dài"
   },
@@ -709,8 +751,8 @@
   "launchWebsite": {
     "message": "Mở trang web"
   },
-  "launchWebsiteName": {
-    "message": "Khởi chạy trang web $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Khởi chạy trang web cho $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -762,7 +804,7 @@
     "message": "Tải xuống"
   },
   "browserNotSupportClipboard": {
-    "message": "Trình duyệt web của bạn không hỗ trợ sao chép vào bảng nhớ tạm một cách dễ dàng. Vui lòng sao chép thủ công."
+    "message": "Trình duyệt web của bạn không hỗ trợ sao chép vào bộ nhớ tạm một cách dễ dàng. Vui lòng sao chép thủ công."
   },
   "verifyYourIdentity": {
     "message": "Xác minh danh tính của bạn"
@@ -1198,11 +1240,11 @@
     "message": "Nhấp vào mục trong đề xuất tự động điền để điền thông tin"
   },
   "clearClipboard": {
-    "message": "Dọn dẹp bảng nhớ tạm",
+    "message": "Xóa bộ nhớ tạm",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
-    "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
+    "message": "Tự động xóa mọi thứ đã sao chép khỏi bộ nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
@@ -1556,6 +1598,21 @@
   },
   "copyVerificationCode": {
     "message": "Sao chép mã xác thực"
+  },
+  "noUsername": {
+    "message": "Không có tên đăng nhập"
+  },
+  "noPassword": {
+    "message": "Không có mật khẩu"
+  },
+  "noVerificationCode": {
+    "message": "Không có mã xác minh"
+  },
+  "noNumber": {
+    "message": "Không có số"
+  },
+  "noSecurityCode": {
+    "message": "Không có mã bảo mật"
   },
   "attachments": {
     "message": "Tệp đính kèm"
@@ -1950,6 +2007,9 @@
   "showInlineMenuCardsLabel": {
     "message": "Hiển thị thẻ dưới dạng gợi ý"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Hiển thị đề xuất khóa SSH"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Hiện gợi ý khi nhấp vào biểu tượng"
   },
@@ -2023,7 +2083,7 @@
     "message": "Điền tự động danh tính đã sử dụng lần cuối cho trang web hiện tại"
   },
   "commandGeneratePasswordDesc": {
-    "message": "Tạo và sao chép một mật khẩu ngẫu nhiên mới vào bảng nhớ tạm"
+    "message": "Tạo và sao chép một mật khẩu ngẫu nhiên mới vào bộ nhớ tạm."
   },
   "commandLockVaultDesc": {
     "message": "Khoá kho"
@@ -5002,6 +5062,79 @@
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
   },
+  "noFileSelected": {
+    "message": "Chưa chọn tệp nào"
+  },
+  "fileChosen": {
+    "message": "Đã chọn tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Đã thêm tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Đã thêm $COUNT$ tệp: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Đã xóa tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Đã tải lên 1 tệp"
+  },
+  "filesUploaded": {
+    "message": "Đã tải lên $COUNT$ tệp",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Các tệp đã tải lên"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nhấp để tải lên hoặc kéo và thả"
+  },
+  "chooseFiles": {
+    "message": "Chọn tệp"
+  },
+  "maxFileSizeParam": {
+    "message": "Kích thước tệp tối đa: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "hoặc sao chép/dán nội dung của tập tin nhập"
   },
@@ -5618,8 +5751,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Xóa bộ lọc hoặc thử từ khóa tìm kiếm khác"
   },
-  "copyInfoTitle": {
-    "message": "Sao chép thông tin - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Sao chép chi tiết cho $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5860,17 @@
     "message": "Chưa nhập giá trị",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Không có giá trị để sao chép"
+  "noDetailsToCopy": {
+    "message": "Không có chi tiết để sao chép"
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
+  },
+  "addToSharedFolder": {
+    "message": "Thêm vào thư mục chia sẻ"
+  },
+  "transferAndAdd": {
+    "message": "Chuyển và thêm"
   },
   "copyEmail": {
     "message": "Sao chép email"
@@ -6200,8 +6339,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem mục này."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy mục này."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem các mục này."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy các mục này."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Bạn đã chọn $TOTAL_COUNT$ mục. Bạn không thể cập nhật $READONLY_COUNT$ mục vì bạn không có quyền chỉnh sửa.",
@@ -6307,8 +6452,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6498,32 @@
   "successfullyAssignedCollections": {
     "message": "Đã gán vào bộ sưu tập thành công"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Đã thêm thành công các thư mục chia sẻ"
+  },
   "itemMovedToCollection": {
     "message": "Mục đã được di chuyển vào bộ sưu tập"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Đã thêm mục vào thư mục chia sẻ"
   },
   "itemMovedToCollections": {
     "message": "Mục đã được di chuyển vào các bộ sưu tập"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Đã thêm mục vào các thư mục chia sẻ"
+  },
   "itemsMovedToCollection": {
     "message": "Các mục đã được di chuyển vào bộ sưu tập"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Đã thêm các mục vào thư mục chia sẻ"
+  },
   "itemsMovedToCollections": {
     "message": "Các mục đã được di chuyển vào các bộ sưu tập"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Đã thêm các mục vào các thư mục chia sẻ"
   },
   "itemAssignedToCollections": {
     "message": "Mục đã được gán cho các bộ sưu tập"
@@ -6401,10 +6573,16 @@
     "message": "Vị trí mục"
   },
   "fileSends": {
-    "message": "Gửi tệp"
+    "message": "Gửi tệp",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Gửi văn bản"
+    "message": "Gửi văn bản",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Mục Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Thao tác trên tài khoản"
@@ -6424,8 +6602,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Hiển thị các hành động sao chép nhanh trên Kho"
+  "showQuickCopyActionsInVault": {
+    "message": "Hiển thị các thao tác sao chép nhanh trong kho lưu trữ"
   },
   "systemDefault": {
     "message": "Mặc định hệ thống"
@@ -6725,7 +6903,7 @@
     "message": "Loại khóa SSH không được hỗ trợ"
   },
   "importSshKeyFromClipboard": {
-    "message": "Nhập khóa từ bảng nhớ tạm"
+    "message": "Nhập khóa từ bộ nhớ tạm"
   },
   "sshKeyImported": {
     "message": "Khóa SSH được nhập thành công"
@@ -6734,6 +6912,15 @@
     "message": "Bạn không thể xóa các bộ sưu tập với quyền chỉ xem: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Bạn không thể xóa các thư mục chia sẻ có quyền Chỉ xem: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -6920,6 +7107,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Thêm 3 nút sao chép nhanh bên cạnh các mục để sao chép tên đăng nhập, mật khẩu hoặc mã xác minh vào bộ nhớ tạm."
   },
   "noPermissionsViewPage": {
     "message": "Bạn không có quyền truy cập vào trang này. Hãy thử đăng nhập bằng tài khoản khác."
@@ -7431,5 +7621,122 @@
   },
   "health": {
     "message": "Sức khoẻ"
+  },
+  "scanMyVault": {
+    "message": "Quét kho lưu trữ của tôi"
+  },
+  "introducingHealth": {
+    "message": "Giới thiệu Tình trạng bảo mật"
+  },
+  "healthIntroDescription": {
+    "message": "Giám sát và cải thiện tình trạng bảo mật kho lưu trữ của bạn bằng cách khắc phục các mật khẩu bị lộ, yếu và trùng lặp."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Kho lưu trữ của bạn đang ở trạng thái tốt",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Kho lưu trữ của bạn có rủi ro cao",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ trong số $TOTAL$ mật khẩu cần được khắc phục",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "Không có mật khẩu nào bị lộ",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 mật khẩu bị lộ",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ mật khẩu bị lộ",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Bị lộ trong các vụ rò rỉ dữ liệu",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "Không có mật khẩu nào của bạn được tìm thấy trong các vụ rò rỉ dữ liệu",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "Không có mật khẩu yếu",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 mật khẩu yếu",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ mật khẩu yếu",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Quá ngắn hoặc đơn giản",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "Tất cả mật khẩu của bạn đều mạnh",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "Không có mật khẩu bị sử dụng lại",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 mật khẩu bị sử dụng lại",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ mật khẩu bị sử dụng lại",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Bị sử dụng lại cho nhiều đăng nhập",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "Tất cả mật khẩu của bạn đều là duy nhất",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Đã xác định các rủi ro",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "Không có mục nào cần chú ý",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }
