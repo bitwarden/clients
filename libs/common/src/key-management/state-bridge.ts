@@ -5,6 +5,7 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 import { fromSdkKdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   EncString,
+  KeyId,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
   SymmetricKey,
@@ -29,6 +30,7 @@ import {
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
   USER_KEY,
   USER_KEY_ENCRYPTED_PIN,
+  USER_KEY_ID,
   V2_UPGRADE_TOKEN,
   WEBAUTHN_PRF_OPTIONS,
 } from "./state-definitions";
@@ -155,6 +157,18 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_user_key(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, USER_KEY);
+  }
+
+  async set_user_key_id(userKeyId: KeyId): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, USER_KEY_ID, userKeyId);
+  }
+
+  async get_user_key_id(): Promise<KeyId | null> {
+    return await readAtomic(this.stateProvider, this.userId, USER_KEY_ID);
+  }
+
+  async clear_user_key_id(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, USER_KEY_ID);
   }
 
   async set_ephemeral_pin_envelope(pinEnvelope: PasswordProtectedKeyEnvelope): Promise<void> {
