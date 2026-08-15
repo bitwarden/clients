@@ -297,6 +297,7 @@ export class Program extends BaseProgram {
             this.serviceContainer.i18nService,
             this.serviceContainer.encryptedMigrator,
             this.serviceContainer.unlockService,
+            this.serviceContainer.biometricsService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);
