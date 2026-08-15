@@ -15,12 +15,19 @@
         <ng-template #vaultGroups>
           @for (vault of nav.vaults; track vault.id) {
             <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
-              <bit-icon-tile [icon]="vault.icon" variant="primary" size="sm" />
+              <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
               <bit-nav-item
                 icon="bwi-list-alt"
                 [text]="'allVaultItems' | i18n"
                 (mainContentClicked)="selectVault(vault)"
               ></bit-nav-item>
+              @if (vault.defaultUserCollectionId; as collectionId) {
+                <bit-nav-item
+                  icon="bwi-user"
+                  [text]="'myItems' | i18n"
+                  (mainContentClicked)="selectMyItems(vault, collectionId)"
+                ></bit-nav-item>
+              }
             </bit-nav-group>
           }
         </ng-template>
@@ -104,7 +111,9 @@
               route="settings/emergency-access"
             ></bit-nav-item>
           }
-          <bit-nav-item [text]="'addPlan' | i18n" route="settings/add-plan"></bit-nav-item>
+          @if (!singleOrgPolicyApplies()) {
+            <bit-nav-item [text]="'addPlan' | i18n" route="settings/add-plan"></bit-nav-item>
+          }
           <billing-free-families-nav-item></billing-free-families-nav-item>
           <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
         </bit-nav-group>
