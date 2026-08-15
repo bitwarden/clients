@@ -11,7 +11,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule, SideNavService } from "@bitwarden/components";
@@ -112,6 +112,7 @@ const orgDataOwnership: VaultsNavViewModel = {
       color: "purple",
       icon: "bwi-business",
       type: VaultNavItemType.Organization,
+      defaultUserCollectionId: "col-a" as CollectionId,
     },
   ],
   organizationDataOwnership: true,
@@ -318,7 +319,12 @@ describe("UserLayoutComponent", () => {
         clickArchive();
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { type: "archive" },
+          queryParams: {
+            folderId: null,
+            sharedFolderId: null,
+            collectionId: null,
+            type: "archive",
+          },
           queryParamsHandling: "merge",
         });
         expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
@@ -355,13 +361,33 @@ describe("UserLayoutComponent", () => {
         fixture.detectChanges();
       });
 
-      it("renders the org vault without a Vaults header or personal vault", () => {
+      it("renders the org vault with a My items child, no Vaults header or personal vault", () => {
         const text = navText();
 
         expect(text).toContain("Acme corporation");
+        expect(text).toContain("myItems");
         expect(text).not.toContain("vaults");
         expect(text).not.toContain("My vault");
         expect(text).not.toContain("allItems");
+      });
+
+      it("filters to the org's default collection when My items is selected", () => {
+        const myItems = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
+          (el) => (el as HTMLElement).textContent?.includes("myItems"),
+        ) as HTMLElement;
+
+        myItems.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+
+        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
+          queryParams: {
+            folderId: null,
+            collectionId: null,
+            vaultId: "org-a",
+            sharedFolderId: "col-a",
+            type: null,
+          },
+          queryParamsHandling: "merge",
+        });
       });
     });
 
@@ -400,7 +426,13 @@ describe("UserLayoutComponent", () => {
         selectVaultItems("Acme corporation");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { vaultId: "org-a", type: null },
+          queryParams: {
+            folderId: null,
+            sharedFolderId: null,
+            collectionId: null,
+            vaultId: "org-a",
+            type: null,
+          },
           queryParamsHandling: "merge",
         });
       });
@@ -409,7 +441,13 @@ describe("UserLayoutComponent", () => {
         selectVaultItems("My vault");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { vaultId: "unassigned", type: null },
+          queryParams: {
+            folderId: null,
+            sharedFolderId: null,
+            collectionId: null,
+            vaultId: "unassigned",
+            type: null,
+          },
           queryParamsHandling: "merge",
         });
       });
