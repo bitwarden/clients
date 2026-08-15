@@ -5,11 +5,9 @@
     @if (vfo1Enabled()) {
       @if (vaultNav(); as nav) {
         @if (nav.vaults.length > 1) {
-          <bit-nav-item
-            icon="bwi-list"
-            [text]="'allItems' | i18n"
-            (mainContentClicked)="selectAllItems()"
-          ></bit-nav-item>
+          <bit-nav-item [text]="'allItems' | i18n" (mainContentClicked)="selectAllItems()">
+            <bit-icon-tile icon="bwi-list" variant="brand" emphasis="bold" size="sm" />
+          </bit-nav-item>
         }
 
         <ng-template #vaultGroups>
@@ -34,11 +32,9 @@
 
         @if (nav.vaults.length === 1 && !nav.organizationDataOwnership) {
           @let loneVault = nav.vaults[0];
-          <bit-nav-item
-            [icon]="loneVault.icon"
-            [text]="loneVault.label"
-            (mainContentClicked)="selectVault(loneVault)"
-          ></bit-nav-item>
+          <bit-nav-item [text]="loneVault.label" (mainContentClicked)="selectVault(loneVault)">
+            <bit-icon-tile [icon]="loneVault.icon" [color]="vaultTileColor(loneVault)" size="sm" />
+          </bit-nav-item>
         } @else if (nav.organizationDataOwnership) {
           <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
         } @else if (nav.vaults.length > 1) {
