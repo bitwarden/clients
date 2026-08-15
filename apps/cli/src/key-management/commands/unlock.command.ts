@@ -9,6 +9,8 @@ import { KeyConnectorService } from "@bitwarden/common/key-management/key-connec
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
@@ -18,6 +20,7 @@ import { Response } from "../../models/response";
 import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
 import { CliUtils } from "../../utils";
+import { CliBiometricsService } from "../cli-biometrics-service";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
 
 export class UnlockCommand {
@@ -31,10 +34,34 @@ export class UnlockCommand {
     private i18nService: I18nService,
     private encryptedMigrator: EncryptedMigrator,
     private unlockService: UnlockService,
+    private biometricsService: CliBiometricsService,
   ) {}
 
   async run(password: string, cmdOptions: Record<string, any>) {
     const normalizedOptions = new Options(cmdOptions);
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (activeAccount == null) {
+      return Response.error("No active account found");
+    }
+    const userId = activeAccount.id;
+
+    const passwordWasProvided =
+      (password != null && password !== "") ||
+      normalizedOptions.passwordEnv != null ||
+      normalizedOptions.passwordFile != null;
+    const conversionRequired = await firstValueFrom(
+      this.keyConnectorService.convertAccountRequired$,
+    );
+
+    if (
+      !passwordWasProvided &&
+      !conversionRequired &&
+      process.env.BW_NOINTERACTION !== "true" &&
+      (await this.tryBiometricUnlock(userId))
+    ) {
+      return this.successResponse();
+    }
+
     const passwordResult = await CliUtils.getPassword(password, normalizedOptions, this.logService);
 
     if (passwordResult instanceof Response) {
@@ -44,11 +71,6 @@ export class UnlockCommand {
     }
 
     await this.setNewSessionKey();
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (activeAccount == null) {
-      return Response.error("No active account found");
-    }
-    const userId = activeAccount.id;
 
     try {
       await this.unlockService.unlockWithMasterPassword(userId, password);
@@ -56,7 +78,7 @@ export class UnlockCommand {
       return Response.error(e.message);
     }
 
-    if (await firstValueFrom(this.keyConnectorService.convertAccountRequired$)) {
+    if (conversionRequired) {
       const convertToKeyConnectorCommand = new ConvertToKeyConnectorCommand(
         userId,
         this.keyConnectorService,
@@ -74,6 +96,35 @@ export class UnlockCommand {
     await this.encryptedMigrator.runMigrations(userId, password);
 
     return this.successResponse();
+  }
+
+  private async tryBiometricUnlock(userId: UserId): Promise<boolean> {
+    try {
+      if (
+        (await this.biometricsService.getBiometricsStatusForUser(userId)) !==
+        BiometricsStatus.Available
+      ) {
+        return false;
+      }
+
+      if (process.env.BW_QUIET !== "true" && process.env.BW_RESPONSE !== "true") {
+        CliUtils.writeLn("Unlocking with biometrics...", false, true);
+      }
+
+      const userKey = await this.biometricsService.unlockWithBiometricsForUser(userId);
+      if (userKey == null) {
+        return false;
+      }
+
+      await this.setNewSessionKey();
+      await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
+      return true;
+    } catch (error) {
+      this.logService.info("CLI biometric unlock failed; falling back to master password", error);
+      return false;
+    } finally {
+      this.biometricsService.disconnect();
+    }
   }
 
   private async setNewSessionKey() {
