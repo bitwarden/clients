@@ -257,6 +257,7 @@ import { CliProcessReloadService } from "../key-management/cli-process-reload.se
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { devFlagEnabled, devFlagValue, flagEnabled } from "../platform/flags";
+import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
@@ -389,6 +390,8 @@ export class ServiceContainer {
   lockService: LockService;
   unlockService: UnlockService;
   autoUnlockService: AutoUnlockService;
+  biometricsService: CliBiometricsService;
+  ipcService: CliIpcService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -541,6 +544,14 @@ export class ServiceContainer {
       this.accountService,
     );
 
+    this.ipcService = new CliIpcService(this.logService);
+    this.biometricsService = new CliBiometricsService(
+      this.accountService,
+      () => this.keyService,
+      this.logService,
+      this.ipcService,
+    );
+
     this.keyService = new KeyService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -549,7 +560,7 @@ export class ServiceContainer {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
-      new CliBiometricsService(),
+      this.biometricsService,
     );
 
     this.autoUnlockService = new DefaultAutoUnlockService(
@@ -804,7 +815,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.stateProvider,
       this.logService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
       this.autoUnlockService,
@@ -1026,17 +1037,16 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.pinService,
       this.kdfConfigService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.masterPasswordUnlockService,
     );
 
-    const biometricService = new CliBiometricsService();
     const logoutService = new DefaultLogoutService(this.messagingService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
       this.accountService,
-      biometricService,
+      this.biometricsService,
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
@@ -1203,7 +1213,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.syncService,
       this.keyService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.biometricStateService,
       this.platformUtilsService,
       new CliUserKeyRotationService(),
