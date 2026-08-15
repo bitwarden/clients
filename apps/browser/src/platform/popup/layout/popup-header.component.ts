@@ -11,7 +11,6 @@ import {
   IconButtonModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
@@ -22,14 +21,7 @@ import { PopupPageComponent } from "./popup-page.component";
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  imports: [
-    AsyncActionsModule,
-    CommonModule,
-    I18nPipe,
-    IconButtonModule,
-    JslibModule,
-    TypographyModule,
-  ],
+  imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule, AsyncActionsModule],
 })
 export class PopupHeaderComponent {
   private popupRouterCacheService = inject(PopupRouterCacheService);
