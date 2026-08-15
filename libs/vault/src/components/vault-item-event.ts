@@ -1,6 +1,6 @@
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
-import { VaultItem } from "..";
+import { VaultItem } from "./vault-item";
 
 export type VaultItemEvent<C extends CipherViewLike> =
   | { type: "viewAttachments"; item: C }
