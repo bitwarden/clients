@@ -27,11 +27,13 @@ scripts, and do not add new per-platform pairs (`.sh` + `.ps1`) to accomplish th
 
 **Exceptions**:
 
-- Container and devcontainer scripts invoked by image or lifecycle config (`entrypoint.sh`, `build.sh`,
-  `.devcontainer/**/*Command.sh`) stay in POSIX shell script.
+- Container entrypoint scripts (e.g., `apps/web/entrypoint.sh`) and any `.devcontainer/**/*.sh`
+  invoked from a `devcontainer.json` lifecycle key (`initializeCommand`, `postCreateCommand`,
+  `postStartCommand`, etc.) stay in POSIX shell script. Current examples:
+  `.devcontainer/common/post-create-command.sh`, `.devcontainer/native-gui/setup-x11.sh`.
 - Package-manager install and publish hooks that ship inside distributed packages and are mandated by
-  the target toolchain (e.g., Chocolatey `chocolateyinstall.ps1`, Snap hooks) stay in the language the
-  toolchain requires.
+  the target toolchain (e.g., Chocolatey `chocolateyinstall.ps1` under
+  `apps/desktop/stores/chocolatey/tools/`) stay in the language the toolchain requires.
 
 This applies to standalone script files only, not inline command steps in other tools' config (Dockerfile `RUN`, GHA
 `run:`, `package.json` `"scripts"`). Existing scripts stay as they are, including when modified. The rule governs newly
