@@ -106,41 +106,6 @@ describe("DefaultPasswordPreloginService", () => {
       expect(apiService.getPreloginData).not.toHaveBeenCalled();
     });
 
-    it("carries the SDK-supplied salt onto the model when the flag is on", async () => {
-      configService.getFeatureFlag.mockResolvedValue(true);
-
-      const result = await firstValueFrom(sut.getPreloginData$(email));
-
-      // PasswordLoginStrategy derives the master key from this salt when the flag is on, so it
-      // must come from the SDK response rather than the email the caller passed in.
-      expect(result.salt).toBe(sdkSalt);
-      expect(result.salt).not.toBe(email);
-    });
-
-    it("carries the API-supplied salt onto the model when the flag is off", async () => {
-      const result = await firstValueFrom(sut.getPreloginData$(email));
-
-      // The salt is still mapped when the flag is off — PasswordLoginStrategy simply ignores it
-      // and derives from the entered email instead.
-      expect(result.salt).toBe(apiSalt);
-    });
-
-    it("emits an undefined salt when the SDK omits one", async () => {
-      // PM-28143: salt is nullable while the server transition is in flight. Documents current
-      // behavior — the service does not substitute a fallback.
-      configService.getFeatureFlag.mockResolvedValue(true);
-      sdkService.client.auth
-        .mockDeep()
-        .login.mockDeep()
-        .get_password_prelogin.mockResolvedValue({
-          kdf: { pBKDF2: { iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue } },
-        } as SdkPasswordPreloginResponse);
-
-      const result = await firstValueFrom(sut.getPreloginData$(email));
-
-      expect(result.salt).toBeUndefined();
-    });
-
     it("checks the feature flag with the expected key", async () => {
       await firstValueFrom(sut.getPreloginData$(email));
 

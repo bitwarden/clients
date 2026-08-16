@@ -60,8 +60,8 @@ describe("PasswordPreloginData", () => {
         }),
       );
 
-      // The salt is passed through verbatim — normalization is the server's/SDK's responsibility,
-      // and re-normalizing here would defeat the point of asking the server for it.
+      // The model is a pass-through: it does not normalize. Callers that derive a key still
+      // normalize on their own (LegacyCompatKeyService, MasterPasswordService).
       expect(result.salt).toBe(serverSalt);
     });
 
@@ -82,9 +82,6 @@ describe("PasswordPreloginData", () => {
     });
 
     it("returns an undefined salt when the server omits it", () => {
-      // PM-28143: Salt is nullable server-side while the transition is in flight. This documents
-      // today's behavior — the undefined flows through untouched. PasswordLoginStrategy only reads
-      // it when PM27060_PasswordPreloginFromSdk is on.
       const result = PasswordPreloginData.fromResponse(
         new PasswordPreloginResponse({
           KdfSettings: { KdfType: 0, Iterations: PBKDF2KdfConfig.ITERATIONS.defaultValue },
@@ -160,8 +157,6 @@ describe("PasswordPreloginData", () => {
     });
 
     it("throws when the response omits KdfSettings entirely", () => {
-      // KdfConfigResponse validates the payload on construction, so a server that hasn't shipped
-      // the PM-28143 change fails loudly here rather than deriving a key from an undefined KDF.
       expect(() => new PasswordPreloginResponse({ Salt: salt })).toThrow(
         "KDF config response does not contain a valid KDF type",
       );

@@ -12,12 +12,6 @@ import { PasswordPreloginResponse } from "./password-prelogin.response";
 export class PasswordPreloginData {
   constructor(
     readonly kdfConfig: KdfConfig,
-    /**
-     * The salt the server dictates for master key derivation. Only consumed when
-     * {@link FeatureFlag.PM27060_PasswordPreloginFromSdk} is on; callers otherwise derive from the
-     * user-entered email. Nullable while PM-28143 is in flight — the server does not populate it on
-     * every deployment.
-     */
     readonly salt: string,
   ) {}
 

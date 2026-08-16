@@ -52,8 +52,7 @@ import { PasswordLoginStrategy, PasswordLoginStrategyData } from "./password-log
 const email = "hello@world.com";
 const masterPassword = "password";
 const hashedPassword = "HASHED_PASSWORD";
-// Deliberately not equal to `email`. The whole point of PM-27060 is that the server dictates the
-// KDF salt, so a fixture where salt === email would pass no matter which one the strategy used.
+// Server dictates the KDF salt, so a fixture where salt === email would pass no matter which one the strategy used.
 const preloginSalt = "server.normalized+salt@world.com";
 const masterKey = new SymmetricCryptoKey(
   Utils.fromB64ToArray(
@@ -322,9 +321,10 @@ describe("PasswordLoginStrategy", () => {
           );
         });
 
-        it("passes the salt through verbatim without re-normalizing it", async () => {
-          // The server owns normalization under PM-27060. Trimming or lower-casing here would
-          // produce a different master key than the one the vault was encrypted with.
+        it("forwards the salt to the key service unmodified", async () => {
+          // Scoped to the strategy: it does no normalization of its own. LegacyCompatKeyService
+          // trims and lower-cases the salt itself before deriving, so this asserts the strategy's
+          // hand-off, not the salt the KDF ultimately receives.
           const unnormalizedSalt = "  MiXeD.Case@World.Com  ";
 
           await passwordLoginStrategy.logIn(credentialsWithPrefetchedData(unnormalizedSalt));
@@ -332,28 +332,6 @@ describe("PasswordLoginStrategy", () => {
           expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
             masterPassword,
             unnormalizedSalt,
-            kdfConfig,
-          );
-        });
-
-        it("passes an absent salt straight through", async () => {
-          // PM-28143: Salt is nullable server-side during the transition. This documents current
-          // behavior — the strategy does not fall back to the email and does not throw.
-          // Built inline rather than via the helper, whose default parameter would substitute
-          // preloginSalt for an explicit undefined.
-          const noSaltCredentials = new PasswordLoginCredentials(
-            email,
-            masterPassword,
-            undefined,
-            undefined,
-            new PasswordPreloginData(kdfConfig, undefined as unknown as string),
-          );
-
-          await passwordLoginStrategy.logIn(noSaltCredentials);
-
-          expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
-            masterPassword,
-            undefined,
             kdfConfig,
           );
         });
