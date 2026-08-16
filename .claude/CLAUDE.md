@@ -19,6 +19,7 @@
   - No vault data in error messages or console logs
 - **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
 - **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`). Missing prefix means the class is ignored and styling silently breaks. See [.claude/rules/tailwind.md](./rules/tailwind.md) for additional Tailwind rules.
+- **CRITICAL**: Node is the only allowed scripting language in this repo. Write all scripts intended for persistence in this repo in Node using TypeScript. Do not introduce Bash, Python, Ruby, PowerShell, or any other scripting language, even for something that would be shorter or more idiomatic in that language. Personal or model preference is not a valid reason to diverge from this standard. If an existing script is in another language, flag this discrepancy to the engineer and offer to rewrite in our standard scripting language. A change introducing a new scripting language should be flagged for close scrutiny.
 
 ## Mono-Repo Architecture
 
