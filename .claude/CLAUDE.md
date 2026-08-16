@@ -19,7 +19,23 @@
   - No vault data in error messages or console logs
 - **ALWAYS** Respect configuration files at the root and within each app/library (e.g., `eslint.config.mjs`, `jest.config.js`, `tsconfig.json`).
 - **CRITICAL**: Tailwind CSS classes MUST use the `tw-` prefix (e.g., `tw-flex`, `tw-p-4`). Missing prefix means the class is ignored and styling silently breaks. See [.claude/rules/tailwind.md](./rules/tailwind.md) for additional Tailwind rules.
-- **CRITICAL**: Node is the only allowed scripting language in this repo. Write all scripts intended for persistence in this repo in Node using TypeScript. Do not introduce Bash, Python, Ruby, PowerShell, or any other scripting language, even for something that would be shorter or more idiomatic in that language. Personal or model preference is not a valid reason to diverge from this standard. If an existing script is in another language, flag this discrepancy to the engineer and offer to rewrite in our standard scripting language. A change introducing a new scripting language should be flagged for close scrutiny.
+
+## Scripting
+
+New scripts in this repo are written in Node using TypeScript (`.ts`) or ES modules (`.mjs`). Do not add new `.sh`, `.ps1`, `.py`, `.rb`, or other-language
+scripts, and do not add new per-platform pairs (`.sh` + `.ps1`) to accomplish the same task.
+
+**Exceptions**:
+
+- Container and devcontainer scripts invoked by image or lifecycle config (`entrypoint.sh`, `build.sh`,
+  `.devcontainer/**/*Command.sh`) stay in POSIX shell script.
+- Package-manager install and publish hooks that ship inside distributed packages and are mandated by
+  the target toolchain (e.g., Chocolatey `chocolateyinstall.ps1`, Snap hooks) stay in the language the
+  toolchain requires.
+
+This applies to standalone script files only, not inline command steps in other tools' config (Dockerfile `RUN`, GHA
+`run:`, `package.json` `"scripts"`). Existing scripts stay as they are, including when modified. The rule governs newly
+created files only.
 
 ## Mono-Repo Architecture
 
