@@ -1,8 +1,10 @@
 import { inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { switchMap } from "rxjs";
+import { shareReplay, switchMap } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -32,21 +34,33 @@ export class CipherRowMenuService {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly cipherArchiveService = inject(CipherArchiveService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly cipherActionService = inject(CipherActionService);
 
+  private readonly userId$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   /** Whether the active user has premium and can archive ciphers. */
   readonly userCanArchive = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
-    ),
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
     { initialValue: false },
   );
 
   private readonly restrictedTypes = toSignal(this.restrictedItemTypesService.restricted$, {
     initialValue: [] as RestrictedCipherType[],
   });
+
+  /**
+   * The organizations the active user belongs to — whether they have anywhere to move a personal
+   * item to. See {@link showAssignToCollections}.
+   */
+  private readonly organizations = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.organizationService.organizations$(userId))),
+    { initialValue: [] as Organization[] },
+  );
 
   /** Returns the full row action definitions for the cipher overflow menu. */
   getRowActions<C extends CipherViewLike>(
@@ -94,7 +108,7 @@ export class CipherRowMenuService {
         label: this.i18nService.t("addToSharedFolder"),
         icon: "bwi-shared-folder",
         run: (item) => void handlers.assignToCollections(item),
-        show: (item) => this.showAssignToCollections(item),
+        show: (item) => this.showAssignToCollections(item, collections),
       },
       {
         id: "archive",
@@ -168,12 +182,24 @@ export class CipherRowMenuService {
     return this.canClone(cipher, collections) && !CipherViewLikeUtils.isDeleted(cipher);
   }
 
-  private showAssignToCollections(cipher: CipherViewLike): boolean {
-    return (
-      !!cipher.organizationId &&
-      CipherViewLikeUtils.canAssignToCollections(cipher) &&
-      !CipherViewLikeUtils.isDeleted(cipher)
-    );
+  /**
+   * Assignment covers personal items as well as organization ones — moving a personal item into an
+   * organization is what the dialog is for — so the gate is whether the user has somewhere to put
+   * it: an organization to move it into, and a collection they can write to.
+   */
+  private showAssignToCollections(cipher: CipherViewLike, collections: CollectionView[]): boolean {
+    if (
+      CipherViewLikeUtils.isDeleted(cipher) ||
+      !CipherViewLikeUtils.canAssignToCollections(cipher)
+    ) {
+      return false;
+    }
+
+    const assignable = cipher.organizationId
+      ? collections.filter((c) => c.organizationId === cipher.organizationId && !c.readOnly)
+      : collections.filter((c) => !c.readOnly);
+
+    return this.organizations().length > 0 && assignable.length > 0;
   }
 
   private showArchive(cipher: CipherViewLike): boolean {
