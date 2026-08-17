@@ -3,14 +3,14 @@
   filter chips get their own row beneath. The filter row is the unit that collapses
   into a single trigger + dialog on small screens (responsive view).
 -->
-<div class="tw-flex tw-flex-col tw-gap-2 tw-p-3">
-  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+<div class="tw-flex tw-flex-col">
+  <div [class]="searchRowClasses()">
     <!-- Caps any projected search at ~400px; an empty slot collapses to nothing. -->
     <div class="tw-flex tw-min-w-0 tw-flex-1 tw-max-w-[25rem]">
       <ng-content select="bit-search"></ng-content>
     </div>
     <!-- Below md the chip row collapses into this single trigger + applied-count berry. -->
-    @if (!isLargeScreen()) {
+    @if (!isLargeScreen() && hasFilters()) {
       <div class="tw-relative tw-flex-none">
         <button
           type="button"
@@ -27,7 +27,7 @@
         }
       </div>
     }
-    <div class="tw-flex tw-items-center tw-gap-2 tw-ms-auto">
+    <div class="tw-flex tw-items-center tw-gap-3 tw-ms-auto">
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>
@@ -36,7 +36,10 @@
     removed) below md so the chips stay instantiated to back the dialog and the
     small-screen active-filter chips below.
   -->
-  <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2" [class.tw-hidden]="!isLargeScreen()">
+  <div
+    class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-4 tw-py-3 empty:tw-hidden"
+    [class.tw-hidden]="!isLargeScreen()"
+  >
     <ng-content select="bit-filter-menu, bit-filter-toggle, bit-filter-divider"></ng-content>
     @if (appliedCount()) {
       <button
@@ -51,8 +54,8 @@
         {{ "clearAll" | i18n }}
       </button>
     }
-    @if (table) {
-      <span class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-text-muted">
+    @if (table && hasFilters()) {
+      <span class="tw-ms-auto tw-whitespace-nowrap tw-text-sm tw-text-fg-body-subtle">
         {{ "itemCount" | i18n: itemCount() }}
       </span>
     }
@@ -62,7 +65,7 @@
     on click. Rendered only when there's at least one (no empty row, no item count).
   -->
   @if (!isLargeScreen() && activeFilters().length) {
-    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2 tw-px-4 tw-py-3">
       @for (filter of activeFilters(); track filter.key()) {
         <bit-chip
           [label]="appliedLabel(filter)"
