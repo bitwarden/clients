@@ -12,8 +12,8 @@ import { AccessNameResolverService, emptyResolvedNames } from "./access-name-res
 
 const USER_ID = "user-current" as UserId;
 
-function cipherView(id: string, name: string): CipherView {
-  return Object.assign(new CipherView(), { id, name });
+function cipherView(id: string, name: string, partial = false): CipherView {
+  return Object.assign(new CipherView(), { id, name, partial });
 }
 
 function collectionViews(entries: Array<[string, string]>): CollectionView[] {
@@ -22,14 +22,14 @@ function collectionViews(entries: Array<[string, string]>): CollectionView[] {
 
 describe("AccessNameResolverService", () => {
   let service: AccessNameResolverService;
-  // Narrowed to the two methods the service calls, so the mock says exactly what it depends on.
-  let cipherService: jest.Mocked<Pick<CipherService, "getAllDecryptedForIds">>;
+  // Narrowed to the one method the service calls, so the mock says exactly what it depends on.
+  let cipherService: jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingPartials">>;
   let collections$: BehaviorSubject<CollectionView[]>;
 
   beforeEach(() => {
-    cipherService = { getAllDecryptedForIds: jest.fn().mockResolvedValue([]) } as jest.Mocked<
-      Pick<CipherService, "getAllDecryptedForIds">
-    >;
+    cipherService = {
+      getAllDecryptedForIdsIncludingPartials: jest.fn().mockResolvedValue([]),
+    } as jest.Mocked<Pick<CipherService, "getAllDecryptedForIdsIncludingPartials">>;
     collections$ = new BehaviorSubject<CollectionView[]>([]);
 
     TestBed.configureTestingModule({
@@ -44,16 +44,31 @@ describe("AccessNameResolverService", () => {
   });
 
   it("resolves cipher and collection names from local vault state", async () => {
-    cipherService.getAllDecryptedForIds.mockResolvedValue([
+    cipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([
       cipherView("cipher-1", "Prod database"),
     ]);
     collections$.next(collectionViews([["col-1", "Production"]]));
 
     const names = await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
 
-    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith(USER_ID, ["cipher-1"]);
+    expect(cipherService.getAllDecryptedForIdsIncludingPartials).toHaveBeenCalledWith(USER_ID, [
+      "cipher-1",
+    ]);
     expect(names.cipherNameById.get("cipher-1")).toBe("Prod database");
     expect(names.collectionNameById.get("col-1")).toBe("Production");
+  });
+
+  it("resolves names for PAM-gated (partial) ciphers", async () => {
+    // The whole point of this service: every id it is asked about names a gated cipher, so it must
+    // read the partial-inclusive accessor. Reading `getAllDecryptedForIds`/`cipherViews$` instead
+    // strips exactly these rows and the lists fall back to raw uuids.
+    cipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([
+      cipherView("cipher-gated", "AWS Root Account", true),
+    ]);
+
+    const names = await service.resolveNames([{ cipherId: "cipher-gated", collectionId: "col-1" }]);
+
+    expect(names.cipherNameById.get("cipher-gated")).toBe("AWS Root Account");
   });
 
   it("leaves ids the caller cannot resolve absent rather than guessing a name", async () => {
@@ -71,19 +86,21 @@ describe("AccessNameResolverService", () => {
       { cipherId: "cipher-1", collectionId: "col-2" },
     ]);
 
-    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith(USER_ID, ["cipher-1"]);
+    expect(cipherService.getAllDecryptedForIdsIncludingPartials).toHaveBeenCalledWith(USER_ID, [
+      "cipher-1",
+    ]);
   });
 
   it("does no work at all for an empty ref set", async () => {
     const names = await service.resolveNames([]);
 
     expect(names).toEqual(emptyResolvedNames());
-    expect(cipherService.getAllDecryptedForIds).not.toHaveBeenCalled();
+    expect(cipherService.getAllDecryptedForIdsIncludingPartials).not.toHaveBeenCalled();
   });
 
   it("exposes the decrypted views themselves, by identity, for favicon rendering", async () => {
     const view = cipherView("cipher-1", "Prod database");
-    cipherService.getAllDecryptedForIds.mockResolvedValue([view]);
+    cipherService.getAllDecryptedForIdsIncludingPartials.mockResolvedValue([view]);
 
     const names = await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
 
@@ -104,6 +121,9 @@ describe("AccessNameResolverService", () => {
   it("resolves against the active user", async () => {
     await service.resolveNames([{ cipherId: "cipher-1", collectionId: "col-1" }]);
 
-    expect(cipherService.getAllDecryptedForIds).toHaveBeenCalledWith(USER_ID, expect.anything());
+    expect(cipherService.getAllDecryptedForIdsIncludingPartials).toHaveBeenCalledWith(
+      USER_ID,
+      expect.anything(),
+    );
   });
 });

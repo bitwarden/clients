@@ -33,6 +33,11 @@ export function emptyResolvedNames(): ResolvedNames {
  * are read from there, keyed by id. No decryption happens here — only already-decrypted local
  * state is read — and no other Vault Data passes through this service.
  *
+ * The read MUST go through `getAllDecryptedForIdsIncludingPartials`. Every id this service is asked
+ * about names a gated cipher, and the default accessors (`getAllDecryptedForIds`, `cipherViews$`)
+ * strip partials — so using one of those resolves nothing at all and every row falls back to a raw
+ * uuid.
+ *
  * Deliberately a plain one-shot `Promise` (not the poc's reactive/backfill machinery): both
  * callers re-resolve names on every fetch, so a live subscription buys nothing here.
  */
@@ -56,7 +61,7 @@ export class AccessNameResolverService {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherIds = [...new Set(refs.map((ref) => ref.cipherId))];
     const [cipherViews, collections] = await Promise.all([
-      this.cipherService.getAllDecryptedForIds(userId, cipherIds),
+      this.cipherService.getAllDecryptedForIdsIncludingPartials(userId, cipherIds),
       firstValueFrom(this.collectionService.decryptedCollections$(userId)),
     ]);
     return {
