@@ -450,7 +450,6 @@ const routes: Routes = [
         path: "vault",
         component: VaultComponent,
         canActivate: [vaultFilterLegacyRedirectGuard],
-        runGuardsAndResolvers: "paramsOrQueryParamsChange",
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {
