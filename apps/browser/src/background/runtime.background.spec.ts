@@ -2,8 +2,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { AutofillOrchestrator } from "../autofill/background/abstractions/autofill-orchestrator";
@@ -233,11 +235,67 @@ describe("RuntimeBackground collection dispatch", () => {
     });
   });
 
-  describe("collectPageDetailsResponse is not routed to the orchestrator", () => {
-    // The orchestrator sends its own collects and consumes the responses internally, so no
-    // collectPageDetailsResponse sender is diverted to it.
-    it.each(["AutofillCommand", "AutofillCard", "AutofillIdentity", "contextMenu", "autofiller"])(
-      "does not divert the %s sender to the orchestrator",
+  // Test-only affordance: a command-issued collect, echoed back by the
+  // content script tagged with the command's sender, is diverted to the orchestrator so that autofill
+  // can be exercised independently of any input method.
+  describe("collectPageDetailsResponse command routing", () => {
+    const commandTab = createChromeTabMock({ id: 42 });
+
+    it("routes the AutofillCommand sender to a tab-wide login fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillCommand,
+          tab: commandTab,
+          details: {} as any,
+        },
+        sender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).toHaveBeenCalledWith(commandTab);
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).not.toHaveBeenCalled();
+    });
+
+    it("routes the AutofillCard sender to a card fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillCard,
+          tab: commandTab,
+          details: {} as any,
+        },
+        sender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
+        commandTab,
+        CipherType.Card,
+      );
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+    });
+
+    it("routes the AutofillIdentity sender to an identity fill", async () => {
+      await runtimeBackground.processMessageWithSender(
+        {
+          command: "collectPageDetailsResponse",
+          sender: ExtensionCommand.AutofillIdentity,
+          tab: commandTab,
+          details: {} as any,
+        },
+        sender,
+      );
+
+      expect(autofillOrchestrator.autofillActiveTabForCipherType).toHaveBeenCalledWith(
+        commandTab,
+        CipherType.Identity,
+      );
+      expect(autofillOrchestrator.autofillActiveTabFromCommand).not.toHaveBeenCalled();
+    });
+
+    // The orchestrator sends its own collects (`collectPageDetailsFromTabObservable`) and consumes
+    // those responses internally; other senders carry no command intent and must not trigger a fill.
+    it.each(["contextMenuHandler", "autofiller", "collectPageDetailsFromTabObservable", undefined])(
+      "does not route the %s sender to the orchestrator",
       async (msgSender) => {
         await runtimeBackground.processMessageWithSender(
           { command: "collectPageDetailsResponse", sender: msgSender, tab, details: {} as any },

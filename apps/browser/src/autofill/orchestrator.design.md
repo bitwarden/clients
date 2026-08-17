@@ -114,6 +114,13 @@ verification — so a credential is never submitted into a background tab. What 
 _higher_ stakes, and the per-step host approval that authorizes one, belong to the feature and are
 described in [autofill.design.md](./autofill.design.md#automated-login-auto-submit).
 
+## Exercising a fill outside an input method
+
+A fill is normally triggered by an input method. One further entry point exists for testing: a
+`collectPageDetailsResponse` runtime message whose `sender` is a command label is routed into the
+matching command fill. It lets a test drive a fill directly, without simulating a
+particular input method. This isolates the orchestrator from the plumbing that normally triggers it.
+
 ## The seam to the autofill service
 
 The orchestrator reaches the page through a single fill operation: given one concrete cipher and one
