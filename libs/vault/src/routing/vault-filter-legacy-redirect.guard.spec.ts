@@ -126,12 +126,14 @@ describe("vaultFilterLegacyRedirectGuard", () => {
         expect(queryParams).toEqual(expect.objectContaining({ "vault.favorites": "true" }));
       });
 
-      it("does not add vault.type or vault.favorites for unknown types like ?type=trash", async () => {
-        await runGuard(makeRoute({ type: "trash" }));
+      it("returns true without redirecting for unmapped types like ?type=trash", async () => {
+        expect(await runGuard(makeRoute({ type: "trash" }))).toBe(true);
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+      });
 
-        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
-        expect(queryParams?.["vault.type"]).toBeUndefined();
-        expect(queryParams?.["vault.favorites"]).toBeUndefined();
+      it("returns true without redirecting for unmapped types like ?type=archive", async () => {
+        expect(await runGuard(makeRoute({ type: "archive" }))).toBe(true);
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
       });
     });
 

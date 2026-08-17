@@ -98,6 +98,11 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
 
   const patch = buildRedirectPatch(legacy);
 
+  // No mapped params — nothing to redirect (e.g. ?type=trash, ?type=archive).
+  if (Object.keys(patch).length === 0) {
+    return true;
+  }
+
   // Copy non-legacy params first, then apply the converted patch.
   // This preserves params like cipherId and action that the vault uses independently.
   const queryParams: Record<string, string> = {};
