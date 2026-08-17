@@ -1,3 +1,9 @@
 @if (showPam()) {
-  <bit-nav-item icon="bwi-shield" [text]="'pamAccessRequestsTitle' | i18n" route="pam" />
+  <bit-nav-item icon="bwi-shield" [text]="'pamAccessRequestsTitle' | i18n" route="pam">
+    @if (badgeCount() > 0) {
+      <span slot="end" class="tw-flex tw-items-center">
+        <span bitBadge variant="primary" size="small">{{ badgeCount() }}</span>
+      </span>
+    }
+  </bit-nav-item>
 }

@@ -12,7 +12,14 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MockSdkService } from "@bitwarden/common/platform/spec/mock-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
-import type { AccessLeaseView, AccessRequestId, AccessRequestView } from "@bitwarden/sdk-internal";
+import type {
+  AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestCreateRequest,
+  AccessRequestId,
+  AccessRequestResultView,
+  AccessRequestView,
+} from "@bitwarden/sdk-internal";
 
 import { AccessRequestsSdkService } from "./access-requests-sdk.service";
 
@@ -24,6 +31,7 @@ describe("AccessRequestsSdkService", () => {
 
   const userId = "3f5a3c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e" as UserId;
   const requestId = "9b1e4c8a-3b1e-4c8a-9b1e-3b1e4c8a9b1e" as unknown as AccessRequestId;
+  const cipherId = "7d2b4c8a-9b1e-4c8a-9b1e-3b1e4c8a9b1e";
 
   const requestView = {
     id: requestId,
@@ -130,6 +138,79 @@ describe("AccessRequestsSdkService", () => {
 
       await expect(service.cancelAccessRequest(requestId)).rejects.toBe(error);
       expect(logService.error).toHaveBeenCalled();
+    });
+  });
+
+  describe("preCheck", () => {
+    it("calls access_requests().pre_check() with the branded cipher id", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const preCheckView = {
+        cipherId,
+        approvalMode: "human",
+        hasActiveLease: false,
+      } as unknown as AccessPreCheckView;
+      accessRequests.pre_check.mockResolvedValue(preCheckView);
+
+      const result = await service.preCheck(cipherId);
+
+      expect(accessRequests.pre_check).toHaveBeenCalledWith(cipherId);
+      expect(result).toBe(preCheckView);
+    });
+
+    it("logs and rethrows on failure", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const error = new Error("cannot pre-check");
+      accessRequests.pre_check.mockRejectedValue(error);
+
+      await expect(service.preCheck(cipherId)).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+    });
+
+    it("rejects a cipher id that is not a uuid before reaching the SDK", async () => {
+      const accessRequests = mockAccessRequestsClient();
+
+      await expect(service.preCheck("not-a-uuid")).rejects.toThrow();
+      expect(accessRequests.pre_check).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("submitAccessRequest", () => {
+    const createRequest = {
+      durationSeconds: 3600,
+      start: undefined,
+      end: undefined,
+      reason: undefined,
+    } as unknown as AccessRequestCreateRequest;
+
+    it("calls access_requests().request() with the cipher id and payload", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const resultView = {
+        approvalMode: "automatic",
+        request: { id: requestId },
+      } as unknown as AccessRequestResultView;
+      accessRequests.request.mockResolvedValue(resultView);
+
+      const result = await service.submitAccessRequest(cipherId, createRequest);
+
+      expect(accessRequests.request).toHaveBeenCalledWith(cipherId, createRequest);
+      expect(result).toBe(resultView);
+    });
+
+    it("logs and rethrows on failure without echoing the payload", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const error = new Error("cannot request");
+      accessRequests.request.mockRejectedValue(error);
+
+      await expect(
+        service.submitAccessRequest(cipherId, {
+          ...createRequest,
+          reason: "secret justification",
+        } as unknown as AccessRequestCreateRequest),
+      ).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+      // The justification is user-authored content and must never reach the log.
+      const logged = (logService.error as jest.Mock).mock.calls.flat().join(" ");
+      expect(logged).not.toContain("secret justification");
     });
   });
 });

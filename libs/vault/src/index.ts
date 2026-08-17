@@ -123,6 +123,8 @@ export {
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
 export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
+export { GATED_CIPHER_RELOADER } from "./tokens/gated-cipher-reloader.token";
+export type { GatedCipherReloader } from "./tokens/gated-cipher-reloader.token";
 
 export {
   COLLECTION_DIALOG,

@@ -1,0 +1,238 @@
+@if (activeLease()) {
+  <bit-callout
+    type="success"
+    [title]="'pamActiveLeaseBannerTitle' | i18n: leaseRemainingLabel()"
+    data-testid="cipher-view-banner-active"
+  >
+    <!--
+      No access-state badge here: the title already carries the live countdown, and the badge's
+      "N left" / "Ending soon" pill would render a second copy of the same clock. The other three
+      states have no countdown in their title, so they show the shared pill.
+    -->
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-end tw-gap-2">
+      @if (canExtendLease()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          size="small"
+          [bitAction]="extendLease"
+          id="pam-cipher-view-banner_button_extend"
+        >
+          {{ "pamExtendLeaseButton" | i18n }}
+        </button>
+      }
+      <button
+        type="button"
+        bitButton
+        buttonType="danger"
+        size="small"
+        [bitAction]="endLease"
+        id="pam-cipher-view-banner_button_end"
+      >
+        {{ "pamEndLeaseButton" | i18n }}
+      </button>
+    </div>
+  </bit-callout>
+} @else if (approvedRequest()) {
+  <bit-callout
+    type="success"
+    [title]="'pamApprovedRequestBannerTitle' | i18n"
+    data-testid="cipher-view-banner-approved"
+  >
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+      <app-pam-access-state-badge [state]="badge()" />
+      <span class="tw-flex tw-items-center tw-gap-2">
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          size="small"
+          [bitAction]="activateRequest"
+          id="pam-cipher-view-banner_button_start"
+        >
+          {{ "pamStartLeaseButton" | i18n }}
+        </button>
+        <button
+          type="button"
+          bitButton
+          buttonType="secondary"
+          size="small"
+          [bitAction]="cancelRequest"
+          id="pam-cipher-view-banner_button_cancel-approved"
+        >
+          {{ "pendingStateCancelRequest" | i18n }}
+        </button>
+      </span>
+    </div>
+  </bit-callout>
+} @else if (pendingRequest()) {
+  <bit-callout
+    type="warning"
+    [title]="'pamPendingBannerTitle' | i18n"
+    data-testid="cipher-view-banner-pending"
+  >
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+      <app-pam-access-state-badge [state]="badge()" />
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        [bitAction]="cancelRequest"
+        id="pam-cipher-view-banner_button_cancel"
+      >
+        {{ "pendingStateCancelRequest" | i18n }}
+      </button>
+    </div>
+  </bit-callout>
+} @else if (canRequestAccess()) {
+  <bit-callout
+    type="info"
+    [title]="'pamRequestAccessBannerTitle' | i18n"
+    data-testid="cipher-view-banner-request"
+  >
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+      <app-pam-access-state-badge [state]="badge()" />
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        (click)="toggleRequestForm()"
+        id="pam-cipher-view-banner_button_request-toggle"
+      >
+        {{ (requestFormExpanded() ? "cancel" : "pamRequestAccessButton") | i18n }}
+      </button>
+    </div>
+
+    @if (requestFormExpanded()) {
+      <hr class="tw-my-3 tw-border-t tw-border-border-brand-soft" />
+
+      @if (loadingRequestForm()) {
+        <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
+      } @else if (requestMode() !== null) {
+        <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
+          @if (requestMode() === "automatic") {
+            {{ "requestAccessModalAutomaticDescription" | i18n }}
+          } @else {
+            {{ "requestAccessModalHumanDescription" | i18n }}
+          }
+        </p>
+
+        @if (requestMode() === "automatic") {
+          <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+              <select
+                bitInput
+                formControlName="durationSeconds"
+                id="pam-cipher-view-banner_select_duration"
+              >
+                @for (option of durationOptions; track option.seconds) {
+                  <option [value]="option.seconds">{{ option.labelKey | i18n }}</option>
+                }
+              </select>
+            </bit-form-field>
+
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                formControlName="reason"
+                [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+                id="pam-cipher-view-banner_input_automatic-reason"
+              />
+              <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+            </bit-form-field>
+          </form>
+        } @else {
+          <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="date"
+                formControlName="date"
+                id="pam-cipher-view-banner_input_date"
+              />
+            </bit-form-field>
+
+            <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="time"
+                  formControlName="start"
+                  id="pam-cipher-view-banner_input_start"
+                />
+              </bit-form-field>
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="time"
+                  formControlName="end"
+                  id="pam-cipher-view-banner_input_end"
+                />
+              </bit-form-field>
+            </div>
+
+            @if (windowEndBeforeStart()) {
+              <p
+                bitTypography="helper"
+                class="tw-text-danger"
+                data-testid="window-end-before-start"
+              >
+                {{ "requestAccessModalEndBeforeStart" | i18n }}
+              </p>
+            } @else if (windowExceedsMax()) {
+              <p bitTypography="helper" class="tw-text-danger" data-testid="window-exceeds-max">
+                {{ "requestAccessModalWindowExceedsMax" | i18n }}
+              </p>
+            }
+
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                formControlName="reason"
+                [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+                id="pam-cipher-view-banner_input_human-reason"
+              />
+              <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+            </bit-form-field>
+          </form>
+        }
+      }
+
+      @if (requestError(); as error) {
+        <p
+          bitTypography="helper"
+          class="tw-mb-0 tw-mt-3 tw-text-danger"
+          data-testid="request-error"
+        >
+          {{ error }}
+        </p>
+      }
+
+      @if (requestMode() !== null) {
+        <div class="tw-mt-4 tw-flex tw-justify-end">
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            size="small"
+            [bitAction]="submitRequest"
+            id="pam-cipher-view-banner_button_request-submit"
+          >
+            {{ "requestAccessModalSubmit" | i18n }}
+          </button>
+        </div>
+      }
+    }
+  </bit-callout>
+}
