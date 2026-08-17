@@ -36,6 +36,7 @@ import {
   compareVaultItems,
   RoutedVaultFilterService,
   VaultBatchBarService,
+  VaultCopyButtonsService,
   VaultItem,
 } from "@bitwarden/vault";
 
@@ -175,7 +176,10 @@ export class VaultItemsComponent<C extends CipherViewLike> {
   protected canRestoreSelected$: Observable<boolean>;
   protected disableMenu$: Observable<boolean>;
   protected showCopyAndLaunchActions$: Observable<boolean>;
+  protected showQuickCopyActions$: Observable<boolean>;
   private restrictedTypes: RestrictedCipherType[] = [];
+
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
   constructor(
     protected cipherAuthorizationService: CipherAuthorizationService,
@@ -186,6 +190,11 @@ export class VaultItemsComponent<C extends CipherViewLike> {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
     );
+
+    this.showQuickCopyActions$ = combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+      this.vaultCopyButtonsService.showQuickCopyActions$,
+    ]).pipe(map(([flagEnabled, settingEnabled]) => flagEnabled && settingEnabled));
     this.canDeleteSelected$ = this.selection.changed.pipe(
       startWith(null),
       switchMap(() => {
@@ -278,6 +287,23 @@ export class VaultItemsComponent<C extends CipherViewLike> {
 
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
+  }
+
+  /**
+   * Width of the options column. A row's copy and launch actions are absolutely positioned to the
+   * left of its options menu, so the column has to be wide enough to hold them all. Otherwise they
+   * render on top of the preceding columns, e.g. the owner badge.
+   */
+  protected optionsColumnWidthClass(
+    showCopyAndLaunchActions: boolean,
+    showQuickCopyActions: boolean,
+  ): string {
+    if (showCopyAndLaunchActions) {
+      // Quick copy shows an icon per copyable field rather than a single combined copy menu
+      return showQuickCopyActions ? "tw-w-48" : "tw-w-32";
+    }
+
+    return this.batchBarService?.enabled() ? "tw-w-24" : "tw-w-12";
   }
 
   get isAllSelected() {
