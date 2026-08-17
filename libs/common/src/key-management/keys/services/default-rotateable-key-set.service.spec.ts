@@ -1,12 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { EncryptService } from "../../crypto/abstractions/encrypt.service";
-import { EncString } from "../../crypto/models/enc-string";
 import { RotateableKeySet } from "../models/rotateable-key-set";
 
 import { DefaultRotateableKeySetService } from "./default-rotateable-key-set.service";

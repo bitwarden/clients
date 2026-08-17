@@ -1,0 +1,25 @@
+<app-header></app-header>
+
+<vault-organization-user-notifications></vault-organization-user-notifications>
+<app-vault-banners [organizations]="organizations()"></app-vault-banners>
+
+<app-vault-onboarding [ciphers]="ciphers()"></app-vault-onboarding>
+
+<vault-items-table
+  [ciphers]="ciphers()"
+  [loading]="loading()"
+  [rowActions]="rowActions()"
+  [folders]="folders()"
+  [collections]="collections()"
+  [organizations]="organizations()"
+  [itemAction]="itemAction"
+  [copyPresentation]="copyPresentation()"
+>
+  <vault-new-cipher-menu
+    slot="toolbar"
+    [canCreateCipher]="true"
+    [canCreateSshKey]="true"
+    (cipherAdded)="addCipher($event)"
+    (onAddItemDialog)="openAddItemDialog()"
+  />
+</vault-items-table>
