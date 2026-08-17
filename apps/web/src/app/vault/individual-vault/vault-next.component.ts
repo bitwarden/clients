@@ -19,8 +19,11 @@ import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
+  VaultCopyButtonsService,
   VaultItemsTableComponent,
+  VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
   VaultOrganizationUserNotificationsComponent,
 } from "@bitwarden/vault";
@@ -61,6 +64,7 @@ export class VaultNextComponent {
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly copyButtonsService = inject(VaultCopyButtonsService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
   private readonly organizationService = inject(OrganizationService);
@@ -112,6 +116,15 @@ export class VaultNextComponent {
   protected readonly organizations = toSignal(
     this.userId$.pipe(switchMap((userId) => this.organizationService.organizations$(userId))),
     { initialValue: [] },
+  );
+
+  protected readonly copyPresentation = toSignal(
+    this.copyButtonsService.showQuickCopyActions$.pipe(
+      map((showQuickCopyActions): VaultItemsTableCopyPresentation =>
+        showQuickCopyActions ? "expanded" : "collapsed",
+      ),
+    ),
+    { initialValue: DEFAULT_COPY_PRESENTATION },
   );
 
   private readonly rowMenuHandlers = computed<CipherRowMenuHandlers<CipherViewLike>>(() => ({

@@ -17,7 +17,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherRowMenuHandlers, CipherRowMenuService } from "@bitwarden/vault";
+import {
+  CipherRowMenuHandlers,
+  CipherRowMenuService,
+  VaultCopyButtonsService,
+} from "@bitwarden/vault";
 
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
@@ -35,6 +39,7 @@ describe("VaultNextComponent", () => {
   let folders$: BehaviorSubject<FolderView[]>;
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
+  let showQuickCopyActions$: BehaviorSubject<boolean>;
 
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
     const cipher = new CipherView();
@@ -72,6 +77,7 @@ describe("VaultNextComponent", () => {
     folders$ = new BehaviorSubject<FolderView[]>([]);
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
+    showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
 
     itemActions = mock<WebVaultItemActionsService>();
 
@@ -102,6 +108,12 @@ describe("VaultNextComponent", () => {
     const organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(organizations$);
 
+    const copyButtonsService = mock<VaultCopyButtonsService>();
+    // `showQuickCopyActions$` is readonly on the service, so it can't be assigned onto the mock.
+    Object.defineProperty(copyButtonsService, "showQuickCopyActions$", {
+      value: showQuickCopyActions$,
+    });
+
     await TestBed.configureTestingModule({
       imports: [VaultNextComponent],
       providers: [
@@ -113,6 +125,7 @@ describe("VaultNextComponent", () => {
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
+        { provide: VaultCopyButtonsService, useValue: copyButtonsService },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -194,6 +207,15 @@ describe("VaultNextComponent", () => {
 
       expect(component().collections()).toEqual([collection]);
       expect(component().organizations()).toEqual([organization]);
+    });
+
+    it("maps the user's quick-copy-actions preference to the table's copy presentation", () => {
+      expect(component().copyPresentation()).toBe("collapsed");
+
+      showQuickCopyActions$.next(true);
+      fixture.detectChanges();
+
+      expect(component().copyPresentation()).toBe("expanded");
     });
   });
 
