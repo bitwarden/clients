@@ -21,4 +21,14 @@ export abstract class AccessEventService {
    * (e.g. `takeUntilDestroyed()`).
    */
   abstract accessChanged$(): Observable<void>;
+
+  /**
+   * Emits once per `NotificationType.RefreshApproverInbox` push — the server's other half of the
+   * same signal, sent to everyone who can Manage the collection a request touches rather than to
+   * the requester. An approver is usually not the requester, so without this the approvals surface
+   * would only live-refresh for decisions on the caller's own requests.
+   *
+   * Same contract as {@link accessChanged$}: `void`, no replay, never completes.
+   */
+  abstract approverInboxChanged$(): Observable<void>;
 }

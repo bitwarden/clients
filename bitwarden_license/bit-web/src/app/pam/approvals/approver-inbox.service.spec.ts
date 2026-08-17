@@ -49,6 +49,7 @@ describe("ApproverInboxService", () => {
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
   let push$: Subject<void>;
+  let inboxPush$: Subject<void>;
 
   beforeEach(() => {
     approvalApi = mock<ApprovalApiService>();
@@ -56,6 +57,7 @@ describe("ApproverInboxService", () => {
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
     push$ = new Subject<void>();
+    inboxPush$ = new Subject<void>();
 
     approvalApi.listInbox.mockResolvedValue([]);
     approvalApi.listHistory.mockResolvedValue([]);
@@ -68,7 +70,13 @@ describe("ApproverInboxService", () => {
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
-        { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
+        {
+          provide: AccessEventService,
+          useValue: {
+            accessChanged$: () => push$.asObservable(),
+            approverInboxChanged$: () => inboxPush$.asObservable(),
+          },
+        },
         { provide: AccountService, useValue: { activeAccount$: of({ id: ME }) } },
       ],
     });
@@ -146,6 +154,18 @@ describe("ApproverInboxService", () => {
       approvalApi.listInbox.mockClear();
 
       push$.next();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(approvalApi.listInbox).toHaveBeenCalledTimes(1);
+    });
+
+    it("reloads on an approver-inbox push", async () => {
+      // The push an approver actually gets: someone else's request landed against a collection they
+      // manage, so nothing arrives on the requester-scoped stream.
+      await service.load();
+      approvalApi.listInbox.mockClear();
+
+      inboxPush$.next();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(approvalApi.listInbox).toHaveBeenCalledTimes(1);
