@@ -53,7 +53,19 @@
                   type="button"
                   bitIconButton="bwi-more-horizontal"
                   label="{{ 'options' | i18n }}"
+                  [bitMenuTriggerFor]="itemMenu"
                 ></button>
+                <bit-menu #itemMenu>
+                  <button
+                    bitMenuItem
+                    type="button"
+                    variant="danger"
+                    (click)="onDeleteItem(item, cipher)"
+                  >
+                    <bit-icon name="bwi-delete" slot="start" />
+                    {{ "deleteItem" | i18n }}
+                  </button>
+                </bit-menu>
               </bit-item-action>
             </div>
           </bit-item>

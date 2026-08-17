@@ -46,6 +46,43 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
   }
 
   /**
+   * Delete an item from an existing vault health report, without rebuilding the
+   * report. Publishes a new report to `getVaultHealthReport$` with the item
+   * removed and the counts and score adjusted.
+   *
+   * @param cipherId the id of the cipher/item to be deleted from the report
+   * @param category the risk category the cipher/item belongs to
+   * @param userId the id of the user deleting the item
+   * @returns n/a
+   */
+  deleteItemFromReport(cipherId: string, category: RiskCategory, userId: UserId): void {
+    const current = this.report.value;
+    if (current?.userId !== userId) {
+      return;
+    }
+
+    const { report } = current;
+    const items = report.categoryItems[category].filter((item) => item.cipherId !== cipherId);
+    if (items.length === report.categoryItems[category].length) {
+      return;
+    }
+
+    const atRiskCount = report.atRiskCount - 1;
+    const totalCount = report.totalCount - 1;
+
+    this.report.next({
+      userId,
+      report: new VaultHealthReportView({
+        ...report,
+        atRiskCount,
+        totalCount,
+        score: totalCount === 0 ? 0 : atRiskCount / totalCount,
+        categoryItems: { ...report.categoryItems, [category]: items },
+      }),
+    });
+  }
+
+  /**
    * Personal-vault logins with a password: Login type, no organization,
    * not deleted, non-empty password. A superset of the SDK's own predicate,
    * so every login passed to the risk service qualifies.

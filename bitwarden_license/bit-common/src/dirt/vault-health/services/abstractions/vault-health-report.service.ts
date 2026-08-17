@@ -3,6 +3,7 @@ import { Observable } from "rxjs";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { RiskCategory } from "../../models";
 import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 
 /**
@@ -30,4 +31,14 @@ export abstract class VaultHealthReportService {
    * null until a scan completes for that user
    */
   abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportView | null>;
+
+  /**
+   * Delete an item from an existing vault health report, without rebuilding the report.
+   *
+   * @param cipherId the id of the cipher/item to be deleted from the report
+   * @param category the risk category the cipher/item belongs to
+   * @param userId the id of the user deleting the item
+   * @returns n/a
+   */
+  abstract deleteItemFromReport(cipherId: string, category: RiskCategory, userId: UserId): void;
 }
