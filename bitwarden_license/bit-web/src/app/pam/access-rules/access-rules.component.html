@@ -7,6 +7,7 @@
       startIcon="bwi-plus"
       [bitAction]="openCreate"
       id="access-rules_button_new"
+      startIcon="bwi-plus"
     >
       {{ "pamAccessRuleCreate" | i18n }}
     </button>
@@ -55,8 +56,8 @@
           </th>
           <th bitCell bitSortable="name">{{ "pamAccessRuleName" | i18n }}</th>
           <th bitCell>{{ "pamAccessRuleAppliesTo" | i18n }}</th>
-          <th bitCell>{{ "pamAccessRuleConditionsColumn" | i18n }}</th>
-          <th bitCell>{{ "pamAccessWindow" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleApprovalMethodColumn" | i18n }}</th>
+          <th bitCell>{{ "pamAccessRuleDurationColumn" | i18n }}</th>
           <th bitCell bitSortable="status" [fn]="sortByStatus">{{ "status" | i18n }}</th>
           <th bitCell bitSortable="revisionDate" default="desc" [fn]="sortByRevisionDate">
             {{ "pamAccessRuleLastModified" | i18n }}
@@ -91,22 +92,13 @@
             />
           </td>
           <td bitCell>
-            <div class="tw-flex tw-flex-wrap tw-gap-1">
-              @for (badge of r.conditions | conditionBadges; track badge.labelKey) {
-                <span bitBadge variant="subtle" [startIcon]="badge.icon">{{
-                  badge.labelKey | i18n
-                }}</span>
-              }
-            </div>
+            {{ r.conditions | approvalMethod | i18n }}
           </td>
           <td bitCell>
             @if (r | accessRuleWindow; as window) {
-              <span bitBadge variant="subtle" startIcon="bwi-clock"
-                >{{ window.defaultSeconds | durationShort }}
-                @if (window.maxSeconds) {
-                  –{{ window.maxSeconds | durationShort }}
-                }
-              </span>
+              <span bitBadge variant="subtle" startIcon="bwi-clock">{{
+                window.maxSeconds ?? window.defaultSeconds | durationShort
+              }}</span>
             } @else {
               <span class="tw-text-muted">—</span>
             }
@@ -141,7 +133,7 @@
               </button>
               <button type="button" bitMenuItem (click)="toggleEnabled(r)">
                 @if (r.enabled) {
-                  <bit-icon name="bwi-circle" class="tw-text-muted" />
+                  <bit-icon name="bwi-subtract-circle" class="tw-text-muted" />
                   {{ "pamAccessRuleDeactivate" | i18n }}
                 } @else {
                   <bit-icon name="bwi-check-circle" class="tw-text-muted" />
