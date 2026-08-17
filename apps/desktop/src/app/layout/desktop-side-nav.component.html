@@ -1,3 +1,6 @@
 <bit-side-nav [variant]="variant()">
+  <!-- ngProjectAs so the re-projected logo reaches the side nav's logo slot instead of falling
+  through to its wildcard slot, which v2 renders in the nav body rather than the header row. -->
+  <ng-content select="bit-nav-logo" ngProjectAs="bit-nav-logo"></ng-content>
   <ng-content></ng-content>
 </bit-side-nav>
