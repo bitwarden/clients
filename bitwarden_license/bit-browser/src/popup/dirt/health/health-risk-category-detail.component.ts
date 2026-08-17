@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, switchMap } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoCredentialsIcon, ReportExposedPasswords, UnlockedIcon } from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -29,6 +30,7 @@ import {
   IconModule,
   DialogService,
   CenterPositionStrategy,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -59,6 +61,7 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     I18nPipe,
     MenuModule,
     IconModule,
+    NoItemsModule,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
@@ -151,14 +154,20 @@ export class HealthRiskCategoryDetailComponent {
     [RiskCategory.Exposed]: {
       titleKey: "exposedPasswordsTitle",
       descriptionKey: "exposedPasswordsDescription",
+      emptyKey: "exposedPasswordsEmpty",
+      emptyIcon: ReportExposedPasswords,
     },
     [RiskCategory.Weak]: {
       titleKey: "weakPasswordsTitle",
       descriptionKey: "weakPasswordsDescription",
+      emptyKey: "weakPasswordsEmpty",
+      emptyIcon: UnlockedIcon,
     },
     [RiskCategory.Reused]: {
       titleKey: "reusedPasswordsTitle",
       descriptionKey: "reusedPasswordsDescription",
+      emptyKey: "reusedPasswordsEmpty",
+      emptyIcon: NoCredentialsIcon,
     },
   };
 }

@@ -7773,5 +7773,17 @@
         "example": "6"
       }
     }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "None of your passwords were found in data breaches."
+  },  
+  "weakPasswordsEmpty": {
+    "message": "All of your passwords are strong."
+  },
+  "reusedPasswordsEmpty": {
+    "message": "All of your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "You're all set!"
   }
 }
