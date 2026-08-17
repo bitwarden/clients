@@ -1,5 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subject, Subscription } from "rxjs";
+import { BehaviorSubject, NEVER, Subject, Subscription } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -41,7 +41,10 @@ describe("DefaultPamNavBadgeService", () => {
     logService = mock<LogService>();
     enabled$ = new BehaviorSubject<boolean>(true);
     push$ = new Subject<void>();
-    accessEvents = { accessChanged$: () => push$.asObservable() };
+    accessEvents = {
+      accessChanged$: () => push$.asObservable(),
+      approverInboxChanged$: () => NEVER,
+    };
 
     configService.getFeatureFlag$.mockReturnValue(enabled$ as never);
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
