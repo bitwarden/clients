@@ -157,7 +157,13 @@ export class UserLayoutComponent implements OnInit {
    */
   private async navigateToVault(queryParams: Params) {
     await this.router.navigate(["/vault"], {
-      queryParams: { folderId: null, sharedFolderId: null, collectionId: null, ...queryParams },
+      queryParams: {
+        folderId: null,
+        sharedFolderId: null,
+        collectionId: null,
+        organizationId: null,
+        ...queryParams,
+      },
       queryParamsHandling: "merge",
     });
   }
@@ -207,14 +213,21 @@ export class UserLayoutComponent implements OnInit {
     return vault.type === VaultNavItemType.Personal ? Unassigned : vault.id;
   }
 
+  private onVaultRoot(f = this.activeFilter()): boolean {
+    return this.router.url.split("?")[0] === "/vault" && !f.sharedFolderId && !f.type;
+  }
+
   protected allItemsActive(): boolean {
     const f = this.activeFilter();
-    return this.router.url.split("?")[0] === "/vault" && !f.vaultId && !f.type && !f.sharedFolderId;
+    return this.onVaultRoot(f) && !f.vaultId;
   }
 
   protected vaultActive(vault: VaultNavItemViewModel): boolean {
     const f = this.activeFilter();
-    return f.vaultId === this.vaultIdParam(vault) && !f.sharedFolderId && !f.type;
+    const soleVault = this.vaultNav()?.vaults.length === 1;
+    return (
+      this.onVaultRoot(f) && (f.vaultId === this.vaultIdParam(vault) || (soleVault && !f.vaultId))
+    );
   }
 
   protected myItemsActive(vault: VaultNavItemViewModel): boolean {
