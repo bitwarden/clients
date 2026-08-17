@@ -14,7 +14,7 @@ import { CollectionDialogTabType } from "../shared/components/collection-dialog"
   imports: [SharedModule, ButtonModule, StatusLockupComponent, Vfo1I18nPipe],
   template: `<bit-status-lockup class="tw-mt-2 tw-block">
     <bit-svg slot="graphic" [content]="icon"></bit-svg>
-    <span slot="title" class="tw-mt-4 tw-block">{{
+    <span slot="title" class="tw-block">{{
       "youDoNotHavePermissions" | vfo1I18n: "youDoNotHavePermissionsSharedFolder"
     }}</span>
     <button
