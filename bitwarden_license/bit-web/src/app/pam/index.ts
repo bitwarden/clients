@@ -14,9 +14,9 @@ export {
   isKnownAccessCondition,
 } from "./abstractions/access-rule";
 export { AccessRuleSdkService } from "./abstractions/access-rule-sdk.service";
-export { apiErrorBodyMessage } from "./abstractions/api-error";
 
 export type {
+  AccessApprovalMode,
   AccessApprover,
   AccessDecider,
   AccessDecisionVerdict,
@@ -25,52 +25,75 @@ export type {
   AccessLeaseRevokeRequest,
   AccessLeaseStatus,
   AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestCreateRequest,
   AccessRequestDecisionView,
   AccessRequestId,
+  AccessRequestResultView,
   AccessRequestStatus,
+  AccessRequestSummaryView,
   AccessRequestView,
+  CipherAccessStateView,
   LeasingError,
 } from "./abstractions/access-lease";
 export { AccessRequestSdkService } from "./abstractions/access-request-sdk.service";
 export { AccessLeaseSdkService } from "./abstractions/access-lease-sdk.service";
+export { AccessRefreshService } from "./abstractions/access-refresh.service";
+export { AccessEventService } from "./abstractions/access-event.service";
 export { LeasingErrorService } from "./abstractions/leasing-error.service";
 
 export {
-  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
-  ACCESS_RULE_NAME_MAX_LENGTH,
   accessRuleToFormValue,
   accessRuleToRequest,
   formValueToRequest,
   NO_DURATION_CAP,
 } from "./helpers/access-rule-request";
 export type { AccessRuleFormPatch, AccessRuleFormValue } from "./helpers/access-rule-request";
-export { accessRuleToCopyRequest, copyRuleName } from "./helpers/access-rule-copy";
 export { resolveCollectionNames } from "./helpers/collection-names";
-export { conflictingCollectionIds } from "./helpers/collection-conflicts";
-export { accessRuleDeleteConfirmOptions } from "./helpers/access-rule-delete-confirm";
-export { accessRuleDeactivateConfirmOptions } from "./helpers/access-rule-deactivate-confirm";
-export { filterRulesToToggle } from "./helpers/filter-rules-to-toggle";
-export { approvalMethodLabelKeys } from "./helpers/approval-method";
+export { ConditionBadge, conditionBadges } from "./helpers/condition-badges";
 export {
   AccessRuleStatusFilter,
   AccessRuleFilter,
+  AccessRuleWindow,
+  accessRuleWindow,
   accessRuleMatchesFilter,
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining } from "./date/format-remaining";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
+export { actionableRequestCount, isActionableRequest } from "./helpers/actionable-requests";
+export { canApprove } from "./helpers/can-approve";
+export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
+export { elapsedLabel } from "./date/elapsed";
+export type { ElapsedLabel } from "./date/elapsed";
+export { ApprovalApiService } from "./approvals/approval-api.service";
+export { AccessDecisionRequest } from "./approvals/access-decision.request";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
   ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
+  DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
   DurationUnit,
   EXTENSION_DURATION_OPTIONS,
+  REQUEST_ACCESS_DURATION_PRESETS,
   snapToNearestDuration,
   snapToNearestAccessRuleDuration,
   pickDurationUnit,
 } from "./helpers/lease-window.utils";
-export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
-export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";
+export {
+  MAX_REQUEST_ACCESS_WINDOW_SECONDS,
+  composeRequestWindow,
+  defaultRequestWindow,
+  requestWindowProblem,
+  toDateInputValue,
+  toTimeInputValue,
+} from "./helpers/request-access-window";
+export type { RequestWindowFormValue, RequestWindowProblem } from "./helpers/request-access-window";
+export {
+  REQUEST_ACCESS_SERVER_ERRORS,
+  classifyRequestAccessError,
+} from "./helpers/request-access-error";
+export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";

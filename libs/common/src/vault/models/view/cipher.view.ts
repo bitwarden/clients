@@ -91,6 +91,13 @@ export class CipherView implements View, InitializerMetadata {
   partial = false;
 
   /**
+   * Client-only companion to {@link partial}: a full cipher served under an active PAM lease, so
+   * gating surfaces keep rendering lease state. Never persisted or serialized; the vault-item
+   * dialog stamps it on the view when it swaps in the cipher from `GATED_CIPHER_RELOADER`.
+   */
+  leaseGated?: boolean;
+
+  /**
    * Flag to indicate if the cipher decryption failed.
    */
   decryptionFailure = false;
