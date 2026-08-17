@@ -20,7 +20,7 @@
     "@bitwarden/logging": "dist/libs/logging/src",
     "module-alias": "2.3.4",
     "ts-node": "10.9.2",
-    "yargs": "18.0.0"
+    "yargs": "18.1.0"
   },
   "devDependencies": {
     "@types/node": "22.20.1",
