@@ -98,6 +98,43 @@ Usage example:
 </popup-header>
 ```
 
+### Two-bar header (`vfo1-foundation`)
+
+Behind the `vfo1-foundation` feature flag, `popup-header` renders two stacked bars instead of one:
+
+- an **app bar** — dark, branded, carrying the Bitwarden logo plus the chrome that belongs to the
+  extension rather than the page (pop out button, account switcher, and an optional badge)
+- a **page title bar** — the familiar header, now always on the page background, carrying the back
+  button, a leading icon tile, the title, and an item count
+
+Toggle the flag in the **Feature Flags** addon panel to compare the two.
+
+<Canvas of={stories.HeaderV2} />
+
+**Additional slots, all app bar only**
+
+- `badge`
+  - A `bit-badge` beside the logo, for labelling the extension itself (for example, "Beta").
+- `app-actions`
+  - One or more interactive elements on the right of the app bar. Buttons projected here are forced
+    to the on-dark foreground, so there is no need to change their `buttonType`.
+- `start`
+  - A leading element before the title, typically a `bit-icon-tile`.
+
+These three slots render only while the flag is on; with the flag off, content passed to them is
+dropped. The `end` slot keeps its meaning in both — content on the trailing edge of the title bar,
+such as an item count.
+
+`background` applies to v1 only. Under the flag the title bar always uses the page background.
+
+#### Owning the title region
+
+`pageTitle` renders the standard `h1`. A page that needs a control alongside the title — a vault
+switcher, say — omits `pageTitle` and composes the whole region as default content instead. The two
+are mutually exclusive: pass a title, or own the region.
+
+<Canvas of={stories.HeaderV2CustomTitle} />
+
 ### Transparent header
 
 <Canvas of={stories.TransparentHeader} />

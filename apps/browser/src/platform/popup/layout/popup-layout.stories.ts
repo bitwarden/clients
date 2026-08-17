@@ -22,10 +22,12 @@ import {
   VaultInactive,
 } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
   AvatarModule,
+  BadgeModule,
   BannerModule,
   BitCellComponent,
   BitCellDefDirective,
@@ -46,7 +48,10 @@ import {
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
+  IconTileComponent,
+  TypographyModule,
 } from "@bitwarden/components";
+import { enabledFlags, featureFlagModes } from "@bitwarden/storybook";
 
 import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -656,6 +661,82 @@ class MockVaultTablePageComponent {
   }
 }
 
+/**
+ * The VFO1 two-bar header: a branded app bar carrying the pop out button and account switcher, above
+ * a page title bar carrying the leading icon tile, title, and item count.
+ */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "mock-send-page-v2",
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Send">
+        <ng-container slot="app-actions">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+        <bit-icon-tile slot="start" icon="bwi-send" variant="brand" size="sm"></bit-icon-tile>
+        <span slot="end" bitTypography="body2" class="tw-text-muted">3 Sends</span>
+      </popup-header>
+      <mock-search slot="above-scroll-area"></mock-search>
+      <div class="tw-text-main">Send content here</div>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    MockSearchComponent,
+    IconTileComponent,
+    TypographyModule,
+  ],
+})
+class MockSendPageV2Component {}
+
+/**
+ * A page that opts out of `pageTitle` and owns the whole title region — the path a page takes when it
+ * needs a control alongside the title, such as the vault switcher.
+ */
+// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  selector: "mock-vault-page-v2",
+  template: `
+    <popup-page>
+      <popup-header slot="header" [pageTitle]="''">
+        <bit-badge slot="badge" variant="subtle" [startIcon]="null">Beta</bit-badge>
+        <ng-container slot="app-actions">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+        <bit-icon-tile slot="start" icon="bwi-vault" variant="brand" size="sm"></bit-icon-tile>
+        <h1 bitTypography="h3" class="!tw-mb-0.5">My vault</h1>
+        <button
+          type="button"
+          bitIconButton="bwi-angle-down"
+          size="small"
+          label="Switch vault"
+        ></button>
+      </popup-header>
+      <vault-placeholder></vault-placeholder>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    VaultComponent,
+    BadgeModule,
+    IconButtonModule,
+    IconTileComponent,
+    TypographyModule,
+  ],
+})
+class MockVaultPageV2Component {}
+
 // Shared so it can be provided at BOTH the module level (page content) and the
 // application level — the responsive filter dialog opened via DialogService roots
 // its injector at the app injector, so it needs I18nService provided there too.
@@ -666,6 +747,7 @@ const popupLayoutI18nProvider = {
       back: "Back",
       loading: "Loading",
       search: "Search",
+      appLogoLabel: "Bitwarden",
       vault: "Vault",
       generator: "Generator",
       send: "Send",
@@ -723,6 +805,8 @@ export default {
         MockSettingsPageComponent,
         MockVaultPagePoppedComponent,
         MockVaultTablePageComponent,
+        MockSendPageV2Component,
+        MockVaultPageV2Component,
         NoItemsModule,
         VaultComponent,
         ScrollingModule,
@@ -1047,11 +1131,46 @@ export const TransparentHeader: Story = {
     template: /* HTML */ `
       <extension-container>
         <popup-page>
-          <popup-header slot="header" background="alt">
+          <popup-header slot="header" background="alt" pageTitle="">
             <span class="tw-italic tw-text-main">🤠 Custom Content</span>
           </popup-header>
           <vault-placeholder></vault-placeholder>
         </popup-page>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
+ * Under the `vfo1-foundation` flag, `popup-header` renders two bars: a branded app bar carrying the
+ * pop out button and account switcher, and a page title bar carrying the leading icon tile, title,
+ * and item count. Toggle the flag in the Feature Flags addon panel to compare against v1.
+ */
+export const HeaderV2: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-send-page-v2></mock-send-page-v2>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
+ * A page that omits `pageTitle` owns the whole title region via default content — the path to take
+ * when a control needs to sit alongside the title, such as the vault switcher. Also shows the app
+ * bar's beta badge slot.
+ */
+export const HeaderV2CustomTitle: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-vault-page-v2></mock-vault-page-v2>
       </extension-container>
     `,
   }),

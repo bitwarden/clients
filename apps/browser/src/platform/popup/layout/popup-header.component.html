@@ -1,31 +1,69 @@
-<!-- 
+<!--
+  Each slot is declared exactly once. A `select` repeated across branches of a control flow block
+  would bind all matching content to whichever copy comes first, leaving the other branch empty.
+-->
+@if (vfo1Enabled()) {
+  <div
+    data-testid="app-bar"
+    class="tw-bg-bg-nav tw-text-fg-nav tw-py-3 bit-compact:tw-py-2 tw-px-4 bit-compact:tw-px-3"
+  >
+    <div
+      class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2 tw-h-9"
+    >
+      <div class="tw-inline-flex tw-items-center tw-gap-2">
+        <bit-svg
+          class="tw-block tw-w-28 [&_path]:tw-fill-fg-nav"
+          [content]="logo"
+          [ariaLabel]="'appLogoLabel' | i18n"
+        ></bit-svg>
+        <ng-content select="[slot=badge]"></ng-content>
+      </div>
+      <!--
+        Force the on-dark foreground onto projected buttons so callers don't have to swap button
+        types just to be legible against the app bar.
+      -->
+      <div class="tw-inline-flex tw-items-center tw-gap-2 [&_button]:!tw-text-fg-nav">
+        <ng-content select="[slot=app-actions]"></ng-content>
+      </div>
+    </div>
+  </div>
+}
+
+<!--
   end padding is less than start padding to prioritize visual alignment when icon buttons are used at the end of the end slot.
   other elements used at the end of the end slot may need to add their own margin/padding to achieve visual alignment.
 -->
 <header
   class="tw-py-3 bit-compact:tw-py-2 tw-pe-1 bit-compact:tw-pe-0.5 tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid"
   [ngClass]="{
-    'tw-bg-background-alt tw-border-transparent':
-      this.background === 'alt' && !pageContentScrolled(),
+    'tw-bg-background-alt tw-border-transparent': showAltBackground() && !pageContentScrolled(),
     'tw-bg-background tw-border-secondary-300':
-      (this.background === 'alt' && pageContentScrolled()) || this.background === 'default',
-    'tw-ps-4 bit-compact:tw-ps-3': !showBackButton,
-    'tw-ps-1 bit-compact:tw-ps-0': showBackButton,
+      (showAltBackground() && pageContentScrolled()) || !showAltBackground(),
+    'tw-ps-4 bit-compact:tw-ps-3': !showBackButton(),
+    'tw-ps-1 bit-compact:tw-ps-0': showBackButton(),
   }"
 >
   <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
     <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
-      <button
-        bitIconButton="bwi-angle-left"
-        type="button"
-        *ngIf="showBackButton"
-        [label]="'back' | i18n"
-        [bitAction]="backAction"
-      ></button>
-      <h1 *ngIf="pageTitle" bitTypography="h3" class="!tw-mb-0.5">
-        {{ pageTitle }}
-      </h1>
-      <ng-content></ng-content>
+      @if (showBackButton()) {
+        <button
+          bitIconButton="bwi-angle-left"
+          type="button"
+          [label]="'back' | i18n"
+          [bitAction]="backAction()"
+        ></button>
+      }
+      @if (vfo1Enabled()) {
+        <ng-content select="[slot=start]"></ng-content>
+      }
+      @if (pageTitle()) {
+        <h1 bitTypography="h3" class="!tw-mb-0.5">
+          {{ pageTitle() }}
+        </h1>
+      }
+      @if (!vfo1Enabled() || !pageTitle()) {
+        <ng-content></ng-content>
+      }
     </div>
     <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
       <ng-content select="[slot=end]"></ng-content>
