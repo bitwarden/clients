@@ -255,10 +255,10 @@ describe("CipherRowMenuService", () => {
   });
 
   describe("addToSharedFolder", () => {
-    /** A member of one organization holding one writable collection — the ordinary case. */
+    /** A member of one organization holding one writable collection in it — the ordinary case. */
     function canAssignSomewhere() {
       organizationsSubject.next([{ id: "org-1" } as Organization]);
-      return [{ id: "collection-1", readOnly: false } as CollectionView];
+      return [{ id: "collection-1", organizationId: "org-1", readOnly: false } as CollectionView];
     }
 
     it("shows for an organization cipher that can be assigned", () => {
@@ -281,8 +281,52 @@ describe("CipherRowMenuService", () => {
       ).toBe(true);
     });
 
+    it("hides for an organization cipher when the only writable collections belong to another organization", () => {
+      organizationsSubject.next([{ id: "org-1" } as Organization, { id: "org-2" } as Organization]);
+      const collections = [
+        { id: "collection-2", organizationId: "org-2", readOnly: false } as CollectionView,
+      ];
+
+      expect(
+        show(
+          "addToSharedFolder",
+          makeCipher({ organizationId: "org-1", canAssignToCollections: true }),
+          collections,
+        ),
+      ).toBe(false);
+    });
+
+    it("hides for an organization cipher when its own organization's collections are all read-only", () => {
+      organizationsSubject.next([{ id: "org-1" } as Organization]);
+      const collections = [
+        { id: "collection-1", organizationId: "org-1", readOnly: true } as CollectionView,
+        { id: "collection-2", organizationId: "org-2", readOnly: false } as CollectionView,
+      ];
+
+      expect(
+        show(
+          "addToSharedFolder",
+          makeCipher({ organizationId: "org-1", canAssignToCollections: true }),
+          collections,
+        ),
+      ).toBe(false);
+    });
+
+    it("shows for a personal cipher using a writable collection in any organization", () => {
+      organizationsSubject.next([{ id: "org-2" } as Organization]);
+      const collections = [
+        { id: "collection-2", organizationId: "org-2", readOnly: false } as CollectionView,
+      ];
+
+      expect(
+        show("addToSharedFolder", makeCipher({ canAssignToCollections: true }), collections),
+      ).toBe(true);
+    });
+
     it("hides when the user belongs to no organization", () => {
-      const collections = [{ id: "collection-1", readOnly: false } as CollectionView];
+      const collections = [
+        { id: "collection-1", organizationId: "org-1", readOnly: false } as CollectionView,
+      ];
 
       expect(
         show("addToSharedFolder", makeCipher({ canAssignToCollections: true }), collections),
@@ -291,7 +335,9 @@ describe("CipherRowMenuService", () => {
 
     it("hides when the user has no collection they can write to", () => {
       organizationsSubject.next([{ id: "org-1" } as Organization]);
-      const readOnly = [{ id: "collection-1", readOnly: true } as CollectionView];
+      const readOnly = [
+        { id: "collection-1", organizationId: "org-1", readOnly: true } as CollectionView,
+      ];
 
       expect(
         show("addToSharedFolder", makeCipher({ canAssignToCollections: true }), readOnly),

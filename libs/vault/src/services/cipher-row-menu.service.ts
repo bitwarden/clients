@@ -196,7 +196,11 @@ export class CipherRowMenuService {
       return false;
     }
 
-    return this.organizations().length > 0 && collections.some((c) => !c.readOnly);
+    const assignable = cipher.organizationId
+      ? collections.filter((c) => c.organizationId === cipher.organizationId && !c.readOnly)
+      : collections.filter((c) => !c.readOnly);
+
+    return this.organizations().length > 0 && assignable.length > 0;
   }
 
   private showArchive(cipher: CipherViewLike): boolean {
