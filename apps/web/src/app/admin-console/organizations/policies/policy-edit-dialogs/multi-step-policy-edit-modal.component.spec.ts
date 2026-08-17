@@ -41,9 +41,9 @@ describe("MultiStepPolicyEditModalComponent", () => {
    * Renders the REAL AutoConfirmPolicy through the REAL modal component (not test doubles), the
    * same way it's opened by WebVaultPromptService for the vault-page first-time onboarding prompt.
    */
-  async function setupModal() {
+  async function setupModal(firstTimeDialog = false) {
     const data: PolicyEditDialogData = {
-      policy: new AutoConfirmPolicy(),
+      policy: new AutoConfirmPolicy(firstTimeDialog),
       organization: {
         id: "org-1",
         keyConnectorEnabled: false,
@@ -112,6 +112,20 @@ describe("MultiStepPolicyEditModalComponent", () => {
     expect(component.policyComponent()).toBeInstanceOf(AutoConfirmPolicyEditComponent);
     expect(fixture.nativeElement.querySelector("[bitBadge]")).toBeNull();
     expect(fixture.nativeElement.textContent).toContain("cancel");
+  });
+
+  it("renders the first-time 'available now' badge in the modal title when opened from the vault prompt", async () => {
+    // Mirrors how WebVaultPromptService opens this exact combination: the (formerly v1-only)
+    // AutoConfirmPolicyEditComponent title template, rendered inside the modal (not a drawer).
+    const { fixture } = await setupModal(true);
+
+    expect(fixture.nativeElement.textContent).toContain("availableNow");
+  });
+
+  it("does not render the 'available now' badge when not opened as a first-time dialog", async () => {
+    const { fixture } = await setupModal(false);
+
+    expect(fixture.nativeElement.textContent).not.toContain("availableNow");
   });
 
   it("closes the dialog via the discard-guard's closePredicate when Cancel is clicked", async () => {
