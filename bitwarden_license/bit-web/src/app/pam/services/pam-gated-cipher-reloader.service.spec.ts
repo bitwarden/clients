@@ -59,7 +59,10 @@ describe("PamGatedCipherReloader", () => {
     apiService = mock<ApiService>();
     logService = mock<LogService>();
     // No push in these tests: the reloader is exercised through local mutations only.
-    const accessEvents: AccessEventService = { accessChanged$: () => NEVER };
+    const accessEvents: AccessEventService = {
+      accessChanged$: () => NEVER,
+      approverInboxChanged$: () => NEVER,
+    };
     accessRefresh = new DefaultAccessRefreshService(accessEvents);
     reloader = new PamGatedCipherReloader(requestsApi, accessRefresh, apiService, logService);
   });
