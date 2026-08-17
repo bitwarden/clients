@@ -11646,6 +11646,15 @@
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
   },
+  "privilegedAccessManagement": {
+    "message": "Privileged Access Management"
+  },
+  "pamAccessDescription": {
+    "message": "Activate user access to Privileged Access Management."
+  },
+  "userAccessPam": {
+    "message": "This user can access Privileged Access Management"
+  },
   "important": {
     "message": "Important:"
   },
@@ -12213,6 +12222,10 @@
     "message": "Activated access to Secrets Manager",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPam": {
+    "message": "Activated access to Privileged Access Management",
+    "description": "Confirmation message that one or more users gained access to Privileged Access Management"
+  },
   "activateAccess": {
     "message": "Activate access"
   },
@@ -12220,8 +12233,15 @@
     "message": "Grant the following members access to Secrets Manager. The role granted in the Password Manager will apply to Secrets Manager.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePamDescription": {
+    "message": "Grant the following members access to Privileged Access Management (PAM).",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Access Management."
+  },
   "activateSecretsManager": {
     "message": "Activate Secrets Manager"
+  },
+  "activatePam": {
+    "message": "Activate PAM"
   },
   "yourOrganizationsFingerprint": {
     "message": "Your organization's fingerprint phrase",

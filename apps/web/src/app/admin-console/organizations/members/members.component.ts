@@ -35,6 +35,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -101,6 +103,7 @@ export class MembersComponent {
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private environmentService = inject(EnvironmentService);
   private memberExportService = inject(MemberExportService);
+  private configService = inject(ConfigService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -139,6 +142,14 @@ export class MembersComponent {
 
   protected readonly canUseSecretsManager: Signal<boolean> = computed(
     () => this.organization()?.useSecretsManager ?? false,
+  );
+
+  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
+    initialValue: false,
+  });
+
+  protected readonly canUsePam: Signal<boolean> = computed(
+    () => (this.organization()?.usePam ?? false) && this.pamEnabled(),
   );
 
   protected readonly showUserManagementControls: Signal<boolean> = computed(
@@ -473,6 +484,14 @@ export class MembersComponent {
   async bulkEnableSM(organization: Organization) {
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
     await this.memberDialogManager.openBulkEnableSecretsManagerDialog(organization, users);
+
+    this.dataSource().uncheckAllUsers();
+    await this.load(organization);
+  }
+
+  async bulkActivatePam(organization: Organization) {
+    const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
+    await this.memberDialogManager.openBulkActivatePamDialog(organization, users);
 
     this.dataSource().uncheckAllUsers();
     await this.load(organization);

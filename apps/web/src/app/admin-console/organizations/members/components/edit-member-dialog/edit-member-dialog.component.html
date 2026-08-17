@@ -101,6 +101,17 @@
                 </bit-label>
               </bit-form-control>
             }
+            @if (organization.usePam && pamEnabled()) {
+              <bit-form-control>
+                <input
+                  id="edit-member_checkbox_access-pam"
+                  type="checkbox"
+                  bitCheckbox
+                  formControlName="accessPam"
+                />
+                <bit-label>{{ "userAccessPam" | i18n }}</bit-label>
+              </bit-form-control>
+            }
             @if (customUserTypeSelected()) {
               <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
                 <div class="tw-col-span-4">
@@ -291,6 +302,21 @@
                 />
                 <bit-label>
                   {{ "userAccessSecretsManagerGA" | i18n }}
+                </bit-label>
+              </bit-form-control>
+            }
+            @if (organization.usePam && pamEnabled()) {
+              <h3 class="tw-mt-4">{{ "privilegedAccessManagement" | i18n }}</h3>
+              <p class="tw-text-muted">{{ "pamAccessDescription" | i18n }}</p>
+              <bit-form-control>
+                <input
+                  id="edit-member_checkbox_access-pam-section"
+                  type="checkbox"
+                  bitCheckbox
+                  formControlName="accessPam"
+                />
+                <bit-label>
+                  {{ "userAccessPam" | i18n }}
                 </bit-label>
               </bit-form-control>
             }
