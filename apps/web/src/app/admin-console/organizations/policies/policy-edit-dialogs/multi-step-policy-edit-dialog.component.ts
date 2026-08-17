@@ -32,6 +32,7 @@ import { KeyService } from "@bitwarden/key-management";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
+import { policyDescriptionKeys, policyTitleKeys } from "../base-policy-edit.component";
 import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
@@ -73,16 +74,13 @@ export class MultiStepPolicyEditDialogComponent
   private readonly terminology = inject(Vfo1TerminologyService);
 
   /**
-   * [legacy, VFO1] i18n key pair for the dialog/drawer title, honoring the same v2-then-base
-   * fallback used by {@link PolicyEditDrawerComponent.titleKeys} - `v2`'s overrides only apply
-   * when {@link isV2} is true, so they can't leak into the plain v1 modal.
+   * [legacy, VFO1] i18n key pair for the dialog/drawer title. See {@link policyTitleKeys} -
+   * `v2`'s overrides only apply when {@link isV2} is true, so they can't leak into the plain v1
+   * modal.
    */
-  private readonly titleKeys = computed<[string, string]>(() => {
-    const legacy = (this.isV2() && this.policy.v2?.name) || this.policy.name;
-    const next =
-      this.policy.nameVfo1 ?? (this.isV2() ? this.policy.v2?.nameVfo1 : undefined) ?? legacy;
-    return [legacy, next];
-  });
+  private readonly titleKeys = computed<[string, string]>(() =>
+    policyTitleKeys(this.policy, this.isV2()),
+  );
 
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
@@ -118,14 +116,9 @@ export class MultiStepPolicyEditDialogComponent
   /**
    * [legacy, VFO1] i18n key pair for the dialog body description. See {@link titleKeys}.
    */
-  private readonly descriptionKeys = computed<[string, string]>(() => {
-    const legacy = (this.isV2() && this.policy.v2?.description) || this.policy.description;
-    const next =
-      this.policy.descriptionVfo1 ??
-      (this.isV2() ? this.policy.v2?.descriptionVfo1 : undefined) ??
-      legacy;
-    return [legacy, next];
-  });
+  private readonly descriptionKeys = computed<[string, string]>(() =>
+    policyDescriptionKeys(this.policy, this.isV2()),
+  );
 
   protected readonly descriptionKey = computed(() => {
     const [legacy, next] = this.descriptionKeys();

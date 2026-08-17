@@ -182,6 +182,36 @@ export abstract class BasePolicyEditDefinition {
 }
 
 /**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's drawer/dialog title, resolving
+ * `v2.nameVfo1` first (when `isV2` is true), then the top-level {@link BasePolicyEditDefinition.nameVfo1},
+ * then the legacy key - the fallback order documented on {@link BasePolicyEditDefinition.v2}'s
+ * `nameVfo1`. Shared by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}
+ * so the two dialog-title implementations can't drift out of sync with each other.
+ *
+ * Note: {@link PoliciesComponent}'s list-only `nameKeys` intentionally uses a different
+ * precedence (its own top-level override first) so list-specific copy can't leak in from the
+ * drawer - see that method's doc comment.
+ */
+export function policyTitleKeys(policy: BasePolicyEditDefinition, isV2: boolean): [string, string] {
+  const legacy = (isV2 && policy.v2?.name) || policy.name;
+  const next = (isV2 ? policy.v2?.nameVfo1 : undefined) ?? policy.nameVfo1 ?? legacy;
+  return [legacy, next];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's drawer/dialog description. See
+ * {@link policyTitleKeys}.
+ */
+export function policyDescriptionKeys(
+  policy: BasePolicyEditDefinition,
+  isV2: boolean,
+): [string, string] {
+  const legacy = (isV2 && policy.v2?.description) || policy.description;
+  const next = (isV2 ? policy.v2?.descriptionVfo1 : undefined) ?? policy.descriptionVfo1 ?? legacy;
+  return [legacy, next];
+}
+
+/**
  * A component used to edit the policy settings in Admin Console. It is rendered inside the PolicyEditDialogComponent.
  * This should contain the form controls used to edit the policy (including the Enabled checkbox) and any additional
  * warnings or callouts.

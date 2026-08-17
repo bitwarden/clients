@@ -37,7 +37,12 @@ import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
 
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
+import {
+  BasePolicyEditDefinition,
+  BasePolicyEditComponent,
+  policyTitleKeys,
+  policyDescriptionKeys,
+} from "./base-policy-edit.component";
 import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 
 @Component({
@@ -83,22 +88,18 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
   }
 
   /**
-   * [legacy, VFO1] i18n key pair for the drawer title, honoring the same v2-then-base fallback
-   * used for the legacy key.
+   * [legacy, VFO1] i18n key pair for the drawer title. See {@link policyTitleKeys} - this
+   * component always renders the v2/drawer experience, so `isV2` is always `true` here.
    */
   get titleKeys(): [string, string] {
-    const legacy = this.policy.v2?.name ?? this.policy.name;
-    const next = this.policy.v2?.nameVfo1 ?? this.policy.nameVfo1 ?? legacy;
-    return [legacy, next];
+    return policyTitleKeys(this.policy, true);
   }
 
   /**
-   * [legacy, VFO1] i18n key pair for the drawer body description. See {@link titleKeys}.
+   * [legacy, VFO1] i18n key pair for the drawer body description. See {@link policyDescriptionKeys}.
    */
   get descriptionKeys(): [string, string] {
-    const legacy = this.policy.v2?.description ?? this.policy.description;
-    const next = this.policy.v2?.descriptionVfo1 ?? this.policy.descriptionVfo1 ?? legacy;
-    return [legacy, next];
+    return policyDescriptionKeys(this.policy, true);
   }
 
   /**
