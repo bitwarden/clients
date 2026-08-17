@@ -107,5 +107,5 @@ unwrap_used = "deny"
 cargo-deny = { version = "0.20.0", locked = true }
 cargo-sort = { version = "2.0.2", locked = true }
 cargo-udeps = { version = "0.1.57", locked = true }
-cargo-llvm-cov = { version = "0.6.16", locked = true }
+cargo-llvm-cov = { version = "0.8.0", locked = true }
 cargo-xwin = { version = "0.23.0", locked = true }
