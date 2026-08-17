@@ -1,10 +1,12 @@
-import { Injectable, inject } from "@angular/core";
-import { BehaviorSubject, Observable, combineLatest, map } from "rxjs";
+import { DestroyRef, Injectable, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { BehaviorSubject, Observable, combineLatest, concatMap, from, map } from "rxjs";
 
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
+  AccessEventService,
   AccessLeaseId,
   AccessLeaseSdkService,
   AccessLeaseView,
@@ -32,9 +34,10 @@ import {
  * Page-level data service for "My access": owns the caller's own access requests and leases,
  * loads them, resolves display names, and performs the request/lease lifecycle mutations
  * (activate, cancel, end) via the Rust-SDK-served services
- * (`AccessRequestSdkService`/`AccessLeaseSdkService`). No live-push refresh (deferred — see the
- * pam `CLAUDE.md`): the page loads once on open and after every mutation reconciles itself, either
- * via an optimistic local patch (cancel/endLease) or an explicit reload (activate).
+ * (`AccessRequestSdkService`/`AccessLeaseSdkService`). The page loads on open, reloads on every
+ * server-pushed access event ({@link AccessEventService}) so an approver's decision appears without a
+ * refresh, and after its own mutations reconciles itself either via an optimistic local patch
+ * (cancel/endLease) or an explicit reload (activate).
  *
  * Provided on the "Access requests" shell route so each visit gets one instance shared across its
  * tabs. View concerns (toasts, confirm dialogs, the live countdown clock, action gating) stay in
@@ -45,6 +48,8 @@ export class MyAccessService {
   private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
+  private readonly accessEvents = inject(AccessEventService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
   private readonly _leases$ = new BehaviorSubject<AccessLeaseView[]>([]);
@@ -140,6 +145,19 @@ export class MyAccessService {
   readonly cipherById$: Observable<Map<string, CipherView>> = this._names$.pipe(
     map((names) => names.cipherById),
   );
+
+  constructor() {
+    // Reload on every access push. `concatMap` (not `switchMap`) so two pushes arriving close
+    // together cannot interleave their loads and leave the three subjects describing different
+    // moments; an in-flight load always finishes before the next starts.
+    this.accessEvents
+      .accessChanged$()
+      .pipe(
+        concatMap(() => from(this.load())),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
 
   /** Fetch the caller's requests + active leases and replace local state. */
   async load(): Promise<void> {
