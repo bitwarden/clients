@@ -708,15 +708,13 @@ describe("SubscriptionCardComponent", () => {
       expect(component.canceled()).toBeUndefined();
     });
 
-    it("should compute nextCharge for active status", () => {
-      const nextChargeDate = new Date("2025-02-01");
+    it("should compute nextCharge as undefined (not available in SubscriptionPreview)", () => {
       setupComponent({
         ...baseSubscription,
         status: "active",
-        nextCharge: nextChargeDate,
       });
 
-      expect(component.nextCharge()).toEqual(nextChargeDate);
+      expect(component.nextCharge()).toBeUndefined();
     });
 
     it("should compute nextCharge as undefined for canceled status", () => {
