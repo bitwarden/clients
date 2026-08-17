@@ -3,6 +3,7 @@ import {
   Component,
   DestroyRef,
   OnInit,
+  Type,
   WritableSignal,
   inject,
   signal,
@@ -72,6 +73,7 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
 import {
   CollectionDialogAction,
   CollectionDialogParams,
@@ -109,6 +111,19 @@ export class CollectionDialogComponent implements OnInit {
   private readonly configService = inject(ConfigService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  /**
+   * PAM's collection access-rule callout, bound in commercial code via
+   * {@link COLLECTION_ACCESS_RULE_CALLOUT}; null in OSS-only builds, where nothing renders.
+   *
+   * Annotated rather than inferred: without it the template checker cannot see this as a
+   * `Type<...>` and rejects the `ngComponentOutlet` binding. The other component-class seams
+   * (`CIPHER_VIEW_BANNER`, `VAULT_ROW_LEASE_BADGE`) annotate it the same way.
+   */
+  protected readonly accessRuleCallout: Type<unknown> | null = inject(
+    COLLECTION_ACCESS_RULE_CALLOUT,
+    { optional: true },
+  );
 
   protected readonly formGroup = this.formBuilder.group({
     name: ["", [Validators.required, BitValidators.forbiddenCharacters(["/"])]],

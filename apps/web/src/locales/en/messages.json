@@ -17376,6 +17376,279 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
+  "pamActiveLeaseBannerTitle": {
+    "message": "You have active access to this item — $DURATION$ remaining",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "23m"
+      }
+    }
+  },
+  "pamPendingBannerTitle": {
+    "message": "Your access request is awaiting approval"
+  },
+  "pamApprovedRequestBannerTitle": {
+    "message": "Your access is approved — start it when you're ready"
+  },
+  "pamRequestAccessBannerTitle": {
+    "message": "This item requires a lease. Request access to view or edit it."
+  },
+  "pamRequestAccessButton": {
+    "message": "Request access"
+  },
+  "cipherLeaseExpiresIn": {
+    "message": "Leased — expires in $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "47m"
+      }
+    }
+  },
+  "cipherLeaseRequiresApproval": {
+    "message": "Requires approval to view"
+  },
+  "pendingStateCancelRequest": {
+    "message": "Cancel request"
+  },
+  "pendingStateCancelSuccess": {
+    "message": "Request cancelled."
+  },
+  "pendingStateCancelError": {
+    "message": "Couldn't cancel the request."
+  },
+  "requestAccessModalTitle": {
+    "message": "Request access"
+  },
+  "requestAccessModalSubmit": {
+    "message": "Request access"
+  },
+  "requestAccessModalDismiss": {
+    "message": "Cancel"
+  },
+  "requestAccessModalAutomaticDescription": {
+    "message": "Pick a duration. You'll get immediate access for that long."
+  },
+  "requestAccessModalHumanDescription": {
+    "message": "Pick a window and tell the approver why you need access. They'll review and decide."
+  },
+  "requestAccessModalDuration": {
+    "message": "Duration"
+  },
+  "requestAccessModalDuration15m": {
+    "message": "15 minutes"
+  },
+  "requestAccessModalDuration30m": {
+    "message": "30 minutes"
+  },
+  "requestAccessModalDuration1h": {
+    "message": "1 hour"
+  },
+  "requestAccessModalDuration4h": {
+    "message": "4 hours"
+  },
+  "requestAccessModalDuration8h": {
+    "message": "8 hours"
+  },
+  "requestAccessModalDuration1d": {
+    "message": "1 day"
+  },
+  "requestAccessModalDate": {
+    "message": "Date"
+  },
+  "requestAccessModalStart": {
+    "message": "Start time"
+  },
+  "requestAccessModalEnd": {
+    "message": "End time"
+  },
+  "requestAccessModalEndBeforeStart": {
+    "message": "End time must be after start time."
+  },
+  "requestAccessModalWindowExceedsMax": {
+    "message": "The window can't exceed 24 hours."
+  },
+  "requestAccessModalReasonRequired": {
+    "message": "Reason"
+  },
+  "requestAccessModalReasonOptional": {
+    "message": "Reason (optional)"
+  },
+  "requestAccessModalReasonPlaceholder": {
+    "message": "Why do you need this?"
+  },
+  "requestAccessModalReasonHint": {
+    "message": "Approvers will see this reason when reviewing your request."
+  },
+  "requestAccessModalGenericError": {
+    "message": "Could not request access."
+  },
+  "requestAccessModalAlreadyActive": {
+    "message": "You already have active access to this item."
+  },
+  "requestAccessModalAlreadyApproved": {
+    "message": "You already have an approved request for this item."
+  },
+  "requestAccessModalAlreadyPending": {
+    "message": "You already have a pending request for this item."
+  },
+  "requestAccessModalApprovedSuccess": {
+    "message": "Access approved — select Start access to begin."
+  },
+  "requestAccessModalRequestCreatedSuccess": {
+    "message": "Request submitted — awaiting approval."
+  },
+  "pamApprovalsCollectionFilter": {
+    "message": "Collection"
+  },
+  "pamApprovalsPendingHeader": {
+    "message": "Pending approval $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "pamApprovalsRequesterFilter": {
+    "message": "Requester"
+  },
+  "pamApprovalsSearchPlaceholder": {
+    "message": "Search credential, collection, requester"
+  },
+  "pamDecideApproveTitle": {
+    "message": "Approve access request"
+  },
+  "pamDecideCommentHint": {
+    "message": "Optional · saved to the audit log"
+  },
+  "pamDecideDenyTitle": {
+    "message": "Deny access request"
+  },
+  "pamInboxApprove": {
+    "message": "Approve"
+  },
+  "pamInboxApprovedToast": {
+    "message": "Request approved"
+  },
+  "pamInboxCancelApproval": {
+    "message": "Cancel"
+  },
+  "pamInboxCannotApproveOwn": {
+    "message": "You cannot approve your own request."
+  },
+  "pamInboxCommentLabel": {
+    "message": "Comment"
+  },
+  "pamInboxCommentPlaceholder": {
+    "message": "Add an optional comment"
+  },
+  "pamInboxConfirmApprove": {
+    "message": "Approve this access request?"
+  },
+  "pamInboxConfirmApproveButton": {
+    "message": "Approve request"
+  },
+  "pamInboxConfirmDeny": {
+    "message": "Deny this access request?"
+  },
+  "pamInboxConfirmDenyButton": {
+    "message": "Deny request"
+  },
+  "pamInboxDecisionFailed": {
+    "message": "Could not record decision"
+  },
+  "pamInboxDeny": {
+    "message": "Deny"
+  },
+  "pamInboxDeniedToast": {
+    "message": "Request denied"
+  },
+  "pamInboxElapsedDays": {
+    "message": "$DAYS$d ago",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "pamInboxElapsedHours": {
+    "message": "$HOURS$h ago",
+    "placeholders": {
+      "hours": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "pamInboxElapsedJustNow": {
+    "message": "Just now"
+  },
+  "pamInboxElapsedMinutes": {
+    "message": "$MINUTES$m ago",
+    "placeholders": {
+      "minutes": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "pamInboxEmptyDescription": {
+    "message": "There are no requests waiting for your decision."
+  },
+  "pamInboxEmptyTitle": {
+    "message": "Inbox zero"
+  },
+  "pamInboxHistoryEmpty": {
+    "message": "No history to display"
+  },
+  "pamInboxHistoryFilterLabel": {
+    "message": "Filter history by status"
+  },
+  "pamInboxLoadFailed": {
+    "message": "Could not load inbox"
+  },
+  "pamInboxRequestReasonLabel": {
+    "message": "Request reason"
+  },
+  "pamInboxRevoke": {
+    "message": "Revoke"
+  },
+  "pamInboxRevokeFailed": {
+    "message": "Could not revoke access"
+  },
+  "pamInboxRevokedToast": {
+    "message": "Access revoked"
+  },
+  "pamInboxCancelApprovalToast": {
+    "message": "Approval cancelled"
+  },
+  "pamInboxCancelApprovalFailed": {
+    "message": "Could not cancel approval"
+  },
+  "pamInboxWindow": {
+    "message": "Requested window"
+  },
+  "pamApprovalsNoResults": {
+    "message": "No access requests match your filters."
+  },
+  "pamHistoryScopeMine": {
+    "message": "Raised by me"
+  },
+  "pamHistoryScopeManaged": {
+    "message": "For my collections"
+  },
+  "pamInboxRevokeConfirm": {
+    "message": "This immediately revokes the member's access. They will need a new approval to regain it."
+  },
+  "pamCollectionAccessRuleCalloutTitle": {
+    "message": "Access rule"
+  },
+  "pamCollectionAccessRuleCalloutBody": {
+    "message": "Access to items here is controlled by"
+  },
   "accessRuleIpAllowlistHelpText": {
     "message": "Only requests originating from these IP ranges will be allowed."
   },

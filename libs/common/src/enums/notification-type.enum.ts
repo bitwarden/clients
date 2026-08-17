@@ -38,4 +38,7 @@ export enum NotificationType {
   AutoConfirmMember = 26,
 
   PremiumStatusChanged = 27,
+
+  // 28 is reserved server-side; this value must match the server's, not the next free slot here.
+  RefreshAccessRequest = 29,
 }
