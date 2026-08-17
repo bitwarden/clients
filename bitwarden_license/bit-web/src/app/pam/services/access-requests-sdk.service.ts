@@ -6,7 +6,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import type {
   AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestCreateRequest,
   AccessRequestId,
+  AccessRequestResultView,
   AccessRequestView,
   CipherAccessStateView,
   CipherId as SdkCipherId,
@@ -109,6 +112,44 @@ export class AccessRequestsSdkService implements AccessRequestSdkService {
         }),
         catchError((error: unknown) => {
           this.logService.error(`Failed to get cipher access state: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async preCheck(cipherId: string): Promise<AccessPreCheckView> {
+    const id = asUuid<SdkCipherId>(cipherId);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.commercial().pam().access_requests().pre_check(id);
+        }),
+        catchError((error: unknown) => {
+          this.logService.error(`Failed to pre-check cipher access: ${error}`);
+          throw error;
+        }),
+      ),
+    );
+  }
+
+  async submitAccessRequest(
+    cipherId: string,
+    request: AccessRequestCreateRequest,
+  ): Promise<AccessRequestResultView> {
+    const id = asUuid<SdkCipherId>(cipherId);
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    return firstValueFrom(
+      this.sdkService.userClient$(userId).pipe(
+        switchMap(async (sdk) => {
+          using ref = sdk.take();
+          return await ref.value.commercial().pam().access_requests().request(id, request);
+        }),
+        catchError((error: unknown) => {
+          // The request payload carries a user-authored justification; never log it.
+          this.logService.error(`Failed to submit access request: ${error}`);
           throw error;
         }),
       ),
