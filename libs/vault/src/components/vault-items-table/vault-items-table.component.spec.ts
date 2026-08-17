@@ -1,3 +1,4 @@
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -13,6 +14,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -78,6 +80,21 @@ describe("VaultItemsTableComponent", () => {
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
 
+  // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
+  // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
+  // run synchronously so the scroll strategy attaches and sets the rendered range before
+  // CdkVirtualForOf.ngDoCheck() runs, allowing rows to appear in the same detectChanges() call.
+  const originalNgOnInit = CdkVirtualScrollViewport.prototype.ngOnInit;
+  beforeAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = function (this: CdkVirtualScrollViewport) {
+      (this as any)["_measureViewportSize"]();
+      (this as any)["_scrollStrategy"].attach(this);
+    };
+  });
+  afterAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = originalNgOnInit;
+  });
+
   beforeEach(async () => {
     const accountService = mock<AccountService>();
     accountService.activeAccount$ = of({ id: "user-1" } as Account);
@@ -113,6 +130,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
       ],
     }).compileComponents();
 
@@ -1178,5 +1196,15 @@ describe("VaultItemsTableComponent", () => {
         expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
       }));
     });
+  });
+
+  it("always applies the flex fill host classes", () => {
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.classList).toContain("tw-flex");
+    expect(host.classList).toContain("tw-flex-col");
+    expect(host.classList).toContain("tw-flex-1");
+    expect(host.classList).toContain("tw-min-h-0");
   });
 });

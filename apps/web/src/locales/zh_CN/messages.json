@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "收藏夹"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "任务摘要"
   },
@@ -1205,6 +1208,9 @@
   },
   "myFolders": {
     "message": "我的文件夹"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
@@ -1754,7 +1760,7 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "没有要复制的详细信息"
+    "message": "没有可复制的详细信息"
   },
   "launchWebsiteForName": {
     "message": "前往 $ITEMNAME$ 的网站",
@@ -1764,6 +1770,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "打开网站"
   },
   "me": {
     "message": "我"
@@ -2720,19 +2729,19 @@
     "message": "复制验证码"
   },
   "noUsername": {
-    "message": "无用户名"
+    "message": "没有用户名"
   },
   "noPassword": {
-    "message": "无密码"
+    "message": "没有密码"
   },
   "noVerificationCode": {
-    "message": "无验证码"
+    "message": "没有验证码"
   },
   "noNumber": {
-    "message": "无号码"
+    "message": "没有号码"
   },
   "noSecurityCode": {
-    "message": "无安全码"
+    "message": "没有安全码"
   },
   "copyUuid": {
     "message": "复制 UUID"
@@ -3403,6 +3412,24 @@
   },
   "moreOptions": {
     "message": "更多选项"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "偏好设置"
@@ -6143,7 +6170,7 @@
     }
   },
   "createdOrganizationIdWithName": {
-    "message": "创建了$ORGNAME$ 密码库 $ID$。",
+    "message": "创建了 $ORGNAME$ 密码库 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6593,7 +6620,7 @@
     "message": "您已经是这个组织的成员。"
   },
   "openOrgInviteAcceptEmailDomainNotAllowed": {
-    "message": "此组织不允许使用匹配 $DOMAIN$ 的电子邮箱地址。",
+    "message": "此组织不允许使用与 $DOMAIN$ 匹配的电子邮箱地址。",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -6608,7 +6635,7 @@
     "message": "您已经从此组织中被撤销。请联系您的管理员以重新获取访问权限。"
   },
   "openOrgInviteAcceptProviderUser": {
-    "message": "提供者商用户不能使用此邀请链接加入。"
+    "message": "提供商用户不能使用此邀请链接加入。"
   },
   "openOrgInviteAcceptResetPasswordKeyRequired": {
     "message": "出错了，请重新加载页面以重试。"
@@ -6635,7 +6662,7 @@
     "message": "出错了，请重新加载页面以重试。"
   },
   "openOrgInviteEmailDomainNotAllowed": {
-    "message": "此域名无法被这个组织接受。请尝试其他电子邮箱地址。"
+    "message": "此域名未被这个组织接受。请尝试其他电子邮箱地址。"
   },
   "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
     "message": "无法接受邀请"
@@ -7077,7 +7104,7 @@
     "message": "随时。"
   },
   "byEmail": {
-    "message": "通过电子邮箱"
+    "message": "通过电子邮件"
   },
   "byLink": {
     "message": "通过链接"
@@ -7441,10 +7468,10 @@
     "message": "为所有成员生成的密码选择一组最低要求。"
   },
   "generatedPassword": {
-    "message": "生成了密码"
+    "message": "生成的密码"
   },
   "generatedPassphrase": {
-    "message": "生成了密码短语"
+    "message": "生成的密码短语"
   },
   "masterPasswordPolicyInEffect": {
     "message": "一个或多个组织策略要求您的主密码满足以下要求："
@@ -9478,13 +9505,13 @@
     "message": "赞助的家庭"
   },
   "sponsoredBitwardenFamiliesV2": {
-    "message": "Non-member redemptions"
+    "message": "非成员兑换"
   },
   "noSponsoredFamiliesMessage": {
     "message": "没有赞助的家庭"
   },
   "noSponsoredFamiliesMessageV2": {
-    "message": "No redemptions yet"
+    "message": "没有兑换记录"
   },
   "noSponsoredFamiliesDetails": {
     "message": "已赞助的非成员家庭版方案将显示在这里"
@@ -14517,7 +14544,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "您无法移除仅具有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
+    "message": "您无法移除仅拥有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -16250,7 +16277,7 @@
     "message": "时间段"
   },
   "of": {
-    "message": "of"
+    "message": "的"
   },
   "coachmarkImportTitle": {
     "message": "快速导入您的密码"
@@ -16791,7 +16818,7 @@
     "message": "已启用"
   },
   "pamAccessRuleEnabledHint": {
-    "message": "禁用后，该规则将处于非活动状态，并且不会限制访问。"
+    "message": "禁用后，该规则将处于非有效状态，并且不会限制访问。"
   },
   "pamAccessRuleEnable": {
     "message": "启用规则"
@@ -16893,10 +16920,10 @@
     "message": "新的请求将进入队列，直到当前租约结束或被撤销。"
   },
   "pamAccessRuleAllowExtensions": {
-    "message": "允许延长租约"
+    "message": "允许租约延期"
   },
   "pamAccessRuleAllowExtensionsHint": {
-    "message": "成员可以在无需重新审批的情况下，将有效租约延长一次，最长不超过下方的最大时长。"
+    "message": "成员可以在无需重新审批的情况下，将有效租约延期一次，最长不超过下方的最大时长。"
   },
   "pamAccessRuleMaxExtensionLength": {
     "message": "最大延期时长"
