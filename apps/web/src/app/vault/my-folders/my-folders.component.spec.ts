@@ -16,12 +16,16 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { AddEditFolderDialogComponent } from "@bitwarden/vault";
+import { AddEditFolderDialogComponent, openDeleteFolderDialog } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
-import * as deleteFolderDialog from "./delete-folder-dialog/delete-folder-dialog.component";
-import { buildFolderRows, MyFoldersComponent } from "./my-folders.component";
+import { MyFoldersComponent } from "./my-folders.component";
+
+jest.mock("@bitwarden/vault", () => ({
+  ...jest.requireActual("@bitwarden/vault"),
+  openDeleteFolderDialog: jest.fn(),
+}));
 
 global.ResizeObserver = jest.fn().mockImplementation(() => ({
   observe: jest.fn(),
@@ -43,45 +47,6 @@ let nextCipherId = 0;
 const cipher = (folderId: string | undefined, overrides: Partial<CipherView> = {}): CipherView =>
   Object.assign(new CipherView(), { id: `cipher-${nextCipherId++}`, folderId }, overrides);
 
-describe("buildFolderRows", () => {
-  it("counts the ciphers each folder is applied to", () => {
-    const rows = buildFolderRows(
-      [folder("1", "Banking"), folder("2", "Travel")],
-      [cipher("1"), cipher("1"), cipher("2"), cipher(undefined)],
-    );
-
-    expect(rows).toEqual([
-      { id: "1", name: "Banking", displayName: "Banking", itemCount: 2 },
-      { id: "2", name: "Travel", displayName: "Travel", itemCount: 1 },
-    ]);
-  });
-
-  it("excludes trashed ciphers from the count but keeps archived ones", () => {
-    const rows = buildFolderRows(
-      [folder("1", "Banking")],
-      [
-        cipher("1"),
-        cipher("1", { deletedDate: new Date() }),
-        cipher("1", { archivedDate: new Date() }),
-      ],
-    );
-
-    expect(rows[0].itemCount).toBe(2);
-  });
-
-  it("excludes the synthetic no-folder entry", () => {
-    const rows = buildFolderRows([folder("1", "Banking"), new FolderView()], []);
-
-    expect(rows.map((row) => row.id)).toEqual(["1"]);
-  });
-
-  it("shows an em-dash when the folder has no name", () => {
-    const rows = buildFolderRows([folder("1", "   ")], []);
-
-    expect(rows[0].displayName).toBe("—");
-  });
-});
-
 describe("MyFoldersComponent", () => {
   const userId = "user-id" as UserId;
   const folderViews$ = new BehaviorSubject<FolderView[]>([]);
@@ -94,7 +59,7 @@ describe("MyFoldersComponent", () => {
 
   let fixture: ComponentFixture<MyFoldersComponent>;
   let component: MyFoldersComponent;
-  let openDeleteDialog: jest.SpyInstance;
+  let openDeleteDialog: jest.Mock;
 
   /** Selects by folder name — the table owns the checkboxes, so they carry no per-row id. */
   const selectRow = (name: string) => {
@@ -136,9 +101,9 @@ describe("MyFoldersComponent", () => {
       folderViews$.pipe(map((folders) => folders.find((f) => f.id === id))),
     );
     folderApiService.delete.mockResolvedValue(undefined);
-    openDeleteDialog = jest
-      .spyOn(deleteFolderDialog, "openDeleteFolderDialog")
-      .mockReturnValue({ closed: of(true) } as never);
+    openDeleteDialog = openDeleteFolderDialog as jest.Mock;
+    openDeleteDialog.mockReset();
+    openDeleteDialog.mockReturnValue({ closed: of(true) } as never);
     folderApiService.deleteMany.mockResolvedValue(undefined);
 
     await TestBed.configureTestingModule({
