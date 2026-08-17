@@ -16,7 +16,7 @@ import {
 import { CartSummaryComponent, Maybe } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BitwardenSubscription, SubscriptionStatuses } from "../..";
+import { BitwardenSubscription, SubscriptionPreview, SubscriptionStatuses } from "../..";
 
 export const SubscriptionCardActions = {
   ContactSupport: "contact-support",
@@ -67,7 +67,7 @@ export class SubscriptionCardComponent {
 
   readonly title = input.required<string>();
 
-  readonly subscription = input.required<BitwardenSubscription>();
+  readonly subscription = input.required<BitwardenSubscription | SubscriptionPreview>();
 
   readonly showUpgradeButton = input<boolean>(false);
 
@@ -274,7 +274,9 @@ export class SubscriptionCardComponent {
       subscription.status === SubscriptionStatuses.Trialing ||
       subscription.status === SubscriptionStatuses.Active
     ) {
-      return subscription.nextCharge;
+      // Only BitwardenSubscription carries nextCharge; SubscriptionPreview does not (its
+      // billing-period boundary lives on InvoicePreview.nextPaymentAttempt).
+      return "nextCharge" in subscription ? subscription.nextCharge : undefined;
     }
   });
 
