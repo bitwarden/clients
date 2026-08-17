@@ -13892,8 +13892,8 @@
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(No Collection)"
