@@ -13,7 +13,6 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { IconModule, SpinnerComponent } from "@bitwarden/components";
 
 import { SshAgentService } from "../autofill/services/ssh-agent.service";
-import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { DesktopPremiumUpgradePromptService } from "../billing/services/desktop-premium-upgrade-prompt.service";
 
 import { AppRoutingModule } from "./app-routing.module";
@@ -38,7 +37,7 @@ import { ServicesModule } from "./services/services.module";
     OverlayModule,
     ServicesModule,
   ],
-  declarations: [AvatarComponent, AppComponent, PremiumComponent],
+  declarations: [AvatarComponent, AppComponent],
   providers: [
     SshAgentService,
     {
