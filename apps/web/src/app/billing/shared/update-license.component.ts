@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { Component, EventEmitter, Input, OnInit, Output, inject } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -20,6 +20,13 @@ import { UpdateLicenseDialogResult } from "./update-license-types";
   standalone: false,
 })
 export class UpdateLicenseComponent implements OnInit {
+  private apiService = inject(ApiService);
+  private i18nService = inject(I18nService);
+  private platformUtilsService = inject(PlatformUtilsService);
+  private organizationApiService = inject(OrganizationApiServiceAbstraction);
+  private formBuilder = inject(FormBuilder);
+  private toastService = inject(ToastService);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() organizationId: string;
@@ -41,14 +48,6 @@ export class UpdateLicenseComponent implements OnInit {
   updateLicenseForm = this.formBuilder.group({
     file: [null as File | null],
   });
-  constructor(
-    private apiService: ApiService,
-    private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private formBuilder: FormBuilder,
-    private toastService: ToastService,
-  ) {}
   async ngOnInit() {
     const org = await this.organizationApiService.get(this.organizationId);
     if (org.plan.productTier !== ProductTierType.Families) {

@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  Inject,
   inject,
   OnInit,
   signal,
@@ -78,6 +77,14 @@ export const openOffboardingSurvey = (
   providers: [CurrencyPipe],
 })
 export class OffboardingSurveyComponent implements OnInit {
+  private readonly dialogParams = inject<OffboardingSurveyDialogParams>(DIALOG_DATA);
+  private readonly dialogRef = inject<DialogRef<OffboardingSurveyDialogResultType>>(DialogRef);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly billingApiService = inject(BillingApiService);
+  private readonly i18nService = inject(I18nService);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly toastService = inject(ToastService);
+
   protected readonly ResultType = OffboardingSurveyDialogResultType;
   protected readonly MaxFeedbackLength = 400;
 
@@ -150,15 +157,7 @@ export class OffboardingSurveyComponent implements OnInit {
 
   protected readonly isOtherReason = computed(() => this.reason() === "other");
 
-  constructor(
-    @Inject(DIALOG_DATA) private readonly dialogParams: OffboardingSurveyDialogParams,
-    private readonly dialogRef: DialogRef<OffboardingSurveyDialogResultType>,
-    private readonly formBuilder: FormBuilder,
-    private readonly billingApiService: BillingApiService,
-    private readonly i18nService: I18nService,
-    private readonly platformUtilsService: PlatformUtilsService,
-    private readonly toastService: ToastService,
-  ) {
+  constructor() {
     this.isBusiness = this.isBusinessPlan();
 
     this.reasons = [

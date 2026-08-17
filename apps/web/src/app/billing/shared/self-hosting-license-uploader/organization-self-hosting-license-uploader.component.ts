@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Output, inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -35,6 +35,19 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
   standalone: false,
 })
 export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
+  protected readonly formBuilder: FormBuilder;
+  protected readonly i18nService: I18nService;
+  protected readonly platformUtilsService: PlatformUtilsService;
+  protected readonly toastService: ToastService;
+  protected readonly tokenService: TokenService;
+  private readonly apiService = inject(ApiService);
+  private readonly encryptService = inject(EncryptService);
+  private readonly legacyCompatKeyService = inject(LegacyCompatKeyService);
+  private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
+  private readonly syncService = inject(SyncService);
+  private readonly accountService = inject(AccountService);
+  private readonly configService = inject(ConfigService);
+
   /**
    * Notifies the parent component of the `organizationId` the license was created for.
    */
@@ -42,21 +55,20 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onLicenseFileUploaded: EventEmitter<string> = new EventEmitter<string>();
 
-  constructor(
-    protected readonly formBuilder: FormBuilder,
-    protected readonly i18nService: I18nService,
-    protected readonly platformUtilsService: PlatformUtilsService,
-    protected readonly toastService: ToastService,
-    protected readonly tokenService: TokenService,
-    private readonly apiService: ApiService,
-    private readonly encryptService: EncryptService,
-    private readonly legacyCompatKeyService: LegacyCompatKeyService,
-    private readonly organizationApiService: OrganizationApiServiceAbstraction,
-    private readonly syncService: SyncService,
-    private readonly accountService: AccountService,
-    private readonly configService: ConfigService,
-  ) {
+  constructor() {
+    const formBuilder = inject(FormBuilder);
+    const i18nService = inject(I18nService);
+    const platformUtilsService = inject(PlatformUtilsService);
+    const toastService = inject(ToastService);
+    const tokenService = inject(TokenService);
+
     super(formBuilder, i18nService, platformUtilsService, toastService, tokenService);
+
+    this.formBuilder = formBuilder;
+    this.i18nService = i18nService;
+    this.platformUtilsService = platformUtilsService;
+    this.toastService = toastService;
+    this.tokenService = tokenService;
   }
 
   protected async submit(): Promise<void> {

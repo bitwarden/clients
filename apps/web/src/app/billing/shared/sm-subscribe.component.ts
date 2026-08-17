@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, Input, OnDestroy, OnInit } from "@angular/core";
+import { Component, Input, OnDestroy, OnInit, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Subject, startWith, takeUntil } from "rxjs";
@@ -40,6 +40,9 @@ export const secretsManagerSubscribeFormFactory = (
   standalone: false,
 })
 export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
+  private i18nService = inject(I18nService);
+  private configService = inject(ConfigService);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() formGroup: FormGroup<ControlsOf<SecretsManagerSubscription>>;
@@ -65,11 +68,6 @@ export class SecretsManagerSubscribeComponent implements OnInit, OnDestroy {
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
-
-  constructor(
-    private i18nService: I18nService,
-    private configService: ConfigService,
-  ) {}
 
   ngOnInit() {
     this.formGroup.controls.enabled.valueChanges

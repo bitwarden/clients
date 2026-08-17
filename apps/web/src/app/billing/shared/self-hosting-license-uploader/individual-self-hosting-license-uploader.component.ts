@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from "@angular/core";
+import { Component, EventEmitter, Output, inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -22,6 +22,14 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
   standalone: false,
 })
 export class IndividualSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
+  protected readonly apiService = inject(ApiService);
+  protected readonly formBuilder: FormBuilder;
+  protected readonly i18nService: I18nService;
+  protected readonly platformUtilsService: PlatformUtilsService;
+  protected readonly syncService = inject(SyncService);
+  protected readonly toastService: ToastService;
+  protected readonly tokenService: TokenService;
+
   /**
    * Emitted when a license file has been successfully uploaded & processed.
    */
@@ -29,16 +37,20 @@ export class IndividualSelfHostingLicenseUploaderComponent extends AbstractSelfH
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onLicenseFileUploaded: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor(
-    protected readonly apiService: ApiService,
-    protected readonly formBuilder: FormBuilder,
-    protected readonly i18nService: I18nService,
-    protected readonly platformUtilsService: PlatformUtilsService,
-    protected readonly syncService: SyncService,
-    protected readonly toastService: ToastService,
-    protected readonly tokenService: TokenService,
-  ) {
+  constructor() {
+    const formBuilder = inject(FormBuilder);
+    const i18nService = inject(I18nService);
+    const platformUtilsService = inject(PlatformUtilsService);
+    const toastService = inject(ToastService);
+    const tokenService = inject(TokenService);
+
     super(formBuilder, i18nService, platformUtilsService, toastService, tokenService);
+
+    this.formBuilder = formBuilder;
+    this.i18nService = i18nService;
+    this.platformUtilsService = platformUtilsService;
+    this.toastService = toastService;
+    this.tokenService = tokenService;
   }
 
   protected async submit(): Promise<void> {

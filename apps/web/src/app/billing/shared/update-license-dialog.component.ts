@@ -1,4 +1,4 @@
-import { Component, Inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -30,20 +30,21 @@ export interface UpdateLicenseDialogData {
   standalone: false,
 })
 export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
+  private dialogRef = inject(DialogRef);
+  private accountService = inject(AccountService);
+  private billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private dialogData = inject<UpdateLicenseDialogData>(DIALOG_DATA) ?? {};
+
   fromUserSubscriptionPage: boolean;
 
-  constructor(
-    private dialogRef: DialogRef,
-    apiService: ApiService,
-    i18nService: I18nService,
-    platformUtilsService: PlatformUtilsService,
-    organizationApiService: OrganizationApiServiceAbstraction,
-    formBuilder: FormBuilder,
-    toastService: ToastService,
-    private accountService: AccountService,
-    private billingAccountProfileStateService: BillingAccountProfileStateService,
-    @Inject(DIALOG_DATA) private dialogData: UpdateLicenseDialogData = {},
-  ) {
+  constructor() {
+    const apiService = inject(ApiService);
+    const i18nService = inject(I18nService);
+    const platformUtilsService = inject(PlatformUtilsService);
+    const organizationApiService = inject(OrganizationApiServiceAbstraction);
+    const formBuilder = inject(FormBuilder);
+    const toastService = inject(ToastService);
+
     super(
       apiService,
       i18nService,
@@ -52,6 +53,8 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
       formBuilder,
       toastService,
     );
+    const dialogData = this.dialogData;
+
     this.fromUserSubscriptionPage = dialogData?.fromUserSubscriptionPage ?? false;
   }
   async submitLicense() {
