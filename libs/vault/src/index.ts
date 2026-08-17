@@ -2,6 +2,8 @@ export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
+export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
+export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export {
   CopyCipherFieldService,
@@ -49,6 +51,7 @@ export {
   OrganizationUserNotificationBannerData,
 } from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
+export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
