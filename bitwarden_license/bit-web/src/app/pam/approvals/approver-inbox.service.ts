@@ -8,6 +8,7 @@ import {
   firstValueFrom,
   from,
   map,
+  merge,
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -125,10 +126,13 @@ export class ApproverInboxService {
   );
 
   constructor() {
+    // Both halves of the server's access push: `accessChanged$` covers the caller's own requests,
+    // `approverInboxChanged$` covers requests against the collections they manage — which is most
+    // of what this surface renders, since an approver is rarely the requester.
+    //
     // concatMap so two pushes arriving together cannot interleave their loads and leave the inbox
     // and history describing different moments.
-    this.accessEvents
-      .accessChanged$()
+    merge(this.accessEvents.accessChanged$(), this.accessEvents.approverInboxChanged$())
       .pipe(
         concatMap(() => from(this.load())),
         takeUntilDestroyed(this.destroyRef),
