@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import {
@@ -86,7 +86,9 @@ export class UserLayoutComponent implements OnInit {
   );
 
   protected readonly vaultNav: Signal<VaultsNavViewModel | undefined> = toSignal(
-    this.vaultNavService.viewModel$,
+    toObservable(this.vfo1Enabled).pipe(
+      switchMap((enabled) => (enabled ? this.vaultNavService.viewModel$ : of(undefined))),
+    ),
   );
 
   private readonly activeParams = toSignal(this.activatedRoute.queryParamMap);
