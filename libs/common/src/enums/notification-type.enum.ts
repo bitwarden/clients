@@ -39,6 +39,6 @@ export enum NotificationType {
 
   PremiumStatusChanged = 27,
 
-  // 28 is reserved server-side; this value must match the server's, not the next free slot here.
+  RefreshApproverInbox = 28,
   RefreshAccessRequest = 29,
 }
