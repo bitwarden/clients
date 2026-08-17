@@ -2,6 +2,7 @@
 
 import { Injectable, OnDestroy } from "@angular/core";
 import {
+  catchError,
   combineLatest,
   concatMap,
   distinctUntilChanged,
@@ -111,18 +112,23 @@ export class DesktopAutotypeMvpService implements OnDestroy {
     );
   }
 
+  // Must be a field, not a method. Preload invokes this as a bare call, so a method reference
+  // would lose its `this` binding.
+  private handleAutotypeRequest = async (
+    windowTitle: string,
+    callback: (error: Error | null, response: AutotypeVaultData | null) => void,
+  ) => {
+    const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
+    const firstCipher = possibleCiphers?.at(0);
+    const [error, vaultData] = getAutotypeVaultData(firstCipher);
+    callback(error, vaultData);
+  };
+
   async init() {
     // Currently Autotype is only supported for Windows
     if (this.platformUtilsService.getDevice() !== DeviceType.WindowsDesktop) {
       return;
     }
-
-    ipc.autofill.autotypeMvp.listenRequest(async (windowTitle, callback) => {
-      const possibleCiphers = await this.matchCiphersToWindowTitle(windowTitle);
-      const firstCipher = possibleCiphers?.at(0);
-      const [error, vaultData] = getAutotypeVaultData(firstCipher);
-      callback(error, vaultData);
-    });
 
     // If `autotypeDefaultPolicy` is `true` for a user's organization, and the
     // user has never changed their local autotype setting (`autotypeEnabledState`),
@@ -163,7 +169,16 @@ export class DesktopAutotypeMvpService implements OnDestroy {
     this.autotypeFeatureEnabled$
       .pipe(
         concatMap(async (enabled) => {
+          if (enabled) {
+            ipc.autofill.autotypeMvp.listenRequest(this.handleAutotypeRequest);
+          } else {
+            ipc.autofill.autotypeMvp.stopListeningRequest();
+          }
           ipc.autofill.autotypeMvp.toggle(enabled);
+        }),
+        catchError((error: unknown, source) => {
+          this.logService.error("Unexpected error in Autotype enable/disable pipeline", error);
+          return source;
         }),
         takeUntil(this.destroy$),
       )
@@ -237,6 +252,11 @@ export class DesktopAutotypeMvpService implements OnDestroy {
   }
 
   ngOnDestroy() {
+    // The live subscription above already stops listening and toggles off on every
+    // disable transition; this just guarantees cleanup regardless of the last observed state.
+    ipc.autofill.autotypeMvp.stopListeningRequest();
+    ipc.autofill.autotypeMvp.toggle(false);
+
     this.destroy$.next();
     this.destroy$.complete();
   }
