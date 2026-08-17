@@ -28,6 +28,7 @@ import {
   CollectionPermission,
   convertToPermission,
   getPermissionList,
+  permissionLabelId,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
@@ -134,8 +135,11 @@ export class VaultCollectionRowComponent<C extends CipherViewLike> {
     }
     if ((this.collection as CollectionAdminView).assigned) {
       const permissionList = getPermissionList();
+      const permission = permissionList.find(
+        (p) => p.perm === convertToPermission(this.collection),
+      );
       return this.i18nService.t(
-        permissionList.find((p) => p.perm === convertToPermission(this.collection))?.labelId,
+        permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
       );
     }
     return this.i18nService.t("noAccess");

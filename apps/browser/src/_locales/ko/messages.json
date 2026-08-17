@@ -38,7 +38,7 @@
     "message": "귀하의 조직은 단일 로그인(SSO)이 필요합니다."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Log in"
+    "message": "로그인"
   },
   "setAStrongPassword": {
     "message": "비밀번호 설정"
@@ -119,6 +119,9 @@
   "vault": {
     "message": "보관함"
   },
+  "vaults": {
+    "message": "보관함"
+  },
   "myVault": {
     "message": "내 보관함"
   },
@@ -168,16 +171,16 @@
     "message": "여권 번호 복사"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "주민등록번호 복사"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "이름 복사"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "중간 이름 복사"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "성 복사"
   },
   "copyLicenseNumber": {
     "message": "운전면허 번호 복사"
@@ -215,11 +218,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "자동 완성",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "자동 완성",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -290,7 +293,7 @@
     "message": "계정 이메일 주소를 입력하세요. 그 주소로 비밀번호 힌트가 전송될 것 입니다."
   },
   "hint": {
-    "message": "Hint"
+    "message": "힌트"
   },
   "continue": {
     "message": "계속"
@@ -394,7 +397,7 @@
     "message": "저장"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "자동 완성 및 저장"
   },
   "move": {
     "message": "이동"
@@ -505,6 +508,45 @@
   "options": {
     "message": "옵션"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
   "length": {
     "message": "길이"
   },
@@ -594,10 +636,10 @@
     "message": "보관된 항목은 여기에 표시되며 일반 검색 결과 및 자동 완성 제안에서 제외됩니다."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "항목 보관됨"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "항목 보관 해제됨"
   },
   "archiveItem": {
     "message": "항목 보관"
@@ -615,7 +657,7 @@
     "message": "보관 기능을 사용하려면 프리미엄 멤버십이 필요합니다."
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "$NUM$개 항목 보관",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -625,11 +667,11 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "항목 보관",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "일단 보관되면 이 항목은 검색 결과 및 자동 채우기 제안에서 제외됩니다."
   },
   "itemRestored": {
     "message": "항목이 복원되었습니다."
@@ -709,8 +751,8 @@
   "launchWebsite": {
     "message": "웹사이트 열기"
   },
-  "launchWebsiteName": {
-    "message": "$ITEMNAME$ 웹사이드 열기",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -746,20 +788,20 @@
     "message": "확장 프로그램 평가"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "문제 해결"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "문제가 발생했나요?"
   },
   "downloadDiagnosticReportWith": {
     "message": "Download then share the diagnostic report with"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Bitwarden 지원",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "다운로드"
   },
   "browserNotSupportClipboard": {
     "message": "사용하고 있는 웹 브라우저가 쉬운 클립보드 복사를 지원하지 않습니다. 직접 복사하세요."
@@ -944,7 +986,7 @@
     "message": "유효하지 않은 확인 코드"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "잘못된 이메일 또는 인증 코드"
   },
   "valueCopied": {
     "message": "$VALUE$를 클립보드에 복사함",
@@ -996,7 +1038,7 @@
     "message": "로그인"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "로그인"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "이메일로 전송된 코드를 입력하세요."
@@ -1089,7 +1131,7 @@
     "message": "비밀번호를 클립보드에 복사함"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "스페이스",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1206,7 +1248,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clipboardSettingUpdated": {
-    "message": "Clipboard setting updated"
+    "message": "클립보드 설정 업데이트됨"
   },
   "clipboardSettingUpdatedMessage": {
     "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
@@ -1332,10 +1374,10 @@
     "description": "Detailed error message shown when saving login details fails."
   },
   "changePasswordWarning": {
-    "message": "After changing your password, you will need to log in with your new password. Active sessions on other devices will be logged out within one hour."
+    "message": "비밀번호를 변경한 후에는 새 비밀번호로 로그인해야 합니다. 다른 기기의 활성 세션은 1시간 내로 로그아웃됩니다."
   },
   "accountRecoveryUpdateMasterPasswordSubtitle": {
-    "message": "Change your master password to complete account recovery."
+    "message": "계정 복구를 완료하려면 마스터 비밀번호를 변경하십시오."
   },
   "enableChangedPasswordNotification": {
     "message": "기존 로그인 정보 업데이트 확인"
@@ -1367,17 +1409,17 @@
   "additionalOptions": {
     "message": "추가 옵션"
   },
-  "enableFillAssist": {
-    "message": "Use fill assist"
+  "fillAssistActiveNotice": {
+    "message": "Autofill is using Fill Assist on this page."
   },
-  "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+  "activateFillAssist": {
+    "message": "Turn on Fill Assist"
   },
-  "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescription": {
+    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssist": {
-    "message": "About fill assist"
+  "aboutFillAssistLabel": {
+    "message": "About Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "컨텍스트 메뉴 옵션 표시"
@@ -1485,16 +1527,22 @@
     "message": "공유됨"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "공유 폴더"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "공유 폴더"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "내 폴더"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "내 폴더"
+  },
+  "addSharedFolder": {
+    "message": "공유 폴더 추가"
+  },
+  "newSharedFolder": {
+    "message": "새 공유 폴더"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "비지니스용 Bitwarden은 조직을 사용하여 보관함 항목들을 다른 사람과 공유할 수 있게 해줍니다. 자세한 내용은 bitwarden.com 사이트에서 확인해주세요"
@@ -1528,7 +1576,7 @@
     "message": "암호화 설정 업데이트"
   },
   "updateEncryptionSettingsDesc": {
-    "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
+    "message": "새로운 권장 암호화 설정으로 계정 보안이 향상됩니다. 지금 업데이트하려면 마스터 비밀번호를 입력하세요."
   },
   "confirmIdentityToContinue": {
     "message": "Confirm your identity to continue"
@@ -1550,6 +1598,21 @@
   },
   "copyVerificationCode": {
     "message": "인증 코드 복사"
+  },
+  "noUsername": {
+    "message": "사용자 이름 없음"
+  },
+  "noPassword": {
+    "message": "비밀번호 없음"
+  },
+  "noVerificationCode": {
+    "message": "인증 코드 없음"
+  },
+  "noNumber": {
+    "message": "번호 없음"
+  },
+  "noSecurityCode": {
+    "message": "보안 코드 없음"
   },
   "attachments": {
     "message": "첨부 파일"
@@ -1585,10 +1648,10 @@
     "message": "파일"
   },
   "photo": {
-    "message": "Photo"
+    "message": "사진"
   },
   "unknown": {
-    "message": "Unknown"
+    "message": "알 수 없음"
   },
   "fileToShare": {
     "message": "공유할 파일"
@@ -1944,6 +2007,9 @@
   "showInlineMenuCardsLabel": {
     "message": "카드를 제안으로 표시"
   },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
+  },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "아이콘 선택 시 제안 표시"
   },
@@ -2076,16 +2142,16 @@
     "message": "브랜드"
   },
   "birthDay": {
-    "message": "Birth day"
+    "message": "출생일"
   },
   "birthMonth": {
-    "message": "Birth month"
+    "message": "출생월"
   },
   "birthYear": {
-    "message": "Birth year"
+    "message": "출생년도"
   },
   "expirationDay": {
-    "message": "Expiration day"
+    "message": "만료일"
   },
   "expirationMonth": {
     "message": "만료 월"
@@ -2094,13 +2160,13 @@
     "message": "만료 연도"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "발급일"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "발급월"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "발급연도"
   },
   "monthly": {
     "message": "월"
@@ -2196,13 +2262,13 @@
     "message": "여권 번호"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "생년월일"
   },
   "sex": {
-    "message": "Sex"
+    "message": "성별"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "성별 복사"
   },
   "birthPlace": {
     "message": "Birth place"
@@ -2217,28 +2283,28 @@
     "message": "Copy nationality"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "발급 국가"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "발급 국가 복사"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "여권 유형"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "여권 유형 복사"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "주민등록번호"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "발급 기관"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "발급 기관 / 사무소 복사"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "발급일"
   },
   "licenseNumber": {
     "message": "면허 번호"
@@ -2298,31 +2364,31 @@
     "message": "SSH 키"
   },
   "bankAccount": {
-    "message": "Bank account"
+    "message": "은행 계좌"
   },
   "bankAccountDetails": {
-    "message": "Bank account details"
+    "message": "은행 계좌 세부 정보"
   },
   "typeNote": {
     "message": "메모"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "은행 계좌"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "웹사이트 또는 앱"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "신용카드 또는 체크카드"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "개인 정보"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "중요 텍스트"
   },
   "typeSshKeySubtitle": {
-    "message": "Server login token"
+    "message": "서버 로그인 토큰"
   },
   "folderSubtitle": {
     "message": "Organize your items"
@@ -2331,69 +2397,69 @@
     "message": "Organize shared items"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "은행 계좌 세부 정보"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "여권"
   },
   "passportDetails": {
-    "message": "Passport details"
+    "message": "여권 세부 정보"
   },
   "passportAdded": {
-    "message": "Passport added"
+    "message": "여권 추가됨"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "여행 서류"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "면허"
   },
   "typeDriversLicenseSubtitle": {
-    "message": "Drivers license or ID"
+    "message": "운전면허 또는 ID"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "면허 세부 정보"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "발급 주/도"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "면허 등급"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "로그인 추가",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "카드 추가",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "신원 추가",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "메모 추가",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "보안 메모 추가",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "SSH 키 추가",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "은행 계좌 추가",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "면허 추가",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
-    "message": "Add passport",
+    "message": "여권 추가",
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
@@ -2413,7 +2479,7 @@
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "보안 메모 추가",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
@@ -2421,23 +2487,23 @@
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "새 은행 계좌",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "새 면허",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "새 여권",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "새 텍스트",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "새 파일",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
@@ -2457,23 +2523,23 @@
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "보안 메모 편집",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "로그인 편집",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "카드 편집",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "신원 편집",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "메모 편집",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -2481,23 +2547,23 @@
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "은행 계좌 편집",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "면허 편집",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "여권 편집",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "텍스트 편집",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "파일 편집",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
@@ -2517,7 +2583,7 @@
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "보안 메모 보기",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
@@ -2525,15 +2591,15 @@
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "은행 계좌 보기",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "면허 보기",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
-    "message": "View passport",
+    "message": "여권 보기",
     "description": "Header for view passport item type"
   },
   "chooseItemToAdd": {
@@ -2594,11 +2660,97 @@
     "message": "삭제",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "행 모두 선택"
+  },
+  "selectRow": {
+    "message": "행 선택"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "모두"
+  },
+  "clearAll": {
+    "message": "모두 지우기"
+  },
+  "done": {
+    "message": "완료"
+  },
+  "filter": {
+    "message": "필터"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$개 선택됨",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "이전 페이지"
+  },
+  "nextPage": {
+    "message": "다음 페이지"
+  },
+  "goToPage": {
+    "message": "페이지로 이동"
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "일치하는 항목 없음"
+  },
   "selected": {
-    "message": "Selected"
+    "message": "선택됨"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "선택됨",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
@@ -3077,7 +3229,7 @@
     "message": "Account mismatch"
   },
   "nativeMessagingBiometricKeyMismatchTitle": {
-    "message": "Biometric key mismatch"
+    "message": "생체 인식 키 불일치"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "생체 인식 잠금 해제에 실패했습니다. 생체 인식 비밀 키가 보관함 잠금 해제에 실패했습니다. 생체 인식을 다시 설정해 보세요."
@@ -3113,16 +3265,16 @@
     "message": "생체 인식을 완료할 수 없습니다. 마스터 비밀번호를 사용하거나 로그아웃하는 것을 고려하세요. 이 문제가 계속되면 Bitwarden 지원팀에 문의해 주세요."
   },
   "nativeMessagingPermissionErrorTitle": {
-    "message": "Permission not provided"
+    "message": "권한이 부여되지 않음"
   },
   "nativeMessagingPermissionErrorDesc": {
-    "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
+    "message": "Bitwarden 데스크톱 앱과 통신할 권한이 부여되지 않은 상태에서는 브라우저 확장 프로그램에서 생체 인식을 사용할 수 없습니다. 다시 시도해 주세요."
   },
   "nativeMessagingPermissionSidebarTitle": {
-    "message": "Permission request error"
+    "message": "권한 요청 오류"
   },
   "nativeMessagingPermissionSidebarDesc": {
-    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
+    "message": "사이드바에서는 이 동작을 수행할 수 없습니다. 팝업 혹은 새 창으로 열고 다시 시도해 주세요."
   },
   "personalOwnershipSubmitError": {
     "message": "엔터프라이즈 정책으로 인해 개인 보관함에 항목을 저장할 수 없습니다. 조직에서 소유권 설정을 변경한 다음, 사용 가능한 컬렉션 중에서 선택해주세요."
@@ -3185,6 +3337,10 @@
   },
   "atRiskPasswords": {
     "message": "위험한 비밀번호"
+  },
+  "atRisk": {
+    "message": "at risk",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ is requesting you change one password because it is at-risk.",
@@ -4028,6 +4184,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "호스트 이름",
     "description": "Part of a URL."
@@ -4799,8 +4963,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
   },
   "contact": {
     "message": "Contact"
@@ -4876,6 +5061,79 @@
   },
   "noFileChosen": {
     "message": "선택된 파일 없음"
+  },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "또는 가져온 파일 내용 복사/붙여넣기"
@@ -5466,6 +5724,12 @@
   "removePasskey": {
     "message": "패스키 제거"
   },
+  "deletePasskey": {
+    "message": "패스키 삭제"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "이 패스키가 로그인 항목에서 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
+  },
   "passkeyRemoved": {
     "message": "패스키 제거됨"
   },
@@ -5487,8 +5751,8 @@
   "clearFiltersOrTryAnother": {
     "message": "필터 지우기 또는 다른 검색어 시도"
   },
-  "copyInfoTitle": {
-    "message": "정보 복사 - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5593,14 +5857,20 @@
     }
   },
   "noValueEntered": {
-    "message": "No value entered",
+    "message": "입력된 값 없음",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "복사할 값이 없습니다"
+  "noDetailsToCopy": {
+    "message": "복사할 세부 정보 없음"
   },
   "assignToCollections": {
     "message": "컬렉션에 할당하기"
+  },
+  "addToSharedFolder": {
+    "message": "공유 폴더에 추가"
+  },
+  "transferAndAdd": {
+    "message": "전송 및 추가"
   },
   "copyEmail": {
     "message": "이메일 복사하기"
@@ -5612,7 +5882,7 @@
     "message": "주소 복사하기"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "내 항목"
   },
   "adminConsole": {
     "message": "관리자 콘솔"
@@ -5695,7 +5965,7 @@
     }
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "로그인 보기",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
@@ -5744,6 +6014,60 @@
   },
   "owner": {
     "message": "소유자"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "당신",
@@ -5902,10 +6226,10 @@
     }
   },
   "appUri": {
-    "message": "App (URI)"
+    "message": "앱 (URI)"
   },
   "appUriCount": {
-    "message": "App (URI) $COUNT$",
+    "message": "앱 (URI) $COUNT$",
     "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
     "placeholders": {
       "count": {
@@ -5921,10 +6245,10 @@
     "message": "웹사이트 추가"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "웹사이트 또는 앱 추가"
   },
   "app": {
-    "message": "App"
+    "message": "앱"
   },
   "deleteWebsite": {
     "message": "웹사이트 삭제"
@@ -6015,8 +6339,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "이 컬렉션에 액세스할 수 있는 조직 구성원만 해당 항목을 볼 수 있습니다."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "이 컬렉션에 액세스할 수 있는 조직 구성원만 해당 항목들을 볼 수 있습니다."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "$TOTAL_COUNT$ 항목들을 선택했습니다. 편집 권한이 없기 때문에 항목들의 $READONLY_COUNT$를 업데이트할 수 없습니다.",
@@ -6122,8 +6452,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1개 항목이 선택한 조직으로 영구적으로 전송됩니다. 더 이상 이 항목을 소유하지 않습니다."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 개 항목들이 선택한 조직으로 영구적으로 전송됩니다. 더 이상 이 항목들을 소유하지 않습니다.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6498,32 @@
   "successfullyAssignedCollections": {
     "message": "성공적으로 컬렉션을 할당했습니다"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -6216,10 +6573,16 @@
     "message": "항목 위치"
   },
   "fileSends": {
-    "message": "파일 Send"
+    "message": "파일 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "텍스트 Send"
+    "message": "텍스트 Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "계정 작업"
@@ -6239,8 +6602,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "보관함에서 빠른 복사 기능 표시"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "시스템 기본 설정"
@@ -6554,6 +6917,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "데스크톱 앱을 업데이트해주세요"
   },
@@ -6735,6 +7107,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "You do not have permissions to view this page. Try logging in with a different account."
@@ -7034,6 +7409,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+  },
   "newPermissionNeeded": {
     "message": "New permission needed"
   },
@@ -7047,37 +7425,37 @@
     "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "월을 입력하세요."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "일을 입력하세요."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "연도를 입력하세요."
   },
   "invalidDay": {
-    "message": "Enter a valid day."
+    "message": "올바른 일을 입력하세요."
   },
   "invalidYear": {
-    "message": "Enter a valid year."
+    "message": "올바른 연도를 입력하세요."
   },
   "searchDriversLicense": {
-    "message": "Search licenses"
+    "message": "면허 검색"
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "은행 이름"
   },
   "nameOnAccount": {
-    "message": "Name on account"
+    "message": "계좌 소유주 이름"
   },
   "bankAccountType": {
-    "message": "Account type"
+    "message": "계좌 유형"
   },
   "bankAccountTypeCompany": {
-    "message": "Company (business)"
+    "message": "기업 (업무)"
   },
   "bankAccountTypeIndividual": {
-    "message": "Individual (personal)"
+    "message": "개인 (사적)"
   },
   "accountNumber": {
     "message": "Account number"
@@ -7090,61 +7468,61 @@
     "message": "Branch/institution number"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "SWIFT 코드"
   },
   "iban": {
     "message": "IBAN"
   },
   "bankContactPhone": {
-    "message": "Bank contact phone"
+    "message": "은행 연락처 전화번호"
   },
   "searchBankAccount": {
-    "message": "Search bank account"
+    "message": "은행 계좌 검색"
   },
   "searchPassport": {
-    "message": "Search passports"
+    "message": "여권 검색"
   },
   "copyAccountNumber": {
-    "message": "Copy account number"
+    "message": "계좌 번호 복사"
   },
   "copyRoutingNumber": {
-    "message": "Copy routing number"
+    "message": "라우팅 번호 복사"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "PIN 복사"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "IBAN 복사"
   },
   "copyNameOnAccount": {
-    "message": "Copy name on account"
+    "message": "계좌 소유주 이름 복사"
   },
   "copyBranchNumber": {
-    "message": "Copy branch number"
+    "message": "지점 번호 복사"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "SWIFT 코드 복사"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "당좌"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "저축"
   },
   "bankAccountTypeCertificateOfDeposit": {
-    "message": "Certificate of deposit"
+    "message": "예금증서"
   },
   "bankAccountTypeLineOfCredit": {
-    "message": "Line of credit"
+    "message": "한도대출"
   },
   "bankAccountTypeInvestmentBrokerage": {
-    "message": "Investment/brokerage"
+    "message": "투자/중개"
   },
   "bankAccountTypeMoneyMarket": {
-    "message": "Money market"
+    "message": "단기금융시장"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "기타"
   },
   "downloadFailed": {
     "message": "Failed to download."
@@ -7240,5 +7618,125 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Health"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Your vault is healthy",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Your vault risk is high",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "No exposed passwords",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 exposed password",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ exposed passwords",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Exposed in data breaches",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "None of your passwords were found in data breaches",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "No weak passwords",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 weak password",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ weak passwords",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Too short or simple",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "All your passwords are strong",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "No reused passwords",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 reused password",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ reused passwords",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Reused for several logins",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "All your passwords are unique",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Risks identified",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "No items need attention",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }

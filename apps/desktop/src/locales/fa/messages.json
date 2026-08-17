@@ -11,6 +11,9 @@
   "favorites": {
     "message": "مورد علاقه"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "حذف از مورد علاقه"
   },
@@ -105,16 +108,67 @@
     "message": "اشتراک گذاری شد"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "پوشه مشترک"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "پوشه‌های مشترک"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "پوشه من"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "پوشه‌های من"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "addSharedFolder": {
+    "message": "افزودن پوشه‌ی مشترک"
+  },
+  "newSharedFolder": {
+    "message": "پوشه‌ی مشترک جدید"
+  },
+  "searchSharedFolder": {
+    "message": "جستجوی پوشه‌ی مشترک"
+  },
+  "searchMyFolder": {
+    "message": "جستجوی پوشه‌های من"
+  },
+  "viewSharedFolderWithName": {
+    "message": "مشاهده پوشه‌ی مشترک - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "حذف پوشه‌ی مشترک"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "حذف $COUNT$ پوشه‌ی مشترک",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "این پوشه‌ی مشترک برای همیشه حذف خواهد شد. موارد موجود در پوشه حذف نخواهند شد."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "این پوشه های مشترک برای همیشه حذف خواهد شد. موارد موجود در پوشه ها حذف نخواهند شد."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "موارد و پوشه های مشترک انتخاب‌شده به‌طور دائم حذف خواهند شد."
+  },
+  "sharedFolderDeleted": {
+    "message": "پوشه مشترک حذف شد"
+  },
+  "sharedFoldersDeleted": {
+    "message": "پوشه های مشترک حذف شد"
   },
   "share": {
     "message": "اشتراک گذاری"
@@ -471,6 +525,18 @@
   "launch": {
     "message": "راه‌اندازی"
   },
+  "launchWebsiteForName": {
+    "message": "باز کردن وب‌سایت برای $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
+  },
   "copyValue": {
     "message": "کپی مقدار",
     "description": "Copy value to clipboard"
@@ -651,10 +717,10 @@
     "message": "تا زمانی که گاوصندوق قفل شود، به خاطر بسپار"
   },
   "premiumRequired": {
-    "message": "در نسخه پرمیوم کار می‌کند"
+    "message": "در نسخه ویژه کار می‌کند"
   },
   "premiumRequiredDesc": {
-    "message": "برای استفاده از این ویژگی عضویت پرمیوم لازم است."
+    "message": "برای استفاده از این ویژگی عضویت ویژه لازم است."
   },
   "syncWithBrowser": {
     "message": "همگام‌سازی با مرورگر"
@@ -878,6 +944,60 @@
   "owner": {
     "message": "مالک"
   },
+  "sharedFolderAriaLabel": {
+    "message": "پوشه مشترک $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "مجموعه $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "پوشه من $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "پوشه $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "مالک $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "گاوصندوق $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "addField": {
     "message": "افزودن فیلد"
   },
@@ -918,7 +1038,7 @@
     "message": "وقتی در پر کردن خودکار برای یک وب‌سایت خاص به مشکل برخوردید، از فیلد مرتبط استفاده کنید."
   },
   "linkedFieldLabelHelpText": {
-    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
+    "message": "شناسه HTML، نام، aria-label یا محل نگهدار فیلد را وارد کنید."
   },
   "folder": {
     "message": "پوشه"
@@ -1904,6 +2024,22 @@
   "showIconsChangePasswordUrls": {
     "message": "نمایش آیکون‌های وب‌سایت و دریافت نشانی‌های تغییر کلمه عبور"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "نمایش عملیات کپی سریع در گاوصندوق"
+  },
+  "copyNoteTitle": {
+    "message": "کپی یادداشت - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "جزئیاتی برای کپی کردن وجود ندارد"
+  },
   "runInBackground": {
     "message": "Bitwarden را در پس‌زمینه اجرا نگه دارید"
   },
@@ -1917,7 +2053,7 @@
     "message": "هنگام ورود به سیستم به طور خودکار شروع کن"
   },
   "openAtLoginDesc": {
-    "message": "برنامه دسکتاپ Bitwarden را به طور خودکار هنگام ورود به سیستم شروع کن."
+    "message": "برنامه رایانه رومیزی Bitwarden را به طور خودکار هنگام ورود به سیستم شروع کن."
   },
   "language": {
     "message": "زبان"
@@ -2000,6 +2136,31 @@
   "copyVerificationCode": {
     "message": "کپی کد تأیید"
   },
+  "noUsername": {
+    "message": "بدون نام کاربری"
+  },
+  "noPassword": {
+    "message": "بدون کلمه عبور"
+  },
+  "noVerificationCode": {
+    "message": "بدون کد تأیید"
+  },
+  "noNumber": {
+    "message": "بدون شماره"
+  },
+  "noSecurityCode": {
+    "message": "بدون کد امنیتی"
+  },
+  "copyDetailsTitle": {
+    "message": "جزئیات را برای $ITEMNAME$ کپی کن",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
   "copyUsername": {
     "message": "کپی نام کاربری"
   },
@@ -2022,7 +2183,7 @@
     "message": "شماره کارت"
   },
   "premiumMembership": {
-    "message": "عضویت پرمیوم"
+    "message": "عضویت ویژه"
   },
   "premiumManage": {
     "message": "مدیریت عضویت"
@@ -2034,10 +2195,10 @@
     "message": "نوسازی عضویت"
   },
   "premiumNotCurrentMember": {
-    "message": "شما در حال حاظر کاربر پرمیوم نیستید."
+    "message": "شما در حال حاظر کاربر ویژه نیستید."
   },
   "premiumSignUpAndGet": {
-    "message": "برای عضویت پرمیوم ثبت نام کنید و دریافت کنید:"
+    "message": "برای عضویت ویژه ثبت نام کنید و دریافت کنید:"
   },
   "premiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره‌سازی رمزنگاری شده برای پرونده‌های پیوست."
@@ -2055,7 +2216,7 @@
     "message": "گزینه‌های ورود اضافی دو مرحله‌ای مانند YubiKey و Duo."
   },
   "premiumSignUpReports": {
-    "message": "گزارش‌های بهداشت کلمه عبور، سلامت حساب و نقض داده‌ها برای ایمن نگهداشتن گاوصندوق شما."
+    "message": "بهداشت کلمات عبور، وضعیت امنیت حساب‌های کاربری و گزارش‌های نشت اطلاعات برای حفظ امنیت گاوصندوق شما."
   },
   "premiumSignUpTotp": {
     "message": "تولید کننده کد تأیید (2FA) از نوع TOTP برای ورودهای موجود در گاوصندوقتان."
@@ -2064,16 +2225,16 @@
     "message": "اولویت پشتیبانی از مشتری."
   },
   "premiumSignUpFuture": {
-    "message": "تمام ویژگی‌های پرمیوم آینده. به زودی بیشتر!"
+    "message": "تمام ویژگی‌های ویژه آینده. به زودی بیشتر!"
   },
   "premiumPurchase": {
-    "message": "خرید پرمیوم"
+    "message": "خرید ویژه"
   },
   "premiumPurchaseAlertV2": {
-    "message": "می‌توانید نسخه پرمیوم را از تنظیمات حساب کاربری خود در برنامه وب Bitwarden خریداری کنید."
+    "message": "می‌توانید نسخه ویژه را از تنظیمات حساب کاربری خود در برنامه وب Bitwarden خریداری کنید."
   },
   "premiumCurrentMember": {
-    "message": "شما یک عضو پرمیوم هستید!"
+    "message": "شما یک عضو ویژه هستید!"
   },
   "premiumCurrentMemberThanks": {
     "message": "برای حمایتتان از Bitwarden سپاسگزاریم."
@@ -2115,7 +2276,7 @@
     "message": "پاک کردن تاریخچه تولید کننده"
   },
   "clearGeneratorHistoryDescription": {
-    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
+    "message": "اگر ادامه دهید، تمام ورودی‌ها به‌طور دائمی از تاریخچه تولید کننده حذف خواهند شد. آیا مطمئن هستید که می‌خواهید ادامه دهید؟"
   },
   "clear": {
     "message": "پاک کردن",
@@ -2149,6 +2310,92 @@
   },
   "selectAll": {
     "message": "انتخاب همه"
+  },
+  "selectAllRows": {
+    "message": "انتخاب همه ردیف‌ها"
+  },
+  "selectRow": {
+    "message": "انتخاب ردیف"
+  },
+  "showingItemRange": {
+    "message": "نمایش $START$ - $END$ از $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "ردیف در هر صفحه"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ ردیف در هر صفحه",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ مورد",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "همه"
+  },
+  "clearAll": {
+    "message": "پاک کردن همه"
+  },
+  "done": {
+    "message": "انجام شد"
+  },
+  "filter": {
+    "message": "فیلتر"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ انتخاب شده",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "صفحه قبل"
+  },
+  "nextPage": {
+    "message": "صفحه‌ بعد"
+  },
+  "goToPage": {
+    "message": "برو به صفحه"
+  },
+  "ofPageCount": {
+    "message": "از $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "هیچ مورد منطبقی وجود ندارد"
   },
   "selected": {
     "message": "انتخاب شد"
@@ -2255,7 +2502,7 @@
     "message": "بررسی کنید که آیا کلمه عبور افشا شده است."
   },
   "passwordExposed": {
-    "message": "این کلمه عبور $VALUE$ بار در نقض داده‌ها افشا شده است. باید آن را تغییر دهید.",
+    "message": "این کلمه عبور در نشت‌های اطلاعاتی $VALUE$ بار افشا شده است. باید آن را تغییر دهید.",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -2264,7 +2511,7 @@
     }
   },
   "passwordSafe": {
-    "message": "این کلمه عبور در هیچ یک از نقض‌های داده شناخته شده یافت نشد. استفاده از آن باید ایمن باشد."
+    "message": "این کلمه عبور در هیچ یک از نشت‌های اطلاعاتی شناخته شده پیدا نشده است. استفاده از آن باید امن باشد."
   },
   "baseDomain": {
     "message": "دامنه پایه",
@@ -2391,10 +2638,7 @@
     "message": "یک سیاست تعیین شده توسط یک یا چند سازمان، مانع از درون ریزی کارت‌ها به گاوصندوق‌های شما شده است."
   },
   "filePasswordConfirmationMismatch": {
-    "message": "“File password” and “Confirm file password” do not match."
-  },
-  "done": {
-    "message": "انجام شد"
+    "message": "عدم تطابق \"کلمه عبور پرونده\" و \"تأیید کلمه عبور پرونده\" با یکدیگر."
   },
   "warning": {
     "message": "هشدار",
@@ -2404,7 +2648,7 @@
     "message": "برون ریزی گاوصندوق را تأیید کنید"
   },
   "exportUnencryptedWarningDesc": {
-    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "این برون ریزی شامل داده‌های گاوصندوق در یک قالب رمزنگاری نشده است. شما نباید آن را از طریق یک راه ارتباطی نا امن (مثل ایمیل) ذخیره یا ارسال کنید. به محض اینکه کارتان با آن تمام شد، آن را حذف کنید."
   },
   "encExportKeyWarningDesc": {
     "message": "این برون ریزی با استفاده از کلید رمزگذاری حساب کاربری شما، اطلاعاتتان را رمزگذاری می کند. اگر زمانی کلید رمزگذاری حساب کاربری خود را تغییر دهید، باید دوباره خروجی بگیرید، چون قادر به رمزگشایی این پرونده برون ریزی نخواهید بود."
@@ -2447,7 +2691,7 @@
     "description": "PIN code. Ex. The short code (often numeric) that you use to unlock a device."
   },
   "unlockWithPin": {
-    "message": "باز کردن با کد پین"
+    "message": "باز کردن قفل با کد پین"
   },
   "setYourPinCode": {
     "message": "کد پین خود را برای باز کردن Bitwarden تنظیم کنید. اگر به طور کامل از برنامه خارج شوید، تنظیمات پین شما از بین می‌رود."
@@ -2528,7 +2772,7 @@
     "message": "شما باید حداقل یک مجموعه را انتخاب کنید."
   },
   "premiumUpdated": {
-    "message": "شما به پرمیوم ارتقاء یافتید."
+    "message": "شما به ویژه ارتقاء یافتید."
   },
   "restore": {
     "message": "بازیابی"
@@ -2710,7 +2954,7 @@
     "message": "Bitwarden می‌تواند کدهای تأیید دو مرحله‌ای را ذخیره و پر کند. برای اسکن کد QR احراز هویت کننده این وب‌سایت، روی نماد دوربین کلیک کنید یا کلید را کپی کرده و در این فیلد قرار دهید."
   },
   "premium": {
-    "message": "پرمیوم",
+    "message": "ویژه",
     "description": "Premium membership"
   },
   "freeOrgsCannotUseAttachments": {
@@ -2847,7 +3091,7 @@
     "message": "بیومتریک فعال نیست"
   },
   "biometricsNotEnabledDesc": {
-    "message": "بیومتریک مرورگر ابتدا نیاز به فعالسازی بیومتریک دسکتاپ در تنظیمات دارد."
+    "message": "بیومتریک مرورگر ابتدا نیاز به فعالسازی بیومتریک رایانه رومیزی در تنظیمات دارد."
   },
   "biometricsManualSetupTitle": {
     "message": "راه‌اندازی خودکار در دسترس نیست"
@@ -3305,6 +3549,30 @@
   "options": {
     "message": "گزینه‌ها"
   },
+  "moreOptions": {
+    "message": "گزینه‌های بیشتر"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "زمان نشست شما به پایان رسید. لطفاً برگردید و دوباره وارد سیستم شوید."
   },
@@ -3519,7 +3787,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "توکن API نامعتبر برای $SERVICENAME$",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3529,7 +3797,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "توکن API نامعتبر برای $SERVICENAME$: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3543,7 +3811,7 @@
     }
   },
   "forwarderInvalidOperation": {
-    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
+    "message": "$SERVICENAME$ درخواست شما را رد کرد. لطفاً برای دریافت کمک با ارائه‌دهنده سرویس خود تماس بگیرید.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3553,7 +3821,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ درخواست شما را رد کرد: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3616,6 +3884,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "افزودن پیشوند وب‌سایت",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "وقتی فعال باشد، دامنه وب‌سایت فعلی به عنوان پیشوند نشانی ایمیل تولید شده استفاده می‌شود",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "نام میزبان",
     "description": "Part of a URL."
@@ -3627,7 +3903,7 @@
     "message": "کلید API"
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "اشتراک ویژه نیاز است"
   },
   "organizationIsDisabled": {
     "message": "سازمان از کار افتاده است."
@@ -3746,11 +4022,11 @@
     "description": "Browser extension/addon"
   },
   "desktop": {
-    "message": "دسکتاپ",
+    "message": "رایانه رومیزی",
     "description": "Desktop app"
   },
   "cli": {
-    "message": "CLI"
+    "message": "رابط خط فرمان"
   },
   "sdk": {
     "message": "SDK",
@@ -3835,16 +4111,16 @@
     "message": "کلمه عبور اصلی افشا شده"
   },
   "exposedMasterPasswordDesc": {
-    "message": "کلمه عبور در افشای داده پیدا شد. از یک کلمه عبور منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟"
+    "message": "کلمه عبور در نشت اطلاعاتی پیدا شده است. برای محافظت از حساب خود، از یک کلمه عبور منحصربه‌فرد استفاده کنید. آیا مطمئن هستید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟"
   },
   "weakAndExposedMasterPassword": {
     "message": "کلمه عبور اصلی ضعیف و افشا شده"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "کلمه عبور ضعیف شناسایی و در یک افشای داده پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از این کلمه عبور استفاده کنید؟"
+    "message": "کلمه عبور ضعیف شناسایی و در یک نشت اطلاعاتی پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئن هستید که می‌خواهید از این کلمه عبور استفاده کنید؟"
   },
   "checkForBreaches": {
-    "message": "بررسی نقض‌های داده شناخته شده برای این کلمه عبور"
+    "message": "بررسی نشت‌های اطلاعاتی شناخته شده برای این کلمه عبور"
   },
   "loggedInExclamation": {
     "message": "وارد شده!"
@@ -4220,8 +4496,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ مورد نادیده گرفته می‌شوند",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "موارد زیر قابل خواندن نیستند و در درون ریزی شما لحاظ نخواهند شد:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "این کلید SSH قابل وارد کردن نیست"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "نوع مورد پشتیبانی نشده"
+  },
+  "importSkipReasonGeneric": {
+    "message": "این مورد قابل وارد کردن نیست"
+  },
+  "identifier": {
+    "message": "شناسه"
   },
   "contact": {
     "message": "مخاطب"
@@ -4300,6 +4597,79 @@
   },
   "noFileChosen": {
     "message": "هیچ پرونده‌ای انتخاب نشد"
+  },
+  "noFileSelected": {
+    "message": "پرونده‌ای انتخاب نشده"
+  },
+  "fileChosen": {
+    "message": "پرونده انتخاب شده: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "فاپرونده اضافه شد: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "تعداد پرونده‌های اضافه شده: $COUNT$: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "پرونده حذف شد: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "۱ پرونده بارگذاری شد"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ پرونده بارگذاری شد",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "پرونده‌های بارگذاری شده"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "برای بارگذاری کلیک کنید یا بکشید و رها کنید"
+  },
+  "chooseFiles": {
+    "message": "انتخاب پرونده‌ها"
+  },
+  "maxFileSizeParam": {
+    "message": "حداکثر حجم پرونده: $SIZE$ مگابایت",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "یا محتویات پرونده‌ی درون ریزی را کپی/پیست کنید"
@@ -4695,6 +5065,12 @@
   "removePasskey": {
     "message": "حذف کلید عبور"
   },
+  "deletePasskey": {
+    "message": "حذف رمز عبور"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "این رمز عبور برای همیشه از گزینه ورود شما حذف خواهد شد. این حذف قابل بازگشت نیست."
+  },
   "passkeyRemoved": {
     "message": "کلید عبور حذف شد"
   },
@@ -4774,7 +5150,7 @@
     "message": "باز کردن قفل با بیومتریک به دلیل پیکربندی نادرست پرونده‌های سیستم در دسترس نیست."
   },
   "biometricsStatusHelptextNotEnabledLocally": {
-    "message": "باز کردن قفل با بیومتریک در دسترس نیست زیرا برای $EMAIL$ در برنامه دسکتاپ Bitwarden فعال نشده است.",
+    "message": "باز کردن قفل با بیومتریک در دسترس نیست زیرا برای $EMAIL$ در برنامه رایانه رومیزی Bitwarden فعال نشده است.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4927,7 +5303,7 @@
     "message": "اجازه ضبط صفحه"
   },
   "allowScreenshotsDesc": {
-    "message": "اجازه دهید برنامه دسکتاپ Bitwarden در اسکرین‌شات‌ها ثبت شده و در جلسات دسکتاپ از راه دور مشاهده شود. غیرفعال کردن این گزینه دسترسی در برخی نمایشگرهای خارجی را مسدود می‌کند."
+    "message": "اجازه دهید برنامه رایانه رومیزی Bitwarden در اسکرین‌شات‌ها ثبت شده و در جلسات رایانه رومیزی از راه دور مشاهده شود. غیرفعال کردن این گزینه دسترسی در برخی نمایشگرهای خارجی را مسدود می‌کند."
   },
   "confirmWindowStillVisibleTitle": {
     "message": "تأیید کنید که پنجره هنوز قابل مشاهده است"
@@ -4939,7 +5315,7 @@
     "message": "به‌روزرسانی افزونه لازم است"
   },
   "updateBrowserOrDisableFingerprintDialogMessage": {
-    "message": "افزونه مرورگری که استفاده می‌کنید قدیمی است. لطفاً آن را به‌روزرسانی کنید یا اعتبارسنجی اثر انگشت یکپارچه‌سازی مرورگر را در تنظیمات برنامه دسکتاپ غیرفعال کنید."
+    "message": "افزونه مرورگری که استفاده می‌کنید قدیمی است. لطفاً آن را به‌روزرسانی کنید یا اعتبارسنجی اثر انگشت یکپارچه‌سازی مرورگر را در تنظیمات برنامه رایانه رومیزی غیرفعال کنید."
   },
   "changeAtRiskPassword": {
     "message": "تغییر کلمه عبور در معرض خطر"
@@ -4963,6 +5339,15 @@
     "message": "نمی‌توانید مجموعه‌هایی را که فقط دسترسی مشاهده دارند حذف کنید: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "شما نمی‌توانید پوشه‌های اشتراکی را با مجوزهای فقط دیدنی حذف کنید: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -5066,8 +5451,23 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden از نشانی‌های اینترنتی ورود ذخیره شده برای شناسایی نماد یا تغییر نشانی‌های اینترنتی کلمه عبور برای بهبود تجربه شما استفاده می‌کند. هنگام استفاده از این سرویس هیچ اطلاعاتی جمع‌آوری یا ذخیره نمی‌شود."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "۳ دکمه کپی سریع در کنار موارد اضافه کنید تا نام کاربری، رمز عبور یا کد تأیید خود را در حافظه موقت کپی کنید."
+  },
   "assignToCollections": {
     "message": "اختصاص به مجموعه‌ها"
+  },
+  "addToSharedFolder": {
+    "message": "افزودن به پوشه‌ی مشترک"
+  },
+  "transferAndAdd": {
+    "message": "انتقال و اضافه کردن"
+  },
+  "itemLower": {
+    "message": "مورد"
+  },
+  "itemsLower": {
+    "message": "موارد"
   },
   "assignToTheseCollections": {
     "message": "اختصاص به این مجموعه‌ها"
@@ -5075,8 +5475,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "فقط اعضای سازمانی که به این مجموعه‌ها دسترسی دارند قادر به مشاهده این مورد خواهند بود."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "فقط اعضای گاوصندوق که به این پوشه‌های مشترک دسترسی دارند، می‌توانند این مورد را ببینند."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "فقط اعضای سازمانی که به این مجموعه‌ها دسترسی دارند قادر به مشاهده این موارد خواهند بود."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "فقط اعضای گاوصندوق که به این پوشه‌های مشترک دسترسی دارند، می‌توانند این موارد را ببینند."
   },
   "noCollectionsAssigned": {
     "message": "هیچ مجموعه‌ای اختصاص داده نشده است"
@@ -5136,8 +5542,20 @@
   "personalItemTransferWarningSingular": {
     "message": "۱ مورد به طور دائمی به سازمان انتخاب شده منتقل خواهد شد. شما دیگر مالک این مورد نخواهید بود."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "۱ مورد به طور دائمی به گاوصندوق انتخاب شده منتقل خواهد شد. شما دیگر مالک این مورد نخواهید بود."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ مورد به طور دائمی به سازمان انتخاب شده منتقل خواهند شد. شما دیگر مالک این موارد نخواهید بود.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ مورد به طور دائمی به گاوصندوق انتخاب شده منتقل خواهند شد. شما دیگر مالک این موارد نخواهید بود.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5161,17 +5579,32 @@
   "successfullyAssignedCollections": {
     "message": "مجموعه‌ها با موفقیت اختصاص داده شدند"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "پوشه‌های مشترک با موفقیت اضافه شدند"
+  },
   "itemMovedToCollection": {
     "message": "مورد به مجموعه منتقل شد"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "مورد به پوشه مشترک اضافه شد"
   },
   "itemMovedToCollections": {
     "message": "مورد به مجموعه‌ها منتقل شد"
   },
+  "itemAddedToSharedFolders": {
+    "message": "مورد به پوشه‌های مشترک اضافه شد"
+  },
   "itemsMovedToCollection": {
     "message": "موارد به مجموعه منتقل شد"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "موارد به پوشه مشترک اضافه شد"
+  },
   "itemsMovedToCollections": {
     "message": "موارد به مجموعه‌ها منتقل شد"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "موارد به پوشه های مشترک اضافه شد"
   },
   "itemAssignedToCollections": {
     "message": "مورد اختصاص داده شده به مجموعه‌ها"
@@ -5358,13 +5791,13 @@
     "message": "انتخاب پوشه"
   },
   "restartPremium": {
-    "message": "راه‌اندازی مجدد پریمیوم"
+    "message": "راه‌اندازی مجدد ویژه"
   },
   "premiumSubscriptionEnded": {
-    "message": "اشتراک پرمیوم شما به پایان رسید"
+    "message": "اشتراک ویژه شما به پایان رسید"
   },
   "premiumSubscriptionEndedDesc": {
-    "message": "برای دسترسی مجدد به بایگانی خود، اشتراک پرمیوم خود را مجدداً راه‌اندازی کنید. اگر قبل از راه‌اندازی مجدد، جزئیات یک مورد بایگانی شده را ویرایش کنید، آن مورد به گاوصندوق شما بازگردانده می‌شود."
+    "message": "برای دسترسی مجدد به بایگانی خود، اشتراک ویژه خود را مجدداً راه‌اندازی کنید. اگر قبل از راه‌اندازی مجدد، جزئیات یک مورد بایگانی شده را ویرایش کنید، آن مورد به گاوصندوق شما بازگردانده می‌شود."
   },
   "itemRestored": {
     "message": "مورد بازیابی شد"
@@ -5397,7 +5830,7 @@
     "message": "امنیت آنلاین پیشرفته"
   },
   "upgradeToPremium": {
-    "message": "ارتقا به پرمیوم"
+    "message": "ارتقا به ویژه"
   },
   "removeMasterPasswordForOrgUserKeyConnector": {
     "message": "سازمان شما دیگر از کلمات عبور اصلی برای ورود به Bitwarden استفاده نمی‌کند. برای ادامه، سازمان و دامنه را تأیید کنید."
@@ -5495,7 +5928,7 @@
     "message": "یک روش باز کردن قفل برای تغییر عملکرد مهلت زمانی خود تنظیم کنید"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
-    "message": "زمان اتمام جلسه توسط برنامه دسکتاپ کنترل می‌شود"
+    "message": "زمان اتمام جلسه توسط برنامه رایانه رومیزی کنترل می‌شود"
   },
   "chromiumImporterBrowserNotInstalled": {
     "message": "$BROWSER$ نصب نشده است. لطفاً قبل از وارد کردن کلمات عبور از $BROWSER$، آن را نصب کنید.",

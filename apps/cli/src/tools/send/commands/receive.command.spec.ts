@@ -14,7 +14,8 @@ import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-acce
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { Response } from "../../../models/response";
 
@@ -23,7 +24,7 @@ import { SendReceiveCommand } from "./receive.command";
 describe("SendReceiveCommand", () => {
   let command: SendReceiveCommand;
 
-  const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const encryptService = mock<EncryptService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const platformUtilsService = mock<PlatformUtilsService>();
@@ -49,12 +50,12 @@ describe("SendReceiveCommand", () => {
 
     platformUtilsService.isDev.mockReturnValue(false);
 
-    keyService.makeSendKey.mockResolvedValue({} as any);
+    legacyCompatKeyService.makeSendKey.mockResolvedValue({} as any);
 
     cryptoFunctionService.pbkdf2.mockResolvedValue(new Uint8Array(32));
 
     command = new SendReceiveCommand(
-      keyService,
+      legacyCompatKeyService,
       encryptService,
       cryptoFunctionService,
       platformUtilsService,
@@ -90,7 +91,7 @@ describe("SendReceiveCommand", () => {
       it("should successfully access Send with cached token", async () => {
         const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
         sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
-        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
         jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
 
         const response = await command.run(testUrl, {});
@@ -135,7 +136,7 @@ describe("SendReceiveCommand", () => {
 
         const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
         sendTokenService.getSendAccessToken$.mockReturnValue(of(mockToken));
-        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
         jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
 
         const response = await command.run(testUrl, { password: "correct-password" });
@@ -317,9 +318,9 @@ describe("SendReceiveCommand", () => {
           },
         };
 
-        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
         jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
-        sendApiService.getSendFileDownloadDataV2.mockResolvedValue({
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
           url: "https://example.com/download",
         } as any);
 
@@ -329,7 +330,7 @@ describe("SendReceiveCommand", () => {
         const response = await command.run(testUrl, { output: "./test.pdf" });
 
         expect(response.success).toBe(true);
-        expect(sendApiService.getSendFileDownloadDataV2).toHaveBeenCalledWith(
+        expect(sendApiService.getSendFileDownloadData).toHaveBeenCalledWith(
           expect.any(Object),
           mockToken,
           "https://api.bitwarden.com",
@@ -351,10 +352,10 @@ describe("SendReceiveCommand", () => {
           },
         };
 
-        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
         jest.spyOn(SendAccess.prototype, "decrypt").mockResolvedValueOnce(mockSendResponse as any);
         const fileDownloadUrl = "https://example.com/download";
-        sendApiService.getSendFileDownloadDataV2.mockResolvedValue({
+        sendApiService.getSendFileDownloadData.mockResolvedValue({
           url: fileDownloadUrl,
         } as any);
 
@@ -399,7 +400,7 @@ describe("SendReceiveCommand", () => {
 
         const secretText = "This is a secret message";
 
-        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
 
         // Mock the entire accessSendWithToken to avoid encryption issues
         jest.spyOn(command as any, "accessSendWithToken").mockImplementation(async () => {
@@ -427,7 +428,7 @@ describe("SendReceiveCommand", () => {
           text: { text: "secret message" },
         };
 
-        sendApiService.postSendAccessV2.mockResolvedValue({} as any);
+        sendApiService.postSendAccess.mockResolvedValue({} as any);
 
         // Mock the entire accessSendWithToken to avoid encryption issues
         jest.spyOn(command as any, "accessSendWithToken").mockImplementation(async () => {

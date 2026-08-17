@@ -119,6 +119,9 @@
   "vault": {
     "message": "ตู้นิรภัย"
   },
+  "vaults": {
+    "message": "Vaults"
+  },
   "myVault": {
     "message": "ตู้นิรภัยของฉัน"
   },
@@ -505,6 +508,45 @@
   "options": {
     "message": "ตัวเลือก"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
   "length": {
     "message": "ความยาว"
   },
@@ -709,8 +751,8 @@
   "launchWebsite": {
     "message": "เปิดเว็บไซต์"
   },
-  "launchWebsiteName": {
-    "message": "เปิดเว็บไซต์ $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1367,17 +1409,17 @@
   "additionalOptions": {
     "message": "ตัวเลือกเพิ่มเติม"
   },
-  "enableFillAssist": {
-    "message": "Use fill assist"
+  "fillAssistActiveNotice": {
+    "message": "Autofill is using Fill Assist on this page."
   },
-  "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+  "activateFillAssist": {
+    "message": "Turn on Fill Assist"
   },
-  "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescription": {
+    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssist": {
-    "message": "About fill assist"
+  "aboutFillAssistLabel": {
+    "message": "About Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "แสดงตัวเลือกเมนูบริบท"
@@ -1496,6 +1538,12 @@
   "myFolders": {
     "message": "My folders"
   },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
+  },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden สำหรับธุรกิจช่วยให้คุณแชร์รายการในตู้นิรภัยกับผู้อื่นโดยใช้องค์กร เรียนรู้เพิ่มเติมที่เว็บไซต์ bitwarden.com"
   },
@@ -1550,6 +1598,21 @@
   },
   "copyVerificationCode": {
     "message": "คัดลอกรหัสยืนยัน"
+  },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
   },
   "attachments": {
     "message": "ไฟล์แนบ"
@@ -1943,6 +2006,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "แสดงบัตรเป็นคำแนะนำ"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "แสดงคำแนะนำเมื่อเลือกไอคอน"
@@ -2594,6 +2660,92 @@
     "message": "ล้าง",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "All"
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "done": {
+    "message": "Done"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "selected": {
     "message": "Selected"
   },
@@ -3185,6 +3337,10 @@
   },
   "atRiskPasswords": {
     "message": "รหัสผ่านที่มีความเสี่ยง"
+  },
+  "atRisk": {
+    "message": "at risk",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ ร้องขอให้คุณเปลี่ยนรหัสผ่าน 1 รายการเนื่องจากมีความเสี่ยง",
@@ -4028,6 +4184,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "ชื่อโฮสต์",
     "description": "Part of a URL."
@@ -4799,8 +4963,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
   },
   "contact": {
     "message": "Contact"
@@ -4876,6 +5061,79 @@
   },
   "noFileChosen": {
     "message": "ไม่ได้เลือกไฟล์"
+  },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "หรือคัดลอก/วางเนื้อหาไฟล์นำเข้า"
@@ -5466,6 +5724,12 @@
   "removePasskey": {
     "message": "เอาพาสคีย์ออก"
   },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+  },
   "passkeyRemoved": {
     "message": "เอาพาสคีย์ออกแล้ว"
   },
@@ -5487,8 +5751,8 @@
   "clearFiltersOrTryAnother": {
     "message": "ล้างตัวกรองหรือลองค้นหาด้วยคำอื่น"
   },
-  "copyInfoTitle": {
-    "message": "คัดลอกข้อมูล - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5596,11 +5860,17 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "ไม่มีค่าให้คัดลอก"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "มอบหมายให้คอลเลกชัน"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "copyEmail": {
     "message": "คัดลอกอีเมล"
@@ -5744,6 +6014,60 @@
   },
   "owner": {
     "message": "เจ้าของ"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "คุณ",
@@ -6015,8 +6339,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "เฉพาะสมาชิกองค์กรที่มีสิทธิ์เข้าถึงคอลเลกชันเหล่านี้เท่านั้นที่จะเห็นรายการนี้"
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "เฉพาะสมาชิกองค์กรที่มีสิทธิ์เข้าถึงคอลเลกชันเหล่านี้เท่านั้นที่จะเห็นรายการเหล่านี้"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "คุณเลือก $TOTAL_COUNT$ รายการ คุณไม่สามารถอัปเดต $READONLY_COUNT$ รายการได้เนื่องจากคุณไม่มีสิทธิ์แก้ไข",
@@ -6122,8 +6452,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 รายการจะถูกโอนย้ายไปยังองค์กรที่เลือกอย่างถาวร คุณจะไม่ได้เป็นเจ้าของรายการนี้อีกต่อไป"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ รายการจะถูกโอนย้ายไปยังองค์กรที่เลือกอย่างถาวร คุณจะไม่ได้เป็นเจ้าของรายการเหล่านี้อีกต่อไป",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6156,17 +6498,32 @@
   "successfullyAssignedCollections": {
     "message": "มอบหมายคอลเลกชันสำเร็จแล้ว"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
   "itemMovedToCollection": {
     "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
   },
   "itemMovedToCollections": {
     "message": "Item moved to collections"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
   "itemsMovedToCollection": {
     "message": "Items moved to collection"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
   "itemsMovedToCollections": {
     "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
   },
   "itemAssignedToCollections": {
     "message": "Item assigned to collections"
@@ -6216,10 +6573,16 @@
     "message": "ตำแหน่งรายการ"
   },
   "fileSends": {
-    "message": "ไฟล์ Send"
+    "message": "ไฟล์ Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "ข้อความ Send"
+    "message": "ข้อความ Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "การดำเนินการกับบัญชี"
@@ -6239,8 +6602,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "แสดงการดำเนินการคัดลอกด่วนบนตู้นิรภัย"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "ค่าเริ่มต้นของระบบ"
@@ -6554,6 +6917,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "โปรดอัปเดตแอปพลิเคชันเดสก์ท็อปของคุณ"
   },
@@ -6735,6 +7107,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden จะใช้ URI ข้อมูลเข้าสู่ระบบที่บันทึกไว้เพื่อระบุว่าควรใช้ไอคอนหรือ URL เปลี่ยนรหัสผ่านใดเพื่อปรับปรุงประสบการณ์ของคุณ ไม่มีการรวบรวมหรือบันทึกข้อมูลเมื่อคุณใช้บริการนี้"
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "คุณไม่มีสิทธิ์ดูหน้านี้ ลองเข้าสู่ระบบด้วยบัญชีอื่น"
@@ -7034,6 +7409,9 @@
   "sharedUnlockWithWebDescription": {
     "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
   },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+  },
   "newPermissionNeeded": {
     "message": "New permission needed"
   },
@@ -7240,5 +7618,125 @@
         "example": "Unknown organization"
       }
     }
+  },
+  "health": {
+    "message": "Health"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Your vault is healthy",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Your vault risk is high",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "No exposed passwords",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 exposed password",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ exposed passwords",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Exposed in data breaches",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "None of your passwords were found in data breaches",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "No weak passwords",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 weak password",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ weak passwords",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Too short or simple",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "All your passwords are strong",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "No reused passwords",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 reused password",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ reused passwords",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Reused for several logins",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "All your passwords are unique",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Risks identified",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "No items need attention",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }

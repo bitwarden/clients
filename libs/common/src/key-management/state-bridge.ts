@@ -1,5 +1,8 @@
 import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
+// There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
+// eslint-disable-next-line no-restricted-imports
+import { fromSdkKdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   EncString,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
@@ -7,25 +10,28 @@ import {
   SymmetricKey,
   V2UpgradeToken,
   WasmStateBridge,
+  WebAuthnPrfUnlockData as SdkWebAuthnPrfUnlockData,
   WrappedAccountCryptographicState,
+  Kdf,
 } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 import { compareValues } from "../platform/misc/compare-values";
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
-import { USER_KEY } from "../platform/services/key-state/user-key.state";
 import { StateProvider, UserKeyDefinition } from "../state-migrations";
 import { UserKey } from "../types/key";
 
-import { ACCOUNT_CRYPTOGRAPHIC_STATE } from "./account-cryptography/default-account-cryptographic-state.service";
-import { MASTER_PASSWORD_UNLOCK_KEY } from "./master-password/services/master-password.service";
 import { MasterPasswordUnlockData } from "./master-password/types/master-password.types";
 import {
+  ACCOUNT_CRYPTOGRAPHIC_STATE,
+  KDF_CONFIG,
+  MASTER_PASSWORD_UNLOCK_DATA,
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+  USER_KEY,
   USER_KEY_ENCRYPTED_PIN,
-} from "./pin/pin.state";
-import { V2_UPGRADE_TOKEN } from "./upgrade-token/v2-upgrade-token.state";
+  V2_UPGRADE_TOKEN,
+  WEBAUTHN_PRF_OPTIONS,
+} from "./state-definitions";
 
 // Helper functions to work around unreliable state. KM state values correctness over speed
 // and eventual consistency is not acceptable.
@@ -107,33 +113,44 @@ export class JsWasmStateBridge implements WasmStateBridge {
     await writeAtomic(
       this.stateProvider,
       this.userId,
-      MASTER_PASSWORD_UNLOCK_KEY,
+      MASTER_PASSWORD_UNLOCK_DATA,
       MasterPasswordUnlockData.fromSdk(value),
     );
   }
 
   async get_masterpassword_unlock_data(): Promise<SdkMasterPasswordUnlockData | null> {
-    const data = await readAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_KEY);
+    const data = await readAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_DATA);
     return data == null ? null : data.toSdk();
   }
 
   async clear_masterpassword_unlock_data(): Promise<void> {
-    await deleteAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_KEY);
+    await deleteAtomic(this.stateProvider, this.userId, MASTER_PASSWORD_UNLOCK_DATA);
+  }
+
+  async set_webauthn_prf_unlock_data(value: SdkWebAuthnPrfUnlockData): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_OPTIONS, value);
+  }
+
+  async get_webauthn_prf_unlock_data(): Promise<SdkWebAuthnPrfUnlockData | null> {
+    return await readAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_OPTIONS);
+  }
+
+  async clear_webauthn_prf_unlock_data(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, WEBAUTHN_PRF_OPTIONS);
   }
 
   async set_user_key(userKey: SymmetricKey): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, USER_KEY, {
-      "": SymmetricCryptoKey.fromSdk(userKey) as UserKey,
-    });
+    await writeAtomic(
+      this.stateProvider,
+      this.userId,
+      USER_KEY,
+      SymmetricCryptoKey.fromSdk(userKey) as UserKey,
+    );
   }
 
   async get_user_key(): Promise<SymmetricKey | null> {
     const key = await readAtomic(this.stateProvider, this.userId, USER_KEY);
-    if (key != null) {
-      return key[""].toSdk();
-    } else {
-      return null;
-    }
+    return key == null ? null : key.toSdk();
   }
 
   async clear_user_key(): Promise<void> {
@@ -141,22 +158,20 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async set_ephemeral_pin_envelope(pinEnvelope: PasswordProtectedKeyEnvelope): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, {
-      "": { pin_envelope: pinEnvelope },
-    });
+    await writeAtomic(
+      this.stateProvider,
+      this.userId,
+      PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+      pinEnvelope,
+    );
   }
 
   async get_ephemeral_pin_envelope(): Promise<PasswordProtectedKeyEnvelope | null> {
-    const result = await readAtomic(
+    return await readAtomic(
       this.stateProvider,
       this.userId,
       PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
     );
-    if (result != null) {
-      return result[""]?.pin_envelope ?? null;
-    } else {
-      return null;
-    }
   }
 
   async clear_ephemeral_pin_envelope(): Promise<void> {
@@ -194,5 +209,18 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_encrypted_pin(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, USER_KEY_ENCRYPTED_PIN);
+  }
+
+  async set_kdf_config(kdfConfig: Kdf): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, KDF_CONFIG, fromSdkKdfConfig(kdfConfig));
+  }
+
+  async get_kdf_config(): Promise<Kdf | null> {
+    const result = await readAtomic(this.stateProvider, this.userId, KDF_CONFIG);
+    return result ? result.toSdkConfig() : null;
+  }
+
+  async clear_kdf_config(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, KDF_CONFIG);
   }
 }
