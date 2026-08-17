@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { Injectable } from "@angular/core";
-import { firstValueFrom } from "rxjs";
+import { catchError, firstValueFrom, of } from "rxjs";
 
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
 import { DESKTOP_SSO_CALLBACK, SsoUrlService } from "@bitwarden/auth/common";
@@ -63,8 +63,13 @@ export class DesktopLoginComponentService
     // because the proxy only ever sees `GET /` on the wire. Every other server uses the direct URL,
     // so this adds no connector dependency for non-proxied deployments. Both callback mechanisms
     // below (custom-scheme and localhost) share this decision, since it concerns the launch leg.
+    // Fail safe to the direct URL: if bootstrap detection errors (e.g. the SDK client call rejects,
+    // or `Utils.getHostname` returns null for a host `tldts` cannot parse), fall back to `false` so
+    // the SSO launch proceeds via the direct URL instead of aborting the whole flow.
     const useSsoLaunchConnector = await firstValueFrom(
-      this.serverCommunicationConfigService.needsBootstrap$(Utils.getHostname(webVaultUrl)),
+      this.serverCommunicationConfigService
+        .needsBootstrap$(Utils.getHostname(webVaultUrl))
+        .pipe(catchError(() => of(false))),
     );
 
     // For platforms that cannot support a protocol-based (e.g. bitwarden://) callback, we use a localhost callback

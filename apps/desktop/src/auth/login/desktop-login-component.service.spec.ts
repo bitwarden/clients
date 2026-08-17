@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { MockProxy, mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { of, throwError } from "rxjs";
 
 import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoUrlService } from "@bitwarden/auth/common";
@@ -187,6 +187,18 @@ describe("DesktopLoginComponentService", () => {
         );
         expect(ssoUrlService.buildSsoLaunchConnectorUrl).toHaveBeenCalled();
         expect(ssoUrlService.buildSsoUrl).not.toHaveBeenCalled();
+        expect(platformUtilsService.launchUri).toHaveBeenCalled();
+      });
+
+      it("fails safe to the direct SSO URL when bootstrap detection errors", async () => {
+        serverCommunicationConfigService.needsBootstrap$.mockReturnValue(
+          throwError(() => new Error("detection failed")),
+        );
+
+        await service.redirectToSsoLogin("test@bitwarden.com");
+
+        expect(ssoUrlService.buildSsoUrl).toHaveBeenCalled();
+        expect(ssoUrlService.buildSsoLaunchConnectorUrl).not.toHaveBeenCalled();
         expect(platformUtilsService.launchUri).toHaveBeenCalled();
       });
 
