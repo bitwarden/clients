@@ -210,8 +210,7 @@ export const WithIconTile: Story = {
   },
   argTypes: {
     icon: {
-      options: Object.keys(BITWARDEN_ICONS),
-      mapping: BITWARDEN_ICONS,
+      options: BITWARDEN_ICONS,
       control: { type: "select" },
     },
   },
