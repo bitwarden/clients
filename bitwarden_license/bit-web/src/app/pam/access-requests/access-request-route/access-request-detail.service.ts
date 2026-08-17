@@ -1,12 +1,22 @@
 import { DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { BehaviorSubject, Observable, distinctUntilChanged, filter, map, switchMap } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  distinctUntilChanged,
+  filter,
+  map,
+  startWith,
+  switchMap,
+} from "rxjs";
 
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
+  AccessEventService,
   AccessLeaseId,
   AccessLeaseSdkService,
   AccessRequestId,
@@ -27,9 +37,10 @@ import {
  * offered here: a requester never decides their own request (that's the deferred approver-inbox
  * flow).
  *
- * Page-scoped (provided on the route, not root), so each visit gets its own instance. Fetches on
- * the route id; no live-push refresh (deferred — see the pam `CLAUDE.md`), so a mutation reloads
- * explicitly and the caller re-opens the page to pick up someone else's change.
+ * Page-scoped (provided on the route, not root), so each visit gets its own instance. Re-fetches
+ * on the route id and on every server-pushed access event ({@link AccessEventService}), so an
+ * approver's decision lands on an open page without a reload; mutations made here re-fetch
+ * explicitly rather than waiting for their own push to come back.
  */
 @Injectable()
 export class AccessRequestDetailService {
@@ -37,6 +48,7 @@ export class AccessRequestDetailService {
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly leasingErrors = inject(LeasingErrorService);
+  private readonly accessEvents = inject(AccessEventService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
@@ -59,14 +71,17 @@ export class AccessRequestDetailService {
   );
 
   constructor() {
-    // Load when the id changes. fetch() records failures on loadError$/notFound$ rather than
-    // throwing, so the stream never tears down.
-    this.route.paramMap
+    // Load when the id changes, and again on every access push. `startWith` gives the push stream an
+    // initial value so combineLatest emits on first paint rather than waiting for a push. fetch()
+    // records failures on loadError$/notFound$ rather than throwing, so the stream never tears down.
+    const id$ = this.route.paramMap.pipe(
+      map((params) => params.get("id")),
+      filter((id): id is string => id != null),
+      distinctUntilChanged(),
+    );
+    combineLatest([id$, this.accessEvents.accessChanged$().pipe(startWith(undefined))])
       .pipe(
-        map((params) => params.get("id")),
-        filter((id): id is string => id != null),
-        distinctUntilChanged(),
-        switchMap((id) => this.fetch(id as unknown as AccessRequestId)),
+        switchMap(([id]) => this.fetch(id as unknown as AccessRequestId)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();

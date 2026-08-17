@@ -27,11 +27,13 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { CipherFormConfig } from "../cipher-form";
+import { GATED_CIPHER_RELOADER } from "../tokens/gated-cipher-reloader.token";
 
 import {
   VaultItemDialogComponent,
@@ -599,6 +601,156 @@ describe("VaultItemDialogComponent", () => {
         savedCipherView,
         component["params"].isAdminConsoleAction,
       );
+    });
+  });
+
+  describe("gated cipher reveal (GATED_CIPHER_RELOADER)", () => {
+    let fullCipher$: BehaviorSubject<Cipher | null>;
+    let gatedComponent: TestVaultItemDialogComponent;
+    let gatedFixture: ComponentFixture<TestVaultItemDialogComponent>;
+
+    /** The partial copy a gated cipher opens as: `partialData` set, secrets absent. */
+    const partialCipher = { id: "gated-1", partialData: '{"name":"gated"}' } as unknown as Cipher;
+    /** What the reloader hands back once a lease covers the item. */
+    const leasedCipher = { id: "gated-1", partialData: undefined } as unknown as Cipher;
+
+    /**
+     * Flush the reveal/re-lock promise chain. `fixture.whenStable()` is not enough on its own: the
+     * reloader's emissions originate outside the Angular zone, so the zone reports itself stable
+     * while `swapInCipher` is still awaiting. These assertions read component state rather than the
+     * DOM, so no further render is needed (and re-rendering here would pull in the whole cipher-view
+     * subtree's providers).
+     */
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    /**
+     * Reconfigures the bed with a partial `originalCipher` and a reloader, since the reveal
+     * subscription is set up in the constructor and returns early without both.
+     */
+    async function setup(reloaderProvided = true): Promise<void> {
+      TestBed.resetTestingModule();
+      fullCipher$ = new BehaviorSubject<Cipher | null>(null);
+
+      const formConfig = { ...baseFormConfig, originalCipher: partialCipher };
+      const providers: any[] = [
+        { provide: DIALOG_DATA, useValue: { ...baseParams, formConfig } },
+        { provide: DialogRef, useValue: { close } },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: MessagingService, useValue: { send: jest.fn() } },
+        { provide: LogService, useValue: { error: jest.fn() } },
+        { provide: CipherService, useValue: cipherServiceMock },
+        { provide: Router, useValue: mockRouter },
+        {
+          provide: AccountService,
+          useValue: { activeAccount$: of({ id: "test-user-id" as any }) },
+        },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: { hasPremiumFromAnySource$: jest.fn().mockReturnValue(of(false)) },
+        },
+        {
+          provide: PremiumUpgradePromptService,
+          useValue: { upgradeConfirmed$: of(false), promptForPremium: jest.fn() },
+        },
+        { provide: CipherAuthorizationService, useValue: cipherAuthorizationServiceMock },
+        { provide: ApiService, useValue: mock<ApiService>() },
+        { provide: EventCollectionService, useValue: mock<EventCollectionService>() },
+        { provide: CipherArchiveService, useValue: mockArchiveService },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
+      ];
+      if (reloaderProvided) {
+        providers.push({
+          provide: GATED_CIPHER_RELOADER,
+          useValue: { fullCipher$: () => fullCipher$ },
+        });
+      }
+
+      await TestBed.configureTestingModule({
+        imports: [TestVaultItemDialogComponent, NoopAnimationsModule],
+        providers,
+      })
+        .overrideProvider(DialogService, { useValue: mockDialogService })
+        .compileComponents();
+
+      gatedFixture = TestBed.createComponent(TestVaultItemDialogComponent);
+      gatedComponent = gatedFixture.componentInstance;
+      // detectChanges runs ngOnInit, which is what puts the partial view in place.
+      gatedFixture.detectChanges();
+      await settle();
+    }
+
+    beforeEach(() => {
+      cipherServiceMock.decrypt.mockImplementation(
+        async (cipher) =>
+          ({
+            id: cipher.id,
+            partial: (cipher as any).partialData != null,
+            collectionIds: [],
+          }) as unknown as CipherView,
+      );
+    });
+
+    it("leaves the partial view in place while no lease covers the cipher", async () => {
+      await setup();
+
+      // The initial `null` means "no access yet", not "access just ended".
+      expect(gatedComponent["cipher"]?.partial).toBe(true);
+      expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
+    });
+
+    it("swaps in the full cipher and stamps leaseGated when access begins", async () => {
+      await setup();
+
+      fullCipher$.next(leasedCipher);
+      await settle();
+
+      expect(gatedComponent["cipher"]?.partial).toBe(false);
+      expect(gatedComponent["cipher"]?.leaseGated).toBe(true);
+      // originalCipher must move with the view, or a save would write the partial copy's blanks
+      // over the fields the server suppressed.
+      expect(gatedComponent["formConfig"].originalCipher).toBe(leasedCipher);
+    });
+
+    it("re-derives the permissions withheld while the cipher was gated", async () => {
+      await setup();
+      canEditCipherReturnValue$.next(true);
+      canDeleteCipherReturnValue$.next(true);
+
+      fullCipher$.next(leasedCipher);
+      await settle();
+
+      expect(gatedComponent["canEdit"]).toBe(true);
+      expect(gatedComponent["canDelete"]).toBe(true);
+    });
+
+    it("re-locks to the partial cipher and unmounts the form when access ends", async () => {
+      await setup();
+      canEditCipherReturnValue$.next(true);
+      fullCipher$.next(leasedCipher);
+      await settle();
+
+      fullCipher$.next(null);
+      await settle();
+
+      expect(gatedComponent["cipher"]?.partial).toBe(true);
+      expect(gatedComponent["cipher"]?.leaseGated).toBe(false);
+      expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
+      // The form's own state still holds the full decrypted cipher, so it must not stay mounted.
+      expect(gatedComponent["loadForm"]).toBe(false);
+      expect(gatedComponent["params"].mode).toBe("view");
+      expect(gatedComponent["canEdit"]).toBe(false);
+      expect(gatedComponent["canDelete"]).toBe(false);
+    });
+
+    it("does nothing at all when no host provides a reloader", async () => {
+      await setup(false);
+
+      expect(gatedComponent["cipher"]?.partial).toBe(true);
+      expect(gatedComponent["formConfig"].originalCipher).toBe(partialCipher);
     });
   });
 });

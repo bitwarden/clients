@@ -28,7 +28,15 @@
 --     spec models the *event*, not the wire format)
 --   - Audit log persistence (server-side; the client observes outcomes only)
 --   - LaunchDarkly feature-flag gating (deployment concern, not domain)
---   - Mock layer in apps/web/src/app/pam/mock (demo scaffolding)
+--
+-- Specified but NOT yet implemented in this client (the spec leads the code here):
+--   - Org-wide kill switch and leasing freeze (KillSwitchControl, LeasingFreeze) —
+--     no server or SDK backing
+--   - Governance dashboard (GovernanceDashboard) — no server or SDK backing
+--   - EmailApprovalDeepLink as a distinct landing page; /pam/requests/:id currently
+--     serves the requester's own request only
+--   - ForecastDecision and RuleAllowsLease as separate reads; the built request form
+--     shapes itself from AccessRequestsClient::pre_check instead
 
 -- ----------------------------------------------------------------------------
 -- External entities (other systems own these; PAM only references them)
@@ -423,12 +431,15 @@ rule CipherOpenRequiresAccessRequest {
     requires: approved_requests.count = 0
     ensures: CipherOpenNeedsRequest(caller, target_cipher, gating_rule)
     @guidance
-        -- Implementation: the cipher-open round-trip reports that the cipher is
-        -- gated and the caller holds no access, so the client shows the Request
-        -- Access modal. Submitting the modal POSTs a new AccessRequest
-        -- (MemberSubmitsAccessRequest); that response may already be approved
-        -- when the rule needs no human approval. See PamCipherOpenGate
-        -- (cipher-open-gate.service.ts).
+        -- Implementation: there is no separate cipher-open round-trip. The server
+        -- serves a gated cipher as a RESTRICTED (partial) cipher on sync — name and
+        -- URIs only, every secret field absent — and the client reads
+        -- CipherView.partial to know it is gated. The banner then reads the caller's
+        -- own state for that cipher through
+        -- AccessRequestsClient::cipher_access_state, and offers Request access when
+        -- no lease, approved request, or pending request comes back. Submitting calls
+        -- AccessRequestsClient::request, whose result may already be approved when
+        -- the rule needs no human approval.
 }
 
 rule CipherOpenWithApprovedRequest {
@@ -1238,8 +1249,13 @@ actor OrgAdmin {
 -- ----------------------------------------------------------------------------
 
 surface CipherViewBanner {
-    -- Renders the leased pill / pending banner / denial state on the cipher
-    -- view page when PAM gating applies. See cipher-lease-banner.component.
+    -- The requester's entry point on an open gated cipher: renders exactly one of
+    -- four states — active lease (countdown, extend, end), approved request (start,
+    -- withdraw), pending request (withdraw), or none of those (request access, which
+    -- folds out RequestAccessModal inline). Also the surface that reveals the
+    -- credential in place the moment a lease becomes active, without reopening the
+    -- item. See cipher-view-banner.component, bound to the CIPHER_VIEW_BANNER seam;
+    -- the reveal itself goes through the GATED_CIPHER_RELOADER seam.
     facing viewer: Member
 
     context target_cipher: Cipher
@@ -1264,8 +1280,14 @@ surface RequestAccessModal {
     -- (CipherOpenNeedsRequest). No AccessRequest exists yet: the member optionally
     -- picks a scheduled window (otherwise the request is on-demand and the window
     -- defaults from the rule's duration at submit), adds a reason, and submits,
-    -- which creates it (MemberSubmitsAccessRequest). Dismissing the modal without
-    -- submitting creates nothing.
+    -- which creates it (MemberSubmitsAccessRequest). Dismissing without submitting
+    -- creates nothing.
+    --
+    -- Implemented as a fold-out INSIDE CipherViewBanner rather than a separate modal,
+    -- so the requester never loses sight of the item they are asking for. Which fields
+    -- it collects comes from pre_check: a duration alone on the automatic path, a
+    -- window plus a required reason on the human path. The name is kept because the
+    -- copy keys (requestAccessModal*) are shared with it.
     facing requester: Member
 
     context target_cipher: Cipher
@@ -1301,9 +1323,12 @@ surface RequestAccessModal {
 }
 
 surface MyAccessRequestsPage {
-    -- "My requests" page: caller's own AccessRequest rows, bounded by the
-    -- shared history window; the UI further splits them into pending and
-    -- recent. See my-access-requests.component.
+    -- "My requests": the caller's own AccessRequest rows, bounded by the shared
+    -- history window. Implemented as two tabs of the Access requests page rather than
+    -- one list — my-requests-tab.component holds what is still actionable (pending,
+    -- open extension requests, active leases) and history-tab.component holds what has
+    -- resolved — because the two carry different actions. Each row links to
+    -- access-request-route.component for the single-request view.
     facing viewer: Member
 
     context viewer: Member
@@ -1349,12 +1374,14 @@ surface MyAccessRequestsPage {
 
 surface ActiveLeasesPage {
     -- Caller's currently-active leases with per-row revoke (used by lease
-    -- holders to end their own access early).
+    -- holders to end their own access early) and extension.
     --
-    -- PLANNED — no component exists yet. This surface is intended design: it is
-    -- the only surface providing requester self-revoke and MemberRequestsExtension,
-    -- neither of which is reachable in the UI until it is built. Today the
-    -- caller's active-lease data feeds only the nav slot and cipher badges.
+    -- No page of its own. Both actions it provides ARE reachable: the "Currently
+    -- checked out" section of my-requests-tab.component ends a lease, and
+    -- cipher-view-banner.component ends or extends the lease on the item itself
+    -- (through extend-lease-dialog.component). This surface is kept as the domain
+    -- statement of what a lease holder may do to their own lease, independently of
+    -- which screen offers it.
     facing viewer: Member
 
     context viewer: Member
@@ -1374,8 +1401,16 @@ surface ActiveLeasesPage {
 }
 
 surface ApproverInbox {
-    -- The approver's queue of pending requests plus a history view of
-    -- resolved items. See approver-inbox.component.
+    -- The approver's queue of pending requests plus a history view of resolved
+    -- items. Implemented as the Approvals tab of the Access requests page
+    -- (approvals-tab.component) plus the approver scope of its History tab, rather
+    -- than a page of its own; the tab is hidden entirely from a member with no
+    -- approval privileges.
+    --
+    -- Its two reads and its decision write are the one place this client speaks HTTP
+    -- rather than the SDK (ApprovalApiService), because the pinned SDK exposes no
+    -- approver-scoped surface. Revoke and cancel-approval are NOT part of that seam:
+    -- LeasesClient::end and AccessRequestsClient::cancel already serve them.
     facing viewer: Approver
 
     context viewer: Approver
@@ -1466,6 +1501,31 @@ surface AccessRulesAdminPage {
                          collections, default_lease_duration, max_lease_duration,
                          single_active_lease, enabled)
         DeleteAccessRule(admin, rule)
+}
+
+surface CollectionAccessRuleCallout {
+    -- Shown inside the collection edit dialog, naming the access rules that gate the
+    -- collection's items so an admin editing WHO can reach a collection can see that a
+    -- rule already governs WHEN. Read-only and informational: it grants nothing and
+    -- blocks nothing, so a failed read simply hides it. Only rendered while editing an
+    -- existing collection — there is nothing to gate before one exists. See
+    -- collection-access-rule-callout.component, bound to the
+    -- COLLECTION_ACCESS_RULE_CALLOUT seam.
+    facing admin: OrgAdmin
+
+    context target_collection: Collection
+
+    exposes:
+        -- Every enabled rule governing this collection, with the conditions it
+        -- enforces. Plural even though Collection.access_rule is a single reference:
+        -- the client reads the org's rules and filters by membership rather than
+        -- following the link, so it reports whatever the server actually returns
+        -- instead of assuming the cardinality holds.
+        for rule in AccessRule where enabled and target_collection in collections:
+            rule.id
+            rule.name
+            rule.conditions
+            rule.single_active_lease
 }
 
 surface GovernanceDashboard {
