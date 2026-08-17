@@ -3,9 +3,9 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { ConfigService } from "../../platform/abstractions/config/config.service";
 
-import { autotypeMvpOrGaEnabled$ } from "./autotype-feature-flags";
+import { autotypeFeatureFlagEnabled$ } from "./autotype-feature-flags";
 
-describe("autotypeMvpOrGaEnabled$", () => {
+describe("autotypeFeatureFlagEnabled$", () => {
   let mockConfigService: jest.Mocked<ConfigService>;
   let mvpFeatureFlagSubject: BehaviorSubject<boolean>;
   let gaFeatureFlagSubject: BehaviorSubject<boolean>;
@@ -29,7 +29,7 @@ describe("autotypeMvpOrGaEnabled$", () => {
   });
 
   it("reads the MVP and GA feature flags", () => {
-    const subscription = autotypeMvpOrGaEnabled$(mockConfigService).subscribe();
+    const subscription = autotypeFeatureFlagEnabled$(mockConfigService).subscribe();
 
     expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
       FeatureFlag.WindowsDesktopAutotype,
@@ -45,7 +45,7 @@ describe("autotypeMvpOrGaEnabled$", () => {
     mvpFeatureFlagSubject.next(false);
     gaFeatureFlagSubject.next(false);
 
-    const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
 
     expect(result).toBe(false);
   });
@@ -54,7 +54,7 @@ describe("autotypeMvpOrGaEnabled$", () => {
     mvpFeatureFlagSubject.next(true);
     gaFeatureFlagSubject.next(false);
 
-    const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
 
     expect(result).toBe(true);
   });
@@ -63,7 +63,7 @@ describe("autotypeMvpOrGaEnabled$", () => {
     mvpFeatureFlagSubject.next(false);
     gaFeatureFlagSubject.next(true);
 
-    const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
 
     expect(result).toBe(true);
   });
@@ -72,7 +72,7 @@ describe("autotypeMvpOrGaEnabled$", () => {
     mvpFeatureFlagSubject.next(true);
     gaFeatureFlagSubject.next(true);
 
-    const result = await firstValueFrom(autotypeMvpOrGaEnabled$(mockConfigService));
+    const result = await firstValueFrom(autotypeFeatureFlagEnabled$(mockConfigService));
 
     expect(result).toBe(true);
   });
@@ -82,7 +82,7 @@ describe("autotypeMvpOrGaEnabled$", () => {
     gaFeatureFlagSubject.next(false);
 
     const emissions: boolean[] = [];
-    const subscription = autotypeMvpOrGaEnabled$(mockConfigService).subscribe((value) =>
+    const subscription = autotypeFeatureFlagEnabled$(mockConfigService).subscribe((value) =>
       emissions.push(value),
     );
 

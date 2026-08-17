@@ -18,7 +18,7 @@ function autotypeFeatureFlags$(configService: ConfigService): Observable<[boolea
  * "is some Autotype implementation available" (Settings UI visibility, the org
  * default-enable policy) should use this instead of checking a single flag directly.
  */
-export function autotypeMvpOrGaEnabled$(configService: ConfigService): Observable<boolean> {
+export function autotypeFeatureFlagEnabled$(configService: ConfigService): Observable<boolean> {
   return autotypeFeatureFlags$(configService).pipe(
     map(([mvpEnabled, gaEnabled]) => mvpEnabled || gaEnabled),
     // Consumers feed this into a switchMap chain or a signal.set(), so suppressing

@@ -8,7 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { autotypeMvpOrGaEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
+import { autotypeFeatureFlagEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 @Injectable({ providedIn: "root" })
@@ -26,7 +26,7 @@ export class DesktopAutotypeDefaultSettingPolicy {
    * - true: autotype policy exists and is enabled
    * - null: no autotype policy exists for the user's organization
    */
-  readonly autotypeDefaultSetting$: Observable<boolean | null> = autotypeMvpOrGaEnabled$(
+  readonly autotypeDefaultSetting$: Observable<boolean | null> = autotypeFeatureFlagEnabled$(
     this.configService,
   ).pipe(
     switchMap((autotypeFeatureEnabled) => {
