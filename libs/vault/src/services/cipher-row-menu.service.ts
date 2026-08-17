@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { switchMap } from "rxjs";
+import { shareReplay, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -38,12 +38,14 @@ export class CipherRowMenuService {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly cipherActionService = inject(CipherActionService);
 
+  private readonly userId$ = this.accountService.activeAccount$.pipe(
+    getUserId,
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
+
   /** Whether the active user has premium and can archive ciphers. */
   readonly userCanArchive = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
-    ),
+    this.userId$.pipe(switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId))),
     { initialValue: false },
   );
 
@@ -56,10 +58,7 @@ export class CipherRowMenuService {
    * item to. See {@link showAssignToCollections}.
    */
   private readonly organizations = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.organizationService.organizations$(userId)),
-    ),
+    this.userId$.pipe(switchMap((userId) => this.organizationService.organizations$(userId))),
     { initialValue: [] as Organization[] },
   );
 
