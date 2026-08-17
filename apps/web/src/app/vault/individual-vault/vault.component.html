@@ -85,9 +85,9 @@
           <div slot="title">
             {{ (emptyState$ | async)?.title | i18n }}
           </div>
-          <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
+          <div slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
             {{ (emptyState$ | async)?.description | i18n }}
-          </p>
+          </div>
           @if (showAddCipherBtn) {
             <button
               type="button"
