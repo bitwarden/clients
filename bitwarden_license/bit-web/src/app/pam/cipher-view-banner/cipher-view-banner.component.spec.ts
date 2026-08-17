@@ -117,7 +117,10 @@ describe("CipherViewBannerComponent", () => {
         // No push here (NEVER) — the banner's own mutations are what should drive the re-read.
         {
           provide: AccessRefreshService,
-          useValue: new DefaultAccessRefreshService({ accessChanged$: () => NEVER }),
+          useValue: new DefaultAccessRefreshService({
+            accessChanged$: () => NEVER,
+            approverInboxChanged$: () => NEVER,
+          }),
         },
         { provide: LeasingErrorService, useValue: leasingErrors },
         { provide: DialogService, useValue: dialogService },
