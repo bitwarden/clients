@@ -27,7 +27,7 @@ export type BulkEnablePamDialogData = {
 
 @Component({
   templateUrl: `bulk-enable-pam-dialog.component.html`,
-  selector: "member-bulk-enable-pam-dialog",
+  selector: "app-bulk-enable-pam-dialog",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [

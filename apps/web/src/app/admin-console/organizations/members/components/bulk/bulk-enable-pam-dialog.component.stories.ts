@@ -82,6 +82,6 @@ type Story = StoryObj<BulkEnablePamDialogComponent>;
  */
 export const Default: Story = {
   render: () => ({
-    template: `<member-bulk-enable-pam-dialog></member-bulk-enable-pam-dialog>`,
+    template: `<app-bulk-enable-pam-dialog />`,
   }),
 };
