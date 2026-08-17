@@ -1683,12 +1683,6 @@
   "premiumRefresh": {
     "message": "Refresh membership"
   },
-  "premiumNotCurrentMember": {
-    "message": "You are not currently a Premium member."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Sign up for a Premium membership and get:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
@@ -1733,12 +1727,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
-  },
-  "premiumCurrentMember": {
-    "message": "You are a Premium member!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Thank you for supporting Bitwarden."
   },
   "premiumFeatures": {
     "message": "Upgrade to Premium and receive:"
