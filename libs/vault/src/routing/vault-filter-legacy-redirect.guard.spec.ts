@@ -1,11 +1,10 @@
 import { TestBed } from "@angular/core/testing";
 import {
-  ActivatedRoute,
   ActivatedRouteSnapshot,
-  convertToParamMap,
-  Router,
   RouterStateSnapshot,
   UrlTree,
+  convertToParamMap,
+  createUrlTreeFromSnapshot,
 } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
@@ -15,9 +14,12 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { vaultFilterLegacyRedirectGuard } from "./vault-filter-legacy-redirect.guard";
 
+jest.mock("@angular/router", () => ({
+  ...jest.requireActual("@angular/router"),
+  createUrlTreeFromSnapshot: jest.fn(),
+}));
+
 describe("vaultFilterLegacyRedirectGuard", () => {
-  let router: MockProxy<Router>;
-  let activatedRoute: MockProxy<ActivatedRoute>;
   let configService: MockProxy<ConfigService>;
 
   const state = mock<RouterStateSnapshot>();
@@ -32,19 +34,16 @@ describe("vaultFilterLegacyRedirectGuard", () => {
   }
 
   beforeEach(() => {
-    router = mock<Router>();
-    activatedRoute = mock<ActivatedRoute>();
     configService = mock<ConfigService>();
-
-    router.createUrlTree.mockReturnValue(mockUrlTree);
+    jest.mocked(createUrlTreeFromSnapshot).mockReturnValue(mockUrlTree);
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: Router, useValue: router },
-        { provide: ActivatedRoute, useValue: activatedRoute },
-        { provide: ConfigService, useValue: configService },
-      ],
+      providers: [{ provide: ConfigService, useValue: configService }],
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe("when VFO1Foundation is disabled", () => {
@@ -56,7 +55,7 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       const result = await runGuard(makeRoute({ type: "login" }));
 
       expect(result).toBe(true);
-      expect(router.createUrlTree).not.toHaveBeenCalled();
+      expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
     });
 
     it("verifies the guard checked the correct feature flag", async () => {
@@ -74,19 +73,26 @@ describe("vaultFilterLegacyRedirectGuard", () => {
     describe("with no legacy params", () => {
       it("returns true when no query params are present", async () => {
         expect(await runGuard(makeRoute({}))).toBe(true);
-        expect(router.createUrlTree).not.toHaveBeenCalled();
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
       });
 
       it("returns true when only new-style vault.* params are present", async () => {
         // New-style params don't match any legacy key, so no redirect is needed.
         expect(await runGuard(makeRoute({ "vault.type": "1" }))).toBe(true);
-        expect(router.createUrlTree).not.toHaveBeenCalled();
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
       });
     });
 
-    describe("returns the URL tree from router.createUrlTree on redirect", () => {
-      it("returns the url tree when a redirect is triggered", async () => {
+    describe("redirect", () => {
+      it("returns the UrlTree from createUrlTreeFromSnapshot", async () => {
         expect(await runGuard(makeRoute({ type: "login" }))).toBe(mockUrlTree);
+      });
+
+      it("calls createUrlTreeFromSnapshot with the route snapshot and empty commands", async () => {
+        const route = makeRoute({ type: "login" });
+        await runGuard(route);
+
+        expect(createUrlTreeFromSnapshot).toHaveBeenCalledWith(route, [], expect.any(Object));
       });
     });
 
@@ -106,30 +112,26 @@ describe("vaultFilterLegacyRedirectGuard", () => {
         it(`maps ?type=${legacyType} → ?vault.type=${cipherType}`, async () => {
           await runGuard(makeRoute({ type: legacyType }));
 
-          expect(router.createUrlTree).toHaveBeenCalledWith([], {
-            relativeTo: activatedRoute,
-            queryParams: expect.objectContaining({ "vault.type": String(cipherType) }),
-            queryParamsHandling: "merge",
-          });
+          const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+          expect(queryParams).toEqual(
+            expect.objectContaining({ "vault.type": String(cipherType) }),
+          );
         });
       });
 
       it("maps ?type=favorites → ?vault.favorites=true", async () => {
         await runGuard(makeRoute({ type: "favorites" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.favorites": "true" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.favorites": "true" }));
       });
 
       it("does not add vault.type or vault.favorites for unknown types like ?type=trash", async () => {
         await runGuard(makeRoute({ type: "trash" }));
 
-        const { queryParams } = router.createUrlTree.mock.calls[0][1];
-        expect(queryParams["vault.type"]).toBeUndefined();
-        expect(queryParams["vault.favorites"]).toBeUndefined();
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams?.["vault.type"]).toBeUndefined();
+        expect(queryParams?.["vault.favorites"]).toBeUndefined();
       });
     });
 
@@ -137,11 +139,8 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       it("maps ?folderId → ?vault.folder", async () => {
         await runGuard(makeRoute({ folderId: "folder-abc" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.folder": "folder-abc" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.folder": "folder-abc" }));
       });
     });
 
@@ -149,31 +148,22 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       it("maps ?sharedFolderId → ?vault.sharedFolder", async () => {
         await runGuard(makeRoute({ sharedFolderId: "col-123" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.sharedFolder": "col-123" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.sharedFolder": "col-123" }));
       });
 
       it("maps ?collectionId → ?vault.sharedFolder", async () => {
         await runGuard(makeRoute({ collectionId: "col-456" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.sharedFolder": "col-456" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.sharedFolder": "col-456" }));
       });
 
       it("prefers ?sharedFolderId over ?collectionId when both are present", async () => {
         await runGuard(makeRoute({ sharedFolderId: "primary", collectionId: "fallback" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.sharedFolder": "primary" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.sharedFolder": "primary" }));
       });
     });
 
@@ -181,31 +171,22 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       it("maps ?organizationId → ?vault.vault", async () => {
         await runGuard(makeRoute({ organizationId: "org-abc" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.vault": "org-abc" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.vault": "org-abc" }));
       });
 
       it("maps ?vaultId → ?vault.vault", async () => {
         await runGuard(makeRoute({ vaultId: "vault-abc" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.vault": "vault-abc" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.vault": "vault-abc" }));
       });
 
       it("prefers ?vaultId over ?organizationId when both are present", async () => {
         await runGuard(makeRoute({ vaultId: "primary", organizationId: "fallback" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.vault": "primary" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.vault": "primary" }));
       });
     });
 
@@ -213,20 +194,31 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       it("maps ?search → ?vault.search", async () => {
         await runGuard(makeRoute({ search: "hello world" }));
 
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.objectContaining({ "vault.search": "hello world" }),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.search": "hello world" }));
       });
     });
 
-    describe("legacy key clearing", () => {
-      it("clears out all legacy keys", async () => {
+    describe("legacy key stripping", () => {
+      it("strips all legacy keys from the redirect URL", async () => {
         await runGuard(makeRoute({ type: "login" }));
 
-        const { queryParams } = router.createUrlTree.mock.calls[0][1];
-        expect(Object.keys(queryParams)).toEqual(["vault.type"]);
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(Object.keys(queryParams ?? {})).toEqual(["vault.type"]);
+      });
+
+      it("preserves non-legacy params like cipherId and action", async () => {
+        await runGuard(makeRoute({ type: "login", cipherId: "cipher-abc", action: "add" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(
+          expect.objectContaining({
+            cipherId: "cipher-abc",
+            action: "add",
+            "vault.type": String(CipherType.Login),
+          }),
+        );
+        expect(queryParams?.["type"]).toBeUndefined();
       });
     });
 
@@ -240,28 +232,18 @@ describe("vaultFilterLegacyRedirectGuard", () => {
           }),
         );
 
-        const { queryParams } = router.createUrlTree.mock.calls[0][1];
-        expect(queryParams["vault.type"]).toBe(String(CipherType.Login));
-        expect(queryParams["vault.folder"]).toBe("folder-1");
-        expect(queryParams["vault.search"]).toBe("amazon");
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams?.["vault.type"]).toBe(String(CipherType.Login));
+        expect(queryParams?.["vault.folder"]).toBe("folder-1");
+        expect(queryParams?.["vault.search"]).toBe("amazon");
       });
 
       it("converts type and sharedFolderId together", async () => {
         await runGuard(makeRoute({ type: "card", sharedFolderId: "col-999" }));
 
-        const { queryParams } = router.createUrlTree.mock.calls[0][1];
-        expect(queryParams["vault.type"]).toBe(String(CipherType.Card));
-        expect(queryParams["vault.sharedFolder"]).toBe("col-999");
-      });
-
-      it("passes relativeTo and queryParamsHandling correctly", async () => {
-        await runGuard(makeRoute({ search: "test" }));
-
-        expect(router.createUrlTree).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: expect.any(Object),
-          queryParamsHandling: "merge",
-        });
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams?.["vault.type"]).toBe(String(CipherType.Card));
+        expect(queryParams?.["vault.sharedFolder"]).toBe("col-999");
       });
     });
   });

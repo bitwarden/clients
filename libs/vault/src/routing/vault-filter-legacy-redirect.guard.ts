@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { ActivatedRoute, CanActivateFn, ParamMap, Router } from "@angular/router";
+import { CanActivateFn, ParamMap, createUrlTreeFromSnapshot } from "@angular/router";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -17,6 +17,17 @@ const LEGACY_TYPE_MAP: Record<string, CipherType> = {
   passport: CipherType.Passport,
 };
 
+/** All legacy param key names stripped from the URL during redirect. */
+const LEGACY_KEYS = new Set([
+  "type",
+  "folderId",
+  "sharedFolderId",
+  "collectionId",
+  "vaultId",
+  "organizationId",
+  "search",
+]);
+
 /**
  * Extracts the five legacy filter params from a query-param map.
  * Returns null for each dimension that isn't present.
@@ -33,13 +44,12 @@ function extractLegacyParams(params: ParamMap) {
 
 /**
  * Builds the query-param patch to apply during the redirect.
- * Legacy keys are set to null (Angular's merge strategy removes them);
- * their `vault.*` equivalents are set to the converted value.
+ * Legacy keys are mapped to their `vault.*` namespaced equivalents.
  */
 function buildRedirectPatch(
   legacy: ReturnType<typeof extractLegacyParams>,
-): Record<string, string | null> {
-  const patch: Record<string, string | null> = {};
+): Record<string, string> {
+  const patch: Record<string, string> = {};
 
   if (legacy.type === "favorites") {
     patch["vault.favorites"] = "true";
@@ -66,12 +76,10 @@ function buildRedirectPatch(
 /**
  * Redirects legacy vault URL params (`?type=`, `?folderId=`, etc.) to their
  * `queryParam="vault"` namespaced equivalents (`?vault.type=`, `?vault.folder=`, etc.)
- * when the VFO1Foundation feature flag is enabled. The redirect replaces the current
- * history entry so the back button is unaffected.
+ * when the VFO1Foundation feature flag is enabled. Non-legacy params (e.g. `cipherId`,
+ * `action`) are preserved in the redirect.
  */
 export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
-  const router = inject(Router);
-  const activatedRoute = inject(ActivatedRoute);
   const configService = inject(ConfigService);
 
   const vfo1Enabled = await configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
@@ -88,9 +96,17 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
     return true;
   }
 
-  return router.createUrlTree([], {
-    relativeTo: activatedRoute,
-    queryParams: buildRedirectPatch(legacy),
-    queryParamsHandling: "merge",
-  });
+  const patch = buildRedirectPatch(legacy);
+
+  // Copy non-legacy params first, then apply the converted patch.
+  // This preserves params like cipherId and action that the vault uses independently.
+  const queryParams: Record<string, string> = {};
+  for (const key of route.queryParamMap.keys) {
+    if (!LEGACY_KEYS.has(key)) {
+      queryParams[key] = route.queryParamMap.get(key)!;
+    }
+  }
+  Object.assign(queryParams, patch);
+
+  return createUrlTreeFromSnapshot(route, [], queryParams);
 };
