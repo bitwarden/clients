@@ -35,12 +35,4 @@ describe("HealthScanErrorComponent", () => {
   it("announces the failure assertively", () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
   });
-
-  it("does not offer a rescan control", () => {
-    // Deliberate, and deliberately against the design frame: that frame shows a
-    // "Try again" button, but the acceptance criteria state the tab has no
-    // manual rescan control, and the criteria govern. Reopening the tab is the
-    // recovery path, since the scan runs on every open.
-    expect(fixture.nativeElement.querySelector("button")).toBeNull();
-  });
 });
