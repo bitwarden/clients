@@ -311,7 +311,6 @@ const safeProviders: SafeProvider[] = [
       ConfigService,
       SdkService,
       OrganizationInviteService,
-      PolicyService,
     ],
   }),
   safeProvider({
