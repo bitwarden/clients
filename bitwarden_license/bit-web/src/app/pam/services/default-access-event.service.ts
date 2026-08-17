@@ -8,7 +8,8 @@ import { AccessEventService } from "..";
 
 /**
  * Default {@link AccessEventService}: filters the application-wide server-notification stream down to
- * `RefreshAccessRequest` and shares the result.
+ * the two PAM push types — `RefreshAccessRequest` for the requester and `RefreshApproverInbox` for
+ * the approvers — and shares each result.
  *
  * Takes the stream as a constructor argument rather than the whole notifications service so this
  * class has no opinion about transport, and unit tests hand it a plain `Subject`.
@@ -25,16 +26,28 @@ import { AccessEventService } from "..";
  */
 export class DefaultAccessEventService implements AccessEventService {
   private readonly changed$: Observable<void>;
+  private readonly inboxChanged$: Observable<void>;
 
   constructor(notifications$: Observable<readonly [NotificationResponse, UserId]>) {
-    this.changed$ = notifications$.pipe(
-      filter(([notification]) => notification?.type === NotificationType.RefreshAccessRequest),
-      map((): void => undefined),
-      share(),
-    );
+    const ticksFor = (type: NotificationType): Observable<void> =>
+      notifications$.pipe(
+        filter(([notification]) => notification?.type === type),
+        map((): void => undefined),
+        share(),
+      );
+
+    this.changed$ = ticksFor(NotificationType.RefreshAccessRequest);
+    // Kept a separate stream rather than merged into `changed$`: the approver push says a collection
+    // the caller manages changed, which is no reason for the requester-side surfaces (the lease
+    // banner, the nav badge) to re-read.
+    this.inboxChanged$ = ticksFor(NotificationType.RefreshApproverInbox);
   }
 
   accessChanged$(): Observable<void> {
     return this.changed$;
+  }
+
+  approverInboxChanged$(): Observable<void> {
+    return this.inboxChanged$;
   }
 }
