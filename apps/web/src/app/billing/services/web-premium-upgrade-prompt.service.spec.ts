@@ -140,6 +140,27 @@ describe("WebVaultPremiumUpgradePromptService", () => {
       expect(dialogServiceMock.openSimpleDialog).not.toHaveBeenCalled();
       expect(routerMock.navigate).not.toHaveBeenCalled();
     });
+
+    it("should still prompt for an organization upgrade if the user already has personal premium", async () => {
+      billingAccountProfileServiceMock.hasPremiumFromAnySource$.mockReturnValue(of(true));
+      dialogServiceMock.openSimpleDialog.mockReturnValue(lastValueFrom(of(true)));
+      const organizationId = "test-org-id" as OrganizationId;
+
+      await service.promptForPremium(organizationId);
+
+      expect(dialogServiceMock.openSimpleDialog).toHaveBeenCalledWith({
+        title: { key: "upgradeOrganization" },
+        content: { key: "upgradeOrganizationDesc" },
+        acceptButtonText: { key: "upgradeOrganization" },
+        type: "info",
+      });
+      expect(routerMock.navigate).toHaveBeenCalledWith([
+        "organizations",
+        organizationId,
+        "billing",
+        "subscription",
+      ]);
+    });
   });
 
   describe("new premium upgrade dialog with post-upgrade actions", () => {
