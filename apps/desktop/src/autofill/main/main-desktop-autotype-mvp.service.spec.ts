@@ -74,6 +74,7 @@ describe("MainDesktopAutotypeMvpService", () => {
     // Mock WindowMain with webContents
     mockWindowMain = {
       win: {
+        isDestroyed: jest.fn().mockReturnValue(false),
         webContents: {
           send: jest.fn(),
         },
