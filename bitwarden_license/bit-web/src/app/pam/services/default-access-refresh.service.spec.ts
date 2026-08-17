@@ -1,4 +1,4 @@
-import { Subject, Subscription } from "rxjs";
+import { NEVER, Subject, Subscription } from "rxjs";
 
 import { AccessEventService } from "..";
 
@@ -18,7 +18,10 @@ describe("DefaultAccessRefreshService", () => {
 
   beforeEach(() => {
     push$ = new Subject<void>();
-    const accessEvents: AccessEventService = { accessChanged$: () => push$.asObservable() };
+    const accessEvents: AccessEventService = {
+      accessChanged$: () => push$.asObservable(),
+      approverInboxChanged$: () => NEVER,
+    };
     service = new DefaultAccessRefreshService(accessEvents);
   });
 
