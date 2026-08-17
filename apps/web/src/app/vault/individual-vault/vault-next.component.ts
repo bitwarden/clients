@@ -31,6 +31,9 @@ import {
 import { HeaderModule } from "../../layouts/header/header.module";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
+import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
+import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
+
 /**
  * The web individual vault built on the shared {@link VaultItemsTableComponent}, which owns its own
  * search, filter chips, and sorting — so this page has no filter sidebar.
@@ -38,7 +41,8 @@ import { WebVaultItemActionsService } from "../services/vault-item-actions.servi
  * Not yet wired: the typed filter adapter that syncs the
  * table's chips to the URL, the redirect that rewrites legacy filter query params, and the
  * `?itemId=&action=` deep link that opens an item on load. Until the chips are wired there is no
- * route to trash or the archive from this page, so both are excluded from the list.
+ * route to trash or the archive from this page, so both are excluded from the list — which also
+ * means the archive's "premium subscription ended" callout has nowhere to surface yet.
  */
 @Component({
   selector: "app-vault-next",
@@ -51,7 +55,9 @@ import { WebVaultItemActionsService } from "../services/vault-item-actions.servi
     ButtonModule,
     HeaderModule,
     I18nPipe,
+    VaultBannersComponent,
     VaultItemsTableComponent,
+    VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
   ],
   providers: [
