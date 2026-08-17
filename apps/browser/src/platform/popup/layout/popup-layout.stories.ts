@@ -134,6 +134,16 @@ class MockAddButtonComponent {}
   selector: "mock-popout-button",
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
+    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
+  `,
+  imports: [IconButtonModule],
+})
+class MockPopoutButtonComponent {}
+
+@Component({
+  selector: "mock-popout-button-vfo1",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
     <button
       bitIconButton="bwi-popout"
       size="small"
@@ -144,7 +154,7 @@ class MockAddButtonComponent {}
   `,
   imports: [IconButtonModule],
 })
-class MockPopoutButtonComponent {}
+class MockPopoutButtonVFO1Component {}
 
 @Component({
   selector: "mock-current-account",
@@ -197,6 +207,7 @@ class MockBannerComponent {}
     PopupHeaderComponent,
     MockAddButtonComponent,
     MockPopoutButtonComponent,
+    MockPopoutButtonVFO1Component,
     MockCurrentAccountComponent,
     MockSearchComponent,
     VaultComponent,
@@ -662,12 +673,12 @@ class MockVaultTablePageComponent {
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Send">
-        <ng-container slot="app-actions">
-          <mock-popout-button></mock-popout-button>
+        <ng-container slot="end">
+          <mock-popout-button-vfo1></mock-popout-button-vfo1>
           <mock-current-account></mock-current-account>
         </ng-container>
         <bit-icon-tile slot="start" icon="bwi-send" variant="brand" size="sm"></bit-icon-tile>
-        <span slot="end" bitTypography="body2" class="tw-text-muted">3 Sends</span>
+        <span slot="title-end" bitTypography="body2" class="tw-text-muted">3 Sends</span>
       </popup-header>
       <mock-search slot="above-scroll-area"></mock-search>
       <div class="tw-text-main">Send content here</div>
@@ -676,7 +687,7 @@ class MockVaultTablePageComponent {
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
-    MockPopoutButtonComponent,
+    MockPopoutButtonVFO1Component,
     MockCurrentAccountComponent,
     MockSearchComponent,
     IconTileComponent,
@@ -695,12 +706,12 @@ class MockSendPageV2Component {}
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Vault">
-        <ng-container slot="app-actions">
-          <mock-popout-button></mock-popout-button>
+        <ng-container slot="end">
+          <mock-popout-button-vfo1></mock-popout-button-vfo1>
           <mock-current-account></mock-current-account>
         </ng-container>
         <bit-icon-tile slot="start" icon="bwi-lock" variant="brand" size="sm"></bit-icon-tile>
-        <span slot="end" bitTypography="body2" class="tw-text-muted">20 items</span>
+        <span slot="title-end" bitTypography="body2" class="tw-text-muted">20 items</span>
       </popup-header>
       <mock-search slot="above-scroll-area"></mock-search>
       <vault-placeholder></vault-placeholder>
@@ -709,7 +720,7 @@ class MockSendPageV2Component {}
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
-    MockPopoutButtonComponent,
+    MockPopoutButtonVFO1Component,
     MockCurrentAccountComponent,
     MockSearchComponent,
     IconTileComponent,
@@ -720,22 +731,22 @@ class MockSendPageV2Component {}
 class MockScrollingPageV2Component {}
 
 /**
- * A page that opts out of `pageTitle` and owns the whole title region — the path a page takes when it
- * needs a control alongside the title, such as the vault switcher.
+ * The standard title plus a control that belongs to it — the vault switcher — projected into
+ * `title-suffix`.
  */
 @Component({
   selector: "mock-vault-page-v2",
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
-      <popup-header slot="header" [pageTitle]="''">
-        <ng-container slot="app-actions">
-          <mock-popout-button></mock-popout-button>
+      <popup-header slot="header" pageTitle="My vault">
+        <ng-container slot="end">
+          <mock-popout-button-vfo1></mock-popout-button-vfo1>
           <mock-current-account></mock-current-account>
         </ng-container>
         <bit-icon-tile slot="start" icon="bwi-vault" variant="brand" size="sm"></bit-icon-tile>
-        <h1 bitTypography="h3" class="!tw-mb-0.5">My vault</h1>
         <button
+          slot="title-suffix"
           type="button"
           bitIconButton="bwi-angle-down"
           size="small"
@@ -748,12 +759,11 @@ class MockScrollingPageV2Component {}
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
-    MockPopoutButtonComponent,
+    MockPopoutButtonVFO1Component,
     MockCurrentAccountComponent,
     VaultComponent,
     IconButtonModule,
     IconTileComponent,
-    TypographyModule,
   ],
 })
 class MockVaultPageV2Component {}
@@ -1200,10 +1210,10 @@ export const HeaderV2ScrollingTitleBar: Story = {
 };
 
 /**
- * A page that omits `pageTitle` owns the whole title region via default content — the path to take
- * when a control needs to sit alongside the title, such as the vault switcher.
+ * A control that belongs to the title itself — the vault switcher — goes in `title-suffix`, so the
+ * page keeps the standard `pageTitle` rather than rebuilding the title region.
  */
-export const HeaderV2CustomTitle: Story = {
+export const HeaderV2TitleSuffix: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
   render: (args) => ({
     props: args,

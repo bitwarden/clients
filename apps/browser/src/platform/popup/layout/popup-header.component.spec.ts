@@ -15,9 +15,10 @@ import { PopupHeaderComponent } from "./popup-header.component";
   template: `
     <popup-header [pageTitle]="pageTitle()" [showBackButton]="showBackButton()">
       <span data-testid="default">Default content</span>
-      <span slot="app-actions" data-testid="app-actions">Pop out</span>
       <span slot="start" data-testid="start">Icon tile</span>
-      <span slot="end" data-testid="end">3 Sends</span>
+      <span slot="end" data-testid="end">Pop out</span>
+      <span slot="title-end" data-testid="title-end">3 Sends</span>
+      <span slot="title-suffix" data-testid="title-suffix">Switch vault</span>
     </popup-header>
   `,
   imports: [PopupHeaderComponent],
@@ -48,7 +49,9 @@ describe("PopupHeaderComponent", () => {
 
   /** The branded app bar only exists in the v2 template. */
   const appBar = () => fixture.nativeElement.querySelector("[data-testid=app-bar]");
-  const titleBar = (): HTMLElement => fixture.nativeElement.querySelector("header");
+  const titleBar = (): HTMLElement =>
+    fixture.nativeElement.querySelector("[data-testid=title-bar]");
+  const banners = (): HTMLElement[] => Array.from(fixture.nativeElement.querySelectorAll("header"));
   const slot = (testId: string) => fixture.nativeElement.querySelector(`[data-testid=${testId}]`);
 
   /** Scrolls the region and settles the resulting signal update, which arrives a frame later. */
@@ -82,6 +85,25 @@ describe("PopupHeaderComponent", () => {
     fixture.detectChanges();
   });
 
+  /**
+   * The bars are containers, not landmarks. A second `header` would announce a second banner, and
+   * moving the landmark onto a bar would lose it entirely in whichever flag state omits that bar.
+   */
+  it.each([false, true])(
+    "exposes one banner landmark around both bars (flag on: %s)",
+    (enabled) => {
+      vfo1Enabled.next(enabled);
+      fixture.detectChanges();
+
+      expect(banners()).toHaveLength(1);
+      expect(banners()[0].contains(titleBar())).toBe(true);
+
+      if (enabled) {
+        expect(banners()[0].contains(appBar())).toBe(true);
+      }
+    },
+  );
+
   it("reads the VFO1 flag", () => {
     const configService = TestBed.inject(ConfigService);
     const getFeatureFlag$ = jest.spyOn(configService, "getFeatureFlag$");
@@ -101,16 +123,20 @@ describe("PopupHeaderComponent", () => {
       expect(fixture.nativeElement.querySelector("h1").textContent).toContain("Send");
     });
 
-    it("drops app bar content, which has nowhere to render", () => {
-      expect(slot("app-actions")).toBeNull();
+    it("drops title bar content that only the v2 template renders", () => {
+      expect(slot("title-end")).toBeNull();
     });
 
     it("renders default content alongside the title", () => {
       expect(slot("default")).not.toBeNull();
     });
 
-    it("renders the end slot", () => {
-      expect(slot("end")).not.toBeNull();
+    it("renders the end slot in the title bar, the only bar there is", () => {
+      expect(titleBar().contains(slot("end"))).toBe(true);
+    });
+
+    it("renders the title-suffix slot, which the flag does not gate", () => {
+      expect(titleBar().contains(slot("title-suffix"))).toBe(true);
     });
   });
 
@@ -125,15 +151,24 @@ describe("PopupHeaderComponent", () => {
       expect(appBar().querySelector("bit-svg")).not.toBeNull();
     });
 
-    it("renders app-actions in the app bar rather than the title bar", () => {
-      expect(appBar().contains(slot("app-actions"))).toBe(true);
-      expect(appBar().contains(slot("end"))).toBe(false);
+    it("moves the end slot to the app bar", () => {
+      expect(appBar().contains(slot("end"))).toBe(true);
+      expect(titleBar().contains(slot("end"))).toBe(false);
     });
 
-    it("renders the start slot and the end slot in the title bar", () => {
-      expect(slot("start")).not.toBeNull();
+    it("renders the start, title-end, and title-suffix slots in the title bar", () => {
+      expect(titleBar().contains(slot("start"))).toBe(true);
+      expect(titleBar().contains(slot("title-end"))).toBe(true);
+      expect(titleBar().contains(slot("title-suffix"))).toBe(true);
+    });
+
+    /**
+     * Both slots have to resolve at once. Relocating `end` with a second
+     * `<ng-content select="[slot=end]">` instead of a template outlet would leave one of them empty.
+     */
+    it("renders the end and title-end slots simultaneously", () => {
       expect(slot("end")).not.toBeNull();
-      expect(appBar().contains(slot("start"))).toBe(false);
+      expect(slot("title-end")).not.toBeNull();
     });
 
     it("renders the title instead of default content", () => {

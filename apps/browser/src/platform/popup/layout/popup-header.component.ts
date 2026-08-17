@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -28,7 +29,14 @@ import { PopupRouterCacheService } from "../view-cache/popup-router-cache.servic
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  imports: [TypographyModule, IconButtonModule, JslibModule, AsyncActionsModule, SvgModule],
+  imports: [
+    NgTemplateOutlet,
+    TypographyModule,
+    IconButtonModule,
+    JslibModule,
+    AsyncActionsModule,
+    SvgModule,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupHeaderComponent {
@@ -78,8 +86,8 @@ export class PopupHeaderComponent {
     () => this.vfo1Enabled() && this.scrollDirection() === "down",
   );
 
-  protected readonly headerClasses = computed(() => {
-    /** The back button's own padding stands in for the header's start padding. */
+  protected readonly titleBarClasses = computed(() => {
+    /** The back button's own padding stands in for the title bar's start padding. */
     const classes = this.showBackButton() ? ["tw-ps-1", "bit-compact:tw-ps-0"] : [];
 
     if (this.titleBarHidden()) {
