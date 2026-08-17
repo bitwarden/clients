@@ -1,4 +1,131 @@
-<bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-unavailable">
-  <span slot="title" class="tw-mt-4 tw-block">{{ "pamApprovalsUnavailableTitle" | i18n }}</span>
-  <span slot="description">{{ "pamApprovalsUnavailableDescription" | i18n }}</span>
-</bit-no-items>
+@if (!canApprove()) {
+  <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-unavailable">
+    <span slot="title" class="tw-mt-4 tw-block">{{ "pamApprovalsUnavailableTitle" | i18n }}</span>
+    <span slot="description">{{ "pamApprovalsUnavailableDescription" | i18n }}</span>
+  </bit-no-items>
+} @else if (loading() && totalRows() === 0) {
+  <p bitTypography="body2" class="tw-mt-2">{{ "loading" | i18n }}</p>
+} @else if (totalRows() === 0) {
+  <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-empty">
+    <span slot="title" class="tw-mt-4 tw-block">{{ "pamInboxEmptyTitle" | i18n }}</span>
+    <span slot="description">{{ "pamInboxEmptyDescription" | i18n }}</span>
+  </bit-no-items>
+} @else {
+  <div class="tw-mb-4 tw-flex tw-flex-wrap tw-items-center tw-gap-3">
+    <bit-search
+      class="tw-grow"
+      [formControl]="searchControl"
+      [placeholder]="'pamApprovalsSearchPlaceholder' | i18n"
+      id="pam-approvals_input_search"
+    />
+    <bit-chip-filter
+      [formControl]="collectionControl"
+      [placeholderText]="'pamApprovalsCollectionFilter' | i18n"
+      placeholderIcon="bwi-collection-shared"
+      [options]="collectionOptions()"
+    />
+    <bit-chip-filter
+      [formControl]="requesterControl"
+      [placeholderText]="'pamApprovalsRequesterFilter' | i18n"
+      placeholderIcon="bwi-user"
+      [options]="requesterOptions()"
+    />
+  </div>
+
+  @if (rows().length === 0) {
+    <!-- Rendered inside the toolbar branch on purpose: a filter that matches nothing must not take
+         the filter controls away with it, or there is no way back. -->
+    <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-no-results">
+      <span slot="title" class="tw-mt-4 tw-block">{{ "pamApprovalsNoResults" | i18n }}</span>
+    </bit-no-items>
+  } @else {
+    <h2 bitTypography="h4">{{ "pamApprovalsPendingHeader" | i18n: rows().length }}</h2>
+
+    <bit-table [dataSource]="dataSource">
+      <ng-container header>
+        <tr>
+          <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+          <th bitCell bitSortable="requester">{{ "pamInboxRequester" | i18n }}</th>
+          <th bitCell>{{ "pamInboxWindow" | i18n }}</th>
+          <th bitCell>{{ "pamInboxReason" | i18n }}</th>
+          <th bitCell bitSortable="submittedAtMs" default="asc">
+            {{ "pamColumnSubmitted" | i18n }}
+          </th>
+          <th bitCell>{{ "pamColumnActions" | i18n }}</th>
+        </tr>
+      </ng-container>
+      <ng-template body let-rows$>
+        <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="'approvals-row-' + row.id">
+          <td bitCell>
+            <div class="tw-flex tw-items-center tw-gap-3">
+              @if (cipherFor(row.cipherId); as cipher) {
+                <app-vault-icon [cipher]="cipher" />
+              }
+              <div>
+                <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName }}</a>
+                @if (row.collectionName) {
+                  <div class="tw-text-xs tw-text-muted">
+                    {{ "pamInboxInCollection" | i18n: row.collectionName }}
+                  </div>
+                }
+              </div>
+            </div>
+          </td>
+          <td bitCell>
+            <div>{{ row.requester }}</div>
+            @if (row.requesterEmail && row.requesterEmail !== row.requester) {
+              <div class="tw-text-xs tw-text-muted">{{ row.requesterEmail }}</div>
+            }
+          </td>
+          <td bitCell>
+            <span class="tw-whitespace-nowrap" [title]="row.exactWindow">
+              {{ row.duration.key | i18n: row.duration.value }},
+              {{ row.relativeStart.key | i18n: row.relativeStart.value }}
+            </span>
+          </td>
+          <td bitCell>
+            @if (row.reason) {
+              {{ row.reason }}
+            } @else {
+              <span class="tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
+            }
+          </td>
+          <td bitCell>
+            <span class="tw-whitespace-nowrap" [title]="row.request.submittedAt | date: 'medium'">
+              {{ row.elapsed.key | i18n: row.elapsed.value }}
+            </span>
+          </td>
+          <td bitCell>
+            <div class="tw-flex tw-gap-2">
+              <button
+                type="button"
+                bitButton
+                buttonType="primary"
+                size="small"
+                [disabled]="!row.canDecide || isDeciding(row)"
+                [loading]="isDeciding(row)"
+                [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
+                (click)="decide(row, 'approve')"
+                [attr.data-testid]="'approvals-approve-' + row.id"
+              >
+                {{ "pamInboxApprove" | i18n }}
+              </button>
+              <button
+                type="button"
+                bitButton
+                buttonType="secondary"
+                size="small"
+                [disabled]="!row.canDecide || isDeciding(row)"
+                [bitTooltip]="row.canDecide ? '' : ('pamInboxCannotApproveOwn' | i18n)"
+                (click)="decide(row, 'deny')"
+                [attr.data-testid]="'approvals-deny-' + row.id"
+              >
+                {{ "pamInboxDeny" | i18n }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </bit-table>
+  }
+}

@@ -1,6 +1,10 @@
 <app-header [title]="'pamAccessRequestsTitle' | i18n">
   <bit-tab-nav-bar slot="tabs" [label]="'pamAccessRequestsTitle' | i18n">
-    <bit-tab-link route="approvals">{{ "pamTabApprovals" | i18n }}</bit-tab-link>
+    @if (canApprove()) {
+      <bit-tab-link route="approvals" [berryValue]="approvalsCount()">{{
+        "pamTabApprovals" | i18n
+      }}</bit-tab-link>
+    }
     <bit-tab-link route="my-requests" [berryValue]="myRequestsCount()">{{
       "pamTabMyRequests" | i18n
     }}</bit-tab-link>
