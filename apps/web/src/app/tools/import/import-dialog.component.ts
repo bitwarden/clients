@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 
 import {
   AsyncActionsModule,
@@ -19,10 +19,9 @@ import {
 } from "@bitwarden/importer-ui";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "import-dialog.component.html",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     I18nPipe,
@@ -41,10 +40,10 @@ import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
   ],
 })
 export class ImportDialogComponent {
-  protected loading = false;
-  protected disabled = false;
+  protected readonly loading = signal(false);
+  protected readonly disabled = signal(false);
 
-  constructor(public dialogRef: DialogRef) {}
+  constructor(readonly dialogRef: DialogRef) {}
 
   protected async onSuccessfulImport(_organizationId: string): Promise<void> {
     await this.dialogRef.close();

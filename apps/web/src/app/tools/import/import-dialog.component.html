@@ -1,16 +1,16 @@
-<bit-dialog [loading]="loading" dialogSize="large" background="alt">
+<bit-dialog [loading]="loading()" dialogSize="large" background="alt">
   <span bitDialogTitle>{{ "importNoun" | i18n }}</span>
   <ng-container bitDialogContent>
     <tools-import
-      (formLoading)="this.loading = $event"
-      (formDisabled)="this.disabled = $event"
+      (formLoading)="this.loading.set($event)"
+      (formDisabled)="this.disabled.set($event)"
       (onSuccessfulImport)="this.onSuccessfulImport($event)"
     ></tools-import>
   </ng-container>
   <ng-container bitDialogFooter>
     <button
-      [disabled]="disabled"
-      [loading]="loading"
+      [disabled]="disabled()"
+      [loading]="loading()"
       form="import_form_importForm"
       bitButton
       type="submit"
