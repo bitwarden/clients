@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Избранные"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Сводка по задаче"
   },
@@ -1205,6 +1208,9 @@
   },
   "myFolders": {
     "message": "Мои папки"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
@@ -1764,6 +1770,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Мое"
@@ -3312,6 +3321,79 @@
   "noFileChosen": {
     "message": "Файл не выбран"
   },
+  "noFileSelected": {
+    "message": "Файл не выбран"
+  },
+  "fileChosen": {
+    "message": "Выбран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Файл добавлен: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Добавлено $COUNT$ файлов: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Файл удален: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл загружен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файлов загружено",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Загруженные файлы"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Нажмите для загрузки или перетащите сюда"
+  },
+  "chooseFiles": {
+    "message": "Выберите файлы"
+  },
+  "maxFileSizeParam": {
+    "message": "Макс. размер файла: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или скопируйте и вставьте содержимое импортируемого файла"
   },
@@ -3330,6 +3412,24 @@
   },
   "moreOptions": {
     "message": "Больше опций"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Настройки"
@@ -4240,6 +4340,15 @@
   "pendingCancellation": {
     "message": "Ожидание отмены"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Вы переходите на ежегодное выставление счетов $DATE$. Указанный план и цены отражают вашу предстоящую годовую подписку.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "Подписка была помечена для отмены в конце текущего платежного периода."
   },
@@ -4609,6 +4718,9 @@
   "organizationName": {
     "message": "Название организации"
   },
+  "vaultName": {
+    "message": "Название хранилища"
+  },
   "accountOwnedBusiness": {
     "message": "Этот аккаунт принадлежит компании."
   },
@@ -4725,6 +4837,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Ограничено до $COUNT$ общих папок",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Добавление и совместное использование с $COUNT$ пользователями",
     "placeholders": {
@@ -4739,6 +4860,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Создание неограниченных коллекций"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Создать неограниченное количество общих папок"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ зашифрованного хранилища файлов",
@@ -6441,6 +6565,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Не удается присоединиться к $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Сылка-приглашение больше не действует."
+  },
+  "returnToLogin": {
+    "message": "Вернуться к авторизации"
+  },
+  "returnToRegistration": {
+    "message": "Вернуться к регистрации"
+  },
   "joinOrganizationDesc": {
     "message": "Вас пригласили присоединиться к организации, указанной выше. Чтобы принять приглашение, вам необходимо войти или создать новую учетную запись Bitwarden."
   },
@@ -6467,6 +6609,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Невозможно принять приглашение. Попросите администратора организации отправить ссылку-приглашение."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Не удается принять приглашение"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Вы уже являетесь членом этой организации."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "В этой организации не разрешены email, содержащие $DOMAIN$.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Вы не можете присоединиться к этой организации, поскольку вы уже являетесь администратором бесплатной организации."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Вы были исключены из этой организации. Обратитесь к администратору, чтобы восстановить доступ."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Пользователи провайдера не могут присоединиться, используя эту ссылку-приглашение."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Организация, членом которой вы уже являетесь, позволяет своим членам принадлежать только к одной организации."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Организация, к которой вы пытаетесь присоединиться, позволяет своим членам принадлежать только к одной организации."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Чтобы присоединиться к этой организации, необходимо настроить двухэтапную аутентификацию."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Перед тем как присоединиться к организации, необходимо подтвердить свой адрес email."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Ваше приглашение не может быть принято, так как свободных мест нет."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Что-то пошло не так, пожалуйста, перезагрузите страницу, чтобы повторить попытку."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Этот домен не поддерживается данной организацией. Попробуйте использовать другой адрес email."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Не удалось принять приглашение"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Не удалось расшифровать приглашение организации. Попробуйте еще раз, используя тот же браузер, чтобы начать и завершить процесс регистрации."
+  },
+  "goToLogin": {
+    "message": "Перейти ко входу"
+  },
+  "goToVault": {
+    "message": "Перейти в хранилище"
   },
   "rememberEmail": {
     "message": "Запомнить email"
@@ -9296,14 +9504,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Спонсируемые семьи"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Non-member redemptions"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Нет спонсируемых семей"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "No redemptions yet"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Здесь будут показаны планы семей, не являющихся спонсорскими"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "No non-members have redeemed the Sponsored Family Plan."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Члены вашей организации имеют право на бесплатный план Bitwarden Families. Вы можете спонсировать бесплатный Bitwarden Families для сотрудников, которые не являются членами вашей организации Bitwarden. Для спонсирования сотрудника, не являющегося членом организации, необходимо наличие свободного места в вашей организации."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Когда вы прекращаете активное спонсорство, место в вашей организации будет доступно после даты продления спонсируемой организации."
@@ -9311,10 +9531,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Вам и вашей семье доступен бесплатный план Bitwarden Families. Используйте свой личный адрес электронной почты, чтобы защитить данные даже тогда, когда вы не на работе."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Воспользуйтесь бесплатным планом Bitwarden Families сегодня, чтобы обеспечить безопасность ваших данных, даже когда вы не на работе."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "План Bitwarden Families включает"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "План Bitwarden Families включает"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9322,6 +9548,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Общие коллекции для членов семьи"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Общие папки для членов семьи"
   },
   "memberFamilies": {
     "message": "Члены семей"
@@ -12727,6 +12956,36 @@
     "message": "Реорганизация, приобретение, смена приоритетов или нам больше не нужен менеджер паролей.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Переключитесь на ежегодное выставление счетов и сэкономьте $SAVINGS$ в год",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Текущая стоимость (помесячная оплата)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Стоимость при ежегодном выставлении счетов",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Указанные цены указаны до учета применимых налогов. Изменение вступит в силу со следующей даты продления.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Перейти на ежегодное выставление счетов",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Ваша подписка будет переведена на ежегодный режим оплаты при следующем продлении.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Плохое обслуживание клиентов",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -14013,6 +14272,9 @@
   "unlimitedCollections": {
     "message": "Неограниченное количество коллекций"
   },
+  "unlimitedSharedFolders": {
+    "message": "Неограниченное количество общих папок"
+  },
   "secureDataSharing": {
     "message": "Защищенный обмен данными"
   },
@@ -15247,6 +15509,9 @@
   "familiesUnlimitedCollections": {
     "message": "Неограниченные семейные коллекции"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Неограниченное число общих семейных папок"
+  },
   "familiesSharedStorage": {
     "message": "Общее хранилище для важной семейной информации"
   },
@@ -15261,6 +15526,15 @@
   },
   "limitedCollectionsV2": {
     "message": "До $COUNT$ коллекций",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "До $COUNT$ общих папок",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15678,6 +15952,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Откройте страницу подписки в своем аккаунте Bitwarden cloud и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Откройте страницу подписки в своем аккаунте Bitwarden и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
   },
   "viewAllPlans": {
     "message": "Посмотреть все планы"

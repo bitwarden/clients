@@ -10,13 +10,17 @@ import {
 } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  EncString,
   KdfConfig,
   KdfType,
-  KeyService,
+  LegacyCompatKeyService,
   PBKDF2KdfConfig,
-} from "@bitwarden/key-management";
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 
@@ -33,12 +37,10 @@ import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
-import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
@@ -84,6 +86,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
@@ -295,7 +298,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await SdkLoadService.Ready;
     const password = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
 
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       password.keyB64,
       await this.tokenService.getEmail(),
       kdfConfig,
@@ -305,11 +308,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
     await this.masterPasswordService.setMasterKey(masterKey, userId);
 
-    const userKey = await this.keyService.makeUserKey(masterKey);
+    const userKey = await this.legacyCompatKeyService.makeUserKey(masterKey);
     await this.keyService.setUserKey(userKey[0], userId);
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(userKey[1], userId);
 
-    const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
+    const [pubKey, privKey] = await this.legacyCompatKeyService.makeKeyPair(userKey[0]);
 
     try {
       await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);

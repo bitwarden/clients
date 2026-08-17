@@ -990,7 +990,7 @@
     "message": "ذخیره"
   },
   "saveAndContinue": {
-    "message": "Save and continue"
+    "message": "ذخیره کن و ادامه بده"
   },
   "cancel": {
     "message": "انصراف"
@@ -1067,6 +1067,9 @@
   },
   "favorites": {
     "message": "مورد علاقه‌ها"
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
   },
   "taskSummary": {
     "message": "خلاصه کار"
@@ -1195,37 +1198,40 @@
     "message": "اشتراک گذاری شد"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "پوشه مشترک"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "پوشه‌های مشترک"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "پوشه من"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "پوشه‌های من"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "افزودن پوشه‌ی مشترک"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "پوشه‌ی مشترک جدید"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "جستجوی پوشه‌ی مشترک"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "جستجوی پوشه‌های من"
   },
   "addToMyFolder": {
-    "message": "Add to my folder"
+    "message": "افزودن به پوشه‌ی من"
   },
   "sharedFolderItemSelect": {
-    "message": "Select shared folder item"
+    "message": "مورد پوشه مشترک را انتخاب کنید"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "مشاهده پوشه‌ی مشترک - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1234,16 +1240,16 @@
     }
   },
   "sharedFolderAdminConsoleManaged": {
-    "message": "This shared folder is only accessible from the admin console"
+    "message": "این پوشه مشترک فقط از طریق کنسول مدیریت قابل دسترسی است"
   },
   "editSharedFolder": {
-    "message": "Edit shared folder"
+    "message": "ویرایش پوشه‌ی مشترک"
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "حذف پوشه‌ی مشترک"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "حذف $COUNT$ پوشه‌ی مشترک",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1252,7 +1258,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "پوشه‌ی مشترک $NAME$ برای همیشه حذف خواهد شد. موارد موجود در پوشه حذف نخواهند شد.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1764,6 +1770,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "من"
@@ -3312,6 +3321,79 @@
   "noFileChosen": {
     "message": "هیچ پرونده‌ای انتخاب نشده"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "یا محتویات پرونده‌ی درون ریزی را کپی/پیست کنید"
   },
@@ -3330,6 +3412,24 @@
   },
   "moreOptions": {
     "message": "More options"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "تنظیمات"
@@ -4240,6 +4340,15 @@
   "pendingCancellation": {
     "message": "در انتظار لغو"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "You're switching to annual billing on $DATE$. The plan and pricing shown reflect your upcoming annual subscription.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "اشتراک برای لغو در پایان دوره‌ی صورتحساب فعلی علامت‌گذاری شده است."
   },
@@ -4609,6 +4718,9 @@
   "organizationName": {
     "message": "نام سازمان"
   },
+  "vaultName": {
+    "message": "Vault name"
+  },
   "accountOwnedBusiness": {
     "message": "این حساب متعلق به یک کسب و کار است."
   },
@@ -4725,6 +4837,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limited to $COUNT$ shared folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "اضافه کنید و با حداکثر $COUNT$ کاربر به اشتراک بگذارید",
     "placeholders": {
@@ -4739,6 +4860,9 @@
   },
   "createUnlimitedCollections": {
     "message": "ایجاد مجموعه‌های نامحدود"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Create unlimited shared folders"
   },
   "gbEncryptedFileStorage": {
     "message": "ذخیره سازی پرونده رمزگذاری شده $SIZE$",
@@ -6441,6 +6565,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Unable to join $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "The invite link is no longer valid."
+  },
+  "returnToLogin": {
+    "message": "Return to login"
+  },
+  "returnToRegistration": {
+    "message": "Return to registration"
+  },
   "joinOrganizationDesc": {
     "message": "شما برای پیوستن به سازمان فهرست شده در بالا دعوت شده اید. برای پذیرش دعوت، باید وارد شوید یا یک حساب کاربری جدید در Bitwarden ایجاد کنید."
   },
@@ -6467,6 +6609,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Cannot accept invitation"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "You are already a member of this organization."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "You cannot join this organization because you are already the admin of a free organization."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "You have been revoked from this organization. Contact your admin to regain access."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Provider users may not join using this invitation link."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "You must set up two-step login in order to join this organization."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "You must verify your email address before joining an organization."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Your invitation could not be accepted because there is not an available seat."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Something went wrong, please reload the page to try again."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "This domain isn't accepted by this organization. Try a different email address."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Could not accept invitation"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+  },
+  "goToLogin": {
+    "message": "Go to login"
+  },
+  "goToVault": {
+    "message": "Go to vault"
   },
   "rememberEmail": {
     "message": "ایمیل را به خاطر بسپار"
@@ -9296,14 +9504,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "خانواده‌های تحت حمایت"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Non-member redemptions"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "خانواده‌های تحت حمایت وجود ندارند"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "No redemptions yet"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Sponsored non-member families plans will display here"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "No non-members have redeemed the Sponsored Family Plan."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "اعضای سازمان شما واجد شرایط استفاده از نسخه رایگان خانواده‌های Bitwarden هستند. شما می‌توانید نسخه رایگان خانواده‌های Bitwarden را برای کارمندانی که عضو سازمان Bitwarden شما نیستند، حمایت کنید. حمایت از یک فرد غیر عضو مستلزم وجود صندلی آزاد در سازمان شما است."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "زمانی که حمایت فعالی را حذف می‌کنید، پس از تاریخ تمدید سازمان تحت حمایت، یک صندلی در سازمان شما آزاد خواهد شد."
@@ -9311,17 +9531,26 @@
   "sponsoredFamiliesEligible": {
     "message": "شما و خانواده‌تان واجد شرایط دریافت خانواده‌های Bitwarden رایگان هستید. با ایمیل شخصی خود بازخرید کنید تا اطلاعات خود را حتی زمانی که در محل کار نیستید ایمن نگه دارید."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "امروز برنامه رایگان Bitwarden برای خانواده‌های خود را بازخرید کنید تا اطلاعات خود را حتی زمانی که در محل کار نیستید ایمن نگه دارید."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "طرح Bitwarden برای خانواده‌ها شامل"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "The Bitwarden Families plan includes"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "دسترسی پرمیوم برای حداکثر 6 کاربر"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "مجموعه‌های مشترک برای اعضای خانواده"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Shared folders for family members"
   },
   "memberFamilies": {
     "message": "خانواده‌های اعضا"
@@ -12727,6 +12956,36 @@
     "message": "Reorg, acquisition, shift in priorities, or we no longer need a password manager.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Switch to annual billing and save $SAVINGS$ per year",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Current cost (monthly billing)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Annual billing cost",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Prices shown are before applicable taxes. The switch takes effect at your next renewal date.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Switch to annual billing",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Your subscription will be switched to annual billing at your next renewal date.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Poor customer service",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -14013,6 +14272,9 @@
   "unlimitedCollections": {
     "message": "مجموعه‌های نامحدود"
   },
+  "unlimitedSharedFolders": {
+    "message": "Unlimited shared folders"
+  },
   "secureDataSharing": {
     "message": "اشتراک‌گذاری امن داده‌ها"
   },
@@ -15247,6 +15509,9 @@
   "familiesUnlimitedCollections": {
     "message": "مجموعه‌های خانوادگی نامحدود"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Unlimited family shared folders"
+  },
   "familiesSharedStorage": {
     "message": "فضای ذخیره‌سازی مشترک برای اطلاعات مهم خانواده"
   },
@@ -15261,6 +15526,15 @@
   },
   "limitedCollectionsV2": {
     "message": "حداکثر تا $COUNT$ مجموعه",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Up to $COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15678,6 +15952,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "صفحه اشتراک را در حساب ابری Bitwarden خود باز کنید و پرونده مجوز خود را بارگیری کنید. سپس به این صفحه برگردید و آن را در زیر بارگذاری کنید."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
   },
   "viewAllPlans": {
     "message": "نمایش همه طرح‌ها"

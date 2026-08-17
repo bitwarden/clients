@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Yêu thích"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Tóm tắt nhiệm vụ"
   },
@@ -1206,6 +1209,9 @@
   "myFolders": {
     "message": "Thư mục của tôi"
   },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
   },
@@ -1252,7 +1258,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "Thư mục chia sẻ $NAME$ sẽ bị xóa vĩnh viễn. Các mục trong thư mục sẽ không bị xóa.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1261,7 +1267,7 @@
     }
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Các thư mục chia sẻ này sẽ bị xóa vĩnh viễn. Các mục trong các thư mục sẽ không bị xóa."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ thư mục chia sẻ sẽ bị xóa vĩnh viễn.",
@@ -1571,7 +1577,7 @@
     "message": "Mục"
   },
   "itemLower": {
-    "message": "item"
+    "message": "mục"
   },
   "itemDetails": {
     "message": "Chi tiết mục"
@@ -1730,7 +1736,7 @@
     }
   },
   "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
+    "message": "Sao chép chi tiết cho $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1754,16 +1760,19 @@
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Không có chi tiết để sao chép"
   },
   "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
+    "message": "Khởi chạy trang web cho $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Tôi"
@@ -2720,19 +2729,19 @@
     "message": "Sao chép mã xác thực"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Không có tên đăng nhập"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Không có mật khẩu"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Không có mã xác minh"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Không có số"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Không có mã bảo mật"
   },
   "copyUuid": {
     "message": "Sao chép UUID"
@@ -3312,6 +3321,79 @@
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
   },
+  "noFileSelected": {
+    "message": "Chưa chọn tệp nào"
+  },
+  "fileChosen": {
+    "message": "Đã chọn tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Đã thêm tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Đã thêm $COUNT$ tệp: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Đã xóa tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Đã tải lên 1 tệp"
+  },
+  "filesUploaded": {
+    "message": "Đã tải lên $COUNT$ tệp",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Các tệp đã tải lên"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nhấp để tải lên hoặc kéo và thả"
+  },
+  "chooseFiles": {
+    "message": "Chọn tệp"
+  },
+  "maxFileSizeParam": {
+    "message": "Kích thước tệp tối đa: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "hoặc sao chép/dán nội dung của tập tin nhập"
   },
@@ -3329,7 +3411,25 @@
     "message": "Tùy chọn"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Tùy chọn khác"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Tùy chỉnh"
@@ -3350,7 +3450,7 @@
     "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Hiển thị các thao tác sao chép nhanh trong kho lưu trữ"
   },
   "default": {
     "message": "Mặc định"
@@ -4240,6 +4340,15 @@
   "pendingCancellation": {
     "message": "Đang chờ hủy"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Bạn sẽ chuyển sang thanh toán hàng năm vào $DATE$. Gói và mức giá hiển thị phản ánh đăng ký hàng năm sắp tới của bạn.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "Gói của bạn sẽ được hủy vào cuối kì thanh toán hiện tại."
   },
@@ -4609,6 +4718,9 @@
   "organizationName": {
     "message": "Tên tổ chức"
   },
+  "vaultName": {
+    "message": "Tên kho lưu trữ"
+  },
   "accountOwnedBusiness": {
     "message": "Tài khoản này thuộc sở hữu của một doanh nghiệp."
   },
@@ -4725,6 +4837,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Giới hạn ở $COUNT$ thư mục chia sẻ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Thêm và chia sẻ với tối đa $COUNT$ người dùng",
     "placeholders": {
@@ -4739,6 +4860,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Tạo số lượng bộ sưu tập không giới hạn"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Tạo không giới hạn thư mục chia sẻ"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ dung lượng lưu trữ tệp được mã hóa",
@@ -6441,6 +6565,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Không thể tham gia $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "Liên kết mời không còn hợp lệ."
+  },
+  "returnToLogin": {
+    "message": "Quay lại đăng nhập"
+  },
+  "returnToRegistration": {
+    "message": "Quay lại đăng ký"
+  },
   "joinOrganizationDesc": {
     "message": "Bạn đã được mời tham gia tổ chức bên trên. Để chấp nhận lời mời, bạn cần đăng nhập hoặc tạo tài khoản Bitwarden mới."
   },
@@ -6467,6 +6609,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Không thể chấp nhận lời mời. Hãy yêu cầu quản trị viên tổ chức gửi một liên kết mời mới."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Không thể chấp nhận lời mời"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Bạn đã là thành viên của tổ chức này."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Các email khớp với $DOMAIN$ không được phép trong tổ chức này.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Bạn không thể tham gia tổ chức này vì bạn đã là quản trị viên của một tổ chức miễn phí."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "Quyền truy cập của bạn vào tổ chức này đã bị thu hồi. Hãy liên hệ với quản trị viên của bạn để lấy lại quyền truy cập."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Người dùng nhà cung cấp dịch vụ không được tham gia bằng liên kết mời này."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Một tổ chức mà bạn đã là thành viên chỉ cho phép các thành viên của mình thuộc về một tổ chức."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "Tổ chức mà bạn đang cố gắng tham gia chỉ cho phép các thành viên của mình thuộc về một tổ chức."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Bạn phải thiết lập đăng nhập hai bước để tham gia tổ chức này."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Bạn phải xác minh địa chỉ email của mình trước khi tham gia một tổ chức."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Không thể chấp nhận lời mời của bạn vì không còn ghế khả dụng."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Tên miền này không được tổ chức này chấp nhận. Hãy thử một địa chỉ email khác."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Không thể chấp nhận lời mời"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Không thể giải mã lời mời tham gia tổ chức. Hãy thử lại bằng cách sử dụng cùng một trình duyệt để bắt đầu và hoàn tất quá trình đăng ký."
+  },
+  "goToLogin": {
+    "message": "Đi tới đăng nhập"
+  },
+  "goToVault": {
+    "message": "Đi tới kho lưu trữ"
   },
   "rememberEmail": {
     "message": "Ghi nhớ email"
@@ -6917,7 +7125,7 @@
     "message": "Liên kết mời"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "Chuyển và thêm"
   },
   "lastGenerated": {
     "message": "Tạo lần cuối: $DATE$",
@@ -9296,14 +9504,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Gói Bitwarden Gia đình được tài trợ"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Lượt quy đổi của người không phải thành viên"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Không có gói gia đình được tài trợ nào"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Chưa có lượt quy đổi nào"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Các gói Gia đình dành cho người không phải thành viên được tài trợ sẽ hiển thị tại đây"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Chưa có người không phải thành viên nào quy đổi Gói Bitwarden Gia đình Được tài trợ."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Thành viên tổ chức của bạn đủ điều kiện sử dụng gói Bitwarden Gia đình miễn phí. Bạn có thể tài trợ Bitwarden Gia đình miễn phí cho nhân viên không thuộc tổ chức Bitwarden của bạn. Việc tài trợ cho người không phải thành viên yêu cầu có chỗ trống trong tổ chức của bạn."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Các thành viên của bạn đủ điều kiện quy đổi Gói Bitwarden Gia đình Được tài trợ. Bạn có thể tài trợ một gói Gia đình cho những nhân viên không phải là thành viên trong tổ chức Bitwarden của bạn, nhưng điều này sẽ yêu cầu số ghế khả dụng trong tổ chức của bạn."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Khi bạn hủy tài trợ đang hoạt động, một ghế trong tổ chức của bạn sẽ khả dụng sau ngày gia hạn của tổ chức được tài trợ."
@@ -9311,10 +9531,16 @@
   "sponsoredFamiliesEligible": {
     "message": "Bạn và gia đình đủ điều kiện nhận Gói Bitwarden Gia đình miễn phí. Hãy kích hoạt bằng email cá nhân để giữ dữ liệu của bạn an toàn ngay cả khi không ở nơi làm việc."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "Bạn và gia đình đủ điều kiện nhận Gói Bitwarden Gia đình Được tài trợ mà không mất thêm chi phí. Quy đổi gói này bằng email cá nhân của bạn để giữ cho dữ liệu an toàn và tách biệt khỏi tài khoản Bitwarden công việc của bạn."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Hãy nhận Gói Bitwarden Gia đình miễn phí của bạn ngay hôm nay để bảo vệ dữ liệu an toàn ngay cả khi bạn không ở nơi làm việc."
   },
   "sponsoredFamiliesIncludeMessage": {
+    "message": "Gói Bitwarden Gia đình bao gồm"
+  },
+  "sponsoredFamiliesIncludeMessageV2": {
     "message": "Gói Bitwarden Gia đình bao gồm"
   },
   "sponsoredFamiliesPremiumAccess": {
@@ -9322,6 +9548,9 @@
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Các bộ sưu tập được chia sẻ cho các thành viên trong gia đình"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Thư mục chia sẻ cho các thành viên gia đình"
   },
   "memberFamilies": {
     "message": "Thành viên gia đình"
@@ -10223,7 +10452,7 @@
     "description": "the text, 'SCIM', is an acronym and should not be translated."
   },
   "copyScimKey": {
-    "message": "Sao chép khóa API SCIM vào bảng nhớ tạm",
+    "message": "Sao chép khóa API SCIM vào bộ nhớ tạm",
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "viewScimApiKey": {
@@ -10246,7 +10475,7 @@
     "description": "the text, 'SCIM' and 'API', are acronyms and should not be translated."
   },
   "copyScimUrl": {
-    "message": "Sao chép URL endpoint SCIM vào bảng nhớ tạm của bạn",
+    "message": "Sao chép URL endpoint SCIM vào bộ nhớ tạm",
     "description": "the text, 'SCIM' and 'URL', are acronyms and should not be translated."
   },
   "scimUrl": {
@@ -10882,7 +11111,7 @@
     "description": "Error message indicating that an expiration date for the access token must be set."
   },
   "accessTokenCreatedAndCopied": {
-    "message": "Token truy cập đã được tạo và sao chép vào bảng nhớ tạm",
+    "message": "Token truy cập đã được tạo và sao chép vào bộ nhớ tạm",
     "description": "Notification to inform the user that the access token has been created and copied to the clipboard."
   },
   "revokeAccessToken": {
@@ -12727,6 +12956,36 @@
     "message": "Tái cấu trúc, sáp nhập, thay đổi ưu tiên hoặc không còn cần trình quản lý mật khẩu.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Chuyển sang thanh toán hàng năm và tiết kiệm $SAVINGS$ mỗi năm",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Chi phí hiện tại (thanh toán hàng tháng)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Chi phí thanh toán hàng năm",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Giá hiển thị chưa bao gồm các khoản thuế áp dụng. Việc chuyển đổi có hiệu lực vào ngày gia hạn tiếp theo của bạn.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Chuyển sang thanh toán hàng năm",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "Đăng ký của bạn sẽ được chuyển sang thanh toán hàng năm vào ngày gia hạn tiếp theo của bạn.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Dịch vụ chăm sóc khách hàng kém",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -12791,13 +13050,13 @@
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem mục này."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy mục này."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem các mục này."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy các mục này."
   },
   "selectCollectionsToAssign": {
     "message": "Chọn bộ sưu tập để gán"
@@ -12809,31 +13068,31 @@
     "message": "Đã gán vào bộ sưu tập thành công"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "Đã thêm thành công các thư mục chia sẻ"
   },
   "itemMovedToCollection": {
     "message": "Mục đã được di chuyển vào bộ sưu tập"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "Đã thêm mục vào thư mục chia sẻ"
   },
   "itemMovedToCollections": {
     "message": "Mục đã được di chuyển vào các bộ sưu tập"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "Đã thêm mục vào các thư mục chia sẻ"
   },
   "itemsMovedToCollection": {
     "message": "Các mục đã được di chuyển vào bộ sưu tập"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "Đã thêm các mục vào thư mục chia sẻ"
   },
   "itemsMovedToCollections": {
     "message": "Các mục đã được di chuyển vào các bộ sưu tập"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "Đã thêm các mục vào các thư mục chia sẻ"
   },
   "itemAssignedToCollections": {
     "message": "Mục đã được gán cho các bộ sưu tập"
@@ -12864,7 +13123,7 @@
     "message": "Mục"
   },
   "itemsLower": {
-    "message": "items"
+    "message": "các mục"
   },
   "assignedSeats": {
     "message": "Ghế đã gán"
@@ -13752,7 +14011,7 @@
     "message": "1 mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
@@ -13764,7 +14023,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -14012,6 +14271,9 @@
   },
   "unlimitedCollections": {
     "message": "Bộ sưu tập không giới hạn"
+  },
+  "unlimitedSharedFolders": {
+    "message": "Thư mục chia sẻ không giới hạn"
   },
   "secureDataSharing": {
     "message": "Chia sẻ dữ liệu an toàn"
@@ -14282,7 +14544,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "Bạn không thể xóa các thư mục chia sẻ có quyền Chỉ xem: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -14480,7 +14742,7 @@
     "message": "Loại khóa SSH không được hỗ trợ"
   },
   "importSshKeyFromClipboard": {
-    "message": "Nhập khóa từ bảng nhớ tạm"
+    "message": "Nhập khóa từ bộ nhớ tạm"
   },
   "sshKeyImported": {
     "message": "Khóa SSH được nhập thành công"
@@ -14992,7 +15254,7 @@
     "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Thêm 3 nút sao chép nhanh bên cạnh các mục để sao chép tên đăng nhập, mật khẩu hoặc mã xác minh vào bộ nhớ tạm."
   },
   "billingAddress": {
     "message": "Địa chỉ thanh toán"
@@ -15247,6 +15509,9 @@
   "familiesUnlimitedCollections": {
     "message": "Bộ sưu tập gia đình không giới hạn"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Thư mục chia sẻ gia đình không giới hạn"
+  },
   "familiesSharedStorage": {
     "message": "Bộ nhớ được chia sẻ cho thông tin gia đình quan trọng"
   },
@@ -15261,6 +15526,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Tối đa $COUNT$ bộ sưu tập",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Tối đa $COUNT$ thư mục chia sẻ",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15678,6 +15952,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Mở trang đăng ký trên tài khoản đám mây Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải nó lên bên dưới."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Mở trang đăng ký trên tài khoản Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải tệp lên bên dưới."
   },
   "viewAllPlans": {
     "message": "Xem tất cả các gói"

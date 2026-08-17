@@ -87,10 +87,6 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -177,6 +173,15 @@ import {
   SessionTimeoutSettingsComponentService,
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  DefaultLegacyCompatKeyService,
+  EncryptService,
+  KeyGenerationService,
+  LegacyCompatKeyService,
+  WebCryptoFunctionService,
+} from "@bitwarden/legacy-crypto";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
 import {
@@ -201,6 +206,7 @@ import { AutofillService as AutofillServiceAbstraction } from "../../autofill/se
 import AutofillService from "../../autofill/services/autofill.service";
 import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
+import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
@@ -310,47 +316,53 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: KeyService,
+    useClass: DefaultKeyService,
+    deps: [
+      CryptoFunctionService,
+      EncryptService,
+      PlatformUtilsService,
+      LogService,
+      StateService,
+      StateProvider,
+      AccountCryptographicStateService,
+    ],
+  }),
+  safeProvider({
+    // Also attaches the ContainerService to the global scope; this provider is where both key
+    // services the container needs are first available together.
+    provide: LegacyCompatKeyService,
     useFactory: (
       masterPasswordService: InternalMasterPasswordServiceAbstraction,
       keyGenerationService: KeyGenerationService,
       cryptoFunctionService: CryptoFunctionService,
       encryptService: EncryptService,
-      platformUtilsService: PlatformUtilsService,
       logService: LogService,
-      stateService: StateService,
       accountService: AccountServiceAbstraction,
-      stateProvider: StateProvider,
       kdfConfigService: KdfConfigService,
-      accountCryptographicStateService: AccountCryptographicStateService,
+      keyService: KeyService,
     ) => {
-      const keyService = new DefaultKeyService(
+      const legacyCompatKeyService = new DefaultLegacyCompatKeyService(
         masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,
         encryptService,
-        platformUtilsService,
         logService,
-        stateService,
         accountService,
-        stateProvider,
         kdfConfigService,
-        accountCryptographicStateService,
+        keyService,
       );
-      new ContainerService(keyService, encryptService).attachToGlobal(self);
-      return keyService;
+      new ContainerService(keyService, encryptService, legacyCompatKeyService).attachToGlobal(self);
+      return legacyCompatKeyService;
     },
     deps: [
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionService,
       EncryptService,
-      PlatformUtilsService,
       LogService,
-      StateService,
       AccountServiceAbstraction,
-      StateProvider,
       KdfConfigService,
-      AccountCryptographicStateService,
+      KeyService,
     ],
   }),
   safeProvider({
@@ -416,6 +428,11 @@ const safeProviders: SafeProvider[] = [
       EnvironmentService,
       AuthService,
     ],
+  }),
+  safeProvider({
+    provide: WebmapperDraftService,
+    useClass: WebmapperDraftService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: AbstractStorageService,
