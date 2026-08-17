@@ -103,14 +103,31 @@ describe("DefaultApprovalApiService", () => {
       expect(result.status).toBe("approved");
     });
 
-    it("sends the verdict as the SDK's string spelling", async () => {
+    it("sends the verdict as the server's numeric enum, not the SDK's string spelling", async () => {
       apiService.send.mockResolvedValue(wireRequest("req-1", "denied"));
 
       await service.decide(REQUEST_ID, new AccessDecisionRequest({ verdict: "deny" }));
 
       const body = apiService.send.mock.calls[0][2] as AccessDecisionRequest;
-      expect(body.verdict).toBe("deny");
+      // The endpoint binds AccessDecisionVerdict as a byte; a string body fails to deserialise and
+      // comes back as a bare 400.
+      expect(body.verdict).toBe(0);
       expect(body.comment).toBeUndefined();
+    });
+
+    it("sends approve as 1", async () => {
+      apiService.send.mockResolvedValue(wireRequest("req-1", "approved"));
+
+      await service.decide(REQUEST_ID, new AccessDecisionRequest({ verdict: "approve" }));
+
+      const body = apiService.send.mock.calls[0][2] as AccessDecisionRequest;
+      expect(body.verdict).toBe(1);
+    });
+
+    it("refuses to submit a verdict with no wire value", () => {
+      expect(() => new AccessDecisionRequest({ verdict: "unknown" })).toThrow(
+        'Cannot record the verdict "unknown"',
+      );
     });
   });
 });
