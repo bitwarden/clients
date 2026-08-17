@@ -104,7 +104,7 @@ export type VaultItemsTableFilters = {
   /** Collection ids. Multi-select: a cipher matches any selected collection. */
   sharedFolder?: string[];
   /** Folder ids, or {@link NO_FOLDER}. Multi-select: a cipher matches any selected value. */
-  folder?: string[] | string;
+  folder?: string[];
 };
 
 /**
@@ -620,13 +620,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * {@link NO_FOLDER}. As with {@link matchesVault}, `undefined` and `[]` both mean unfiltered,
    * and a cipher matches if it satisfies *any* selected value.
    */
-  private matchesFolder(cipher: C, folder: string[] | string | undefined): boolean {
-    if (!folder || (Array.isArray(folder) && folder.length === 0)) {
+  private matchesFolder(cipher: C, folder: string[] | undefined): boolean {
+    if (!folder || folder.length === 0) {
       return true;
     }
-
-    const folderArray = Array.isArray(folder) ? folder : [folder];
-    return folderArray.some((value) =>
+    return folder.some((value) =>
       value === NO_FOLDER ? !cipher.folderId : idString(cipher.folderId) === value,
     );
   }
