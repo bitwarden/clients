@@ -23,9 +23,9 @@
     <bit-status-lockup class="tw-text-main">
       <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
       <ng-container slot="title">{{ "sendsTitleNoItems" | i18n }}</ng-container>
-      <ng-container slot="description">
-        <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ "sendsBodyNoItems" | i18n }}</p>
-      </ng-container>
+      <div slot="description" class="tw-mx-6">
+        {{ "sendsBodyNoItems" | i18n }}
+      </div>
       <tools-new-send-dropdown
         [hideIcon]="true"
         *ngIf="!sendsDisabled"

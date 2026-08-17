@@ -16,7 +16,6 @@ import {
   CalloutModule,
   StatusLockupComponent,
   SvgComponent,
-  TypographyModule,
 } from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
@@ -70,7 +69,6 @@ export type SendState = (typeof SendState)[keyof typeof SendState];
     SendListFiltersComponent,
     SendSearchComponent,
     SvgComponent,
-    TypographyModule,
     VaultFadeInOutSkeletonComponent,
     VaultLoadingSkeletonComponent,
   ],

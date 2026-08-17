@@ -207,7 +207,7 @@ type RenderItem<T> =
 export class BitTableV2Component<T = unknown, S extends string = never, F = Record<string, unknown>>
   implements AfterContentInit, FilterHost
 {
-  readonly noResultsSvg = NoResults;
+  protected readonly noResultsSvg = NoResults;
   /**
    * The typed contract — row type `T`, synthetic columns `S`, filter shape `F` —
    * plus the row data and the typed `columns.*` references bound to `*bitCellDef`.

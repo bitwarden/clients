@@ -107,9 +107,9 @@
       <div slot="title">
         {{ emptyStateItem()?.title | i18n }}
       </div>
-      <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
+      <div slot="description" class="tw-max-w-md">
         {{ emptyStateItem()?.description | i18n }}
-      </p>
+      </div>
       @if (showAddCipherBtn()) {
         <vault-new-cipher-menu
           [canCreateCipher]="true"
