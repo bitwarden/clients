@@ -39,6 +39,10 @@ export class AutoConfirmPolicy extends BasePolicyEditDefinition {
   showDescription = false;
   editDialogComponent = MultiStepPolicyEditDialogComponent;
 
+  constructor(readonly firstTimeDialog: boolean = false) {
+    super();
+  }
+
   override display$(organization: Organization): Observable<boolean> {
     return of(organization.useAutomaticUserConfirmation);
   }
@@ -63,6 +67,10 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
 
   protected readonly autoConfirmSvg = AutoConfirmSvg;
 
+  protected get autoConfirmPolicy(): AutoConfirmPolicy | undefined {
+    return this.policy() as AutoConfirmPolicy | undefined;
+  }
+
   /**
    * Gates the enable switch: an admin must accept the security risk before they can turn the
    * policy on. Defaults to accepted when editing an already-enabled policy, since the risk was
@@ -70,6 +78,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
    */
   readonly riskAccepted = new FormControl(false, { nonNullable: true });
 
+  private readonly step0Title: Signal<TemplateRef<unknown>> = viewChild.required("step0Title");
   private readonly step0Content: Signal<TemplateRef<unknown>> = viewChild.required("step0Content");
   private readonly step0Footer: Signal<TemplateRef<unknown>> = viewChild.required("step0Footer");
 
@@ -106,6 +115,7 @@ export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
 
   override readonly policySteps: PolicyStep[] = [
     {
+      titleContent: this.step0Title,
       bodyContent: this.step0Content,
       footerContent: this.step0Footer,
       disableSave: this.saveDisabled$,

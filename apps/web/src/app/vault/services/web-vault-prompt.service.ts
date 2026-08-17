@@ -74,7 +74,7 @@ export class WebVaultPromptService {
     // remain an attention-grabbing modal rather than a side drawer.
     MultiStepPolicyEditModalComponent.open(this.dialogService, {
       data: {
-        policy: new AutoConfirmPolicy(),
+        policy: new AutoConfirmPolicy(true),
         organization: organization,
       },
     });

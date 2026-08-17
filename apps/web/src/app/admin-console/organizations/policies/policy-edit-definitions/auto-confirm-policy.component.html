@@ -1,3 +1,14 @@
+<ng-template #step0Title>
+  <div class="tw-flex tw-flex-col">
+    @if (autoConfirmPolicy?.firstTimeDialog) {
+      <span bitBadge variant="info" class="tw-w-[99px] tw-my-2"> {{ "availableNow" | i18n }}</span>
+    }
+    <span>
+      {{ policy()!.name | i18n }}
+    </span>
+  </div>
+</ng-template>
+
 <ng-template #step0Content>
   <p class="tw-mb-6">
     {{ "autoConfirmPolicyEditDescription" | i18n }}

@@ -166,6 +166,7 @@ describe("WebVaultPromptService", () => {
 
       const passedPolicy = openSpy.mock.calls[0][1].data.policy;
       expect(passedPolicy).toBeInstanceOf(AutoConfirmPolicy);
+      expect(passedPolicy.firstTimeDialog).toBe(true);
 
       dialogClosedSubject.next(null);
     }));

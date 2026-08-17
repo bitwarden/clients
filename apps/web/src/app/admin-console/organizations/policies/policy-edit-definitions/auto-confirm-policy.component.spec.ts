@@ -28,6 +28,11 @@ describe("AutoConfirmPolicy", () => {
     expect(policy.type).toBe(PolicyType.AutomaticUserConfirmation);
     expect(policy.component).toBe(AutoConfirmPolicyEditComponent);
     expect(policy.showDescription).toBe(false);
+    expect(policy.firstTimeDialog).toBe(false);
+  });
+
+  it("respects an explicit firstTimeDialog value", () => {
+    expect(new AutoConfirmPolicy(true).firstTimeDialog).toBe(true);
   });
 });
 
@@ -290,8 +295,8 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
   });
 
   describe("policySteps", () => {
-    it("does not set a custom title for step 0, so the drawer falls back to the policy name", () => {
-      expect(component.policySteps[0].titleContent).toBeUndefined();
+    it("sets a custom title for step 0, so the first-time badge can be shown", () => {
+      expect(component.policySteps[0].titleContent).toBe((component as any).step0Title);
     });
 
     it("reuses step 1 (title/content/footer/sideEffect) unchanged", () => {
