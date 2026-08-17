@@ -49,7 +49,7 @@ import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-ba
 import { AccessRuleTemplateKey } from "./access-rule-templates";
 import { AccessRuleWindowPipe } from "./access-rule-window.pipe";
 import { AccessRulesEmptyStateComponent } from "./access-rules-empty-state/access-rules-empty-state.component";
-import { ConditionBadgesPipe } from "./condition-badges.pipe";
+import { ApprovalMethodPipe } from "./approval-method.pipe";
 
 @Component({
   templateUrl: "./access-rules.component.html",
@@ -77,7 +77,7 @@ import { ConditionBadgesPipe } from "./condition-badges.pipe";
     I18nPipe,
     RelativeTimePipe,
     DurationShortPipe,
-    ConditionBadgesPipe,
+    ApprovalMethodPipe,
     AccessRuleWindowPipe,
   ],
 })
@@ -124,11 +124,15 @@ export class AccessRulesComponent {
 
   protected readonly statusOptions: ChipFilterOption<AccessRuleStatusFilter>[] = [
     {
-      label: this.i18nService.t("pamAccessRuleEnabled"),
+      label: this.i18nService.t("pamAccessRuleActive"),
       value: "enabled",
       icon: "bwi-check-circle",
     },
-    { label: this.i18nService.t("disabled"), value: "disabled", icon: "bwi-circle" },
+    {
+      label: this.i18nService.t("pamAccessRuleInactive"),
+      value: "disabled",
+      icon: "bwi-subtract-circle",
+    },
   ];
 
   protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>

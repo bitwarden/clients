@@ -16820,11 +16820,14 @@
   "pamAccessRules": {
     "message": "Access rules"
   },
-  "pamAccessRuleEnabled": {
-    "message": "Enabled"
+  "pamAccessRuleActive": {
+    "message": "Active"
+  },
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
   },
   "pamAccessRuleEnabledHint": {
-    "message": "When disabled, the rule is inactive and does not restrict access."
+    "message": "When inactive, the rule does not restrict access."
   },
   "pamAccessRuleEnable": {
     "message": "Enable rule"
@@ -16845,7 +16848,7 @@
     "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
   },
   "pamAccessRuleNew": {
-    "message": "New rule"
+    "message": "Create new rule"
   },
   "pamAccessRuleCreateTitle": {
     "message": "New access rule"
@@ -17015,17 +17018,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Search rules"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Applies to"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Conditions"
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
   },
-  "pamAccessWindow": {
-    "message": "Access window"
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleLastModified": {
     "message": "Last modified"

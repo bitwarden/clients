@@ -50,7 +50,7 @@ export {
 } from "./helpers/access-rule-request";
 export type { AccessRuleFormPatch, AccessRuleFormValue } from "./helpers/access-rule-request";
 export { resolveCollectionNames } from "./helpers/collection-names";
-export { ConditionBadge, conditionBadges } from "./helpers/condition-badges";
+export { approvalMethodLabelKey } from "./helpers/approval-method";
 export {
   AccessRuleStatusFilter,
   AccessRuleFilter,
