@@ -80,8 +80,9 @@
               slot="end"
               bit-chip-action
               startIcon="bwi-diamond"
-              [label]="'premium' | i18n"
+              [label]="'upgrade' | i18n"
               size="small"
+              (click)="promptForPremium()"
             ></button>
           }
         </bit-nav-item>

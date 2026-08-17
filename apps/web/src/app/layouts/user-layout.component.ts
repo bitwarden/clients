@@ -193,6 +193,10 @@ export class UserLayoutComponent implements OnInit {
     await this.selectItemType("archive");
   }
 
+  protected async promptForPremium() {
+    await this.premiumUpgradePromptService.promptForPremium();
+  }
+
   protected vaultTileColor(vault: VaultNavItemViewModel): string {
     return isAvatarColor(vault.color) ? defaultAvatarColors[vault.color] : vault.color;
   }
