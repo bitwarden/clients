@@ -102,7 +102,7 @@ export class MainDesktopAutotypeMvpService {
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
-        if (this.windowMain.win != null) {
+        if (this.windowMain.win != null && !this.windowMain.win.isDestroyed()) {
           const windowTitle = autotype_mvp.getForegroundWindowTitle();
 
           this.windowMain.win.webContents.send(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, {
