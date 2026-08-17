@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -147,6 +147,7 @@ describe("UserLayoutComponent", () => {
 
   const hasPremium$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+  const queryParamMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
 
   const configService = mock<ConfigService>();
   const vaultNavService = mock<VaultNavService>();
@@ -191,6 +192,7 @@ describe("UserLayoutComponent", () => {
 
     hasPremium$.next(true);
     archivedCiphers$.next([]);
+    queryParamMap$.next(convertToParamMap({}));
 
     i18nService.t.mockImplementation((key: string) => key);
     configService.getFeatureFlag$.mockReturnValue(flag$);
@@ -210,6 +212,7 @@ describe("UserLayoutComponent", () => {
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
+        { provide: ActivatedRoute, useValue: { queryParamMap: queryParamMap$ } },
         {
           provide: PremiumSubscriptionRoutingService,
           useValue: { getSubscriptionRoute$: () => of(null) },
