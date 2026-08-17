@@ -118,9 +118,22 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
 
   // Copy non-legacy params first, then apply the converted patch.
   // This preserves params like cipherId and action that the vault uses independently.
+  //
+  // If `type` was present but untranslatable (e.g. trash/archive), keep it in the
+  // redirect so the legacy filter$ can still apply it. Without this, a URL like
+  // ?vaultId=<org>&type=trash would silently drop the Trash filter when the redirect
+  // fires for the org param.
+  const typeTranslated =
+    patch[`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.type}`] != null ||
+    patch[`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.favorites}`] != null;
+  const keysToStrip = new Set(LEGACY_KEYS);
+  if (legacy.type != null && !typeTranslated) {
+    keysToStrip.delete("type");
+  }
+
   const queryParams: Record<string, string> = {};
   for (const key of route.queryParamMap.keys) {
-    if (!LEGACY_KEYS.has(key)) {
+    if (!keysToStrip.has(key)) {
       queryParams[key] = route.queryParamMap.get(key)!;
     }
   }

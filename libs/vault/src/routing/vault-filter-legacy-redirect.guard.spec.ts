@@ -258,6 +258,34 @@ describe("vaultFilterLegacyRedirectGuard", () => {
       });
     });
 
+    describe("untranslatable type combined with other redirectable params", () => {
+      it("preserves type=trash in the redirect when combined with vaultId", async () => {
+        await runGuard(makeRoute({ vaultId: "org-123", type: "trash" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(
+          expect.objectContaining({ "vault.vault": "org-123", type: "trash" }),
+        );
+      });
+
+      it("preserves type=archive in the redirect when combined with organizationId", async () => {
+        await runGuard(makeRoute({ organizationId: "org-456", type: "archive" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(
+          expect.objectContaining({ "vault.vault": "org-456", type: "archive" }),
+        );
+      });
+
+      it("still strips type when it was translated", async () => {
+        await runGuard(makeRoute({ vaultId: "org-123", type: "login" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams?.["type"]).toBeUndefined();
+        expect(queryParams?.["vault.type"]).toBe(String(CipherType.Login));
+      });
+    });
+
     describe("combined params", () => {
       it("converts multiple legacy params in a single redirect", async () => {
         await runGuard(
