@@ -311,11 +311,10 @@ export class VaultPopupAutofillService {
     }
 
     try {
-      // The cipher is sent by id so decrypted vault data stays off the message channel. The background
-      // collects and decides fillability, so that the popup cannot fall out of sync with the fill.
+      // The cipher is sent by id so decrypted vault data stays off the message channel.
       const response = await BrowserApi.sendMessageWithResponse<{
         result?: AutoFillResult;
-      }>("fillCipherForPopup", { tabId: tab.id, cipherId: cipher.id });
+      }>("fillCipherForPopup", { tabId: tab.id, tabUrl: tab.url, cipherId: cipher.id });
       const outcome = response?.result;
 
       if (!outcome?.didAutofill) {

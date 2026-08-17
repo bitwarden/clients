@@ -344,13 +344,16 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
       if (target == null) {
         return;
       }
-      const pageDetails = await this.read(target, request.frameId);
-      if (!this.hasFillableDetails(request, pageDetails)) {
-        return;
-      }
 
-      const plan = await this.selectFill(request, target);
-      if (plan == null) {
+      const [pageDetails, plan] = await Promise.all([
+        this.read(target, request.frameId),
+        this.selectFill(request, target),
+      ]);
+      if (
+        pageDetails.length == 0 ||
+        plan == null ||
+        !this.reportedFrameIsFresh(request, pageDetails)
+      ) {
         return;
       }
       const fromCommand = request.kind !== "pageLoad";
@@ -388,28 +391,33 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
    * independently and accumulate into one settled result. A frame-scoped collect gets exactly one
    * response, already complete, so it needs no settle.
    */
-  private read(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
-    const details$ = this.autofillService.collectPageDetailsFromTab$(tab, frameId);
-    return firstValueFrom(
-      frameId == null ? details$.pipe(debounceTime(COLLECT_SETTLE_MS), take(1)) : details$,
+  private async read(tab: chrome.tabs.Tab, frameId?: number): Promise<PageDetail[]> {
+    const pageDetails$ = this.autofillService.collectPageDetailsFromTab$(tab, frameId);
+    const pageDetails = await firstValueFrom(
+      frameId == null ? pageDetails$.pipe(debounceTime(COLLECT_SETTLE_MS), take(1)) : pageDetails$,
     );
+    const details = pageDetails.filter(({ details }) => !!details?.fields?.length);
+
+    return details;
   }
 
   /**
-   * Whether a read produced details worth filling. A page-load fill additionally requires the
-   * reported frame to still show the URL its cipher was chosen for: the cipher is chosen against
-   * the URL captured during the collect, so a same-document navigation between reads must not fill
-   * a cipher meant for the old page.
+   * Correct-origin guard for a page-load fill: its cipher is chosen against the URL the frame
+   * reported, so a same-document navigation between {@link resolveFreshTarget} (a live-target check)
+   * and the collect must not fill a cipher meant for the old page. Confirms the collected details
+   * still show that URL. Other fill kinds carry no per-URL cipher choice to invalidate, so they are
+   * always fresh.
+   *
+   * A rejection here abandons the fill silently. That is safe because it is confined to page-load
+   * and self-correcting — the page now in the frame raises its own opportunity — and because a
+   * user-initiated fill never reaches this guard. See `orchestrator.design.md`, "A credential
+   * reaches only the origin it was chosen for", for the security/UX rationale.
    */
-  private hasFillableDetails(request: FillRequest, pageDetails: PageDetail[]): boolean {
-    // FIXME (PM-39579): for a tab-wide collect (command / card / identity) this inspects only the
-    // first frame to answer — the collect accumulates responses in message-arrival order, not sorted
-    // by frame. A fillable form in a sub-frame can be missed when an empty frame replies first.
-    const details = pageDetails[0]?.details;
-    if (request.kind === "pageLoad") {
-      return details?.url === request.frameUrl && !!details?.fields?.length;
+  private reportedFrameIsFresh(request: FillRequest, pageDetails: PageDetail[]): boolean {
+    if (request.kind !== "pageLoad") {
+      return true;
     }
-    return !!details?.fields?.length;
+    return pageDetails.some(({ details }) => details?.url === request.frameUrl);
   }
 
   /**
@@ -531,26 +539,48 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
   }
 
   /**
-   * The commit operation: the single point where a concrete fill is sent to the service. It verifies
-   * the target is the foreground tab, dispatches the fill, and books account activity only once a
-   * credential is actually placed.
+   * The commit operation: the single point where a concrete fill is sent to the service. It confirms
+   * the target still shows the URL the fill was aimed at and optionally that it is the foreground tab.
+   *
+   * A successful commit counts as active account activity.
    */
   private async commit(
     options: AutoFillOptions,
     overrides: CommitOverrides = {},
   ): Promise<AutoFillResult> {
     // Fail safe: absent or any value other than an explicit `false` keeps the verification on.
-    if (overrides[requireActiveTab] !== false) {
-      const activeTab = await BrowserApi.getTabFromCurrentWindow();
-      if (activeTab?.id !== options.tab.id) {
-        return DID_NOT_AUTOFILL;
-      }
+    const requireForeground = overrides[requireActiveTab] !== false;
+    const liveTab = await this.liveTargetTab(options.tab, requireForeground);
+    if (!liveTab) {
+      return DID_NOT_AUTOFILL;
     }
+
+    // The target tab must still show the URL the fill was aimed at, so a tab that navigated
+    // after the request is abandoned rather than filled.
+    if (liveTab?.url !== options.tab.url) {
+      return DID_NOT_AUTOFILL;
+    }
+
     const result = await this.autofillService.doAutoFill(options);
     if (result.didAutofill) {
       await this.recordActiveAccountActivity();
     }
     return result;
+  }
+
+  /**
+   * Reads the fill's target tab from the browser. If the tab no longer exists or the require
+   * foreground check fails, returns `undefined`. Otherwise returns the tab's description.
+   */
+  private async liveTargetTab(
+    target: chrome.tabs.Tab,
+    requireForeground: boolean,
+  ): Promise<chrome.tabs.Tab | undefined> {
+    if (requireForeground) {
+      const liveTab = await BrowserApi.getTabFromCurrentWindow();
+      return liveTab?.id === target.id ? liveTab : undefined;
+    }
+    return target.id == null ? undefined : BrowserApi.getTab(target.id);
   }
 
   /**

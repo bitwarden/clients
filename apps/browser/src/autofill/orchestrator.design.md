@@ -64,8 +64,11 @@ can be paused while its tab is away and resolved later; in the interval the fram
 A fill carried from a stale snapshot would place a cipher chosen for the _old_ page into whatever now
 occupies the frame — a credential handed to the wrong origin. Re-resolving by live identity and
 re-validating the origin closes that gap; if the tab or frame is gone, or the frame has navigated,
-the fill is abandoned rather than redirected. A user-initiated fill has no such gap — it acts on the
-tab the user just used.
+the fill is abandoned rather than redirected.
+
+A user-initiated fill acts on the tab the user just used, so its window is far narrower — but not
+zero: the tab can navigate between the command and the fill. The commit guards _every_ fill against
+this by proceeding only if the live tab at time-of-fill shows the URL the fill targeted.
 
 ### Each opportunity is executed once, on its own merits
 

@@ -338,6 +338,7 @@ describe("VaultPopupAutofillService", () => {
         expect(result).toBe(true);
         expect(BrowserApi.sendMessageWithResponse).toHaveBeenCalledWith("fillCipherForPopup", {
           tabId: mockCurrentTab.id,
+          tabUrl: mockCurrentTab.url,
           cipherId: "test-cipher-id",
         });
       });

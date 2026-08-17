@@ -23,6 +23,7 @@ import {
   PageDetail,
 } from "../services/abstractions/autofill.service";
 import {
+  createAutofillFieldMock,
   createAutofillPageDetailsMock,
   createChromeTabMock,
   createPageDetailMock,
@@ -208,6 +209,9 @@ describe("DefaultAutofillOrchestrator", () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       cipherService.getLastUsedForUrl.mockResolvedValue(makeCipher(CipherType.Login));
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 1, url }));
       autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
 
       emitPageTransition(pd);
@@ -243,6 +247,11 @@ describe("DefaultAutofillOrchestrator", () => {
       autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pd]));
       cipherService.getLastUsedForUrl.mockResolvedValue(cipher);
       jest.spyOn(BrowserApi, "getTab").mockResolvedValue(createChromeTabMock({ id: 1, url }));
+      // The target tab is the current-window active tab, so commit's live active-tab check sees the
+      // same url the fill targets.
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 1, url }));
       autofillService.doAutoFill.mockResolvedValue({ didAutofill: true, totp: "999999" });
 
       emitPageTransition(pd);
@@ -662,6 +671,82 @@ describe("DefaultAutofillOrchestrator", () => {
 
       expectAbandoned();
     });
+
+    it("fills a tab-wide command when a fillable sub-frame answers behind an empty frame", async () => {
+      // A tab-wide collect accumulates frames in message-arrival order, and the read drops the ones
+      // with no fields, so an empty frame answering first cannot mask a fillable form in a sub-frame
+      // that answers later: the read still yields the sub-frame, and the fill dispatches to it.
+      const tab = createChromeTabMock({ id: 1 });
+      const emptyFrame = createPageDetailMock({
+        frameId: 0,
+        tab,
+        details: createAutofillPageDetailsMock({ url: tab.url, fields: [] }),
+      });
+      const fillableSubFrame = createPageDetailMock({
+        frameId: 1,
+        tab,
+        // The fields are stated explicitly so this frame's fillability does not ride on the shared
+        // mock's default field set.
+        details: createAutofillPageDetailsMock({
+          url: tab.url,
+          fields: [createAutofillFieldMock()],
+        }),
+      });
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(
+        of([emptyFrame, fillableSubFrame]),
+      );
+      const cipher = makeCipher(CipherType.Login);
+      cipherService.getNextCipherForUrl.mockResolvedValue(cipher);
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+
+      autofillOrchestrator.autofillActiveTabFromCommand(tab);
+      await flushPromises();
+
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith(
+        expect.objectContaining({ tab, cipher, pageDetails: [fillableSubFrame] }),
+      );
+    });
+
+    it("does not fill a tab-wide command when every frame reports zero fields", async () => {
+      // The negative complement of the sub-frame case: a non-empty accumulation whose frames all
+      // report zero fields is not fillable, so the fill abandons before the commit. This pins the
+      // fillable-when-any-frame-has-fields semantics — a read is not fillable merely for having
+      // frames.
+      const tab = createChromeTabMock({ id: 1 });
+      const frames = [0, 1].map((frameId) =>
+        createPageDetailMock({
+          frameId,
+          tab,
+          details: createAutofillPageDetailsMock({ url: tab.url, fields: [] }),
+        }),
+      );
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of(frames));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(tab);
+      await flushPromises();
+
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+    });
+
+    it("security: refuses a command fill when the tab navigated away from the URL it targeted", async () => {
+      // The command targets the tab's URL at the moment it is issued, but by commit time the same tab
+      // shows a different URL. Filling now would place a cipher chosen for the old page onto the new
+      // one, so the commit abandons it before `doAutoFill` is reached.
+      const commandTab = createChromeTabMock({ id: 1, url: DEFAULT_URL });
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
+      jest
+        .spyOn(BrowserApi, "getTabFromCurrentWindow")
+        .mockResolvedValue(createChromeTabMock({ id: 1, url: "https://navigated.example" }));
+
+      autofillOrchestrator.autofillActiveTabFromCommand(commandTab);
+      await flushPromises();
+
+      expect(autofillService.collectPageDetailsFromTab$).toHaveBeenCalled();
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(accountService.setAccountActivity).not.toHaveBeenCalled();
+      expect(cipherService.updateLastUsedIndexForUrl).not.toHaveBeenCalled();
+    });
   });
 
   describe("serialization and tab-removal teardown", () => {
@@ -1032,6 +1117,22 @@ describe("DefaultAutofillOrchestrator", () => {
         createChromeTabMock({ id: 1 }),
         { id: "c1" } as any,
       );
+
+      expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: false });
+    });
+
+    it("abandons an unsafe fill when the target tab navigated since it was captured", async () => {
+      const target = createChromeTabMock({ id: 1, url: DEFAULT_URL });
+      autofillService.collectPageDetailsFromTab$.mockReturnValue(of([pageDetail(1, 0)]));
+      autofillService.doAutoFill.mockResolvedValue({ didAutofill: true });
+      jest
+        .spyOn(BrowserApi, "getTab")
+        .mockResolvedValue(createChromeTabMock({ id: 1, url: "https://navigated.example" }));
+
+      const result = await autofillOrchestrator.unsafeAutofillTabWithCipher(target, {
+        id: "c1",
+      } as any);
 
       expect(autofillService.doAutoFill).not.toHaveBeenCalled();
       expect(result).toEqual({ didAutofill: false });

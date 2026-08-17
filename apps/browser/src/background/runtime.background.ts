@@ -171,8 +171,9 @@ export default class RuntimeBackground {
         if (!BrowserApi.senderIsInternal(sender, this.logService)) {
           return noFill;
         }
+        // Rehydrate tab information; assert URL hasn't changed to verify message integrity
         const targetTab = await BrowserApi.getTab(msg.tabId);
-        if (targetTab == null) {
+        if (targetTab == null || targetTab.url !== msg.tabUrl) {
           return noFill;
         }
         const activeUserId = await firstValueFrom(

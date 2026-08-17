@@ -154,7 +154,7 @@ describe("RuntimeBackground collection dispatch", () => {
 
     it("fetches the cipher by id and fills it through the orchestrator", async () => {
       const result = await runtimeBackground.processMessageWithSender(
-        { command: "fillCipherForPopup", tabId: 1, cipherId: "cipher-1" },
+        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "cipher-1" },
         popupSender,
       );
 
@@ -194,7 +194,24 @@ describe("RuntimeBackground collection dispatch", () => {
 
     it("does not fill when the cipher id is unknown", async () => {
       const result = await runtimeBackground.processMessageWithSender(
-        { command: "fillCipherForPopup", tabId: 1, cipherId: "missing" },
+        { command: "fillCipherForPopup", tabId: 1, tabUrl: tab.url, cipherId: "missing" },
+        popupSender,
+      );
+
+      expect(autofillOrchestrator.unsafeAutofillTabWithCipher).not.toHaveBeenCalled();
+      expect(result).toEqual({ didAutofill: false });
+    });
+
+    it("security: does not fill when the tab navigates after the popup captured its url", async () => {
+      // When the freshly fetched tab shows a different URL, the tab navigated during message transmission.
+      // This invalidates the message and abandons the fill.
+      const result = await runtimeBackground.processMessageWithSender(
+        {
+          command: "fillCipherForPopup",
+          tabId: 1,
+          tabUrl: "https://before-nav.example/login",
+          cipherId: "cipher-1",
+        },
         popupSender,
       );
 
