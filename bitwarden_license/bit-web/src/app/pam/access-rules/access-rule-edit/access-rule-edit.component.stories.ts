@@ -11,7 +11,7 @@ import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
@@ -80,6 +80,7 @@ export default {
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
+        { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
         // Default to create mode; the Edit/Template stories override this.
         { provide: ActivatedRoute, useValue: routeStub() },
       ],

@@ -6,7 +6,7 @@ import { of, throwError } from "rxjs";
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SelectItemView, ToastService } from "@bitwarden/components";
+import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
 
@@ -22,6 +22,9 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 // Stand-in for the SDK-backed CIDR check; these specs don't assert CIDR-format validity, so
 // treating every non-empty row as valid keeps seeded IP-allowlist forms submittable.
 const cidrValidationStub: CidrValidationService = { isValid: () => true };
+
+// Only the delete flow opens a dialog; specs that exercise it provide their own answer.
+const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
 
 // Preset durations offered by the pickers, in seconds.
 const THIRTY_MIN = 30 * 60;
@@ -58,6 +61,7 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: DialogService, useValue: declinedDialogStub },
       ],
     });
 
@@ -113,7 +117,10 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     getAccessRule: jest.Mock;
     createAccessRule: jest.Mock;
     updateAccessRule: jest.Mock;
+    deleteAccessRule: jest.Mock;
   };
+  let showToast: jest.Mock;
+  let dialog: { openSimpleDialog: jest.Mock };
 
   // The org's collections, as returned by the admin-console service.
   const ORG_COLLECTIONS = [
@@ -127,7 +134,10 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       getAccessRule: jest.fn().mockResolvedValue(existing),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
       updateAccessRule: jest.fn().mockResolvedValue(undefined),
+      deleteAccessRule: jest.fn().mockResolvedValue(undefined),
     };
+    showToast = jest.fn();
+    dialog = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
 
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
@@ -136,7 +146,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
         provideRouter([]),
         { provide: ActivatedRoute, useValue: routeStub(state) },
         { provide: AccessRuleSdkService, useValue: pamApi },
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: ToastService, useValue: { showToast } },
         { provide: I18nService, useValue: i18nFake },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
@@ -144,6 +154,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: DialogService, useValue: dialog },
       ],
     });
 
@@ -286,12 +297,59 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(controls().maxExtensionDurationSeconds.value).toBe(ONE_HOUR);
   });
 
+  it("deletes the rule under edit and returns to the list once confirmed", async () => {
+    await setup({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Existing rule",
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    await component["remove"]();
+
+    expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        content: { key: "pamAccessRuleDeleteConfirmContent", placeholders: ["Existing rule"] },
+      }),
+    );
+    expect(pamApi.deleteAccessRule).toHaveBeenCalledWith("org-1", "rule-1");
+    expect(showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "success", message: "pamAccessRuleDeleted" }),
+    );
+    expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+  });
+
+  it("leaves the rule alone when the confirm dialog is declined", async () => {
+    await setup({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Existing rule",
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+    dialog.openSimpleDialog.mockResolvedValue(false);
+
+    await component["remove"]();
+
+    expect(pamApi.deleteAccessRule).not.toHaveBeenCalled();
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("does not offer a delete for a rule that doesn't exist yet (create mode)", async () => {
+    await setup({});
+
+    await component["remove"]();
+
+    expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
+    expect(pamApi.deleteAccessRule).not.toHaveBeenCalled();
+  });
+
   it("toasts when the org collections fail to load", async () => {
-    const showToast = jest.fn();
+    showToast = jest.fn();
     pamApi = {
       getAccessRule: jest.fn(),
       createAccessRule: jest.fn(),
       updateAccessRule: jest.fn(),
+      deleteAccessRule: jest.fn(),
     };
 
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
@@ -309,6 +367,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           useValue: { collectionAdminViews$: () => throwError(() => new Error("boom")) },
         },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: DialogService, useValue: declinedDialogStub },
       ],
     });
 
@@ -332,8 +391,9 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       getAccessRule: jest.fn().mockRejectedValue(new Error("404")),
       createAccessRule: jest.fn(),
       updateAccessRule: jest.fn(),
+      deleteAccessRule: jest.fn(),
     };
-    const showToast = jest.fn();
+    showToast = jest.fn();
 
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
@@ -347,6 +407,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: DialogService, useValue: declinedDialogStub },
       ],
     });
 
