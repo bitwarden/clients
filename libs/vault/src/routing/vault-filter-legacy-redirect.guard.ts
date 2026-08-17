@@ -5,6 +5,11 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import {
+  VAULT_FILTER_KEYS,
+  VAULT_FILTER_NAMESPACE,
+} from "../components/vault-items-table/vault-items-table.component";
+
 /** Maps the legacy `?type=` string values to their numeric CipherType equivalents. */
 const LEGACY_TYPE_MAP: Record<string, CipherType> = {
   login: CipherType.Login,
@@ -49,25 +54,27 @@ function extractLegacyParams(params: ParamMap) {
 function buildRedirectPatch(
   legacy: ReturnType<typeof extractLegacyParams>,
 ): Record<string, string> {
+  const ns = VAULT_FILTER_NAMESPACE;
+  const keys = VAULT_FILTER_KEYS;
   const patch: Record<string, string> = {};
 
   if (legacy.type === "favorites") {
-    patch["vault.favorites"] = "true";
+    patch[`${ns}.${keys.favorites}`] = "true";
   } else if (legacy.type != null && LEGACY_TYPE_MAP[legacy.type] != null) {
-    patch["vault.type"] = String(LEGACY_TYPE_MAP[legacy.type]);
+    patch[`${ns}.${keys.type}`] = String(LEGACY_TYPE_MAP[legacy.type]);
   }
 
   if (legacy.folderId != null) {
-    patch["vault.folder"] = legacy.folderId;
+    patch[`${ns}.${keys.folder}`] = legacy.folderId;
   }
   if (legacy.sharedFolderId != null) {
-    patch["vault.sharedFolder"] = legacy.sharedFolderId;
+    patch[`${ns}.${keys.sharedFolder}`] = legacy.sharedFolderId;
   }
   if (legacy.organizationId != null) {
-    patch["vault.vault"] = legacy.organizationId;
+    patch[`${ns}.${keys.vault}`] = legacy.organizationId;
   }
   if (legacy.search != null) {
-    patch["vault.search"] = legacy.search;
+    patch[`${ns}.${keys.search}`] = legacy.search;
   }
 
   return patch;
@@ -82,13 +89,6 @@ function buildRedirectPatch(
 export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
   const configService = inject(ConfigService);
 
-  const vfo1Enabled = await configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
-
-  // Only applicable when VFO1Foundation is enabled
-  if (!vfo1Enabled) {
-    return true;
-  }
-
   const legacy = extractLegacyParams(route.queryParamMap);
   const hasLegacyParams = Object.values(legacy).some((v) => v != null);
 
@@ -100,6 +100,13 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
 
   // No mapped params — nothing to redirect (e.g. ?type=trash, ?type=archive).
   if (Object.keys(patch).length === 0) {
+    return true;
+  }
+
+  const vfo1Enabled = await configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+
+  // Only applicable when VFO1Foundation is enabled
+  if (!vfo1Enabled) {
     return true;
   }
 
