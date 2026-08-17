@@ -1,6 +1,6 @@
 import { StoryObj } from "@storybook/angular";
 
-import { PolicyDialogStoryArgs, policyDrawerMeta } from "../policy-drawer-story.helper";
+import { PolicyDrawerStoryArgs, policyDrawerMeta } from "../policy-drawer-story.helper";
 
 import { SingleOrgPolicy } from "./single-org.component";
 
@@ -9,7 +9,7 @@ export default {
   title: "Admin Console/Organizations/Policies/Single Organization",
 };
 
-type Story = StoryObj<PolicyDialogStoryArgs>;
+type Story = StoryObj<PolicyDrawerStoryArgs>;
 
 export const PolicyOff: Story = {};
 

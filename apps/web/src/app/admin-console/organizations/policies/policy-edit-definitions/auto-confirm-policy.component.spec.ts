@@ -17,11 +17,7 @@ import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 
-import {
-  AutoConfirmPolicy,
-  AutoConfirmPolicyEditComponent,
-  AutoConfirmPolicyEditV2Component,
-} from "./auto-confirm-policy.component";
+import { AutoConfirmPolicy, AutoConfirmPolicyEditComponent } from "./auto-confirm-policy.component";
 
 describe("AutoConfirmPolicy", () => {
   it("has correct attributes", () => {
@@ -32,16 +28,11 @@ describe("AutoConfirmPolicy", () => {
     expect(policy.type).toBe(PolicyType.AutomaticUserConfirmation);
     expect(policy.component).toBe(AutoConfirmPolicyEditComponent);
     expect(policy.showDescription).toBe(false);
+    expect(policy.firstTimeDialog).toBe(false);
   });
 
-  it("renders the v2 component inside the drawer, with no dialog-level overrides", () => {
-    const policy = new AutoConfirmPolicy();
-
-    expect(policy.v2?.component).toBe(AutoConfirmPolicyEditV2Component);
-    expect(policy.v2?.component).not.toBe(policy.component);
-    // No description/prerequisite override: v2 keeps showDescription = false (its step content
-    // renders the policy copy itself) and relies on the dialog's generic name+badge header.
-    expect(policy.v2?.description).toBeUndefined();
+  it("respects an explicit firstTimeDialog value", () => {
+    expect(new AutoConfirmPolicy(true).firstTimeDialog).toBe(true);
   });
 });
 
@@ -245,42 +236,6 @@ describe("AutoConfirmPolicyEditComponent — policySteps[0].sideEffect", () => {
       });
     });
   });
-});
-
-describe("AutoConfirmPolicyEditV2Component", () => {
-  let component: AutoConfirmPolicyEditV2Component;
-  let fixture: ComponentFixture<AutoConfirmPolicyEditV2Component>;
-  let accountService: FakeAccountService;
-
-  const userId = newGuid() as UserId;
-  const orgId = newGuid() as OrganizationId;
-
-  beforeEach(async () => {
-    accountService = mockAccountServiceWith(userId);
-
-    await TestBed.configureTestingModule({
-      providers: [
-        { provide: AccountService, useValue: accountService },
-        { provide: KeyService, useValue: mock<KeyService>() },
-        { provide: OrganizationService, useValue: mock<OrganizationService>() },
-        { provide: PolicyService, useValue: mock<PolicyService>() },
-        { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
-        {
-          provide: AutomaticUserConfirmationService,
-          useValue: mock<AutomaticUserConfirmationService>(),
-        },
-        { provide: Router, useValue: mock<Router>() },
-      ],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(AutoConfirmPolicyEditV2Component);
-    component = fixture.componentInstance;
-
-    fixture.componentRef.setInput("organizationId", orgId);
-    fixture.componentRef.setInput("policy", new AutoConfirmPolicy());
-    // Intentionally skip detectChanges() — viewChild signals are not needed for these tests.
-  });
 
   describe("risk-acceptance gating", () => {
     it("defaults riskAccepted to unchecked and disables the enable switch when the policy is not yet enabled", () => {
@@ -340,14 +295,14 @@ describe("AutoConfirmPolicyEditV2Component", () => {
   });
 
   describe("policySteps", () => {
-    it("reuses step 1 (title/content/footer/sideEffect) unchanged from the v1 component", () => {
+    it("sets a custom title for step 0, so the first-time badge can be shown", () => {
+      expect(component.policySteps[0].titleContent).toBe((component as any).step0Title);
+    });
+
+    it("reuses step 1 (title/content/footer/sideEffect) unchanged", () => {
       expect(component.policySteps[1].titleContent).toBe((component as any).step1Title);
       expect(component.policySteps[1].bodyContent).toBe((component as any).step1Content);
       expect(component.policySteps[1].footerContent).toBe((component as any).step1Footer);
-    });
-
-    it("does not set a custom titleContent for step 0, relying on the dialog's generic name+badge header", () => {
-      expect(component.policySteps[0].titleContent).toBeUndefined();
     });
   });
 });

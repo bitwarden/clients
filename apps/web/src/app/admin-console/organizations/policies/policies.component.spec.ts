@@ -24,7 +24,7 @@ import { BasePolicyEditDefinition } from "./base-policy-edit.component";
 import { PolicyCategory } from "./pipes/policy-category";
 import { PoliciesComponent } from "./policies.component";
 import { SingleOrgPolicy } from "./policy-edit-definitions/single-org.component";
-import { PolicyEditDialogComponent } from "./policy-edit-dialog.component";
+import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
@@ -106,7 +106,9 @@ describe("PoliciesComponent", () => {
     mockI18nService = mock<I18nService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
 
-    jest.spyOn(PolicyEditDialogComponent, "open").mockReturnValue({ close: jest.fn() } as any);
+    jest
+      .spyOn(PolicyEditDrawerComponent, "openDrawer")
+      .mockResolvedValue({ close: jest.fn(), closed: of(undefined) } as any);
 
     await TestBed.configureTestingModule({
       imports: [PoliciesComponent],
@@ -393,7 +395,6 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -411,7 +412,7 @@ describe("PoliciesComponent", () => {
         data: null,
       };
 
-      let dialogOpenSpy: jest.SpyInstance;
+      let dialogOpenDrawerSpy: jest.SpyInstance;
 
       beforeEach(async () => {
         queryParamsSubject.next({ policyId: mockPolicyId });
@@ -423,9 +424,9 @@ describe("PoliciesComponent", () => {
           ),
         );
 
-        dialogOpenSpy = jest
-          .spyOn(PolicyEditDialogComponent, "open")
-          .mockReturnValue({ close: jest.fn() } as any);
+        dialogOpenDrawerSpy = jest
+          .spyOn(PolicyEditDrawerComponent, "openDrawer")
+          .mockResolvedValue({ close: jest.fn(), closed: of(undefined) } as any);
 
         TestBed.resetTestingModule();
         await TestBed.configureTestingModule({
@@ -457,8 +458,8 @@ describe("PoliciesComponent", () => {
       });
 
       it("should open policy dialog when policyId is in query params", () => {
-        expect(dialogOpenSpy).toHaveBeenCalled();
-        const callArgs = dialogOpenSpy.mock.calls[0][1];
+        expect(dialogOpenDrawerSpy).toHaveBeenCalled();
+        const callArgs = dialogOpenDrawerSpy.mock.calls[0][1];
         expect(callArgs.data?.policy.type).toBe(mockPolicy.type);
         expect(callArgs.data?.organization).toBe(mockOrg);
       });
@@ -481,7 +482,6 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -499,7 +499,7 @@ describe("PoliciesComponent", () => {
   });
 
   describe("edit", () => {
-    it("should call dialogService.open with correct parameters when no custom dialog is specified", async () => {
+    it("should call dialogComponent.openDrawer with correct parameters when no custom dialog is specified", async () => {
       const mockPolicy: BasePolicyEditDefinition = {
         name: "Test Policy",
         description: "Test Description",
@@ -508,54 +508,21 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
-      const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
+      const openDrawerSpy = jest.spyOn(PolicyEditDrawerComponent, "openDrawer");
 
       await component.edit(mockPolicy, mockOrg);
 
-      expect(openSpy).toHaveBeenCalled();
-      const callArgs = openSpy.mock.calls[0];
+      expect(openDrawerSpy).toHaveBeenCalled();
+      const callArgs = openDrawerSpy.mock.calls[0];
       expect(callArgs[1]).toEqual({
         data: {
           policy: mockPolicy,
           organization: mockOrg,
         },
       });
-    });
-
-    it("should call custom dialog open method when specified", async () => {
-      const mockDialogRef = { close: jest.fn() };
-      const mockCustomDialog = {
-        open: jest.fn().mockReturnValue(mockDialogRef),
-      };
-
-      const mockPolicy: BasePolicyEditDefinition = {
-        name: "Custom Policy",
-        description: "Custom Description",
-        type: PolicyType.RequireSso,
-        category: PolicyCategory.Authentication,
-        priority: 10,
-        component: {} as any,
-        editDialogComponent: mockCustomDialog as any,
-        showDescription: true,
-        showEnabledBadge: false,
-        display$: () => of(true),
-      };
-
-      await component.edit(mockPolicy, mockOrg);
-
-      expect(mockCustomDialog.open).toHaveBeenCalled();
-      const callArgs = mockCustomDialog.open.mock.calls[0];
-      expect(callArgs[1]).toEqual({
-        data: {
-          policy: mockPolicy,
-          organization: mockOrg,
-        },
-      });
-      expect(PolicyEditDialogComponent.open).not.toHaveBeenCalled();
     });
 
     it("should pass organization to dialog", async () => {
@@ -568,16 +535,15 @@ describe("PoliciesComponent", () => {
         priority: 10,
         component: {} as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
-      const openSpy = jest.spyOn(PolicyEditDialogComponent, "open");
+      const openDrawerSpy = jest.spyOn(PolicyEditDrawerComponent, "openDrawer");
 
       await component.edit(mockPolicy, customOrg);
 
-      expect(openSpy).toHaveBeenCalled();
-      const callArgs = openSpy.mock.calls[0];
+      expect(openDrawerSpy).toHaveBeenCalled();
+      const callArgs = openDrawerSpy.mock.calls[0];
       expect(callArgs[1]).toEqual({
         data: {
           policy: mockPolicy,
@@ -586,16 +552,9 @@ describe("PoliciesComponent", () => {
       });
     });
 
-    it("should open drawer when PolicyDrawers flag is enabled and openDrawer is present", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-
-      fixture = TestBed.createComponent(PoliciesComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
+    it("should open drawer when openDrawer is present on the dialog component", async () => {
       const mockDrawerRef = { close: jest.fn(), closed: of(undefined) };
       const mockDrawerDialog = {
-        open: jest.fn(),
         openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
       };
 
@@ -608,7 +567,6 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockDrawerDialog as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 
@@ -622,16 +580,9 @@ describe("PoliciesComponent", () => {
           organization: mockOrg,
         },
       });
-      expect(mockDrawerDialog.open).not.toHaveBeenCalled();
     });
 
     it("clears the drawer ref once it closes, so canDeactivate doesn't re-close a stale ref", async () => {
-      mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
-
-      fixture = TestBed.createComponent(PoliciesComponent);
-      component = fixture.componentInstance;
-      fixture.detectChanges();
-
       // Simulate the real DrawerRef behavior: calling close() on an already-closed ref
       // short-circuits to `{ closed: false }`. If the component failed to clear its
       // `drawerRef` signal after the drawer closed, canDeactivate() would call this again
@@ -639,7 +590,6 @@ describe("PoliciesComponent", () => {
       const closeSpy = jest.fn().mockResolvedValue({ closed: false });
       const mockDrawerRef = { close: closeSpy, closed: of(undefined) };
       const mockDrawerDialog = {
-        open: jest.fn(),
         openDrawer: jest.fn().mockReturnValue(mockDrawerRef),
       };
 
@@ -652,7 +602,6 @@ describe("PoliciesComponent", () => {
         component: {} as any,
         editDialogComponent: mockDrawerDialog as any,
         showDescription: true,
-        showEnabledBadge: false,
         display$: () => of(true),
       };
 

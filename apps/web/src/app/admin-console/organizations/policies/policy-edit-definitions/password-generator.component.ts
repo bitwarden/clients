@@ -1,102 +1,115 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { AsyncPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { BehaviorSubject, map } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  CheckboxModule,
+  FormControlModule,
+  FormFieldModule,
+  SelectModule,
+  SwitchComponent,
+  TypographyModule,
+} from "@bitwarden/components";
 import { BuiltIn, Profile } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
-import { PasswordGeneratorPolicyV2Component } from "./password-generator-v2.component";
-
 export class PasswordGeneratorPolicy extends BasePolicyEditDefinition {
   name = "passwordGenerator";
-  description = "passwordGeneratorPolicyDesc";
+  description = "passwordGeneratorPolicyDescV2";
   type = PolicyType.PasswordGenerator;
   category = PolicyCategory.VaultManagement;
   priority = 10;
   component = PasswordGeneratorPolicyComponent;
-  v2 = {
-    component: PasswordGeneratorPolicyV2Component,
-    description: "passwordGeneratorPolicyDescV2",
-    showDescription: false,
-  };
+  showDescription = false;
 }
+
+const PASSWORD_POLICY_VALUE = "password";
+const PASSPHRASE_POLICY_VALUE = "passphrase";
 
 @Component({
   selector: "password-generator-policy-edit",
   templateUrl: "password-generator.component.html",
-  imports: [SharedModule],
+  imports: [
+    AsyncPipe,
+    CheckboxModule,
+    FormControlModule,
+    FormFieldModule,
+    ReactiveFormsModule,
+    SelectModule,
+    SwitchComponent,
+    TypographyModule,
+    I18nPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   protected readonly minLengthMin =
-    BuiltIn.password.profiles[Profile.account].constraints.default.length.min;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.length!.min!;
   protected readonly minLengthMax =
-    BuiltIn.password.profiles[Profile.account].constraints.default.length.max;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.length!.max!;
   protected readonly minNumbersMin =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minNumber.min;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minNumber!.min!;
   protected readonly minNumbersMax =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minNumber.max;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minNumber!.max!;
   protected readonly minSpecialMin =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minSpecial.min;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minSpecial!.min!;
   protected readonly minSpecialMax =
-    BuiltIn.password.profiles[Profile.account].constraints.default.minSpecial.max;
+    BuiltIn.password.profiles[Profile.account]!.constraints.default.minSpecial!.max!;
   protected readonly minNumberWordsMin =
-    BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.min;
+    BuiltIn.passphrase.profiles[Profile.account]!.constraints.default.numWords!.min!;
   protected readonly minNumberWordsMax =
-    BuiltIn.passphrase.profiles[Profile.account].constraints.default.numWords.max;
+    BuiltIn.passphrase.profiles[Profile.account]!.constraints.default.numWords!.max!;
+
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
 
   readonly data = this.formBuilder.group({
-    overridePasswordType: [null],
-    minLength: [null, [Validators.min(this.minLengthMin), Validators.max(this.minLengthMax)]],
-    useUpper: [null],
-    useLower: [null],
-    useNumbers: [null],
-    useSpecial: [null],
-    minNumbers: [null, [Validators.min(this.minNumbersMin), Validators.max(this.minNumbersMax)]],
-    minSpecial: [null, [Validators.min(this.minSpecialMin), Validators.max(this.minSpecialMax)]],
+    overridePasswordType: [null as string | null],
+    minLength: [
+      null as number | null,
+      [Validators.min(this.minLengthMin), Validators.max(this.minLengthMax)],
+    ],
+    useUpper: [null as boolean | null],
+    useLower: [null as boolean | null],
+    useNumbers: [null as boolean | null],
+    useSpecial: [null as boolean | null],
+    minNumbers: [
+      null as number | null,
+      [Validators.min(this.minNumbersMin), Validators.max(this.minNumbersMax)],
+    ],
+    minSpecial: [
+      null as number | null,
+      [Validators.min(this.minSpecialMin), Validators.max(this.minSpecialMax)],
+    ],
     minNumberWords: [
-      null,
+      null as number | null,
       [Validators.min(this.minNumberWordsMin), Validators.max(this.minNumberWordsMax)],
     ],
-    capitalize: [null],
-    includeNumber: [null],
+    capitalize: [null as boolean | null],
+    includeNumber: [null as boolean | null],
   });
 
-  readonly overridePasswordTypeOptions: { name: string; value: string }[];
+  readonly overridePasswordTypeOptions: { name: string; value: string | null }[] = [
+    { name: this.i18nService.t("userPreference"), value: null },
+    { name: this.i18nService.t("password"), value: PASSWORD_POLICY_VALUE },
+    { name: this.i18nService.t("passphrase"), value: PASSPHRASE_POLICY_VALUE },
+  ];
 
   private readonly showPasswordPolicies = new BehaviorSubject<boolean>(true);
   private readonly showPassphrasePolicies = new BehaviorSubject<boolean>(true);
 
-  /** Emits `true` when the password policy options should be displayed */
-  get showPasswordPolicies$() {
-    return this.showPasswordPolicies.asObservable();
-  }
+  readonly showPasswordPolicies$ = this.showPasswordPolicies.asObservable();
+  readonly showPassphrasePolicies$ = this.showPassphrasePolicies.asObservable();
 
-  /** Emits `true` when the passphrase policy options should be displayed */
-  get showPassphrasePolicies$() {
-    return this.showPassphrasePolicies.asObservable();
-  }
-
-  constructor(
-    private readonly formBuilder: FormBuilder,
-    i18nService: I18nService,
-  ) {
+  constructor() {
     super();
-
-    this.overridePasswordTypeOptions = [
-      { name: i18nService.t("userPreference"), value: null },
-      { name: i18nService.t("password"), value: PASSWORD_POLICY_VALUE },
-      { name: i18nService.t("passphrase"), value: "passphrase" },
-    ];
-
     this.data.valueChanges
       .pipe(isEnabled(PASSWORD_POLICY_VALUE), takeUntilDestroyed())
       .subscribe(this.showPasswordPolicies);
@@ -106,11 +119,8 @@ export class PasswordGeneratorPolicyComponent extends BasePolicyEditComponent {
   }
 }
 
-const PASSWORD_POLICY_VALUE = "password";
-const PASSPHRASE_POLICY_VALUE = "passphrase";
-
 function isEnabled(enabledValue: string) {
-  return map((d: { overridePasswordType: string }) => {
+  return map((d: { overridePasswordType?: string | null }) => {
     const type = d?.overridePasswordType ?? enabledValue;
     return type === enabledValue;
   });

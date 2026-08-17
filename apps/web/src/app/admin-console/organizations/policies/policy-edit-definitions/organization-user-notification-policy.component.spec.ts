@@ -19,7 +19,6 @@ import { KeyService } from "@bitwarden/key-management";
 import {
   OrganizationUserNotificationPolicy,
   OrganizationUserNotificationPolicyComponent,
-  OrganizationUserNotificationPolicyV2Component,
 } from "./organization-user-notification-policy.component";
 
 const ORG_ID = "org1" as OrganizationId;
@@ -42,12 +41,7 @@ describe("OrganizationUserNotificationPolicy", () => {
     expect(policy.description).toBe("organizationUserNotificationPolicyDesc");
     expect(policy.type).toBe(PolicyType.OrganizationUserNotification);
     expect(policy.component).toBe(OrganizationUserNotificationPolicyComponent);
-  });
-
-  it("renders the v2 component inside the drawer", () => {
-    const policy = new OrganizationUserNotificationPolicy();
-
-    expect(policy.v2?.component).toBe(OrganizationUserNotificationPolicyV2Component);
+    expect(policy.prerequisiteKey).toBe("singleOrgPrerequisite");
   });
 });
 
