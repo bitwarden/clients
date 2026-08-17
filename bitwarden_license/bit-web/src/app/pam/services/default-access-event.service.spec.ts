@@ -25,6 +25,12 @@ describe("DefaultAccessEventService", () => {
     return () => count;
   }
 
+  function watchInbox(): () => number {
+    let count = 0;
+    subscriptions.push(service.approverInboxChanged$().subscribe(() => (count += 1)));
+    return () => count;
+  }
+
   beforeEach(() => {
     notifications$ = new Subject<Emission>();
     service = new DefaultAccessEventService(notifications$);
@@ -51,6 +57,29 @@ describe("DefaultAccessEventService", () => {
     notifications$.next(notification(NotificationType.LogOut));
 
     expect(ticks()).toBe(0);
+  });
+
+  it("ticks on a RefreshApproverInbox push", () => {
+    const ticks = watchInbox();
+
+    notifications$.next(notification(NotificationType.RefreshApproverInbox));
+
+    expect(ticks()).toBe(1);
+  });
+
+  it("keeps the two pushes on separate streams", () => {
+    // The approver push says a managed collection changed, which is no reason for the
+    // requester-side surfaces to re-read — and vice versa.
+    const ticks = watch();
+    const inboxTicks = watchInbox();
+
+    notifications$.next(notification(NotificationType.RefreshApproverInbox));
+    expect(ticks()).toBe(0);
+    expect(inboxTicks()).toBe(1);
+
+    notifications$.next(notification(NotificationType.RefreshAccessRequest));
+    expect(ticks()).toBe(1);
+    expect(inboxTicks()).toBe(1);
   });
 
   it("emits void — the push carries no vault data to pass on", () => {
