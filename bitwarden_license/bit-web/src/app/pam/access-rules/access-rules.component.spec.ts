@@ -16,13 +16,13 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
-function rule(id: string, name = "Rule"): AccessRuleView {
+function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
   return {
     id,
     organizationId: "org-1",
     name,
     description: undefined,
-    enabled: true,
+    enabled,
     conditions: [],
     singleActiveLease: false,
     defaultLeaseDurationSeconds: undefined,
@@ -117,6 +117,73 @@ describe("AccessRulesComponent — create/edit navigation", () => {
     expect(navigate).toHaveBeenCalledWith(["new"], {
       relativeTo: route,
       queryParams: { duplicateFrom: "rule-1" },
+    });
+  });
+});
+
+describe("AccessRulesComponent — activation toasts", () => {
+  let showToast: jest.Mock;
+  let updateAccessRule: jest.Mock;
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  const setup = async (
+    rules: AccessRuleView[],
+  ): Promise<ComponentFixture<AccessRulesComponent>> => {
+    showToast = jest.fn();
+    // Echo the request back as the updated rule; only the toast is under test here.
+    updateAccessRule = jest.fn().mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
+
+    TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
+
+    TestBed.configureTestingModule({
+      imports: [AccessRulesComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        {
+          provide: AccessRuleSdkService,
+          useValue: { listAccessRules: jest.fn().mockResolvedValue(rules), updateAccessRule },
+        },
+        { provide: DialogService, useValue: {} },
+        { provide: ToastService, useValue: { showToast } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+      ],
+    });
+
+    const fixture = TestBed.createComponent(AccessRulesComponent);
+    for (let i = 0; i < 3; i++) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+    return fixture;
+  };
+
+  it("reports a deactivation when toggling an active rule off", async () => {
+    const active = rule("rule-1", "VPN", true);
+    const fixture = await setup([active]);
+
+    await fixture.componentInstance["toggleEnabled"](active);
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "success",
+      message: "pamAccessRuleDeactivateSuccess",
+    });
+  });
+
+  it("reports a reactivation when toggling an inactive rule on", async () => {
+    const inactive = rule("rule-1", "VPN", false);
+    const fixture = await setup([inactive]);
+
+    await fixture.componentInstance["toggleEnabled"](inactive);
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "success",
+      message: "pamAccessRuleActivateSuccess",
     });
   });
 });
