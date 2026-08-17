@@ -18,7 +18,7 @@ import { MasterPasswordPolicyOptions } from "../../../admin-console/models/domai
 import { Organization } from "../../../admin-console/models/domain/organization";
 import { Policy } from "../../../admin-console/models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../../admin-console/models/domain/reset-password-policy-options";
-import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { MockSdkService } from "../../../platform/spec/mock-sdk.service";
 import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
@@ -249,7 +249,7 @@ describe("PolicyService", () => {
       const filterByType = jest.fn().mockReturnValue([
         {
           id: policyId1,
-          organizationId: orgId1,
+          organizationId: asUuid(orgId1),
           type: PolicyType.MaximumVaultTimeout as number,
           data: JSON.stringify({ minutes: 30 }),
           enabled: true,
@@ -312,7 +312,7 @@ describe("PolicyService", () => {
         filter_by_type: jest.fn().mockReturnValue([
           {
             id: policyId1,
-            organizationId: orgId1,
+            organizationId: asUuid(orgId1),
             type: PolicyType.DisableSend as number,
             data: undefined,
             enabled: true,
