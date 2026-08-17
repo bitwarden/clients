@@ -1,16 +1,24 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 
+import { render } from "lit";
 import { FocusableElement } from "tabbable";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, UPDATE_PASSKEYS_HEADINGS_ON_SCROLL } from "@bitwarden/common/autofill/constants";
+import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
+import { Lock } from "../../../../content/components/icons";
+import {
+  InlineMenuPrompt,
+  InlineMenuPromptProps,
+} from "../../../../content/components/inline-menu";
 import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import { EventSecurity } from "../../../../utils/event-security";
+import { resolveTheme } from "../../../../utils/resolve-theme";
 import {
   creditCardIcon,
   globeIcon,
@@ -63,6 +71,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private authStatus: AuthenticationStatus = AuthenticationStatus.Locked;
   private isInitialized = false;
   private useLitComponents = false;
+  private theme: Theme = ThemeTypes.Light;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -116,6 +125,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuFillType = inlineMenuFillType;
     this.showPasskeysLabels = showPasskeysLabels;
     this.useLitComponents = useLitComponents;
+    if (useLitComponents) {
+      this.theme = resolveTheme(theme);
+    }
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -156,6 +168,19 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Facilitates the ability to unlock the extension from the inline menu.
    */
   private buildLockedInlineMenu() {
+    if (this.useLitComponents) {
+      this.renderLitPrompt({
+        message: this.getTranslation("unlockYourAccountToViewAutofillSuggestions"),
+        actionText: this.getTranslation("unlockAccount"),
+        i18n: { actionAria: this.getTranslation("unlockAccountAria") },
+        icon: Lock,
+        handleAction: (event) => this.handleUnlockButtonClick(event as MouseEvent),
+        dataTestId: "inline-menu-locked-state",
+        actionDataTestId: "inline-menu-unlock-button",
+      });
+      return;
+    }
+
     const lockedInlineMenu = globalThis.document.createElement("div");
     lockedInlineMenu.id = "locked-inline-menu-description";
     lockedInlineMenu.classList.add("locked-inline-menu", "inline-menu-list-message");
@@ -185,6 +210,22 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    * Builds the inline menu list as a prompt that asks the user if they'd like to save the login data.
    */
   private buildSaveLoginInlineMenu() {
+    this.showInlineMenuAccountCreation = true;
+
+    if (this.useLitComponents) {
+      this.renderLitPrompt({
+        actionText: this.getTranslation("saveToBitwarden"),
+        i18n: {
+          actionAria: `${this.getTranslation("saveToBitwarden")}, ${this.getTranslation("opensInANewWindow")}`,
+        },
+        handleAction: (event) => this.handleNewLoginVaultItemAction(event as MouseEvent),
+        handleKeyUp: this.handleSaveLoginInlineMenuKeyUp,
+        dataTestId: "inline-menu-save-login",
+        actionDataTestId: "inline-menu-save-login-button",
+      });
+      return;
+    }
+
     const saveLoginButton = globalThis.document.createElement("button");
     saveLoginButton.classList.add(
       "save-login",
@@ -204,9 +245,32 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     const inlineMenuListButtonContainer = this.buildButtonContainer(saveLoginButton);
 
-    this.showInlineMenuAccountCreation = true;
-
     this.inlineMenuListContainer.append(inlineMenuListButtonContainer);
+  }
+
+  private renderLitPrompt(props: Omit<InlineMenuPromptProps, "theme">) {
+    const promptHost = globalThis.document.createElement("div");
+    this.inlineMenuListContainer.appendChild(promptHost);
+    render(InlineMenuPrompt({ ...props, theme: this.theme }), promptHost);
+    this.syncEmotionStylesIntoShadowDom();
+  }
+
+  private syncEmotionStylesIntoShadowDom() {
+    this.shadowDom
+      .querySelectorAll("style[data-lit-inline-menu-emotion]")
+      .forEach((styleEl) => styleEl.remove());
+
+    globalThis.document.head.querySelectorAll("style[data-emotion]").forEach((styleEl) => {
+      const source = styleEl as HTMLStyleElement;
+      const clone = source.cloneNode(true) as HTMLStyleElement;
+      if (!clone.textContent) {
+        clone.textContent = Array.from(source.sheet?.cssRules ?? [])
+          .map((rule) => rule.cssText)
+          .join("");
+      }
+      clone.setAttribute("data-lit-inline-menu-emotion", "true");
+      this.shadowDom.append(clone);
+    });
   }
 
   private handleSaveLoginInlineMenuKeyUp = (event: KeyboardEvent) => {
@@ -1585,7 +1649,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     this.inlineMenuListContainer.setAttribute("aria-modal", "true");
 
     const unlockButtonElement = this.inlineMenuListContainer.querySelector(
-      "#unlock-button",
+      "#unlock-button, [data-testid='inline-menu-unlock-button']",
     ) as HTMLElement;
     if (unlockButtonElement) {
       unlockButtonElement.focus();
@@ -1593,7 +1657,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     const firstListElement = this.inlineMenuListContainer.querySelector(
-      ".inline-menu-list-action",
+      ".inline-menu-list-action, [data-testid='inline-menu-save-login-button']",
     ) as HTMLElement;
     firstListElement?.focus();
   }
