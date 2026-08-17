@@ -4146,41 +4146,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Emergency access"
-  },
-  "premiumSignUpReports": {
-    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
-  },
-  "premiumSignUpTotp": {
-    "message": "TOTP verification code (2FA) generator for logins in your vault."
-  },
-  "premiumSignUpSupport": {
-    "message": "Priority customer support."
-  },
-  "premiumSignUpFuture": {
-    "message": "All future Premium features. More coming soon!"
-  },
-  "premiumPrice": {
-    "message": "All for just $PRICE$ /year!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Go premium for just $PRICE$ /year, or get premium accounts for $FAMILYPLANUSERCOUNT$ users and unlimited family sharing with a ",

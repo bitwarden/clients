@@ -4,11 +4,6 @@ import { PolicyDialogStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 
 import { OrganizationDataOwnershipPolicy } from "./organization-data-ownership.component";
 
-/**
- * Renders the PolicyDrawers-flag-on (drawer) experience for this policy. This policy uses
- * MultiStepPolicyEditDialogComponent for both the drawer and modal experiences, so pair this with
- * organization-data-ownership-modal.component.stories.ts to catch a v2 leak into the modal.
- */
 export default {
   ...policyDrawerMeta(new OrganizationDataOwnershipPolicy()),
   title: "Admin Console/Organizations/Policies/Organization Data Ownership",
