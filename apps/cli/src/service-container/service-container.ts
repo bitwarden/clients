@@ -819,6 +819,7 @@ export class ServiceContainer {
       this.stateProvider,
       this.authRequestApiService,
       this.accountService,
+      this.unlockService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(

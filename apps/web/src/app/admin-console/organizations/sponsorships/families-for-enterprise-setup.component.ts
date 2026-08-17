@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -47,7 +45,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
   _selectedFamilyOrganizationId = "";
 
   private _destroy = new Subject<void>();
-  protected familyPlan: PlanType;
+  protected familyPlan!: PlanType;
   protected readonly familyProductTier = ProductTierType.Families;
   protected readonly planSponsorshipType = PlanSponsorshipType.FamiliesForEnterprise;
 
@@ -79,7 +77,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
         this.logService.warning("[Sponsorship] No token found in query params");
         this.toastService.showToast({
           variant: "error",
-          title: null,
+          title: undefined,
           message: this.i18nService.t("sponsoredFamiliesAcceptFailed"),
           timeout: 10000,
         });
@@ -141,7 +139,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       }
     });
     this.formGroup.valueChanges.pipe(takeUntil(this._destroy)).subscribe((val) => {
-      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId;
+      this.selectedFamilyOrganizationId = val.selectedFamilyOrganizationId!;
     });
   }
 
@@ -178,7 +176,7 @@ export class FamiliesForEnterpriseSetupComponent implements OnInit, OnDestroy {
       this.logService.info("[Sponsorship] Redeem succeeded");
       this.toastService.showToast({
         variant: "success",
-        title: null,
+        title: undefined,
         message: this.i18nService.t("sponsoredFamiliesOfferRedeemed"),
       });
       await this.syncService.fullSync(true);
