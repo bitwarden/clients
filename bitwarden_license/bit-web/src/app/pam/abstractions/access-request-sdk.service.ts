@@ -1,6 +1,9 @@
 import type {
   AccessLeaseView,
+  AccessPreCheckView,
+  AccessRequestCreateRequest,
   AccessRequestId,
+  AccessRequestResultView,
   AccessRequestView,
   CipherAccessStateView,
 } from "./access-lease";
@@ -25,4 +28,23 @@ export abstract class AccessRequestSdkService {
    * which never carry the SDK's branded `CipherId`) and converted internally.
    */
   abstract getCipherAccessState(cipherId: string): Promise<CipherAccessStateView>;
+
+  /**
+   * Resolve which approval path a request for this cipher would take, without committing to one.
+   * The cipher-view banner runs this before showing its form so the requester sees the right
+   * shape: the `automatic` path collects only a duration, the `human` path collects a window
+   * plus a justification. `hasActiveLease` short-circuits both — reveal the credential instead.
+   */
+  abstract preCheck(cipherId: string): Promise<AccessPreCheckView>;
+
+  /**
+   * Open an access request for a gated cipher. Which fields `request` must carry depends on the
+   * approval mode {@link preCheck} reported: `durationSeconds` on the automatic path,
+   * `start`/`end`/`reason` on the human path. No lease is minted here on either path — the
+   * requester activates the resulting request (see {@link activateAccessRequest}).
+   */
+  abstract submitAccessRequest(
+    cipherId: string,
+    request: AccessRequestCreateRequest,
+  ): Promise<AccessRequestResultView>;
 }
