@@ -249,6 +249,10 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       showDescription?: boolean;
       v2ShowDescription?: boolean;
       v2Description?: string;
+      nameVfo1?: string;
+      v2Name?: string;
+      v2NameVfo1?: string;
+      vfo1Enabled?: boolean;
     }) {
       const policy: BasePolicyEditDefinition = {
         name: "testPolicy",
@@ -260,6 +264,7 @@ describe("MultiStepPolicyEditDialogComponent", () => {
         showDescription: options.showDescription ?? false,
         showEnabledBadge: false,
         display$: () => of(true),
+        ...(options.nameVfo1 !== undefined ? { nameVfo1: options.nameVfo1 } : {}),
         ...(options.withV2
           ? {
               v2: {
@@ -270,6 +275,8 @@ describe("MultiStepPolicyEditDialogComponent", () => {
                 ...(options.v2Description !== undefined
                   ? { description: options.v2Description }
                   : {}),
+                ...(options.v2Name !== undefined ? { name: options.v2Name } : {}),
+                ...(options.v2NameVfo1 !== undefined ? { nameVfo1: options.v2NameVfo1 } : {}),
               },
             }
           : {}),
@@ -291,7 +298,9 @@ describe("MultiStepPolicyEditDialogComponent", () => {
       const dRef = mock<DialogRef<PolicyEditDialogResult>>();
       (dRef as any).isDrawer = options.isDrawer ?? false;
       const configService = mock<ConfigService>();
-      configService.getFeatureFlag$.mockReturnValue(of(false));
+      configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) =>
+        of(flag === FeatureFlag.VFO1Foundation ? (options.vfo1Enabled ?? false) : false),
+      );
 
       TestBed.resetTestingModule();
       await TestBed.configureTestingModule({
@@ -394,6 +403,56 @@ describe("MultiStepPolicyEditDialogComponent", () => {
 
         expect(component.showDescription()).toBe(true);
         expect(component.descriptionKey()).toBe("testDesc");
+      });
+    });
+
+    describe("titleKeys VFO1 precedence (matches PolicyEditDrawerComponent.titleKeys)", () => {
+      // Regression test: v2.nameVfo1 must win over the top-level nameVfo1 when isV2 is true,
+      // matching the fallback order documented on BasePolicyEditDefinition.v2.nameVfo1
+      // (v2.nameVfo1 -> nameVfo1 -> name).
+      it("prefers v2.nameVfo1 over the top-level nameVfo1 when isV2 is true", async () => {
+        const { fixture, component } = await setup({
+          isDrawer: true,
+          withV2: true,
+          nameVfo1: "topLevelVfo1",
+          v2NameVfo1: "v2Vfo1",
+          vfo1Enabled: true,
+        });
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.dialogTitle()).toBe("v2Vfo1");
+      });
+
+      it("falls back to the top-level nameVfo1 when isV2 is true but v2.nameVfo1 isn't set", async () => {
+        const { fixture, component } = await setup({
+          isDrawer: true,
+          withV2: true,
+          nameVfo1: "topLevelVfo1",
+          vfo1Enabled: true,
+        });
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.dialogTitle()).toBe("topLevelVfo1");
+      });
+
+      it("ignores v2.nameVfo1 when isV2 is false (v1 modal subtitle)", async () => {
+        const { fixture, component } = await setup({
+          isDrawer: false,
+          withV2: true,
+          nameVfo1: "topLevelVfo1",
+          v2NameVfo1: "v2Vfo1",
+          vfo1Enabled: true,
+        });
+
+        fixture.detectChanges();
+        await fixture.whenStable();
+
+        expect(component.dialogTitle()).toBe("editPolicy");
+        expect(component.dialogSubtitle()).toBe("topLevelVfo1");
       });
     });
   });
