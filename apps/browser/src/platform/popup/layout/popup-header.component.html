@@ -16,13 +16,13 @@
           [content]="logo"
           [ariaLabel]="'appLogoLabel' | i18n"
         ></bit-svg>
-        <ng-content select="[slot=badge]"></ng-content>
       </div>
       <!--
-        Force the on-dark foreground onto projected buttons so callers don't have to swap button
-        types just to be legible against the app bar.
+        The app bar is dark, so buttons projected here need `buttonType="side-nav"` to be legible
+        against it. The bar deliberately does not force a foreground onto them, so that each caller
+        keeps control of its own button styling.
       -->
-      <div class="tw-inline-flex tw-items-center tw-gap-2 [&_button]:!tw-text-fg-nav">
+      <div class="tw-inline-flex tw-items-center tw-gap-2">
         <ng-content select="[slot=app-actions]"></ng-content>
       </div>
     </div>
@@ -30,21 +30,16 @@
 }
 
 <!--
-  end padding is less than start padding to prioritize visual alignment when icon buttons are used at the end of the end slot.
-  other elements used at the end of the end slot may need to add their own margin/padding to achieve visual alignment.
+  `tw-max-h-24` is a ceiling above the bar's natural height, not a fixed size — collapsing animates
+  `max-height` so the expanded bar keeps whatever height its content needs. The padding collapses
+  alongside it so visible motion starts on the first frame.
 -->
 <header
-  class="tw-py-3 bit-compact:tw-py-2 tw-pe-1 bit-compact:tw-pe-0.5 tw-transition-colors tw-duration-200 tw-border-0 tw-border-b tw-border-solid"
-  [ngClass]="{
-    'tw-bg-background-alt tw-border-transparent': showAltBackground() && !pageContentScrolled(),
-    'tw-bg-background tw-border-secondary-300':
-      (showAltBackground() && pageContentScrolled()) || !showAltBackground(),
-    'tw-ps-4 bit-compact:tw-ps-3': !showBackButton(),
-    'tw-ps-1 bit-compact:tw-ps-0': showBackButton(),
-  }"
+  class="tw-p-3 bit-compact:tw-p-2 tw-max-h-24 tw-overflow-hidden tw-bg-bg-tertiary tw-border-0 tw-border-b tw-border-solid tw-border-border-base motion-safe:tw-transition-all tw-duration-200 tw-ease-out"
+  [class]="headerClasses()"
 >
   <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
-    <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
+    <div class="tw-inline-flex tw-items-center tw-gap-2">
       @if (showBackButton()) {
         <button
           bitIconButton="bwi-angle-left"
@@ -57,7 +52,7 @@
         <ng-content select="[slot=start]"></ng-content>
       }
       @if (pageTitle()) {
-        <h1 bitTypography="h3" class="!tw-mb-0.5">
+        <h1 bitTypography="h3" class="!tw-mb-0">
           {{ pageTitle() }}
         </h1>
       }
@@ -65,7 +60,7 @@
         <ng-content></ng-content>
       }
     </div>
-    <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
+    <div class="tw-flex tw-items-center tw-gap-2">
       <ng-content select="[slot=end]"></ng-content>
     </div>
   </div>

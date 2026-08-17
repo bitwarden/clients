@@ -27,7 +27,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
   AvatarModule,
-  BadgeModule,
   BannerModule,
   BitCellComponent,
   BitCellDefDirective,
@@ -61,10 +60,9 @@ import { PopupHeaderComponent } from "./popup-header.component";
 import { PopupPageComponent } from "./popup-page.component";
 import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "extension-container",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tw-h-[640px] tw-w-[480px] tw-border tw-border-solid tw-border-secondary-300">
       <ng-content></ng-content>
@@ -73,10 +71,9 @@ import { PopupTabNavigationComponent } from "./popup-tab-navigation.component";
 })
 class ExtensionContainerComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "extension-popped-container",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="tw-h-[640px] tw-w-[900px] tw-border tw-border-solid tw-border-secondary-300">
       <ng-content></ng-content>
@@ -86,10 +83,9 @@ class ExtensionContainerComponent {}
 })
 class ExtensionPoppedContainerComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "vault-placeholder",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: /*html*/ `
     <bit-section>
       <bit-item-group>
@@ -121,10 +117,9 @@ class VaultComponent {
   protected data = Array.from(Array(20).keys());
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-add-button",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button bitButton size="small" buttonType="primary" type="button">
       <i class="bwi bwi-plus" aria-hidden="true"></i>
@@ -135,21 +130,25 @@ class VaultComponent {
 })
 class MockAddButtonComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-popout-button",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
+    <button
+      bitIconButton="bwi-popout"
+      size="small"
+      type="button"
+      buttonType="side-nav"
+      label="Pop out"
+    ></button>
   `,
   imports: [IconButtonModule],
 })
 class MockPopoutButtonComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-current-account",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
       <bit-avatar text="Ash Ketchum"></bit-avatar>
@@ -159,19 +158,17 @@ class MockPopoutButtonComponent {}
 })
 class MockCurrentAccountComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-search",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: ` <bit-search placeholder="Search"> </bit-search> `,
   imports: [SearchModule],
 })
 class MockSearchComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-banner",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-banner variant="primary"> This is an important note about these ciphers </bit-banner>
   `,
@@ -179,10 +176,9 @@ class MockSearchComponent {}
 })
 class MockBannerComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -208,10 +204,9 @@ class MockBannerComponent {}
 })
 class MockVaultPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page-popped",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -233,10 +228,9 @@ class MockVaultPageComponent {}
 })
 class MockVaultPagePoppedComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-generator-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -259,10 +253,9 @@ class MockVaultPagePoppedComponent {}
 })
 class MockGeneratorPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-send-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -285,10 +278,9 @@ class MockGeneratorPageComponent {}
 })
 class MockSendPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-settings-page",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test">
@@ -311,10 +303,9 @@ class MockSendPageComponent {}
 })
 class MockSettingsPageComponent {}
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-subpage",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Test" showBackButton>
@@ -665,10 +656,9 @@ class MockVaultTablePageComponent {
  * The VFO1 two-bar header: a branded app bar carrying the pop out button and account switcher, above
  * a page title bar carrying the leading icon tile, title, and item count.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-send-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" pageTitle="Send">
@@ -696,17 +686,49 @@ class MockVaultTablePageComponent {
 class MockSendPageV2Component {}
 
 /**
+ * The two-bar header over enough content to overflow the popup, so the title bar's collapse-on-scroll
+ * behavior is actually reachable.
+ */
+@Component({
+  selector: "mock-scrolling-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Vault">
+        <ng-container slot="app-actions">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+        <bit-icon-tile slot="start" icon="bwi-lock" variant="brand" size="sm"></bit-icon-tile>
+        <span slot="end" bitTypography="body2" class="tw-text-muted">20 items</span>
+      </popup-header>
+      <mock-search slot="above-scroll-area"></mock-search>
+      <vault-placeholder></vault-placeholder>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    MockSearchComponent,
+    IconTileComponent,
+    TypographyModule,
+    VaultComponent,
+  ],
+})
+class MockScrollingPageV2Component {}
+
+/**
  * A page that opts out of `pageTitle` and owns the whole title region — the path a page takes when it
  * needs a control alongside the title, such as the vault switcher.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "mock-vault-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <popup-page>
       <popup-header slot="header" [pageTitle]="''">
-        <bit-badge slot="badge" variant="subtle" [startIcon]="null">Beta</bit-badge>
         <ng-container slot="app-actions">
           <mock-popout-button></mock-popout-button>
           <mock-current-account></mock-current-account>
@@ -729,7 +751,6 @@ class MockSendPageV2Component {}
     MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     VaultComponent,
-    BadgeModule,
     IconButtonModule,
     IconTileComponent,
     TypographyModule,
@@ -806,6 +827,7 @@ export default {
         MockVaultPagePoppedComponent,
         MockVaultTablePageComponent,
         MockSendPageV2Component,
+        MockScrollingPageV2Component,
         MockVaultPageV2Component,
         NoItemsModule,
         VaultComponent,
@@ -1131,7 +1153,7 @@ export const TransparentHeader: Story = {
     template: /* HTML */ `
       <extension-container>
         <popup-page>
-          <popup-header slot="header" background="alt" pageTitle="">
+          <popup-header slot="header" pageTitle="">
             <span class="tw-italic tw-text-main">🤠 Custom Content</span>
           </popup-header>
           <vault-placeholder></vault-placeholder>
@@ -1160,9 +1182,26 @@ export const HeaderV2: Story = {
 };
 
 /**
+ * The popup viewport is short, so the page title bar collapses while the user scrolls down and
+ * returns as soon as they scroll back up. The app bar stays pinned. Scroll the list to see it — the
+ * collapsed state can't be reached without interacting, so this story is excluded from snapshots.
+ */
+export const HeaderV2ScrollingTitleBar: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  parameters: { chromatic: { disableSnapshot: true } },
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-scrolling-page-v2></mock-scrolling-page-v2>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
  * A page that omits `pageTitle` owns the whole title region via default content — the path to take
- * when a control needs to sit alongside the title, such as the vault switcher. Also shows the app
- * bar's beta badge slot.
+ * when a control needs to sit alongside the title, such as the vault switcher.
  */
 export const HeaderV2CustomTitle: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),

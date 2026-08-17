@@ -1,8 +1,6 @@
-import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  Signal,
   booleanAttribute,
   computed,
   inject,
@@ -19,37 +17,29 @@ import {
   AsyncActionsModule,
   FunctionReturningAwaitable,
   IconButtonModule,
+  ScrollLayoutService,
+  scrollDirection,
   SvgModule,
   TypographyModule,
 } from "@bitwarden/components";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
-import { PopupPageComponent } from "./popup-page.component";
-
 @Component({
   selector: "popup-header",
   templateUrl: "popup-header.component.html",
-  imports: [
-    TypographyModule,
-    CommonModule,
-    IconButtonModule,
-    JslibModule,
-    AsyncActionsModule,
-    SvgModule,
-  ],
+  imports: [TypographyModule, IconButtonModule, JslibModule, AsyncActionsModule, SvgModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PopupHeaderComponent {
   private readonly popupRouterCacheService = inject(PopupRouterCacheService);
+  private readonly scrollLayout = inject(ScrollLayoutService);
 
   /**
    * Optional so that this temporary flag read doesn't force a `ConfigService` stub into every spec
    * that happens to render a page header. Always present in the running extension.
    */
   private readonly configService = inject(ConfigService, { optional: true });
-
-  protected readonly pageContentScrolled: Signal<boolean> = inject(PopupPageComponent).isScrolled;
 
   /**
    * Renders the two-bar header: a branded app bar above the page title bar.
@@ -62,9 +52,6 @@ export class PopupHeaderComponent {
   );
 
   protected readonly logo = BitwardenLogo;
-
-  /** Background color */
-  readonly background = input<"default" | "alt">("default");
 
   /** Display the back button, which uses Location.back() to go back one page in history */
   readonly showBackButton = input(false, { transform: booleanAttribute });
@@ -81,8 +68,33 @@ export class PopupHeaderComponent {
     return this.popupRouterCacheService.back();
   });
 
-  /** Under VFO1 the title bar always sits on the page background; `background` only applies to v1. */
-  protected readonly showAltBackground = computed(
-    () => this.vfo1Enabled() || this.background() === "alt",
+  /**
+   * The popup viewport is short, so the title bar gets out of the way while the user reads down the
+   * page. The app bar stays pinned.
+   */
+  private readonly scrollDirection = scrollDirection(this.scrollLayout.scrollableRef);
+
+  protected readonly titleBarHidden = computed(
+    () => this.vfo1Enabled() && this.scrollDirection() === "down",
   );
+
+  protected readonly headerClasses = computed(() => {
+    /** The back button's own padding stands in for the header's start padding. */
+    const classes = this.showBackButton() ? ["tw-ps-1", "bit-compact:tw-ps-0"] : [];
+
+    if (this.titleBarHidden()) {
+      // `focus-within` keeps the collapsed bar reachable, and visible, by Shift+Tab.
+      // `!` is required on both max-heights: Tailwind emits `tw-max-h-24` after `tw-max-h-0`, so at
+      // equal specificity the static ceiling would otherwise win and the bar would never collapse.
+      classes.push(
+        "!tw-max-h-0",
+        "!tw-py-0",
+        "focus-within:!tw-max-h-24",
+        "focus-within:!tw-py-3",
+        "bit-compact:focus-within:!tw-py-2",
+      );
+    }
+
+    return classes.join(" ");
+  });
 }

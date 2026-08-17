@@ -37,7 +37,6 @@ export class PopupPageComponent {
   readonly hideOverflow = input(false, { transform: booleanAttribute });
 
   protected readonly scrolled = signal(false);
-  readonly isScrolled = this.scrolled.asReadonly();
 
   constructor() {
     this.scrollLayout.scrollableRef$

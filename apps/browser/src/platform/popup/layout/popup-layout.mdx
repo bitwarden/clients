@@ -77,9 +77,6 @@ Basic usage example:
 - `showBackButton`: optional, defaults to `false`
   - Toggles the back button to appear. The back button uses `Location.back()` to navigate back one
     page in history.
-- `background`: optional
-  - `"default"` uses a white background
-  - `"alt"` uses a transparent background
 
 **Slots**
 
@@ -103,9 +100,9 @@ Usage example:
 Behind the `vfo1-foundation` feature flag, `popup-header` renders two stacked bars instead of one:
 
 - an **app bar** — dark, branded, carrying the Bitwarden logo plus the chrome that belongs to the
-  extension rather than the page (pop out button, account switcher, and an optional badge)
-- a **page title bar** — the familiar header, now always on the page background, carrying the back
-  button, a leading icon tile, the title, and an item count
+  extension rather than the page (pop out button, account switcher)
+- a **page title bar** — the familiar header, carrying the back button, a leading icon tile, the
+  title, and an item count
 
 Toggle the flag in the **Feature Flags** addon panel to compare the two.
 
@@ -113,19 +110,30 @@ Toggle the flag in the **Feature Flags** addon panel to compare the two.
 
 **Additional slots, all app bar only**
 
-- `badge`
-  - A `bit-badge` beside the logo, for labelling the extension itself (for example, "Beta").
 - `app-actions`
-  - One or more interactive elements on the right of the app bar. Buttons projected here are forced
-    to the on-dark foreground, so there is no need to change their `buttonType`.
+  - One or more interactive elements on the right of the app bar. The bar is dark, so buttons
+    projected here need `buttonType="side-nav"` to be legible against it.
 - `start`
   - A leading element before the title, typically a `bit-icon-tile`.
 
-These three slots render only while the flag is on; with the flag off, content passed to them is
+These two slots render only while the flag is on; with the flag off, content passed to them is
 dropped. The `end` slot keeps its meaning in both — content on the trailing edge of the title bar,
 such as an item count.
 
-`background` applies to v1 only. Under the flag the title bar always uses the page background.
+#### Scrolling
+
+The popup viewport is short, so the page title bar collapses while the user scrolls the page content
+down and returns as soon as they scroll back up. The app bar stays pinned throughout.
+
+The title bar is always visible at the top of the page, and while it contains focus — so tabbing
+back into the back button or the `end` slot brings it into view rather than leaving the focus ring
+clipped. It is only ever visually clipped, never removed from the accessibility tree. Under
+`prefers-reduced-motion: reduce` the collapse is instant rather than animated.
+
+The behavior comes from the `scrollDirection` util reading `ScrollLayoutService`, so a page whose
+content sits outside a `bitScrollLayoutHost` region simply never collapses its title bar.
+
+<Canvas of={stories.HeaderV2ScrollingTitleBar} />
 
 #### Owning the title region
 
