@@ -7,20 +7,14 @@ import {
   input,
 } from "@angular/core";
 
-import {
-  avatarDefaultColors,
-  getAvatarDefaultColor,
-} from "@bitwarden/common/platform/misc/avatar-color";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
-export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
+import { AvatarColor, AvatarDefaultColors, getAvatarDefaultColor } from "./avatar-color";
 
-/** Re-exported from @bitwarden/common so consumers of @bitwarden/components see no breaking change. */
-export const AvatarDefaultColors = avatarDefaultColors;
-export type AvatarColor = (typeof AvatarDefaultColors)[number];
+export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
 
 const sizeClasses: Record<AvatarSize, string[]> = {
   "2xl": ["tw-size-16", "tw-min-w-16"],
@@ -210,11 +204,7 @@ export class AvatarComponent {
     return characters != null ? characters.slice(0, count).join("") : "";
   }
 
-  /**
-   * Deterministically choose a default avatar color based on the given strings.
-   * Delegates to the shared implementation in @bitwarden/common so the algorithm
-   * stays in one place.
-   */
+  /** Deterministically choose a default avatar color based on the given strings. */
   protected getDefaultColorKey(id?: string, text?: string) {
     return getAvatarDefaultColor(id, text);
   }

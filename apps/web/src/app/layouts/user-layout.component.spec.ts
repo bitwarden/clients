@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -11,13 +11,18 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import {
+  VaultNavItemType,
+  VaultNavItemViewModel,
+  VaultNavService,
+  VaultsNavViewModel,
+} from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -53,50 +58,64 @@ class MockBillingFreeFamiliesNavItemComponent {}
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 class MockCoachmarkComponent {
-  popover() {
+  popover(): undefined {
     return undefined;
   }
 }
 
 const userId = "user-id" as UserId;
 
+const personalItem: VaultNavItemViewModel = {
+  id: userId,
+  label: "My vault",
+  color: "coral",
+  icon: "bwi-user",
+  type: VaultNavItemType.Personal,
+};
+
 const emptyViewModel: VaultsNavViewModel = {
-  showVaultsHeader: false,
   vaults: [],
-  myVaultItem: null,
-  allItemsItem: null,
-  orgDefaultExpanded: false,
-  showMyItemsGroup: false,
+  organizationDataOwnership: false,
 };
 
-const myVaultOnly: VaultsNavViewModel = {
-  ...emptyViewModel,
-  myVaultItem: { id: userId, label: "My vault", color: "coral", type: VaultNavItemType.Personal },
-};
-
-const premiumNoOrgs: VaultsNavViewModel = {
-  ...emptyViewModel,
-  allItemsItem: {
-    id: "all-items",
-    label: "All items",
-    color: "brand",
-    type: VaultNavItemType.AllItems,
-  },
+const personalOnly: VaultsNavViewModel = {
+  vaults: [personalItem],
+  organizationDataOwnership: false,
 };
 
 const withOrgs: VaultsNavViewModel = {
-  ...emptyViewModel,
-  showVaultsHeader: true,
   vaults: [
-    { id: userId, label: "My vault", color: "coral", type: VaultNavItemType.Personal },
+    personalItem,
     {
       id: "org-a",
       label: "Acme corporation",
       color: "purple",
+      icon: "bwi-business",
       type: VaultNavItemType.Organization,
     },
-    { id: "org-b", label: "Smith family", color: "teal", type: VaultNavItemType.Family },
+    {
+      id: "org-b",
+      label: "Smith family",
+      color: "teal",
+      icon: "bwi-family",
+      type: VaultNavItemType.Family,
+    },
   ],
+  organizationDataOwnership: false,
+};
+
+const orgDataOwnership: VaultsNavViewModel = {
+  vaults: [
+    {
+      id: "org-a",
+      label: "Acme corporation",
+      color: "purple",
+      icon: "bwi-business",
+      type: VaultNavItemType.Organization,
+      defaultUserCollectionId: "col-a" as CollectionId,
+    },
+  ],
+  organizationDataOwnership: true,
 };
 
 global.ResizeObserver = class ResizeObserver {
@@ -128,6 +147,7 @@ describe("UserLayoutComponent", () => {
 
   const hasPremium$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+  const queryParamMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
 
   const configService = mock<ConfigService>();
   const vaultNavService = mock<VaultNavService>();
@@ -172,6 +192,7 @@ describe("UserLayoutComponent", () => {
 
     hasPremium$.next(true);
     archivedCiphers$.next([]);
+    queryParamMap$.next(convertToParamMap({}));
 
     i18nService.t.mockImplementation((key: string) => key);
     configService.getFeatureFlag$.mockReturnValue(flag$);
@@ -191,6 +212,7 @@ describe("UserLayoutComponent", () => {
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
+        { provide: ActivatedRoute, useValue: { queryParamMap: queryParamMap$ } },
         {
           provide: PremiumSubscriptionRoutingService,
           useValue: { getSubscriptionRoute$: () => of(null) },
@@ -300,7 +322,12 @@ describe("UserLayoutComponent", () => {
         clickArchive();
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { type: "archive" },
+          queryParams: {
+            folderId: null,
+            sharedFolderId: null,
+            collectionId: null,
+            type: "archive",
+          },
           queryParamsHandling: "merge",
         });
         expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
@@ -316,13 +343,13 @@ describe("UserLayoutComponent", () => {
       });
     });
 
-    describe("free account with only a personal vault", () => {
+    describe("a single personal vault", () => {
       beforeEach(() => {
-        viewModel$.next(myVaultOnly);
+        viewModel$.next(personalOnly);
         fixture.detectChanges();
       });
 
-      it("renders My vault as a plain top item with no Vaults header", () => {
+      it("renders My vault as a plain top item with no All items or Vaults header", () => {
         const text = navText();
 
         expect(text).toContain("My vault");
@@ -331,17 +358,39 @@ describe("UserLayoutComponent", () => {
       });
     });
 
-    describe("premium account with only a personal vault", () => {
+    describe("organization data ownership", () => {
       beforeEach(() => {
-        viewModel$.next(premiumNoOrgs);
+        viewModel$.next(orgDataOwnership);
         fixture.detectChanges();
       });
 
-      it("renders All items as the top item with no Vaults header", () => {
+      it("renders the org vault with a My items child, no Vaults header or personal vault", () => {
         const text = navText();
 
-        expect(text).toContain("allItems");
+        expect(text).toContain("Acme corporation");
+        expect(text).toContain("myItems");
         expect(text).not.toContain("vaults");
+        expect(text).not.toContain("My vault");
+        expect(text).not.toContain("allItems");
+      });
+
+      it("filters to the org's default collection when My items is selected", () => {
+        const myItems = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
+          (el) => (el as HTMLElement).textContent?.includes("myItems"),
+        ) as HTMLElement;
+
+        myItems.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+
+        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
+          queryParams: {
+            folderId: null,
+            collectionId: null,
+            vaultId: "org-a",
+            sharedFolderId: "col-a",
+            type: null,
+          },
+          queryParamsHandling: "merge",
+        });
       });
     });
 
@@ -380,7 +429,13 @@ describe("UserLayoutComponent", () => {
         selectVaultItems("Acme corporation");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { vaultId: "org-a", type: null },
+          queryParams: {
+            folderId: null,
+            sharedFolderId: null,
+            collectionId: null,
+            vaultId: "org-a",
+            type: null,
+          },
           queryParamsHandling: "merge",
         });
       });
@@ -389,7 +444,13 @@ describe("UserLayoutComponent", () => {
         selectVaultItems("My vault");
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: { vaultId: "unassigned", type: null },
+          queryParams: {
+            folderId: null,
+            sharedFolderId: null,
+            collectionId: null,
+            vaultId: "unassigned",
+            type: null,
+          },
           queryParamsHandling: "merge",
         });
       });
