@@ -39,35 +39,50 @@ export class WebVaultPremiumUpgradePromptService implements PremiumUpgradePrompt
     if (!account) {
       return;
     }
+    const hasPremium = await firstValueFrom(
+      this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
+    );
+    if (hasPremium) {
+      // Already has premium, don't prompt
+      return;
+    }
 
-    // Personal premium doesn't cover an organization's storage allocation, so the org upgrade
-    // path below always runs regardless of the user's own premium status.
+    // Per conversation in PM-23713, retain the existing upgrade org flow for now, will be addressed
+    //  as a part of https://bitwarden.atlassian.net/browse/PM-25507
     if (!organizationId) {
-      const hasPremium = await firstValueFrom(
-        this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id),
-      );
-      if (hasPremium) {
-        // Already has premium, don't prompt
-        return;
-      }
-
-      // Per conversation in PM-23713, retain the existing upgrade org flow for now, will be addressed
-      //  as a part of https://bitwarden.atlassian.net/browse/PM-25507
       await this.promptForPremiumVNext(account);
       return;
     }
 
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "upgradeOrganization" },
-      content: { key: "upgradeOrganizationDesc" },
-      acceptButtonText: { key: "upgradeOrganization" },
-      type: "info",
-    });
+    let confirmed = false;
+    let route: string[] | null = null;
+
+    if (organizationId) {
+      confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "upgradeOrganization" },
+        content: { key: "upgradeOrganizationDesc" },
+        acceptButtonText: { key: "upgradeOrganization" },
+        type: "info",
+      });
+      if (confirmed) {
+        route = ["organizations", organizationId, "billing", "subscription"];
+      }
+    } else {
+      confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "premiumRequired" },
+        content: { key: "premiumRequiredDesc" },
+        acceptButtonText: { key: "upgrade" },
+        type: "success",
+      });
+      if (confirmed) {
+        route = [this.subscriptionPageRoute];
+      }
+    }
 
     this._upgradeConfirmed$.next(confirmed);
 
-    if (confirmed) {
-      await this.router.navigate(["organizations", organizationId, "billing", "subscription"]);
+    if (route) {
+      await this.router.navigate(route);
     }
     if (confirmed && this.dialog) {
       await this.dialog.close(VaultItemDialogResult.PremiumUpgrade);
