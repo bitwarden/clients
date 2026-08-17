@@ -2,7 +2,7 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import { fromSdkKdfConfig } from "@bitwarden/key-management";
+import { fromSdkKdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   EncString,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
@@ -17,7 +17,6 @@ import {
 import { UserId } from "@bitwarden/user-core";
 
 import { compareValues } from "../platform/misc/compare-values";
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 import { StateProvider, UserKeyDefinition } from "../state-migrations";
 import { UserKey } from "../types/key";
 
@@ -141,18 +140,17 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async set_user_key(userKey: SymmetricKey): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, USER_KEY, {
-      "": SymmetricCryptoKey.fromSdk(userKey) as UserKey,
-    });
+    await writeAtomic(
+      this.stateProvider,
+      this.userId,
+      USER_KEY,
+      SymmetricCryptoKey.fromSdk(userKey) as UserKey,
+    );
   }
 
   async get_user_key(): Promise<SymmetricKey | null> {
     const key = await readAtomic(this.stateProvider, this.userId, USER_KEY);
-    if (key != null) {
-      return key[""].toSdk();
-    } else {
-      return null;
-    }
+    return key == null ? null : key.toSdk();
   }
 
   async clear_user_key(): Promise<void> {
@@ -160,22 +158,20 @@ export class JsWasmStateBridge implements WasmStateBridge {
   }
 
   async set_ephemeral_pin_envelope(pinEnvelope: PasswordProtectedKeyEnvelope): Promise<void> {
-    await writeAtomic(this.stateProvider, this.userId, PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, {
-      "": { pin_envelope: pinEnvelope },
-    });
+    await writeAtomic(
+      this.stateProvider,
+      this.userId,
+      PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+      pinEnvelope,
+    );
   }
 
   async get_ephemeral_pin_envelope(): Promise<PasswordProtectedKeyEnvelope | null> {
-    const result = await readAtomic(
+    return await readAtomic(
       this.stateProvider,
       this.userId,
       PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
     );
-    if (result != null) {
-      return result[""]?.pin_envelope ?? null;
-    } else {
-      return null;
-    }
   }
 
   async clear_ephemeral_pin_envelope(): Promise<void> {
