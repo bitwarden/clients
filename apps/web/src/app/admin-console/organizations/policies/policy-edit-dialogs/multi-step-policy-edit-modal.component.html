@@ -12,16 +12,6 @@
     }
   </ng-container>
 
-  <ng-container bitDialogHeaderEnd>
-    @if (!loading()) {
-      @if (policyEnabled()) {
-        <span bitBadge variant="success">{{ "on" | i18n }}</span>
-      } @else {
-        <span bitBadge variant="secondary">{{ "off" | i18n }}</span>
-      }
-    }
-  </ng-container>
-
   <ng-container bitDialogContent>
     @if (policy.showDescription) {
       <p bitTypography="body1">{{ policy.description | i18n }}</p>
@@ -48,6 +38,9 @@
         type="submit"
       >
         {{ (currentStep() === policySteps().length - 1 ? "save" : "next") | i18n }}
+      </button>
+      <button bitButton buttonType="secondary" type="button" (click)="cancel()">
+        {{ "cancel" | i18n }}
       </button>
     }
   </ng-container>
