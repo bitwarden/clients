@@ -85,7 +85,8 @@ export function throwOnAbort<T>(signal: AbortSignal): MonoTypeOperatorFunction<T
  * window to show modal UI, unlocking the vault, letting the user pick a cipher,
  * and enforcing a master-password reprompt on whatever they picked.
  *
- * FIDO2 extends this — see `DesktopFido2UserInterfaceSession` — layering
+ * Password and one-time-code fills use this class directly. FIDO2 extends it —
+ * see `DesktopFido2UserInterfaceSession` — because a passkey ceremony layers
  * relying-party semantics and OS user verification on top.
  *
  * One session exists per in-flight native request, and the session that is
@@ -129,6 +130,42 @@ export class DesktopAutofillUiSession<TWindow extends AutofillWindowObject = Aut
    * already had open untouched.
    */
   protected uiShown = false;
+
+  /**
+   * Shows the picker at `route`, waits for the user's choice, and enforces a
+   * master-password reprompt on the cipher they picked.
+   *
+   * @returns the chosen cipher, or `undefined` if the user dismissed the
+   * picker, the deadline elapsed, or the request was cancelled.
+   * @throws {UserVerificationCanceled} if the user dismissed a reprompt.
+   */
+  async pickCipher(cipherIds: string[], route: string): Promise<CipherViewLike | undefined> {
+    const abortSignal = this.abortController.signal;
+    try {
+      if (abortSignal.aborted) {
+        this.logService.warning(
+          this.logPrefix,
+          "Request was cancelled before a cipher was selected",
+        );
+        return undefined;
+      }
+
+      const chosenCipher = await this.selectCipher(cipherIds, route);
+      if (!chosenCipher) {
+        return undefined;
+      }
+
+      // A fill carries no user-verification requirement of its own, so this only
+      // enforces a master-password reprompt on the chosen cipher. A dismissed
+      // reprompt throws rather than filling unverified.
+      await this.verifyUser(chosenCipher, { signal: abortSignal });
+
+      return chosenCipher;
+    } finally {
+      // Make sure to clean up so the app is never stuck in modal mode
+      await this.hideUi();
+    }
+  }
 
   /**
    * Puts the picker on screen for `cipherIds` and resolves with the user's
@@ -300,6 +337,38 @@ export class DesktopAutofillUiSession<TWindow extends AutofillWindowObject = Aut
   }
 
   /**
+   * Verifies the user for the chosen cipher using the strongest form of
+   * verification already available: a master-password reprompt on the cipher,
+   * otherwise the vault unlock that happened during this ceremony.
+   *
+   * Subclasses that can also ask the OS to verify layer that on top; a plain
+   * fill has no user-verification requirement of its own, so this reports
+   * `false` rather than prompting.
+   *
+   * @throws {UserVerificationCanceled} if the user dismissed the reprompt.
+   */
+  protected async verifyUser(
+    cipher: CipherViewLike | undefined,
+    { signal }: { signal: AbortSignal },
+  ): Promise<boolean> {
+    signal.throwIfAborted();
+
+    if (await this.verifyReprompt(cipher)) {
+      return true;
+    }
+
+    if (this.vaultUnlockedDuringCeremony) {
+      this.logService.info(
+        this.logPrefix,
+        "Skipping user verification because the user unlocked their vault during this ceremony",
+      );
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
    * Satisfies user verification with the cipher's master-password reprompt when
    * it has one.
    *
@@ -358,17 +427,54 @@ export class DesktopAutofillUiSession<TWindow extends AutofillWindowObject = Aut
 
 /**
  * Holds the autofill session that currently owns the app window, so the routed
- * modal components can reach it.
+ * modal components can reach it. Every flow — passkey, password, one-time code —
+ * registers here, which is what lets a single picker component serve all three.
  */
 export class DesktopAutofillUiService {
+  constructor(
+    private authService: AuthService,
+    private accountService: AccountService,
+    private logService: LogService,
+    private router: Router,
+    private desktopSettingsService: DesktopSettingsService,
+    private passwordRepromptService: PasswordRepromptService,
+  ) {}
+
   private currentSession?: DesktopAutofillUiSession<AutofillWindowObject>;
 
   getCurrentSession(): DesktopAutofillUiSession<AutofillWindowObject> | undefined {
     return this.currentSession;
   }
 
-  /** Registers the session that owns the app window. */
+  /**
+   * Registers the session that owns the app window. Called by every flow that
+   * creates a session, including {@link newSession}.
+   */
   setCurrentSession(session: DesktopAutofillUiSession<AutofillWindowObject>): void {
     this.currentSession = session;
+  }
+
+  /**
+   * Creates and registers a session for a plain fill (password or one-time
+   * code). Passkey ceremonies build their own session through
+   * `DesktopFido2UserInterfaceService.newSession` instead.
+   */
+  newSession(
+    windowObject: AutofillWindowObject,
+    abortController: AbortController,
+  ): DesktopAutofillUiSession {
+    const session = new DesktopAutofillUiSession(
+      this.authService,
+      this.accountService,
+      this.logService,
+      this.router,
+      this.desktopSettingsService,
+      abortController,
+      windowObject,
+      this.passwordRepromptService,
+    );
+
+    this.setCurrentSession(session);
+    return session;
   }
 }

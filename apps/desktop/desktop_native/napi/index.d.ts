@@ -16,10 +16,26 @@ export declare namespace autofill {
   }
   /** Request to retrieve a one-time code credential. */
   export interface OtpAutofillRequest {
-    userName: string
+    /**
+     * User the OS already picked, when the request came from a suggestion.
+     * Absent when the user asked to browse their credentials instead.
+     */
+    userName?: string
     displayName?: string
-    serviceIdentifier: string
+    /**
+     * The services a credential is being requested for, most specific first
+     * (e.g. `["m.example.com", "example.com"]`). May be empty, which asks for
+     * every credential the user could fill.
+     */
+    serviceIdentifiers: Array<string>
+    /**
+     * Identifier of the credential the OS already picked, when the request came
+     * from a suggestion. Absent when the user asked to browse their
+     * credentials instead, in which case a picker has to be shown.
+     */
     recordIdentifier?: string
+    /** Details about the window of the application requesting the code. */
+    clientWindow: WindowDetails
     /**
      * Native context required for callbacks to the OS. Format differs by OS.
      * # Operating System Differences
@@ -159,10 +175,26 @@ export declare namespace autofill {
   }
   /** Request to retrieve a password credential. */
   export interface PasswordAutofillRequest {
-    userName: string
+    /**
+     * User the OS already picked, when the request came from a suggestion.
+     * Absent when the user asked to browse their credentials instead.
+     */
+    userName?: string
     displayName?: string
-    serviceIdentifier: string
+    /**
+     * The services a credential is being requested for, most specific first
+     * (e.g. `["m.example.com", "example.com"]`). May be empty, which asks for
+     * every credential the user could fill.
+     */
+    serviceIdentifiers: Array<string>
+    /**
+     * Identifier of the credential the OS already picked, when the request came
+     * from a suggestion. Absent when the user asked to browse their
+     * credentials instead, in which case a picker has to be shown.
+     */
     recordIdentifier?: string
+    /** Details about the window of the application requesting the password. */
+    clientWindow: WindowDetails
     /**
      * Native context required for callbacks to the OS. Format differs by OS.
      * # Operating System Differences

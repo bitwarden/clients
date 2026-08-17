@@ -1,6 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -15,47 +15,49 @@ import { DialogService } from "@bitwarden/components";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import {
-  DesktopFido2UserInterfaceService,
-  DesktopFido2UserInterfaceSession,
-} from "../../services/desktop-fido2-user-interface.service";
+  DesktopAutofillUiService,
+  DesktopAutofillUiSession,
+} from "../../services/desktop-autofill-ui.service";
 
-import { Fido2VaultComponent } from "./fido2-vault.component";
+import { AutofillVaultComponent, AutofillVaultRouteData } from "./autofill-vault.component";
 
-describe("Fido2VaultComponent", () => {
-  let component: Fido2VaultComponent;
-  let fixture: ComponentFixture<Fido2VaultComponent>;
+describe("AutofillVaultComponent", () => {
+  let component: AutofillVaultComponent;
+  let fixture: ComponentFixture<AutofillVaultComponent>;
   let mockDesktopSettingsService: MockProxy<DesktopSettingsService>;
-  let mockFido2UserInterfaceService: MockProxy<DesktopFido2UserInterfaceService>;
+  let mockAutofillUiService: MockProxy<DesktopAutofillUiService>;
   let mockCipherService: MockProxy<CipherService>;
   let mockAccountService: MockProxy<AccountService>;
   let mockLogService: MockProxy<LogService>;
   let mockRouter: MockProxy<Router>;
-  let mockSession: MockProxy<DesktopFido2UserInterfaceSession>;
+  let mockSession: MockProxy<DesktopAutofillUiSession>;
   let mockI18nService: MockProxy<I18nService>;
+  let routeData: AutofillVaultRouteData;
 
   const mockActiveAccount = { id: "test-user-id", email: "test@example.com" };
   const mockCipherIds = ["cipher-1", "cipher-2", "cipher-3"];
 
   beforeEach(async () => {
     mockDesktopSettingsService = mock<DesktopSettingsService>();
-    mockFido2UserInterfaceService = mock<DesktopFido2UserInterfaceService>();
+    mockAutofillUiService = mock<DesktopAutofillUiService>();
     mockCipherService = mock<CipherService>();
     mockAccountService = mock<AccountService>();
     mockLogService = mock<LogService>();
     mockRouter = mock<Router>();
-    mockSession = mock<DesktopFido2UserInterfaceSession>();
+    mockSession = mock<DesktopAutofillUiSession>();
     mockI18nService = mock<I18nService>();
+    routeData = { titleKey: "passkeyLogin2", headingKey: "chooseCipherForPasskeyAuth" };
 
     mockAccountService.activeAccount$ = of(mockActiveAccount as Account);
-    mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(mockSession);
+    mockAutofillUiService.getCurrentSession.mockReturnValue(mockSession);
     mockSession.availableCipherIds$ = of(mockCipherIds);
     mockCipherService.cipherListViews$ = jest.fn().mockReturnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [Fido2VaultComponent],
+      imports: [AutofillVaultComponent],
       providers: [
         { provide: DesktopSettingsService, useValue: mockDesktopSettingsService },
-        { provide: DesktopFido2UserInterfaceService, useValue: mockFido2UserInterfaceService },
+        { provide: DesktopAutofillUiService, useValue: mockAutofillUiService },
         { provide: CipherService, useValue: mockCipherService },
         { provide: AccountService, useValue: mockAccountService },
         { provide: LogService, useValue: mockLogService },
@@ -64,6 +66,16 @@ describe("Fido2VaultComponent", () => {
         {
           provide: ConfigService,
           useValue: mock<ConfigService>({ getFeatureFlag$: () => of(false) }),
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              get data() {
+                return routeData;
+              },
+            },
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -75,7 +87,7 @@ describe("Fido2VaultComponent", () => {
   });
 
   function createComponent(): void {
-    fixture = TestBed.createComponent(Fido2VaultComponent);
+    fixture = TestBed.createComponent(AutofillVaultComponent);
     component = fixture.componentInstance;
   }
 
@@ -120,7 +132,7 @@ describe("Fido2VaultComponent", () => {
       let ciphersResult: CipherView[] = [];
       component.ciphers$.subscribe((ciphers) => (ciphersResult = ciphers));
 
-      expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
+      expect(mockAutofillUiService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
       expect(mockCipherService.cipherListViews$).toHaveBeenCalledWith(mockActiveAccount.id);
       expect(ciphersResult).toHaveLength(3);
@@ -141,11 +153,31 @@ describe("Fido2VaultComponent", () => {
       expect(ciphersResult).toHaveLength(2);
       expect(ciphersResult.every((cipher) => !cipher.deletedDate)).toBe(true);
     });
+
+    it("keeps only the ciphers the session offered", () => {
+      mockSession.availableCipherIds$ = of(["cipher-2"]);
+      mockCipherService.cipherListViews$ = jest.fn().mockReturnValue(of(mockCiphers));
+      createComponent();
+
+      let ciphersResult: CipherView[] = [];
+      component.ciphers$.subscribe((ciphers) => (ciphersResult = ciphers));
+
+      expect(ciphersResult.map((cipher) => cipher.id)).toEqual(["cipher-2"]);
+    });
+  });
+
+  describe("routeData", () => {
+    it("comes from the route, so each autofill flow names itself", () => {
+      routeData = { titleKey: "autofillVerificationCode" };
+      createComponent();
+
+      expect(component.routeData).toEqual({ titleKey: "autofillVerificationCode" });
+    });
   });
 
   describe("session", () => {
     it("is undefined when no active session found", () => {
-      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
+      mockAutofillUiService.getCurrentSession.mockReturnValue(undefined);
       createComponent();
 
       expect(component.session).toBeUndefined();
@@ -163,7 +195,7 @@ describe("Fido2VaultComponent", () => {
     });
 
     it("closes the modal if the session is not found when cipher is chosen ", async () => {
-      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
+      mockAutofillUiService.getCurrentSession.mockReturnValue(undefined);
       createComponent();
 
       await component.chooseCipher(cipher);

@@ -364,12 +364,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 }
 
                 Task {
+                    let clientWindow = await self.getWindowDetails()
                     let context = UUID().uuidString
                     let req = PasswordAutofillRequest(
                         userName: passwordIdentity.user,
                         displayName: displayName,
-                        serviceIdentifier: passwordIdentity.serviceIdentifier.identifier,
+                        serviceIdentifiers: [passwordIdentity.serviceIdentifier.identifier],
                         recordIdentifier: passwordIdentity.recordIdentifier,
+                        clientWindow: clientWindow,
                         context: context
                     )
 
@@ -387,12 +389,14 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
                 logger.log("[autofill-extension] prepareInterfaceToProvideCredential (one-time code) called \(request)")
 
                 Task {
+                    let clientWindow = await self.getWindowDetails()
                     let context = UUID().uuidString
                     let req = OtpAutofillRequest(
                         userName: otpIdentity.user,
                         displayName: otpIdentity.label,
-                        serviceIdentifier: otpIdentity.serviceIdentifier.identifier,
+                        serviceIdentifiers: [otpIdentity.serviceIdentifier.identifier],
                         recordIdentifier: otpIdentity.recordIdentifier,
+                        clientWindow: clientWindow,
                         context: context
                     )
 
@@ -499,6 +503,66 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
             client.preparePasskeyAssertion(request: req, callback: AssertionCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
         }
         return
+    }
+
+    /*
+     Called when the user picks "Bitwarden…" on a password field to browse their
+     credentials rather than take one of the system's suggestions. Unlike
+     prepareInterfaceToProvideCredential, no identity has been chosen yet, so the
+     desktop app shows its own picker for the given services.
+     */
+    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        logger.log("[autofill-extension] prepareCredentialList(password) for serviceIdentifiers: \(serviceIdentifiers.count)")
+
+        let timeoutTimer = createTimer()
+
+        Task {
+            let clientWindow = await self.getWindowDetails()
+            let context = UUID().uuidString
+            let req = PasswordAutofillRequest(
+                // The user hasn't chosen an identity yet; the desktop picker is
+                // what establishes which credential to fill.
+                userName: nil,
+                displayName: nil,
+                serviceIdentifiers: serviceIdentifiers.map { $0.identifier },
+                recordIdentifier: nil,
+                clientWindow: clientWindow,
+                context: context
+            )
+
+            let client = await getClient()
+            self.beginRequest(context)
+            client.preparePassword(request: req, callback: PasswordCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+        }
+    }
+
+    /*
+     The one-time-code counterpart of prepareCredentialList(for:). One-time codes
+     arrived in macOS 15, which is newer than the deployment target, so the whole
+     override is gated.
+     */
+    @available(macOS 15.0, *)
+    override func prepareOneTimeCodeCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
+        logger.log("[autofill-extension] prepareOneTimeCodeCredentialList for serviceIdentifiers: \(serviceIdentifiers.count)")
+
+        let timeoutTimer = createTimer()
+
+        Task {
+            let clientWindow = await self.getWindowDetails()
+            let context = UUID().uuidString
+            let req = OtpAutofillRequest(
+                userName: nil,
+                displayName: nil,
+                serviceIdentifiers: serviceIdentifiers.map { $0.identifier },
+                recordIdentifier: nil,
+                clientWindow: clientWindow,
+                context: context
+            )
+
+            let client = await getClient()
+            self.beginRequest(context)
+            client.prepareOtp(request: req, callback: OtpCallback(self.hostRequest(timeoutTimer: timeoutTimer)))
+        }
     }
 
     // Bundles the state an IPC callback needs to settle the pending host request.

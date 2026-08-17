@@ -4,7 +4,7 @@ use std::sync::Arc;
 use napi_derive::napi;
 use serde::{Deserialize, Serialize};
 
-use crate::{BitwardenError, Callback, TimedCallback};
+use crate::{BitwardenError, Callback, TimedCallback, WindowDetails};
 
 /// Request to retrieve a one-time code credential.
 #[cfg_attr(feature = "napi", napi(object, namespace = "autofill"))]
@@ -12,10 +12,24 @@ use crate::{BitwardenError, Callback, TimedCallback};
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OtpAutofillRequest {
-    pub user_name: String,
+    /// User the OS already picked, when the request came from a suggestion.
+    /// Absent when the user asked to browse their credentials instead.
+    pub user_name: Option<String>,
+
     pub display_name: Option<String>,
-    pub service_identifier: String,
+
+    /// The services a credential is being requested for, most specific first
+    /// (e.g. `["m.example.com", "example.com"]`). May be empty, which asks for
+    /// every credential the user could fill.
+    pub service_identifiers: Vec<String>,
+
+    /// Identifier of the credential the OS already picked, when the request came
+    /// from a suggestion. Absent when the user asked to browse their
+    /// credentials instead, in which case a picker has to be shown.
     pub record_identifier: Option<String>,
+
+    /// Details about the window of the application requesting the code.
+    pub client_window: WindowDetails,
 
     /// Native context required for callbacks to the OS. Format differs by OS.
     /// # Operating System Differences

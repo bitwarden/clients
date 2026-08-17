@@ -1,9 +1,10 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
-import { RouterModule, Router } from "@angular/router";
+import { ActivatedRoute, RouterModule, Router } from "@angular/router";
 import { map, combineLatest, of, Observable, switchMap, catchError } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -20,15 +21,34 @@ import {
   SectionComponent,
   TableModule,
   SectionHeaderComponent,
+  StatusLockupComponent,
+  SvgComponent,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
-import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
+import { DesktopAutofillUiService } from "../../services/desktop-autofill-ui.service";
 
 import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
 
+/**
+ * Route `data` for the picker. Every credential kind reuses the same component
+ * and only differs in what the modal calls itself.
+ */
+export type AutofillVaultRouteData = {
+  /** i18n key for the modal title, e.g. `passkeyLogin2`. */
+  titleKey: string;
+  /** i18n key for the heading above the list, if the flow has one. */
+  headingKey?: string;
+};
+
+/**
+ * The credential picker shown when an autofill request needs the user to choose
+ * an item. Shared by the passkey, password, and one-time-code flows: the session
+ * that put it on screen supplies the candidate ciphers, and the route supplies
+ * the title.
+ */
 @Component({
   standalone: true,
   imports: [
@@ -37,6 +57,8 @@ import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
     SectionHeaderComponent,
     TableModule,
     I18nPipe,
+    StatusLockupComponent,
+    SvgComponent,
     ButtonModule,
     DialogModule,
     SectionComponent,
@@ -46,20 +68,23 @@ import { Fido2ModalHeaderComponent } from "./fido2-modal-header.component";
     TypographyModule,
     Fido2ModalHeaderComponent,
   ],
-  templateUrl: "fido2-vault.component.html",
+  templateUrl: "autofill-vault.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Fido2VaultComponent {
+export class AutofillVaultComponent {
   private readonly desktopSettingsService = inject(DesktopSettingsService);
-  private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
+  private readonly autofillUiService = inject(DesktopAutofillUiService);
   private readonly cipherService = inject(CipherService);
   private readonly accountService = inject(AccountService);
   private readonly dialogService = inject(DialogService);
   private readonly logService = inject(LogService);
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
-  readonly session = this.fido2UserInterfaceService.getCurrentSession();
+  readonly session = this.autofillUiService.getCurrentSession();
   readonly ciphers$: Observable<CipherViewLike[]> = this.buildCiphers$();
+  readonly routeData = this.activatedRoute.snapshot.data as AutofillVaultRouteData;
+  readonly Icons = { NoResults };
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
   async chooseCipher(cipher: CipherViewLike): Promise<void> {

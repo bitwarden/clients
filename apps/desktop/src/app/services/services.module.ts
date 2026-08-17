@@ -482,6 +482,7 @@ const safeProviders: SafeProvider[] = [
       AccountService,
       AuthService,
       TotpServiceAbstraction,
+      DesktopAutofillUiService,
       PlatformUtilsService,
     ],
   }),
@@ -506,7 +507,14 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DesktopAutofillUiService,
     useClass: DesktopAutofillUiService,
-    deps: [],
+    deps: [
+      AuthServiceAbstraction,
+      AccountService,
+      LogService,
+      Router,
+      DesktopSettingsService,
+      PasswordRepromptService,
+    ],
   }),
   safeProvider({
     provide: DesktopFido2UserInterfaceService,

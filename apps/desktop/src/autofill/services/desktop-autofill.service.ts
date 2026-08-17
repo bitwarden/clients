@@ -35,7 +35,7 @@ import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-util
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { autofill, passkey_authenticator } from "@bitwarden/desktop-napi";
 type OtpAutofillRequest = autofill.OtpAutofillRequest;
@@ -64,7 +64,76 @@ import {
 } from "../models/autofill-sync.command";
 import { IpcListenerBindFn } from "../models/ipc-handler.type";
 
+import { AutofillWindowObject, DesktopAutofillUiService } from "./desktop-autofill-ui.service";
 import type { NativeWindowObject } from "./desktop-fido2-user-interface.service";
+
+/** Any native request carrying the window and context every ceremony needs. */
+type AutofillRequest = {
+  clientWindow: autofill.WindowDetails;
+  context: string;
+};
+
+/**
+ * What a plain (non-passkey) fill needs from a cipher, and where its picker
+ * lives. Password and one-time-code fills differ only in these two things.
+ */
+type FillKind = {
+  /** Route of the picker shown when the user browses their credentials. */
+  route: string;
+  /** Whether this cipher holds the kind of secret being asked for. */
+  fillable: (cipher: CipherView) => boolean;
+};
+
+/**
+ * A login is usable for autofill at all when it isn't deleted and carries a
+ * username plus at least one URI the OS could have matched on. Both fill kinds
+ * start here and then look for their own secret.
+ *
+ * This is the single definition shared by {@link DesktopAutofillService.sync},
+ * which tells the OS what exists, and the picker, which lists what the user can
+ * choose — so the two can't disagree about what is fillable.
+ */
+function isFillableLogin(cipher: CipherView): boolean {
+  return (
+    !cipher.isDeleted &&
+    cipher.type === CipherType.Login &&
+    cipher.login.uris?.length > 0 &&
+    cipher.login.uris.some(
+      (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
+    ) &&
+    !Utils.isNullOrWhitespace(cipher.login.username)
+  );
+}
+
+const PasswordFill: FillKind = {
+  route: "/password-autofill",
+  fillable: (cipher) => isFillableLogin(cipher) && !Utils.isNullOrWhitespace(cipher.login.password),
+};
+
+const OtpFill: FillKind = {
+  route: "/otp-autofill",
+  fillable: (cipher) => isFillableLogin(cipher) && cipher.login.hasTotp,
+};
+
+/**
+ * macOS reports a service either as a bare domain or as a URL. Cipher URI
+ * matching expects something URL-shaped, so give a bare domain a scheme.
+ */
+function toUrl(serviceIdentifier: string): string {
+  return serviceIdentifier.includes("://") ? serviceIdentifier : `https://${serviceIdentifier}`;
+}
+
+/**
+ * The URI registered with the OS for a cipher {@link isFillableLogin} accepted.
+ *
+ * TODO: The OS is only told about the first matchable URI, so a login with
+ * several only autofills on one of its sites.
+ */
+function registrableUri(cipher: CipherView): string {
+  return cipher.login.uris.find(
+    (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
+  )!.uri as string;
+}
 
 type NativeCredentialSyncFeatureFlag =
   typeof FeatureFlag.MacOsNativeCredentialSync | typeof FeatureFlag.WindowsNativeCredentialSync;
@@ -86,6 +155,7 @@ export class DesktopAutofillService implements OnDestroy {
     private accountService: AccountService,
     private authService: AuthService,
     private totpService: TotpService,
+    private autofillUiService: DesktopAutofillUiService,
     platformUtilsService: PlatformUtilsService,
   ) {
     const deviceType = platformUtilsService.getDevice();
@@ -265,26 +335,12 @@ export class DesktopAutofillService implements OnDestroy {
     let otpCredentials: AutofillOtpCredential[] = [];
 
     if (status.value.support.password) {
-      passwordCredentials = cipherViews
-        .filter(
-          (cipher) =>
-            !cipher.isDeleted &&
-            cipher.type === CipherType.Login &&
-            cipher.login.uris?.length > 0 &&
-            cipher.login.uris.some(
-              (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-            ) &&
-            !Utils.isNullOrWhitespace(cipher.login.username) &&
-            !Utils.isNullOrWhitespace(cipher.login.password),
-        )
-        .map((cipher) => ({
-          type: "password",
-          cipherId: cipher.id,
-          uri: cipher.login.uris.find(
-            (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-          )!.uri as string,
-          username: cipher.login.username as string,
-        }));
+      passwordCredentials = cipherViews.filter(PasswordFill.fillable).map((cipher) => ({
+        type: "password",
+        cipherId: cipher.id,
+        uri: registrableUri(cipher),
+        username: cipher.login.username as string,
+      }));
     }
 
     if (status.value.support.fido2) {
@@ -295,26 +351,12 @@ export class DesktopAutofillService implements OnDestroy {
     }
 
     if (status.value.support.otp) {
-      otpCredentials = cipherViews
-        .filter(
-          (cipher) =>
-            !cipher.isDeleted &&
-            cipher.type === CipherType.Login &&
-            cipher.login.uris?.length > 0 &&
-            cipher.login.uris.some(
-              (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-            ) &&
-            !Utils.isNullOrWhitespace(cipher.login.username) &&
-            cipher.login.hasTotp,
-        )
-        .map((cipher) => ({
-          type: "otp",
-          cipherId: cipher.id,
-          uri: cipher.login.uris.find(
-            (uri) => uri.match !== UriMatchStrategy.Never && !Utils.isNullOrWhitespace(uri.uri),
-          )!.uri as string,
-          username: cipher.login.username as string,
-        }));
+      otpCredentials = cipherViews.filter(OtpFill.fillable).map((cipher) => ({
+        type: "otp",
+        cipherId: cipher.id,
+        uri: registrableUri(cipher),
+        username: cipher.login.username as string,
+      }));
     }
 
     this.logService.info("Syncing autofill credentials", {
@@ -372,31 +414,8 @@ export class DesktopAutofillService implements OnDestroy {
     request: OtpAutofillRequest,
     abortController: AbortController,
   ): Promise<OtpAutofillResponse> {
-    // TODO: we need to pin to the user ID too instead of assuming the active account.
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (!activeAccount) {
-      throw new Error("No active account");
-    }
+    const cipher = await this.resolveCipherToFill(request, abortController, OtpFill);
 
-    const userId = activeAccount.id;
-    const accountStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
-    if (accountStatus !== AuthenticationStatus.Unlocked) {
-      throw new Error("Vault is not unlocked, cannot provide credentials");
-    }
-
-    // TODO: implement UI selection, using serviceIdentifier as context.
-    const cipherId = request.recordIdentifier as CipherId | undefined;
-    if (!cipherId) {
-      throw new Error(
-        "Record identifier not included, and UI to select credential is not implemented",
-      );
-    }
-    const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, cipherId));
-    if (!cipher) {
-      throw new Error(`No cipher found with that cipher ID: ${cipherId}`);
-    }
-
-    // Is this supposed to be a CipherViewLike?
     const totpSecret = cipher.login?.totp;
     if (!cipher.login?.hasTotp || !totpSecret) {
       throw new Error("Cipher does not have TOTP code");
@@ -451,31 +470,8 @@ export class DesktopAutofillService implements OnDestroy {
     request: PasswordAutofillRequest,
     abortController: AbortController,
   ): Promise<PasswordAutofillResponse> {
-    // TODO: we need to pin to the user ID too instead of assuming the active account.
-    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-    if (!activeAccount) {
-      throw new Error("No active account");
-    }
+    const cipher = await this.resolveCipherToFill(request, abortController, PasswordFill);
 
-    const userId = activeAccount.id;
-    const accountStatus = await firstValueFrom(this.authService.authStatusFor$(userId));
-    if (accountStatus !== AuthenticationStatus.Unlocked) {
-      throw new Error("Vault is not unlocked, cannot provide credentials");
-    }
-
-    // TODO: implement UI selection, using serviceIdentifier as context.
-    const cipherId = request.recordIdentifier as CipherId | undefined;
-    if (!cipherId) {
-      throw new Error(
-        "Record identifier not included, and UI to select credential is not implemented",
-      );
-    }
-    const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, cipherId));
-    if (!cipher) {
-      throw new Error(`No cipher found with that cipher ID: ${cipherId}`);
-    }
-
-    // Is this supposed to be a CipherViewLike?
     const username = cipher.login?.username;
     const password = cipher.login?.password;
     if (!username || !password) {
@@ -485,9 +481,142 @@ export class DesktopAutofillService implements OnDestroy {
   }
 
   /**
+   * Determines which cipher a plain fill should use.
+   *
+   * The OS either already picked an identity from its suggestion bar — in which
+   * case no Bitwarden UI is needed — or the user asked to browse, and we show
+   * the picker over the services the request named. Either way the vault is
+   * unlocked first, and the chosen cipher's master-password reprompt (if any) is
+   * enforced before its secret leaves this method.
+   *
+   * @throws when no usable cipher was produced, which cancels the native request.
+   */
+  private async resolveCipherToFill(
+    request: PasswordAutofillRequest | OtpAutofillRequest,
+    abortController: AbortController,
+    fill: FillKind,
+  ): Promise<CipherView> {
+    // TODO: we need to pin to the user ID too instead of assuming the active account.
+    const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (!activeAccount) {
+      throw new Error("No active account");
+    }
+    const userId = activeAccount.id;
+
+    const session = this.autofillUiService.newSession(
+      await this.autofillWindowObject(request),
+      abortController,
+    );
+
+    try {
+      // Unlocking is user verification, so anything the user picks afterwards
+      // needs no further prompt beyond a master-password reprompt.
+      await session.ensureUnlockedVault();
+
+      const suggested = await this.suggestedCipher(request, userId);
+      if (suggested) {
+        return suggested;
+      }
+
+      const candidates = await this.fillCandidates(request.serviceIdentifiers, userId, fill);
+      const chosen = await session.pickCipher(
+        candidates.map((cipher) => cipher.id).filter((id): id is string => id != null),
+        fill.route,
+      );
+      if (!chosen) {
+        throw new Error("No credential was selected");
+      }
+
+      // `pickCipher` hands back the list view the picker rendered, which holds no
+      // secrets; re-read the full cipher to get at them.
+      return await this.requireCipherView(userId, chosen.id as CipherId);
+    } finally {
+      // `pickCipher` tears its own picker down, but the lock screen
+      // `ensureUnlockedVault` may have shown belongs to no other owner — and a
+      // suggestion fill returns without ever reaching the picker. Clearing here
+      // is idempotent and inert when this ceremony showed nothing, so the app
+      // can't be left stuck in modal mode either way.
+      await session.hideUi();
+      await session.close();
+    }
+  }
+
+  /**
+   * The cipher the OS already chose, when this request came from a suggestion.
+   *
+   * A reprompt-protected cipher is deliberately *not* returned: its prompt needs
+   * a window on screen, so it falls through to the picker instead — the same
+   * reasoning as the passkey flow's `tryWithoutUserInteraction`.
+   */
+  private async suggestedCipher(
+    request: PasswordAutofillRequest | OtpAutofillRequest,
+    userId: UserId,
+  ): Promise<CipherView | undefined> {
+    const cipherId = request.recordIdentifier as CipherId | undefined;
+    if (!cipherId) {
+      return undefined;
+    }
+
+    const cipher = await this.requireCipherView(userId, cipherId);
+    return cipher.reprompt === CipherRepromptType.None ? cipher : undefined;
+  }
+
+  private async requireCipherView(userId: UserId, cipherId: CipherId): Promise<CipherView> {
+    const cipher = await firstValueFrom(this.cipherService.cipherView$(userId, cipherId));
+    if (!cipher) {
+      throw new Error(`No cipher found with that cipher ID: ${cipherId}`);
+    }
+    return cipher;
+  }
+
+  /**
+   * The ciphers the user could fill this request with: everything matching any
+   * of the requested services that actually holds the kind of secret being asked
+   * for. An empty service list means the OS wants every fillable credential.
+   */
+  private async fillCandidates(
+    serviceIdentifiers: string[],
+    userId: UserId,
+    fill: FillKind,
+  ): Promise<CipherView[]> {
+    const matches =
+      serviceIdentifiers.length === 0
+        ? await this.cipherService.getAllDecrypted(userId)
+        : (
+            await Promise.all(
+              serviceIdentifiers.map((identifier) =>
+                this.cipherService.getAllDecryptedForUrl(toUrl(identifier), userId),
+              ),
+            )
+          ).flat();
+
+    // The same cipher can match more than one of the requested services.
+    const byId = new Map(
+      matches.filter((cipher) => fill.fillable(cipher)).map((cipher) => [cipher.id, cipher]),
+    );
+    return [...byId.values()];
+  }
+
+  /**
+   * Collects everything a ceremony needs to know about the windows involved in a
+   * request: where to position our own UI, and which native windows an OS prompt
+   * can attach itself to.
+   */
+  private async autofillWindowObject(request: AutofillRequest): Promise<AutofillWindowObject> {
+    return {
+      windowXy: request.clientWindow.position,
+      clientWindowHandle: request.clientWindow.handle
+        ? new Uint8Array(request.clientWindow.handle)
+        : null,
+      appWindowHandle: await ipc.autofill.desktopAutofill.getAppWindowHandle(),
+      requestContext: request.context,
+    };
+  }
+
+  /**
    * Collects everything the FIDO2 user interface needs to know about the
-   * windows involved in a request: where to position our own UI, and which
-   * native windows an OS prompt can attach itself to.
+   * windows involved in a request, adding the relying-party details a passkey
+   * ceremony needs on top of {@link autofillWindowObject}.
    */
   private async nativeWindowObject(
     request:
@@ -496,13 +625,8 @@ export class DesktopAutofillService implements OnDestroy {
       | PasskeyAssertionWithoutUserInterfaceRequest,
   ): Promise<NativeWindowObject> {
     return {
-      windowXy: request.clientWindow.position,
-      clientWindowHandle: request.clientWindow.handle
-        ? new Uint8Array(request.clientWindow.handle)
-        : null,
-      appWindowHandle: await ipc.autofill.desktopAutofill.getAppWindowHandle(),
+      ...(await this.autofillWindowObject(request)),
       rpId: request.rpId,
-      requestContext: request.context,
       // Discoverable credential requests don't contain a userHandle.
       userHandle: "userHandle" in request ? request.userHandle : undefined,
     };
