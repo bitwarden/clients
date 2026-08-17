@@ -23,7 +23,7 @@ function wireRequest(id: string, status = "pending") {
     SubmittedAt: "2026-08-17T11:00:00.000Z",
     LeaseNotBefore: "2026-08-17T12:00:00.000Z",
     LeaseNotAfter: "2026-08-17T13:00:00.000Z",
-    Decisions: [],
+    Decisions: [] as unknown[],
   };
 }
 
