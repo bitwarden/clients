@@ -8,6 +8,7 @@ import {
 } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -135,6 +136,11 @@ describe("vaultFilterLegacyRedirectGuard", () => {
         expect(await runGuard(makeRoute({ type: "archive" }))).toBe(true);
         expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
       });
+
+      it("returns true without redirecting for ?sharedFolderId=all (no filter needed)", async () => {
+        expect(await runGuard(makeRoute({ sharedFolderId: "all" }))).toBe(true);
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+      });
     });
 
     describe("folder mapping", () => {
@@ -143,6 +149,13 @@ describe("vaultFilterLegacyRedirectGuard", () => {
 
         const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
         expect(queryParams).toEqual(expect.objectContaining({ "vault.folder": "folder-abc" }));
+      });
+
+      it("maps ?folderId=unassigned → ?vault.folder=noFolder", async () => {
+        await runGuard(makeRoute({ folderId: Unassigned }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.folder": "noFolder" }));
       });
     });
 
@@ -167,6 +180,13 @@ describe("vaultFilterLegacyRedirectGuard", () => {
         const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
         expect(queryParams).toEqual(expect.objectContaining({ "vault.sharedFolder": "primary" }));
       });
+
+      it("omits vault.sharedFolder when ?sharedFolderId=all (means no filter)", async () => {
+        await runGuard(makeRoute({ sharedFolderId: "all", organizationId: "org-123" }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams?.["vault.sharedFolder"]).toBeUndefined();
+      });
     });
 
     describe("vault (organization) mapping", () => {
@@ -189,6 +209,20 @@ describe("vaultFilterLegacyRedirectGuard", () => {
 
         const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
         expect(queryParams).toEqual(expect.objectContaining({ "vault.vault": "primary" }));
+      });
+
+      it("maps ?vaultId=unassigned → ?vault.vault=myVault", async () => {
+        await runGuard(makeRoute({ vaultId: Unassigned }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.vault": "myVault" }));
+      });
+
+      it("maps ?organizationId=unassigned → ?vault.vault=myVault", async () => {
+        await runGuard(makeRoute({ organizationId: Unassigned }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual(expect.objectContaining({ "vault.vault": "myVault" }));
       });
     });
 

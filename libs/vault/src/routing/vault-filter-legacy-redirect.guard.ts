@@ -1,14 +1,18 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, ParamMap, createUrlTreeFromSnapshot } from "@angular/router";
 
+import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import {
+  MY_VAULT,
+  NO_FOLDER,
   VAULT_FILTER_KEYS,
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
+import { All } from "../models/routed-vault-filter.model";
 
 /** Maps the legacy `?type=` string values to their numeric CipherType equivalents. */
 const LEGACY_TYPE_MAP: Record<string, CipherType> = {
@@ -65,13 +69,15 @@ function buildRedirectPatch(
   }
 
   if (legacy.folderId != null) {
-    patch[`${ns}.${keys.folder}`] = legacy.folderId;
+    patch[`${ns}.${keys.folder}`] = legacy.folderId === Unassigned ? NO_FOLDER : legacy.folderId;
   }
-  if (legacy.sharedFolderId != null) {
+  // `all` means "no shared-folder filter" in the new table — omit rather than map it.
+  if (legacy.sharedFolderId != null && legacy.sharedFolderId !== All) {
     patch[`${ns}.${keys.sharedFolder}`] = legacy.sharedFolderId;
   }
   if (legacy.organizationId != null) {
-    patch[`${ns}.${keys.vault}`] = legacy.organizationId;
+    patch[`${ns}.${keys.vault}`] =
+      legacy.organizationId === Unassigned ? MY_VAULT : legacy.organizationId;
   }
   if (legacy.search != null) {
     patch[`${ns}.${keys.search}`] = legacy.search;
