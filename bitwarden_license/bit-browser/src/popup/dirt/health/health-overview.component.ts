@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { catchError, of, switchMap, take } from "rxjs";
 
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
@@ -95,35 +102,42 @@ const RISK_CATEGORY_ROWS: readonly {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HealthOverviewComponent {
+export class HealthOverviewComponent implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly vaultHealthReportService = inject(VaultHealthReportService);
   private readonly logService = inject(LogService);
 
-  /**
-   * The latest scan's result, or null while it is still running or after it
-   * failed. `take(1)` scans once per Health tab open rather than on every
-   * vault change, since each scan does a breach lookup.
-   *
-   * TODO(PM-39223): add the scan trigger, loading and failure state.
-   */
-  private readonly report = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.cipherService.cipherViews$(userId).pipe(
-          filterOutNullish(),
-          take(1),
-          switchMap((ciphers) =>
-            this.vaultHealthReportService.buildVaultHealthReport$(ciphers, userId),
+  ngOnInit(): void {
+    // Trigger the scan once per Health tab open, rather than on every vault
+    // change, since each scan does a breach lookup.
+    this.accountService.activeAccount$
+      .pipe(
+        getUserId,
+        switchMap((userId) =>
+          this.cipherService.cipherViews$(userId).pipe(
+            filterOutNullish(),
+            take(1),
+            switchMap((ciphers) =>
+              this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId),
+            ),
           ),
         ),
-      ),
-      catchError((error: unknown) => {
-        this.logService.error(error);
-        return of(null);
-      }),
+        catchError((error: unknown) => {
+          this.logService.error(error);
+          return of(null);
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
+  }
+
+  /** The latest scan result for the active account, after being triggered by component init. */
+  protected readonly report = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
     ),
     { initialValue: null },
   );
