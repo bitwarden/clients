@@ -43,7 +43,7 @@ export function InlineMenuCipherList({
     theme,
     dataTestId: "inline-menu-cipher-list",
     children: html`
-      <div role="list" class=${cipherListStyles(theme)}>
+      <div role="list" data-cipher-list-scroll class=${cipherListStyles(theme)}>
         ${renderItems(ordered, withHeadings, theme, passkeysText, passwordsText, (cipher, index) =>
           InlineMenuCipherItem({
             ...itemProps,

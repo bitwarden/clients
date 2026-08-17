@@ -53,8 +53,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private inlineMenuFillType!: InlineMenuFillType;
   private showInlineMenuAccountCreation = false;
   private showPasskeysLabels = false;
-  /** Non-null asserted. Set in buildNewItemButton before any read. */
-  private newItemButtonElement!: HTMLButtonElement;
+  /** Conditionally set in buildNewItemButton, cleared on container reset. */
+  private newItemButtonElement?: HTMLButtonElement;
   /** Conditionally set in buildPasskeysHeadingElements, may be undefined when no passkeys. */
   private passkeysHeadingElement?: HTMLLIElement;
   /** Conditionally set in buildPasskeysHeadingElements, may be undefined when no login heading. */
@@ -70,6 +70,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private useLitComponents = false;
   private theme: Theme = ThemeTypes.Light;
   private litHost?: HTMLDivElement;
+  private litCipherListScrollElement?: HTMLElement;
   private readonly showCiphersPerPage = 6;
   private readonly headingBorderClass = "inline-menu-list-heading--bordered";
   private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
@@ -127,7 +128,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.theme = resolveTheme(theme);
     }
 
-    const themeClass = `theme_${theme}`;    globalThis.document.documentElement.classList.add(themeClass);
+    const themeClass = `theme_${theme}`;
+    globalThis.document.documentElement.classList.add(themeClass);
 
     this.inlineMenuListContainer = globalThis.document.createElement("div");
     this.inlineMenuListContainer.classList.add("inline-menu-list-container", themeClass);
@@ -625,6 +627,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     }
 
     if (this.useLitComponents) {
+      this.loadLitPageOfCiphers();
       this.renderLitCipherList();
       return;
     }
@@ -646,13 +649,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const addNewLoginButtonContainer = this.buildNewItemButton();
     this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
     this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
-    this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+    this.newItemButtonElement!.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
   }
 
   private renderLitCipherList() {
     this.renderLit(
       InlineMenuCipherList({
-        ciphers: this.ciphers,
+        ciphers: this.ciphers.slice(0, this.currentCipherIndex),
         theme: this.theme,
         showPasskeysLabels: this.showPasskeysLabels,
         viewButtonText: this.getTranslation("view"),
@@ -678,16 +681,84 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
           : undefined,
       }),
     );
+    this.setupLitCipherListScrollListeners();
 
     if (!this.showInlineMenuAccountCreation) {
+      return;
+    }
+
+    if (this.newItemButtonElement) {
       return;
     }
 
     const addNewLoginButtonContainer = this.buildNewItemButton();
     this.inlineMenuListContainer.appendChild(addNewLoginButtonContainer);
     this.inlineMenuListContainer.classList.add("inline-menu-list-container--with-new-item-button");
-    this.newItemButtonElement.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
+    this.newItemButtonElement!.addEventListener(EVENTS.KEYUP, this.handleNewItemButtonKeyUpEvent);
   }
+
+  private loadLitPageOfCiphers() {
+    this.currentCipherIndex = Math.min(
+      this.currentCipherIndex + this.showCiphersPerPage,
+      this.ciphers.length,
+    );
+  }
+
+  private setupLitCipherListScrollListeners() {
+    const scrollEl = this.litHost?.querySelector<HTMLElement>("[data-cipher-list-scroll]");
+    if (this.litCipherListScrollElement) {
+      this.litCipherListScrollElement.removeEventListener(
+        EVENTS.SCROLL,
+        this.updateLitCiphersListOnScroll,
+      );
+      this.litCipherListScrollElement = undefined;
+    }
+
+    if (!scrollEl || this.allCiphersLoaded()) {
+      return;
+    }
+
+    this.litCipherListScrollElement = scrollEl;
+    this.ciphersListHeight = 0;
+    scrollEl.addEventListener(EVENTS.SCROLL, this.updateLitCiphersListOnScroll, { passive: true });
+  }
+
+  private updateLitCiphersListOnScroll = (event: Event) => {
+    event.stopPropagation();
+
+    if (this.cipherListScrollIsDebounced) {
+      return;
+    }
+
+    this.cipherListScrollIsDebounced = true;
+    if (this.cipherListScrollDebounceTimeout) {
+      clearTimeout(this.cipherListScrollDebounceTimeout);
+    }
+    this.cipherListScrollDebounceTimeout = globalThis.setTimeout(
+      this.handleDebouncedLitScrollEvent,
+      300,
+    );
+  };
+
+  private handleDebouncedLitScrollEvent = () => {
+    this.cipherListScrollIsDebounced = false;
+
+    if (this.allCiphersLoaded() || !this.litCipherListScrollElement) {
+      return;
+    }
+
+    if (!this.hasScrolledPastLoadThreshold(this.litCipherListScrollElement)) {
+      return;
+    }
+
+    const previousIndex = this.currentCipherIndex;
+    this.loadLitPageOfCiphers();
+    if (this.currentCipherIndex === previousIndex) {
+      return;
+    }
+
+    this.renderLitCipherList();
+  };
 
   /**
    * Clears and resets the inline menu list container.
@@ -695,6 +766,13 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    */
   private resetInlineMenuContainer() {
     if (this.inlineMenuListContainer) {
+      if (this.litCipherListScrollElement) {
+        this.litCipherListScrollElement.removeEventListener(
+          EVENTS.SCROLL,
+          this.updateLitCiphersListOnScroll,
+        );
+        this.litCipherListScrollElement = undefined;
+      }
       if (this.litHost) {
         render(nothing, this.litHost);
       }
@@ -702,6 +780,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.inlineMenuListContainer.classList.remove(
         "inline-menu-list-container--with-new-item-button",
       );
+      this.newItemButtonElement = undefined;
     }
   }
 
@@ -894,16 +973,25 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    if (!this.ciphersListHeight) {
-      this.ciphersListHeight = this.ciphersList.offsetHeight;
-    }
-
-    const scrollPercentage =
-      (cipherListScrollTop / (this.ciphersList.scrollHeight - this.ciphersListHeight)) * 100;
-    if (scrollPercentage >= 80) {
+    if (this.hasScrolledPastLoadThreshold(this.ciphersList)) {
       this.loadPageOfCiphers();
     }
   };
+
+  /**
+   * Determines whether the given scrollable element has been scrolled far enough
+   * to warrant loading the next page of ciphers. Caches the element's height on
+   * first use so subsequent calls avoid an extra layout read.
+   */
+  private hasScrolledPastLoadThreshold(scrollElement: HTMLElement): boolean {
+    if (!this.ciphersListHeight) {
+      this.ciphersListHeight = scrollElement.offsetHeight;
+    }
+
+    const scrollableHeight = scrollElement.scrollHeight - this.ciphersListHeight;
+    const scrollPercentage = (scrollElement.scrollTop / scrollableHeight) * 100;
+    return !Number.isNaN(scrollPercentage) && scrollPercentage >= 80;
+  }
 
   /**
    * Throttled handler for updating the passkeys and login headings when the user scrolls the ciphers list.

@@ -351,6 +351,103 @@ describe("AutofillInlineMenuList", () => {
         ).toBe(0);
       });
 
+      it("renders only the first page of Lit ciphers", async () => {
+        const ciphers = Array.from({ length: 8 }, (_, index) =>
+          createAutofillOverlayCipherDataMock(index + 1),
+        );
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledWith(
+          expect.objectContaining({
+            ciphers: ciphers.slice(0, 6),
+          }),
+        );
+        expect(autofillInlineMenuList["currentCipherIndex"]).toBe(6);
+      });
+
+      it("loads more Lit ciphers when the user scrolls near the bottom", async () => {
+        jest.useFakeTimers();
+        const ciphers = Array.from({ length: 8 }, (_, index) =>
+          createAutofillOverlayCipherDataMock(index + 1),
+        );
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const scrollEl = document.createElement("div");
+        scrollEl.setAttribute("data-cipher-list-scroll", "");
+        Object.defineProperty(scrollEl, "offsetHeight", { value: 100 });
+        Object.defineProperty(scrollEl, "scrollHeight", { value: 500 });
+        scrollEl.scrollTop = 400;
+        autofillInlineMenuList["litHost"].appendChild(scrollEl);
+        autofillInlineMenuList["setupLitCipherListScrollListeners"]();
+        jest.mocked(InlineMenuCipherList).mockClear();
+
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.runAllTimers();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledWith(
+          expect.objectContaining({
+            ciphers,
+          }),
+        );
+        expect(autofillInlineMenuList["currentCipherIndex"]).toBe(8);
+        jest.useRealTimers();
+      });
+
+      it("debounces the Lit cipher list scroll handler", async () => {
+        jest.useFakeTimers();
+        const ciphers = Array.from({ length: 8 }, (_, index) =>
+          createAutofillOverlayCipherDataMock(index + 1),
+        );
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const scrollEl = document.createElement("div");
+        scrollEl.setAttribute("data-cipher-list-scroll", "");
+        Object.defineProperty(scrollEl, "offsetHeight", { value: 100 });
+        Object.defineProperty(scrollEl, "scrollHeight", { value: 500 });
+        scrollEl.scrollTop = 400;
+        autofillInlineMenuList["litHost"].appendChild(scrollEl);
+        autofillInlineMenuList["setupLitCipherListScrollListeners"]();
+        autofillInlineMenuList["cipherListScrollDebounceTimeout"] = setTimeout(jest.fn, 0);
+        const handleDebouncedLitScrollEventSpy = jest.spyOn(
+          autofillInlineMenuList as any,
+          "handleDebouncedLitScrollEvent",
+        );
+
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.advanceTimersByTime(100);
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.advanceTimersByTime(100);
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.advanceTimersByTime(400);
+
+        expect(handleDebouncedLitScrollEventSpy).toHaveBeenCalledTimes(1);
+        jest.useRealTimers();
+      });
+
       it("keeps the legacy cipher list DOM when useLitComponents is false", async () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
