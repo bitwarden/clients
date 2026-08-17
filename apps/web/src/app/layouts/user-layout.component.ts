@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Params, Router, RouterModule } from "@angular/router";
+import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -75,6 +75,7 @@ export class UserLayoutComponent implements OnInit {
   protected readonly sideNavService = inject(SideNavService);
 
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
@@ -87,6 +88,18 @@ export class UserLayoutComponent implements OnInit {
   protected readonly vaultNav: Signal<VaultsNavViewModel | undefined> = toSignal(
     this.vaultNavService.viewModel$,
   );
+
+  private readonly activeParams = toSignal(this.activatedRoute.queryParamMap);
+
+  /** The vault filter applied by the current query params. */
+  private readonly activeFilter = computed(() => {
+    const params = this.activeParams();
+    return {
+      vaultId: params?.get("vaultId") ?? null,
+      type: params?.get("type") ?? null,
+      sharedFolderId: params?.get("sharedFolderId") ?? null,
+    };
+  });
 
   private readonly userHasPremium = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -186,6 +199,27 @@ export class UserLayoutComponent implements OnInit {
 
   private vaultIdParam(vault: VaultNavItemViewModel): string {
     return vault.type === VaultNavItemType.Personal ? Unassigned : vault.id;
+  }
+
+  protected allItemsActive(): boolean {
+    const f = this.activeFilter();
+    return this.router.url.split("?")[0] === "/vault" && !f.vaultId && !f.type && !f.sharedFolderId;
+  }
+
+  protected vaultActive(vault: VaultNavItemViewModel): boolean {
+    const f = this.activeFilter();
+    return f.vaultId === this.vaultIdParam(vault) && !f.sharedFolderId && !f.type;
+  }
+
+  protected myItemsActive(vault: VaultNavItemViewModel): boolean {
+    const f = this.activeFilter();
+    return (
+      f.vaultId === this.vaultIdParam(vault) && f.sharedFolderId === vault.defaultUserCollectionId
+    );
+  }
+
+  protected itemTypeActive(type: RoutedVaultFilterItemType): boolean {
+    return this.activeFilter().type === type;
   }
 
   async ngOnInit() {
