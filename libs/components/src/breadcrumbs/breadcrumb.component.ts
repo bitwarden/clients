@@ -87,6 +87,8 @@ export class BreadcrumbComponent {
   }
 
   constructor() {
+    this.checkActiveRoute();
+
     this.router.events
       .pipe(
         takeUntilDestroyed(),

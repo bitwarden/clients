@@ -5,6 +5,7 @@ import {
   Component,
   computed,
   contentChildren,
+  effect,
   inject,
   input,
 } from "@angular/core";
@@ -13,6 +14,7 @@ import { RouterModule } from "@angular/router";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HeaderContext } from "../header/header-context";
 import { IconModule } from "../icon";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -47,6 +49,8 @@ import { BreadcrumbComponent } from "./breadcrumb.component";
 })
 export class BreadcrumbsComponent {
   private readonly i18nService = inject(I18nService);
+  private readonly headerContext = inject(HeaderContext, { optional: true });
+
   protected readonly ariaLabel = this.i18nService.t("breadcrumbs");
   /**
    * The maximum number of breadcrumbs to show before overflow.
@@ -75,6 +79,26 @@ export class BreadcrumbsComponent {
 
     return result;
   });
+
+  /**
+   * Display the active breadcrumb as a semantic header element when HeaderContext says to do so,
+   * and there is an active breadcrumb available
+   *
+   * (after VFO1 flag is removed, update this to check for the existence of HeaderContext instead
+   * of the check for shouldPromoteActiveBreadcrumb, which is solely a VFO1 flag gate)
+   */
+  protected readonly displayActiveAsHeader = computed(
+    () =>
+      (this.headerContext?.shouldPromoteActiveBreadcrumb() &&
+        this.activeBreadcrumb() != undefined) ??
+      false,
+  );
+
+  constructor() {
+    effect(() => {
+      this.headerContext?.hasActiveBreadcrumb.set(this.displayActiveAsHeader());
+    });
+  }
 
   /** Whether the breadcrumbs exceed the show limit and require an overflow menu */
   protected readonly hasOverflow = computed(() => this.breadcrumbs().length > this.show());
