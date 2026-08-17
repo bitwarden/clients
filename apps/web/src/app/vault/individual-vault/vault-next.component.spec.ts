@@ -16,8 +16,11 @@ import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { DialogRef, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
+  AddItemDialogComponent,
+  AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
   VaultCopyButtonsService,
@@ -34,6 +37,7 @@ describe("VaultNextComponent", () => {
   let itemActions: MockProxy<WebVaultItemActionsService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
+  let addItemDialogOpen: jest.SpyInstance;
 
   let ciphers$: Subject<CipherView[] | null>;
   let folders$: BehaviorSubject<FolderView[]>;
@@ -114,6 +118,10 @@ describe("VaultNextComponent", () => {
       value: showQuickCopyActions$,
     });
 
+    addItemDialogOpen = jest
+      .spyOn(AddItemDialogComponent, "open")
+      .mockReturnValue({ closed: of(undefined) } as unknown as DialogRef<never>);
+
     await TestBed.configureTestingModule({
       imports: [VaultNextComponent],
       providers: [
@@ -121,6 +129,7 @@ describe("VaultNextComponent", () => {
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
+        { provide: DialogService, useValue: mock<DialogService>() },
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
@@ -269,10 +278,26 @@ describe("VaultNextComponent", () => {
   });
 
   describe("toolbar", () => {
-    it("opens the add-item form", async () => {
-      await component().addItem();
+    it("adds a cipher of the type chosen from vault-new-cipher-menu's legacy dropdown", async () => {
+      await component().addCipher(CipherType.Card);
 
-      expect(itemActions.add).toHaveBeenCalled();
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card);
+    });
+
+    it("opens the add-item form for the type chosen from the picker dialog", async () => {
+      addItemDialogOpen.mockReturnValue({
+        closed: of({ result: AddItemDialogResult.Cipher, cipherType: CipherType.Card }),
+      } as unknown as DialogRef<never>);
+
+      await component().openAddItemDialog();
+
+      expect(itemActions.add).toHaveBeenCalledWith(CipherType.Card);
+    });
+
+    it("does nothing if the picker dialog is dismissed without a selection", async () => {
+      await component().openAddItemDialog();
+
+      expect(itemActions.add).not.toHaveBeenCalled();
     });
   });
 });

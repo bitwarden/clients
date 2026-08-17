@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, shareReplay, switchMap } from "rxjs";
+import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -8,19 +8,23 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { ButtonModule } from "@bitwarden/components";
-import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
+import { DialogService } from "@bitwarden/components";
+import { safeProvider } from "@bitwarden/ui-common";
 import {
+  AddItemDialogComponent,
+  AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
+  NewCipherMenuComponent,
   VaultCopyButtonsService,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
@@ -52,9 +56,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
   imports: [
-    ButtonModule,
     HeaderModule,
-    I18nPipe,
+    NewCipherMenuComponent,
     VaultBannersComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
@@ -71,6 +74,7 @@ export class VaultNextComponent {
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
   private readonly copyButtonsService = inject(VaultCopyButtonsService);
+  private readonly dialogService = inject(DialogService);
   private readonly folderService = inject(FolderService);
   private readonly itemActions = inject(WebVaultItemActionsService);
   private readonly organizationService = inject(OrganizationService);
@@ -156,7 +160,27 @@ export class VaultNextComponent {
   protected readonly itemAction = (item: CipherViewLike): Promise<void> =>
     this.itemActions.view(item);
 
-  protected async addItem(): Promise<void> {
-    await this.itemActions.add();
+  /** Handles `vault-new-cipher-menu`'s `cipherAdded`, emitted by its legacy per-type dropdown. */
+  protected async addCipher(cipherType: CipherType): Promise<void> {
+    await this.itemActions.add(cipherType);
+  }
+
+  /**
+   * Handles `vault-new-cipher-menu`'s `onAddItemDialog`, which it only emits once
+   * `PM32009NewItemTypes` is on.
+   */
+  protected async openAddItemDialog(): Promise<void> {
+    const dialogRef = AddItemDialogComponent.open(this.dialogService, {
+      canCreateCipher: true,
+      canCreateFolder: false,
+      canCreateCollection: false,
+      canCreateSshKey: true,
+    });
+    const result = await firstValueFrom(dialogRef.closed);
+    if (result?.result !== AddItemDialogResult.Cipher) {
+      return;
+    }
+
+    await this.itemActions.add(result.cipherType);
   }
 }

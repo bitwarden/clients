@@ -15,15 +15,11 @@
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
 >
-  <button
+  <vault-new-cipher-menu
     slot="toolbar"
-    id="vault-next_button_add-item"
-    type="button"
-    bitButton
-    startIcon="bwi-plus"
-    buttonType="primary"
-    (click)="addItem()"
-  >
-    {{ "add" | i18n }}
-  </button>
+    [canCreateCipher]="true"
+    [canCreateSshKey]="true"
+    (cipherAdded)="addCipher($event)"
+    (onAddItemDialog)="openAddItemDialog()"
+  />
 </vault-items-table>
