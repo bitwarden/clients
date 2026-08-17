@@ -431,5 +431,22 @@ describe("MainDesktopAutotypeMvpService", () => {
         "Autotype keyboard shortcut activated, but the main window does not exist.",
       );
     });
+
+    it("should not send window title to renderer if the window is destroyed", () => {
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
+      toggleHandler({}, true);
+
+      (mockWindowMain.win.isDestroyed as jest.Mock).mockReturnValue(true);
+
+      // Get the registered callback
+      const registeredCallback = (globalShortcut.register as jest.Mock).mock.calls[0][1];
+      registeredCallback();
+
+      expect(autotype_mvp.getForegroundWindowTitle).not.toHaveBeenCalled();
+      expect(mockWindowMain.win.webContents.send).not.toHaveBeenCalled();
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        "Autotype keyboard shortcut activated, but the main window does not exist.",
+      );
+    });
   });
 });
