@@ -1,6 +1,6 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subject } from "rxjs";
 
 import type {
   AccessLeaseId,
@@ -9,7 +9,7 @@ import type {
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
 
-import { AccessLeaseSdkService, AccessRequestSdkService } from "..";
+import { AccessEventService, AccessLeaseSdkService, AccessRequestSdkService } from "..";
 
 import {
   AccessNameResolverService,
@@ -65,8 +65,10 @@ describe("MyAccessService", () => {
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
+  let push$: Subject<void>;
 
   beforeEach(() => {
+    push$ = new Subject<void>();
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
@@ -78,6 +80,7 @@ describe("MyAccessService", () => {
     TestBed.configureTestingModule({
       providers: [
         MyAccessService,
+        { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
@@ -254,6 +257,49 @@ describe("MyAccessService", () => {
       expect(requestsApi.activateAccessRequest).toHaveBeenCalledWith("req-1");
       expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
       expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("live refresh", () => {
+    it("reloads on a server-pushed access event", async () => {
+      await service.load();
+      requestsApi.listMyAccessRequests.mockClear();
+      leasesApi.listMyLeases.mockClear();
+
+      push$.next();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+      expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
+    });
+
+    it("surfaces an approver's decision without the page reloading", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+      expect(await firstValueFrom(service.pendingRows$)).toHaveLength(1);
+
+      // The approver approved it; the server pushes, and the page re-reads.
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
+      ]);
+      push$.next();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      const rows = await firstValueFrom(service.pendingRows$);
+      expect(rows).toHaveLength(1);
+      expect(rows[0].status).toBe("approved");
+    });
+
+    it("serialises overlapping pushes so state never mixes two loads", async () => {
+      await service.load();
+      requestsApi.listMyAccessRequests.mockClear();
+
+      push$.next();
+      push$.next();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(2);
+      expect(await firstValueFrom(service.loading$)).toBe(false);
     });
   });
 });
