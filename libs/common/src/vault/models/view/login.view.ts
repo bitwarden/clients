@@ -111,10 +111,7 @@ export class LoginView extends ItemView {
   /**
    * Converts the SDK LoginView to a LoginView.
    *
-   * Note: FIDO2 credentials remain encrypted at this stage.
-   * Unlike other fields that are decrypted as part of the LoginView, the SDK maintains
-   * the FIDO2 credentials in encrypted form. We can decrypt them later using a separate
-   * call to client.vault().ciphers().decrypt_fido2_credentials().
+   * FIDO2 credentials are eagerly decrypted by the SDK and mapped here directly.
    */
   static fromSdkLoginView(obj: SdkLoginView): LoginView {
     const loginView = new LoginView();
@@ -129,8 +126,10 @@ export class LoginView extends ItemView {
       obj.uris
         ?.filter((uri) => uri.uri != null && uri.uri !== "")
         .map((uri) => LoginUriView.fromSdkLoginUriView(uri)!) || [];
-    // FIDO2 credentials are not decrypted here, they remain encrypted
-    loginView.fido2Credentials = [];
+    loginView.fido2Credentials =
+      obj.fido2Credentials
+        ?.map((cred) => Fido2CredentialView.fromSdkFido2CredentialView(cred))
+        .filter((cred): cred is Fido2CredentialView => !!cred) ?? [];
 
     return loginView;
   }
@@ -138,7 +137,8 @@ export class LoginView extends ItemView {
   /**
    * Converts the LoginView to an SDK LoginView.
    *
-   * Note: FIDO2 credentials remain encrypted in the SDK view so they are not included here.
+   * Note: FIDO2 credentials are intentionally excluded on the write path — they are
+   * handled separately via toSdkCipherView when the cipher has passkeys.
    */
   toSdkLoginView(): SdkLoginView {
     return {
@@ -148,7 +148,7 @@ export class LoginView extends ItemView {
       totp: this.hasTotp ? this.totp : undefined,
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
       uris: this.uris?.map((uri) => uri.toSdkLoginUriView()),
-      fido2Credentials: undefined, // FIDO2 credentials are handled separately and remain encrypted
+      fido2Credentials: undefined,
     };
   }
 }

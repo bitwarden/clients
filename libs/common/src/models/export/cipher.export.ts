@@ -1,4 +1,5 @@
 import { EncString } from "../../key-management/crypto/models/enc-string";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CipherRepromptType } from "../../vault/enums/cipher-reprompt-type";
 import { CipherType } from "../../vault/enums/cipher-type";
 import { Cipher as CipherDomain } from "../../vault/models/domain/cipher";
@@ -43,7 +44,12 @@ export class CipherExport {
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
-    view.key = req.key != null ? new EncString(req.key) : undefined;
+    try {
+      view.key = req.key != null ? SymmetricCryptoKey.fromString(req.key) : undefined;
+    } catch {
+      // Old exports stored the wrapped EncString key which cannot be used on import
+      view.key = undefined;
+    }
 
     if (req.fields != null) {
       view.fields = req.fields.map((f) => FieldExport.toView(f));
@@ -208,7 +214,10 @@ export class CipherExport {
     this.name = safeGetString(o.name) ?? "";
     this.notes = safeGetString(o.notes);
     if ("key" in o) {
-      this.key = o.key?.encryptedString;
+      this.key =
+        o.key instanceof SymmetricCryptoKey
+          ? o.key.toBase64()
+          : (o.key as EncString | undefined)?.encryptedString;
     }
 
     this.favorite = o.favorite;

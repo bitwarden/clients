@@ -66,7 +66,6 @@ describe("DefaultCipherSdkService", () => {
       share_cipher: jest.fn(),
       share_ciphers_bulk: jest.fn(),
       decrypt_fido2_credentials: jest.fn(),
-      decrypt_fido2_private_key: jest.fn(),
       get_all: jest.fn().mockResolvedValue({ successes: [], failures: [] }),
       update_collection: jest.fn(),
       delete_attachment: jest.fn(),
@@ -192,14 +191,13 @@ describe("DefaultCipherSdkService", () => {
       expect(result?.name).toBe(cipherView.name);
     });
 
-    it("should decrypt FIDO2 credentials from create response", async () => {
+    it("should pass sdkCipherView with FIDO2 credentials to fromSdkCipherView", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
       cipherView.name = "Test Cipher";
       cipherView.organizationId = orgId;
 
-      // Build an SDK response that includes encrypted FIDO2 credentials
       const mockSdkResponse = {
         ...cipherView.toSdkCipherView(),
         login: {
@@ -209,22 +207,14 @@ describe("DefaultCipherSdkService", () => {
       } as unknown as SdkCipherView;
       mockCiphersSdk.create.mockResolvedValue(mockSdkResponse);
 
-      // Mock FIDO2 decryption
-      const mockDecryptedFido2 = [{ credentialId: "decrypted-cred-id" }];
-      mockCiphersSdk.decrypt_fido2_credentials.mockReturnValue(mockDecryptedFido2);
-      mockCiphersSdk.decrypt_fido2_private_key.mockReturnValue("decrypted-key-value");
-
       const mockFido2View = new Fido2CredentialView();
-      mockFido2View.credentialId = "decrypted-cred-id";
+      mockFido2View.credentialId = "encrypted-cred-id";
       jest.spyOn(Fido2CredentialView, "fromSdkFido2CredentialView").mockReturnValue(mockFido2View);
 
       const result = await cipherSdkService.createWithServer(cipherView, userId, false);
 
-      expect(mockCiphersSdk.decrypt_fido2_credentials).toHaveBeenCalledWith(mockSdkResponse);
-      expect(mockCiphersSdk.decrypt_fido2_private_key).toHaveBeenCalledWith(mockSdkResponse);
       expect(result?.login?.fido2Credentials).toHaveLength(1);
-      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("decrypted-cred-id");
-      expect(result?.login?.fido2Credentials?.[0].keyValue).toBe("decrypted-key-value");
+      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("encrypted-cred-id");
     });
 
     it("should throw error and log when SDK throws an error", async () => {
@@ -373,7 +363,7 @@ describe("DefaultCipherSdkService", () => {
       expect(result.name).toBe(cipherView.name);
     });
 
-    it("should decrypt FIDO2 credentials from edit response", async () => {
+    it("should pass sdkCipherView with FIDO2 credentials to fromSdkCipherView", async () => {
       const cipherView = new CipherView();
       cipherView.id = cipherId;
       cipherView.type = CipherType.Login;
@@ -381,7 +371,6 @@ describe("DefaultCipherSdkService", () => {
       cipherView.organizationId = orgId;
       cipherView.edit = true;
 
-      // Build an SDK response that includes encrypted FIDO2 credentials
       const mockSdkResponse = {
         ...cipherView.toSdkCipherView(),
         login: {
@@ -391,22 +380,14 @@ describe("DefaultCipherSdkService", () => {
       } as unknown as SdkCipherView;
       mockCiphersSdk.edit.mockResolvedValue(mockSdkResponse);
 
-      // Mock FIDO2 decryption
-      const mockDecryptedFido2 = [{ credentialId: "decrypted-cred-id" }];
-      mockCiphersSdk.decrypt_fido2_credentials.mockReturnValue(mockDecryptedFido2);
-      mockCiphersSdk.decrypt_fido2_private_key.mockReturnValue("decrypted-key-value");
-
       const mockFido2View = new Fido2CredentialView();
-      mockFido2View.credentialId = "decrypted-cred-id";
+      mockFido2View.credentialId = "encrypted-cred-id";
       jest.spyOn(Fido2CredentialView, "fromSdkFido2CredentialView").mockReturnValue(mockFido2View);
 
       const result = await cipherSdkService.updateWithServer(cipherView, userId, undefined, false);
 
-      expect(mockCiphersSdk.decrypt_fido2_credentials).toHaveBeenCalledWith(mockSdkResponse);
-      expect(mockCiphersSdk.decrypt_fido2_private_key).toHaveBeenCalledWith(mockSdkResponse);
       expect(result?.login?.fido2Credentials).toHaveLength(1);
-      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("decrypted-cred-id");
-      expect(result?.login?.fido2Credentials?.[0].keyValue).toBe("decrypted-key-value");
+      expect(result?.login?.fido2Credentials?.[0].credentialId).toBe("encrypted-cred-id");
     });
 
     it("should throw error and log when SDK throws an error", async () => {

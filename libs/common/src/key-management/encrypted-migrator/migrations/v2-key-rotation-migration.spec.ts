@@ -44,11 +44,9 @@ describe("V2KeyRotationMigration", () => {
     return cipher;
   };
 
-  const makeAttachment = (hasEncryptedKey: boolean): AttachmentView => {
+  const makeAttachment = (hasKey: boolean): AttachmentView => {
     const a = new AttachmentView();
-    a.encryptedKey = hasEncryptedKey
-      ? new EncString("2.abc|def|ghi")
-      : (undefined as unknown as EncString);
+    a.key = hasKey ? mock<SymmetricCryptoKey>() : undefined;
     return a;
   };
 
