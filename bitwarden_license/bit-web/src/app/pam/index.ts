@@ -55,8 +55,6 @@ export { approvalMethodLabelKeys } from "./helpers/approval-method";
 export {
   AccessRuleStatusFilter,
   AccessRuleFilter,
-  AccessRuleWindow,
-  accessRuleWindow,
   accessRuleMatchesFilter,
 } from "./helpers/access-rule-table";
 export { formatRelativeTime } from "./date/relative-time";

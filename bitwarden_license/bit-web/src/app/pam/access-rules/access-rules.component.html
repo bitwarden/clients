@@ -95,12 +95,12 @@
             {{ r.conditions | approvalMethod }}
           </td>
           <td bitCell>
-            @if (r | accessRuleWindow; as window) {
+            @if (r.maxLeaseDurationSeconds; as maxSeconds) {
               <span bitBadge variant="subtle" startIcon="bwi-clock">{{
-                window.maxSeconds ?? window.defaultSeconds | durationShort
+                maxSeconds | durationShort
               }}</span>
             } @else {
-              <span class="tw-text-muted">—</span>
+              <span class="tw-text-muted">{{ "pamAccessRuleMaxDurationNoCap" | i18n }}</span>
             }
           </td>
           <td bitCell>

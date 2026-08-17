@@ -47,7 +47,6 @@ import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
 import { AccessRuleTemplateKey } from "./access-rule-templates";
-import { AccessRuleWindowPipe } from "./access-rule-window.pipe";
 import { AccessRulesEmptyStateComponent } from "./access-rules-empty-state/access-rules-empty-state.component";
 import { ApprovalMethodPipe } from "./approval-method.pipe";
 
@@ -78,7 +77,6 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     RelativeTimePipe,
     DurationShortPipe,
     ApprovalMethodPipe,
-    AccessRuleWindowPipe,
   ],
 })
 export class AccessRulesComponent {
