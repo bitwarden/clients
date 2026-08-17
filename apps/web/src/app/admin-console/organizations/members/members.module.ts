@@ -18,7 +18,7 @@ import { SharedOrganizationModule } from "../shared";
 
 import { BulkConfirmDialogComponent } from "./components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "./components/bulk/bulk-delete-dialog.component";
-import { BulkEnablePamDialogComponent } from "./components/bulk/bulk-enable-pam-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "./components/bulk/bulk-enable-privileged-controls-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "./components/bulk/bulk-enable-sm-dialog.component";
 import { BulkProgressDialogComponent } from "./components/bulk/bulk-progress-dialog.component";
 import { BulkReinviteFailureDialogComponent } from "./components/bulk/bulk-reinvite-failure-dialog.component";
@@ -55,7 +55,7 @@ import {
     AvatarIdPipe,
     BulkConfirmDialogComponent,
     BulkDeleteDialogComponent,
-    BulkEnablePamDialogComponent,
+    BulkEnablePrivilegedControlsDialogComponent,
     BulkEnableSecretsManagerDialogComponent,
     BulkRemoveDialogComponent,
     BulkRestoreRevokeComponent,

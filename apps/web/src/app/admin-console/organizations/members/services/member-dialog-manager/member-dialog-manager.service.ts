@@ -23,7 +23,7 @@ import {
 } from "../../components/account-recovery";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
-import { BulkEnablePamDialogComponent } from "../../components/bulk/bulk-enable-pam-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "../../components/bulk/bulk-enable-privileged-controls-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
 import { BulkProgressDialogComponent } from "../../components/bulk/bulk-progress-dialog.component";
 import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-reinvite-failure-dialog.component";
@@ -235,7 +235,7 @@ export class MemberDialogManagerService {
     await lastValueFrom(dialogRef.closed);
   }
 
-  async openBulkActivatePamDialog(
+  async openBulkActivatePrivilegedControlsDialog(
     organization: Organization,
     users: OrganizationUserView[],
   ): Promise<void> {
@@ -250,7 +250,7 @@ export class MemberDialogManagerService {
       return;
     }
 
-    const dialogRef = BulkEnablePamDialogComponent.open(this.dialogService, {
+    const dialogRef = BulkEnablePrivilegedControlsDialogComponent.open(this.dialogService, {
       orgId: organization.id,
       users: eligibleUsers,
     });

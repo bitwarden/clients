@@ -145,13 +145,13 @@
                     </button>
                     <bit-menu-divider></bit-menu-divider>
                   }
-                  @if (canUsePam()) {
+                  @if (canUsePrivilegedControls()) {
                     <button
                       type="button"
                       bitMenuItem
-                      (click)="isProcessing ? null : bulkActivatePam(organization)"
+                      (click)="isProcessing ? null : bulkActivatePrivilegedControls(organization)"
                     >
-                      {{ "activatePam" | i18n }}
+                      {{ "activatePrivilegedControls" | i18n }}
                     </button>
                     <bit-menu-divider></bit-menu-divider>
                   }

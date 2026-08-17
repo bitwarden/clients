@@ -14,7 +14,7 @@ import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 
-import { BulkEnablePamDialogComponent } from "./bulk-enable-pam-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "./bulk-enable-privileged-controls-dialog.component";
 
 function makeUser(
   id: string,
@@ -54,11 +54,11 @@ const mockDialogRef = {
 };
 
 export default {
-  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Enable PAM Dialog",
-  component: BulkEnablePamDialogComponent,
+  title: "Admin Console/Organizations/Members/Bulk Actions/Bulk Enable Privileged Controls Dialog",
+  component: BulkEnablePrivilegedControlsDialogComponent,
   decorators: [
     moduleMetadata({
-      imports: [BulkEnablePamDialogComponent],
+      imports: [BulkEnablePrivilegedControlsDialogComponent],
       providers: [
         { provide: OrganizationUserApiService, useValue: mockOrganizationUserApiService },
         { provide: ToastService, useValue: mockToastService },
@@ -75,13 +75,13 @@ export default {
   ],
 } as Meta;
 
-type Story = StoryObj<BulkEnablePamDialogComponent>;
+type Story = StoryObj<BulkEnablePrivilegedControlsDialogComponent>;
 
 /**
- * Lists the members who will have Privileged Access Management access enabled.
+ * Lists the members who will have Privileged Controls access enabled.
  */
 export const Default: Story = {
   render: () => ({
-    template: `<app-bulk-enable-pam-dialog />`,
+    template: `<app-bulk-enable-privileged-controls-dialog />`,
   }),
 };

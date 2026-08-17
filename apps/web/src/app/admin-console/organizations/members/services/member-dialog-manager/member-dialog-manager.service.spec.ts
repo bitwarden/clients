@@ -19,7 +19,7 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
-import { BulkEnablePamDialogComponent } from "../../components/bulk/bulk-enable-pam-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "../../components/bulk/bulk-enable-privileged-controls-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
@@ -437,7 +437,7 @@ describe("MemberDialogManagerService", () => {
     });
   });
 
-  describe("openBulkActivatePamDialog", () => {
+  describe("openBulkActivatePrivilegedControlsDialog", () => {
     it("should open dialog with eligible users only", async () => {
       const mockDialogRef = { closed: of(undefined) };
       dialogService.open.mockReturnValue(mockDialogRef as any);
@@ -450,10 +450,10 @@ describe("MemberDialogManagerService", () => {
       } as OrganizationUserView;
       const users = [user1, user2];
 
-      await service.openBulkActivatePamDialog(mockOrganization, users);
+      await service.openBulkActivatePrivilegedControlsDialog(mockOrganization, users);
 
       expect(dialogService.open).toHaveBeenCalledWith(
-        BulkEnablePamDialogComponent,
+        BulkEnablePrivilegedControlsDialogComponent,
         expect.objectContaining({
           data: expect.objectContaining({
             orgId: mockOrganization.id,
@@ -469,7 +469,7 @@ describe("MemberDialogManagerService", () => {
       const user1 = { ...mockUser, accessPam: true } as OrganizationUserView;
       const users = [user1];
 
-      await service.openBulkActivatePamDialog(mockOrganization, users);
+      await service.openBulkActivatePrivilegedControlsDialog(mockOrganization, users);
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",

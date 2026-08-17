@@ -144,12 +144,15 @@ export class MembersComponent {
     () => this.organization()?.useSecretsManager ?? false,
   );
 
-  private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
-    initialValue: false,
-  });
+  private readonly privilegedControlsEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.Pam),
+    {
+      initialValue: false,
+    },
+  );
 
-  protected readonly canUsePam: Signal<boolean> = computed(
-    () => (this.organization()?.usePam ?? false) && this.pamEnabled(),
+  protected readonly canUsePrivilegedControls: Signal<boolean> = computed(
+    () => (this.organization()?.usePam ?? false) && this.privilegedControlsEnabled(),
   );
 
   protected readonly showUserManagementControls: Signal<boolean> = computed(
@@ -489,9 +492,9 @@ export class MembersComponent {
     await this.load(organization);
   }
 
-  async bulkActivatePam(organization: Organization) {
+  async bulkActivatePrivilegedControls(organization: Organization) {
     const users = this.dataSource().getCheckedUsersWithLimit(MaxCheckedCount);
-    await this.memberDialogManager.openBulkActivatePamDialog(organization, users);
+    await this.memberDialogManager.openBulkActivatePrivilegedControlsDialog(organization, users);
 
     this.dataSource().uncheckAllUsers();
     await this.load(organization);

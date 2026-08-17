@@ -232,7 +232,7 @@ export abstract class OrganizationUserApiService {
   ): Promise<void>;
 
   /**
-   * Enable Privileged Access Management (PAM) for many users
+   * Enable Privileged Controls for many users
    * @param organizationId - Identifier for the organization the user belongs to
    * @param ids - List of organization user identifiers to enable
    */

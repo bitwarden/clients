@@ -24,7 +24,7 @@ export class OrganizationUserView {
    */
   accessSecretsManager: boolean = false;
   /**
-   * True if this organization user has been granted access to Privileged Access Management, false otherwise.
+   * True if this organization user has been granted access to Privileged Controls, false otherwise.
    */
   accessPam: boolean = false;
   claimedByOrganization: boolean = false;

@@ -20,14 +20,14 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { OrganizationUserView } from "../../../core";
 import { AvatarIdPipe } from "../../pipes/avatar-id.pipe";
 
-export type BulkEnablePamDialogData = {
+export type BulkEnablePrivilegedControlsDialogData = {
   orgId: string;
   users: OrganizationUserView[];
 };
 
 @Component({
-  templateUrl: `bulk-enable-pam-dialog.component.html`,
-  selector: "app-bulk-enable-pam-dialog",
+  templateUrl: `bulk-enable-privileged-controls-dialog.component.html`,
+  selector: "app-bulk-enable-privileged-controls-dialog",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
@@ -42,9 +42,9 @@ export type BulkEnablePamDialogData = {
     UserTypePipe,
   ],
 })
-export class BulkEnablePamDialogComponent {
+export class BulkEnablePrivilegedControlsDialogComponent {
   protected readonly dialogRef = inject(DialogRef);
-  private readonly data = inject<BulkEnablePamDialogData>(DIALOG_DATA);
+  private readonly data = inject<BulkEnablePrivilegedControlsDialogData>(DIALOG_DATA);
   private readonly organizationUserApiService = inject(OrganizationUserApiService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
@@ -62,14 +62,17 @@ export class BulkEnablePamDialogComponent {
     );
     this.toastService.showToast({
       variant: "success",
-      message: this.i18nService.t("activatedAccessToPam"),
+      message: this.i18nService.t("activatedAccessToPrivilegedControls"),
     });
     await this.dialogRef.close();
   };
 
-  static open(dialogService: DialogService, data: BulkEnablePamDialogData) {
-    return dialogService.open<unknown, BulkEnablePamDialogData>(BulkEnablePamDialogComponent, {
-      data,
-    });
+  static open(dialogService: DialogService, data: BulkEnablePrivilegedControlsDialogData) {
+    return dialogService.open<unknown, BulkEnablePrivilegedControlsDialogData>(
+      BulkEnablePrivilegedControlsDialogComponent,
+      {
+        data,
+      },
+    );
   }
 }

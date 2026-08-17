@@ -101,15 +101,15 @@
                 </bit-label>
               </bit-form-control>
             }
-            @if (organization.usePam && pamEnabled()) {
+            @if (organization.usePam && privilegedControlsEnabled()) {
               <bit-form-control>
                 <input
-                  id="edit-member_checkbox_access-pam"
+                  id="edit-member_checkbox_access-privileged-controls"
                   type="checkbox"
                   bitCheckbox
                   formControlName="accessPam"
                 />
-                <bit-label>{{ "userAccessPam" | i18n }}</bit-label>
+                <bit-label>{{ "userAccessPrivilegedControls" | i18n }}</bit-label>
               </bit-form-control>
             }
             @if (customUserTypeSelected()) {
@@ -305,18 +305,18 @@
                 </bit-label>
               </bit-form-control>
             }
-            @if (organization.usePam && pamEnabled()) {
-              <h3 class="tw-mt-4">{{ "privilegedAccessManagement" | i18n }}</h3>
-              <p class="tw-text-muted">{{ "pamAccessDescription" | i18n }}</p>
+            @if (organization.usePam && privilegedControlsEnabled()) {
+              <h3 class="tw-mt-4">{{ "privilegedControls" | i18n }}</h3>
+              <p class="tw-text-muted">{{ "privilegedControlsAccessDescription" | i18n }}</p>
               <bit-form-control>
                 <input
-                  id="edit-member_checkbox_access-pam-section"
+                  id="edit-member_checkbox_access-privileged-controls-section"
                   type="checkbox"
                   bitCheckbox
                   formControlName="accessPam"
                 />
                 <bit-label>
-                  {{ "userAccessPam" | i18n }}
+                  {{ "userAccessPrivilegedControls" | i18n }}
                 </bit-label>
               </bit-form-control>
             }

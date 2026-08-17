@@ -150,7 +150,7 @@ export class EditMemberDialogComponent {
     from(this.configService.getFeatureFlag(FeatureFlag.PM28365_ChangeMemberEmail)),
   );
 
-  protected readonly pamEnabled = toSignal(
+  protected readonly privilegedControlsEnabled = toSignal(
     from(this.configService.getFeatureFlag(FeatureFlag.Pam)),
   );
 
