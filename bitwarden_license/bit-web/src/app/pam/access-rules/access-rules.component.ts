@@ -38,8 +38,8 @@ import {
   AccessRuleView,
   AccessRuleStatusFilter,
   accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessage,
   accessRuleMatchesFilter,
+  classifyAccessRuleSaveError,
   resolveCollectionNames,
 } from "..";
 import { DurationLongPipe } from "../date/duration-long.pipe";
@@ -325,8 +325,15 @@ export class AccessRulesComponent {
     return this.processedRows().filter((r) => this.selection.isSelected(r.id));
   }
 
+  /**
+   * Toast a rejected mutation. Routed through the classifier so the SDK's own message — the
+   * server's serialized response, filesystem paths and all — never reaches the toast.
+   */
   private showError(e: unknown): void {
-    const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
+    const outcome = classifyAccessRuleSaveError(e);
+    const message = this.i18nService.t(
+      outcome.kind === "mapped" ? outcome.messageKey : "unexpectedError",
+    );
     this.toastService.showToast({ variant: "error", message });
   }
 }

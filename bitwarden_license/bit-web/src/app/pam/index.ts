@@ -99,3 +99,11 @@ export {
   classifyRequestAccessError,
 } from "./helpers/request-access-error";
 export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
+export {
+  ACCESS_RULE_WRITE_SERVER_ERRORS,
+  classifyAccessRuleSaveError,
+} from "./helpers/access-rule-save-error";
+export type {
+  AccessRuleSaveErrorField,
+  AccessRuleSaveErrorOutcome,
+} from "./helpers/access-rule-save-error";
