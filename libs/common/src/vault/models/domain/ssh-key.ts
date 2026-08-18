@@ -1,10 +1,10 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SshKey as SdkSshKey } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SshKeyData } from "../data/ssh-key.data";
 import { SshKeyView } from "../view/ssh-key.view";
 

@@ -1,11 +1,11 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Attachment as SdkAttachment } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { AttachmentData } from "../data/attachment.data";
 import { AttachmentView } from "../view/attachment.view";

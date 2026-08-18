@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import {
   CipherCreateRequest,
   CipherEditRequest,
@@ -7,7 +9,6 @@ import {
   CipherView as SdkCipherView,
 } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { View } from "../../../models/view/view";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
 import { InitializerMetadata } from "../../../platform/interfaces/initializer-metadata.interface";
