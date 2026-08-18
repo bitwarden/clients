@@ -238,16 +238,22 @@ export class OverflowListDirective {
    * only remeasures on its own when the item set changes.
    *
    * Keeps the existing widths until the new measurement lands; clearing them
-   * would flash all-displayed and overflow the row mid-resize.
+   * would flash all-displayed and overflow the row mid-resize. Pass
+   * `{ reset: true }` to drop them anyway — `packed` then falls back to
+   * all-displayed for the render before measurement, which consumers need when
+   * an item's content is only stamped while it's displayed.
    *
    * No-ops before the first measurement pass, so a caller can't race the
    * directive's own initial measurement — that pass is already queued.
    */
-  remeasure(): void {
+  remeasure(options?: { reset?: boolean }): void {
     // Read untracked: this runs inside callers' effects, and tracking `ready`
     // would make every one of them re-run when it flips.
     if (!untracked(this.ready)) {
       return;
+    }
+    if (options?.reset) {
+      this.itemWidths.set([]);
     }
     afterNextRender(() => this.measureItems(), { injector: this.injector });
   }

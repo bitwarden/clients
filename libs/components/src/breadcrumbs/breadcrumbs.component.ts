@@ -109,10 +109,11 @@ export class BreadcrumbsComponent {
 
     // `size` swaps crumb typography and separator margins, so item widths change with it,
     // but the directive only remeasures on item-set changes. Without this, widths cached at
-    // one density would drive packing at the other.
+    // one density would drive packing at the other. `reset` is required because a collapsed
+    // crumb stamps no content, so measuring without it captures just the separator arrow.
     effect(() => {
       this.size();
-      this.overflowList().remeasure();
+      this.overflowList().remeasure({ reset: true });
     });
   }
 

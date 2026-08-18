@@ -103,9 +103,13 @@ describe("BreadcrumbsComponent", () => {
 
     const remeasure = jest.spyOn(list, "remeasure");
 
+    // `reset` matters because collapsed crumbs stamp no content and would otherwise measure
+    // as just their separator arrow — not reproducible here, since JSDOM reports zero for
+    // every geometry read.
     fixture.componentInstance.size.set("small");
     fixture.detectChanges();
     expect(remeasure).toHaveBeenCalledTimes(1);
+    expect(remeasure).toHaveBeenCalledWith({ reset: true });
 
     fixture.componentInstance.size.set("base");
     fixture.detectChanges();
