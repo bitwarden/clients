@@ -361,6 +361,14 @@ describe("CipherView", () => {
       // FIDO2 credentials are not set when no SDK client is provided
       expect(sdkCipherView.login?.fido2Credentials).toBeUndefined();
     });
+
+    it("maps empty notes to undefined", () => {
+      const cipherView = new CipherView();
+      cipherView.type = CipherType.Login;
+      cipherView.notes = "";
+
+      expect(cipherView.toSdkCipherView().notes).toBeUndefined();
+    });
   });
 
   // Note: These tests use jest.requireActual() because the file has jest.mock() calls

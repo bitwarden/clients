@@ -49,7 +49,28 @@ export class PassportView extends ItemView implements SdkPassportView {
     return view;
   }
 
+  /**
+   * Converts the PassportView to an SDK PassportView.
+   *
+   * Empty strings are normalized to `undefined` so that cleared fields are not encrypted and
+   * stored as empty values. The SDK derives `copyableFields` from the presence of each property,
+   * so a stored empty string would advertise a copy action for a field that has no value.
+   */
   toSdkPassportView(): SdkPassportView {
-    return this;
+    return {
+      surname: this.surname || undefined,
+      givenName: this.givenName || undefined,
+      dateOfBirth: this.dateOfBirth || undefined,
+      sex: this.sex || undefined,
+      birthPlace: this.birthPlace || undefined,
+      nationality: this.nationality || undefined,
+      issuingCountry: this.issuingCountry || undefined,
+      passportNumber: this.passportNumber || undefined,
+      passportType: this.passportType || undefined,
+      nationalIdentificationNumber: this.nationalIdentificationNumber || undefined,
+      issuingAuthority: this.issuingAuthority || undefined,
+      issueDate: this.issueDate || undefined,
+      expirationDate: this.expirationDate || undefined,
+    };
   }
 }

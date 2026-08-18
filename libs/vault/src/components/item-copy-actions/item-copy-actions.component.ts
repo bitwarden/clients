@@ -8,7 +8,6 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { IconButtonModule, ItemModule, MenuModule } from "@bitwarden/components";
-import { CopyableCipherFields } from "@bitwarden/sdk-internal";
 
 import { CopyFieldAction } from "../../services/copy-cipher-field.service";
 import { CopyCipherFieldDirective } from "../copy-cipher-field.directive";
@@ -19,6 +18,47 @@ type CipherItem = {
   /** Property key on `CipherView` to retrieve the copy value */
   field: CopyFieldAction;
 };
+
+const CARD_ITEMS: CipherItem[] = [
+  { key: "securityCode", field: "securityCode" },
+  { key: "cardNumber", field: "cardNumber" },
+];
+
+const IDENTITY_ITEMS: CipherItem[] = [
+  { key: "address", field: "address" },
+  { key: "email", field: "email" },
+  { key: "username", field: "username" },
+  { key: "phone", field: "phone" },
+];
+
+const BANK_ACCOUNT_ITEMS: CipherItem[] = [
+  { key: "nameOnAccount", field: "nameOnAccount" },
+  { key: "accountNumber", field: "accountNumber" },
+  { key: "bankRoutingNumber", field: "routingNumber" },
+  { key: "branchNumber", field: "branchNumber" },
+  { key: "pin", field: "pin" },
+  { key: "iban", field: "iban" },
+  { key: "swiftCode", field: "swiftCode" },
+];
+
+const DRIVERS_LICENSE_ITEMS: CipherItem[] = [
+  { key: "firstName", field: "firstNameLicense" },
+  { key: "middleName", field: "middleNameLicense" },
+  { key: "lastName", field: "lastNameLicense" },
+  { key: "licenseNumber", field: "licenseNumber" },
+];
+
+const PASSPORT_ITEMS: CipherItem[] = [
+  { key: "firstName", field: "givenName" },
+  { key: "lastName", field: "surname" },
+  { key: "passportNumber", field: "passportNumber" },
+  { key: "nationalIdentificationNumber", field: "nationalIdentificationNumber" },
+];
+
+/** SSH keys and secure notes have no single-field copy action, so only the fields are needed. */
+const SSH_KEY_FIELDS: CopyFieldAction[] = ["privateKey", "publicKey", "keyFingerprint"];
+const SECURE_NOTE_FIELDS: CopyFieldAction[] = ["secureNote"];
+
 @Component({
   selector: "vault-item-copy-actions",
   templateUrl: "./item-copy-actions.component.html",
@@ -70,54 +110,23 @@ export class VaultItemCopyActionsComponent {
   }
 
   get singleCopyableCard() {
-    const cardItems: CipherItem[] = [
-      { key: "securityCode", field: "securityCode" },
-      { key: "cardNumber", field: "cardNumber" },
-    ];
-    return this.findSingleCopyableItem(this.cipher(), cardItems);
+    return this.findSingleCopyableItem(this.cipher(), CARD_ITEMS);
   }
 
   get singleCopyableIdentity() {
-    const identityItems: CipherItem[] = [
-      { key: "address", field: "address" },
-      { key: "email", field: "email" },
-      { key: "username", field: "username" },
-      { key: "phone", field: "phone" },
-    ];
-    return this.findSingleCopyableItem(this.cipher(), identityItems);
+    return this.findSingleCopyableItem(this.cipher(), IDENTITY_ITEMS);
   }
 
   get singleCopyableBankAccount() {
-    const bankAccountItems: CipherItem[] = [
-      { key: "nameOnAccount", field: "nameOnAccount" },
-      { key: "accountNumber", field: "accountNumber" },
-      { key: "bankRoutingNumber", field: "routingNumber" },
-      { key: "branchNumber", field: "branchNumber" },
-      { key: "pin", field: "pin" },
-      { key: "iban", field: "iban" },
-      { key: "swiftCode", field: "swiftCode" },
-    ];
-    return this.findSingleCopyableItem(this.cipher(), bankAccountItems);
+    return this.findSingleCopyableItem(this.cipher(), BANK_ACCOUNT_ITEMS);
   }
 
   get singleCopyableDriversLicense() {
-    const driversLicenseItems: CipherItem[] = [
-      { key: "firstName", field: "firstNameLicense" },
-      { key: "middleName", field: "middleNameLicense" },
-      { key: "lastName", field: "lastNameLicense" },
-      { key: "licenseNumber", field: "licenseNumber" },
-    ];
-    return this.findSingleCopyableItem(this.cipher(), driversLicenseItems);
+    return this.findSingleCopyableItem(this.cipher(), DRIVERS_LICENSE_ITEMS);
   }
 
   get singleCopyablePassport(): CipherItem | null {
-    const passportItems: CipherItem[] = [
-      { key: "firstName", field: "givenName" },
-      { key: "lastName", field: "surname" },
-      { key: "passportNumber", field: "passportNumber" },
-      { key: "nationalIdentificationNumber", field: "nationalIdentificationNumber" },
-    ];
-    return this.findSingleCopyableItem(this.cipher(), passportItems);
+    return this.findSingleCopyableItem(this.cipher(), PASSPORT_ITEMS);
   }
 
   /*
@@ -135,162 +144,46 @@ export class VaultItemCopyActionsComponent {
   }
 
   get hasLoginValues() {
-    return this.getNumberOfLoginValues(this.cipher()) > 0;
+    return this.hasCopyableValues(this.getLoginCopyableItems(this.cipher()).map((i) => i.field));
   }
 
   get hasCardValues() {
-    return this.getNumberOfCardValues(this.cipher()) > 0;
+    return this.hasCopyableValues(CARD_ITEMS.map((i) => i.field));
   }
 
   get hasIdentityValues() {
-    return this.getNumberOfIdentityValues(this.cipher()) > 0;
+    return this.hasCopyableValues(IDENTITY_ITEMS.map((i) => i.field));
   }
 
   get hasSecureNoteValue() {
-    return this.getNumberOfSecureNoteValues(this.cipher()) > 0;
+    return this.hasCopyableValues(SECURE_NOTE_FIELDS);
   }
 
   get hasSshKeyValues() {
-    return this.getNumberOfSshKeyValues(this.cipher()) > 0;
+    return this.hasCopyableValues(SSH_KEY_FIELDS);
   }
 
   get hasBankAccountValues() {
-    return this.getNumberOfBankAccountValues(this.cipher()) > 0;
+    return this.hasCopyableValues(BANK_ACCOUNT_ITEMS.map((i) => i.field));
   }
 
   get hasDriversLicenseValues() {
-    return this.getNumberOfDriversLicenseValues(this.cipher()) > 0;
+    return this.hasCopyableValues(DRIVERS_LICENSE_ITEMS.map((i) => i.field));
   }
 
   get hasPassportValues() {
-    return this.getNumberOfPassportValues(this.cipher()) > 0;
+    return this.hasCopyableValues(PASSPORT_ITEMS.map((i) => i.field));
   }
 
-  /** Sets the number of populated login values for the cipher */
-  private getNumberOfLoginValues(cipher: CipherViewLike) {
-    return this.getLoginCopyableItems(cipher)
-      .map((item) => CipherViewLikeUtils.hasCopyableValue(cipher, item.field))
-      .filter(Boolean).length;
-  }
+  /**
+   * @returns `true` when at least one of the given fields is populated.
+   *
+   * Every type resolves availability through `CipherViewLikeUtils.hasCopyableValue` so that the
+   * menu trigger can never be enabled while all of the actions inside it are unavailable.
+   */
+  private hasCopyableValues(fields: CopyFieldAction[]): boolean {
+    const cipher = this.cipher();
 
-  /** Sets the number of populated card values for the cipher */
-  private getNumberOfCardValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      const copyableCardFields: CopyableCipherFields[] = ["CardSecurityCode", "CardNumber"];
-
-      return cipher.copyableFields.filter((field) => copyableCardFields.includes(field)).length;
-    }
-
-    return [cipher.card.code, cipher.card.number].filter(Boolean).length;
-  }
-
-  /** Sets the number of populated identity values for the cipher */
-  private getNumberOfIdentityValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      const copyableIdentityFields: CopyableCipherFields[] = [
-        "IdentityAddress",
-        "IdentityEmail",
-        "IdentityUsername",
-        "IdentityPhone",
-      ];
-
-      return cipher.copyableFields.filter((field) => copyableIdentityFields.includes(field)).length;
-    }
-
-    return [
-      cipher.identity.fullAddressForCopy,
-      cipher.identity.email,
-      cipher.identity.username,
-      cipher.identity.phone,
-    ].filter(Boolean).length;
-  }
-
-  /** Sets the number of populated secure note values for the cipher */
-  private getNumberOfSecureNoteValues(cipher: CipherViewLike): number {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      return cipher.copyableFields.includes("SecureNotes") ? 1 : 0;
-    }
-
-    return cipher.notes ? 1 : 0;
-  }
-
-  /** Sets the number of populated passport values for the cipher */
-  private getNumberOfPassportValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      const copyablePassportFields: CopyableCipherFields[] = [
-        "PassportGivenName",
-        "PassportSurname",
-        "PassportPassportNumber",
-        "PassportNationalIdentificationNumber",
-      ];
-      return cipher.copyableFields.filter((field) => copyablePassportFields.includes(field)).length;
-    }
-    return [
-      cipher.passport?.givenName,
-      cipher.passport?.surname,
-      cipher.passport?.passportNumber,
-      cipher.passport?.nationalIdentificationNumber,
-    ].filter(Boolean).length;
-  }
-
-  /** Sets the number of populated SSH key values for the cipher */
-  private getNumberOfSshKeyValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      return cipher.copyableFields.includes("SshKey") ? 1 : 0;
-    }
-
-    return [cipher.sshKey.privateKey, cipher.sshKey.publicKey, cipher.sshKey.keyFingerprint].filter(
-      Boolean,
-    ).length;
-  }
-
-  /** Sets the number of populated bank account values for the cipher */
-  private getNumberOfBankAccountValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      const copyableBankAccountFields: CopyableCipherFields[] = [
-        "BankAccountNameOnAccount",
-        "BankAccountAccountNumber",
-        "BankAccountRoutingNumber",
-        "BankAccountBranchNumber",
-        "BankAccountPin",
-        "BankAccountIban",
-        "BankAccountSwift",
-      ];
-
-      return cipher.copyableFields.filter((field) => copyableBankAccountFields.includes(field))
-        .length;
-    }
-
-    return [
-      cipher.bankAccount.nameOnAccount,
-      cipher.bankAccount.accountNumber,
-      cipher.bankAccount.routingNumber,
-      cipher.bankAccount.branchNumber,
-      cipher.bankAccount.pin,
-      cipher.bankAccount.iban,
-      cipher.bankAccount.swiftCode,
-    ].filter(Boolean).length;
-  }
-
-  /** Sets the number of populated drivers license values for the cipher */
-  private getNumberOfDriversLicenseValues(cipher: CipherViewLike) {
-    if (CipherViewLikeUtils.isCipherListView(cipher)) {
-      const copyableDriversLicenseFields: CopyableCipherFields[] = [
-        "DriversLicenseFirstName",
-        "DriversLicenseMiddleName",
-        "DriversLicenseLastName",
-        "DriversLicenseLicenseNumber",
-      ];
-
-      return cipher.copyableFields.filter((field) => copyableDriversLicenseFields.includes(field))
-        .length;
-    }
-
-    return [
-      cipher.driversLicense?.firstName,
-      cipher.driversLicense?.middleName,
-      cipher.driversLicense?.lastName,
-      cipher.driversLicense?.licenseNumber,
-    ].filter(Boolean).length;
+    return fields.some((field) => CipherViewLikeUtils.hasCopyableValue(cipher, field));
   }
 }

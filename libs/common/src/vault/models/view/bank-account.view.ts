@@ -46,9 +46,23 @@ export class BankAccountView extends ItemView implements SdkBankAccountView {
 
   /**
    * Converts the BankAccountView to an SDK BankAccountView.
-   * The view implements the SdkView so we can safely return `this`.
+   *
+   * Empty strings are normalized to `undefined` so that cleared fields are not encrypted and
+   * stored as empty values. The SDK derives `copyableFields` from the presence of each property,
+   * so a stored empty string would advertise a copy action for a field that has no value.
    */
   toSdkBankAccountView(): SdkBankAccountView {
-    return this;
+    return {
+      bankName: this.bankName || undefined,
+      nameOnAccount: this.nameOnAccount || undefined,
+      accountType: this.accountType || undefined,
+      accountNumber: this.accountNumber || undefined,
+      routingNumber: this.routingNumber || undefined,
+      branchNumber: this.branchNumber || undefined,
+      pin: this.pin || undefined,
+      swiftCode: this.swiftCode || undefined,
+      iban: this.iban || undefined,
+      bankContactPhone: this.bankContactPhone || undefined,
+    };
   }
 }

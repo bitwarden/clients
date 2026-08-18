@@ -787,7 +787,7 @@ describe("CipherViewLikeUtils", () => {
             "BankAccountIban",
             "BankAccountSwift",
           ],
-          type: { bankAccount: { accountNumber: undefined, accountType: undefined } },
+          type: { bankAccount: { accountNumber: "1234567890", accountType: undefined } },
         } as CipherListView;
 
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "nameOnAccount")).toBe(true);
@@ -797,6 +797,23 @@ describe("CipherViewLikeUtils", () => {
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "pin")).toBe(true);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "iban")).toBe(true);
         expect(CipherViewLikeUtils.hasCopyableValue(cipherListView, "swiftCode")).toBe(true);
+      });
+
+      it("returns false for values that are stored as an empty string", () => {
+        // `copyableFields` is derived from whether a property is set, so a field stored as an
+        // empty string is advertised as copyable. Cross-check the decrypted values the list
+        // views do expose.
+        const login = {
+          type: { login: { username: "" } },
+          copyableFields: ["LoginUsername"],
+        } as CipherListView;
+        const bankAccount = {
+          type: { bankAccount: { accountNumber: "", accountType: undefined } },
+          copyableFields: ["BankAccountAccountNumber"],
+        } as CipherListView;
+
+        expect(CipherViewLikeUtils.hasCopyableValue(login, "username")).toBe(false);
+        expect(CipherViewLikeUtils.hasCopyableValue(bankAccount, "accountNumber")).toBe(false);
       });
 
       it("returns true for copyable fields in a drivers license cipher", () => {
