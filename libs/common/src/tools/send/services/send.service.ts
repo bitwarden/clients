@@ -4,17 +4,21 @@ import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncArrayBuffer,
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { KeyGenerationService } from "../../../key-management/crypto";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";

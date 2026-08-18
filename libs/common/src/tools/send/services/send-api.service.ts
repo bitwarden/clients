@@ -1,3 +1,6 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { SendAccessToken } from "../../../auth/send-access";
 import { ErrorResponse } from "../../../models/response/error.response";
@@ -6,7 +9,6 @@ import {
   FileUploadApiMethods,
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendRequest } from "../models/request/send.request";

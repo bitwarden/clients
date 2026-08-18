@@ -3,12 +3,6 @@ import * as JSZip from "jszip";
 import { BehaviorSubject, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherWithIdExport } from "@bitwarden/common/models/export/cipher-with-ids.export";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -33,13 +27,17 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   DEFAULT_KDF_CONFIG,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KeyService,
+  EncryptedString,
+  EncryptService,
+  EncString,
   KdfType,
-} from "@bitwarden/key-management";
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
 
 import {

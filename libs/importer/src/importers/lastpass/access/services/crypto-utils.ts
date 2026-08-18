@@ -1,9 +1,10 @@
-import {
-  DANGEROUS_aesEcbDecryptLastpassImport,
-  DANGEROUS_aesCbcDecryptLastpassImport,
-} from "@bitwarden/common/key-management/crypto";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  DANGEROUS_aesCbcDecryptLastpassImport,
+  DANGEROUS_aesEcbDecryptLastpassImport,
+} from "@bitwarden/legacy-crypto";
 
 export class CryptoUtils {
   constructor(private cryptoFunctionService: CryptoFunctionService) {}
