@@ -16834,23 +16834,26 @@
   "pamAccessRules": {
     "message": "Access rules"
   },
-  "pamAccessRuleEnabled": {
-    "message": "Enabled"
+  "pamAccessRuleActive": {
+    "message": "Active"
   },
-  "pamAccessRuleEnabledHint": {
-    "message": "When disabled, the rule is inactive and does not restrict access."
+  "pamAccessRuleInactive": {
+    "message": "Inactive"
   },
-  "pamAccessRuleEnable": {
-    "message": "Enable rule"
+  "pamAccessRuleActiveHint": {
+    "message": "When inactive, the rule does not restrict access."
   },
-  "pamAccessRuleDisable": {
-    "message": "Disable rule"
+  "pamAccessRuleActivate": {
+    "message": "Activate rule"
   },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Access rule enabled."
+  "pamAccessRuleDeactivate": {
+    "message": "Deactivate rule"
   },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Access rule disabled."
+  "pamAccessRuleActivateSuccess": {
+    "message": "Access rule activated."
+  },
+  "pamAccessRuleDeactivateSuccess": {
+    "message": "Access rule deactivated."
   },
   "pamAccessRuleNotFound": {
     "message": "Access rule not found."
@@ -16858,8 +16861,8 @@
   "pamAccessRulesSubheading": {
     "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
   },
-  "pamAccessRuleNew": {
-    "message": "New rule"
+  "pamAccessRuleCreate": {
+    "message": "Create access rule"
   },
   "pamAccessRuleCreateTitle": {
     "message": "New access rule"
@@ -17056,11 +17059,11 @@
   "pamAccessRulesNoResults": {
     "message": "No access rules match your filters."
   },
-  "pamAccessRuleBulkEnable": {
-    "message": "Enable"
+  "pamAccessRuleBulkActivate": {
+    "message": "Activate"
   },
-  "pamAccessRuleBulkDisable": {
-    "message": "Disable"
+  "pamAccessRuleBulkDeactivate": {
+    "message": "Deactivate"
   },
   "pamAccessRulesUpdated": {
     "message": "Access rules updated."
