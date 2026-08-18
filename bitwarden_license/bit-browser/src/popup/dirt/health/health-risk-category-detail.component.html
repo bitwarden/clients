@@ -53,12 +53,33 @@
                   type="button"
                   bitIconButton="bwi-more-horizontal"
                   label="{{ 'options' | i18n }}"
+                  [bitMenuTriggerFor]="itemMenu"
                 ></button>
+                <bit-menu #itemMenu>
+                  <button
+                    bitMenuItem
+                    type="button"
+                    variant="danger"
+                    (click)="onDeleteItem(item, cipher)"
+                  >
+                    <bit-icon name="bwi-delete" slot="start" />
+                    {{ "deleteItem" | i18n }}
+                  </button>
+                </bit-menu>
               </bit-item-action>
             </div>
           </bit-item>
         }
       }
     </bit-section>
+  } @else {
+    <div class="tw-flex tw-flex-col tw-justify-center tw-h-full tw-items-center">
+      <bit-no-items [icon]="contentKeys?.emptyIcon" class="tw-text-main">
+        <ng-container slot="title">{{ "youreAllSet" | i18n }}</ng-container>
+        <ng-container slot="description">
+          <p bitTypography="body2" class="tw-mx-6 tw-mt-2">{{ contentKeys?.emptyKey | i18n }}</p>
+        </ng-container>
+      </bit-no-items>
+    </div>
   }
 </popup-page>

@@ -6,6 +6,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import {
+  BitSvg,
+  ReportExposedPasswords,
+  UnlockedIcon,
+  NoCredentialsIcon,
+} from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import {
   RiskCategory,
@@ -26,9 +32,27 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { DialogRef, DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
+import { HealthDeleteAtRiskItemDialogComponent } from "./health-delete-at-risk-item-dialog.component";
 import { HealthRiskCategoryDetailComponent } from "./health-risk-category-detail.component";
+
+// eslint-disable-next-line no-console
+const originalError = console.error;
+
+// eslint-disable-next-line no-console
+console.error = (...args: unknown[]) => {
+  if (
+    typeof args[0] === "object" &&
+    (args[0] as Error).message.includes("Could not parse CSS stylesheet")
+  ) {
+    // Opening the menu's overlay container in tests causes stylesheets to be parsed, which can
+    // lead to JSDOM unable to parse CSS errors. These can be ignored safely.
+    return;
+  }
+  originalError(...args);
+};
 
 @Component({
   selector: "popup-page",
@@ -79,16 +103,22 @@ const categories = [
     category: RiskCategory.Exposed,
     titleKey: "exposedPasswordsTitle",
     descriptionKey: "exposedPasswordsDescription",
+    emptyKey: "exposedPasswordsEmpty",
+    icon: ReportExposedPasswords,
   },
   {
     category: RiskCategory.Weak,
     titleKey: "weakPasswordsTitle",
     descriptionKey: "weakPasswordsDescription",
+    emptyKey: "weakPasswordsEmpty",
+    icon: UnlockedIcon,
   },
   {
     category: RiskCategory.Reused,
     titleKey: "reusedPasswordsTitle",
     descriptionKey: "reusedPasswordsDescription",
+    emptyKey: "reusedPasswordsEmpty",
+    icon: NoCredentialsIcon,
   },
 ] as const;
 
@@ -105,6 +135,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
   let changeLoginPasswordService: MockProxy<ChangeLoginPasswordService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
+  let dialogService: MockProxy<DialogService>;
 
   /**
    * `login.uri` is a getter over `login.uris`, so fixtures have to be real views — an object
@@ -185,11 +216,45 @@ describe("HealthRiskCategoryDetailComponent", () => {
     return rows()[index].querySelector("button[bit-item-content]")!;
   }
 
+  /** The icon bound to the empty state, read off the component input rather than the rendered SVG. */
+  function noItemsIcon(): BitSvg | undefined {
+    return fixture.debugElement.query(By.css("bit-no-items"))?.componentInstance.icon();
+  }
+
   /** The row's change password CTA, or `undefined` when the row does not render one. */
   function changePasswordButton(index: number): HTMLButtonElement | undefined {
     return Array.from(
       rows()[index].querySelectorAll<HTMLButtonElement>("bit-item-action button"),
     ).find((button) => button.textContent?.includes("changePassword"));
+  }
+
+  /**
+   * The row's ellipsis trigger. Matched on `bitIconButton` — the menu trigger is bound as a
+   * property, so `bitMenuTriggerFor` never reaches the DOM.
+   */
+  function moreOptionsButton(index: number): HTMLButtonElement | null {
+    return rows()[index].querySelector("button[bitIconButton]");
+  }
+
+  /**
+   * The open menu panel. The menu's content is projected through an `ng-template` into a CDK
+   * overlay, so it lives outside the fixture and is only in the DOM while the menu is open.
+   */
+  function menuPanel(): HTMLElement | null {
+    return document.querySelector(".bit-menu-panel");
+  }
+
+  /** An entry in the open menu, matched on its rendered text. */
+  function menuItem(label: string): HTMLButtonElement | undefined {
+    return Array.from(menuPanel()?.querySelectorAll<HTMLButtonElement>("[bitMenuItem]") ?? []).find(
+      (button) => button.textContent?.includes(label),
+    );
+  }
+
+  /** Opens the ellipsis menu on the given row. */
+  function openMenu(index: number) {
+    moreOptionsButton(index)!.click();
+    fixture.detectChanges();
   }
 
   /** The count rendered alongside the section header. */
@@ -225,6 +290,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
     platformUtilsService = mock<PlatformUtilsService>();
     platformUtilsService.launchUri.mockImplementation(() => {});
+    // `onDeleteItem` only awaits `open()`, so a minimal `DialogRef`-shaped return is enough.
+    dialogService = mock<DialogService>();
+    dialogService.open.mockReturnValue({ closed: of(undefined) } as DialogRef<unknown>);
 
     await TestBed.configureTestingModule({
       imports: [HealthRiskCategoryDetailComponent],
@@ -239,6 +307,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
         { provide: CipherService, useValue: cipherService },
         { provide: ChangeLoginPasswordService, useValue: changeLoginPasswordService },
         { provide: PasswordRepromptService, useValue: passwordRepromptService },
+        { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
       ],
@@ -266,6 +335,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
       .compileComponents();
   });
 
+  afterEach(() => {
+    // Overlays are attached to the document body, so they outlive the fixture unless removed.
+    document.querySelectorAll(".cdk-overlay-container").forEach((overlay) => overlay.remove());
+  });
+
   describe("category content", () => {
     it.each(categories.map((c) => [c.category, c.titleKey] as const))(
       "renders the %s title in the page header",
@@ -287,6 +361,18 @@ describe("HealthRiskCategoryDetailComponent", () => {
         await initComponent();
 
         expect(text()).toContain(descriptionKey);
+      },
+    );
+
+    it.each(categories.map((c) => [c.category, c.emptyKey] as const))(
+      "renders the %s empty copy when the category has no items",
+      async (category, emptyKey) => {
+        params$.next({ category });
+        setReport(category, []);
+
+        await initComponent();
+
+        expect(text()).toContain(emptyKey);
       },
     );
 
@@ -313,7 +399,7 @@ describe("HealthRiskCategoryDetailComponent", () => {
       },
     );
 
-    it("swaps the title and description when the category changes", async () => {
+    it("swaps the title, description and empty icon when the category changes", async () => {
       params$.next({ category: RiskCategory.Exposed });
       await initComponent();
       expect(pageTitle()).toBe("exposedPasswordsTitle");
@@ -326,6 +412,11 @@ describe("HealthRiskCategoryDetailComponent", () => {
       expect(pageTitle()).toBe("reusedPasswordsTitle");
       expect(text()).toContain("reusedPasswordsDescription");
       expect(text()).not.toContain("exposedPasswordsDescription");
+
+      setReport(RiskCategory.Reused, []);
+      fixture.detectChanges();
+
+      expect(noItemsIcon()).toBe(NoCredentialsIcon);
     });
   });
 
@@ -462,6 +553,37 @@ describe("HealthRiskCategoryDetailComponent", () => {
     });
   });
 
+  describe("empty state", () => {
+    beforeEach(() => {
+      setReport(RiskCategory.Exposed, []);
+    });
+
+    it.each(categories.map((c) => [c.category, c.icon] as const))(
+      "renders the %s empty state icon",
+      async (category, icon) => {
+        params$.next({ category });
+
+        await initComponent();
+
+        expect(noItemsIcon()).toBe(icon);
+      },
+    );
+
+    it("renders the shared empty state title", async () => {
+      await initComponent();
+
+      expect(text()).toContain("youreAllSet");
+    });
+
+    it("replaces the item list and count with the empty state", async () => {
+      await initComponent();
+
+      expect(rows()).toHaveLength(0);
+      expect(itemCount()).toBeUndefined();
+      expect(text()).not.toContain("exposedPasswordsDescription");
+    });
+  });
+
   describe("change password", () => {
     it("renders the change password button for an item with a URI", async () => {
       setReport(RiskCategory.Exposed, [
@@ -500,6 +622,96 @@ describe("HealthRiskCategoryDetailComponent", () => {
       );
       expect(platformUtilsService.launchUri).toHaveBeenCalledWith(
         "https://another.example.com/password",
+      );
+    });
+  });
+
+  describe("ellipsis menu", () => {
+    it("renders an ellipsis menu trigger on every row", async () => {
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "cipher-1" }),
+        buildLogin({ id: "cipher-2" }),
+      ]);
+
+      await initComponent();
+
+      expect(moreOptionsButton(0)).not.toBeNull();
+      expect(moreOptionsButton(1)).not.toBeNull();
+      expect(moreOptionsButton(0)!.getAttribute("aria-label")).toBe("options");
+    });
+
+    it("renders the delete item entry in the ellipsis menu", async () => {
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+
+      openMenu(0);
+
+      expect(menuPanel()).not.toBeNull();
+      expect(menuItem("deleteItem")).toBeDefined();
+    });
+
+    it("checks the master password reprompt for the delete item", async () => {
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+      openMenu(0);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+      expect(passwordRepromptService.passwordRepromptCheck).toHaveBeenCalledWith(
+        expect.objectContaining({ id: "cipher-1" }),
+      );
+    });
+
+    it("delete dialog is not opened when the master password reprompt is not satisfied", async () => {
+      passwordRepromptService.passwordRepromptCheck.mockResolvedValue(false);
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+      openMenu(0);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+
+    it("opens the delete dialog when the menu entry is clicked", async () => {
+      setReport(RiskCategory.Exposed, [buildLogin({ id: "cipher-1" })]);
+      await initComponent();
+      openMenu(0);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+      expect(dialogService.open).toHaveBeenCalledWith(
+        HealthDeleteAtRiskItemDialogComponent,
+        expect.anything(),
+      );
+    });
+
+    // The risk flags on the passed view are placeholders today, so only the item's identity and
+    // the category are asserted — the hierarchy they drive is covered in the dialog's own spec.
+    it("passes the clicked item and the current category to the dialog", async () => {
+      params$.next({ category: RiskCategory.Exposed });
+      setReport(RiskCategory.Exposed, [
+        buildLogin({ id: "cipher-1" }),
+        buildLogin({ id: "cipher-2" }),
+        buildLogin({ id: "cipher-3" }),
+      ]);
+      await initComponent();
+      openMenu(1);
+
+      menuItem("deleteItem")!.click();
+      await fixture.whenStable();
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        HealthDeleteAtRiskItemDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            currentCategory: RiskCategory.Exposed,
+            item: expect.objectContaining({ cipherId: "cipher-2" }),
+          }),
+        }),
       );
     });
   });
