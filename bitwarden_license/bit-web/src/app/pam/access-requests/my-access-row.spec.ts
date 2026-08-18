@@ -67,8 +67,7 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
     status: "active",
     notBefore: "2024-01-01T00:00:00.000Z",
     notAfter: "2024-01-01T01:00:00.000Z",
-    revokedAt: undefined,
-    revokedByUserId: undefined,
+    termination: undefined,
     ...overrides,
   } as unknown as AccessLeaseView;
 }
@@ -81,7 +80,6 @@ describe("statusLabelKey / statusBadgeVariant", () => {
   it.each([
     ["pending", "pamStatusPending", "primary"],
     ["approved", "pamStatusApproved", "success"],
-    ["activated", "pamStatusActivated", "success"],
     ["denied", "pamStatusDenied", "danger"],
     ["canceled", "pamStatusCanceled", "subtle"],
     ["expired", "pamStatusExpired", "warning"],
@@ -95,7 +93,7 @@ describe("statusLabelKey / statusBadgeVariant", () => {
 describe("historyDisplayStatus", () => {
   it("labels a still-active produced lease as Activated/success", () => {
     const r = request("req-1", {
-      status: "activated",
+      status: "approved",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "active",
     });
@@ -107,7 +105,7 @@ describe("historyDisplayStatus", () => {
 
   it("labels a revoked lease ended by the holder as Cancelled (pamStatusEndedByYou)", () => {
     const r = request("req-1", {
-      status: "activated",
+      status: "approved",
       requesterId: "user-1",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "revoked",
@@ -121,7 +119,7 @@ describe("historyDisplayStatus", () => {
 
   it("labels a revoked lease ended by someone else as Revoked", () => {
     const r = request("req-1", {
-      status: "activated",
+      status: "approved",
       requesterId: "user-1",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "revoked",
@@ -135,7 +133,7 @@ describe("historyDisplayStatus", () => {
 
   it("labels a revoked lease with no human decision as Revoked (defensive default)", () => {
     const r = request("req-1", {
-      status: "activated",
+      status: "approved",
       requesterId: "user-1",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "revoked",
@@ -149,7 +147,7 @@ describe("historyDisplayStatus", () => {
 
   it("defaults an activated request's lapsed/expired lease to Expired", () => {
     const r = request("req-1", {
-      status: "activated",
+      status: "approved",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "expired",
     });
@@ -177,7 +175,7 @@ describe("resolveResolver", () => {
   });
 
   it("returns the access-rule label when there is no human decision", () => {
-    expect(resolveResolver("activated", undefined)).toEqual({
+    expect(resolveResolver("approved", undefined)).toEqual({
       resolverLabelKey: "pamResolverAccessRule",
       resolverName: null,
     });
@@ -256,7 +254,7 @@ describe("toRequestRow", () => {
 });
 
 describe("extensionsByLeaseId", () => {
-  it("sums approved/activated extensions keyed by the parent lease id", () => {
+  it("sums approved extensions keyed by the parent lease id", () => {
     const requests = [
       request("ext-1", {
         extensionOfLeaseId: "lease-1",
@@ -266,7 +264,7 @@ describe("extensionsByLeaseId", () => {
       }),
       request("ext-2", {
         extensionOfLeaseId: "lease-1",
-        status: "activated",
+        status: "approved",
         leaseNotBefore: "2024-01-01T02:00:00.000Z",
         leaseNotAfter: "2024-01-01T03:30:00.000Z",
       }),
@@ -295,12 +293,12 @@ describe("extensionsByLeaseId", () => {
 describe("buildMyAccessRequestRows", () => {
   it("drops extension requests and folds their added time onto the original row", () => {
     const original = request("req-1", {
-      status: "activated",
+      status: "approved",
       producedLeaseId: "lease-1",
     });
     const extension = request("ext-1", {
       extensionOfLeaseId: "lease-1",
-      status: "activated",
+      status: "approved",
       leaseNotBefore: "2024-01-01T01:00:00.000Z",
       leaseNotAfter: "2024-01-01T03:00:00.000Z",
     });

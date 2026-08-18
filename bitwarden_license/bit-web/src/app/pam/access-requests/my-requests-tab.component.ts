@@ -224,7 +224,11 @@ export class MyRequestsTabComponent implements OnInit {
     if (row.status === "pending") {
       return true;
     }
-    return row.status === "approved" && Date.parse(row.leaseNotAfter) > this.nowMs();
+    return (
+      row.status === "approved" &&
+      row.producedLeaseId == null &&
+      Date.parse(row.leaseNotAfter) > this.nowMs()
+    );
   }
 
   /**
@@ -232,7 +236,11 @@ export class MyRequestsTabComponent implements OnInit {
    * lapses the server rejects activation, so the Start button must not be offered.
    */
   protected canStart(row: MyAccessRequestRow): boolean {
-    return row.status === "approved" && Date.parse(row.leaseNotAfter) > this.nowMs();
+    return (
+      row.status === "approved" &&
+      row.producedLeaseId == null &&
+      Date.parse(row.leaseNotAfter) > this.nowMs()
+    );
   }
 
   protected async cancel(row: MyAccessRequestRow): Promise<void> {

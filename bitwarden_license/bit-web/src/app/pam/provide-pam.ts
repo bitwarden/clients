@@ -15,13 +15,13 @@ import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components
 
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
-import { DefaultApprovalApiService } from "./approvals/default-approval-api.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
 import { AccessRulesSdkService } from "./services/access-rules-sdk.service";
+import { ApprovalsSdkService } from "./services/approvals-sdk.service";
 import { DefaultAccessEventService } from "./services/default-access-event.service";
 import { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
@@ -32,7 +32,7 @@ import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-l
 
 import {
   AccessEventService,
-  ApprovalApiService,
+  ApprovalSdkService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
@@ -46,10 +46,12 @@ import {
  * inline. Binds `AccessRuleSdkService` (the abstract CRUD contract from
  * `.`) to `AccessRulesSdkService`, which serves access-rule
  * CRUD via the Rust SDK's `commercial().pam().access_rules()` client,
- * `AccessRequestSdkService` to `AccessRequestsSdkService` and
+ * `AccessRequestSdkService` to `AccessRequestsSdkService`,
  * `AccessLeaseSdkService` to `AccessLeasesSdkService` (the "My access"
  * request/lease lifecycle, both served via the Rust SDK's
  * `commercial().pam().access_requests()`/`leases()` clients), and
+ * `ApprovalSdkService` to `ApprovalsSdkService` (the approver's inbox, history,
+ * and decide mutation, served via `commercial().pam().approvals()`), plus
  * `CidrValidationService` to its SDK-backed default for the IP-allowlist editor.
  *
  * Also fills the OSS seams PAM owns, each injected `{ optional: true }` on the OSS
@@ -83,17 +85,14 @@ export function providePam(): SafeProvider[] {
       deps: [SdkService, AccountService, LogService],
     }),
     safeProvider({
+      provide: ApprovalSdkService,
+      useClass: ApprovalsSdkService,
+      deps: [SdkService, AccountService, LogService],
+    }),
+    safeProvider({
       provide: LeasingErrorService,
       useClass: DefaultLeasingErrorService,
       deps: [],
-    }),
-    // The module's one HTTP-backed contract, and deliberately its only one — see
-    // `approvals/approval-api.service.ts`. Bound here so swapping it for an SDK-backed
-    // implementation, once the SDK exposes the approver surface, is a change to this line alone.
-    safeProvider({
-      provide: ApprovalApiService,
-      useClass: DefaultApprovalApiService,
-      deps: [ApiService, AccountService],
     }),
     safeProvider({
       provide: CidrValidationService,

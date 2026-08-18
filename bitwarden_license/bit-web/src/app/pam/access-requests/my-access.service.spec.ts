@@ -54,8 +54,7 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
     status: "active",
     notBefore: "2024-01-01T00:00:00.000Z",
     notAfter: "2024-01-01T01:00:00.000Z",
-    revokedAt: undefined,
-    revokedByUserId: undefined,
+    termination: undefined,
     ...overrides,
   } as unknown as AccessLeaseView;
 }
@@ -152,12 +151,12 @@ describe("MyAccessService", () => {
           request("req-2", { status: "approved" }), // still actionable -> excluded (in Pending)
           request("req-3", { status: "pending" }), // still actionable -> excluded (in Pending)
           request("req-4", {
-            status: "activated",
+            status: "approved",
             producedLeaseId: "lease-1",
             producedLeaseStatus: "active",
           }), // lease still active -> excluded (in Active leases)
           request("req-5", {
-            status: "activated",
+            status: "approved",
             producedLeaseId: "lease-2",
             producedLeaseStatus: "expired",
           }), // lease no longer active -> included
@@ -206,7 +205,7 @@ describe("MyAccessService", () => {
     it("optimistically removes the lease and marks its request revoked, without a reload", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-1", {
-          status: "activated",
+          status: "approved",
           producedLeaseId: "lease-1",
           producedLeaseStatus: "active",
         }),
@@ -229,7 +228,7 @@ describe("MyAccessService", () => {
     it("rolls back the optimistic patch and rethrows when the SDK call fails", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-1", {
-          status: "activated",
+          status: "approved",
           producedLeaseId: "lease-1",
           producedLeaseStatus: "active",
         }),

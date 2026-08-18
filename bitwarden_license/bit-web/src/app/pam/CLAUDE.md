@@ -27,7 +27,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `ApproverInboxService`, and `AccessNameResolverService` are provided on the SHELL
   ROUTE, not on the component, because routed children inherit a parent route's
   providers but not a component's — that is what lets the tabs share one load.
-- `approvals/` — the approver side: the HTTP seam, the inbox data service, the decide
+- `approvals/` — the approver side: the SDK-backed inbox data service, the decide
   dialog, the privilege check, and the route guard.
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
   states off `cipher_access_state()`, with an inline request form.
@@ -38,30 +38,30 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `services/` — the SDK-backed implementations of the `abstractions/` contracts.
 - `testing/` — builders shared across specs (`decision-builders.ts`).
 
-## SDK-first, with one bounded exception
+## SDK-first, no exceptions
 
 Every PAM call goes through the Rust SDK (`client.commercial().pam()`), never HTTP.
-`AccessRuleSdkService`, `AccessRequestSdkService`, and `AccessLeaseSdkService` are the
-abstract contracts; `services/*-sdk.service.ts` compose the SDK client.
+`AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
+`ApprovalSdkService` are the abstract contracts; `services/*-sdk.service.ts` compose the
+SDK client. `ApprovalSdkService` (`services/approvals-sdk.service.ts`) covers the
+approver-facing surface — the pending inbox, the decided history, and recording a
+decision — via `commercial().pam().approvals()`; this used to be a raw-HTTP exception
+while the SDK lacked that surface, but the SDK now exposes it and the exception is gone.
 
-The one exception is `approvals/approval-api.service.ts`: three approver-facing routes
-(`GET /access-requests/inbox`, `GET /access-requests/history`,
-`POST /access-requests/{id}/decision`) that the server implements but the pinned SDK does
-not expose. It is bound in `provide-pam.ts` so the eventual swap is a provider change.
-
-**Do not widen it.** Approver-side revoke and cancel-approval deliberately go through the
-SDK (`leases().end()`, `access_requests().cancel()`), which reach the same endpoints. If
-another PAM capability turns out to be missing from the SDK, that is SDK work — not a
-fourth raw-HTTP route.
+**If a PAM capability turns out to be missing from the SDK, that is SDK work — not a
+raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
+(`leases().end()`, `access_requests().cancel()`) for the same reason.
 
 ## Error shape
 
 `abstractions/access-rule.ts` defines `AccessRuleError` — a flat, hand-written shape
 (`{ name: "AccessRuleError", variant, message }`) mirroring the SDK's wasm-bindgen error
 convention. Use `accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it;
-never treat it as `ErrorResponse`. Lease/request calls throw the SDK's `LeasingError`,
-detected through the injectable `LeasingErrorService` seam so consumers never import the
-wasm guard.
+never treat it as `ErrorResponse`. The SDK splits its own failures per client —
+`AccessRequestError` (request/activate/cancel), `ApprovalError` (decide) and `AccessLeaseError`
+(read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
+through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
+All three carry an `Api` variant holding the server's message.
 
 A rejected access-request submit is interpreted by
 `helpers/request-access-error.ts`. Three of the server's messages mean the caller already
@@ -77,11 +77,23 @@ re-exports of SDK shapes type-only for the same reason.
 
 ## Status spelling follows the SDK
 
-`canceled`, one L — in code, in i18n keys (`pamStatusCanceled`), everywhere. The SDK's
-`AccessLeaseStatus` has no `cancelled` value at all: a holder ending their own lease and
-an operator revoking it are both `revoked`, and `historyDisplayStatus` tells them apart
-from the decision log instead. `approvals/responses/` normalises incoming wire values onto
-these spellings, so the rest of the module never sees the other form.
+`canceled`, one L — in code, in i18n keys (`pamStatusCanceled`), everywhere. The SDK's own
+`TryFrom` conversions normalise incoming wire values onto these spellings, so the module
+never sees the other form.
+
+## Activation is not a status
+
+`AccessRequestStatus` has no `activated` value. An activated request stays `approved` and is
+recognised by the `producedLeaseId` it minted, with `producedLeaseStatus` carrying that lease's
+state. Anything separating "approved, still to start" from "already running" must test
+`producedLeaseId` rather than the status — that is what keeps the nav badge, the Pending list and
+the Start/Cancel actions off a grant the requester has already activated.
+
+`AccessLeaseStatus` does carry a distinct `canceled` (the requester ended their own lease) next to
+`revoked` (an operator did), and `AccessLeaseView` carries
+`termination: AccessLeaseTermination | undefined` spelling out which happened and when.
+`historyDisplayStatus` still derives that distinction from the decision log because it only
+receives the request, not the lease; adopting `canceled` / `termination` is tracked separately.
 
 ## Refresh model
 
