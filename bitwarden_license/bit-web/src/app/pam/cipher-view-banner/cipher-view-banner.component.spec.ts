@@ -380,7 +380,10 @@ describe("CipherViewBannerComponent", () => {
   describe("reconciling a rejected submit", () => {
     async function submitAndFail(message: string): Promise<void> {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
-      const error = Object.assign(new Error(message), { name: "LeasingError", variant: "Api" });
+      const error = Object.assign(new Error(message), {
+        name: "AccessRequestError",
+        variant: "Api",
+      });
       leasingErrors.isLeasingError.mockReturnValue(true);
       requestsApi.submitAccessRequest.mockRejectedValue(error);
       await create(gatedCipher());
