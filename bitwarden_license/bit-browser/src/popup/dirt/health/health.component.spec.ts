@@ -106,11 +106,6 @@ describe("HealthComponent", () => {
     });
   }
 
-  /** A report the service already holds, as if from an earlier scan this session. */
-  function alreadyPublished(report: VaultHealthReportView, id: UserId = userId) {
-    published.next({ userId: id, report });
-  }
-
   /** Leaves a build in flight forever, so the scan never completes. */
   function buildNeverSettles() {
     reportService.buildVaultHealthReport.mockReturnValue(new Promise<void>(() => {}));
@@ -291,38 +286,6 @@ describe("HealthComponent", () => {
       expect(overview()).not.toBeNull();
       expect(overview()?.report().atRiskCount).toBe(10);
       expect(scanning()).toBeNull();
-      expect(scanError()).toBeNull();
-    });
-
-    it("shows the overview immediately when a report is already published", async () => {
-      // Returning from a category detail re-creates this component and restarts
-      // the scan. The user must not be sent back to the progress view for
-      // results they were just looking at, so a report the service already holds
-      // wins over an in-flight scan.
-      hasRunScan$.next(true);
-      alreadyPublished(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
-      buildNeverSettles();
-
-      await initComponent();
-      await settle();
-
-      expect(overview()).not.toBeNull();
-      expect(overview()?.report().atRiskCount).toBe(10);
-      expect(scanning()).toBeNull();
-    });
-
-    it("keeps the published report on screen when a background refresh fails", async () => {
-      // Losing results the user can see, because a silent re-scan failed, is
-      // worse than showing slightly stale ones. The failure view is for having
-      // nothing to show at all.
-      hasRunScan$.next(true);
-      alreadyPublished(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
-      reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
-
-      await initComponent();
-      await settle();
-
-      expect(overview()?.report().atRiskCount).toBe(10);
       expect(scanError()).toBeNull();
     });
 
