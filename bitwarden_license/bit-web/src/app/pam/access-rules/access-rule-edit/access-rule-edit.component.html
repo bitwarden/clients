@@ -1,13 +1,16 @@
 <bit-header [title]="titleText()">
-  <div slot="breadcrumbs" class="tw-flex tw-items-center">
+  <div slot="breadcrumbs" class="tw-flex tw-items-baseline">
     <bit-breadcrumbs showTrailingArrow>
       <bit-breadcrumb [route]="['..']">{{ "pamAccessRules" | i18n }}</bit-breadcrumb>
     </bit-breadcrumbs>
     <!-- A route-less bit-breadcrumb falls back to a focusable button that does nothing and never
          gets aria-current; a static span carries the current-page semantics without that trap. -->
-    <span bitTypography="h3" aria-current="page" class="tw-inline-block tw-text-fg-heading">{{
-      pageTypeKey | i18n
-    }}</span>
+    <span
+      bitTypography="h3"
+      aria-current="page"
+      class="tw-inline-block !tw-m-0 !tw-text-fg-heading"
+      >{{ pageTypeKey | i18n }}</span
+    >
   </div>
 </bit-header>
 
