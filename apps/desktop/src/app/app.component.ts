@@ -1,14 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import {
-  Component,
-  DestroyRef,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  Type,
-  ViewContainerRef,
-} from "@angular/core";
+import { Component, DestroyRef, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
@@ -16,7 +8,6 @@ import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout
 import { AccountDeletionService } from "@bitwarden/angular/auth/account-deletion/account-deletion.service";
 import { LoginApprovalDialogComponent } from "@bitwarden/angular/auth/login-approval";
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
-import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
@@ -116,7 +107,6 @@ export class AppComponent implements OnInit, OnDestroy {
   loading = false;
 
   private lastActivity: Date = null;
-  private modal: ModalRef = null;
   private idleTimer: number = null;
   private isIdle = false;
   private activeUserId: UserId = null;
@@ -821,17 +811,6 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       this.notificationsService.reconnectFromActivity();
     }
-  }
-
-  private async openModal<T>(type: Type<T>, ref: ViewContainerRef) {
-    this.modalService.closeAll();
-
-    [this.modal] = await this.modalService.openViewRef(type, ref);
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
   }
 
   private routeToVault(action: string, cipherType: CipherType) {
