@@ -748,11 +748,23 @@ export class CipherService implements CipherServiceAbstraction {
     const orgKeys = await firstValueFrom(this.keyService.orgKeys$(userId));
     const key = orgKeys?.[organizationId as OrganizationId] ?? null;
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
+
+    // PAM-gated rows arrive with their secrets suppressed and a `partialData` envelope in their
+    // place, which only the SDK decryption (the sync pipeline's path) can turn into a named
+    // `partial` view — legacy `Cipher.decrypt` would yield a nameless, blank row. Only those
+    // rows are routed to the SDK; everything else keeps the existing org-key decrypt unchanged.
+    const gated = ciphers.filter((c) => c.partialData != null);
     const decCiphers: CipherView[] = await Promise.all(
-      ciphers.map(async (cipher) => {
-        return await cipher.decrypt(key);
-      }),
+      ciphers
+        .filter((c) => c.partialData == null)
+        .map(async (cipher) => {
+          return await cipher.decrypt(key);
+        }),
     );
+    if (gated.length > 0) {
+      const [partialViews, failedViews] = (await this.decryptCiphers(gated, userId)) ?? [[], []];
+      decCiphers.push(...partialViews, ...failedViews);
+    }
 
     decCiphers.sort(this.getLocaleSortingFunction());
     return decCiphers;
