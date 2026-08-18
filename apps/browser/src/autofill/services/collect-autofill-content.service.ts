@@ -1226,12 +1226,16 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
   /**
    * Gets the text content from a passed element, regardless of whether it is a
-   * text node, an element node or an HTMLElement.
+   * text node, an element node or an HTMLElement. Comment nodes yield null.
    * @param {Node | HTMLElement} element
    * @returns {string}
    * @private
    */
   private getTextContentFromElement(element: Node | HTMLElement): string | null {
+    if (element.nodeType === Node.COMMENT_NODE) {
+      return null;
+    }
+
     if (element.nodeType === Node.TEXT_NODE) {
       const nodeValue = element.nodeValue;
       if (nodeValue === null) {
