@@ -124,11 +124,11 @@ export class AccessRulesComponent {
 
   protected readonly statusOptions: ChipFilterOption<AccessRuleStatusFilter>[] = [
     {
-      label: this.i18nService.t("pamAccessRuleEnabled"),
+      label: this.i18nService.t("pamAccessRuleActive"),
       value: "enabled",
       icon: "bwi-check-circle",
     },
-    { label: this.i18nService.t("disabled"), value: "disabled", icon: "bwi-circle" },
+    { label: this.i18nService.t("pamAccessRuleInactive"), value: "disabled", icon: "bwi-circle" },
   ];
 
   protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
@@ -212,7 +212,7 @@ export class AccessRulesComponent {
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
-          nextEnabled ? "pamAccessRuleEnableSuccess" : "pamAccessRuleDisableSuccess",
+          nextEnabled ? "pamAccessRuleActivateSuccess" : "pamAccessRuleDeactivateSuccess",
         ),
       });
     } catch (e) {
