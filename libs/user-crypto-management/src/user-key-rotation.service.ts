@@ -95,7 +95,9 @@ export class DefaultUserKeyRotationService implements UserKeyRotationService {
       userId,
       this.sdkService,
       async (sdk) => {
-        const untrustedMemberships = await sdk.user_crypto_management().get_untrusted_memberships();
+        const untrustedMemberships = await sdk
+          .user_crypto_management()
+          .get_untrusted_memberships("Skip");
         return [
           untrustedMemberships.emergency_access_memberships,
           untrustedMemberships.organization_memberships,
