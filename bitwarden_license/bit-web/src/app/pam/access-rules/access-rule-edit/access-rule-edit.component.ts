@@ -11,6 +11,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -114,6 +115,8 @@ export class AccessRuleEditComponent {
   private readonly cidrValidation = inject(CidrValidationService);
   private readonly dialogService = inject(DialogService);
 
+  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
     AccessRuleId | undefined;
@@ -151,15 +154,10 @@ export class AccessRuleEditComponent {
    * without it the reporting route bounces the admin straight back out.
    */
   protected readonly canAccessEventLogs = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
+    this.activeUserId$.pipe(
       switchMap((userId) => this.organizationService.organizations$(userId)),
-      map((organizations) =>
-        organizations.some(
-          (organization) =>
-            organization.id === this.organizationId && organization.canAccessEventLogs,
-        ),
-      ),
+      getById(this.organizationId),
+      map((organization) => organization?.canAccessEventLogs ?? false),
     ),
     { initialValue: false },
   );
@@ -311,7 +309,7 @@ export class AccessRuleEditComponent {
 
   private async loadCollections(rule: AccessRuleView | null): Promise<void> {
     try {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const userId = await firstValueFrom(this.activeUserId$);
       const collections = await firstValueFrom(
         this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
       );

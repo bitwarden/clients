@@ -16877,22 +16877,22 @@
   "pamAccessRuleCollectionsLoadError": {
     "message": "Couldn't load collections. Refresh the page to try again."
   },
-  "pamAccessRuleDescription": {
-    "message": "Description"
-  },
-  "pamAccessRuleDefaultDurationLabel": {
-    "message": "Default duration"
-  },
   "pamAccessRuleDefaultDurationHint": {
     "message": "This duration will be pre-filled in access requests."
   },
-  "pamAccessRuleMaxDurationLabel": {
+  "pamAccessRuleDescription": {
+    "message": "Description"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Default duration"
+  },
+  "pamAccessRuleMaxDuration": {
     "message": "Maximum duration"
   },
   "pamAccessRuleMaxDurationNoCap": {
     "message": "No cap"
   },
-  "pamAccessRuleMaxDurationCapHint": {
+  "pamAccessRuleMaxDurationHint": {
     "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {

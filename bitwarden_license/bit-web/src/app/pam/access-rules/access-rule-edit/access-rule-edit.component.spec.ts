@@ -1,3 +1,4 @@
+import { Provider } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
@@ -48,6 +49,24 @@ function routeStub(state: RouteState): Partial<ActivatedRoute> {
   } as unknown as ActivatedRoute;
 }
 
+/**
+ * The providers every block needs, with `overrides` appended so a block's own stub
+ * wins (Angular resolves the last provider for a token).
+ */
+const providersWith = (...overrides: Provider[]): Provider[] => [
+  provideRouter([]),
+  { provide: ActivatedRoute, useValue: routeStub({}) },
+  { provide: AccessRuleSdkService, useValue: {} },
+  { provide: ToastService, useValue: { showToast: jest.fn() } },
+  { provide: I18nService, useValue: i18nFake },
+  { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+  { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+  { provide: CidrValidationService, useValue: cidrValidationStub },
+  { provide: OrganizationService, useValue: organizationServiceStub() },
+  { provide: DialogService, useValue: declinedDialogStub },
+  ...overrides,
+];
+
 describe("AccessRuleEditComponent — default/max duration coupling", () => {
   let fixture: ComponentFixture<AccessRuleEditComponent>;
   let component: AccessRuleEditComponent;
@@ -57,18 +76,7 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: routeStub({}) },
-        { provide: AccessRuleSdkService, useValue: {} },
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
-        { provide: OrganizationService, useValue: organizationServiceStub() },
-        { provide: DialogService, useValue: declinedDialogStub },
-      ],
+      providers: providersWith(),
     });
 
     fixture = TestBed.createComponent(AccessRuleEditComponent);
@@ -124,21 +132,14 @@ describe("AccessRuleEditComponent — page furniture", () => {
   ) => {
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
+      providers: providersWith(
         { provide: ActivatedRoute, useValue: routeStub(state) },
         {
           provide: AccessRuleSdkService,
           useValue: { getAccessRule: jest.fn().mockResolvedValue(existing) },
         },
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
         { provide: OrganizationService, useValue: organizationServiceStub(canAccessEventLogs) },
-        { provide: DialogService, useValue: declinedDialogStub },
-      ],
+      ),
     });
 
     jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
@@ -237,21 +238,16 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
+      providers: providersWith(
         { provide: ActivatedRoute, useValue: routeStub(state) },
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
-        { provide: OrganizationService, useValue: organizationServiceStub() },
         { provide: DialogService, useValue: dialog },
-      ],
+      ),
     });
 
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
@@ -459,31 +455,6 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(controls().maxExtensionDurationSeconds.value).toBe(ONE_HOUR);
   });
 
-  it("heads the page with the rule's own name in edit mode", async () => {
-    await setup({ params: { accessRuleId: "rule-1" } }, {
-      id: "rule-1",
-      name: "Production database access",
-      collections: [],
-      conditions: [],
-    } as unknown as AccessRuleView);
-
-    expect(component["titleText"]()).toBe("Production database access");
-    expect(component["pageTypeKey"]).toBe("pamAccessRuleEditTitle");
-  });
-
-  it("keeps the page-type label as the heading in create mode, where there is no name yet", async () => {
-    await setup({});
-
-    expect(component["titleText"]()).toBe("pamAccessRuleCreateTitle");
-    expect(component["pageTypeKey"]).toBe("pamAccessRuleCreateTitle");
-  });
-
-  it("links the footer notice at the organization's event logs", async () => {
-    await setup({});
-
-    expect(component["eventLogRoute"]).toEqual(["/organizations", "org-1", "reporting", "events"]);
-  });
-
   it("deletes the rule under edit and returns to the list once confirmed", async () => {
     await setup({ params: { accessRuleId: "rule-1" } }, {
       id: "rule-1",
@@ -542,21 +513,14 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: routeStub({}) },
+      providers: providersWith(
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => throwError(() => new Error("boom")) },
         },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
-        { provide: OrganizationService, useValue: organizationServiceStub() },
-        { provide: DialogService, useValue: declinedDialogStub },
-      ],
+      ),
     });
 
     jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
@@ -586,18 +550,11 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
+      providers: providersWith(
         { provide: ActivatedRoute, useValue: routeStub({ params: { accessRuleId: "missing" } }) },
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
-        { provide: OrganizationService, useValue: organizationServiceStub() },
-        { provide: DialogService, useValue: declinedDialogStub },
-      ],
+      ),
     });
 
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
