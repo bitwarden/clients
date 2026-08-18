@@ -5,11 +5,15 @@ import { BehaviorSubject, of } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { Fido2AuthenticatorErrorCode } from "@bitwarden/common/platform/abstractions/fido2/fido2-authenticator.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherRepromptType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { CipherListView } from "@bitwarden/sdk-internal";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -32,6 +36,31 @@ const timeoutReason = () => new DOMException("The operation timed out.", "Timeou
 const repromptCipher = (id: string) =>
   Object.assign(new CipherView(), { id, reprompt: CipherRepromptType.Password });
 
+/** A login the new passkey could be added to: matches the RP and holds no passkeys. */
+const matchingLogin = () =>
+  Object.assign(new CipherView(), {
+    type: CipherType.Login,
+    login: Object.assign(new LoginView(), { matchesUri: () => true, fido2Credentials: [] }),
+  });
+
+/** The user handle for the ceremony, matching `windowObject.userHandle` below. */
+const userHandle = Fido2Utils.arrayToString(new Uint8Array([1, 2, 3]));
+
+/**
+ * A login whose URI does NOT match the RP but that already holds a passkey for
+ * this RP and user handle — reached only through the existing-passkey rpId match.
+ */
+const rpIdMatchLogin = () =>
+  Object.assign(new CipherView(), {
+    type: CipherType.Login,
+    login: Object.assign(new LoginView(), {
+      matchesUri: () => false,
+      fido2Credentials: [
+        Object.assign(new Fido2CredentialView(), { rpId: "example.com", userHandle }),
+      ],
+    }),
+  });
+
 describe("DesktopFido2UserInterfaceSession", () => {
   let authService: MockProxy<AuthService>;
   let cipherService: MockProxy<CipherService>;
@@ -41,6 +70,7 @@ describe("DesktopFido2UserInterfaceSession", () => {
   let desktopSettingsService: MockProxy<DesktopSettingsService>;
   let userVerificationService: MockProxy<DesktopFido2UserVerificationService>;
   let passwordRepromptService: MockProxy<PasswordRepromptService>;
+  let domainSettingsService: MockProxy<DomainSettingsService>;
 
   let activeAccountStatus$: BehaviorSubject<AuthenticationStatus>;
   let abortController: AbortController;
@@ -72,13 +102,21 @@ describe("DesktopFido2UserInterfaceSession", () => {
     passwordRepromptService = mock<PasswordRepromptService>();
     passwordRepromptService.enabled.mockResolvedValue(true);
 
+    domainSettingsService = mock<DomainSettingsService>();
+    domainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
+
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     authService.activeAccountStatus$ = activeAccountStatus$;
     accountService.activeAccount$ = new BehaviorSubject({ id: "user-1" } as any);
 
-    // Default to a vault with no credentials. Tests that need the ceremony to
-    // find one stub this with the cipher they expect it to retrieve.
+    // The assertion flow reads the vault through `cipherListViews$`; default to
+    // empty. Tests that need the ceremony to find one stub this with the cipher
+    // they expect it to retrieve.
     cipherService.cipherListViews$.mockReturnValue(of([]));
+    // The registration flow reads the vault through `getAllDecrypted` to decide
+    // whether to show the picker. Default to a login the new passkey could be
+    // added to, so the picker is shown unless a test opts out with an empty vault.
+    cipherService.getAllDecrypted.mockResolvedValue([matchingLogin()]);
 
     desktopSettingsService.modalMode$ = new BehaviorSubject<ModalModeState>({
       isModalModeActive: false,
@@ -124,9 +162,11 @@ describe("DesktopFido2UserInterfaceSession", () => {
         windowXy: { x: 0, y: 0 },
         appWindowHandle: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
         clientWindowHandle: new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1]),
+        userHandle: [1, 2, 3],
       },
       userVerificationService,
       passwordRepromptService,
+      domainSettingsService,
     );
   });
 
@@ -299,6 +339,127 @@ describe("DesktopFido2UserInterfaceSession", () => {
       expect(logService.warning).toHaveBeenCalledWith(
         "Request was cancelled before the user confirmed a cipher",
       );
+    });
+
+    it("shows the picker when a login the passkey could be added to exists", async () => {
+      // `getAllDecrypted` defaults to a matching login.
+      userVerificationService.verify.mockResolvedValue(true);
+
+      const result = session.confirmNewCredential(params);
+      await tick();
+
+      expect(router.navigate).toHaveBeenCalledWith([
+        "/fido2-creation",
+        { "disable-redirect": null },
+      ]);
+
+      session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
+      await result;
+    });
+
+    it("shows the picker when a login already holds a passkey for this RP", async () => {
+      // URI doesn't match; the login is reached only via the existing-passkey rpId match.
+      cipherService.getAllDecrypted.mockResolvedValue([rpIdMatchLogin()]);
+      userVerificationService.verify.mockResolvedValue(true);
+
+      const result = session.confirmNewCredential(params);
+      await tick();
+
+      expect(router.navigate).toHaveBeenCalledWith([
+        "/fido2-creation",
+        { "disable-redirect": null },
+      ]);
+
+      session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
+      await result;
+    });
+
+    describe("when there is no login to add the passkey to", () => {
+      beforeEach(() => {
+        cipherService.getAllDecrypted.mockResolvedValue([]);
+        cipherService.createWithServer.mockResolvedValue({} as any);
+        cipherService.encrypt.mockResolvedValue({ cipher: { id: "new-cipher" } } as any);
+      });
+
+      it("skips the picker and creates the credential after user verification", async () => {
+        userVerificationService.verify.mockResolvedValue(true);
+
+        const result = await session.confirmNewCredential(params);
+
+        expect(result).toEqual({ cipherId: "new-cipher", userVerified: true });
+        expect(userVerificationService.verify).toHaveBeenCalled();
+        expect(cipherService.createWithServer).toHaveBeenCalled();
+        // The picker UI is never shown.
+        expect(router.navigate).not.toHaveBeenCalled();
+      });
+
+      it("skips the picker and creates the credential even when verification is not required", async () => {
+        const result = await session.confirmNewCredential({ ...params, userVerification: false });
+
+        expect(result).toEqual({ cipherId: "new-cipher", userVerified: false });
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
+        expect(cipherService.createWithServer).toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+      });
+
+      it("creates nothing when required verification fails", async () => {
+        userVerificationService.verify.mockResolvedValue(false);
+
+        const result = await session.confirmNewCredential(params);
+
+        expect(result).toEqual({ cipherId: undefined, userVerified: false });
+        expect(cipherService.createWithServer).not.toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("getMatchingLogins", () => {
+    it("includes a login whose URI matches the relying party", async () => {
+      cipherService.getAllDecrypted.mockResolvedValue([matchingLogin()]);
+
+      await expect(session.getMatchingLogins()).resolves.toHaveLength(1);
+    });
+
+    it("includes a login that already holds a passkey for the RP even when its URI doesn't match", async () => {
+      const login = rpIdMatchLogin();
+      cipherService.getAllDecrypted.mockResolvedValue([login]);
+
+      await expect(session.getMatchingLogins()).resolves.toEqual([login]);
+    });
+
+    it("excludes a login whose only passkey belongs to a different user handle", async () => {
+      const login = Object.assign(new CipherView(), {
+        type: CipherType.Login,
+        login: Object.assign(new LoginView(), {
+          matchesUri: () => true,
+          fido2Credentials: [
+            Object.assign(new Fido2CredentialView(), {
+              rpId: "example.com",
+              userHandle: "someone-else",
+            }),
+          ],
+        }),
+      });
+      cipherService.getAllDecrypted.mockResolvedValue([login]);
+
+      await expect(session.getMatchingLogins()).resolves.toEqual([]);
+    });
+
+    it("excludes deleted logins", async () => {
+      const login = matchingLogin();
+      login.deletedDate = new Date();
+      cipherService.getAllDecrypted.mockResolvedValue([login]);
+
+      await expect(session.getMatchingLogins()).resolves.toEqual([]);
+    });
+
+    it("computes the list once and caches it across calls", async () => {
+      cipherService.getAllDecrypted.mockResolvedValue([matchingLogin()]);
+
+      await session.getMatchingLogins();
+      await session.getMatchingLogins();
+
+      expect(cipherService.getAllDecrypted).toHaveBeenCalledTimes(1);
     });
   });
 

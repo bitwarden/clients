@@ -16,6 +16,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   Fido2AuthenticatorError,
   Fido2AuthenticatorErrorCode,
@@ -28,6 +29,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/fido2/fido2-user-interface.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType, SecureNoteType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -124,6 +126,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
     private desktopSettingsService: DesktopSettingsService,
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
+    private domainSettingsService: DomainSettingsService,
   ) {}
   private currentSession: any;
 
@@ -155,6 +158,7 @@ export class DesktopFido2UserInterfaceService implements Fido2UserInterfaceServi
       nativeWindowObject,
       this.userVerificationService,
       this.passwordRepromptService,
+      this.domainSettingsService,
     );
 
     this.currentSession = session;
@@ -174,6 +178,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     private windowObject: NativeWindowObject,
     private userVerificationService: DesktopFido2UserVerificationService,
     private passwordRepromptService: PasswordRepromptService,
+    private domainSettingsService: DomainSettingsService,
   ) {}
 
   private confirmCredentialSubject = new Subject<boolean>();
@@ -461,14 +466,21 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     const abortSignal = this.abortController.signal;
     try {
       abortSignal.throwIfAborted();
-      await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
 
-      // Wait for the UI to wrap up
-      const confirmation = await this.waitForUiNewCredentialConfirmation({
-        signal: abortSignal,
-      });
-      if (!confirmation) {
-        return { cipherId: undefined, userVerified: false };
+      // The picker only exists to let the user add this passkey to an existing
+      // login (or overwrite one). When nothing matches, there's no such choice
+      // to make and the OS has already confirmed the user's intent to create the
+      // passkey, so skip our UI and go straight to verification and creation.
+      if ((await this.getMatchingLogins()).length > 0) {
+        await this.showUi("/fido2-creation", this.windowObject.windowXy, false);
+
+        // Wait for the UI to wrap up
+        const confirmation = await this.waitForUiNewCredentialConfirmation({
+          signal: abortSignal,
+        });
+        if (!confirmation) {
+          return { cipherId: undefined, userVerified: false };
+        }
       }
 
       // Confirming in our own UI establishes user presence, so we only verify
@@ -516,6 +528,51 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       // Make sure to clean up so the app is never stuck in modal mode
       await this.hideUi();
     }
+  }
+
+  /**
+   * The logins this passkey could be added to: Login ciphers that match the
+   * relying party — by URI or by an existing passkey's rpId — and that don't
+   * already hold a passkey for this user handle. This is the single source of
+   * truth for both the creation picker's list and the decision (in
+   * {@link confirmNewCredential}) to skip that picker, so the two never
+   * disagree. Computed once per ceremony and cached.
+   */
+  getMatchingLogins(): Promise<CipherView[]> {
+    return (this.matchingLogins ??= this.computeMatchingLogins());
+  }
+  private matchingLogins?: Promise<CipherView[]>;
+
+  private async computeMatchingLogins(): Promise<CipherView[]> {
+    const rpId = this.windowObject.rpId;
+    const userHandleBytes = this.windowObject.userHandle;
+    if (!userHandleBytes) {
+      return [];
+    }
+    const userHandle = Fido2Utils.arrayToString(new Uint8Array(userHandleBytes));
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+    );
+
+    if (!activeUserId) {
+      return [];
+    }
+
+    const equivalentDomains = await firstValueFrom(
+      this.domainSettingsService.getUrlEquivalentDomains(rpId),
+    );
+    const ciphers = await this.cipherService.getAllDecrypted(activeUserId);
+
+    return ciphers.filter(
+      (cipher) =>
+        cipher != null &&
+        cipher.type === CipherType.Login &&
+        (cipher.login?.matchesUri(rpId, equivalentDomains) ||
+          cipher.login?.fido2Credentials?.some((cred) => cred.rpId === rpId)) &&
+        Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
+        !cipher.deletedDate,
+    );
   }
 
   /**
