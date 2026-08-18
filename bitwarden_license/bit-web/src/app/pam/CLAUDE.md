@@ -103,8 +103,9 @@ several subjects describing different moments.
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
 binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER` (both `libs/vault`),
-`VAULT_ROW_LEASE_BADGE`, `COLLECTION_ACCESS_RULE_CALLOUT`, and `PamNavBadgeService` (all
-`apps/web`). Add a seam rather than importing PAM from OSS code.
+`VAULT_ROW_LEASE_BADGE`, `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
+`VaultRowAccessActionsService` (the vault-row menu's cancel-request entry; all `apps/web`).
+Add a seam rather than importing PAM from OSS code.
 
 ## Routing and DI
 
