@@ -11,6 +11,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 import {
   EncString,
+  KeyId,
   PasswordProtectedKeyEnvelope,
   V2UpgradeToken,
   WebAuthnPrfUnlockData,
@@ -42,6 +43,16 @@ import { MasterPasswordUnlockData } from "./master-password/types/master-passwor
 export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
+  // Prevents the state from caching and rxjs observable becoming hot observable.
+  cleanupDelayMs: 0,
+});
+
+/**
+ * The id of the UserKey, as recorded by the server.
+ */
+export const USER_KEY_ID = new UserKeyDefinition<KeyId>(CRYPTO_DISK, "userKeyId", {
+  deserializer: (jsonValue) => jsonValue,
+  clearOn: ["logout"],
   // Prevents the state from caching and rxjs observable becoming hot observable.
   cleanupDelayMs: 0,
 });
