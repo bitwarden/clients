@@ -21,7 +21,7 @@ export class DesktopAutotypeDefaultSettingPolicy {
   ) {}
 
   /**
-   * Emits the autotype policy enabled status when account is unlocked and either the MVP or GA
+   * Emits the autotype policy enabled status when account is unlocked and the
    * Autotype implementation is feature-flagged on.
    * - true: autotype policy exists and is enabled
    * - null: no autotype policy exists for the user's organization
