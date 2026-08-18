@@ -97,6 +97,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
       activeLease: undefined,
       pendingRequest: undefined,
       approvedRequest: undefined,
+      badgeState: "privileged",
     } as unknown as CipherAccessStateView);
 
     create(gatedCipher());
@@ -110,6 +111,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
     const notAfter = new Date(Date.now() + 60_000).toISOString();
     accessRequestSdkService.getCipherAccessState.mockResolvedValue({
       activeLease: { id: "lease-1", notAfter },
+      badgeState: { active: { expiresAt: notAfter } },
     } as unknown as CipherAccessStateView);
 
     create(gatedCipher());
@@ -124,6 +126,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
   it("resolves the pending state when a request is awaiting a decision", async () => {
     accessRequestSdkService.getCipherAccessState.mockResolvedValue({
       pendingRequest: {},
+      badgeState: "pending",
     } as unknown as CipherAccessStateView);
 
     create(gatedCipher());
