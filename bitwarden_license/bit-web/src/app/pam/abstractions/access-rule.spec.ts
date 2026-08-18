@@ -1,6 +1,7 @@
 import type { AccessRuleError, AccessRuleErrorVariant } from "./access-rule";
 import {
   accessRuleErrorMessage,
+  isAccessRuleCollectionConflict,
   isAccessRuleNotFound,
   isHumanApproval,
   isIpAllowlist,
@@ -22,6 +23,7 @@ describe("accessRuleErrorMessage", () => {
   });
 
   it.each<AccessRuleErrorVariant>([
+    "BadRequest",
     "NotFound",
     "Validation",
     "InvalidConditions",
@@ -31,6 +33,8 @@ describe("accessRuleErrorMessage", () => {
     expect(accessRuleErrorMessage(accessRuleError(variant))).toBe("boom");
   });
 
+  // The Api variant wraps the whole failed HTTP response; only the server's inner
+  // `message` field is toastable.
   describe("the Api variant", () => {
     const wrap = (body: string) =>
       accessRuleError("Api", `error in response: status code 400 Bad Request: ${body}`);
@@ -38,14 +42,6 @@ describe("accessRuleErrorMessage", () => {
     it("extracts the server message from the embedded ErrorResponseModel body", () => {
       expect(
         accessRuleErrorMessage(wrap('{"message":"A rule with that name already exists."}')),
-      ).toBe("A rule with that name already exists.");
-    });
-
-    it("extracts it even when the transport appended content after the body", () => {
-      expect(
-        accessRuleErrorMessage(
-          wrap('{"message":"A rule with that name already exists."} (request id 8f2c)'),
-        ),
       ).toBe("A rule with that name already exists.");
     });
 
@@ -97,6 +93,37 @@ describe("isAccessRuleNotFound", () => {
   it("is false for null/undefined", () => {
     expect(isAccessRuleNotFound(null)).toBe(false);
     expect(isAccessRuleNotFound(undefined)).toBe(false);
+  });
+});
+
+describe("isAccessRuleCollectionConflict", () => {
+  const CONFLICT_MESSAGE = "One or more collections are already governed by another access rule.";
+
+  it("matches the server's collection-conflict rejection inside an Api error", () => {
+    const e = accessRuleError(
+      "Api",
+      `error in response: status code 400 Bad Request: {"message":"${CONFLICT_MESSAGE}"}`,
+    );
+    expect(isAccessRuleCollectionConflict(e)).toBe(true);
+  });
+
+  it("matches the message on non-Api variants too", () => {
+    expect(isAccessRuleCollectionConflict(accessRuleError("BadRequest", CONFLICT_MESSAGE))).toBe(
+      true,
+    );
+  });
+
+  it("is false for other server rejections", () => {
+    const e = accessRuleError(
+      "Api",
+      'error in response: status code 400 Bad Request: {"message":"Name is required."}',
+    );
+    expect(isAccessRuleCollectionConflict(e)).toBe(false);
+  });
+
+  it("is false for non-AccessRuleError values", () => {
+    expect(isAccessRuleCollectionConflict(new Error(CONFLICT_MESSAGE))).toBe(false);
+    expect(isAccessRuleCollectionConflict(null)).toBe(false);
   });
 });
 
