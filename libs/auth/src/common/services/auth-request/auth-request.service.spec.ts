@@ -14,7 +14,12 @@ import { UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DefaultAuthRequestApiService } from "./auth-request-api.service";

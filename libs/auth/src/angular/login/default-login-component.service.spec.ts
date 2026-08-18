@@ -15,7 +15,6 @@ import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { DefaultLoginComponentService } from "./default-login-component.service";
 
-jest.mock("@bitwarden/common/key-management/crypto/abstractions/crypto-function.service");
 jest.mock("@bitwarden/common/platform/abstractions/environment.service");
 jest.mock("@bitwarden/common/platform/abstractions/platform-utils.service");
 jest.mock("@bitwarden/common/auth/abstractions/sso-login.service.abstraction");

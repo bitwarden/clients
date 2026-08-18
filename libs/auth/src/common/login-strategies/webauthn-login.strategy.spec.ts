@@ -27,6 +27,8 @@ import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/sp
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";

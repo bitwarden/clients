@@ -8,6 +8,8 @@ import { WebAuthnLoginTokenRequest } from "@bitwarden/common/auth/models/request
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { WebAuthnLoginCredentials } from "../models/domain/login-credentials";

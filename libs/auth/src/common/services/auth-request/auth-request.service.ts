@@ -23,7 +23,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
