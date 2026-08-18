@@ -19,6 +19,7 @@ import {
   SendOtp,
   GetSendAccessTokenError,
   SendAccessDomainCredentials,
+  TryGetSendAccessTokenError,
 } from "@bitwarden/common/auth/send-access";
 import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
@@ -39,6 +40,20 @@ import { NodeUtils } from "@bitwarden/node/node-utils";
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
 import { SendAccessResponse } from "../models/send-access.response";
+
+/** The server that owns a Send, resolved from its url. */
+type SendServer = {
+  apiUrl: string;
+  identityUrl: string;
+  /** A known Bitwarden region or the configured server, so the user needs no trust prompt. */
+  trusted: boolean;
+  /**
+   * This Send lives on the configured server, so SendTokenService — which only ever mints against
+   * the configured environment — is the correct minting authority. False for every other server,
+   * including other Bitwarden regions.
+   */
+  isConfiguredServer: boolean;
+};
 
 export class SendReceiveCommand extends DownloadCommand {
   private canInteract: boolean;
@@ -69,8 +84,8 @@ export class SendReceiveCommand extends DownloadCommand {
       return Response.badRequest("Failed to parse the provided Send url");
     }
 
-    const [apiUrl, originMatchesConfigDomain] = await this.getApiUrl(urlObject);
-    if (!originMatchesConfigDomain) {
+    const sendServer = await this.resolveSendServer(urlObject);
+    if (!sendServer.trusted) {
       if (!this.canInteract) {
         return Response.badRequest(
           "Send access will not be attempted: the domain in the Send URL does not match the configured domain. Run interactively in order to override.",
@@ -89,7 +104,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
     const keyArray = Utils.fromUrlB64ToArray(key);
 
-    return await this.attemptAccess(apiUrl, id, keyArray, options);
+    return await this.attemptAccess(sendServer, id, keyArray, options);
   }
 
   private getIdAndKey(url: URL): [string, string] {
@@ -97,7 +112,11 @@ export class SendReceiveCommand extends DownloadCommand {
     return [result[0], result[1]];
   }
 
-  private async getApiUrl(url: URL): Promise<[string, boolean]> {
+  /**
+   * Resolves which server owns the Send in the given url. The access token is minted by and spent
+   * at the same server: a token from the configured server must never be sent to another host.
+   */
+  private async resolveSendServer(url: URL): Promise<SendServer> {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
 
@@ -106,18 +125,45 @@ export class SendReceiveCommand extends DownloadCommand {
       .availableRegions()
       .find((r) => r.urls.send != null && r.urls.send === url.origin);
     if (matchingRegion != null) {
-      return [matchingRegion.urls.api, true];
+      // availableRegions() lists every region, not just the configured one, so a Send from another
+      // region is trusted but must still be minted at its own identity server.
+      return {
+        apiUrl: matchingRegion.urls.api,
+        identityUrl: matchingRegion.urls.identity,
+        trusted: true,
+        isConfiguredServer: matchingRegion.key === env.getRegion(),
+      };
     }
 
     if (url.origin === urls.api) {
-      return [url.origin, true];
+      return {
+        apiUrl: url.origin,
+        identityUrl: env.getIdentityUrl(),
+        trusted: true,
+        isConfiguredServer: true,
+      };
     } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
-      return [urls.api, true];
+      return {
+        apiUrl: urls.api,
+        identityUrl: env.getIdentityUrl(),
+        trusted: true,
+        isConfiguredServer: true,
+      };
     } else if (url.origin === env.getWebVaultUrl()) {
       // Self-hosted servers without a dedicated Send domain link Sends from the web vault itself.
-      return [env.getApiUrl(), true];
+      return {
+        apiUrl: env.getApiUrl(),
+        identityUrl: env.getIdentityUrl(),
+        trusted: true,
+        isConfiguredServer: true,
+      };
     } else {
-      return [url.origin + "/api", false];
+      return {
+        apiUrl: url.origin + "/api",
+        identityUrl: url.origin + "/identity",
+        trusted: false,
+        isConfiguredServer: false,
+      };
     }
   }
 
@@ -147,17 +193,17 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async attemptAccess(
-    apiUrl: string,
+    sendServer: SendServer,
     id: string,
     keyArray: Uint8Array,
     options: OptionValues,
   ): Promise<Response> {
     let authType: AuthType = AuthType.None;
 
-    const currentResponse = await this.getTokenWithRetry(id);
+    const currentResponse = await this.getTokenWithRetry(sendServer, id);
 
     if (currentResponse instanceof SendAccessToken) {
-      return await this.accessSendWithToken(currentResponse, keyArray, apiUrl, options);
+      return await this.accessSendWithToken(currentResponse, keyArray, sendServer.apiUrl, options);
     }
 
     if (currentResponse.kind === "expected_server") {
@@ -179,9 +225,9 @@ export class SendReceiveCommand extends DownloadCommand {
       if (!this.canInteract) {
         return Response.badRequest("Email verification required. Run in interactive mode.");
       }
-      return await this.handleEmailOtpAuth(id, keyArray, apiUrl, options);
+      return await this.handleEmailOtpAuth(id, keyArray, sendServer, options);
     } else if (authType === AuthType.Password) {
-      return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
+      return await this.handlePasswordAuth(id, keyArray, sendServer, options);
     }
 
     // The auth layer will immediately return a token for Sends with AuthType.None
@@ -194,15 +240,14 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async getTokenWithRetry(
+    sendServer: SendServer,
     sendId: string,
     credentials?: SendAccessDomainCredentials,
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     let expiredAttempts = 0;
 
     while (expiredAttempts < 3) {
-      const response = credentials
-        ? await firstValueFrom(this.sendTokenService.getSendAccessToken$(sendId, credentials))
-        : await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(sendId));
+      const response = await this.requestToken(sendServer, sendId, credentials);
 
       if (response instanceof SendAccessToken) {
         return response;
@@ -221,6 +266,117 @@ export class SendReceiveCommand extends DownloadCommand {
     return {
       kind: "unknown",
       error: "Send access token has expired and could not be refreshed",
+    };
+  }
+
+  /**
+   * SendTokenService always mints against the configured environment. For a Send hosted elsewhere
+   * that would authenticate at one server and spend the token at another, so those mints are done
+   * here against the Send's own server instead. This applies to other Bitwarden regions too, not
+   * only untrusted hosts.
+   */
+  private async requestToken(
+    sendServer: SendServer,
+    sendId: string,
+    credentials?: SendAccessDomainCredentials,
+  ): Promise<SendAccessToken | TryGetSendAccessTokenError> {
+    if (!sendServer.isConfiguredServer) {
+      return await this.mintSendAccessToken(sendServer.identityUrl, sendId, credentials);
+    }
+
+    return credentials
+      ? await firstValueFrom(this.sendTokenService.getSendAccessToken$(sendId, credentials))
+      : await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(sendId));
+  }
+
+  /**
+   * Requests a Send access token directly from the given identity server using the `send_access`
+   * grant. Tokens obtained here are deliberately not cached: the server is not one the user has
+   * configured, so a token from it must never be reachable by a later request to another server.
+   */
+  private async mintSendAccessToken(
+    identityUrl: string,
+    sendId: string,
+    credentials?: SendAccessDomainCredentials,
+  ): Promise<SendAccessToken | GetSendAccessTokenError> {
+    // nativeFetch is the raw transport and skips the https-only check in ApiService.fetch. The form
+    // body below carries the Send credentials, so enforce it here rather than sending them in clear.
+    if (!identityUrl.startsWith("https://") && !this.platformUtilsService.isDev()) {
+      return {
+        kind: "unknown",
+        error: `Send access requires https, but the url was ${identityUrl}`,
+      };
+    }
+
+    // Defined in SendAccessConstants.TokenRequest in the server repo.
+    const fields: Record<string, string> = {
+      grant_type: "send_access",
+      client_id: "send",
+      scope: "api.send.access",
+      send_id: sendId,
+    };
+
+    switch (credentials?.kind) {
+      case "password":
+        fields.password_hash_b64 = credentials.passwordHashB64;
+        break;
+      case "email":
+        fields.email = credentials.email;
+        break;
+      case "email_otp":
+        fields.email = credentials.email;
+        fields.otp = credentials.otp;
+        break;
+    }
+
+    let status: number;
+    let body: any = null;
+    try {
+      const response = await this.apiService.nativeFetch(
+        new Request(identityUrl + "/connect/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
+            Accept: "application/json",
+          },
+          body: Object.entries(fields)
+            .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+            .join("&"),
+        }),
+      );
+
+      status = response.status;
+      if (response.headers.get("content-type")?.includes("json")) {
+        body = await response.json();
+      }
+    } catch (e) {
+      return { kind: "unknown", error: e instanceof Error ? e.message : String(e) };
+    }
+
+    if (status === 200 && body?.access_token != null) {
+      // A missing or non-numeric expires_in would make expiresAt NaN, which isExpired() reads as
+      // "not expired" forever.
+      if (!Number.isFinite(body.expires_in)) {
+        return { kind: "unknown", error: "Send access token response had no valid expires_in" };
+      }
+      return new SendAccessToken(body.access_token, Date.now() + body.expires_in * 1000);
+    }
+
+    if (status === 400 && body?.error != null) {
+      // Same shape the SDK path produces, so the callers' error predicates still apply.
+      return {
+        kind: "expected_server",
+        error: {
+          error: body.error,
+          error_description: body.error_description,
+          send_access_error_type: body.send_access_error_type,
+        },
+      } as GetSendAccessTokenError;
+    }
+
+    return {
+      kind: "unknown",
+      error: `Unexpected response requesting a Send access token (${status})`,
     };
   }
 
@@ -259,12 +415,12 @@ export class SendReceiveCommand extends DownloadCommand {
   private async handleEmailOtpAuth(
     sendId: string,
     keyArray: Uint8Array,
-    apiUrl: string,
+    sendServer: SendServer,
     options: OptionValues,
   ): Promise<Response> {
     const email = await this.promptForEmail();
 
-    const emailResponse = await this.getTokenWithRetry(sendId, {
+    const emailResponse = await this.getTokenWithRetry(sendServer, sendId, {
       kind: "email",
       email: email,
     });
@@ -286,14 +442,14 @@ export class SendReceiveCommand extends DownloadCommand {
         const promptResponse = await this.promptForOtp(sendId, email);
 
         // Use retry helper for expired token handling
-        const otpResponse = await this.getTokenWithRetry(sendId, {
+        const otpResponse = await this.getTokenWithRetry(sendServer, sendId, {
           kind: "email_otp",
           email: email,
           otp: promptResponse,
         });
 
         if (otpResponse instanceof SendAccessToken) {
-          return await this.accessSendWithToken(otpResponse, keyArray, apiUrl, options);
+          return await this.accessSendWithToken(otpResponse, keyArray, sendServer.apiUrl, options);
         }
 
         if (otpResponse.kind === "expected_server") {
@@ -311,7 +467,7 @@ export class SendReceiveCommand extends DownloadCommand {
   private async handlePasswordAuth(
     sendId: string,
     keyArray: Uint8Array,
-    apiUrl: string,
+    sendServer: SendServer,
     options: OptionValues,
   ): Promise<Response> {
     let password = options.password;
@@ -340,13 +496,13 @@ export class SendReceiveCommand extends DownloadCommand {
     const passwordHashB64 = await this.getUnlockedPassword(password, keyArray);
 
     // Use retry helper for expired token handling
-    const response = await this.getTokenWithRetry(sendId, {
+    const response = await this.getTokenWithRetry(sendServer, sendId, {
       kind: "password",
       passwordHashB64: passwordHashB64 as SendHashedPasswordB64,
     });
 
     if (response instanceof SendAccessToken) {
-      return await this.accessSendWithToken(response, keyArray, apiUrl, options);
+      return await this.accessSendWithToken(response, keyArray, sendServer.apiUrl, options);
     }
 
     if (response.kind === "expected_server") {
