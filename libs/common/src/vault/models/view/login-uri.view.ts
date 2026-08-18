@@ -32,6 +32,8 @@ export class LoginUriView implements View {
   set uri(value: string | undefined) {
     this._uri = value;
     this._domain = undefined;
+    this._hostname = undefined;
+    this._host = undefined;
     this._canLaunch = undefined;
   }
 
