@@ -132,6 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private shouldRerunAuthRequestProcessing = false;
 
   private destroy$ = new Subject<void>();
+  private destroyed = false;
 
   private accountCleanUpInProgress: { [userId: string]: boolean } = {};
 
@@ -566,6 +567,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed = true;
     this.destroy$.next();
     this.destroy$.complete();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
@@ -837,11 +839,18 @@ export class AppComponent implements OnInit, OnDestroy {
   private async openModal<T>(type: Type<T>, ref: ViewContainerRef) {
     this.modalService.closeAll();
 
-    [this.modal] = await this.modalService.openViewRef(type, ref);
+    const [modal] = await this.modalService.openViewRef(type, ref);
+    if (this.destroyed) {
+      modal.close();
+      return;
+    }
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
+    this.modal = modal;
+
+    this.modal.onClosed.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (this.modal === modal) {
+        this.modal = null;
+      }
     });
   }
 
