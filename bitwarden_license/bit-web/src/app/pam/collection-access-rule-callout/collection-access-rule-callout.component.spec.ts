@@ -11,6 +11,7 @@ import { DialogRef } from "@bitwarden/components";
 
 import { AccessRuleSdkService } from "..";
 import type { AccessRuleView } from "../abstractions/access-rule";
+import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout.component";
 
@@ -74,7 +75,11 @@ describe("CollectionAccessRuleCalloutComponent", () => {
       providers: [
         // The link's target, so clicking it navigates rather than logging an unmatched-route error.
         provideRouter([{ path: "organizations/:organizationId/pam/access-rules", children: [] }]),
-        { provide: AccessRuleSdkService, useValue: accessRuleSdkService },
+        // The real cached read over the mocked SDK service, as in production wiring.
+        {
+          provide: GovernedCollectionsService,
+          useFactory: () => new GovernedCollectionsService(accessRuleSdkService, logService),
+        },
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
         { provide: LogService, useValue: logService },
         { provide: DialogRef, useValue: dialogRef },
