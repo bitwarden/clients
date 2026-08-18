@@ -135,6 +135,10 @@
                 <bit-icon name="bwi-pencil-square" class="tw-text-muted" />
                 {{ "edit" | i18n }}
               </button>
+              <button type="button" bitMenuItem (click)="duplicate(r)">
+                <bit-icon name="bwi-clone" class="tw-text-muted" />
+                {{ "pamAccessRuleDuplicate" | i18n }}
+              </button>
               <button type="button" bitMenuItem (click)="toggleEnabled(r)">
                 @if (r.enabled) {
                   <bit-icon name="bwi-circle" class="tw-text-muted" />

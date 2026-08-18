@@ -17353,6 +17353,21 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collection managers"
   },
+  "pamAccessRuleDuplicate": {
+    "message": "Duplicate rule"
+  },
+  "pamAccessRuleDuplicateName": {
+    "message": "$NAME$ (copy)",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamAccessRuleCollectionConflict": {
+    "message": "One or more of the selected collections already have an access rule. A collection can only have one access rule, so remove those collections here or edit their existing rule instead."
+  },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
   },
