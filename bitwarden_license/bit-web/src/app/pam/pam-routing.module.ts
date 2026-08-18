@@ -6,6 +6,8 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { organizationRedirectGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-redirect.guard";
 
+import { AccessAuditComponent } from "./access-audit/access-audit.component";
+import { AccessNameResolverService } from "./access-requests/access-name-resolver.service";
 import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 import { pamLandingRoute } from "./pam-landing-route";
@@ -31,6 +33,15 @@ const routes: Routes = [
         ],
         data: { titleId: "pamRotation" },
         loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
+      },
+      {
+        path: "audit",
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs)],
+        component: AccessAuditComponent,
+        // Route-provided (the service is @Injectable, not root): the audit table resolves cipher and
+        // collection names from local vault state the same way the "My access" surfaces do.
+        providers: [AccessNameResolverService],
+        data: { titleId: "pamAuditLog" },
       },
       {
         path: "access-rules",
