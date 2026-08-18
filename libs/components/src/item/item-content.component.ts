@@ -13,7 +13,11 @@ import {
 
 import { TypographyModule } from "../typography";
 
-import { ItemComponent } from "./item.component";
+import {
+  ITEM_END_SLOT_TRAILING_OVERRIDES,
+  ITEM_TRAILING_PADDING,
+  ItemComponent,
+} from "./item.component";
 
 @Component({
   selector: "bit-item-content, [bit-item-content]",
@@ -43,19 +47,16 @@ export class ItemContentComponent implements AfterContentChecked {
     this.item?.size() === "lg" ? "tw-py-3" : "tw-py-2",
   );
 
-  private readonly sizePadding = computed(() =>
-    this.item?.size() === "lg" ? "tw-pe-4" : "tw-pe-3",
-  );
-
-  private readonly endSlotOverrides =
-    "[&:has(>button[bitIconButton]:last-child,>*:last-child_button[bitIconButton])]:tw-pe-2 bit-compact:!tw-pe-2";
+  private readonly sizePadding = computed(() => ITEM_TRAILING_PADDING[this.item?.size() ?? "base"]);
 
   /**
    * Trailing edge padding is owned by the right-most non-empty slot. The content end slot owns it
    * only when the parent `bit-item`'s end slot is empty; otherwise that slot owns it.
    */
   protected readonly endSlotPaddingClass = computed(() =>
-    this.item?.endSlotHasChildren() ? "" : `${this.sizePadding()} ${this.endSlotOverrides}`,
+    this.item?.endSlotHasChildren()
+      ? ""
+      : `${this.sizePadding()} ${ITEM_END_SLOT_TRAILING_OVERRIDES}`,
   );
 
   /** Main content owns the trailing padding only when both this end slot and the bit-item end slot are empty. */

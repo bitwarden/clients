@@ -74,6 +74,26 @@ The content can be a button, anchor, or static container.
 
 <Canvas of={stories.ContentSlots} />
 
+## Sizes
+
+`size` controls the item's internal padding.
+
+| Size             | Vertical padding | Trailing padding |
+| ---------------- | ---------------- | ---------------- |
+| `base` (default) | 8px              | 12px             |
+| `lg`             | 12px             | 16px             |
+
+Use `lg` for lower-density lists where the item is the main focus of the page. Compact mode
+overrides both sizes with its own tighter padding, so an item's `size` has no effect there.
+
+```html
+<bit-item size="lg">
+  <button type="button" bit-item-content>Large</button>
+</bit-item>
+```
+
+<Canvas of={stories.Sizes} />
+
 ## Secondary Actions
 
 Secondary interactive actions can be placed in the item through the `"end"` slot, outside of

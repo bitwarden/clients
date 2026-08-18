@@ -13,6 +13,19 @@ import { ItemActionComponent } from "./item-action.component";
 
 export type ItemSize = "base" | "lg";
 
+/**
+ * Trailing edge padding, keyed by the parent `bit-item`'s `size`. Shared with
+ * `bit-item-content` so the two components can never drift apart.
+ */
+export const ITEM_TRAILING_PADDING: Record<ItemSize, string> = {
+  base: "tw-pe-3",
+  lg: "tw-pe-4",
+};
+
+/** Icon buttons and compact mode tighten the trailing edge regardless of `size`. */
+export const ITEM_END_SLOT_TRAILING_OVERRIDES =
+  "[&:has(>button[bitIconButton]:last-child,>*:last-child_button[bitIconButton])]:tw-pe-2 bit-compact:!tw-pe-2";
+
 @Component({
   selector: "bit-item",
   imports: [ItemActionComponent],
@@ -33,8 +46,8 @@ export class ItemComponent implements AfterContentChecked {
   readonly endSlotHasChildren = signal(false);
 
   /** The bit-item end slot is always right-most when present, so it always owns trailing padding. */
-  protected readonly endSlotPaddingClass = computed(() =>
-    this.size() === "lg" ? "tw-pe-4" : "tw-pe-3",
+  protected readonly endSlotPaddingClass = computed(
+    () => `${ITEM_TRAILING_PADDING[this.size()]} ${ITEM_END_SLOT_TRAILING_OVERRIDES}`,
   );
 
   /**

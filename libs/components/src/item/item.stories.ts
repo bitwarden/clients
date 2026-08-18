@@ -17,7 +17,6 @@ import { AvatarModule } from "../avatar";
 import { BadgeModule } from "../badge";
 import { ChipActionComponent } from "../chips/chip-action";
 import { IconButtonModule } from "../icon-button";
-import { LayoutComponent } from "../layout";
 import { LinkModule } from "../link";
 import { TypographyModule } from "../typography";
 import { I18nMockService, StorybookGlobalStateProvider } from "../utils";
@@ -43,7 +42,6 @@ export default {
         ItemActionComponent,
         ItemContentComponent,
         ScrollingModule,
-        LayoutComponent,
         LinkModule,
         RouterTestingModule,
       ],
@@ -483,7 +481,7 @@ export const EndSlotSpacing: Story = {
           <ng-container slot="end">
             <span>Updated today</span>
             <a bitLink href="#">Manage</a>
-            <span bitBadge variant="secondary">Shared</span>
+            <span bitBadge variant="subtle">Shared</span>
             <bit-item-action>
               <button type="button" bit-chip-action variant="primary" label="Fill"></button>
             </bit-item-action>
@@ -499,7 +497,7 @@ export const EndSlotSpacing: Story = {
           <bit-item-content>Text, badge, then two icon buttons</bit-item-content>
           <ng-container slot="end">
             <span>Updated today</span>
-            <span bitBadge variant="secondary">Shared</span>
+            <span bitBadge variant="subtle">Shared</span>
             <bit-item-action>
               <button type="button" bitIconButton="bwi-clone" size="small" label="Clone"></button>
             </bit-item-action>
@@ -546,8 +544,8 @@ export const EndSlotSpacing: Story = {
             <bit-item-action>
               <button type="button" bit-chip-action variant="primary" label="Fill"></button>
             </bit-item-action>
-            <span bitBadge variant="secondary">One</span>
-            <span bitBadge variant="secondary">Two</span>
+            <span bitBadge variant="subtle">One</span>
+            <span bitBadge variant="subtle">Two</span>
           </ng-container>
         </bit-item>
       </bit-item-group>
