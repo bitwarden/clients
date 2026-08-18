@@ -508,6 +508,45 @@
   "options": {
     "message": "Tùy chọn"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
   "length": {
     "message": "Độ dài"
   },
@@ -1969,7 +2008,7 @@
     "message": "Hiển thị thẻ dưới dạng gợi ý"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "Hiển thị đề xuất khóa SSH"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Hiện gợi ý khi nhấp vào biểu tượng"
@@ -7591,5 +7630,113 @@
   },
   "healthIntroDescription": {
     "message": "Giám sát và cải thiện tình trạng bảo mật kho lưu trữ của bạn bằng cách khắc phục các mật khẩu bị lộ, yếu và trùng lặp."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Kho lưu trữ của bạn đang ở trạng thái tốt",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Kho lưu trữ của bạn có rủi ro cao",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ trong số $TOTAL$ mật khẩu cần được khắc phục",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "Không có mật khẩu nào bị lộ",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 mật khẩu bị lộ",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ mật khẩu bị lộ",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Bị lộ trong các vụ rò rỉ dữ liệu",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "Không có mật khẩu nào của bạn được tìm thấy trong các vụ rò rỉ dữ liệu",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "Không có mật khẩu yếu",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 mật khẩu yếu",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ mật khẩu yếu",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Quá ngắn hoặc đơn giản",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "Tất cả mật khẩu của bạn đều mạnh",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "Không có mật khẩu bị sử dụng lại",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 mật khẩu bị sử dụng lại",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ mật khẩu bị sử dụng lại",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Bị sử dụng lại cho nhiều đăng nhập",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "Tất cả mật khẩu của bạn đều là duy nhất",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Đã xác định các rủi ro",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "Không có mục nào cần chú ý",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }
