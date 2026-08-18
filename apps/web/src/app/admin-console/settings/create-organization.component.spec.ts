@@ -1,14 +1,22 @@
+import { TestBed } from "@angular/core/testing";
 import { ActivatedRoute } from "@angular/router";
 import { of } from "rxjs";
 
 import { InitiationPath, ProductType } from "@bitwarden/common/billing/enums";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { CreateOrganizationComponent } from "./create-organization.component";
 
 describe("CreateOrganizationComponent", () => {
-  function createComponent(queryParams: Record<string, unknown>): CreateOrganizationComponent {
+  function createComponent(
+    queryParams: Record<string, unknown>,
+    vfo1Enabled = false,
+  ): CreateOrganizationComponent {
+    TestBed.resetTestingModule().configureTestingModule({
+      providers: [{ provide: Vfo1TerminologyService, useValue: { enabled: () => vfo1Enabled } }],
+    });
     const route = { queryParams: of(queryParams) } as unknown as ActivatedRoute;
-    return new CreateOrganizationComponent(route);
+    return TestBed.runInInjectionContext(() => new CreateOrganizationComponent(route));
   }
 
   describe("initiationPath derivation from the product query param", () => {
@@ -38,6 +46,13 @@ describe("CreateOrganizationComponent", () => {
       component.ngOnInit();
 
       expect(component["initiationPath"]).toBe(InitiationPath.NewOrganizationCreationInProduct);
+    });
+  });
+
+  describe("VFO1 copy selection", () => {
+    it("reflects the flag state exposed by Vfo1TerminologyService", () => {
+      expect(createComponent({})["vfo1Enabled"]()).toBe(false);
+      expect(createComponent({}, true)["vfo1Enabled"]()).toBe(true);
     });
   });
 });
