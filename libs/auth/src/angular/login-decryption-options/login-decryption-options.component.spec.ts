@@ -173,7 +173,7 @@ describe("LoginDecryptionOptionsComponent", () => {
     );
   });
 
-  describe("createUser with feature flag enabled", () => {
+  describe("initializeUserCryptoForJitProvisionedAccount with feature flag enabled", () => {
     let mockPostKeysForTdeRegistration: jest.Mock;
     let mockRegistration: any;
     let mockAuth: any;
@@ -282,7 +282,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       } as any);
 
       // Act
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       // Assert
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
@@ -364,7 +364,7 @@ describe("LoginDecryptionOptionsComponent", () => {
 
       component["formGroup"].controls.rememberDevice.setValue(false);
 
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       expect(sharedUnlockSettingsService.setUnlockSharingDisabled).toHaveBeenCalledWith(
         mockUserId,
@@ -390,7 +390,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       } as any);
 
       // Remember device defaults to true.
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       expect(
         sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
@@ -420,7 +420,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       router.navigate.mockResolvedValue(true);
 
       // Act
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       // Assert
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
@@ -462,7 +462,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       configService.getFeatureFlag.mockResolvedValue(false);
       keyService.userKey$.mockReturnValue(of(makeSymmetricCryptoKey<UserKey>(64)));
 
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       expect(logService.error).toHaveBeenCalledWith(
         "Tried to initialize account with existing user key.",
@@ -486,7 +486,7 @@ describe("LoginDecryptionOptionsComponent", () => {
         { encryptedString: null } as any,
       ]);
 
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
       expect(apiService.postAccountKeys).not.toHaveBeenCalled();

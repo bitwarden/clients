@@ -80,7 +80,11 @@ import { LoginDecryptionOptionsService } from "./login-decryption-options.servic
 // FIXME: update to use a const object instead of a typescript enum
 // eslint-disable-next-line @bitwarden/platform/no-enums
 enum State {
+  // A user who has an account created on the server, but does not yet have cryptographic keys
+  // This is the case after JIT provisioning
   NewUser,
+  // A user who has an account created on the server, and has cryptographic keys, but is logging
+  // in from an untrusted device
   ExistingUserUntrustedDevice,
 }
 
@@ -186,7 +190,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         !userDecryptionOptions?.hasMasterPassword
       ) {
         /**
-         * We are dealing with a new account if both are true:
+         * We are dealing with a new account (registered but no crypto initialized) if both are true:
          * - User does NOT have admin approval (i.e. has not enrolled in admin reset)
          * - User does NOT have a master password
          */
@@ -344,12 +348,18 @@ export class LoginDecryptionOptionsComponent implements OnInit {
     }
   }
 
-  protected createUser = async () => {
+  /**
+   * Finishes account setup for a user who was just-in-time provisioned. The account itself already exists in state by this point ({@link activeAccountId}.
+   * This generates and posts the accounts cryptographic keys and unlock methods to the server.
+   */
+  protected initializeUserCryptoForJitProvisionedAccount = async () => {
     if (this.state !== State.NewUser) {
       return;
     }
 
     try {
+      await this.persistUnlockSharingChoice();
+
       const useSdkV2Creation = await this.configService.getFeatureFlag(
         FeatureFlag.PM27279_V2RegistrationTdeJit,
       );
@@ -421,8 +431,6 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
-      await this.persistUnlockSharingChoice();
-
       await this.loginDecryptionOptionsService.handleCreateUserSuccess();
 
       if (this.clientType === ClientType.Desktop) {
@@ -440,9 +448,9 @@ export class LoginDecryptionOptionsComponent implements OnInit {
    * Warning! This completely replaces any existing keys!
    *
    * Moved here from `KeyService.initAccount`, which had this component as its only caller.
-   * It is reached only from the non-SDK branch of {@link createUser}, so it will be removed as part
-   * of the v2 rollout (when the PM27279_V2RegistrationTdeJit flag is unwound) along with that
-   * branch. Do not add callers.
+   * It is reached only from the non-SDK branch of {@link initializeUserCryptoForJitProvisionedAccount},
+   * so it will be removed as part of the v2 rollout (when the PM27279_V2RegistrationTdeJit flag is
+   * unwound) along with that branch. Do not add callers.
    *
    * @throws An error if the user already has a user key.
    */
