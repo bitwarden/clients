@@ -87,9 +87,52 @@ function isAccessRuleError(e: unknown): e is AccessRuleError {
 /**
  * The toastable message carried by the SDK's `AccessRuleError`, or `undefined` when
  * `e` isn't that shape — callers fall back to a generic error message in that case.
+ *
+ * The `Api` variant needs unwrapping first: the SDK stringifies the whole failed
+ * response as `error in response: status code 400 Bad Request: {…ErrorResponseModel
+ * JSON…}`, so the human-readable server message (`"A rule with that name already
+ * exists."`, …) is buried inside a JSON body. Surface that inner message; when there
+ * is no parsable body (network failures, serde errors) return `undefined` so callers
+ * use their generic fallback rather than toasting the raw wrapper.
  */
 export function accessRuleErrorMessage(e: unknown): string | undefined {
-  return isAccessRuleError(e) ? e.message : undefined;
+  if (!isAccessRuleError(e)) {
+    return undefined;
+  }
+  return e.variant === "Api" ? apiErrorBodyMessage(e.message) : e.message;
+}
+
+/** Extract the server's `message` field from an `Api`-variant error string, if present. */
+function apiErrorBodyMessage(message: string): string | undefined {
+  const bodyStart = message.indexOf("{");
+  if (bodyStart === -1) {
+    return undefined;
+  }
+  try {
+    const body: unknown = JSON.parse(message.slice(bodyStart));
+    const serverMessage = (body as { message?: unknown }).message;
+    return typeof serverMessage === "string" && serverMessage.length > 0
+      ? serverMessage
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * True when `e` is the server's rejection of a rule whose collections are already
+ * governed by a different access rule (a collection can only carry one rule).
+ *
+ * Matched on the server's message text — the `ErrorResponseModel` contract carries no
+ * machine-readable code, so this fragment is the only discriminant on the wire. Kept
+ * in sync with `AccessRuleWriteValidator` on the server; on drift this degrades to the
+ * extracted server message rather than the friendlier client copy.
+ */
+export function isAccessRuleCollectionConflict(e: unknown): boolean {
+  return (
+    accessRuleErrorMessage(e)?.toLowerCase().includes("already governed by another access rule") ??
+    false
+  );
 }
 
 /** True when `e` is the SDK's `AccessRuleError` with the `NotFound` variant. */
