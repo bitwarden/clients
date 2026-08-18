@@ -1,6 +1,13 @@
 /**
  * Maximum window length the PAM server accepts for a single access request (24h). Caps both the
  * automatic path's duration and the human path's start/end span.
+ *
+ * The SDK owns this number: it applies the same cap in
+ * `AccessRequestCreateRequest::validate` before POSTing, and exposes it as
+ * `max_request_access_window_seconds()` precisely so a client validating a half-typed form does not
+ * have to keep its own copy. Replace this constant with that call once a published `sdk-internal`
+ * carries it — it is a runtime (not type-only) import, so it belongs at the call sites in
+ * `cipher-view-banner`, not in this Angular-free helper.
  */
 export const MAX_REQUEST_ACCESS_WINDOW_SECONDS = 86_400;
 
