@@ -32,7 +32,10 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
   states off `cipher_access_state()`, with an inline request form.
 - `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
-  vault-row host that renders it.
+  vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
+  the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
+  only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
+  Add a state by teaching the SDK, not by re-ranking the parts client-side.
 - `collection-access-rule-callout/` — names the rules governing a collection, inside the
   collection edit dialog.
 - `services/` — the SDK-backed implementations of the `abstractions/` contracts.
@@ -54,10 +57,14 @@ raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
 
 ## Error shape
 
-`abstractions/access-rule.ts` defines `AccessRuleError` — a flat, hand-written shape
-(`{ name: "AccessRuleError", variant, message }`) mirroring the SDK's wasm-bindgen error
-convention. Use `accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it;
-never treat it as `ErrorResponse`. The SDK splits its own failures per client —
+`abstractions/access-rule.ts` re-exports the SDK's `AccessRuleError` — a flat shape
+(`{ name: "AccessRuleError", variant, message }`) following the wasm-bindgen error convention —
+and pairs it with a LOCAL structural guard, because the SDK's own `isAccessRuleError` is a runtime
+wasm import and this directory stays type-only (see "`export type` matters" below). Use
+`accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it; never treat it as
+`ErrorResponse`. `AccessRuleErrorVariant` bridges on `NotFound`, which the Rust side maps from the
+server's 404 on the by-id calls but no published `sdk-internal` declares yet; collapse the alias on
+the next bump. The SDK splits its own failures per client —
 `AccessRequestError` (request/activate/cancel), `ApprovalError` (decide) and `AccessLeaseError`
 (read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
 through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
