@@ -1,106 +1,84 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { DatePipe } from "@angular/common";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  viewChild,
-} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ChangeDetectionStrategy, Component, computed, effect, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { map } from "rxjs";
+import { map, startWith } from "rxjs";
 
 import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
+  AsyncActionsModule,
   BadgeModule,
-  BitCellComponent,
-  BitCellDefDirective,
-  BitColumnComponent,
-  BitHeaderCellComponent,
-  BitTableToolbarComponent,
-  BitTableV2Component,
   BulkActionComponent,
   BulkActionsBarComponent,
   ButtonModule,
   CheckboxModule,
+  ChipFilterComponent,
+  ChipFilterOption,
   DialogService,
-  FilterMenuComponent,
-  FilterOptionComponent,
   IconButtonModule,
   IconModule,
   LinkModule,
   MenuModule,
   SearchModule,
   SortFn,
-  defineTable,
+  TableDataSource,
+  TableModule,
   ToastService,
-  TooltipDirective,
-  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
-  AccessRuleFilter,
   AccessRuleId,
   AccessRuleView,
   AccessRuleStatusFilter,
-  accessRuleDeactivateConfirmOptions,
-  accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessageKey,
+  accessRuleErrorMessage,
   accessRuleMatchesFilter,
-  classifyAccessRuleError,
-  copyRuleName,
   resolveCollectionNames,
-  filterRulesToToggle,
 } from "..";
-import { DurationLongPipe } from "../date/duration-long.pipe";
+import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
-import { ACCESS_RULE_TEMPLATES, AccessRuleTemplateKey } from "./access-rule-templates";
+import { AccessRuleTemplateKey } from "./access-rule-templates";
+import { AccessRuleWindowPipe } from "./access-rule-window.pipe";
 import { AccessRulesEmptyStateComponent } from "./access-rules-empty-state/access-rules-empty-state.component";
-import { ApprovalMethodPipe } from "./approval-method.pipe";
+import { ConditionBadgesPipe } from "./condition-badges.pipe";
 
 @Component({
   templateUrl: "./access-rules.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [AccessRulesService],
   imports: [
-    DatePipe,
+    CommonModule,
+    ReactiveFormsModule,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
+    AsyncActionsModule,
     BadgeModule,
-    BitCellComponent,
-    BitCellDefDirective,
-    BitColumnComponent,
-    BitHeaderCellComponent,
-    BitTableToolbarComponent,
-    BitTableV2Component,
     BulkActionComponent,
     BulkActionsBarComponent,
     ButtonModule,
     CheckboxModule,
-    FilterMenuComponent,
-    FilterOptionComponent,
+    ChipFilterComponent,
     HeaderModule,
     IconButtonModule,
     IconModule,
     LinkModule,
     MenuModule,
     SearchModule,
-    TooltipDirective,
-    TypographyModule,
+    TableModule,
     I18nPipe,
     RelativeTimePipe,
-    DurationLongPipe,
-    ApprovalMethodPipe,
+    DurationShortPipe,
+    ConditionBadgesPipe,
+    AccessRuleWindowPipe,
   ],
 })
 export class AccessRulesComponent {
@@ -119,39 +97,42 @@ export class AccessRulesComponent {
     initialValue: [] as AccessRuleView[],
   });
 
-  protected readonly templates = ACCESS_RULE_TEMPLATES;
+  protected readonly dataSource = new TableDataSource<AccessRuleView>();
+  /**
+   * The filtered and sorted rows, which select-all spans. Sharing `connect()` with `bit-table` is
+   * safe, since it is idempotent.
+   */
+  protected readonly processedRows = toSignal(this.dataSource.connect(), {
+    initialValue: [] as AccessRuleView[],
+  });
 
-  protected readonly table = defineTable<AccessRuleView, "select" | "actions">(this.rules);
+  // --- Toolbar filters ---
+  protected readonly filterForm = new FormGroup({
+    search: new FormControl("", { nonNullable: true }),
+    status: new FormControl<AccessRuleStatusFilter | null>(null),
+    collection: new FormControl<string | null>(null),
+  });
 
-  private readonly rulesTable =
-    viewChild<BitTableV2Component<AccessRuleView, "select" | "actions", AccessRuleFilterValues>>(
-      BitTableV2Component,
-    );
+  private readonly filterInputs = toSignal(
+    this.filterForm.valueChanges.pipe(
+      startWith(null),
+      map(() => this.filterForm.getRawValue()),
+    ),
+    { requireSync: true },
+  );
 
-  /** The table's row test, given the search term and the chips' selections keyed by chip. */
-  protected readonly rowMatchesFilter = (
-    rule: AccessRuleView,
-    values: AccessRuleFilterValues,
-  ): boolean => {
-    const ruleCollectionIds = rule.collections.map(uuidAsString);
-    return accessRuleMatchesFilter(
-      { name: rule.name, enabled: rule.enabled, collections: ruleCollectionIds },
-      resolveCollectionNames(ruleCollectionIds, this.collections()),
-      toAccessRuleFilter(values),
-    );
-  };
-
-  /** The rows the filters leave visible, which select-all spans. */
-  private readonly selectableRows = computed(() => this.rulesTable()?.filtered() ?? []);
-
-  protected readonly statusOptions: { label: string; value: AccessRuleStatusFilter }[] = [
-    { label: this.i18nService.t("pamAccessRuleActive"), value: "enabled" },
-    { label: this.i18nService.t("pamAccessRuleInactive"), value: "disabled" },
+  protected readonly statusOptions: ChipFilterOption<AccessRuleStatusFilter>[] = [
+    {
+      label: this.i18nService.t("pamAccessRuleActive"),
+      value: "enabled",
+      icon: "bwi-check-circle",
+    },
+    { label: this.i18nService.t("pamAccessRuleInactive"), value: "disabled", icon: "bwi-circle" },
   ];
 
-  protected readonly collectionOptions = computed<{ label: string; value: string }[]>(() =>
+  protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
     this.collections()
-      .map((c) => ({ label: c.name, value: c.id }))
+      .map((c) => ({ label: c.name, value: c.id, icon: "bwi-collection-shared" as const }))
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
@@ -162,7 +143,7 @@ export class AccessRulesComponent {
   }
 
   protected allSelected(): boolean {
-    const rows = this.selectableRows();
+    const rows = this.processedRows();
     return rows.length > 0 && rows.every((r) => this.selection.isSelected(r.id));
   }
 
@@ -179,6 +160,23 @@ export class AccessRulesComponent {
     // Also reloads on return from the create or edit page, since the component remounts.
     effect(() => {
       void this.accessRules.load(this.organizationId());
+    });
+
+    effect(() => {
+      this.dataSource.data = this.rules();
+    });
+
+    effect(() => {
+      const { search, status, collection } = this.filterInputs();
+      const text = search.trim().toLowerCase();
+      this.dataSource.filter = (rule) => {
+        const collectionIds = rule.collections.map(uuidAsString);
+        return accessRuleMatchesFilter(
+          { name: rule.name, enabled: rule.enabled, collections: collectionIds },
+          resolveCollectionNames(collectionIds, this.collections()),
+          { text, status, collectionId: collection },
+        );
+      };
     });
   }
 
@@ -198,67 +196,8 @@ export class AccessRulesComponent {
   protected readonly openEdit = (rule: AccessRuleView): Promise<boolean> =>
     this.router.navigate([rule.id], { relativeTo: this.route });
 
-  /**
-   * Created without confirmation, since the copy carries no collections and governs nothing yet.
-   * Backing out of the edit page leaves it in the table.
-   */
-  protected readonly makeCopy = async (rule: AccessRuleView): Promise<void> => {
-    let created: AccessRuleView;
-    try {
-      created = await this.createCopy(rule);
-    } catch (e) {
-      this.showError(e);
-      return;
-    }
-
-    // Outside the try, so a failed navigation can't follow the success toast with an error.
-    this.toastService.showToast({
-      variant: "success",
-      message: this.i18nService.t("pamAccessRuleCopyCreated"),
-    });
-    // `renaming` opens the edit page with the name field focused.
-    await this.router.navigate([created.id], {
-      relativeTo: this.route,
-      queryParams: { renaming: true },
-    });
-  };
-
-  /**
-   * Retries once against a refreshed list if the name is taken, since {@link copyRuleName} picks a
-   * free name from the rules this page loaded.
-   */
-  private async createCopy(rule: AccessRuleView): Promise<AccessRuleView> {
-    try {
-      return await this.accessRules.copy(rule, this.copyNameFor(rule));
-    } catch (e) {
-      const outcome = classifyAccessRuleError(e);
-      if (outcome.kind !== "mapped" || outcome.messageKey !== "pamAccessRuleErrorNameTaken") {
-        throw e;
-      }
-      await this.accessRules.load(this.organizationId());
-      return await this.accessRules.copy(rule, this.copyNameFor(rule));
-    }
-  }
-
-  private copyNameFor(rule: AccessRuleView): string {
-    return copyRuleName(
-      rule.name,
-      this.rules().map((r) => r.name),
-      (key, name, count) => this.i18nService.t(key, name, count),
-    );
-  }
-
   protected readonly toggleEnabled = async (rule: AccessRuleView): Promise<void> => {
     const nextEnabled = !rule.enabled;
-    // Only deactivating asks first, since it changes who can get in; activating only adds gating.
-    if (!nextEnabled) {
-      const confirmed = await this.dialogService.openSimpleDialog(
-        accessRuleDeactivateConfirmOptions(),
-      );
-      if (!confirmed) {
-        return;
-      }
-    }
     try {
       await this.accessRules.setEnabled(rule, nextEnabled);
       this.toastService.showToast({
@@ -273,18 +212,21 @@ export class AccessRulesComponent {
   };
 
   protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog(
-      accessRuleDeleteConfirmOptions(rule.name),
-    );
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamAccessRuleDeleteConfirmTitle" },
+      content: {
+        key: "pamAccessRuleDeleteConfirmContent",
+        placeholders: [rule.name],
+      },
+      acceptButtonText: { key: "delete" },
+      cancelButtonText: { key: "cancel" },
+      type: "warning",
+    });
     if (!confirmed) {
       return;
     }
     try {
       await this.accessRules.delete(rule);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamAccessRuleDeleted"),
-      });
     } catch (e) {
       this.showError(e);
     }
@@ -295,17 +237,19 @@ export class AccessRulesComponent {
       this.selection.clear();
       return;
     }
-    this.selection.select(...this.selectableRows().map((r) => r.id));
+    this.selection.select(...this.processedRows().map((r) => r.id));
   }
 
   protected readonly clearSelection = (): void => {
     this.selection.clear();
   };
 
-  protected readonly bulkActivate = (): void => {
+  // --- Bulk actions ---
+
+  protected readonly bulkEnable = (): void => {
     void this.bulkSetEnabled(true);
   };
-  protected readonly bulkDeactivate = (): void => {
+  protected readonly bulkDisable = (): void => {
     void this.bulkSetEnabled(false);
   };
   protected readonly bulkDelete = (): void => {
@@ -313,19 +257,8 @@ export class AccessRulesComponent {
   };
 
   private async bulkSetEnabled(enabled: boolean): Promise<void> {
-    const selected = this.selectedRules();
-    // Confirms as the row menu does, counting only the rules that will change.
-    const deactivating = enabled ? [] : filterRulesToToggle(selected, false);
-    if (deactivating.length > 0) {
-      const confirmed = await this.dialogService.openSimpleDialog(
-        accessRuleDeactivateConfirmOptions(deactivating.length),
-      );
-      if (!confirmed) {
-        return;
-      }
-    }
     try {
-      const changed = await this.accessRules.setManyEnabled(selected, enabled);
+      const changed = await this.accessRules.setManyEnabled(this.selectedRules(), enabled);
       this.clearSelection();
       if (changed > 0) {
         this.toastService.showToast({
@@ -351,7 +284,7 @@ export class AccessRulesComponent {
       },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
-      type: "danger",
+      type: "warning",
     });
     if (!confirmed) {
       return;
@@ -364,45 +297,21 @@ export class AccessRulesComponent {
         message: this.i18nService.t("pamAccessRulesDeleted"),
       });
     } catch (e) {
-      // The deletes that landed are gone from the table; keep only the failures selected.
-      const remaining = new Set(this.rules().map((r) => r.id));
-      this.selection.deselect(...this.selection.selected.filter((id) => !remaining.has(id)));
       this.showError(e);
     }
   }
 
   private selectedRules(): AccessRuleView[] {
-    return this.selectableRows().filter((r) => this.selection.isSelected(r.id));
+    return this.processedRows().filter((r) => this.selection.isSelected(r.id));
   }
 
-  /**
-   * Goes through the classifier, so the SDK's raw message (the server's serialized response) never
-   * reaches the toast.
-   */
   private showError(e: unknown): void {
-    this.toastService.showToast({
-      variant: "error",
-      message: this.i18nService.t(accessRuleErrorMessageKey(e)),
-    });
+    const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
+    this.toastService.showToast({ variant: "error", message });
   }
 }
 
-/** The shape of the table's `filterValues()`, keyed by each toolbar control's `key`. */
-type AccessRuleFilterValues = {
-  search?: string;
-  status?: AccessRuleStatusFilter | null;
-  /** Collection ids. Multi-select: a rule matches any selected collection. */
-  collection?: string[] | null;
-};
-
-function toAccessRuleFilter(values: AccessRuleFilterValues): AccessRuleFilter {
-  return {
-    text: (values.search ?? "").trim().toLowerCase(),
-    status: values.status ?? null,
-    collectionIds: values.collection ?? [],
-  };
-}
-
+/** A rule's revision date as epoch milliseconds for sorting; 0 when the date is invalid. */
 function revisionDateMs(rule: AccessRuleView): number {
   const ms = Date.parse(rule.revisionDate);
   return Number.isNaN(ms) ? 0 : ms;
