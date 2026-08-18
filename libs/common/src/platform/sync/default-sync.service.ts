@@ -42,6 +42,7 @@ import { withPasswordManagerSdk } from "../../key-management/utils";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
+import { Send } from "../../tools/send/models/domain/send";
 import { SendResponse } from "../../tools/send/models/response/send.response";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
@@ -101,8 +102,8 @@ export class DefaultSyncService extends CoreSyncService {
     tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
-    private configService: ConfigService,
-    private sdkService: SdkService,
+    configService: ConfigService,
+    sdkService: SdkService,
   ) {
     super(
       tokenService,
@@ -118,6 +119,8 @@ export class DefaultSyncService extends CoreSyncService {
       sendService,
       sendApiService,
       stateProvider,
+      configService,
+      sdkService,
     );
   }
 
@@ -191,6 +194,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncCollections(response.collections, response.profile.id);
       await this.syncCiphers(response.ciphers, response.profile.id);
       await this.syncSends(response.sends, response.profile.id);
+      await this.runSendSyncHandler(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
       await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
@@ -456,5 +460,29 @@ export class DefaultSyncService extends CoreSyncService {
         accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
       }),
     );
+  }
+
+  /**
+   * Persists the sync response's sends into the SDK's own local repository via the Send sync
+   * handler, so `sends().get()`/`fetch()`/rotation have fresh local data. This is additive to
+   * {@link syncSends}, which remains the authoritative read path via `InternalSendService`.
+   *
+   * Unlike {@link runCryptoSyncHandler}, failures here are logged rather than propagated: the
+   * SDK's local send repository is a warm cache, not the read path, so a failure must not block
+   * the rest of the sync. Gated behind `Pm30110SdkSendsApi`; a no-op when the flag is off.
+   */
+  private async runSendSyncHandler(response: SendResponse[], userId: UserId) {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi))) {
+      return;
+    }
+
+    try {
+      const sdkSends = response.map((r) => new Send(new SendData(r)).toSdkSend());
+      await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+        sdk.send_sync_handler().on_sync(sdkSends),
+      );
+    } catch (e) {
+      this.logService.error(`Send sync handler failed: ${e}`);
+    }
   }
 }

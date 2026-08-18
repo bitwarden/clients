@@ -21,6 +21,7 @@ import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
@@ -32,8 +33,10 @@ import { SendTextApi } from "../models/api/send-text.api";
 import { SendFileData } from "../models/data/send-file.data";
 import { SendTextData } from "../models/data/send-text.data";
 import { SendData } from "../models/data/send.data";
+import { Send } from "../models/domain/send";
 import { SendTextView } from "../models/view/send-text.view";
 import { SendView } from "../models/view/send.view";
+import { AuthType } from "../types/auth-type";
 import { SendType } from "../types/send-type";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
@@ -54,6 +57,7 @@ describe("SendService", () => {
   const encryptService = mock<EncryptService>();
   const environmentService = mock<EnvironmentService>();
   const configService = mock<ConfigService>();
+  const sdkService = mock<SdkService>();
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
 
@@ -104,6 +108,7 @@ describe("SendService", () => {
       sendStateProvider,
       encryptService,
       configService,
+      sdkService,
     );
   });
 
@@ -535,6 +540,88 @@ describe("SendService", () => {
       await expect(sendService.getRotatedData(originalUserKey, null, mockUserId)).rejects.toThrow(
         "New user key is required for rotation.",
       );
+    });
+
+    it("uses the manual decrypt/re-encrypt path when the SDK sends flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      expect(encryptService.decryptBytes).toHaveBeenCalled();
+      expect(encryptService.encryptBytes).toHaveBeenCalled();
+      expect(sdkService.userClient$).not.toHaveBeenCalled();
+    });
+
+    describe("with the SDK sends flag on", () => {
+      const sendGuid = Utils.newGuid();
+      let encryptSendForRotation: jest.Mock;
+      let decryptedView: SendView;
+      let decryptSpy: jest.SpyInstance;
+
+      afterEach(() => {
+        decryptSpy.mockRestore();
+      });
+
+      beforeEach(() => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        // Mocks are not auto-cleared between tests in this suite; reset the call counts the
+        // legacy-path assertions rely on so the SDK path can assert they are never called.
+        encryptService.decryptBytes.mockClear();
+        encryptService.encryptBytes.mockClear();
+
+        decryptedView = new SendView();
+        decryptedView.id = sendGuid;
+        decryptedView.type = SendType.Text;
+        decryptedView.name = "Test Send";
+        decryptedView.key = new Uint8Array(16);
+        decryptedView.text = new SendTextView();
+        decryptedView.text.text = "decrypted text";
+        decryptedView.deletionDate = null;
+        decryptedView.emails = [];
+        decryptedView.authType = AuthType.None;
+        decryptSpy = jest.spyOn(Send.prototype, "decrypt").mockResolvedValue(decryptedView);
+
+        const rotatedSdkSend = {
+          id: sendGuid,
+          accessId: "1",
+          name: "2.rotatedName",
+          notes: "2.rotatedNotes",
+          key: "2.rotatedKey",
+          type: SendType.Text,
+          text: { text: "2.rotatedText", hidden: false },
+          accessCount: 2,
+          disabled: false,
+          hideEmail: false,
+          revisionDate: "2024-09-04T00:00:00.000Z",
+          deletionDate: "2024-09-04T00:00:00.000Z",
+          authType: AuthType.None,
+        };
+        encryptSendForRotation = jest.fn().mockResolvedValue(rotatedSdkSend);
+        const client = {
+          take: () => ({
+            value: { sends: () => ({ encrypt_send_for_rotation: encryptSendForRotation }) },
+            [Symbol.dispose]: jest.fn(),
+          }),
+        };
+        (sdkService.userClient$ as jest.Mock).mockReturnValue(of(client));
+      });
+
+      it("rotates each send through the SDK and returns SendWithIdRequests", async () => {
+        const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+        expect(encryptSendForRotation).toHaveBeenCalledWith(
+          decryptedView.toSdkSendView(),
+          newUserKey.toBase64(),
+        );
+        expect(result).toMatchObject([{ id: sendGuid, key: "2.rotatedKey" }]);
+      });
+
+      it("does not use the manual decrypt/re-encrypt path", async () => {
+        await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+        expect(encryptService.decryptBytes).not.toHaveBeenCalled();
+        expect(encryptService.encryptBytes).not.toHaveBeenCalled();
+      });
     });
   });
 

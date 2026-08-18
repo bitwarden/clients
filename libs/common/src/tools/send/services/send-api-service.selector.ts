@@ -92,10 +92,11 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   /**
    * Removes the auth from a send and updates local state.
    *
-   * Under the SDK flag this calls the V2 endpoint, which removes **all auth** on the
-   * send (password and any other auth type), not just the password. The legacy path
-   * uses V1, which removes only the password. Callers that need the V1 semantics
-   * specifically should keep the flag off until V2 ships everywhere.
+   * Both the legacy and SDK paths behave identically: they remove **all auth** on the send
+   * (password or email OTP). The server collapsed the old password-only
+   * `PUT /sends/{id}/remove-password` endpoint into remove-all-auth logic (server PR #6929,
+   * PM-31497), so there is no longer a password-only ("V1") behavior — the feature flag does
+   * not change what this does server-side.
    */
   async removePassword(id: string): Promise<any> {
     return (await this.getService()).removePassword(id);
@@ -131,9 +132,9 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
    * also refreshes local state; this lower-level method returns a wire-encrypted
    * `SendResponse` the SDK cannot produce.
    *
-   * Note that the legacy `PUT /sends/{id}/remove-password` endpoint is V1 — it removes
-   * only the password, not all auth types. See {@link removePassword} for the V2
-   * (all-auth) behavior under the SDK flag.
+   * The `PUT /sends/{id}/remove-password` endpoint removes all auth on the send, not just the
+   * password: the server collapsed the old password-only behavior into remove-all-auth logic
+   * (server PR #6929, PM-31497). There is no separate "V1" password-only endpoint.
    */
   async putSendRemovePassword(id: string): Promise<SendResponse> {
     return this.sendApiService.putSendRemovePassword(id);
