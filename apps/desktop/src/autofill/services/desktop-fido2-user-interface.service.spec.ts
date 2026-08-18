@@ -1,6 +1,6 @@
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -10,6 +10,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherListView } from "@bitwarden/sdk-internal";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ModalModeState } from "../../platform/models/domain/window-state";
@@ -73,6 +74,11 @@ describe("DesktopFido2UserInterfaceSession", () => {
 
     activeAccountStatus$ = new BehaviorSubject<AuthenticationStatus>(AuthenticationStatus.Unlocked);
     authService.activeAccountStatus$ = activeAccountStatus$;
+    accountService.activeAccount$ = new BehaviorSubject({ id: "user-1" } as any);
+
+    // Default to a vault with no credentials. Tests that need the ceremony to
+    // find one stub this with the cipher they expect it to retrieve.
+    cipherService.cipherListViews$.mockReturnValue(of([]));
 
     desktopSettingsService.modalMode$ = new BehaviorSubject<ModalModeState>({
       isModalModeActive: false,
@@ -143,15 +149,15 @@ describe("DesktopFido2UserInterfaceSession", () => {
       masterPasswordRepromptRequired: false,
     };
 
-    it("returns the single cipher without showing UI when user presence is assumed", async () => {
+    it("returns the single cipher without showing UI when user presence is assumed and user verification is not required", async () => {
       await expect(
         session.pickCredential({
           cipherIds: ["cipher-1"],
-          userVerification: true,
+          userVerification: false,
           assumeUserPresence: true,
           masterPasswordRepromptRequired: false,
         }),
-      ).resolves.toEqual({ cipherId: "cipher-1", userVerified: true });
+      ).resolves.toEqual({ cipherId: "cipher-1", userVerified: false });
 
       expect(desktopSettingsService.setModalMode).not.toHaveBeenCalledWith(
         true,
@@ -160,16 +166,34 @@ describe("DesktopFido2UserInterfaceSession", () => {
       );
     });
 
-    it("leaves the window the user already had open alone when no UI was shown", async () => {
-      accountService.activeAccount$ = new BehaviorSubject({
-        id: "user-1",
-      } as any);
+    it("leaves the window the user already had open alone when no prompt was needed", async () => {
       await session.pickCredential({
         cipherIds: ["cipher-1"],
-        userVerification: true,
+        userVerification: false,
         assumeUserPresence: true,
         masterPasswordRepromptRequired: false,
       });
+
+      expect(router.navigate).not.toHaveBeenCalled();
+      expect(accountService.setShowHeader).not.toHaveBeenCalled();
+    });
+
+    it("leaves the window the user already had open alone when only the OS prompt was shown", async () => {
+      // The lone credential is verified through the OS, so the ceremony finishes
+      // without routing to any of our own UI.
+      cipherService.cipherListViews$.mockReturnValue(
+        of([Object.assign(new CipherView(), { id: "cipher-1" })] as unknown as CipherListView[]),
+      );
+      userVerificationService.verify.mockResolvedValue(true);
+
+      await expect(
+        session.pickCredential({
+          cipherIds: ["cipher-1"],
+          userVerification: true,
+          assumeUserPresence: false,
+          masterPasswordRepromptRequired: false,
+        }),
+      ).resolves.toEqual({ cipherId: "cipher-1", userVerified: true });
 
       expect(router.navigate).not.toHaveBeenCalled();
       expect(accountService.setShowHeader).not.toHaveBeenCalled();
@@ -376,10 +400,6 @@ describe("DesktopFido2UserInterfaceSession", () => {
   describe("user verification", () => {
     const singleCipherId = "cipher-1";
 
-    beforeEach(() => {
-      accountService.activeAccount$ = new BehaviorSubject({ id: "user-1" } as any);
-    });
-
     const confirmNewCredentialParams = {
       credentialName: "Example",
       userName: "user@example.com",
@@ -397,144 +417,259 @@ describe("DesktopFido2UserInterfaceSession", () => {
         masterPasswordRepromptRequired: true,
       });
 
-    it("attaches the prompt to the Bitwarden window while our own UI is showing", async () => {
-      userVerificationService.verify.mockResolvedValue(true);
+    /** Makes `singleCipherId` the only credential in the vault. */
+    const stubSingleCipher = () => {
+      const cipher = new CipherView();
+      cipher.id = singleCipherId;
+      cipherService.cipherListViews$.mockReturnValue(of([cipher] as unknown as CipherListView[]));
+    };
 
-      const result = session.confirmNewCredential(confirmNewCredentialParams);
-      await tick();
-      session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
-      await result;
+    describe("assertion", () => {
+      /** Picks the lone credential, which needs no picker UI. */
+      const pickSingleCredential = () =>
+        session.pickCredential({
+          cipherIds: [singleCipherId],
+          userVerification: true,
+          assumeUserPresence: false,
+          masterPasswordRepromptRequired: false,
+        });
 
-      expect(userVerificationService.verify).toHaveBeenCalledWith(
-        expect.objectContaining({
-          operation: "overwrite",
-          rpId: "example.com",
-          requestContext: "request-context",
-          windowHandle: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
-        }),
-        expect.anything(),
-      );
-    });
+      it("returns the single cipher as verified when the OS verifies the user, without showing UI", async () => {
+        stubSingleCipher();
+        userVerificationService.verify.mockResolvedValue(true);
 
-    it("rejects credential creation as NotAllowed when the user dismisses the prompt", async () => {
-      userVerificationService.verify.mockRejectedValue(new UserVerificationCanceled());
+        await expect(pickSingleCredential()).resolves.toEqual({
+          cipherId: singleCipherId,
+          userVerified: true,
+        });
+        expect(desktopSettingsService.setModalMode).not.toHaveBeenCalledWith(
+          true,
+          expect.anything(),
+          expect.anything(),
+        );
+      });
 
-      const result = session.confirmNewCredential(confirmNewCredentialParams);
-      await tick();
-      session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
+      it("still verifies through the OS when user presence is assumed but verification is required", async () => {
+        stubSingleCipher();
+        userVerificationService.verify.mockResolvedValue(true);
 
-      await expect(result).rejects.toMatchObject({
-        errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+        await expect(
+          session.pickCredential({
+            cipherIds: [singleCipherId],
+            userVerification: true,
+            assumeUserPresence: true,
+            masterPasswordRepromptRequired: false,
+          }),
+        ).resolves.toEqual({ cipherId: singleCipherId, userVerified: true });
+
+        expect(userVerificationService.verify).toHaveBeenCalled();
+      });
+
+      it("attaches the prompt to the client window while our own UI is hidden", async () => {
+        stubSingleCipher();
+        userVerificationService.verify.mockResolvedValue(true);
+
+        await pickSingleCredential();
+
+        expect(userVerificationService.verify).toHaveBeenCalledWith(
+          expect.objectContaining({
+            operation: "assertion",
+            rpId: "example.com",
+            requestContext: "request-context",
+            windowHandle: new Uint8Array([8, 7, 6, 5, 4, 3, 2, 1]),
+          }),
+          expect.anything(),
+        );
+      });
+
+      it("rejects the ceremony as NotAllowed when the user dismisses the silent prompt", async () => {
+        stubSingleCipher();
+        userVerificationService.verify.mockRejectedValue(new UserVerificationCanceled());
+
+        await expect(pickSingleCredential()).rejects.toMatchObject({
+          errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+        });
+      });
+
+      it("falls back to the picker when silent verification fails for a recoverable reason", async () => {
+        stubSingleCipher();
+        userVerificationService.verify.mockRejectedValueOnce(new Error("no biometrics enrolled"));
+        userVerificationService.verify.mockResolvedValue(true);
+
+        const result = pickSingleCredential();
+        await tick();
+        session.confirmChosenCipher(Object.assign(new CipherView(), { id: singleCipherId }));
+
+        await expect(result).resolves.toEqual({
+          cipherId: singleCipherId,
+          userVerified: true,
+        });
+        expect(desktopSettingsService.setModalMode).toHaveBeenCalledWith(
+          true,
+          expect.anything(),
+          expect.anything(),
+        );
+      });
+
+      it("does not prompt when the user unlocked their vault during this assertion ceremony", async () => {
+        stubSingleCipher();
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
+
+        const unlocked = session.ensureUnlockedVault();
+        await tick();
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        await unlocked;
+
+        await expect(pickSingleCredential()).resolves.toEqual({
+          cipherId: singleCipherId,
+          userVerified: true,
+        });
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
       });
     });
 
-    it("does not prompt when the relying party did not ask for verification", async () => {
-      const result = session.confirmNewCredential({
-        ...confirmNewCredentialParams,
-        userVerification: false,
+    describe("registration", () => {
+      it("attaches the prompt to the Bitwarden window while our own UI is showing", async () => {
+        userVerificationService.verify.mockResolvedValue(true);
+
+        const result = session.confirmNewCredential(confirmNewCredentialParams);
+        await tick();
+        session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
+        await result;
+
+        expect(userVerificationService.verify).toHaveBeenCalledWith(
+          expect.objectContaining({
+            operation: "overwrite",
+            rpId: "example.com",
+            requestContext: "request-context",
+            windowHandle: new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]),
+          }),
+          expect.anything(),
+        );
       });
-      await tick();
-      session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
 
-      await expect(result).resolves.toEqual({ cipherId: "c1", userVerified: false });
-      expect(userVerificationService.verify).not.toHaveBeenCalled();
-    });
+      it("rejects credential creation as NotAllowed when the user dismisses the prompt", async () => {
+        userVerificationService.verify.mockRejectedValue(new UserVerificationCanceled());
 
-    it("does not prompt when the user unlocked their vault during this ceremony", async () => {
-      activeAccountStatus$.next(AuthenticationStatus.Locked);
+        const result = session.confirmNewCredential(confirmNewCredentialParams);
+        await tick();
+        session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
 
-      const unlocked = session.ensureUnlockedVault();
-      await tick();
-      activeAccountStatus$.next(AuthenticationStatus.Unlocked);
-      await unlocked;
-
-      const result = session.confirmNewCredential(confirmNewCredentialParams);
-      await tick();
-      session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
-
-      await expect(result).resolves.toEqual({ cipherId: "c1", userVerified: true });
-      expect(userVerificationService.verify).not.toHaveBeenCalled();
-    });
-
-    it("verifies via master-password reprompt instead of the OS for a reprompt-protected cipher", async () => {
-      passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
-
-      const result = pickCredentialFromList();
-      await tick();
-      session.confirmChosenCipher(repromptCipher(singleCipherId));
-
-      await expect(result).resolves.toEqual({ cipherId: singleCipherId, userVerified: true });
-      expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
-      expect(userVerificationService.verify).not.toHaveBeenCalled();
-    });
-
-    it("rejects the ceremony as NotAllowed when the master-password reprompt is dismissed", async () => {
-      passwordRepromptService.showPasswordPrompt.mockResolvedValue(false);
-
-      const result = pickCredentialFromList();
-      await tick();
-      session.confirmChosenCipher(repromptCipher(singleCipherId));
-
-      await expect(result).rejects.toMatchObject({
-        errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+        await expect(result).rejects.toMatchObject({
+          errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+        });
       });
-      expect(userVerificationService.verify).not.toHaveBeenCalled();
-    });
 
-    it("ignores the master password reprompt flag and verifies through the OS when the account has no master password", async () => {
-      passwordRepromptService.enabled.mockResolvedValue(false);
-      userVerificationService.verify.mockResolvedValue(true);
+      it("does not prompt when the relying party did not ask for verification", async () => {
+        const result = session.confirmNewCredential({
+          ...confirmNewCredentialParams,
+          userVerification: false,
+        });
+        await tick();
+        session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
 
-      const result = pickCredentialFromList();
-      await tick();
-      session.confirmChosenCipher(repromptCipher(singleCipherId));
-
-      await expect(result).resolves.toEqual({ cipherId: singleCipherId, userVerified: true });
-      expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
-      expect(userVerificationService.verify).toHaveBeenCalled();
-    });
-
-    it("refuses the ceremony when the cipher uses an unrecognized reprompt type", async () => {
-      const result = pickCredentialFromList();
-      await tick();
-      session.confirmChosenCipher(
-        Object.assign(new CipherView(), { id: singleCipherId, reprompt: 99 }),
-      );
-
-      await expect(result).rejects.toMatchObject({
-        errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+        await expect(result).resolves.toEqual({ cipherId: "c1", userVerified: false });
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
       });
-      expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
-      expect(userVerificationService.verify).not.toHaveBeenCalled();
-    });
 
-    it("verifies a reprompt-protected cipher via master-password reprompt during creation", async () => {
-      passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
-      const existing = repromptCipher(singleCipherId);
+      it("does not prompt when the user unlocked their vault during this registration ceremony", async () => {
+        activeAccountStatus$.next(AuthenticationStatus.Locked);
 
-      const result = session.confirmNewCredential({
-        ...confirmNewCredentialParams,
-        userVerification: false,
+        const unlocked = session.ensureUnlockedVault();
+        await tick();
+        activeAccountStatus$.next(AuthenticationStatus.Unlocked);
+        await unlocked;
+
+        const result = session.confirmNewCredential(confirmNewCredentialParams);
+        await tick();
+        session.notifyConfirmCreateCredential(true, Object.assign(new CipherView(), { id: "c1" }));
+
+        await expect(result).resolves.toEqual({ cipherId: "c1", userVerified: true });
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
       });
-      await tick();
-      session.notifyConfirmCreateCredential(true, existing);
-
-      await expect(result).resolves.toEqual({ cipherId: singleCipherId, userVerified: true });
-      expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
-      expect(userVerificationService.verify).not.toHaveBeenCalled();
-      expect(cipherService.updateWithServer).toHaveBeenCalledWith(existing, "user-1");
     });
 
-    it("skips the master-password reprompt when the account has no master password", async () => {
-      passwordRepromptService.enabled.mockResolvedValue(false);
-      userVerificationService.verify.mockResolvedValue(true);
+    describe("master password reprompt", () => {
+      it("verifies a reprompt-protected cipher via master-password reprompt during assertion", async () => {
+        passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
 
-      const result = session.confirmNewCredential(confirmNewCredentialParams);
-      await tick();
-      session.notifyConfirmCreateCredential(true, repromptCipher(singleCipherId));
-      await result;
+        const result = pickCredentialFromList();
+        await tick();
+        session.confirmChosenCipher(repromptCipher(singleCipherId));
 
-      expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        await expect(result).resolves.toEqual({ cipherId: singleCipherId, userVerified: true });
+        expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
+      });
+
+      it("verifies a reprompt-protected cipher via master-password reprompt during creation", async () => {
+        passwordRepromptService.showPasswordPrompt.mockResolvedValue(true);
+        const existing = repromptCipher(singleCipherId);
+
+        const result = session.confirmNewCredential({
+          ...confirmNewCredentialParams,
+          userVerification: false,
+        });
+        await tick();
+        session.notifyConfirmCreateCredential(true, existing);
+
+        await expect(result).resolves.toEqual({ cipherId: singleCipherId, userVerified: true });
+        expect(passwordRepromptService.showPasswordPrompt).toHaveBeenCalled();
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
+        expect(cipherService.updateWithServer).toHaveBeenCalledWith(existing, "user-1");
+      });
+
+      it("rejects the assertion as NotAllowed when the master-password reprompt is dismissed", async () => {
+        passwordRepromptService.showPasswordPrompt.mockResolvedValue(false);
+
+        const result = pickCredentialFromList();
+        await tick();
+        session.confirmChosenCipher(repromptCipher(singleCipherId));
+
+        await expect(result).rejects.toMatchObject({
+          errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+        });
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
+      });
+
+      it("ignores the reprompt flag and verifies through the OS during assertion when the account has no master password", async () => {
+        passwordRepromptService.enabled.mockResolvedValue(false);
+        userVerificationService.verify.mockResolvedValue(true);
+
+        const result = pickCredentialFromList();
+        await tick();
+        session.confirmChosenCipher(repromptCipher(singleCipherId));
+
+        await expect(result).resolves.toEqual({ cipherId: singleCipherId, userVerified: true });
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(userVerificationService.verify).toHaveBeenCalled();
+      });
+
+      it("skips the master-password reprompt during creation when the account has no master password", async () => {
+        passwordRepromptService.enabled.mockResolvedValue(false);
+        userVerificationService.verify.mockResolvedValue(true);
+
+        const result = session.confirmNewCredential(confirmNewCredentialParams);
+        await tick();
+        session.notifyConfirmCreateCredential(true, repromptCipher(singleCipherId));
+        await result;
+
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+      });
+
+      it("refuses the ceremony when the cipher uses an unrecognized reprompt type", async () => {
+        const result = pickCredentialFromList();
+        await tick();
+        session.confirmChosenCipher(
+          Object.assign(new CipherView(), { id: singleCipherId, reprompt: 99 }),
+        );
+
+        await expect(result).rejects.toMatchObject({
+          errorCode: Fido2AuthenticatorErrorCode.NotAllowed,
+        });
+        expect(passwordRepromptService.showPasswordPrompt).not.toHaveBeenCalled();
+        expect(userVerificationService.verify).not.toHaveBeenCalled();
+      });
     });
   });
 });
