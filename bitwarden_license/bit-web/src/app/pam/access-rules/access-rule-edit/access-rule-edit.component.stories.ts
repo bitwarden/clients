@@ -1,4 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, RouterModule } from "@angular/router";
 import {
   applicationConfig,
@@ -13,7 +14,7 @@ import { getByText, userEvent } from "storybook/test";
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DialogModule, DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
@@ -156,9 +157,14 @@ export const ValidationSummary: Story = {
 
 /**
  * The discard confirmation. Typing into the name dirties the form, so Cancel asks before
- * leaving; the dialog stub declines, which is the "stay on the form" branch.
+ * leaving. `DialogModule` supplies the real {@link DialogService} in place of the default
+ * stub, so the dialog itself renders — it is what this story is for.
  */
 export const DiscardConfirmation: Story = {
+  decorators: [
+    applicationConfig({ providers: [provideAnimations()] }),
+    moduleMetadata({ imports: [DialogModule] }),
+  ],
   play: async (context) => {
     const canvas = context.canvasElement;
     const name = canvas.querySelector("#access-rule-edit_input_name") as HTMLInputElement;

@@ -25,7 +25,6 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 // treating every non-empty row as valid keeps seeded IP-allowlist forms submittable.
 const cidrValidationStub: CidrValidationService = { isValid: () => true };
 
-// Only the delete flow opens a dialog; specs that exercise it provide their own answer.
 const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
 
 const organizationServiceStub = (canAccessEventLogs = true) => ({
@@ -655,6 +654,17 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(navigate).not.toHaveBeenCalled();
     });
 
+    it("moves focus to the callout, which renders far above the Save button", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(new Error("boom"));
+
+      await submitAndRender();
+      await fixture.whenStable();
+
+      expect(document.activeElement).toBe(callout());
+    });
+
     it("keeps everything the user entered when the save fails", async () => {
       await render();
       fillRequiredFields();
@@ -734,10 +744,10 @@ describe("AccessRuleEditComponent — form states", () => {
 
       expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: { key: "pamAccessRuleDiscardConfirmTitle" },
-          content: { key: "pamAccessRuleDiscardConfirmContent" },
-          acceptButtonText: { key: "pamAccessRuleDiscard" },
-          cancelButtonText: { key: "cancel" },
+          title: { key: "discardEditsTitle" },
+          content: { key: "discardEditsConfirmation" },
+          acceptButtonText: { key: "discardEdits" },
+          cancelButtonText: { key: "keepEditing" },
           type: "warning",
         }),
       );
@@ -754,6 +764,30 @@ describe("AccessRuleEditComponent — form states", () => {
 
       expect(navigate).not.toHaveBeenCalled();
       expect(controls().name.value).toBe("Half-finished rule");
+    });
+
+    it("asks again when the route is left by any other means", async () => {
+      await render();
+      controls().name.setValue("Half-finished rule");
+      controls().name.markAsDirty();
+      dialog.openSimpleDialog.mockResolvedValue(false);
+
+      await expect(component.confirmDiscard()).resolves.toBe(false);
+      expect(dialog.openSimpleDialog).toHaveBeenCalled();
+    });
+
+    it("does not ask a second time for the navigation Cancel already confirmed", async () => {
+      await render();
+      controls().name.setValue("Half-finished rule");
+      controls().name.markAsDirty();
+      navigate.mockImplementation(async () => {
+        expect(await component.confirmDiscard()).toBe(true);
+        return true;
+      });
+
+      await component["cancel"]();
+
+      expect(dialog.openSimpleDialog).toHaveBeenCalledTimes(1);
     });
   });
 });

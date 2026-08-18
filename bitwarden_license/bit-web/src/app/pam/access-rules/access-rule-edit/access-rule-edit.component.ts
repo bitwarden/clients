@@ -1,8 +1,17 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
@@ -142,6 +151,16 @@ export class AccessRuleEditComponent {
    */
   protected readonly saveError = signal<string | null>(null);
 
+  private readonly saveErrorCallout = viewChild("saveErrorCallout", {
+    read: ElementRef<HTMLElement>,
+  });
+
+  /**
+   * True while a deliberate exit is under way (saved, deleted, or a confirmed discard), so
+   * {@link confirmDiscard} doesn't ask a second time for a navigation the admin already agreed to.
+   */
+  private readonly leaving = signal(false);
+
   protected readonly pageTypeKey = this.editing
     ? "pamAccessRuleEditTitle"
     : "pamAccessRuleCreateTitle";
@@ -223,6 +242,12 @@ export class AccessRuleEditComponent {
   );
 
   constructor() {
+    // `bit-callout` is not a live region and the callout renders above three sections of form
+    // while Save sits below them, so without moving focus a failed save is silent for a screen
+    // reader and off-screen for everyone else.
+    effect(() => {
+      this.saveErrorCallout()?.nativeElement.focus();
+    });
     this.coupleDurationBounds();
     this.coupleIpAllowlistEnabled();
     void this.initialize();
@@ -444,21 +469,27 @@ export class AccessRuleEditComponent {
   };
 
   /**
-   * Leave the form, confirming first if anything has been entered. A pristine form has
-   * nothing to lose, so it skips the dialog rather than asking about an empty page.
+   * Confirm before unsaved edits are thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A pristine form
+   * has nothing to lose, so it skips the dialog rather than asking about an empty page.
    */
+  async confirmDiscard(): Promise<boolean> {
+    if (this.leaving() || !this.formGroup.dirty) {
+      return true;
+    }
+
+    return await this.dialogService.openSimpleDialog({
+      title: { key: "discardEditsTitle" },
+      content: { key: "discardEditsConfirmation" },
+      acceptButtonText: { key: "discardEdits" },
+      cancelButtonText: { key: "keepEditing" },
+      type: "warning",
+    });
+  }
+
   protected readonly cancel = async (): Promise<void> => {
-    if (this.formGroup.dirty) {
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamAccessRuleDiscardConfirmTitle" },
-        content: { key: "pamAccessRuleDiscardConfirmContent" },
-        acceptButtonText: { key: "pamAccessRuleDiscard" },
-        cancelButtonText: { key: "cancel" },
-        type: "warning",
-      });
-      if (!confirmed) {
-        return;
-      }
+    if (!(await this.confirmDiscard())) {
+      return;
     }
 
     await this.navigateToList();
@@ -495,7 +526,15 @@ export class AccessRuleEditComponent {
   };
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
-  private navigateToList(): Promise<boolean> {
-    return this.router.navigate([".."], { relativeTo: this.route });
+  private async navigateToList(): Promise<boolean> {
+    this.leaving.set(true);
+    try {
+      return await this.router.navigate([".."], { relativeTo: this.route });
+    } finally {
+      this.leaving.set(false);
+    }
   }
 }
+
+export const accessRuleEditDiscardGuard: CanDeactivateFn<AccessRuleEditComponent> = (component) =>
+  component.confirmDiscard();
