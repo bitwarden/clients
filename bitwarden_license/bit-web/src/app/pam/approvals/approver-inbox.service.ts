@@ -24,6 +24,7 @@ import {
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
+  ApprovalSdkService,
   canApprove,
 } from "..";
 import {
@@ -33,8 +34,6 @@ import {
 } from "../access-requests/access-name-resolver.service";
 import { MyAccessRequestRow, toRequestRow } from "../access-requests/my-access-row";
 
-import { AccessDecisionRequest } from "./access-decision.request";
-import { ApprovalApiService } from "./approval-api.service";
 import { ApprovalRow, sortApprovalRows, toApprovalRow } from "./approval-row";
 import { isActionableInboxRequest } from "./inbox-request-filter";
 
@@ -43,9 +42,8 @@ import { isActionableInboxRequest } from "./inbox-request-filter";
  * the collections the caller manages, plus the approver-side mutations (decide, revoke a lease,
  * cancel an approval).
  *
- * The two reads come from {@link ApprovalApiService} — the module's one HTTP seam, see that file —
- * while every mutation goes through the SDK, because the SDK already covers all three: deciding is
- * the only approver operation it does not expose.
+ * Every read and mutation here goes through {@link ApprovalSdkService} and the SDK's other PAM
+ * clients — nothing over raw HTTP.
  *
  * Provided on the Access requests shell route so the Approvals and History tabs share one instance
  * and one pair of reads. Reloads on every server-pushed access event, so a decision made by a second
@@ -55,7 +53,7 @@ import { isActionableInboxRequest } from "./inbox-request-filter";
  */
 @Injectable()
 export class ApproverInboxService {
-  private readonly approvalApi = inject(ApprovalApiService);
+  private readonly approvalApi = inject(ApprovalSdkService);
   private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
@@ -184,17 +182,14 @@ export class ApproverInboxService {
     if (index === -1) {
       // Already gone (a double click, or a second approver got there first). Still call through, so
       // one click is always one request and the server stays the arbiter.
-      await this.approvalApi.decide(id, new AccessDecisionRequest({ verdict, comment }));
+      await this.approvalApi.decide(id, { verdict, comment });
       return;
     }
 
     const row = current[index];
     this._inbox$.next(current.filter((_, i) => i !== index));
     try {
-      const resolved = await this.approvalApi.decide(
-        id,
-        new AccessDecisionRequest({ verdict, comment }),
-      );
+      const resolved = await this.approvalApi.decide(id, { verdict, comment });
       this._history$.next([
         {
           ...row,
@@ -211,8 +206,7 @@ export class ApproverInboxService {
   }
 
   /**
-   * End someone else's active lease early. Served by the SDK (`leases().end()`), which calls the very
-   * endpoint the poc reached for by hand — the HTTP seam does not extend to this.
+   * End someone else's active lease early. Served by the SDK (`leases().end()`).
    *
    * Optimistically marks the produced lease `revoked` so the row re-buckets and the Revoke button
    * disappears; restores it and rethrows on failure.
