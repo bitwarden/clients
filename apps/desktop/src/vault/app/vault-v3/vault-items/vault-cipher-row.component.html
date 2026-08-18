@@ -46,7 +46,8 @@
   </div>
 </td>
 @if (showOwner()) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden @md:tw-table-cell">
+  <!-- Breakpoint must match the Owner header cell in vault-list.component.html. -->
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden @xl:tw-table-cell">
     <app-org-badge
       [disabled]="disabled()"
       [organizationId]="cipher().organizationId"

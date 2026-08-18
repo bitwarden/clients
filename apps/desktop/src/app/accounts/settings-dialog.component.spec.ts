@@ -33,6 +33,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { DeviceType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -54,6 +55,7 @@ import { BiometricStateService, BiometricsStatus, KeyService } from "@bitwarden/
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
@@ -103,6 +105,7 @@ describe("SettingsDialogComponent", () => {
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const configService = mock<ConfigService>();
   const userVerificationService = mock<UserVerificationService>();
+  const vaultCopyButtonsService = mock<VaultCopyButtonsService>();
 
   const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
 
@@ -165,6 +168,7 @@ describe("SettingsDialogComponent", () => {
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: DesktopAutotypeMvpService, useValue: desktopAutotypeMvpService },
         { provide: BillingAccountProfileStateService, useValue: billingAccountProfileStateService },
+        { provide: VaultCopyButtonsService, useValue: vaultCopyButtonsService },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -208,6 +212,7 @@ describe("SettingsDialogComponent", () => {
     desktopAutotypeMvpService.autotypeKeyboardShortcut$ = of(["Control", "Alt", "B"]);
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
     configService.getFeatureFlag$.mockReturnValue(of(false));
+    vaultCopyButtonsService.showQuickCopyActions$ = of(false);
 
     fixture = TestBed.createComponent(SettingsDialogComponent);
     component = fixture.componentInstance;
@@ -947,6 +952,70 @@ describe("SettingsDialogComponent", () => {
 
       // `showEnableAutotype` signal should be false
       expect((component as any).showEnableAutotype()).toBe(false);
+    });
+  });
+
+  describe("quick copy actions", () => {
+    /**
+     * `showQuickCopyActionsSetting` is a `toSignal()` initialized at class level, so the feature
+     * flag mock must be in place before the component is constructed.
+     */
+    function createComponentWithFlag(enabled: boolean) {
+      configService.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag === FeatureFlag.PM40435_QuickCopyIconSetting ? enabled : false),
+      );
+
+      fixture = TestBed.createComponent(SettingsDialogComponent);
+      component = fixture.componentInstance;
+    }
+
+    it("is not visible when the feature flag is disabled", async () => {
+      createComponentWithFlag(false);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const showQuickCopyActionsInput = fixture.debugElement.query(
+        By.css("input[formControlName='showQuickCopyActions']"),
+      );
+      expect(showQuickCopyActionsInput).toBeNull();
+      expect((component as any).showQuickCopyActionsSetting()).toBe(false);
+    });
+
+    it("is visible when the feature flag is enabled", async () => {
+      createComponentWithFlag(true);
+
+      await component.ngOnInit();
+      fixture.detectChanges();
+
+      const showQuickCopyActionsInput = fixture.debugElement.query(
+        By.css("input[formControlName='showQuickCopyActions']"),
+      );
+      expect(showQuickCopyActionsInput).not.toBeNull();
+      expect(showQuickCopyActionsInput.attributes).toMatchObject({
+        type: "checkbox",
+      });
+      expect((component as any).showQuickCopyActionsSetting()).toBe(true);
+    });
+
+    test.each([true, false])(
+      "initializes the form control from the stored setting when it is %s",
+      async (stored) => {
+        vaultCopyButtonsService.showQuickCopyActions$ = of(stored);
+
+        await component.ngOnInit();
+
+        expect(component["form"].controls.showQuickCopyActions.value).toBe(stored);
+      },
+    );
+
+    test.each([true, false])("saves the new value when set to %s", async (value) => {
+      await component.ngOnInit();
+
+      component["form"].controls.showQuickCopyActions.setValue(value);
+      await component.saveQuickCopyActions();
+
+      expect(vaultCopyButtonsService.setShowQuickCopyActions).toHaveBeenLastCalledWith(value);
     });
   });
 
