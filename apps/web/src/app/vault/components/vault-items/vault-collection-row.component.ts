@@ -7,6 +7,7 @@ import {
   inject,
   Input,
   Output,
+  Type,
   ViewChild,
 } from "@angular/core";
 
@@ -44,7 +45,9 @@ import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 export class VaultCollectionRowComponent<C extends CipherViewLike> {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  protected readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
+  protected readonly leaseBadge: Type<unknown> | null = inject(VAULT_ROW_LEASE_BADGE, {
+    optional: true,
+  });
 
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
