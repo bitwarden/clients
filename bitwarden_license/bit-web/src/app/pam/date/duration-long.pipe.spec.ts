@@ -10,31 +10,16 @@ describe("DurationLongPipe", () => {
     pipe = TestBed.runInInjectionContext(() => new DurationLongPipe());
   });
 
-  // Assert against Intl.NumberFormat's own output (see duration-short.pipe.spec.ts for the
-  // same approach) so this doesn't hardcode ICU's exact long-style wording or pluralization.
-  const long = (value: number, unit: "day" | "hour" | "minute" | "second") =>
-    new Intl.NumberFormat("en-US", { style: "unit", unit, unitDisplay: "long" }).format(value);
-
-  it("renders whole-day durations in days", () => {
-    expect(pipe.transform(24 * 60 * 60)).toBe(long(1, "day"));
-    expect(pipe.transform(7 * 24 * 60 * 60)).toBe(long(7, "day"));
-  });
-
-  it("renders whole-hour durations in hours", () => {
-    expect(pipe.transform(60 * 60)).toBe(long(1, "hour"));
-    expect(pipe.transform(4 * 60 * 60)).toBe(long(4, "hour"));
-  });
-
-  it("renders whole-minute durations in minutes", () => {
-    expect(pipe.transform(15 * 60)).toBe(long(15, "minute"));
-  });
-
-  it("falls back to seconds for sub-minute durations", () => {
-    expect(pipe.transform(45)).toBe(long(45, "second"));
-  });
-
+  // Unit selection is shared with the short pipe and covered by its spec; what is unique
+  // here is the spelled-out rendering, so assert on the wording rather than re-deriving
+  // Intl.NumberFormat's output.
   it("spells the unit out rather than abbreviating it", () => {
-    expect(pipe.transform(60 * 60)).toContain("hour");
-    expect(pipe.transform(4 * 60 * 60)).toContain("hours");
+    expect(pipe.transform(60 * 60)).toBe("1 hour");
+    expect(pipe.transform(24 * 60 * 60)).toBe("1 day");
+  });
+
+  it("pluralizes the spelled-out unit", () => {
+    expect(pipe.transform(4 * 60 * 60)).toBe("4 hours");
+    expect(pipe.transform(15 * 60)).toBe("15 minutes");
   });
 });

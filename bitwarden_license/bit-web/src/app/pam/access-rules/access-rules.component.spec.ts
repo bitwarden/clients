@@ -35,8 +35,44 @@ function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
   } as unknown as AccessRuleView;
 }
 
+type ProviderOverride = { provide: unknown; useValue: unknown };
+
+// The component's own template pulls in the full table/toolbar stack; replace it so these
+// tests exercise the component logic, not the rendering of child widgets.
+const setup = async (
+  rules: AccessRuleView[],
+  overrides: ProviderOverride[] = [],
+): Promise<ComponentFixture<AccessRulesComponent>> => {
+  TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
+
+  TestBed.configureTestingModule({
+    imports: [AccessRulesComponent],
+    providers: [
+      provideRouter([]),
+      { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+      {
+        provide: AccessRuleSdkService,
+        useValue: { listAccessRules: jest.fn().mockResolvedValue(rules) },
+      },
+      { provide: DialogService, useValue: {} },
+      { provide: ToastService, useValue: { showToast: jest.fn() } },
+      { provide: I18nService, useValue: i18nFake },
+      { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+      ...overrides,
+    ],
+  });
+
+  const fixture = TestBed.createComponent(AccessRulesComponent);
+  // Cycle change detection + microtasks so the org-driven reload resolves.
+  for (let i = 0; i < 3; i++) {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  }
+  return fixture;
+};
+
 describe("AccessRulesComponent — create/edit navigation", () => {
-  let listAccessRules: jest.Mock;
   let navigate: jest.SpyInstance;
   let route: ActivatedRoute;
 
@@ -44,46 +80,17 @@ describe("AccessRulesComponent — create/edit navigation", () => {
     jest.restoreAllMocks();
   });
 
-  const setup = async (
+  const setupNavigation = async (
     rules: AccessRuleView[],
   ): Promise<ComponentFixture<AccessRulesComponent>> => {
-    listAccessRules = jest.fn().mockResolvedValue(rules);
-
-    // The component's own template pulls in the full table/toolbar stack; replace it
-    // so these tests exercise the navigation logic, not the rendering of child widgets.
-    TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
-
-    TestBed.configureTestingModule({
-      imports: [AccessRulesComponent],
-      providers: [
-        provideRouter([]),
-        {
-          provide: ActivatedRoute,
-          useValue: { params: of({ organizationId: "org-1" }) },
-        },
-        { provide: AccessRuleSdkService, useValue: { listAccessRules } },
-        { provide: DialogService, useValue: {} },
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-      ],
-    });
-
+    const fixture = await setup(rules);
     route = TestBed.inject(ActivatedRoute);
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-
-    const fixture = TestBed.createComponent(AccessRulesComponent);
-    // Cycle change detection + microtasks so the org-driven reload resolves.
-    for (let i = 0; i < 3; i++) {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    }
     return fixture;
   };
 
   it("navigates to the create page", async () => {
-    const fixture = await setup([]);
+    const fixture = await setupNavigation([]);
 
     await fixture.componentInstance["openCreate"]();
 
@@ -91,7 +98,7 @@ describe("AccessRulesComponent — create/edit navigation", () => {
   });
 
   it("navigates to the create page with the chosen template", async () => {
-    const fixture = await setup([]);
+    const fixture = await setupNavigation([]);
 
     await fixture.componentInstance["openFromTemplate"]("approval-required");
 
@@ -102,7 +109,7 @@ describe("AccessRulesComponent — create/edit navigation", () => {
   });
 
   it("navigates to the edit page for a rule", async () => {
-    const fixture = await setup([rule("rule-1", "VPN")]);
+    const fixture = await setupNavigation([rule("rule-1", "VPN")]);
 
     await fixture.componentInstance["openEdit"](rule("rule-1", "VPN"));
 
@@ -110,7 +117,7 @@ describe("AccessRulesComponent — create/edit navigation", () => {
   });
 
   it("navigates to the create page seeded from the rule being duplicated", async () => {
-    const fixture = await setup([rule("rule-1", "VPN")]);
+    const fixture = await setupNavigation([rule("rule-1", "VPN")]);
 
     await fixture.componentInstance["duplicate"](rule("rule-1", "VPN"));
 
@@ -123,49 +130,32 @@ describe("AccessRulesComponent — create/edit navigation", () => {
 
 describe("AccessRulesComponent — activation toasts", () => {
   let showToast: jest.Mock;
-  let updateAccessRule: jest.Mock;
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  const setup = async (
+  const setupToasts = async (
     rules: AccessRuleView[],
   ): Promise<ComponentFixture<AccessRulesComponent>> => {
     showToast = jest.fn();
     // Echo the request back as the updated rule; only the toast is under test here.
-    updateAccessRule = jest.fn().mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
+    const updateAccessRule = jest
+      .fn()
+      .mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
 
-    TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
-
-    TestBed.configureTestingModule({
-      imports: [AccessRulesComponent],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
-        {
-          provide: AccessRuleSdkService,
-          useValue: { listAccessRules: jest.fn().mockResolvedValue(rules), updateAccessRule },
-        },
-        { provide: DialogService, useValue: {} },
-        { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-      ],
-    });
-
-    const fixture = TestBed.createComponent(AccessRulesComponent);
-    for (let i = 0; i < 3; i++) {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    }
-    return fixture;
+    return await setup(rules, [
+      {
+        provide: AccessRuleSdkService,
+        useValue: { listAccessRules: jest.fn().mockResolvedValue(rules), updateAccessRule },
+      },
+      { provide: ToastService, useValue: { showToast } },
+    ]);
   };
 
   it("reports a deactivation when toggling an active rule off", async () => {
     const active = rule("rule-1", "VPN", true);
-    const fixture = await setup([active]);
+    const fixture = await setupToasts([active]);
 
     await fixture.componentInstance["toggleEnabled"](active);
 
@@ -177,7 +167,7 @@ describe("AccessRulesComponent — activation toasts", () => {
 
   it("reports an activation when toggling an inactive rule on", async () => {
     const inactive = rule("rule-1", "VPN", false);
-    const fixture = await setup([inactive]);
+    const fixture = await setupToasts([inactive]);
 
     await fixture.componentInstance["toggleEnabled"](inactive);
 
