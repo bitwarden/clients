@@ -10,11 +10,7 @@ import {
 import { SessionTimeoutPolicyV2 } from "./session-timeout-v2.component";
 
 /**
- * Renders the PolicyDrawers-flag-on (drawer) experience for this policy. Session timeout uses two
- * entirely separate policy definitions (SessionTimeoutPolicyV2 here vs. SessionTimeoutPolicy in
- * session-timeout.component.ts), each gated to display only when the PolicyDrawers flag is on/off
- * respectively - pair this with session-timeout.component.stories.ts to catch a v2 leak into the
- * modal.
+ * Renders the drawer experience for the session timeout policy.
  */
 export default {
   ...policyDrawerMeta(new SessionTimeoutPolicyV2()),

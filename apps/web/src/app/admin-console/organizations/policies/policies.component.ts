@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import {
   combineLatest,
@@ -20,7 +20,6 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -108,19 +107,14 @@ export class PoliciesComponent {
       }),
     );
 
-  protected readonly useDrawer = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PolicyDrawers),
-    { initialValue: false },
-  );
-
   /**
-   * Returns the [legacy, VFO1] i18n key pair for a policy's list name, honoring the same v1/v2
-   * fallback used for the legacy key. The VFO1 key prefers a dedicated top-level override (for
-   * list-specific copy) before falling back to the drawer's override, then the legacy key.
+   * Returns the [legacy, VFO1] i18n key pair for a policy's list name. Prefers the v2 drawer
+   * title (if set) for the legacy key, then falls back to the top-level name. The VFO1 key
+   * prefers a dedicated top-level override before falling back to the v2 drawer override.
    */
   protected nameKeys(p: BasePolicyEditDefinition): [string, string] {
-    const legacy = (this.useDrawer() && p.v2?.name) || p.name;
-    const next = p.nameVfo1 ?? (this.useDrawer() ? p.v2?.nameVfo1 : undefined) ?? legacy;
+    const legacy = p.v2?.name ?? p.name;
+    const next = p.nameVfo1 ?? p.v2?.nameVfo1 ?? legacy;
     return [legacy, next];
   }
 
@@ -128,9 +122,8 @@ export class PoliciesComponent {
    * Returns the [legacy, VFO1] i18n key pair for a policy's list description. See {@link nameKeys}.
    */
   protected descriptionKeys(p: BasePolicyEditDefinition): [string, string] {
-    const legacy = (this.useDrawer() && p.v2?.description) || p.description;
-    const next =
-      p.descriptionVfo1 ?? (this.useDrawer() ? p.v2?.descriptionVfo1 : undefined) ?? legacy;
+    const legacy = p.v2?.description ?? p.description;
+    const next = p.descriptionVfo1 ?? p.v2?.descriptionVfo1 ?? legacy;
     return [legacy, next];
   }
 

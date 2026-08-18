@@ -29,14 +29,14 @@ import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit
  * Any component that implements this interface can be used as a custom policy edit dialog.
  */
 export interface PolicyDialogComponent {
-  open: (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => DialogRef<PolicyEditDialogResult>;
-  openDrawer?: (
+  openDrawer: (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => Promise<DialogRef<PolicyEditDialogResult> | undefined>;
+  open?: (
+    dialogService: DialogService,
+    config: DialogConfig<PolicyEditDialogData>,
+  ) => DialogRef<PolicyEditDialogResult>;
 }
 
 /**

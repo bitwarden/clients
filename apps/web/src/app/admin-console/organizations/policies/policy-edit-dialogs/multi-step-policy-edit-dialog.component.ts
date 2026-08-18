@@ -19,7 +19,6 @@ import { map, of, startWith, switchMap } from "rxjs";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -155,7 +154,6 @@ export class MultiStepPolicyEditDialogComponent
     toastService: ToastService,
     keyService: KeyService,
     dialogService: DialogService,
-    configService: ConfigService,
     authService: AuthService,
   ) {
     super(
@@ -169,7 +167,6 @@ export class MultiStepPolicyEditDialogComponent
       toastService,
       keyService,
       dialogService,
-      configService,
       authService,
     );
   }
