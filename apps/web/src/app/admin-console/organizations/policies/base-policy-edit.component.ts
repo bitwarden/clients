@@ -33,10 +33,6 @@ export interface PolicyDialogComponent {
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => Promise<DialogRef<PolicyEditDialogResult> | undefined>;
-  open?: (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => DialogRef<PolicyEditDialogResult>;
 }
 
 /**
@@ -50,19 +46,19 @@ export abstract class BasePolicyEditDefinition {
   abstract name: string;
   /**
    * Optional i18n key for the VFO1 "vault terminology" variant of {@link name}, shown in the
-   * policies list (and as a fallback for {@link v2.nameVfo1}) when
-   * {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to {@link name} when not set.
+   * policies list when {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to {@link name}
+   * when not set.
    */
   nameVfo1?: string;
   /**
    * i18n string for the policy description.
-   * This is shown in the list of policies and in the modal edit dialog.
+   * This is shown in the list of policies and in the policy edit drawer.
    */
   abstract description: string;
   /**
    * Optional i18n key for the VFO1 "vault terminology" variant of {@link description}, shown in
-   * the policies list (and as a fallback for {@link v2.descriptionVfo1}) when
-   * {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to {@link description} when not set.
+   * the policies list when {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to
+   * {@link description} when not set.
    */
   descriptionVfo1?: string;
 
@@ -98,12 +94,6 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
-   * If true, the dialog header shows an On/Off badge reflecting the saved policy state
-   * and uses the policy name as the sole title (no "Edit policy" label).
-   */
-  showEnabledBadge: boolean = false;
-
-  /**
    * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
    * above the policy form.
    */
@@ -128,48 +118,6 @@ export abstract class BasePolicyEditDefinition {
   prerequisiteLinkHref?: string;
   /** i18n key for the text of {@link prerequisiteLinkHref}. */
   prerequisiteLinkTextKey?: string;
-
-  /**
-   * Optional drawer-specific configuration for this policy.
-   * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
-   * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.
-   * Drawer routing is gated globally by {@link FeatureFlag.PolicyDrawers} in
-   * {@link PoliciesComponent} — there is no per-policy flag.
-   */
-  v2?: {
-    /** Component to render inside the drawer instead of {@link component}. */
-    component: Constructor<BasePolicyEditComponent>;
-    /** Drawer-only title. Falls back to {@link name} when not set. */
-    name?: string;
-    /**
-     * Optional i18n key for the VFO1 "vault terminology" variant of {@link name} (drawer title).
-     * Falls back to {@link nameVfo1}, then {@link name}, when not set.
-     */
-    nameVfo1?: string;
-    /** Drawer-only description. Falls back to {@link description} when not set. */
-    description?: string;
-    /**
-     * Optional i18n key for the VFO1 "vault terminology" variant of {@link description} (drawer
-     * body). Falls back to {@link descriptionVfo1}, then {@link description}, when not set.
-     */
-    descriptionVfo1?: string;
-    /**
-     * When set, overrides {@link showDescription} for the drawer only.
-     * Set to false when the v2 component renders its own description (e.g. with an inline link).
-     */
-    showDescription?: boolean;
-    /** i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent} above the policy form. */
-    prerequisiteKey?: string;
-    /**
-     * Optional i18n key for the VFO1 "vault terminology" variant of {@link prerequisiteKey}.
-     * Falls back to {@link prerequisiteKey} when not set.
-     */
-    prerequisiteKeyVfo1?: string;
-    /** URL for an optional "learn more" link inside the prerequisite callout. */
-    prerequisiteLinkHref?: string;
-    /** i18n key for the text of {@link prerequisiteLinkHref}. */
-    prerequisiteLinkTextKey?: string;
-  };
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.
@@ -197,37 +145,23 @@ export abstract class BasePolicyEditDefinition {
 }
 
 /**
- * Returns the [legacy, VFO1] i18n key pair for a policy's drawer/dialog title, resolving
- * `v2.nameVfo1` first (when `isV2` is true), then the top-level {@link BasePolicyEditDefinition.nameVfo1},
- * then the legacy key - the fallback order documented on {@link BasePolicyEditDefinition.v2}'s
- * `nameVfo1`. Shared by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}
- * so the two dialog-title implementations can't drift out of sync with each other.
- *
- * Note: {@link PoliciesComponent}'s list-only `nameKeys` intentionally uses a different
- * precedence (its own top-level override first) so list-specific copy can't leak in from the
- * drawer - see that method's doc comment.
+ * Returns the [legacy, VFO1] i18n key pair for a policy's title.
+ * Shared by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
  */
-export function policyTitleKeys(policy: BasePolicyEditDefinition, isV2: boolean): [string, string] {
-  const legacy = (isV2 && policy.v2?.name) || policy.name;
-  const next = (isV2 ? policy.v2?.nameVfo1 : undefined) ?? policy.nameVfo1 ?? legacy;
-  return [legacy, next];
+export function policyTitleKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.name, policy.nameVfo1 ?? policy.name];
 }
 
 /**
- * Returns the [legacy, VFO1] i18n key pair for a policy's drawer/dialog description. See
+ * Returns the [legacy, VFO1] i18n key pair for a policy's description. See
  * {@link policyTitleKeys}.
  */
-export function policyDescriptionKeys(
-  policy: BasePolicyEditDefinition,
-  isV2: boolean,
-): [string, string] {
-  const legacy = (isV2 && policy.v2?.description) || policy.description;
-  const next = (isV2 ? policy.v2?.descriptionVfo1 : undefined) ?? policy.descriptionVfo1 ?? legacy;
-  return [legacy, next];
+export function policyDescriptionKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.description, policy.descriptionVfo1 ?? policy.description];
 }
 
 /**
- * A component used to edit the policy settings in Admin Console. It is rendered inside the PolicyEditDialogComponent.
+ * A component used to edit the policy settings in Admin Console. It is rendered inside the PolicyEditDrawerComponent.
  * This should contain the form controls used to edit the policy (including the Enabled checkbox) and any additional
  * warnings or callouts.
  * See existing implementations as a guide.

@@ -222,29 +222,28 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
   }
 
   /**
-   * [legacy, VFO1] i18n key pair for the drawer title. See {@link policyTitleKeys} - this
-   * component always renders the v2/drawer experience, so `isV2` is always `true` here.
+   * [legacy, VFO1] i18n key pair for the drawer title.
    */
   get titleKeys(): [string, string] {
-    return policyTitleKeys(this.policy, true);
+    return policyTitleKeys(this.policy);
   }
 
   /**
-   * [legacy, VFO1] i18n key pair for the drawer body description. See {@link policyDescriptionKeys}.
+   * [legacy, VFO1] i18n key pair for the drawer body description.
    */
   get descriptionKeys(): [string, string] {
-    return policyDescriptionKeys(this.policy, true);
+    return policyDescriptionKeys(this.policy);
   }
 
   /**
    * [legacy, VFO1] i18n key pair for the prerequisite callout, if one is configured.
    */
   get prerequisiteKeys(): [string, string] | undefined {
-    const legacy = this.policy.v2?.prerequisiteKey;
+    const legacy = this.policy.prerequisiteKey;
     if (!legacy) {
       return undefined;
     }
-    return [legacy, this.policy.v2?.prerequisiteKeyVfo1 ?? legacy];
+    return [legacy, this.policy.prerequisiteKeyVfo1 ?? legacy];
   }
 
   /**
@@ -258,12 +257,21 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     return [legacy, this.policy.warningKeyVfo1 ?? legacy];
   }
 
-  private policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
+  protected policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
     const oldPolicy = oldPolicyData ?? {};
     const newPolicy = newPolicyData ?? {};
     return (
       Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
-      Object.keys(newPolicy).some((newKey) => oldPolicy[newKey] !== newPolicy[newKey])
+      Object.keys(newPolicy).some((newKey) => {
+        const oldValue = oldPolicy[newKey];
+        const newValue = newPolicy[newKey];
+        if (Array.isArray(oldValue) || Array.isArray(newValue)) {
+          return (
+            JSON.stringify((oldValue || []).sort()) !== JSON.stringify((newValue || []).sort())
+          );
+        }
+        return oldValue !== newValue;
+      })
     );
   }
 
@@ -280,6 +288,7 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     const componentRef = policyFormRef.createComponent(this.getComponentToLoad());
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
+    componentRef.setInput("organizationId", this.data.organization.id);
     const component = componentRef.instance;
     this.policyComponent.set(component);
     this.policyEnabled.set(this.data.policy.enabled(policyResponse));
@@ -356,7 +365,7 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
   }
 
   private getComponentToLoad(): Constructor<BasePolicyEditComponent> {
-    return this.data.policy.v2?.component ?? this.data.policy.component;
+    return this.data.policy.component;
   }
 
   static override readonly open = (

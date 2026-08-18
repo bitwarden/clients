@@ -113,18 +113,14 @@ export class PoliciesComponent {
    * prefers a dedicated top-level override before falling back to the v2 drawer override.
    */
   protected nameKeys(p: BasePolicyEditDefinition): [string, string] {
-    const legacy = p.v2?.name ?? p.name;
-    const next = p.nameVfo1 ?? p.v2?.nameVfo1 ?? legacy;
-    return [legacy, next];
+    return [p.name, p.nameVfo1 ?? p.name];
   }
 
   /**
    * Returns the [legacy, VFO1] i18n key pair for a policy's list description. See {@link nameKeys}.
    */
   protected descriptionKeys(p: BasePolicyEditDefinition): [string, string] {
-    const legacy = p.v2?.description ?? p.description;
-    const next = p.descriptionVfo1 ?? p.v2?.descriptionVfo1 ?? legacy;
-    return [legacy, next];
+    return [p.description, p.descriptionVfo1 ?? p.description];
   }
 
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
