@@ -23,7 +23,6 @@ describe("accessRuleErrorMessage", () => {
   });
 
   it.each<AccessRuleErrorVariant>([
-    "BadRequest",
     "NotFound",
     "Validation",
     "InvalidConditions",
@@ -108,7 +107,7 @@ describe("isAccessRuleCollectionConflict", () => {
   });
 
   it("matches the message on non-Api variants too", () => {
-    expect(isAccessRuleCollectionConflict(accessRuleError("BadRequest", CONFLICT_MESSAGE))).toBe(
+    expect(isAccessRuleCollectionConflict(accessRuleError("Validation", CONFLICT_MESSAGE))).toBe(
       true,
     );
   });

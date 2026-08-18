@@ -43,10 +43,10 @@ import {
   defaultRequestWindow,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
-import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { formatRemaining } from "../date/format-remaining";
+import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
 import {
   REQUEST_WINDOW_ERROR_KEY,
