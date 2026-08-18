@@ -1,14 +1,18 @@
 <ng-template #headerCells>
   @if (selectionModel(); as sel) {
-    <div role="columnheader" class="tw-flex tw-items-center tw-h-12 tw-px-3 tw-py-0">
+    <label
+      role="columnheader"
+      class="tw-mb-0 tw-flex tw-h-12 tw-cursor-pointer tw-items-center tw-px-4 tw-py-0"
+    >
       <input
+        bitCheckbox
         type="checkbox"
         [attr.aria-label]="'selectAllRows' | i18n"
         [checked]="sel.allSelected()"
         [indeterminate]="sel.indeterminate()"
         (change)="sel.toggleAll()"
       />
-    </div>
+    </label>
   }
   @for (col of effectiveColumns(); track col.name()) {
     @if (col.headerTemplate(); as tpl) {
@@ -19,16 +23,21 @@
 
 <ng-template #bodyCells let-row>
   @if (selectionModel(); as sel) {
-    <div role="cell" class="tw-flex tw-items-center tw-px-3">
+    <!-- A `label` so the whole cell, not just the box, toggles the checkbox. -->
+    <label bit-cell class="tw-cursor-pointer">
       @if (sel.isSelectable(row)) {
+        <!-- `data-selection-input` is what `bit-row` keys its selected style off. -->
         <input
+          bitCheckbox
           type="checkbox"
+          slot="start"
+          data-selection-input
           [attr.aria-label]="'selectRow' | i18n"
           [checked]="sel.isSelected(row)"
           (change)="sel.toggle(row)"
         />
       }
-    </div>
+    </label>
   }
   @for (col of effectiveColumns(); track col.name()) {
     @if (col.cellTemplate(); as tpl) {
@@ -39,7 +48,7 @@
 
 <ng-template #loadingCells>
   @if (selectionModel()) {
-    <div role="cell" class="tw-flex tw-items-center tw-px-3"></div>
+    <div role="cell" class="tw-flex tw-items-center tw-px-4"></div>
   }
   @for (col of effectiveColumns(); track col.name()) {
     @if (col.loadingTemplate(); as tpl) {
@@ -117,8 +126,16 @@
   -->
   <ng-content select="bit-table-toolbar"></ng-content>
 
+  <!--
+    Every row draws a bottom divider, including the last, which would stack with
+    the container's own bottom border. Pulling the body up a pixel lets the
+    container's border — the one that draws the rounded outline — own that edge.
+    Positional variants (`last:`) can't do this: under virtualization the last
+    rendered row is wherever the viewport happens to be scrolled.
+  -->
   <div
     role="table"
+    class="-tw-mb-px"
     [class.tw-flex]="isFill()"
     [class.tw-min-h-0]="isFill()"
     [class.tw-flex-1]="isFill()"
@@ -160,13 +177,15 @@
           Empty state: no rows render (no data, or all filtered out). Projects
           `[slot=empty]`; falls back to a default `<bit-no-items>`.
         -->
-        <ng-content select="[slot=empty]">
-          <bit-no-items>
-            <span slot="title">{{
-              (noMatches() ? "noMatchingItems" : "nothingToShow") | i18n
-            }}</span>
-          </bit-no-items>
-        </ng-content>
+        <div class="tw-border-0 tw-border-b tw-border-solid tw-border-border-base">
+          <ng-content select="[slot=empty]">
+            <bit-no-items>
+              <span slot="title">{{
+                (noMatches() ? "noMatchingItems" : "nothingToShow") | i18n
+              }}</span>
+            </bit-no-items>
+          </ng-content>
+        </div>
       } @else if (isVirtualized()) {
         <!--
           Virtualized body: rows and group headers live in one viewport, positioned
