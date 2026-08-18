@@ -478,13 +478,23 @@ export class AccessRuleEditComponent {
       return true;
     }
 
-    return await this.dialogService.openSimpleDialog({
-      title: { key: "discardEditsTitle" },
-      content: { key: "discardEditsConfirmation" },
-      acceptButtonText: { key: "discardEdits" },
-      cancelButtonText: { key: "keepEditing" },
-      type: "warning",
-    });
+    // Creating: the design names the thing being abandoned, the rule itself. Editing: the rule
+    // already exists and only the edits are lost, so the repo's shared wording is the true one.
+    return this.editing
+      ? await this.dialogService.openSimpleDialog({
+          title: { key: "discardEditsTitle" },
+          content: { key: "discardEditsConfirmation" },
+          acceptButtonText: { key: "discardEdits" },
+          cancelButtonText: { key: "keepEditing" },
+          type: "warning",
+        })
+      : await this.dialogService.openSimpleDialog({
+          title: { key: "pamAccessRuleDiscardTitle" },
+          content: { key: "pamAccessRuleDiscardContent" },
+          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+          cancelButtonText: { key: "cancel" },
+          type: "warning",
+        });
   }
 
   protected readonly cancel = async (): Promise<void> => {

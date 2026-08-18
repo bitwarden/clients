@@ -582,9 +582,14 @@ describe("AccessRuleEditComponent — form states", () => {
 
   const ORG_COLLECTIONS = [{ id: "col-1", name: "Engineering" }];
 
-  const render = async () => {
+  const render = async (state: RouteState = {}) => {
     pamApi = {
-      getAccessRule: jest.fn(),
+      getAccessRule: jest.fn().mockResolvedValue({
+        id: "rule-1",
+        name: "Existing rule",
+        collections: [],
+        conditions: [],
+      } as unknown as AccessRuleView),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
       updateAccessRule: jest.fn().mockResolvedValue(undefined),
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
@@ -596,7 +601,7 @@ describe("AccessRuleEditComponent — form states", () => {
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
       providers: [
         provideRouter([]),
-        { provide: ActivatedRoute, useValue: routeStub({}) },
+        { provide: ActivatedRoute, useValue: routeStub(state) },
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
         { provide: I18nService, useValue: i18nFake },
@@ -744,14 +749,30 @@ describe("AccessRuleEditComponent — form states", () => {
 
       expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
-          title: { key: "discardEditsTitle" },
-          content: { key: "discardEditsConfirmation" },
-          acceptButtonText: { key: "discardEdits" },
-          cancelButtonText: { key: "keepEditing" },
+          title: { key: "pamAccessRuleDiscardTitle" },
+          content: { key: "pamAccessRuleDiscardContent" },
+          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+          cancelButtonText: { key: "cancel" },
           type: "warning",
         }),
       );
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+    });
+
+    it("names the edits, not the rule, when an existing rule is being edited", async () => {
+      await render({ params: { accessRuleId: "rule-1" } });
+      controls().name.setValue("Renamed rule");
+      controls().name.markAsDirty();
+
+      await component["cancel"]();
+
+      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: { key: "discardEditsTitle" },
+          acceptButtonText: { key: "discardEdits" },
+          cancelButtonText: { key: "keepEditing" },
+        }),
+      );
     });
 
     it("stays on the form with its values intact when the dialog is dismissed", async () => {
