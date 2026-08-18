@@ -106,7 +106,7 @@
   <div class="tw-cursor-pointer">
     @if (open || icon() || hasStartIconTile()) {
       <div
-        class="tw-relative tw-rounded-xl tw-p-2 tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
+        class="tw-relative tw-rounded-xl tw-bg-bg-nav hover:tw-bg-bg-nav-hover"
         [class]="fvwStyles()"
         [class.tw-px-0]="hasStartIconTile() && !open"
         [style]="showActiveStyles() ? '--color-nav-bg-brand: var(--color-nav-bg-brand-soft);' : ''"
@@ -116,7 +116,7 @@
         <div class="tw-relative tw-flex tw-items-center tw-h-full">
           <!-- Non-tile leading content (e.g. a collapse toggle); a tile renders inside the interactive element instead. -->
           @if (open) {
-            <div>
+            <div class="tw-ps-2 empty:tw-hidden">
               <ng-container *ngTemplateOutlet="startSlot"></ng-container>
             </div>
           }
@@ -158,7 +158,7 @@
 
           @if (open) {
             <div
-              class="tw-flex tw-items-center tw-gap-1 empty:tw-hidden"
+              class="tw-flex tw-items-center tw-pe-2 tw-gap-1 empty:tw-hidden"
               (click)="onEndSlotClick($event)"
             >
               <ng-container *ngTemplateOutlet="endSlot"></ng-container>
@@ -173,7 +173,7 @@
   <ng-template #anchorAndButtonContent>
     <div
       [title]="text()"
-      class="tw-py-0 tw-flex tw-items-center tw-h-full"
+      class="tw-p-2 tw-flex tw-items-center tw-h-full"
       [class.tw-gap-1]="hasStartIconTile()"
       [class.tw-text-center]="!open"
       [class.tw-justify-center]="!open"

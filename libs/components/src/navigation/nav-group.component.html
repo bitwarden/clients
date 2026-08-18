@@ -19,7 +19,7 @@
   <bit-nav-item
     [text]="text()"
     [icon]="icon()"
-    [route]="route()"
+    [route]="sideNavService.version() === 'vfo1' ? undefined : route()"
     [treeDepth]="treeDepth()"
     [relativeTo]="relativeTo()"
     [routerLinkActiveOptions]="routerLinkActiveOptions()"
