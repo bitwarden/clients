@@ -111,8 +111,6 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
 });
 
 describe("AccessRuleEditComponent — page furniture", () => {
-  // Unlike the other suites, this one renders the real template: the heading, the breadcrumb
-  // trail and the event-log footer are exactly what's under test here.
   const render = async (state: RouteState, existing?: AccessRuleView) => {
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
