@@ -16883,6 +16883,9 @@
   "pamAccessRuleDefaultDurationLabel": {
     "message": "Default duration"
   },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "This duration will be pre-filled in access requests."
+  },
   "pamAccessRuleMaxDurationLabel": {
     "message": "Maximum duration"
   },
@@ -17693,6 +17696,9 @@
   },
   "accessRuleIpAllowlistCidrPlaceholder": {
     "message": "e.g. 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistCidrHint": {
+    "message": "Enter one IP range per line in CIDR notation."
   },
   "accessRuleIpAllowlistAddRow": {
     "message": "Add CIDR range"
