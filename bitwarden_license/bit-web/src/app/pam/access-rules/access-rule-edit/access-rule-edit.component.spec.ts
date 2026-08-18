@@ -1,4 +1,4 @@
-import { Provider } from "@angular/core";
+import { EnvironmentProviders, Provider } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
@@ -53,7 +53,7 @@ function routeStub(state: RouteState): Partial<ActivatedRoute> {
  * The providers every block needs, with `overrides` appended so a block's own stub
  * wins (Angular resolves the last provider for a token).
  */
-const providersWith = (...overrides: Provider[]): Provider[] => [
+const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProviders)[] => [
   provideRouter([]),
   { provide: ActivatedRoute, useValue: routeStub({}) },
   { provide: AccessRuleSdkService, useValue: {} },
