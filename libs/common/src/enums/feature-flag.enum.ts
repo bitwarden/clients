@@ -257,7 +257,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.Pam]: FALSE,
 
   /* VFO */
-  [FeatureFlag.VFO1Foundation]: FALSE,
+  [FeatureFlag.VFO1Foundation]: true as boolean,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

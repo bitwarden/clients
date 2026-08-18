@@ -117,3 +117,5 @@ export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
+export { VaultFilterMemoryService } from "./routing/vault-filter-memory.service";
+export { ALL_ITEMS_SCOPE } from "./routing/vault-scope";

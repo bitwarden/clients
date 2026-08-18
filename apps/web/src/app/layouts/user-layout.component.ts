@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { map, Observable, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -15,6 +15,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
+import { ALL_ITEMS_SCOPE, VaultFilterMemoryService } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -48,6 +49,19 @@ export class UserLayoutComponent implements OnInit {
 
   protected readonly coachmarkService = inject(CoachmarkService);
   protected readonly sideNavService = inject(SideNavService);
+
+  private readonly router = inject(Router);
+  private readonly vaultFilterMemory = inject(VaultFilterMemoryService);
+
+  /**
+   * Carries the filters the vault was last viewed with, so returning to it from elsewhere in the
+   * app restores them. A plain `/vault` tree until the user has filtered something.
+   */
+  protected readonly vaultRoute = computed(() =>
+    this.router.createUrlTree(["/vault"], {
+      queryParams: this.vaultFilterMemory.paramsFor(ALL_ITEMS_SCOPE),
+    }),
+  );
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",
