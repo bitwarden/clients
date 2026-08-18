@@ -21,8 +21,8 @@ import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { PolicyCategory } from "./pipes/policy-category";
-import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 import type { PolicyStep, PolicyStepResult } from "./policy-edit-dialogs/models";
+import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-drawer.component";
 
 /**
  * Interface for policy dialog components.

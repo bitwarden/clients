@@ -43,7 +43,19 @@ import {
   policyTitleKeys,
   policyDescriptionKeys,
 } from "./base-policy-edit.component";
-import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+
+export type PolicyEditDialogData = {
+  /**
+   * The metadata containing information about how to display and edit the policy.
+   */
+  policy: BasePolicyEditDefinition;
+  /**
+   * The organization for the policy.
+   */
+  organization: Organization;
+};
+
+export type PolicyEditDialogResult = "saved";
 
 @Component({
   selector: "app-policy-edit-drawer",

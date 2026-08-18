@@ -1,0 +1,41 @@
+<bit-simple-dialog hideIcon>
+  <div bitDialogTitle class="tw-text-left">{{ "deleteItem" | i18n }}</div>
+  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-2 tw-w-full">
+    <p class="tw-text-left">
+      {{ "deleteAtRiskItemDescription" | i18n }}
+    </p>
+    @if (additionalRisks().showWeak || additionalRisks().showReused) {
+      <bit-section>
+        <bit-section-header>
+          <p>{{ "passwordHasAdditionalRisks" | i18n }}</p>
+        </bit-section-header>
+        <bit-card class="tw-flex tw-flex-col tw-gap-4 tw-justify-start tw-items-start">
+          @if (additionalRisks().showWeak) {
+            <div
+              class="tw-w-full tw-flex tw-flex-row tw-items-center tw-justify-start tw-gap-2 tw-text-fg-body-subtle"
+            >
+              <bit-icon-tile icon="bwi-warning" variant="warning" slot="start" />
+              {{ "weak" | i18n }}
+              <span class="tw-ml-auto">{{ "yes" | i18n }}</span>
+            </div>
+          }
+          @if (additionalRisks().showReused) {
+            <div
+              class="tw-w-full tw-flex tw-flex-row tw-items-center tw-justify-start tw-gap-2 tw-text-fg-body-subtle"
+            >
+              <bit-icon-tile icon="bwi-refresh" variant="primary" slot="start" />
+              {{ "reused" | i18n }}
+              <span class="tw-ml-auto">{{ "xTimes" | i18n: this.item.reuseCount }}</span>
+            </div>
+          }
+        </bit-card>
+      </bit-section>
+    }
+  </div>
+  <div bitDialogFooter class="tw-flex tw-flex-col tw-gap-2">
+    <button bitButton type="button" buttonType="danger" [bitAction]="onDeleteItem">
+      {{ "delete" | i18n }}
+    </button>
+    <button bitButton type="button" bitDialogClose>{{ "cancel" | i18n }}</button>
+  </div>
+</bit-simple-dialog>

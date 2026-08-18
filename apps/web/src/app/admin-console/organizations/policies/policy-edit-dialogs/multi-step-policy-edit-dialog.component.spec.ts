@@ -46,7 +46,7 @@ import {
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyComponent,
 } from "../policy-edit-definitions/organization-data-ownership.component";
-import { PolicyEditDialogData, PolicyEditDialogResult } from "../policy-edit-dialog.component";
+import { PolicyEditDialogData, PolicyEditDialogResult } from "../policy-edit-drawer.component";
 
 import { PolicyStep } from "./models";
 import { MultiStepPolicyEditDialogComponent } from "./multi-step-policy-edit-dialog.component";

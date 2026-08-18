@@ -37,7 +37,7 @@ import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
   PolicyEditDialogResult,
-} from "../policy-edit-dialog.component";
+} from "../policy-edit-drawer.component";
 
 import { PolicyStep } from "./models";
 

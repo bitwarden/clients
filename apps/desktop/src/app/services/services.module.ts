@@ -59,7 +59,7 @@ import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/ab
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { ClientType } from "@bitwarden/common/enums";
+import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import {
@@ -152,6 +152,7 @@ import {
   RoutedVaultFilterBridgeService,
   VAULT_FILTER_BASE_ROUTE,
   Vfo1TerminologyService,
+  PasswordRepromptService,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -161,7 +162,11 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
+import { DesktopFido2MacOsUserVerificationService } from "../../autofill/services/desktop-fido2-macos-user-verification.service";
+import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import { DesktopFido2UserVerificationService } from "../../autofill/services/desktop-fido2-user-verification.service.abstraction";
+import { DesktopFido2WindowsUserVerificationService } from "../../autofill/services/desktop-fido2-windows-user-verification.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
@@ -437,6 +442,24 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: DesktopFido2UserVerificationService,
+    useFactory: (
+      platformUtilsService: PlatformUtilsServiceAbstraction,
+      i18nService: I18nServiceAbstraction,
+      logService: LogServiceAbstraction,
+    ): DesktopFido2UserVerificationService => {
+      switch (platformUtilsService.getDevice()) {
+        case DeviceType.MacOsDesktop:
+          return new DesktopFido2MacOsUserVerificationService(i18nService, logService);
+        case DeviceType.WindowsDesktop:
+          return new DesktopFido2WindowsUserVerificationService(i18nService, logService);
+        default:
+          return new DesktopFido2UnsupportedUserVerificationService(logService);
+      }
+    },
+    deps: [PlatformUtilsServiceAbstraction, I18nServiceAbstraction, LogServiceAbstraction],
+  }),
+  safeProvider({
     provide: DesktopFido2UserInterfaceService,
     useClass: DesktopFido2UserInterfaceService,
     deps: [
@@ -447,6 +470,8 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       Router,
       DesktopSettingsService,
+      DesktopFido2UserVerificationService,
+      PasswordRepromptService,
     ],
   }),
   safeProvider({
