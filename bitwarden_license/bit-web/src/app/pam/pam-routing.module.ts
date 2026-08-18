@@ -43,6 +43,15 @@ const routes: Routes = [
         loadChildren: () => import("./rotation/rotation.routes").then((m) => m.rotationRoutes),
       },
       {
+        path: "audit",
+        canActivate: [organizationPermissionsGuard((org) => org.canAccessEventLogs)],
+        component: AccessAuditComponent,
+        // Route-provided (the service is @Injectable, not root): the audit table resolves cipher and
+        // collection names from local vault state the same way the "My access" surfaces do.
+        providers: [AccessNameResolverService],
+        data: { titleId: "pamAuditLog" },
+      },
+      {
         path: "access-rules",
         canActivate: [organizationPermissionsGuard((org) => org.canManageAccessRules)],
         children: [
