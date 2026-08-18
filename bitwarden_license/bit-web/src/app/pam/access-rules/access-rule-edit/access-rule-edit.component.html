@@ -1,6 +1,7 @@
-<bit-header [title]="titleText()" icon="bwi-clock">
+<bit-header [title]="titleText()">
   <bit-breadcrumbs slot="breadcrumbs">
     <bit-breadcrumb [route]="['..']">{{ "pamAccessRules" | i18n }}</bit-breadcrumb>
+    <bit-breadcrumb>{{ pageTypeKey | i18n }}</bit-breadcrumb>
   </bit-breadcrumbs>
 </bit-header>
 
@@ -67,7 +68,7 @@
         </bit-section-header>
         <bit-card>
           <bit-form-field>
-            <bit-label>{{ "pamAccessRuleDefaultDuration" | i18n }}</bit-label>
+            <bit-label>{{ "pamAccessRuleDefaultDurationLabel" | i18n }}</bit-label>
             <bit-select
               id="access-rule-edit_select_default-duration"
               formControlName="defaultLeaseDurationSeconds"
@@ -80,7 +81,7 @@
           </bit-form-field>
 
           <bit-form-field>
-            <bit-label>{{ "pamAccessRuleMaxDuration" | i18n }}</bit-label>
+            <bit-label>{{ "pamAccessRuleMaxDurationLabel" | i18n }}</bit-label>
             <bit-select
               id="access-rule-edit_select_max-duration"
               formControlName="maxLeaseDurationSeconds"
@@ -93,7 +94,7 @@
                 <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
-            <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+            <bit-hint>{{ "pamAccessRuleMaxDurationRequestHint" | i18n }}</bit-hint>
           </bit-form-field>
 
           <bit-form-control [disableMargin]="!formGroup.controls.allowsExtensions.value">
@@ -169,11 +170,18 @@
               id="access-rule-edit_checkbox_single-active-lease"
               formControlName="singleActiveLease"
             />
-            <bit-label>{{ "pamAccessRuleSingleActiveLease" | i18n }}</bit-label>
-            <bit-hint>{{ "pamAccessRuleSingleActiveLeaseHint" | i18n }}</bit-hint>
+            <bit-label>{{ "pamAccessRuleSingleActiveUser" | i18n }}</bit-label>
+            <bit-hint>{{ "pamAccessRuleSingleActiveUserHint" | i18n }}</bit-hint>
           </bit-form-control>
         </bit-card>
       </bit-section>
+
+      <p bitTypography="body2" class="tw-text-muted">
+        {{ "pamAccessRuleEventLogNoticeStart" | i18n }}
+        <a bitLink [routerLink]="eventLogRoute" id="access-rule-edit_anchor_event-logs">{{
+          "eventLogs" | i18n
+        }}</a>
+      </p>
 
       <div class="tw-flex tw-items-center tw-gap-2">
         <button

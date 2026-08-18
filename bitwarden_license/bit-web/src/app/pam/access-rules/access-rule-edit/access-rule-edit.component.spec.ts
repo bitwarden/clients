@@ -110,6 +110,60 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
   });
 });
 
+describe("AccessRuleEditComponent — page furniture", () => {
+  // Unlike the other suites, this one renders the real template: the heading, the breadcrumb
+  // trail and the event-log footer are exactly what's under test here.
+  const render = async (state: RouteState, existing?: AccessRuleView) => {
+    TestBed.configureTestingModule({
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: routeStub(state) },
+        {
+          provide: AccessRuleSdkService,
+          useValue: { getAccessRule: jest.fn().mockResolvedValue(existing) },
+        },
+        { provide: ToastService, useValue: { showToast: jest.fn() } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+        { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: DialogService, useValue: declinedDialogStub },
+      ],
+    });
+
+    jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    const fixture = TestBed.createComponent(AccessRuleEditComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  it("shows the rule's name as the heading and the page type in the breadcrumb", async () => {
+    const fixture = await render({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Production database access",
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("Production database access");
+    expect(text).toContain("pamAccessRules");
+    expect(text).toContain("pamAccessRuleEditTitle");
+  });
+
+  it("links 'Event logs' at the organization's reporting route", async () => {
+    const fixture = await render({});
+
+    const link = fixture.nativeElement.querySelector(
+      "#access-rule-edit_anchor_event-logs",
+    ) as HTMLAnchorElement | null;
+    expect(link).not.toBeNull();
+    expect(link!.getAttribute("href")).toBe("/organizations/org-1/reporting/events");
+  });
+});
+
 describe("AccessRuleEditComponent — load, collections, and submit", () => {
   let component: AccessRuleEditComponent;
   let navigate: jest.SpyInstance;
@@ -364,6 +418,31 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
 
     expect(controls().maxLeaseDurationSeconds.value).toBe(ONE_HOUR);
     expect(controls().maxExtensionDurationSeconds.value).toBe(ONE_HOUR);
+  });
+
+  it("heads the page with the rule's own name in edit mode, and names the page type in the breadcrumb", async () => {
+    await setup({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Production database access",
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    expect(component["titleText"]()).toBe("Production database access");
+    expect(component["pageTypeKey"]).toBe("pamAccessRuleEditTitle");
+  });
+
+  it("keeps the page-type label as the heading in create mode, where there is no name yet", async () => {
+    await setup({});
+
+    expect(component["titleText"]()).toBe("pamAccessRuleCreateTitle");
+    expect(component["pageTypeKey"]).toBe("pamAccessRuleCreateTitle");
+  });
+
+  it("links the footer notice at the organization's event logs", async () => {
+    await setup({});
+
+    expect(component["eventLogRoute"]).toEqual(["/organizations", "org-1", "reporting", "events"]);
   });
 
   it("deletes the rule under edit and returns to the list once confirmed", async () => {

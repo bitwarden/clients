@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
@@ -20,6 +20,7 @@ import {
   DialogService,
   FormFieldModule,
   HeaderComponent,
+  LinkModule,
   MultiSelectModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -87,7 +88,9 @@ const NAME_MAX_LENGTH = 256;
     FormFieldModule,
     HeaderComponent,
     IpAllowlistEditorComponent,
+    LinkModule,
     MultiSelectModule,
+    RouterLink,
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
@@ -124,9 +127,26 @@ export class AccessRuleEditComponent {
   /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
-  protected readonly titleText = computed(() =>
-    this.i18nService.t(this.editing ? "pamAccessRuleEditTitle" : "pamAccessRuleCreateTitle"),
+
+  /**
+   * The breadcrumb's trailing (non-link) crumb, naming the page type — the design moves
+   * "Edit access rule" / "New access rule" off the heading and into the trail.
+   */
+  protected readonly pageTypeKey = this.editing
+    ? "pamAccessRuleEditTitle"
+    : "pamAccessRuleCreateTitle";
+
+  /**
+   * The page heading. Edit mode shows the rule's own name, per the design; it falls back to
+   * the page-type label until the rule has loaded. Create mode keeps the page-type label,
+   * since there is no name yet and a blank heading would be worse.
+   */
+  protected readonly titleText = computed(
+    () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
   );
+
+  /** Absolute route to the organization's event logs, linked from the footer notice. */
+  protected readonly eventLogRoute = ["/organizations", this.organizationId, "reporting", "events"];
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
