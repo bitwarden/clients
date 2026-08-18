@@ -81,6 +81,12 @@ export type NativeWindowObject = {
    * RP ID of the request.
    */
   rpId: string;
+
+  /**
+   * User handle for the credential. Absent for discoverable credential
+   * requests, which don't contain a userHandle.
+   */
+  userHandle?: number[];
 };
 
 /**
@@ -179,7 +185,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
    * already verifies the user, so the OS is not asked to do it a second time.
    */
   private vaultUnlockedDuringCeremony: boolean = false;
-  private rpId = new BehaviorSubject<string | null>(null);
   private availableCipherIdsSubject = new BehaviorSubject<string[]>([""]);
   /**
    * Observable that emits available cipher IDs once they're confirmed by the UI
@@ -189,7 +194,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     take(1),
   );
 
-  private chosenCipherSubject = new Subject<CipherView | undefined>();
+  private chosenCipherSubject = new Subject<CipherViewLike | undefined>();
 
   /**
    * Whether this ceremony took over the app window to show UI. Some ceremonies
@@ -249,7 +254,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         { signal: abortSignal },
       );
 
-      return { cipherId: chosenCipher.id, userVerified };
+      return { cipherId: chosenCipher.id?.toString(), userVerified };
     } catch (error) {
       throw this.mapUserVerificationCancellation(error);
     } finally {
@@ -258,11 +263,15 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     }
   }
 
-  async getRpId(): Promise<string> {
-    return firstValueFrom(this.rpId.pipe(filter((id) => id != null)));
+  get rpId(): string {
+    return this.windowObject.rpId;
   }
 
-  confirmChosenCipher(cipher?: CipherView): void {
+  get userHandle(): number[] | undefined {
+    return this.windowObject.userHandle;
+  }
+
+  confirmChosenCipher(cipher?: CipherViewLike): void {
     this.chosenCipherSubject.next(cipher);
     this.chosenCipherSubject.complete();
   }
@@ -373,7 +382,7 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     signal,
   }: {
     signal: AbortSignal;
-  }): Promise<CipherView | undefined> {
+  }): Promise<CipherViewLike | undefined> {
     try {
       signal.throwIfAborted();
       return await firstValueFrom(this.chosenCipherSubject.pipe(throwOnAbort(signal)));
@@ -448,7 +457,6 @@ export class DesktopFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       needsUserVerification,
       rpId,
     );
-    this.rpId.next(rpId);
 
     const abortSignal = this.abortController.signal;
     try {
