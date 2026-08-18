@@ -3,56 +3,11 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
 
     @if (vfo1Enabled()) {
-      @if (vaultNav(); as nav) {
-        @if (nav.vaults.length > 1) {
-          <bit-nav-item
-            [text]="'allItems' | i18n"
-            (mainContentClicked)="selectAllItems()"
-            [forceActiveStyles]="allItemsActive()"
-          >
-            <bit-icon-tile icon="bwi-list" variant="brand" emphasis="bold" size="sm" />
-          </bit-nav-item>
-        }
-
-        <ng-template #vaultGroups>
-          @for (vault of nav.vaults; track vault.id) {
-            <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
-              <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
-              <bit-nav-item
-                icon="bwi-list-alt"
-                [text]="'allVaultItems' | i18n"
-                (mainContentClicked)="selectVault(vault)"
-                [forceActiveStyles]="vaultActive(vault)"
-              ></bit-nav-item>
-              @if (vault.defaultUserCollectionId; as collectionId) {
-                <bit-nav-item
-                  icon="bwi-user"
-                  [text]="'myItems' | i18n"
-                  (mainContentClicked)="selectMyItems(vault, collectionId)"
-                  [forceActiveStyles]="myItemsActive(vault)"
-                ></bit-nav-item>
-              }
-            </bit-nav-group>
-          }
-        </ng-template>
-
-        @if (nav.vaults.length === 1 && !nav.organizationDataOwnership) {
-          @let loneVault = nav.vaults[0];
-          <bit-nav-item
-            [text]="loneVault.label"
-            (mainContentClicked)="selectVault(loneVault)"
-            [forceActiveStyles]="vaultActive(loneVault)"
-          >
-            <bit-icon-tile [icon]="loneVault.icon" [color]="vaultTileColor(loneVault)" size="sm" />
-          </bit-nav-item>
-        } @else if (nav.organizationDataOwnership) {
-          <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
-        } @else if (nav.vaults.length > 1) {
-          <bit-nav-section [label]="'vaults' | i18n">
-            <ng-container [ngTemplateOutlet]="vaultGroups"></ng-container>
-          </bit-nav-section>
-        }
-      }
+      <vault-nav-section
+        (allItemsSelected)="selectAllItems()"
+        (vaultSelected)="selectVault($event)"
+        (myItemsSelected)="selectMyItems($event.vault, $event.collectionId)"
+      />
 
       <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item icon="bwi-file-text" [text]="'reports' | i18n" route="reports"></bit-nav-item>
@@ -72,7 +27,6 @@
           icon="bwi-archive"
           [text]="'archiveNoun' | i18n"
           (mainContentClicked)="selectArchive()"
-          [forceActiveStyles]="itemTypeActive('archive')"
         >
           @if (showArchivePremiumBadge()) {
             <button
@@ -90,7 +44,6 @@
           icon="bwi-trash"
           [text]="'trash' | i18n"
           (mainContentClicked)="selectItemType('trash')"
-          [forceActiveStyles]="itemTypeActive('trash')"
         ></bit-nav-item>
         <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>

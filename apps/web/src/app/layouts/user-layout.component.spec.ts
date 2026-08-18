@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { ActivatedRoute, convertToParamMap, ParamMap, Router, RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -78,11 +78,6 @@ const emptyViewModel: VaultsNavViewModel = {
   organizationDataOwnership: false,
 };
 
-const personalOnly: VaultsNavViewModel = {
-  vaults: [personalItem],
-  organizationDataOwnership: false,
-};
-
 const withOrgs: VaultsNavViewModel = {
   vaults: [
     personalItem,
@@ -147,7 +142,6 @@ describe("UserLayoutComponent", () => {
 
   const hasPremium$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
-  const queryParamMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
 
   const configService = mock<ConfigService>();
   const vaultNavService = mock<VaultNavService>();
@@ -192,7 +186,6 @@ describe("UserLayoutComponent", () => {
 
     hasPremium$.next(true);
     archivedCiphers$.next([]);
-    queryParamMap$.next(convertToParamMap({}));
 
     i18nService.t.mockImplementation((key: string) => key);
     configService.getFeatureFlag$.mockReturnValue(flag$);
@@ -212,7 +205,6 @@ describe("UserLayoutComponent", () => {
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
         { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
-        { provide: ActivatedRoute, useValue: { queryParamMap: queryParamMap$ } },
         {
           provide: PremiumSubscriptionRoutingService,
           useValue: { getSubscriptionRoute$: () => of(null) },
@@ -326,7 +318,6 @@ describe("UserLayoutComponent", () => {
             folderId: null,
             sharedFolderId: null,
             collectionId: null,
-            organizationId: null,
             type: "archive",
           },
           queryParamsHandling: "merge",
@@ -344,35 +335,10 @@ describe("UserLayoutComponent", () => {
       });
     });
 
-    describe("a single personal vault", () => {
-      beforeEach(() => {
-        viewModel$.next(personalOnly);
-        fixture.detectChanges();
-      });
-
-      it("renders My vault as a plain top item with no All items or Vaults header", () => {
-        const text = navText();
-
-        expect(text).toContain("My vault");
-        expect(text).not.toContain("allItems");
-        expect(text).not.toContain("vaults");
-      });
-    });
-
     describe("organization data ownership", () => {
       beforeEach(() => {
         viewModel$.next(orgDataOwnership);
         fixture.detectChanges();
-      });
-
-      it("renders the org vault with a My items child, no Vaults header or personal vault", () => {
-        const text = navText();
-
-        expect(text).toContain("Acme corporation");
-        expect(text).toContain("myItems");
-        expect(text).not.toContain("vaults");
-        expect(text).not.toContain("My vault");
-        expect(text).not.toContain("allItems");
       });
 
       it("filters to the org's default collection when My items is selected", () => {
@@ -386,7 +352,6 @@ describe("UserLayoutComponent", () => {
           queryParams: {
             folderId: null,
             collectionId: null,
-            organizationId: null,
             vaultId: "org-a",
             sharedFolderId: "col-a",
             type: null,
@@ -400,22 +365,6 @@ describe("UserLayoutComponent", () => {
       beforeEach(() => {
         viewModel$.next(withOrgs);
         fixture.detectChanges();
-      });
-
-      it("renders All items above a Vaults section listing every vault in order", () => {
-        const text = navText();
-
-        expect(text).toContain("allItems");
-        expect(text.indexOf("allItems")).toBeLessThan(text.indexOf("vaults"));
-
-        const vaultsSection = fixture.debugElement
-          .queryAll(By.css("bit-nav-section"))
-          .find((el) => el.componentInstance.label() === "vaults");
-        const vaultLabels = vaultsSection
-          .queryAll(By.css("bit-nav-group"))
-          .map((el) => el.componentInstance.text());
-
-        expect(vaultLabels).toEqual(["My vault", "Acme corporation", "Smith family"]);
       });
 
       /** Expands a vault group and clicks its "All vault items" child. */
@@ -435,7 +384,6 @@ describe("UserLayoutComponent", () => {
             folderId: null,
             sharedFolderId: null,
             collectionId: null,
-            organizationId: null,
             vaultId: "org-a",
             type: null,
           },
@@ -451,7 +399,6 @@ describe("UserLayoutComponent", () => {
             folderId: null,
             sharedFolderId: null,
             collectionId: null,
-            organizationId: null,
             vaultId: "unassigned",
             type: null,
           },
