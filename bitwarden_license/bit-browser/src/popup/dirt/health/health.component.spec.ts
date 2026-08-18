@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, ReplaySubject, Subject } from "rxjs";
+import { BehaviorSubject, map, of, ReplaySubject, Subject } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
@@ -89,17 +89,26 @@ describe("HealthComponent", () => {
   let cipherService: MockProxy<CipherService>;
   let reportService: MockProxy<VaultHealthReportService>;
   let logService: MockProxy<LogService>;
-  /** Stands in for the report the service publishes and replays per user. */
-  let published: BehaviorSubject<VaultHealthReportView | null>;
+  /**
+   * Stands in for the service's published report. Scoped by user, exactly as
+   * DefaultVaultHealthReportService is, so a report published for one account is
+   * invisible to the next.
+   */
+  let published: BehaviorSubject<{ userId: UserId; report: VaultHealthReportView } | null>;
 
   /**
    * Makes a build publish `report` and then resolve, which is the contract the
    * root depends on: the report is readable by the time the promise settles.
    */
   function publishesOnBuild(report: VaultHealthReportView) {
-    reportService.buildVaultHealthReport.mockImplementation(async () => {
-      published.next(report);
+    reportService.buildVaultHealthReport.mockImplementation(async (_ciphers, id) => {
+      published.next({ userId: id, report });
     });
+  }
+
+  /** A report the service already holds, as if from an earlier scan this session. */
+  function alreadyPublished(report: VaultHealthReportView, id: UserId = userId) {
+    published.next({ userId: id, report });
   }
 
   /** Leaves a build in flight forever, so the scan never completes. */
@@ -165,8 +174,10 @@ describe("HealthComponent", () => {
     // resolves void, and getVaultHealthReport$ replays whatever was published.
     // The publish happens before the promise resolves, exactly as the
     // implementation does it, so a read after the build sees the fresh report.
-    published = new BehaviorSubject<VaultHealthReportView | null>(null);
-    reportService.getVaultHealthReport$.mockReturnValue(published);
+    published = new BehaviorSubject<{ userId: UserId; report: VaultHealthReportView } | null>(null);
+    reportService.getVaultHealthReport$.mockImplementation((id) =>
+      published.pipe(map((scoped) => (scoped?.userId === id ? scoped.report : null))),
+    );
     publishesOnBuild(new VaultHealthReportView());
 
     logService = mock<LogService>();
@@ -280,6 +291,38 @@ describe("HealthComponent", () => {
       expect(overview()).not.toBeNull();
       expect(overview()?.report().atRiskCount).toBe(10);
       expect(scanning()).toBeNull();
+      expect(scanError()).toBeNull();
+    });
+
+    it("shows the overview immediately when a report is already published", async () => {
+      // Returning from a category detail re-creates this component and restarts
+      // the scan. The user must not be sent back to the progress view for
+      // results they were just looking at, so a report the service already holds
+      // wins over an in-flight scan.
+      hasRunScan$.next(true);
+      alreadyPublished(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
+      buildNeverSettles();
+
+      await initComponent();
+      await settle();
+
+      expect(overview()).not.toBeNull();
+      expect(overview()?.report().atRiskCount).toBe(10);
+      expect(scanning()).toBeNull();
+    });
+
+    it("keeps the published report on screen when a background refresh fails", async () => {
+      // Losing results the user can see, because a silent re-scan failed, is
+      // worse than showing slightly stale ones. The failure view is for having
+      // nothing to show at all.
+      hasRunScan$.next(true);
+      alreadyPublished(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
+      reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
+
+      await initComponent();
+      await settle();
+
+      expect(overview()?.report().atRiskCount).toBe(10);
       expect(scanError()).toBeNull();
     });
 

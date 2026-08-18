@@ -74,9 +74,9 @@ export class HealthComponent {
    * The vault scan's lifecycle, or null before it has been started.
    *
    * Read through a single `toSignal`, so there is exactly one subscription no
-   * matter how many times the template reads it. The report service caches, so
-   * a second read would no longer repeat the breach lookup, but a second
-   * subscription would re-enter the pipeline and trigger a second scan.
+   * matter how many times the template reads it. A second subscription to
+   * *this* pipeline would re-enter it and trigger a second scan, which is why
+   * `publishedReport` below reads the service instead of reading this.
    */
   private readonly scan = toSignal<HealthScanState | null>(
     toObservable(this.userId).pipe(
@@ -99,13 +99,37 @@ export class HealthComponent {
     { initialValue: null },
   );
 
+  /**
+   * Whatever report the service already holds for this user, which may predate
+   * this component. Read straight from the service, the same way
+   * HealthRiskCategoryDetailComponent does.
+   *
+   * This is what keeps returning from a category detail instant. `/health/:category`
+   * is a sibling route and the popup never reuses routes, so the back button
+   * re-creates this component and restarts the scan; without this the tab would
+   * show the progress view again for results the user was just looking at.
+   *
+   * Subscribing here starts no work: `getVaultHealthReport$` is a plain read of
+   * the service's published state, not a trigger.
+   */
+  private readonly publishedReport = toSignal(
+    toObservable(this.userId).pipe(
+      filterOutNullish(),
+      switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
+    ),
+    { initialValue: null },
+  );
+
   /** True when the scan did not complete. */
   protected readonly scanFailed = computed(() => this.scan()?.status === "error");
 
-  /** The completed report, or null while scanning or after a failure. */
+  /**
+   * The report to render: this scan's result if it has one, otherwise anything
+   * already published for the active account.
+   */
   protected readonly report = computed(() => {
     const scan = this.scan();
-    return scan?.status === "success" ? scan.report : null;
+    return scan?.status === "success" ? scan.report : this.publishedReport();
   });
 
   constructor() {
