@@ -103,13 +103,11 @@ describe("historyDisplayStatus", () => {
     });
   });
 
-  it("labels a revoked lease ended by the holder as Cancelled (pamStatusEndedByYou)", () => {
+  it("labels a canceled lease as Cancelled (pamStatusEndedByYou)", () => {
     const r = request("req-1", {
       status: "approved",
-      requesterId: "user-1",
       producedLeaseId: "lease-1",
-      producedLeaseStatus: "revoked",
-      decisions: [decision({ deciderKind: "human", id: "user-1", verdict: "deny" })],
+      producedLeaseStatus: "canceled",
     });
     expect(historyDisplayStatus(r)).toEqual({
       statusLabelKey: "pamStatusEndedByYou",
@@ -117,13 +115,11 @@ describe("historyDisplayStatus", () => {
     });
   });
 
-  it("labels a revoked lease ended by someone else as Revoked", () => {
+  it("labels a revoked lease as Revoked", () => {
     const r = request("req-1", {
       status: "approved",
-      requesterId: "user-1",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "revoked",
-      decisions: [decision({ deciderKind: "human", id: "operator-1", verdict: "deny" })],
     });
     expect(historyDisplayStatus(r)).toEqual({
       statusLabelKey: "pamStatusRevoked",
@@ -131,13 +127,15 @@ describe("historyDisplayStatus", () => {
     });
   });
 
-  it("labels a revoked lease with no human decision as Revoked (defensive default)", () => {
+  it("reads Revoked off the lease status even with the requester's own deny on the log", () => {
+    // The label used to be derived from the decision log; `canceled` vs `revoked` settles it now,
+    // so a self-deny recorded alongside an operator revoke must not flip it back to Cancelled.
     const r = request("req-1", {
       status: "approved",
       requesterId: "user-1",
       producedLeaseId: "lease-1",
       producedLeaseStatus: "revoked",
-      decisions: [],
+      decisions: [decision({ deciderKind: "human", id: "user-1", verdict: "deny" })],
     });
     expect(historyDisplayStatus(r)).toEqual({
       statusLabelKey: "pamStatusRevoked",

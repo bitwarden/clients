@@ -209,11 +209,10 @@ export class MyAccessService {
 
   /**
    * End the caller's own active lease early. Optimistically drops the lease from Active leases and
-   * marks its originating request's produced lease "revoked", so the grant reappears in History
-   * immediately; then calls the API and, on failure, restores both and rethrows so the caller can
-   * toast. Because the real `AccessLeaseStatus` has no distinct "self-ended" value, the row may
-   * briefly read "Revoked" instead of "Cancelled" until the page is next reloaded and the server's
-   * decision log (which does distinguish the two — see {@link historyDisplayStatus}) is available.
+   * marks its originating request's produced lease `canceled` — the status the server records for a
+   * self-service end, as against `revoked` for an operator ending it — so the grant reappears in
+   * History labelled "Cancelled" straight away; then calls the API and, on failure, restores both
+   * and rethrows so the caller can toast.
    */
   async endLease(leaseId: AccessLeaseId): Promise<void> {
     const currentLeases = this._leases$.value;
@@ -226,7 +225,7 @@ export class MyAccessService {
     if (producingIndex !== -1) {
       this._requests$.next(
         currentRequests.map((r, i) =>
-          i === producingIndex ? { ...r, producedLeaseStatus: "revoked" } : r,
+          i === producingIndex ? { ...r, producedLeaseStatus: "canceled" } : r,
         ),
       );
     }
