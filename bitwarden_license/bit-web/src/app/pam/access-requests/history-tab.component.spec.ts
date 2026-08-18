@@ -168,7 +168,7 @@ describe("HistoryTabComponent", () => {
   describe("actions", () => {
     const activeGrant = historyRow({
       id: "managed-1",
-      status: "activated",
+      status: "approved",
       statusLabelKey: "pamStatusActivated",
       producedLeaseId: "lease-1",
     });
@@ -203,7 +203,7 @@ describe("HistoryTabComponent", () => {
     it("offers no Revoke once the lease has already ended", () => {
       const revoked = historyRow({
         id: "managed-1",
-        status: "activated",
+        status: "approved",
         statusLabelKey: "pamStatusRevoked",
         producedLeaseId: "lease-1",
       });

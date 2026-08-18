@@ -41,7 +41,7 @@ function request(overrides: Record<string, unknown> = {}): AccessRequestView {
 
 /** A leasing error as the SDK throws it, with the server's message on `.message`. */
 function leasingError(message: string): Error {
-  return Object.assign(new Error(message), { name: "LeasingError", variant: "Api" });
+  return Object.assign(new Error(message), { name: "AccessRequestError", variant: "Api" });
 }
 
 /** Lets the route-driven fetch in the constructor settle before assertions. */

@@ -91,7 +91,9 @@ export class MyAccessService {
   readonly pendingRows$: Observable<MyAccessRequestRow[]> = this.rows$.pipe(
     map((rows) =>
       rows
-        .filter((r) => r.status === "pending" || r.status === "approved")
+        .filter(
+          (r) => r.status === "pending" || (r.status === "approved" && r.producedLeaseId == null),
+        )
         .slice(0, MY_ACCESS_PAGE_LIMIT),
     ),
   );
@@ -116,7 +118,7 @@ export class MyAccessService {
   );
 
   /**
-   * Terminal requests (everything but pending/approved), newest first. A grant whose lease is
+   * Terminal requests (everything but pending, and approved-but-not-yet-activated), newest first. A grant whose lease is
    * still active is excluded — it belongs in Active leases, not both places — and returns here
    * once the lease ends.
    */
@@ -130,7 +132,7 @@ export class MyAccessService {
         .filter(
           (r) =>
             r.status !== "pending" &&
-            r.status !== "approved" &&
+            !(r.status === "approved" && r.producedLeaseId == null) &&
             !(r.producedLeaseId != null && activeLeaseIds.has(r.producedLeaseId)),
         )
         .sort((a, b) => timeOf(b) - timeOf(a))
@@ -241,8 +243,8 @@ export class MyAccessService {
 
   /**
    * Activate an approved request (mints the lease). Not optimistic — reloads on success so the
-   * new lease and the request's "activated" status surface; rethrows on failure for the caller to
-   * toast.
+   * new lease and the `producedLeaseId` that marks the request activated surface; rethrows on
+   * failure for the caller to toast.
    */
   async activate(id: AccessRequestId): Promise<void> {
     await this.requestsApi.activateAccessRequest(id);

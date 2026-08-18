@@ -222,6 +222,7 @@ export class AccessRequestRouteComponent implements OnInit {
     return (
       request != null &&
       request.status === "approved" &&
+      request.producedLeaseId == null &&
       Date.parse(request.leaseNotAfter) > this.nowMs()
     );
   });
@@ -235,7 +236,11 @@ export class AccessRequestRouteComponent implements OnInit {
     if (request.status === "pending") {
       return true;
     }
-    return request.status === "approved" && Date.parse(request.leaseNotAfter) > this.nowMs();
+    return (
+      request.status === "approved" &&
+      request.producedLeaseId == null &&
+      Date.parse(request.leaseNotAfter) > this.nowMs()
+    );
   });
 
   /** The holder can end their own active lease early. */
