@@ -148,7 +148,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     return fixture;
   };
 
-  it("shows the rule's name as the heading and the page type in the breadcrumb", async () => {
+  it("shows the rule's name as the heading, with the list as the only breadcrumb", async () => {
     const fixture = await render({ params: { accessRuleId: "rule-1" } }, {
       id: "rule-1",
       name: "Production database access",
@@ -159,7 +159,9 @@ describe("AccessRuleEditComponent — page furniture", () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("Production database access");
     expect(text).toContain("pamAccessRules");
-    expect(text).toContain("pamAccessRuleEditTitle");
+
+    const crumbs = fixture.nativeElement.querySelectorAll("bit-breadcrumbs button");
+    expect(crumbs).toHaveLength(0);
   });
 
   it("links the event logs at the organization's reporting route", async () => {
@@ -437,7 +439,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(controls().maxExtensionDurationSeconds.value).toBe(ONE_HOUR);
   });
 
-  it("heads the page with the rule's own name in edit mode, and names the page type in the breadcrumb", async () => {
+  it("heads the page with the rule's own name in edit mode", async () => {
     await setup({ params: { accessRuleId: "rule-1" } }, {
       id: "rule-1",
       name: "Production database access",

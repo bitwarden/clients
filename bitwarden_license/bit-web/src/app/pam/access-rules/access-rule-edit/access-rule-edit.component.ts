@@ -130,10 +130,6 @@ export class AccessRuleEditComponent {
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
 
-  /**
-   * The breadcrumb's trailing (non-link) crumb, naming the page type — the design moves
-   * "Edit access rule" / "New access rule" off the heading and into the trail.
-   */
   protected readonly pageTypeKey = this.editing
     ? "pamAccessRuleEditTitle"
     : "pamAccessRuleCreateTitle";
