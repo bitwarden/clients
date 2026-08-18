@@ -8,6 +8,7 @@ import {
   StoryObj,
 } from "@storybook/angular";
 import { of } from "rxjs";
+import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -116,4 +117,53 @@ export const Edit: Story = {
       providers: [{ provide: ActivatedRoute, useValue: routeStub({ accessRuleId: "rule-1" }) }],
     }),
   ],
+};
+
+/**
+ * The save-failure callout. Edit mode, with the update rejected: the form arrives valid and
+ * populated, so pressing Save goes straight to the failure rather than to validation.
+ */
+export const SaveError: Story = {
+  decorators: [
+    moduleMetadata({
+      providers: [
+        { provide: ActivatedRoute, useValue: routeStub({ accessRuleId: "rule-1" }) },
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            updateAccessRule: () =>
+              Promise.reject(new Error("The access rule service is unavailable.")),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
+ * The validation summary above the action row: submitting the empty create form, where
+ * name and collections are both required.
+ */
+export const ValidationSummary: Story = {
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
+ * The discard confirmation. Typing into the name dirties the form, so Cancel asks before
+ * leaving; the dialog stub declines, which is the "stay on the form" branch.
+ */
+export const DiscardConfirmation: Story = {
+  play: async (context) => {
+    const canvas = context.canvasElement;
+    const name = canvas.querySelector("#access-rule-edit_input_name") as HTMLInputElement;
+
+    await userEvent.type(name, "Half-finished rule");
+    await userEvent.click(getByText(canvas, "Cancel"));
+  },
 };

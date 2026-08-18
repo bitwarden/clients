@@ -567,3 +567,193 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
   });
 });
+
+describe("AccessRuleEditComponent — form states", () => {
+  let fixture: ComponentFixture<AccessRuleEditComponent>;
+  let component: AccessRuleEditComponent;
+  let navigate: jest.SpyInstance;
+  let showToast: jest.Mock;
+  let dialog: { openSimpleDialog: jest.Mock };
+  let pamApi: {
+    getAccessRule: jest.Mock;
+    createAccessRule: jest.Mock;
+    updateAccessRule: jest.Mock;
+    deleteAccessRule: jest.Mock;
+  };
+
+  const ORG_COLLECTIONS = [{ id: "col-1", name: "Engineering" }];
+
+  const render = async () => {
+    pamApi = {
+      getAccessRule: jest.fn(),
+      createAccessRule: jest.fn().mockResolvedValue(undefined),
+      updateAccessRule: jest.fn().mockResolvedValue(undefined),
+      deleteAccessRule: jest.fn().mockResolvedValue(undefined),
+    };
+    showToast = jest.fn();
+    dialog = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+
+    TestBed.configureTestingModule({
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: routeStub({}) },
+        { provide: AccessRuleSdkService, useValue: pamApi },
+        { provide: ToastService, useValue: { showToast } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        {
+          provide: CollectionAdminService,
+          useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
+        },
+        { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: OrganizationService, useValue: organizationServiceStub() },
+        { provide: DialogService, useValue: dialog },
+      ],
+    });
+
+    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    fixture = TestBed.createComponent(AccessRuleEditComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  const controls = () => component["formGroup"].controls;
+
+  const fillRequiredFields = () => {
+    controls().name.setValue("Production access");
+    controls().collections.setValue([
+      {
+        id: "col-1",
+        listName: "Engineering",
+        labelName: "Engineering",
+        icon: "bwi-collection-shared",
+      },
+    ] satisfies SelectItemView[]);
+  };
+
+  const submitAndRender = async () => {
+    await component["submit"]();
+    fixture.detectChanges();
+  };
+
+  const callout = () => fixture.nativeElement.querySelector("bit-callout") as HTMLElement | null;
+
+  describe("save error", () => {
+    it("renders an inline callout instead of a toast when the save fails", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(new Error("boom"));
+
+      await submitAndRender();
+
+      expect(callout()).not.toBeNull();
+      expect(callout()!.textContent).toContain("pamAccessRuleSaveErrorTitle");
+      expect(callout()!.textContent).toContain("pamAccessRuleSaveErrorBody");
+      expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("keeps everything the user entered when the save fails", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(new Error("boom"));
+
+      await submitAndRender();
+
+      expect(controls().name.value).toBe("Production access");
+      expect(controls().collections.value.map((c) => c.id)).toEqual(["col-1"]);
+    });
+
+    it("prefers the server's own message over the generic sentence", async () => {
+      await render();
+      fillRequiredFields();
+      const serverError = Object.assign(new Error("Rule name already in use."), {
+        name: "AccessRuleError",
+        variant: "Conflict",
+      });
+      pamApi.createAccessRule.mockRejectedValue(serverError);
+
+      await submitAndRender();
+
+      expect(callout()!.textContent).toContain("Rule name already in use.");
+      expect(callout()!.textContent).not.toContain("pamAccessRuleSaveErrorBody");
+    });
+
+    it("clears the callout when the user resubmits", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(new Error("boom"));
+      await submitAndRender();
+      expect(callout()).not.toBeNull();
+
+      pamApi.createAccessRule.mockResolvedValue(undefined);
+      await submitAndRender();
+
+      expect(callout()).toBeNull();
+      expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+    });
+  });
+
+  describe("validation summary", () => {
+    it("summarises the invalid fields when an incomplete form is submitted", async () => {
+      await render();
+
+      await submitAndRender();
+
+      const summary = fixture.nativeElement.querySelector("bit-error-summary") as HTMLElement;
+      expect(summary.textContent).toContain("fieldsNeedAttention");
+      expect(pamApi.createAccessRule).not.toHaveBeenCalled();
+    });
+
+    it("shows no summary before the form has been submitted", async () => {
+      await render();
+
+      const summary = fixture.nativeElement.querySelector("bit-error-summary") as HTMLElement;
+      expect(summary.textContent!.trim()).toBe("");
+    });
+  });
+
+  describe("discard confirmation", () => {
+    it("leaves a pristine form without asking", async () => {
+      await render();
+
+      await component["cancel"]();
+
+      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+    });
+
+    it("confirms before discarding a form the user has typed into", async () => {
+      await render();
+      controls().name.setValue("Half-finished rule");
+      controls().name.markAsDirty();
+
+      await component["cancel"]();
+
+      expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: { key: "pamAccessRuleDiscardConfirmTitle" },
+          content: { key: "pamAccessRuleDiscardConfirmContent" },
+          acceptButtonText: { key: "pamAccessRuleDiscard" },
+          cancelButtonText: { key: "cancel" },
+          type: "warning",
+        }),
+      );
+      expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+    });
+
+    it("stays on the form with its values intact when the dialog is dismissed", async () => {
+      await render();
+      controls().name.setValue("Half-finished rule");
+      controls().name.markAsDirty();
+      dialog.openSimpleDialog.mockResolvedValue(false);
+
+      await component["cancel"]();
+
+      expect(navigate).not.toHaveBeenCalled();
+      expect(controls().name.value).toBe("Half-finished rule");
+    });
+  });
+});

@@ -16985,6 +16985,21 @@
       }
     }
   },
+  "pamAccessRuleSaveErrorTitle": {
+    "message": "Rule not saved"
+  },
+  "pamAccessRuleSaveErrorBody": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here. Try again."
+  },
+  "pamAccessRuleDiscardConfirmTitle": {
+    "message": "Discard rule"
+  },
+  "pamAccessRuleDiscardConfirmContent": {
+    "message": "The details you entered won't be saved."
+  },
+  "pamAccessRuleDiscard": {
+    "message": "Discard"
+  },
   "pamNoAccessRulesYetTitle": {
     "message": "No access rules yet"
   },

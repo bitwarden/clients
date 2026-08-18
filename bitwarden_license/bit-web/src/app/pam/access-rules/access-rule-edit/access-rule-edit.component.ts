@@ -17,6 +17,7 @@ import {
   AsyncActionsModule,
   BreadcrumbsModule,
   ButtonModule,
+  CalloutModule,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -85,6 +86,7 @@ const NAME_MAX_LENGTH = 256;
     AsyncActionsModule,
     BreadcrumbsModule,
     ButtonModule,
+    CalloutModule,
     CardComponent,
     CheckboxModule,
     FormFieldModule,
@@ -132,6 +134,13 @@ export class AccessRuleEditComponent {
   /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
+
+  /**
+   * Message for the inline save-failure callout; null while there is nothing to report.
+   * A failed save must not toast — the notice has to persist alongside the entered values
+   * so the admin can retry without re-keying the form.
+   */
+  protected readonly saveError = signal<string | null>(null);
 
   protected readonly pageTypeKey = this.editing
     ? "pamAccessRuleEditTitle"
@@ -399,6 +408,7 @@ export class AccessRuleEditComponent {
   }
 
   protected readonly submit = async (): Promise<void> => {
+    this.saveError.set(null);
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -425,14 +435,34 @@ export class AccessRuleEditComponent {
     } catch (e) {
       // The collection-conflict rejection gets friendlier copy than the server's line
       // ("One or more collections are already governed by…"), which UAT found hard to parse.
-      const message = isAccessRuleCollectionConflict(e)
-        ? this.i18nService.t("pamAccessRuleCollectionConflict")
-        : (accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError"));
-      this.toastService.showToast({ variant: "error", message });
+      this.saveError.set(
+        isAccessRuleCollectionConflict(e)
+          ? this.i18nService.t("pamAccessRuleCollectionConflict")
+          : (accessRuleErrorMessage(e) ?? this.i18nService.t("pamAccessRuleSaveErrorBody")),
+      );
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateToList();
+  /**
+   * Leave the form, confirming first if anything has been entered. A pristine form has
+   * nothing to lose, so it skips the dialog rather than asking about an empty page.
+   */
+  protected readonly cancel = async (): Promise<void> => {
+    if (this.formGroup.dirty) {
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamAccessRuleDiscardConfirmTitle" },
+        content: { key: "pamAccessRuleDiscardConfirmContent" },
+        acceptButtonText: { key: "pamAccessRuleDiscard" },
+        cancelButtonText: { key: "cancel" },
+        type: "warning",
+      });
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    await this.navigateToList();
+  };
 
   /**
    * Delete the rule under edit, after confirmation. Edit mode only — there is nothing

@@ -19,6 +19,12 @@
     <bit-spinner />
   } @else {
     <form [formGroup]="formGroup" [bitSubmit]="submit">
+      @if (saveError(); as saveErrorMessage) {
+        <bit-callout type="danger" [title]="'pamAccessRuleSaveErrorTitle' | i18n">
+          {{ saveErrorMessage }}
+        </bit-callout>
+      }
+
       <bit-section>
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamAccessRuleGeneralInfoHeading" | i18n }}</h2>
@@ -193,6 +199,8 @@
           }}</a>
         </p>
       }
+
+      <bit-error-summary [formGroup]="formGroup" />
 
       <div class="tw-flex tw-items-center tw-gap-2">
         <button
