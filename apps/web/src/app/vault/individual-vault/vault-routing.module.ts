@@ -1,14 +1,24 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+
+import { VaultNextComponent } from "./vault-next.component";
 import { VaultComponent } from "./vault.component";
+
 const routes: Routes = [
-  {
-    path: "",
-    component: VaultComponent,
-    data: { titleId: "vaults" },
-  },
+  ...featureFlaggedRoute({
+    defaultComponent: VaultComponent,
+    flaggedComponent: VaultNextComponent,
+    featureFlag: FeatureFlag.VFO1Foundation,
+    routeOptions: {
+      path: "",
+      data: { titleId: "vaults" },
+    },
+  }),
 ];
+
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
