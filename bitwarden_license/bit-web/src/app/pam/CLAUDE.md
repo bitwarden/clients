@@ -27,7 +27,7 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `ApproverInboxService`, and `AccessNameResolverService` are provided on the SHELL
   ROUTE, not on the component, because routed children inherit a parent route's
   providers but not a component's — that is what lets the tabs share one load.
-- `approvals/` — the approver side: the HTTP seam, the inbox data service, the decide
+- `approvals/` — the approver side: the SDK-backed inbox data service, the decide
   dialog, the privilege check, and the route guard.
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
   states off `cipher_access_state()`, with an inline request form.
@@ -38,21 +38,19 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `services/` — the SDK-backed implementations of the `abstractions/` contracts.
 - `testing/` — builders shared across specs (`decision-builders.ts`).
 
-## SDK-first, with one bounded exception
+## SDK-first, no exceptions
 
 Every PAM call goes through the Rust SDK (`client.commercial().pam()`), never HTTP.
-`AccessRuleSdkService`, `AccessRequestSdkService`, and `AccessLeaseSdkService` are the
-abstract contracts; `services/*-sdk.service.ts` compose the SDK client.
+`AccessRuleSdkService`, `AccessRequestSdkService`, `AccessLeaseSdkService`, and
+`ApprovalSdkService` are the abstract contracts; `services/*-sdk.service.ts` compose the
+SDK client. `ApprovalSdkService` (`services/approvals-sdk.service.ts`) covers the
+approver-facing surface — the pending inbox, the decided history, and recording a
+decision — via `commercial().pam().approvals()`; this used to be a raw-HTTP exception
+while the SDK lacked that surface, but the SDK now exposes it and the exception is gone.
 
-The one exception is `approvals/approval-api.service.ts`: three approver-facing routes
-(`GET /access-requests/inbox`, `GET /access-requests/history`,
-`POST /access-requests/{id}/decision`) that the server implements but the pinned SDK does
-not expose. It is bound in `provide-pam.ts` so the eventual swap is a provider change.
-
-**Do not widen it.** Approver-side revoke and cancel-approval deliberately go through the
-SDK (`leases().end()`, `access_requests().cancel()`), which reach the same endpoints. If
-another PAM capability turns out to be missing from the SDK, that is SDK work — not a
-fourth raw-HTTP route.
+**If a PAM capability turns out to be missing from the SDK, that is SDK work — not a
+raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
+(`leases().end()`, `access_requests().cancel()`) for the same reason.
 
 ## Error shape
 
@@ -80,8 +78,10 @@ re-exports of SDK shapes type-only for the same reason.
 `canceled`, one L — in code, in i18n keys (`pamStatusCanceled`), everywhere. The SDK's
 `AccessLeaseStatus` has no `cancelled` value at all: a holder ending their own lease and
 an operator revoking it are both `revoked`, and `historyDisplayStatus` tells them apart
-from the decision log instead. `approvals/responses/` normalises incoming wire values onto
-these spellings, so the rest of the module never sees the other form.
+from the decision log instead — the SDK now carries `endedByHolder` on `AccessLeaseView`,
+which makes that heuristic unnecessary; adopting it is tracked separately. The SDK's own
+`TryFrom` conversions normalise incoming wire values onto these spellings, so the module
+never sees the other form.
 
 ## Refresh model
 
