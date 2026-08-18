@@ -1,12 +1,12 @@
 import { mock } from "jest-mock-extended";
-import { render } from "lit";
+import { nothing, render } from "lit";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { InlineMenuPrompt } from "../../../../content/components/inline-menu";
+import { InlineMenuCipherList, InlineMenuPrompt } from "../../../../content/components/inline-menu";
 import {
   createAutofillOverlayCipherDataMock,
   createInitAutofillInlineMenuListMessageMock,
@@ -16,12 +16,16 @@ import { EventSecurity } from "../../../../utils/event-security";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
-jest.mock("lit", () => ({ render: jest.fn() }));
+jest.mock("lit", () => ({ render: jest.fn(), nothing: Symbol("nothing") }));
 jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
 jest.mock("../../../../content/components/inline-menu", () => ({
   InlineMenuPrompt: jest.fn(() => "prompt"),
+  InlineMenuCipherList: jest.fn(() => "cipher-list"),
 }));
-jest.mock("../../../../content/components/icons", () => ({ Lock: jest.fn() }));
+jest.mock("../../../../content/components/icons", () => ({
+  Lock: jest.fn(),
+  ExternalLink: jest.fn(),
+}));
 
 describe("AutofillInlineMenuList", () => {
   const generatedPassword = "generatedPassword!1";
@@ -191,30 +195,6 @@ describe("AutofillInlineMenuList", () => {
         expect(focusSpy).toHaveBeenCalled();
       });
 
-      it("clears imperative DOM on reset when Lit components are enabled", async () => {
-        postWindowMessage(
-          createInitAutofillInlineMenuListMessageMock({
-            authStatus: AuthenticationStatus.Unlocked,
-            ciphers: [createAutofillOverlayCipherDataMock(1)],
-            portKey,
-            useLitComponents: true,
-          }),
-        );
-        await flushPromises();
-
-        const container = autofillInlineMenuList["inlineMenuListContainer"];
-        expect(container.querySelectorAll("ul").length).toBe(1);
-
-        postWindowMessage({
-          command: "updateAutofillInlineMenuListCiphers",
-          ciphers: [createAutofillOverlayCipherDataMock(2)],
-          token: "test-token",
-        });
-        await flushPromises();
-
-        expect(container.querySelectorAll("ul").length).toBe(1);
-      });
-
       it("keeps the legacy locked DOM when useLitComponents is false", async () => {
         postWindowMessage(
           createInitAutofillInlineMenuListMessageMock({
@@ -229,6 +209,261 @@ describe("AutofillInlineMenuList", () => {
         expect(InlineMenuPrompt).not.toHaveBeenCalled();
         expect(
           autofillInlineMenuList["inlineMenuListContainer"].querySelector("#unlock-button"),
+        ).not.toBeNull();
+      });
+    });
+
+    describe("Lit cipher list rendering when useLitComponents is enabled", () => {
+      it("renders the Lit cipher list instead of the legacy list DOM", async () => {
+        const ciphers = [createAutofillOverlayCipherDataMock(1)];
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+            showPasskeysLabels: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledWith(
+          expect.objectContaining({
+            ciphers,
+            showPasskeysLabels: true,
+            handleFillCipher: expect.any(Function),
+            handleViewCipher: expect.any(Function),
+            onTotpPeriodElapsed: expect.any(Function),
+          }),
+        );
+        const [, listHost] = jest.mocked(render).mock.calls[0];
+        expect(listHost).toBe(autofillInlineMenuList["inlineMenuListContainer"].firstElementChild);
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            ".inline-menu-list-actions",
+          ),
+        ).toBeNull();
+      });
+
+      it("fills a cipher from the Lit cipher list", async () => {
+        const ciphers = [createAutofillOverlayCipherDataMock(1)];
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleFillCipher } = (InlineMenuCipherList as jest.Mock).mock.calls[0][0];
+        handleFillCipher(ciphers[0], new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          {
+            command: "fillAutofillInlineMenuCipher",
+            inlineMenuCipherId: "1",
+            usePasskey: false,
+            portKey,
+            token: "test-token",
+          },
+          expectedOrigin,
+        );
+      });
+
+      it("views a cipher from the Lit cipher list", async () => {
+        const ciphers = [createAutofillOverlayCipherDataMock(1)];
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleViewCipher } = (InlineMenuCipherList as jest.Mock).mock.calls[0][0];
+        handleViewCipher(ciphers[0], new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          {
+            command: "viewSelectedCipher",
+            inlineMenuCipherId: "1",
+            portKey,
+            token: "test-token",
+          },
+          expectedOrigin,
+        );
+      });
+
+      it("refreshes overlay ciphers when a Lit TOTP period elapses", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [createAutofillOverlayCipherDataMock(1)],
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { onTotpPeriodElapsed } = (InlineMenuCipherList as jest.Mock).mock.calls[0][0];
+        onTotpPeriodElapsed();
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "refreshOverlayCiphers", portKey, token: "test-token" },
+          expectedOrigin,
+        );
+      });
+
+      it("does not duplicate cipher lists on updates when Lit is enabled", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [createAutofillOverlayCipherDataMock(1)],
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+        const [, initialHost] = jest.mocked(render).mock.calls[0];
+        jest.mocked(InlineMenuCipherList).mockClear();
+        jest.mocked(render).mockClear();
+
+        postWindowMessage({
+          command: "updateAutofillInlineMenuListCiphers",
+          ciphers: [createAutofillOverlayCipherDataMock(2)],
+          token: "test-token",
+        });
+        await flushPromises();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledTimes(1);
+        expect(render).toHaveBeenCalledTimes(2);
+        expect(render).toHaveBeenNthCalledWith(1, nothing, initialHost);
+        expect(render).toHaveBeenNthCalledWith(2, "cipher-list", initialHost);
+        expect(autofillInlineMenuList["inlineMenuListContainer"].firstElementChild).toBe(
+          initialHost,
+        );
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll("ul").length,
+        ).toBe(0);
+      });
+
+      it("renders only the first page of Lit ciphers", async () => {
+        const ciphers = Array.from({ length: 8 }, (_, index) =>
+          createAutofillOverlayCipherDataMock(index + 1),
+        );
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledWith(
+          expect.objectContaining({
+            ciphers: ciphers.slice(0, 6),
+          }),
+        );
+        expect(autofillInlineMenuList["currentCipherIndex"]).toBe(6);
+      });
+
+      it("loads more Lit ciphers when the user scrolls near the bottom", async () => {
+        jest.useFakeTimers();
+        const ciphers = Array.from({ length: 8 }, (_, index) =>
+          createAutofillOverlayCipherDataMock(index + 1),
+        );
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const scrollEl = document.createElement("div");
+        scrollEl.setAttribute("data-cipher-list-scroll", "");
+        Object.defineProperty(scrollEl, "offsetHeight", { value: 100 });
+        Object.defineProperty(scrollEl, "scrollHeight", { value: 500 });
+        scrollEl.scrollTop = 400;
+        autofillInlineMenuList["litHost"].appendChild(scrollEl);
+        autofillInlineMenuList["setupLitCipherListScrollListeners"]();
+        jest.mocked(InlineMenuCipherList).mockClear();
+
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.runAllTimers();
+
+        expect(InlineMenuCipherList).toHaveBeenCalledWith(
+          expect.objectContaining({
+            ciphers,
+          }),
+        );
+        expect(autofillInlineMenuList["currentCipherIndex"]).toBe(8);
+        jest.useRealTimers();
+      });
+
+      it("debounces the Lit cipher list scroll handler", async () => {
+        jest.useFakeTimers();
+        const ciphers = Array.from({ length: 8 }, (_, index) =>
+          createAutofillOverlayCipherDataMock(index + 1),
+        );
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const scrollEl = document.createElement("div");
+        scrollEl.setAttribute("data-cipher-list-scroll", "");
+        Object.defineProperty(scrollEl, "offsetHeight", { value: 100 });
+        Object.defineProperty(scrollEl, "scrollHeight", { value: 500 });
+        scrollEl.scrollTop = 400;
+        autofillInlineMenuList["litHost"].appendChild(scrollEl);
+        autofillInlineMenuList["setupLitCipherListScrollListeners"]();
+        autofillInlineMenuList["cipherListScrollDebounceTimeout"] = setTimeout(jest.fn, 0);
+        const handleDebouncedLitScrollEventSpy = jest.spyOn(
+          autofillInlineMenuList as any,
+          "handleDebouncedLitScrollEvent",
+        );
+
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.advanceTimersByTime(100);
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.advanceTimersByTime(100);
+        scrollEl.dispatchEvent(new Event("scroll"));
+        jest.advanceTimersByTime(400);
+
+        expect(handleDebouncedLitScrollEventSpy).toHaveBeenCalledTimes(1);
+        jest.useRealTimers();
+      });
+
+      it("keeps the legacy cipher list DOM when useLitComponents is false", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [createAutofillOverlayCipherDataMock(1)],
+            portKey,
+            useLitComponents: false,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuCipherList).not.toHaveBeenCalled();
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            ".inline-menu-list-actions",
+          ),
         ).not.toBeNull();
       });
     });
