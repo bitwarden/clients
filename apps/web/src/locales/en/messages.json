@@ -15948,6 +15948,9 @@
     "message": "Open the subscription page on your Bitwarden cloud account and download your license file. Then return to this screen and upload it below."
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
     "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
