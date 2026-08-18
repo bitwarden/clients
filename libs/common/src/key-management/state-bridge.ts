@@ -14,6 +14,7 @@ import {
   WebAuthnPrfUnlockData as SdkWebAuthnPrfUnlockData,
   WrappedAccountCryptographicState,
   Kdf,
+  KeyId,
 } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
@@ -236,5 +237,17 @@ export class JsWasmStateBridge implements WasmStateBridge {
 
   async clear_kdf_config(): Promise<void> {
     await deleteAtomic(this.stateProvider, this.userId, KDF_CONFIG);
+  }
+
+  async set_user_key_id(value: KeyId): Promise<void> {
+    await writeAtomic(this.stateProvider, this.userId, USER_KEY_ID, value);
+  }
+
+  async get_user_key_id(): Promise<KeyId | null> {
+    return await readAtomic(this.stateProvider, this.userId, USER_KEY_ID);
+  }
+
+  async clear_user_key_id(): Promise<void> {
+    await deleteAtomic(this.stateProvider, this.userId, USER_KEY_ID);
   }
 }
