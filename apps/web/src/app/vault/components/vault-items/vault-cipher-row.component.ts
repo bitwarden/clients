@@ -39,6 +39,7 @@ import {
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
+import { VaultRowAccessActionsService } from "./vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -160,6 +161,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
     @Optional() @Inject(VAULT_ROW_LEASE_BADGE) protected leaseBadge: Type<unknown> | null,
+    @Optional() protected accessActions: VaultRowAccessActionsService | null,
   ) {}
 
   /**
