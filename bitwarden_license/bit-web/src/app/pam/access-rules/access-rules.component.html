@@ -4,10 +4,11 @@
       type="button"
       bitButton
       buttonType="primary"
+      startIcon="bwi-plus"
       [bitAction]="openCreate"
       id="access-rules_button_new"
     >
-      {{ "pamAccessRuleNew" | i18n }}
+      {{ "pamAccessRuleCreate" | i18n }}
     </button>
   }
 </app-header>
@@ -112,9 +113,9 @@
           </td>
           <td bitCell>
             @if (r.enabled) {
-              <span bitBadge variant="success">{{ "pamAccessRuleEnabled" | i18n }}</span>
+              <span bitBadge variant="success">{{ "pamAccessRuleActive" | i18n }}</span>
             } @else {
-              <span bitBadge variant="subtle">{{ "disabled" | i18n }}</span>
+              <span bitBadge variant="subtle">{{ "pamAccessRuleInactive" | i18n }}</span>
             }
           </td>
           <td bitCell>
@@ -137,10 +138,10 @@
               <button type="button" bitMenuItem (click)="toggleEnabled(r)">
                 @if (r.enabled) {
                   <bit-icon name="bwi-circle" class="tw-text-muted" />
-                  {{ "pamAccessRuleDisable" | i18n }}
+                  {{ "pamAccessRuleDeactivate" | i18n }}
                 } @else {
                   <bit-icon name="bwi-check-circle" class="tw-text-muted" />
-                  {{ "pamAccessRuleEnable" | i18n }}
+                  {{ "pamAccessRuleActivate" | i18n }}
                 }
               </button>
               <button type="button" bitMenuItem (click)="remove(r)">
@@ -164,12 +165,12 @@
       <bit-bulk-action
         [action]="bulkEnable"
         icon="bwi-check-circle"
-        [label]="'pamAccessRuleBulkEnable' | i18n"
+        [label]="'pamAccessRuleBulkActivate' | i18n"
       />
       <bit-bulk-action
         [action]="bulkDisable"
         icon="bwi-circle"
-        [label]="'pamAccessRuleBulkDisable' | i18n"
+        [label]="'pamAccessRuleBulkDeactivate' | i18n"
       />
       <bit-bulk-action [action]="bulkDelete" icon="bwi-trash" [label]="'delete' | i18n" />
     </bit-bulk-actions-bar>
