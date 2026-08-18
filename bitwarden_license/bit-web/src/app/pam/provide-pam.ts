@@ -9,6 +9,7 @@ import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { PAM_ORG_ADMIN_ROUTE } from "@bitwarden/web-vault/app/pam/pam-org-admin-route.token";
 import { PAM_ROUTES } from "@bitwarden/web-vault/app/pam/pam-routes.token";
 
+import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
 import { DefaultRotationSdkService } from "./rotation/default-rotation-sdk.service";
@@ -26,6 +27,7 @@ import { MyLeasesService } from "./services/my-leases.service";
 import {
   AccessEventService,
   ApprovalSdkService,
+  AuditApiService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
@@ -80,6 +82,14 @@ export function providePam(): SafeProvider[] {
       provide: LeasingErrorService,
       useClass: DefaultLeasingErrorService,
       deps: [],
+    }),
+    // The module's only HTTP-backed contract — see `access-audit/audit-api.service.ts` for why it is
+    // the one exception to the SDK rule. Bound here so swapping it for an SDK-backed implementation,
+    // once the SDK exposes an audit surface, is a change to this line alone.
+    safeProvider({
+      provide: AuditApiService,
+      useClass: DefaultAuditApiService,
+      deps: [ApiService, AccountService],
     }),
     safeProvider({
       provide: RotationSdkService,
