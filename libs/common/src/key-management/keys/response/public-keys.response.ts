@@ -1,6 +1,6 @@
+// eslint-disable-next-line no-restricted-imports
+import { UnsignedPublicKey, VerifyingKey } from "@bitwarden/legacy-crypto";
 import { SignedPublicKey } from "@bitwarden/sdk-internal";
-
-import { UnsignedPublicKey, VerifyingKey } from "../../types";
 
 /**
  * The publicly accessible view of an entity (account / org)'s keys. That includes the encryption public key, and the verifying key if available.

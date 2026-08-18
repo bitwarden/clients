@@ -29,7 +29,6 @@ import {
   SimpleDialogOptions,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
@@ -98,7 +97,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     private readonly desktopAutofillService: DesktopAutofillService,
     private readonly dialogService: DialogService,
     private readonly domainSettingsService: DomainSettingsService,
-    private readonly passwordRepromptService: PasswordRepromptService,
     private readonly router: Router,
   ) {}
 
@@ -151,15 +149,15 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   async closeModal(): Promise<void> {
-    await this.desktopSettingsService.setModalMode(false);
-    await this.accountService.setShowHeader(true);
-
+    // Let the session clean up the modal, if present.
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
       this.session.confirmChosenCipher(null);
+    } else {
+      await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
+      await this.router.navigate(["/"]);
     }
-
-    await this.router.navigate(["/"]);
   }
 
   private initializeCiphersObservable(rpid: string): void {
@@ -207,10 +205,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       if (!overwriteConfirmed) {
         return false;
       }
-    }
-
-    if (cipher.reprompt) {
-      return this.passwordRepromptService.showPasswordPrompt();
     }
 
     return true;

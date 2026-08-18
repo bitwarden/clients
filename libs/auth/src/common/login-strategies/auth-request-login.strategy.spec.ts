@@ -25,8 +25,7 @@ import { makeEncString, FakeAccountService, mockAccountServiceWith } from "@bitw
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { EncryptService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { AuthRequestLoginCredentials } from "../models/domain/login-credentials";
@@ -58,6 +57,7 @@ describe("AuthRequestLoginStrategy", () => {
   let environmentService: MockProxy<EnvironmentService>;
   let configService: MockProxy<ConfigService>;
   let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let unlockService: MockProxy<UnlockService>;
 
   const mockUserId = Utils.newGuid() as UserId;
   let accountService: FakeAccountService;
@@ -95,6 +95,7 @@ describe("AuthRequestLoginStrategy", () => {
     environmentService = mock<EnvironmentService>();
     configService = mock<ConfigService>();
     accountCryptographicStateService = mock<AccountCryptographicStateService>();
+    unlockService = mock<UnlockService>();
 
     accountService = mockAccountServiceWith(mockUserId);
     masterPasswordService = new FakeMasterPasswordService();
@@ -107,6 +108,7 @@ describe("AuthRequestLoginStrategy", () => {
 
     authRequestLoginStrategy = new AuthRequestLoginStrategy(
       cache,
+      unlockService,
       deviceTrustService,
       accountService,
       masterPasswordService,
@@ -163,12 +165,12 @@ describe("AuthRequestLoginStrategy", () => {
     // setMasterKey and setMasterKeyHash should not be called
     expect(masterPasswordService.mock.setMasterKey).not.toHaveBeenCalled();
 
-    // setMasterKeyEncryptedUserKey, setUserKey, and setPrivateKey should still be called
+    // setMasterKeyEncryptedUserKey, the unlock, and setPrivateKey should still be called
     expect(masterPasswordService.mock.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
       tokenResponse.key,
       mockUserId,
     );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(decUserKey, mockUserId);
+    expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(mockUserId, decUserKey);
     expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
       { V1: { private_key: tokenResponse.privateKey } },
       mockUserId,
