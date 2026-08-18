@@ -576,11 +576,16 @@ export class DefaultAutofillOrchestrator implements AutofillOrchestrator {
     target: chrome.tabs.Tab,
     requireForeground: boolean,
   ): Promise<chrome.tabs.Tab | undefined> {
+    let result: chrome.tabs.Tab | null | undefined;
+
     if (requireForeground) {
       const liveTab = await BrowserApi.getTabFromCurrentWindow();
-      return liveTab?.id === target.id ? liveTab : undefined;
+      result = liveTab?.id === target.id ? (liveTab ?? undefined) : undefined;
+    } else {
+      result = target.id == null ? undefined : await BrowserApi.getTab(target.id);
     }
-    return target.id == null ? undefined : BrowserApi.getTab(target.id);
+
+    return result ?? undefined;
   }
 
   /**
