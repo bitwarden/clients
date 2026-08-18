@@ -1661,6 +1661,65 @@ describe("Cipher Service", () => {
       );
     });
 
+    it("routes PAM-gated (partial) rows through the SDK decryption, so they keep their name", async () => {
+      sdkAdminOpsFeatureFlag$.next(false);
+
+      // A gated row as the server sends it: secrets suppressed, a `PartialData` envelope in
+      // their place. Only the SDK decryption can read the envelope; legacy Cipher.decrypt
+      // would yield a nameless, blank row.
+      jest.spyOn(apiService, "send").mockResolvedValue({
+        data: [
+          {
+            id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+            organizationId: testOrgId,
+            type: CipherType.Login,
+            revisionDate: "2022-01-31T12:00:00.000Z",
+            partialData: '{"name":"EncryptedString"}',
+          },
+        ],
+      });
+
+      const partialView = new CipherView();
+      partialView.name = "AWS Root Account";
+      partialView.partial = true;
+      cipherEncryptionService.decryptManyLegacy.mockResolvedValue([[partialView], []]);
+
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+
+      expect(cipherEncryptionService.decryptManyLegacy).toHaveBeenCalledTimes(1);
+      const [ciphers] = cipherEncryptionService.decryptManyLegacy.mock.calls[0];
+      expect(ciphers).toHaveLength(1);
+      expect(ciphers[0].partialData).toBe('{"name":"EncryptedString"}');
+      expect(result).toEqual([partialView]);
+    });
+
+    it("keeps ungated rows on the legacy org-key decrypt, never touching the SDK path", async () => {
+      sdkAdminOpsFeatureFlag$.next(false);
+
+      jest.spyOn(apiService, "send").mockResolvedValue({
+        data: [
+          {
+            id: "5ff8c0b2-1d3e-4f8c-9b2d-1d3e4f8c0b22",
+            organizationId: testOrgId,
+            type: CipherType.Login,
+            revisionDate: "2022-01-31T12:00:00.000Z",
+            name: "EncryptedString",
+          },
+        ],
+      });
+      const legacyView = new CipherView();
+      legacyView.name = "Legacy decrypted";
+      const legacyDecrypt = jest.spyOn(Cipher.prototype, "decrypt").mockResolvedValue(legacyView);
+
+      const result = await cipherService.getManyFromApiForOrganization(testOrgId);
+
+      expect(legacyDecrypt).toHaveBeenCalledTimes(1);
+      expect(cipherEncryptionService.decryptManyLegacy).not.toHaveBeenCalled();
+      expect(result).toEqual([legacyView]);
+
+      legacyDecrypt.mockRestore();
+    });
+
     it("should use SDK to list assigned organization ciphers when feature flag is enabled", async () => {
       sdkAdminOpsFeatureFlag$.next(true);
 
