@@ -582,7 +582,10 @@ describe("MembersComponent", () => {
       await component.bulkReinvite(mockOrg);
 
       expect(mockMemberActionsService.bulkReinvite).toHaveBeenCalledWith(mockOrg, [invitedUser]);
-      expect(mockMemberDialogManager.openBulkStatusDialog).toHaveBeenCalled();
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "reinviteSuccessToast",
+      });
     });
 
     it("should show error when no invited users selected", async () => {

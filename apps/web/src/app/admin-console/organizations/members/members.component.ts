@@ -457,23 +457,13 @@ export class MembersComponent {
       this.validationService.showError(result.failed);
     }
 
-    if (this.dataSource().isIncreasedBulkLimitEnabled()) {
-      this.toastService.showToast({
-        variant: "success",
-        message:
-          invitedCount === 1
-            ? this.i18nService.t("reinviteSuccessToast")
-            : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
-      });
-    } else {
-      // In self-hosted environments, show legacy dialog
-      await this.memberDialogManager.openBulkStatusDialog(
-        users,
-        allInvitedUsers,
-        Promise.resolve(result.successful),
-        this.i18nService.t("bulkReinviteMessage"),
-      );
-    }
+    this.toastService.showToast({
+      variant: "success",
+      message:
+        invitedCount === 1
+          ? this.i18nService.t("reinviteSuccessToast")
+          : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
+    });
 
     this.dataSource().uncheckAllUsers();
   }
