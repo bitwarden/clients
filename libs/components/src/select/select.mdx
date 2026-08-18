@@ -36,6 +36,9 @@ Usage guidelines:
 - Use a leading visual for every option, or for none of them — and don't mix `icon` and `iconTile`
   within the same select.
 - The tile is decorative; the option label carries the meaning, so no `ariaLabel` is applied.
+- A disabled option's tile renders in the neutral `gray` family and ignores any custom `color`, so
+  it reads as inactive alongside the muted label. A plain `icon` needs no equivalent handling — it
+  inherits the option's text color.
 
 ## Stories
 

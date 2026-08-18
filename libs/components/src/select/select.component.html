@@ -62,8 +62,8 @@
     <bit-icon-tile
       class="tw-flex"
       [icon]="item.iconTile.icon"
-      [variant]="item.iconTile.variant ?? 'primary'"
-      [color]="item.iconTile.color"
+      [variant]="tileVariant(item)"
+      [color]="tileColor(item)"
       [emphasis]="item.iconTile.emphasis ?? 'subtle'"
       size="xs"
     />
