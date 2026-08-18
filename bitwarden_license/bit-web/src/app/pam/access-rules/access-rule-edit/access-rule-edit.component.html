@@ -77,7 +77,6 @@
                 <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
-            <bit-hint>{{ "pamAccessRuleDefaultDurationHint" | i18n }}</bit-hint>
           </bit-form-field>
 
           <bit-form-field>
@@ -94,7 +93,7 @@
                 <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
-            <bit-hint>{{ "pamAccessRuleMaxDurationRequestHint" | i18n }}</bit-hint>
+            <bit-hint>{{ "pamAccessRuleMaxDurationCapHint" | i18n }}</bit-hint>
           </bit-form-field>
 
           <bit-form-control [disableMargin]="!formGroup.controls.allowsExtensions.value">
@@ -176,12 +175,14 @@
         </bit-card>
       </bit-section>
 
-      <p bitTypography="body2" class="tw-text-muted">
-        {{ "pamAccessRuleEventLogNoticeStart" | i18n }}
-        <a bitLink [routerLink]="eventLogRoute" id="access-rule-edit_anchor_event-logs">{{
-          "eventLogs" | i18n
-        }}</a>
-      </p>
+      @if (canAccessEventLogs()) {
+        <p bitTypography="body2" class="tw-text-muted">
+          {{ "pamAccessRuleEventLogNotice" | i18n }}
+          <a bitLink [routerLink]="eventLogRoute" id="access-rule-edit_anchor_event-logs">{{
+            "pamAccessRuleViewEventLogs" | i18n
+          }}</a>
+        </p>
+      }
 
       <div class="tw-flex tw-items-center tw-gap-2">
         <button

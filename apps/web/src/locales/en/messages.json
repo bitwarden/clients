@@ -16868,14 +16868,14 @@
   "pamAccessRuleCollectionsHint": {
     "message": "This access rule will apply to all selected collections."
   },
-  "pamAccessRuleEventLogNoticeStart": {
-    "message": "All requests and decisions are logged to"
+  "pamAccessRuleEventLogNotice": {
+    "message": "All requests and decisions are logged."
+  },
+  "pamAccessRuleViewEventLogs": {
+    "message": "View event logs"
   },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Couldn't load collections. Refresh the page to try again."
-  },
-  "pamAccessRuleDefaultDurationHint": {
-    "message": "This duration will be pre-filled in access requests."
   },
   "pamAccessRuleDescription": {
     "message": "Description"
@@ -16889,8 +16889,8 @@
   "pamAccessRuleMaxDurationNoCap": {
     "message": "No cap"
   },
-  "pamAccessRuleMaxDurationRequestHint": {
-    "message": "This is the longest duration a requester can ask for."
+  "pamAccessRuleMaxDurationCapHint": {
+    "message": "Access is limited to this length, whatever duration is requested."
   },
   "pamAccessRuleDuration15m": {
     "message": "15 minutes"
@@ -17693,9 +17693,6 @@
   },
   "accessRuleIpAllowlistCidrPlaceholder": {
     "message": "e.g. 10.0.0.0/8"
-  },
-  "accessRuleIpAllowlistCidrHint": {
-    "message": "Enter one IP range per line in CIDR notation."
   },
   "accessRuleIpAllowlistAddRow": {
     "message": "Add CIDR range"

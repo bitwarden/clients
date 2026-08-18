@@ -4,6 +4,7 @@ import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
@@ -25,6 +26,10 @@ const cidrValidationStub: CidrValidationService = { isValid: () => true };
 
 // Only the delete flow opens a dialog; specs that exercise it provide their own answer.
 const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
+
+const organizationServiceStub = (canAccessEventLogs = true) => ({
+  organizations$: () => of([{ id: "org-1", canAccessEventLogs }]),
+});
 
 // Preset durations offered by the pickers, in seconds.
 const THIRTY_MIN = 30 * 60;
@@ -61,6 +66,7 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: OrganizationService, useValue: organizationServiceStub() },
         { provide: DialogService, useValue: declinedDialogStub },
       ],
     });
@@ -111,7 +117,11 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
 });
 
 describe("AccessRuleEditComponent — page furniture", () => {
-  const render = async (state: RouteState, existing?: AccessRuleView) => {
+  const render = async (
+    state: RouteState,
+    existing?: AccessRuleView,
+    canAccessEventLogs = true,
+  ) => {
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
       providers: [
@@ -126,6 +136,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: OrganizationService, useValue: organizationServiceStub(canAccessEventLogs) },
         { provide: DialogService, useValue: declinedDialogStub },
       ],
     });
@@ -151,7 +162,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(text).toContain("pamAccessRuleEditTitle");
   });
 
-  it("links 'Event logs' at the organization's reporting route", async () => {
+  it("links the event logs at the organization's reporting route", async () => {
     const fixture = await render({});
 
     const link = fixture.nativeElement.querySelector(
@@ -159,6 +170,13 @@ describe("AccessRuleEditComponent — page furniture", () => {
     ) as HTMLAnchorElement | null;
     expect(link).not.toBeNull();
     expect(link!.getAttribute("href")).toBe("/organizations/org-1/reporting/events");
+  });
+
+  it("drops the event log notice for an organization without event log access", async () => {
+    const fixture = await render({}, undefined, false);
+
+    expect(fixture.nativeElement.querySelector("#access-rule-edit_anchor_event-logs")).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain("pamAccessRuleEventLogNotice");
   });
 });
 
@@ -209,6 +227,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: OrganizationService, useValue: organizationServiceStub() },
         { provide: DialogService, useValue: dialog },
       ],
     });
@@ -513,6 +532,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
           useValue: { collectionAdminViews$: () => throwError(() => new Error("boom")) },
         },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: OrganizationService, useValue: organizationServiceStub() },
         { provide: DialogService, useValue: declinedDialogStub },
       ],
     });
@@ -553,6 +573,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
         { provide: CidrValidationService, useValue: cidrValidationStub },
+        { provide: OrganizationService, useValue: organizationServiceStub() },
         { provide: DialogService, useValue: declinedDialogStub },
       ],
     });

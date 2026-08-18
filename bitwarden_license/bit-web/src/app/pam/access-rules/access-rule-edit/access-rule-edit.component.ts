@@ -1,11 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -109,6 +110,7 @@ export class AccessRuleEditComponent {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly cidrValidation = inject(CidrValidationService);
   private readonly dialogService = inject(DialogService);
 
@@ -145,8 +147,26 @@ export class AccessRuleEditComponent {
     () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
   );
 
-  /** Absolute route to the organization's event logs, linked from the footer notice. */
   protected readonly eventLogRoute = ["/organizations", this.organizationId, "reporting", "events"];
+
+  /**
+   * Gates the footer notice. `canManageAccessRules` (this page's guard) does not imply access to
+   * event logs: `canAccessEventLogs` also requires the organization's `useEvents` entitlement, and
+   * without it the reporting route bounces the admin straight back out.
+   */
+  protected readonly canAccessEventLogs = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      map((organizations) =>
+        organizations.some(
+          (organization) =>
+            organization.id === this.organizationId && organization.canAccessEventLogs,
+        ),
+      ),
+    ),
+    { initialValue: false },
+  );
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
