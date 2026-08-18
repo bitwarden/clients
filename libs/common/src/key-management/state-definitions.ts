@@ -2,10 +2,16 @@ import { Jsonify } from "type-fest";
 
 // There is no way to prevent this restricted import currently. These should be extracted out into a separate package.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import {
   EncString,
-  EphemeralPinEnvelopeState,
+  KeyId,
   PasswordProtectedKeyEnvelope,
   V2UpgradeToken,
   WebAuthnPrfUnlockData,
@@ -21,7 +27,6 @@ import {
   UserKeyDefinition,
 } from "@bitwarden/state";
 
-import { SymmetricCryptoKey } from "../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../types/key";
 
 import { MasterPasswordUnlockData } from "./master-password/types/master-password.types";
@@ -35,9 +40,19 @@ import { MasterPasswordUnlockData } from "./master-password/types/master-passwor
 /**
  * The UserKey, held in memory while the account is unlocked.
  */
-export const USER_KEY = UserKeyDefinition.record<UserKey>(CRYPTO_MEMORY, "userKey", {
+export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],
+  // Prevents the state from caching and rxjs observable becoming hot observable.
+  cleanupDelayMs: 0,
+});
+
+/**
+ * The id of the UserKey, as recorded by the server.
+ */
+export const USER_KEY_ID = new UserKeyDefinition<KeyId>(CRYPTO_DISK, "userKeyId", {
+  deserializer: (jsonValue) => jsonValue,
+  clearOn: ["logout"],
   // Prevents the state from caching and rxjs observable becoming hot observable.
   cleanupDelayMs: 0,
 });
@@ -133,7 +148,7 @@ export const PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT =
  * The ephemeral (stored in memory) version of the UserKey, stored in a `PasswordProtectedKeyEnvelope`.
  */
 export const PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL =
-  UserKeyDefinition.record<EphemeralPinEnvelopeState>(
+  new UserKeyDefinition<PasswordProtectedKeyEnvelope>(
     PIN_MEMORY,
     "pinProtectedUserKeyEnvelopeEphemeral",
     {

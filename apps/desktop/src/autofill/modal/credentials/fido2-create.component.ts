@@ -1,11 +1,7 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import { combineLatest, map, Observable, Subject, switchMap } from "rxjs";
+import { combineLatest, map, Observable, of, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
@@ -29,14 +25,9 @@ import {
   SimpleDialogOptions,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
-import {
-  DesktopFido2UserInterfaceService,
-  DesktopFido2UserInterfaceSession,
-} from "../../services/desktop-fido2-user-interface.service";
+import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
 @Component({
   standalone: true,
@@ -59,9 +50,16 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Fido2CreateComponent implements OnInit, OnDestroy {
-  session?: DesktopFido2UserInterfaceSession = null;
-  ciphers$: Observable<CipherView[]>;
-  private destroy$ = new Subject<void>();
+  private readonly desktopSettingsService = inject(DesktopSettingsService);
+  private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
+  private readonly accountService = inject(AccountService);
+  private readonly cipherService = inject(CipherService);
+  private readonly dialogService = inject(DialogService);
+  private readonly domainSettingsService = inject(DomainSettingsService);
+  private readonly router = inject(Router);
+
+  readonly session = this.fido2UserInterfaceService.getCurrentSession();
+  readonly ciphers$: Observable<CipherView[] | null> = this.buildCiphers$();
   readonly Icons = { BitwardenShield, NoResults };
 
   private get DIALOG_MESSAGES() {
@@ -90,32 +88,13 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
     } as const satisfies Record<string, SimpleDialogOptions>;
   }
 
-  constructor(
-    private readonly desktopSettingsService: DesktopSettingsService,
-    private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
-    private readonly accountService: AccountService,
-    private readonly cipherService: CipherService,
-    private readonly desktopAutofillService: DesktopAutofillService,
-    private readonly dialogService: DialogService,
-    private readonly domainSettingsService: DomainSettingsService,
-    private readonly passwordRepromptService: PasswordRepromptService,
-    private readonly router: Router,
-  ) {}
-
   async ngOnInit(): Promise<void> {
-    this.session = this.fido2UserInterfaceService.getCurrentSession();
-
-    if (this.session) {
-      const rpid = await this.session.getRpId();
-      this.initializeCiphersObservable(rpid);
-    } else {
+    if (!this.session) {
       await this.showErrorDialog(this.DIALOG_MESSAGES.unableToSavePasskey);
     }
   }
 
   async ngOnDestroy(): Promise<void> {
-    this.destroy$.next();
-    this.destroy$.complete();
     await this.closeModal();
   }
 
@@ -151,27 +130,31 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   async closeModal(): Promise<void> {
-    await this.desktopSettingsService.setModalMode(false);
-    await this.accountService.setShowHeader(true);
-
+    // Let the session clean up the modal, if present.
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(null);
+      this.session.confirmChosenCipher(undefined);
+    } else {
+      await this.desktopSettingsService.setModalMode(false);
+      await this.accountService.setShowHeader(true);
+      await this.router.navigate(["/"]);
     }
-
-    await this.router.navigate(["/"]);
   }
 
-  private initializeCiphersObservable(rpid: string): void {
-    const lastRegistrationRequest = this.desktopAutofillService.lastRegistrationRequest;
+  private buildCiphers$(): Observable<CipherView[] | null> {
+    const rpid = this.session?.rpId;
+    const userHandleBytes = this.session?.userHandle;
 
-    if (!lastRegistrationRequest || !rpid) {
-      return;
+    // Emit `null` (loading/unavailable) until we have everything needed to
+    // resolve matching ciphers. The template treats `null` as a distinct state
+    // from an empty list so it doesn't flash the wrong branch.
+    if (!this.session || !rpid || !userHandleBytes) {
+      return of(null);
     }
 
-    const userHandle = Fido2Utils.arrayToString(new Uint8Array(lastRegistrationRequest.userHandle));
+    const userHandle = Fido2Utils.arrayToString(new Uint8Array(userHandleBytes));
 
-    this.ciphers$ = combineLatest([
+    return combineLatest([
       this.accountService.activeAccount$.pipe(map((a) => a?.id)),
       this.domainSettingsService.getUrlEquivalentDomains(rpid),
     ]).pipe(
@@ -207,10 +190,6 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
       if (!overwriteConfirmed) {
         return false;
       }
-    }
-
-    if (cipher.reprompt) {
-      return this.passwordRepromptService.showPasswordPrompt();
     }
 
     return true;
