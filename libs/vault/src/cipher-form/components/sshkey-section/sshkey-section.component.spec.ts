@@ -18,6 +18,7 @@ import { SshKeySectionComponent } from "./sshkey-section.component";
 
 jest.mock("@bitwarden/sdk-internal", () => {
   return {
+    ...jest.requireActual("@bitwarden/sdk-internal"),
     generate_ssh_key: jest.fn(),
   };
 });
