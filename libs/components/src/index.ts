@@ -23,6 +23,7 @@ export * from "./copy-click";
 export * from "./dialog";
 export * from "./disclosure";
 export * from "./file-upload";
+export * from "./fab";
 export * from "./filter-menu";
 export * from "./form-control";
 export * from "./form-field";
