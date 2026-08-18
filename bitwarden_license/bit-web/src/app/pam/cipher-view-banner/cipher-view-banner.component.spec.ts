@@ -42,8 +42,24 @@ function requestView(overrides: Partial<AccessRequestView> = {}): AccessRequestV
   return { id: "request-1", ...overrides } as unknown as AccessRequestView;
 }
 
+/**
+ * The badge the SDK would rank for a state assembled from the parts below. Mirrored here — rather
+ * than spelled out at every call site — so a fixture built from `activeLease`/`approvedRequest`/
+ * `pendingRequest` stays a faithful stand-in for a real response, which always carries both the
+ * parts and the ranked badge. The ranking itself is the SDK's, and tested there.
+ */
+function badgeStateFor(state: CipherAccessStateView): CipherAccessStateView["badgeState"] {
+  if (state.activeLease != null) {
+    return { active: { expiresAt: state.activeLease.notAfter } };
+  }
+  if (state.approvedRequest != null) {
+    return "ready";
+  }
+  return state.pendingRequest != null ? "pending" : "privileged";
+}
+
 function accessState(overrides: Partial<CipherAccessStateView> = {}): CipherAccessStateView {
-  return {
+  const state = {
     cipherId: "cipher-1",
     activeLease: undefined,
     pendingRequest: undefined,
@@ -52,6 +68,8 @@ function accessState(overrides: Partial<CipherAccessStateView> = {}): CipherAcce
     maxExtensionDurationSeconds: undefined,
     ...overrides,
   } as unknown as CipherAccessStateView;
+
+  return { ...state, badgeState: state.badgeState ?? badgeStateFor(state) };
 }
 
 function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckView {
