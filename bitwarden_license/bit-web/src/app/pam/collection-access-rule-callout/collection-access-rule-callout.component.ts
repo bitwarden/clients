@@ -1,17 +1,17 @@
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { RouterLink } from "@angular/router";
-import { catchError, combineLatest, from, map, of, switchMap } from "rxjs";
+import { combineLatest, map, of, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule, DialogRef, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessRuleSdkService, AccessRuleView } from "..";
+import { AccessRuleView } from "..";
+import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { accessRuleSummaryKeys, rulesGoverningCollection } from "./access-rule-summary";
 
@@ -35,10 +35,9 @@ export class CollectionAccessRuleCalloutComponent {
   readonly organizationId = input<OrganizationId | undefined>(undefined);
   readonly collectionId = input<CollectionId | undefined>(undefined);
 
-  private readonly accessRuleSdkService = inject(AccessRuleSdkService);
+  private readonly governedCollections = inject(GovernedCollectionsService);
   private readonly configService = inject(ConfigService);
   private readonly i18nService = inject(I18nService);
-  private readonly logService = inject(LogService);
   /**
    * Optional: the callout is normally inside the collection dialog and closes it on navigate, but it
    * also renders standalone (e.g. a story), where there is no dialog to close.
@@ -55,13 +54,11 @@ export class CollectionAccessRuleCalloutComponent {
         if (!enabled || organizationId == null || collectionId == null) {
           return of<AccessRuleView[]>([]);
         }
-        return from(this.accessRuleSdkService.listAccessRules(organizationId)).pipe(
-          map((rules) => rulesGoverningCollection(rules, collectionId)),
-          catchError((error: unknown) => {
-            this.logService.error(error);
-            return of<AccessRuleView[]>([]);
-          }),
-        );
+        // The shared per-org cached read (also behind the collection-row badge); it already
+        // resolves a failed read to no rules, which hides the callout.
+        return this.governedCollections
+          .rules$(organizationId)
+          .pipe(map((rules) => rulesGoverningCollection(rules, collectionId)));
       }),
     ),
     { initialValue: [] as AccessRuleView[] },
