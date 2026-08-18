@@ -1,4 +1,3 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -16,14 +15,14 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { AddEditFolderDialogComponent, openDeleteFolderDialog } from "@bitwarden/vault";
 
-import { HeaderModule } from "../../layouts/header/header.module";
+import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
+import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
 
 import { MyFoldersComponent } from "./my-folders.component";
 
-jest.mock("@bitwarden/vault", () => ({
-  ...jest.requireActual("@bitwarden/vault"),
+jest.mock("../delete-folder-dialog/delete-folder-dialog.component", () => ({
+  ...jest.requireActual("../delete-folder-dialog/delete-folder-dialog.component"),
   openDeleteFolderDialog: jest.fn(),
 }));
 
@@ -32,13 +31,6 @@ global.ResizeObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }));
-
-@Component({
-  selector: "app-header",
-  template: "<ng-content></ng-content>",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-class MockHeaderComponent {}
 
 const folder = (id: string, name: string): FolderView =>
   Object.assign(new FolderView(), { id, name });
@@ -121,12 +113,7 @@ describe("MyFoldersComponent", () => {
         { provide: LogService, useValue: mock<LogService>() },
         { provide: ToastService, useValue: toastService },
       ],
-    })
-      .overrideComponent(MyFoldersComponent, {
-        remove: { imports: [HeaderModule] },
-        add: { imports: [MockHeaderComponent] },
-      })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(MyFoldersComponent);
     component = fixture.componentInstance;

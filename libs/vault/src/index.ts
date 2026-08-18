@@ -38,6 +38,7 @@ export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/it
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
 export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
+export * from "./components/my-folders/my-folders.component";
 export * from "./components/add-item-grid/add-item-grid.component";
 export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";
