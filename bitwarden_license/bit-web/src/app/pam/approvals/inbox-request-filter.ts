@@ -1,7 +1,7 @@
 import type { AccessRequestView } from "../abstractions/access-lease";
 
 /** The fields deciding whether an inbox row is still worth a decision. */
-type TimeBoundedRequest = Pick<AccessRequestView, "leaseNotAfter"> & { expiredAt?: string };
+type TimeBoundedRequest = Pick<AccessRequestView, "leaseNotAfter" | "expiredAt">;
 
 /**
  * Whether a request still belongs in the approver's actionable inbox — that is, whether a decision
