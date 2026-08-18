@@ -8,11 +8,13 @@ import { NavigationModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 /**
- * Renders the PAM nav group (Access rules) in the Admin Console organization side nav when the
- * {@link FeatureFlag.Pam} feature flag is on and the organization can manage access rules.
+ * Renders the PAM nav group (Access rules, Audit log) in the Admin Console organization side nav when
+ * the {@link FeatureFlag.Pam} feature flag is on and the viewer can reach at least one of its items.
  *
- * Encapsulates the flag lookup and the access-rule gate so the host layout can plug PAM in with a
- * single tag and no PAM-specific symbols.
+ * The two items carry different permissions — managing access rules and reading event logs — and each
+ * mirrors the guard on its own route, so the group appears whenever either would be reachable and
+ * never renders an item that would redirect. Encapsulates the flag lookup and both gates so the host
+ * layout can plug PAM in with a single tag and no PAM-specific symbols.
  */
 @Component({
   selector: "app-pam-org-nav-slot",
@@ -31,7 +33,11 @@ export class PamOrgNavSlotComponent {
   private readonly pamEnabled = toSignal(this.configService.getFeatureFlag$(FeatureFlag.Pam), {
     initialValue: false,
   });
-  protected readonly showPam = computed(
+  protected readonly showAccessRules = computed(
     () => this.pamEnabled() && this.organization().canManageAccessRules,
   );
+  protected readonly showAuditLog = computed(
+    () => this.pamEnabled() && this.organization().canAccessEventLogs,
+  );
+  protected readonly showPam = computed(() => this.showAccessRules() || this.showAuditLog());
 }
