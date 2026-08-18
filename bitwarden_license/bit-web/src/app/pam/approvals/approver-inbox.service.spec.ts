@@ -235,7 +235,7 @@ describe("ApproverInboxService", () => {
       approvalApi.listHistory.mockResolvedValue([
         request({
           id: "req-1",
-          status: "activated",
+          status: "approved",
           producedLeaseId: "lease-1",
           producedLeaseStatus: "active",
         }),
@@ -288,7 +288,7 @@ describe("ApproverInboxService", () => {
         "boom",
       );
       const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].status).toBe("activated");
+      expect(history[0].status).toBe("approved");
     });
 
     it("never reaches for the HTTP seam to mutate", async () => {

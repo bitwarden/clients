@@ -57,9 +57,11 @@ raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
 `abstractions/access-rule.ts` defines `AccessRuleError` — a flat, hand-written shape
 (`{ name: "AccessRuleError", variant, message }`) mirroring the SDK's wasm-bindgen error
 convention. Use `accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it;
-never treat it as `ErrorResponse`. Lease/request calls throw the SDK's `LeasingError`,
-detected through the injectable `LeasingErrorService` seam so consumers never import the
-wasm guard.
+never treat it as `ErrorResponse`. The SDK splits its own failures per client —
+`AccessRequestError` (request/activate/cancel), `ApprovalError` (decide) and `AccessLeaseError`
+(read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
+through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
+All three carry an `Api` variant holding the server's message.
 
 A rejected access-request submit is interpreted by
 `helpers/request-access-error.ts`. Three of the server's messages mean the caller already
@@ -75,13 +77,23 @@ re-exports of SDK shapes type-only for the same reason.
 
 ## Status spelling follows the SDK
 
-`canceled`, one L — in code, in i18n keys (`pamStatusCanceled`), everywhere. The SDK's
-`AccessLeaseStatus` has no `cancelled` value at all: a holder ending their own lease and
-an operator revoking it are both `revoked`, and `historyDisplayStatus` tells them apart
-from the decision log instead — the SDK now carries `endedByHolder` on `AccessLeaseView`,
-which makes that heuristic unnecessary; adopting it is tracked separately. The SDK's own
+`canceled`, one L — in code, in i18n keys (`pamStatusCanceled`), everywhere. The SDK's own
 `TryFrom` conversions normalise incoming wire values onto these spellings, so the module
 never sees the other form.
+
+## Activation is not a status
+
+`AccessRequestStatus` has no `activated` value. An activated request stays `approved` and is
+recognised by the `producedLeaseId` it minted, with `producedLeaseStatus` carrying that lease's
+state. Anything separating "approved, still to start" from "already running" must test
+`producedLeaseId` rather than the status — that is what keeps the nav badge, the Pending list and
+the Start/Cancel actions off a grant the requester has already activated.
+
+`AccessLeaseStatus` does carry a distinct `canceled` (the requester ended their own lease) next to
+`revoked` (an operator did), and `AccessLeaseView` carries
+`termination: AccessLeaseTermination | undefined` spelling out which happened and when.
+`historyDisplayStatus` still derives that distinction from the decision log because it only
+receives the request, not the lease; adopting `canceled` / `termination` is tracked separately.
 
 ## Refresh model
 
