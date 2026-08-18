@@ -20,6 +20,7 @@ export type InlineMenuPromptProps = {
   i18n: InlineMenuPromptI18n;
   theme: Theme;
   handleAction: (e: Event) => void;
+  handleKeyUp?: (e: KeyboardEvent) => void;
   icon?: (props: IconProps) => TemplateResult;
   dataTestId?: string;
   actionDataTestId?: string;
@@ -31,6 +32,7 @@ export function InlineMenuPrompt({
   i18n,
   theme,
   handleAction,
+  handleKeyUp,
   icon,
   dataTestId,
   actionDataTestId,
@@ -38,6 +40,12 @@ export function InlineMenuPrompt({
   const handleButtonClick = (event: Event) => {
     if (EventSecurity.isEventTrusted(event)) {
       handleAction(event);
+    }
+  };
+
+  const handleButtonKeyUp = (event: KeyboardEvent) => {
+    if (handleKeyUp && EventSecurity.isEventTrusted(event)) {
+      handleKeyUp(event);
     }
   };
 
@@ -54,9 +62,11 @@ export function InlineMenuPrompt({
         <button
           type="button"
           class=${actionButtonStyles(theme)}
+          tabindex="-1"
           data-testid="${actionDataTestId}"
           aria-label=${i18n.actionAria}
           @click=${handleButtonClick}
+          @keyup=${handleButtonKeyUp}
         >
           ${
             icon
