@@ -58,6 +58,10 @@ foreground-verified unless its author deliberately says otherwise.
 
 ### A credential reaches only the origin it was chosen for
 
+> [!NOTE]
+> "Origin" here means "the place where something begins". It does not refer to
+> [`URL.origin`](https://developer.mozilla.org/en-US/docs/Web/API/URL/origin).
+
 A page-load fill targets the frame that produced the transition, re-resolved live by identity at the
 moment of the fill, and proceeds only if that frame still shows the origin it reported. A transition
 can be paused while its tab is away and resolved later; in the interval the frame may have navigated.
