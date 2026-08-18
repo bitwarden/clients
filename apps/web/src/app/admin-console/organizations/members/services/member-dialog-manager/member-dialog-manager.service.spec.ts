@@ -23,7 +23,6 @@ import { BulkEnablePrivilegedControlsDialogComponent } from "../../components/bu
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
-import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import {
   MemberDialogComponent,
@@ -477,32 +476,6 @@ describe("MemberDialogManagerService", () => {
         message: "noSelectedUsersApplicable",
       });
       expect(dialogService.open).not.toHaveBeenCalled();
-    });
-  });
-
-  describe("openBulkStatusDialog", () => {
-    it("should open bulk status dialog with correct parameters", async () => {
-      const mockDialogRef = { closed: of(undefined) };
-      dialogService.open.mockReturnValue(mockDialogRef as any);
-
-      const users = [mockUser];
-      const filteredUsers = [mockUser];
-      const request = Promise.resolve();
-      const successMessage = "Success!";
-
-      await service.openBulkStatusDialog(users, filteredUsers, request, successMessage);
-
-      expect(dialogService.open).toHaveBeenCalledWith(
-        BulkStatusComponent,
-        expect.objectContaining({
-          data: {
-            users: users,
-            filteredUsers: filteredUsers,
-            request: request,
-            successfulMessage: successMessage,
-          },
-        }),
-      );
     });
   });
 

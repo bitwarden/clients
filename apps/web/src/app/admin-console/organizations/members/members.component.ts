@@ -455,15 +455,16 @@ export class MembersComponent {
 
     if (result.successful.length === 0) {
       this.validationService.showError(result.failed);
+    } else {
+      const sentCount = result.successful.length;
+      this.toastService.showToast({
+        variant: "success",
+        message:
+          sentCount === 1
+            ? this.i18nService.t("reinviteSuccessToast")
+            : this.i18nService.t("bulkReinviteSentToast", sentCount.toString()),
+      });
     }
-
-    this.toastService.showToast({
-      variant: "success",
-      message:
-        invitedCount === 1
-          ? this.i18nService.t("reinviteSuccessToast")
-          : this.i18nService.t("bulkReinviteSentToast", invitedCount.toString()),
-    });
 
     this.dataSource().uncheckAllUsers();
   }
