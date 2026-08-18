@@ -1,4 +1,5 @@
 import { hasModifierKey } from "@angular/cdk/keycodes";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   afterRenderEffect,
   Component,
@@ -22,6 +23,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { BitFormFieldControlDirective } from "../form-field";
 import { IconComponent } from "../icon";
+import { IconTileComponent } from "../icon-tile";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { Option } from "./option";
@@ -38,7 +40,15 @@ import { OptionComponent } from "./option.component";
       inputs: ["required", "id"],
     },
   ],
-  imports: [NgSelectModule, ReactiveFormsModule, FormsModule, TypographyDirective, IconComponent],
+  imports: [
+    NgTemplateOutlet,
+    NgSelectModule,
+    ReactiveFormsModule,
+    FormsModule,
+    TypographyDirective,
+    IconComponent,
+    IconTileComponent,
+  ],
   host: {
     class: "tw-block tw-w-full tw-h-full",
     "[id]": "formFieldControl.id()",
@@ -90,6 +100,7 @@ export class SelectComponent<T> implements ControlValueAccessor {
         this.items.set(
           opts.map((option) => ({
             icon: option.icon(),
+            iconTile: option.iconTile(),
             value: option.value(),
             label: option.label(),
             description: option.description(),
