@@ -280,7 +280,7 @@ describe("UserApiLoginStrategy", () => {
       userId,
       undefined,
     );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+    expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(userId, userKey);
   });
 
   it("uses the legacy Key Connector user key path when SDK handling is disabled", async () => {
@@ -310,7 +310,7 @@ describe("UserApiLoginStrategy", () => {
       userId,
       undefined,
     );
-    expect(keyService.setUserKey).toHaveBeenCalledWith(userKey, userId);
+    expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(userId, userKey);
   });
 
   it("sets account cryptographic state when accountKeysResponseModel is present", async () => {

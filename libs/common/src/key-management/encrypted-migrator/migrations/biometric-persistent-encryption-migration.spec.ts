@@ -3,11 +3,12 @@ import { of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { BiometricStateService, BiometricsService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 
@@ -57,7 +58,7 @@ describe("BiometricPersistentMigration", () => {
       expect(result).toBe("noMigrationNeeded");
     });
 
-    it("should return 'needsMigration' when enrolled key ID does not match current key ID (v2 to v2 migration)", async () => {
+    it("should return 'needsMigration' when enrolled key ID does not match current key ID", async () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
@@ -69,7 +70,7 @@ describe("BiometricPersistentMigration", () => {
       expect(result).toBe("needsMigration");
     });
 
-    it("should return 'needsMigration' when no enrolled key ID exists (v1 to v2 migration)", async () => {
+    it("should return 'needsMigration' when the user key has a key ID but none is enrolled", async () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
@@ -81,7 +82,31 @@ describe("BiometricPersistentMigration", () => {
       expect(result).toBe("needsMigration");
     });
 
-    it("should return 'noMigrationNeeded' when enrolled key ID matches current key ID (v2 hot path)", async () => {
+    it("should return 'needsMigration' when a key ID is enrolled but the user key has none", async () => {
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
+      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
+      ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(undefined);
+      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(mockKeyIdB64);
+
+      const result = await sut.needsMigration(mockUserId);
+
+      expect(result).toBe("needsMigration");
+    });
+
+    it("should return 'noMigrationNeeded' when neither the user key nor the enrollment has a key ID", async () => {
+      mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
+      mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
+      mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
+      ((CryptoClient as any).get_key_id_for_symmetric_key as jest.Mock).mockReturnValue(undefined);
+      mockBiometricStateService.getBiometricEnrolledKeyId.mockResolvedValue(null);
+
+      const result = await sut.needsMigration(mockUserId);
+
+      expect(result).toBe("noMigrationNeeded");
+    });
+
+    it("should return 'noMigrationNeeded' when enrolled key ID matches current key ID", async () => {
       mockBiometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
       mockBiometricsService.hasPersistentKey.mockResolvedValue(true);
       mockKeyService.userKey$.mockReturnValue(of(mockUserKey));
