@@ -17755,24 +17755,6 @@
   "pamAccessRuleDeactivateSuccess": {
     "message": "Access rule deactivated."
   },
-  "pamAccessRuleEnabled": {
-    "message": "Enabled"
-  },
-  "pamAccessRuleEnabledHint": {
-    "message": "When disabled, the rule is inactive and does not restrict access."
-  },
-  "pamAccessRuleEnable": {
-    "message": "Enable rule"
-  },
-  "pamAccessRuleDisable": {
-    "message": "Disable rule"
-  },
-  "pamAccessRuleEnableSuccess": {
-    "message": "Access rule enabled."
-  },
-  "pamAccessRuleDisableSuccess": {
-    "message": "Access rule disabled."
-  },
   "pamAccessRuleNotFound": {
     "message": "Access rule not found."
   },
@@ -17781,9 +17763,6 @@
   },
   "pamAccessRuleCreate": {
     "message": "Create access rule"
-  },
-  "pamAccessRuleNew": {
-    "message": "New rule"
   },
   "pamAccessRuleCreateTitle": {
     "message": "New access rule"
@@ -18110,12 +18089,6 @@
   },
   "pamAccessRuleBulkDeactivate": {
     "message": "Deactivate"
-  },
-  "pamAccessRuleBulkEnable": {
-    "message": "Enable"
-  },
-  "pamAccessRuleBulkDisable": {
-    "message": "Disable"
   },
   "pamAccessRulesUpdated": {
     "message": "Access rules updated."
