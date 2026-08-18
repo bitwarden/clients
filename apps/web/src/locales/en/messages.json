@@ -7494,6 +7494,33 @@
       }
     }
   },
+  "policyInEffectMinLengthShort": {
+    "message": "$LENGTH$ or more characters",
+    "placeholders": {
+      "length": {
+        "content": "$1",
+        "example": "25"
+      }
+    }
+  },
+  "policyInEffectUppercaseShort": {
+    "message": "1 uppercase character"
+  },
+  "policyInEffectLowercaseShort": {
+    "message": "1 lowercase character"
+  },
+  "policyInEffectNumbersShort": {
+    "message": "1 number"
+  },
+  "policyInEffectSpecialShort": {
+    "message": "1 of the following: $CHARS$",
+    "placeholders": {
+      "chars": {
+        "content": "$1",
+        "example": "!@#$%^&*"
+      }
+    }
+  },
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Your new master password does not meet the policy requirements."
   },
