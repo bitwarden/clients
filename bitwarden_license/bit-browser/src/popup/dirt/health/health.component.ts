@@ -165,7 +165,9 @@ export class HealthComponent {
       ),
       map((report): HealthScanState => ({ status: "success", report })),
       catchError((error: unknown): Observable<HealthScanState> => {
-        this.logService.error(error);
+        // Message included so a failed scan is identifiable in a log dump;
+        // asked for in review to make report failures easier to debug.
+        this.logService.error("Vault health scan failed", error);
         return of({ status: "error" });
       }),
       startWith<HealthScanState>({ status: "scanning" }),

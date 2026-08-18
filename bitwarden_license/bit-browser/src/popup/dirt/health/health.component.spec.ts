@@ -319,7 +319,7 @@ describe("HealthComponent", () => {
       await initComponent();
       await settle();
 
-      expect(logService.error).toHaveBeenCalled();
+      expect(logService.error).toHaveBeenCalledWith("Vault health scan failed", expect.anything());
     });
 
     it("does not scan the replayed null from cipherViews$, which would report a permanently healthy vault", async () => {
