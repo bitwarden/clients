@@ -221,7 +221,7 @@ describe("AccessRequestRouteComponent", () => {
       // The revoke path records its reason as a deny decision; only the decider tells them apart.
       detail.request$.next(
         request({
-          status: "activated",
+          status: "approved",
           decisions: [automaticDecision(), selfEndDecision("user-1")],
         }),
       );
@@ -236,7 +236,7 @@ describe("AccessRequestRouteComponent", () => {
     it("reads someone else's deny on an activated request as an operator revoke", () => {
       detail.request$.next(
         request({
-          status: "activated",
+          status: "approved",
           decisions: [
             automaticDecision(),
             humanDecision({ id: "operator-9", name: "Ops", verdict: "deny" }),
@@ -280,14 +280,14 @@ describe("AccessRequestRouteComponent", () => {
 
     it("offers End only while the produced lease is live", () => {
       detail.request$.next(
-        request({ status: "activated", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
       );
       create();
       expect(component["canEndLease"]()).toBe(true);
 
       detail.request$.next(
         request({
-          status: "activated",
+          status: "approved",
           producedLeaseId: "lease-1",
           producedLeaseStatus: "revoked",
         }),
@@ -336,7 +336,7 @@ describe("AccessRequestRouteComponent", () => {
 
     it("confirms before ending the lease", async () => {
       detail.request$.next(
-        request({ status: "activated", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
       );
       create();
 
@@ -349,7 +349,7 @@ describe("AccessRequestRouteComponent", () => {
     it("does not end the lease when the confirm is dismissed", async () => {
       dialogService.openSimpleDialog.mockResolvedValue(false);
       detail.request$.next(
-        request({ status: "activated", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
       );
       create();
 
