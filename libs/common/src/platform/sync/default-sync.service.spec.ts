@@ -14,6 +14,8 @@ import {
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import { CryptoSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
@@ -31,7 +33,6 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
 import { FeatureFlag } from "../../enums/feature-flag.enum";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";

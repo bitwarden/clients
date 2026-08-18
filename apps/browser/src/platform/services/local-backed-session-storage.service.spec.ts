@@ -1,11 +1,10 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeStorageService, makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KeyGenerationService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { StorageService } from "@bitwarden/storage-core";
 
 import BrowserLocalStorageService from "./browser-local-storage.service";

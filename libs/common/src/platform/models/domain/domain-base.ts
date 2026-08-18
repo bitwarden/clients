@@ -1,10 +1,10 @@
 import { ConditionalExcept, ConditionalKeys } from "type-fest";
 
-import { DECRYPT_ERROR, EncString } from "../../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { DECRYPT_ERROR, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+
 import { View } from "../../../models/view/view";
 import { Utils } from "../../misc/utils";
-
-import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type EncStringKeys<T> = ConditionalKeys<ConditionalExcept<T, Function>, EncString>;
