@@ -37,6 +37,7 @@ import {
   AccessRuleView,
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
+  accessRuleDeleteConfirmOptions,
   accessRuleErrorMessage,
   accessRuleToFormValue,
   AccessRuleSdkService,
@@ -409,13 +410,9 @@ export class AccessRuleEditComponent {
       return;
     }
 
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamAccessRuleDeleteConfirmTitle" },
-      content: { key: "pamAccessRuleDeleteConfirmContent", placeholders: [existing.name] },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(existing.name),
+    );
     if (!confirmed) {
       return;
     }
