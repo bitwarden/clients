@@ -14,8 +14,11 @@
   One `header` around both bars, so the banner landmark covers the whole region regardless of the flag.
   The bars themselves are plain containers: the app bar is chrome belonging to the extension, the title
   bar belongs to the page, and neither is a landmark on its own.
+
+  `header` carries the styling of the one-bar header and nothing else. Two bars each paint themselves,
+  so with the flag on this is a bare landmark.
 -->
-<header>
+<header [class]="headerClasses()">
   @if (vfo1Enabled()) {
     <div
       data-testid="app-bar"
@@ -38,18 +41,9 @@
     </div>
   }
 
-  <!--
-    `tw-max-h-24` is a ceiling above the bar's natural height, not a fixed size — collapsing animates
-    `max-height` so the expanded bar keeps whatever height its content needs. The padding collapses
-    alongside it so visible motion starts on the first frame.
-  -->
-  <div
-    data-testid="title-bar"
-    class="tw-p-3 bit-compact:tw-p-2 tw-max-h-24 tw-overflow-hidden tw-bg-bg-tertiary tw-border-0 tw-border-b tw-border-solid tw-border-border-base motion-safe:tw-transition-all tw-duration-200 tw-ease-out"
-    [class]="titleBarClasses()"
-  >
+  <div data-testid="title-bar" [class]="titleBarClasses()">
     <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
-      <div class="tw-inline-flex tw-items-center tw-gap-2">
+      <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
         @if (showBackButton()) {
           <button
             bitIconButton="bwi-angle-left"
@@ -63,17 +57,22 @@
         }
         @if (pageTitle()) {
           <div class="tw-inline-flex tw-items-center tw-gap-1">
-            <h1 bitTypography="h3" class="!tw-mb-0">
+            <h1 bitTypography="h3" [class]="vfo1Enabled() ? '!tw-mb-0' : '!tw-mb-0.5'">
               {{ pageTitle() }}
             </h1>
             <ng-content select="[slot=title-suffix]"></ng-content>
           </div>
         }
-        @if (!vfo1Enabled() || !pageTitle()) {
+        <!--
+          The app bar owns the extension's branding, and `pageTitle` owns the title, so the legacy
+          default slot has nothing left to carry once the flag is on. Its only consumers project a
+          Bitwarden logo, which the app bar would otherwise duplicate.
+        -->
+        @if (!vfo1Enabled()) {
           <ng-content></ng-content>
         }
       </div>
-      <div class="tw-flex tw-items-center tw-gap-2">
+      <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
         @if (vfo1Enabled()) {
           <ng-content select="[slot=title-end]"></ng-content>
         } @else {

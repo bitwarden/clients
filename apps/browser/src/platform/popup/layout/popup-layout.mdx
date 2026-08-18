@@ -77,6 +77,11 @@ Basic usage example:
 - `showBackButton`: optional, defaults to `false`
   - Toggles the back button to appear. The back button uses `Location.back()` to navigate back one
     page in history.
+- `background`: optional, defaults to `"default"`
+  - `"default"` sits on an opaque background with a bottom border.
+  - `"alt"` is transparent and borderless, for a page that paints its own background — an
+    illustration, say. This arg is not flag-gated: a page that owns its background owns it in the
+    two-bar header too, where it applies to the page title bar and leaves the app bar alone.
 
 **Slots**
 
@@ -108,6 +113,12 @@ landmark instead of one:
   extension rather than the page (pop out button, account switcher)
 - a **page title bar** — the familiar header, carrying the back button, a leading icon tile, the
   title, and an item count
+
+The app bar is extension chrome rather than page content, so it renders on every screen that uses
+`popup-header` — dialogs and onboarding pages included. Because it owns the branding, the legacy
+default slot is dropped while the flag is on: a page that used it to project its own logo would
+otherwise render the logo twice. Content that still belongs in the title bar goes in `start`,
+`title-end`, or `title-suffix`.
 
 Toggle the flag in the **Feature Flags** addon panel to compare the two.
 

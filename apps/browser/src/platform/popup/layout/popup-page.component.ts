@@ -38,6 +38,9 @@ export class PopupPageComponent {
 
   protected readonly scrolled = signal(false);
 
+  /** Whether the page content has been scrolled away from the top. Read by `popup-header`. */
+  readonly isScrolled = this.scrolled.asReadonly();
+
   constructor() {
     this.scrollLayout.scrollableRef$
       .pipe(

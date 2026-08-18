@@ -13,6 +13,8 @@ import { firstValueFrom, map } from "rxjs";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { BrowserClientVendors } from "@bitwarden/common/autofill/constants";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
 import {
   BaseCardComponent,
@@ -69,11 +71,21 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   );
   private readonly introCarouselService = inject(IntroCarouselService);
   private readonly autofillBrowserSettingsService = inject(AutofillBrowserSettingsService);
+  private readonly configService = inject(ConfigService);
 
   private readonly privacyPermissionIsGranted = signal(false);
 
   private readonly isDarkTheme = toSignal(
     this.themingService.theme$.pipe(map((theme) => theme === ThemeTypes.Dark)),
+    { initialValue: false },
+  );
+
+  /**
+   * The two-bar header supplies its own branding and its own gutter, so the logo this page projects
+   * and the padding override that aligns it with the page content both belong to the v1 header only.
+   */
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
 

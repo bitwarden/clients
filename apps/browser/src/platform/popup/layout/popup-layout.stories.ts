@@ -1163,7 +1163,7 @@ export const TransparentHeader: Story = {
     template: /* HTML */ `
       <extension-container>
         <popup-page>
-          <popup-header slot="header" pageTitle="">
+          <popup-header slot="header" background="alt" pageTitle="">
             <span class="tw-italic tw-text-main">🤠 Custom Content</span>
           </popup-header>
           <vault-placeholder></vault-placeholder>
