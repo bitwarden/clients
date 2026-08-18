@@ -8,16 +8,24 @@ import type { AccessRuleView } from "../abstractions/access-rule";
 import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 /**
- * How long a cached per-organization read serves new consumers. Checked lazily, so an open callout
- * keeps its value.
+ * How long a cached per-org read is served before a new consumer triggers a fresh one.
+ * Collection rows live under a virtual scroller with no template cache, so badge subscriptions
+ * churn on every scroll pass — the TTL absorbs that churn with one read, while still bounding
+ * how stale the badge and callout can be after rules change. Expiry is checked lazily on
+ * access (no timers), so already-mounted rows keep their value and the next mount re-reads.
  */
 const CACHE_TTL_MS = 30_000;
 
 type CacheEntry = { fetchedAt: number; rules$: Observable<readonly AccessRuleView[]> };
 
 /**
- * One cached `listAccessRules` read per organization, for surfaces that need the rules rather than
- * `hasEnabledAccessRule`. A failed read resolves to no rules, as every consumer is informational.
+ * One shared, cached `listAccessRules` read per organization — the source both the
+ * collection-row badge and the collection-dialog callout derive from (via
+ * `rulesGoverningCollection`), so a vault list of N collections issues one read, not N,
+ * and "governed" cannot mean two different things on two surfaces.
+ *
+ * Informational consumers only, so a failed read resolves to no rules (badge and callout
+ * simply don't render) rather than erroring the host surfaces.
  */
 @Injectable()
 export class GovernedCollectionsService {
@@ -44,13 +52,5 @@ export class GovernedCollectionsService {
     );
     this.cache.set(organizationId, { fetchedAt: Date.now(), rules$ });
     return rules$;
-  }
-
-  /**
-   * Call after any access-rule write, or a collection it freed or governed stays wrong for up to
-   * {@link CACHE_TTL_MS} with no in-app way to refresh.
-   */
-  invalidate(organizationId: OrganizationId): void {
-    this.cache.delete(organizationId);
   }
 }
