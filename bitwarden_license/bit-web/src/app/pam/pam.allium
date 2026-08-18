@@ -1407,10 +1407,10 @@ surface ApproverInbox {
     -- than a page of its own; the tab is hidden entirely from a member with no
     -- approval privileges.
     --
-    -- Its two reads and its decision write are the one place this client speaks HTTP
-    -- rather than the SDK (ApprovalApiService), because the pinned SDK exposes no
-    -- approver-scoped surface. Revoke and cancel-approval are NOT part of that seam:
-    -- LeasesClient::end and AccessRequestsClient::cancel already serve them.
+    -- Its two reads and its decision write go through the SDK's approver-scoped
+    -- ApprovalsClient (list_inbox, list_history, decide), like every other PAM call.
+    -- Revoke and cancel-approval are served by LeasesClient::end and
+    -- AccessRequestsClient::cancel.
     facing viewer: Approver
 
     context viewer: Approver

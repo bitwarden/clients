@@ -68,8 +68,7 @@ export { canApprove } from "./helpers/can-approve";
 export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
 export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
-export { ApprovalApiService } from "./approvals/approval-api.service";
-export { AccessDecisionRequest } from "./approvals/access-decision.request";
+export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
 export type { LabelValue } from "./helpers/approval-window";
 export {
