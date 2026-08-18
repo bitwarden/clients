@@ -1,5 +1,10 @@
 @if (showPam()) {
   <bit-nav-group icon="bwi-shield" [text]="'pam' | i18n" route="pam">
-    <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules"></bit-nav-item>
+    @if (showAccessRules()) {
+      <bit-nav-item [text]="'pamAccessRules' | i18n" route="pam/access-rules"></bit-nav-item>
+    }
+    @if (showAuditLog()) {
+      <bit-nav-item [text]="'pamAuditLog' | i18n" route="pam/audit"></bit-nav-item>
+    }
   </bit-nav-group>
 }
