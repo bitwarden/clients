@@ -148,7 +148,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     return fixture;
   };
 
-  it("shows the rule's name as the heading, with the list as the only breadcrumb", async () => {
+  it("shows the rule's name as the heading, with the list and edit-page crumbs", async () => {
     const fixture = await render({ params: { accessRuleId: "rule-1" } }, {
       id: "rule-1",
       name: "Production database access",
@@ -162,6 +162,26 @@ describe("AccessRuleEditComponent — page furniture", () => {
 
     const crumbs = fixture.nativeElement.querySelectorAll("bit-breadcrumbs button");
     expect(crumbs).toHaveLength(0);
+
+    const pageTypeCrumb = fixture.nativeElement.querySelector(
+      '[slot="breadcrumbs"] [aria-current="page"]',
+    );
+    expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleEditTitle");
+  });
+
+  it("shows the create-page crumb and heading in create mode", async () => {
+    const fixture = await render({});
+
+    const crumbs = fixture.nativeElement.querySelectorAll("bit-breadcrumbs button");
+    expect(crumbs).toHaveLength(0);
+
+    const pageTypeCrumb = fixture.nativeElement.querySelector(
+      '[slot="breadcrumbs"] [aria-current="page"]',
+    );
+    expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleCreateTitle");
+
+    const heading = fixture.nativeElement.querySelector("h1");
+    expect(heading.textContent).toContain("pamAccessRuleCreateTitle");
   });
 
   it("links the event logs at the organization's reporting route", async () => {
