@@ -175,7 +175,7 @@ describe("AccessRulesComponent — activation toasts", () => {
     });
   });
 
-  it("reports a reactivation when toggling an inactive rule on", async () => {
+  it("reports an activation when toggling an inactive rule on", async () => {
     const inactive = rule("rule-1", "VPN", false);
     const fixture = await setup([inactive]);
 

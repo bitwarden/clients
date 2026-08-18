@@ -122,6 +122,19 @@
               label="{{ 'options' | i18n }}"
             ></button>
             <bit-menu #rowMenu>
+              <!--
+                Edit stays first: `bitMenuTriggerFor` focuses the first item on every open,
+                so a stray Enter must land on a navigation, not on the unconfirmed
+                activate/deactivate toggle.
+              -->
+              <button type="button" bitMenuItem (click)="openEdit(r)">
+                <bit-icon name="bwi-pencil" class="tw-text-muted" />
+                {{ "edit" | i18n }}
+              </button>
+              <button type="button" bitMenuItem (click)="duplicate(r)">
+                <bit-icon name="bwi-clone" class="tw-text-muted" />
+                {{ "pamAccessRuleDuplicate" | i18n }}
+              </button>
               <button type="button" bitMenuItem (click)="toggleEnabled(r)">
                 @if (r.enabled) {
                   <bit-icon name="bwi-subtract-circle" class="tw-text-muted" />
@@ -130,14 +143,6 @@
                   <bit-icon name="bwi-check-circle" class="tw-text-muted" />
                   {{ "pamAccessRuleActivate" | i18n }}
                 }
-              </button>
-              <button type="button" bitMenuItem (click)="openEdit(r)">
-                <bit-icon name="bwi-pencil" class="tw-text-muted" />
-                {{ "edit" | i18n }}
-              </button>
-              <button type="button" bitMenuItem (click)="duplicate(r)">
-                <bit-icon name="bwi-clone" class="tw-text-muted" />
-                {{ "pamAccessRuleDuplicate" | i18n }}
               </button>
               <button type="button" bitMenuItem (click)="remove(r)">
                 <bit-icon name="bwi-trash" class="tw-text-danger" />
