@@ -115,7 +115,9 @@
                 <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
-            <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+            @if (formGroup.controls.maxLeaseDurationSeconds.value !== noDurationCap) {
+              <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+            }
           </bit-form-field>
 
           <bit-form-control [disableMargin]="!formGroup.controls.allowsExtensions.value">
