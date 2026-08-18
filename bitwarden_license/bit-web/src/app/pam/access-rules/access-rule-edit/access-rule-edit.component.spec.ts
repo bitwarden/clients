@@ -122,9 +122,12 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     { id: "col-3", name: "Finance" },
   ];
 
-  const setup = async (state: RouteState, existing?: AccessRuleView) => {
+  const setup = async (state: RouteState, existing?: AccessRuleView | Error) => {
     pamApi = {
-      getAccessRule: jest.fn().mockResolvedValue(existing),
+      getAccessRule:
+        existing instanceof Error
+          ? jest.fn().mockRejectedValue(existing)
+          : jest.fn().mockResolvedValue(existing),
       createAccessRule: jest.fn().mockResolvedValue(undefined),
       updateAccessRule: jest.fn().mockResolvedValue(undefined),
     };
@@ -261,6 +264,72 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     await component["submit"]();
 
     expect(pamApi.createAccessRule).not.toHaveBeenCalled();
+  });
+
+  it("prefills from the source rule when duplicating, but not its collections", async () => {
+    await setup({ queryParams: { duplicateFrom: "rule-1" } }, {
+      id: "rule-1",
+      name: "Production access",
+      description: "prod",
+      collections: ["col-1", "col-3"],
+      conditions: [{ kind: "human_approval" }, { kind: "time_of_day", tz: "UTC" } as any],
+    } as unknown as AccessRuleView);
+
+    expect(pamApi.getAccessRule).toHaveBeenCalledWith("org-1", "rule-1");
+    // The i18n fake echoes the key; the real message is "$NAME$ (copy)".
+    expect(controls().name.value).toBe("pamAccessRuleDuplicateName");
+    expect(controls().description.value).toBe("prod");
+    expect(controls().humanApprovalEnabled.value).toBe(true);
+    // A collection can only carry one rule, so the source's collections would be
+    // rejected on save; the duplicate starts with none selected.
+    expect(controls().collections.value).toEqual([]);
+
+    // Saving the duplicate creates a new rule (carrying the unmodelled condition), never updates the source.
+    controls().name.setValue("Production access copy");
+    controls().collections.setValue([
+      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
+    await component["submit"]();
+
+    expect(pamApi.updateAccessRule).not.toHaveBeenCalled();
+    expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
+    const [, request] = pamApi.createAccessRule.mock.calls[0];
+    expect(request.conditions).toEqual(
+      expect.arrayContaining([{ kind: "time_of_day", tz: "UTC" }]),
+    );
+  });
+
+  it("toasts and falls back to a blank create form when the duplicate source can't load", async () => {
+    await setup({ queryParams: { duplicateFrom: "gone" } }, new Error("boom"));
+
+    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
+    );
+    expect(controls().name.value).toBe("");
+    // Unlike a failed edit-mode load, the user stays on the (now blank) create page.
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("shows the friendly collection-conflict message when the server rejects the collections", async () => {
+    await setup({});
+    const conflict = Object.assign(
+      new Error(
+        'error in response: status code 400 Bad Request: {"message":"One or more collections are already governed by another access rule."}',
+      ),
+      { name: "AccessRuleError", variant: "Api" },
+    );
+    pamApi.createAccessRule.mockRejectedValue(conflict);
+
+    controls().name.setValue("Conflicting rule");
+    controls().collections.setValue([
+      { id: "col-1", listName: "Eng", labelName: "Eng", icon: "bwi-collection-shared" },
+    ] satisfies SelectItemView[]);
+    await component["submit"]();
+
+    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "pamAccessRuleCollectionConflict" }),
+    );
+    expect(navigate).not.toHaveBeenCalled();
   });
 
   it("applies a starter template from the query param", async () => {
