@@ -119,45 +119,29 @@ export function statusLabelKey(status: AccessRequestStatus): string {
 }
 
 /**
- * Whether a decision on the log reflects the holder ending their own lease: a human "deny"
- * decision whose decider is the requester themself.
- */
-function endedByHolder(request: Pick<AccessRequestView, "requesterId" | "decisions">): boolean {
-  return request.decisions.some(
-    (d) =>
-      d.verdict === "deny" &&
-      d.decider !== "automatic" &&
-      d.decider.human.id === request.requesterId,
-  );
-}
-
-/**
  * Display status + badge for a request.
  *
  * Activation is not a status of its own: an approved request that minted a lease is recognised by
  * `producedLeaseId`, and the lease's `producedLeaseStatus` drives the label from there. An approved
  * request not yet activated keeps the plain "Approved" label.
  *
- * A `revoked` lease covers both a self-service end and an operator revoke, so the distinction is
- * derived from the decision log: a human "deny" decision whose `id` is the requester's own id means
- * the holder ended it themselves ("Cancelled"); any other revoke means an operator did ("Revoked").
- * An `active` produced lease is labelled like a live grant — callers exclude it from History (it
+ `canceled` and `revoked` are distinct lease statuses, so the label reads straight off
+ * `producedLeaseStatus`: the requester ending their own lease is "Cancelled", an operator ending it
+ * out from under them is "Revoked". An `active` produced lease is labelled like a live grant — callers exclude it from History (it
  * belongs in Active leases) but the detail page's top status field can still render it correctly.
  */
 export function historyDisplayStatus(
-  request: Pick<
-    AccessRequestView,
-    "status" | "producedLeaseId" | "producedLeaseStatus" | "decisions" | "requesterId"
-  >,
+  request: Pick<AccessRequestView, "status" | "producedLeaseId" | "producedLeaseStatus">,
 ): Pick<MyAccessRequestRow, "statusLabelKey" | "statusVariant"> {
   if (request.status === "approved" && request.producedLeaseId != null) {
     if (request.producedLeaseStatus === "active") {
       return { statusLabelKey: "pamStatusActivated", statusVariant: "success" };
     }
+    if (request.producedLeaseStatus === "canceled") {
+      return { statusLabelKey: "pamStatusEndedByYou", statusVariant: "subtle" };
+    }
     if (request.producedLeaseStatus === "revoked") {
-      return endedByHolder(request)
-        ? { statusLabelKey: "pamStatusEndedByYou", statusVariant: "subtle" }
-        : { statusLabelKey: "pamStatusRevoked", statusVariant: "subtle" };
+      return { statusLabelKey: "pamStatusRevoked", statusVariant: "subtle" };
     }
     // "expired" (or the SDK's "unknown" default) — the server has no autonomous-expiry push in
     // v1, so a lapsed lease still reads as its last known status; default to Expired here.
