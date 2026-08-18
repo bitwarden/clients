@@ -11,8 +11,8 @@ import { I18nMockService, NavigationModule } from "@bitwarden/components";
 
 import { PamOrgNavSlotComponent } from "./pam-org-nav-slot.component";
 
-function org(canManageAccessRules: boolean): Organization {
-  return { canManageAccessRules } as Organization;
+function org(canManageAccessRules: boolean, canAccessEventLogs = false): Organization {
+  return { canManageAccessRules, canAccessEventLogs } as Organization;
 }
 
 describe("PamOrgNavSlotComponent", () => {
@@ -33,6 +33,7 @@ describe("PamOrgNavSlotComponent", () => {
           useValue: new I18nMockService({
             pam: "Privileged access",
             pamAccessRules: "Access rules",
+            pamAuditLog: "Audit log",
           }),
         },
       ],
@@ -50,6 +51,10 @@ describe("PamOrgNavSlotComponent", () => {
   });
 
   const navGroup = () => fixture.debugElement.query(By.css("bit-nav-group"));
+  const navItemRoutes = () =>
+    fixture.debugElement
+      .queryAll(By.css("bit-nav-item"))
+      .map((item) => item.attributes["route"] ?? item.properties["route"]);
 
   it("gates on the PAM feature flag", () => {
     fixture.detectChanges();
@@ -67,9 +72,30 @@ describe("PamOrgNavSlotComponent", () => {
     expect(navGroup()).toBeNull();
   });
 
-  it("renders nothing when the org cannot manage access rules", () => {
+  it("renders nothing when the org has neither PAM permission", () => {
     fixture.componentRef.setInput("organization", org(false));
     fixture.detectChanges();
     expect(navGroup()).toBeNull();
+  });
+
+  // The two items mirror the guards on their own routes: managing access rules and reading event
+  // logs are separate permissions, so neither item may ride in on the other's.
+  it("shows only Access rules when the org cannot read event logs", () => {
+    fixture.componentRef.setInput("organization", org(true, false));
+    fixture.detectChanges();
+    expect(navItemRoutes()).toEqual(["pam/access-rules"]);
+  });
+
+  it("shows only Audit log when the org cannot manage access rules", () => {
+    fixture.componentRef.setInput("organization", org(false, true));
+    fixture.detectChanges();
+    expect(navGroup()).not.toBeNull();
+    expect(navItemRoutes()).toEqual(["pam/audit"]);
+  });
+
+  it("shows both items when the org has both permissions", () => {
+    fixture.componentRef.setInput("organization", org(true, true));
+    fixture.detectChanges();
+    expect(navItemRoutes()).toEqual(["pam/access-rules", "pam/audit"]);
   });
 });
