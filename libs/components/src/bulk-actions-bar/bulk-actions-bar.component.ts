@@ -23,9 +23,14 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconComponent } from "../icon/icon.component";
+import { MenuDividerComponent } from "../menu/menu-divider.component";
 import { MenuItemComponent } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
+import { measureWidth, revealForMeasurement } from "../overflow-list/measure";
+import { OverflowItemDirective } from "../overflow-list/overflow-item.directive";
+import { OverflowListDirective } from "../overflow-list/overflow-list.directive";
+import { OverflowTriggerDirective } from "../overflow-list/overflow-trigger.directive";
 import { BitTableV2Component } from "../table/v2/table-v2.component";
 
 import { BulkActionButtonComponent } from "./bulk-action-button.component";
@@ -48,7 +53,11 @@ const COMPACT_THRESHOLD_BUFFER_PX = 48;
     MenuComponent,
     MenuItemComponent,
     MenuTriggerForDirective,
+    MenuDividerComponent,
     IconComponent,
+    OverflowListDirective,
+    OverflowItemDirective,
+    OverflowTriggerDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
@@ -85,6 +94,8 @@ export class BulkActionsBarComponent {
   protected readonly bar = viewChild<ElementRef<HTMLElement>>("bar");
   protected readonly wrapper = viewChild.required<ElementRef<HTMLElement>>("wrapper");
   protected readonly closeBtn = viewChild(BulkActionButtonComponent);
+  protected readonly overflowList = viewChild.required(OverflowListDirective);
+  private readonly overflowHost = viewChild<ElementRef<HTMLElement>>("overflowHost");
 
   private readonly additionalActionsTrigger = viewChild("additionalActionsTrigger", {
     read: BulkActionButtonComponent,
@@ -109,8 +120,38 @@ export class BulkActionsBarComponent {
    */
   protected readonly initialBarWidth = signal(0);
 
-  /** True when the wrapper is narrower than the bar's intrinsic width. */
-  readonly compact = signal(false);
+  /** Wrapper's live `clientWidth` — fed into both the compact threshold and `overflowContainerWidth`. */
+  private readonly wrapperWidth = signal(0);
+
+  /**
+   * Width of the bar's non-overflow shell (count display + clear button + bar
+   * padding and gaps), only ever measured at compact density.
+   */
+  private readonly reservedShellWidth = signal(0);
+
+  /**
+   * Available width for the primary-actions row, fed to the `OverflowListDirective`.
+   * Deriving it from the wrapper rather than letting the directive observe its own
+   * host avoids a feedback loop, where hiding an item shrinks the host and
+   * overflows another. `null` until measured, keeping the directive at its
+   * all-displayed default.
+   */
+  protected readonly overflowContainerWidth = computed<number | null>(() => {
+    const wrapperW = this.wrapperWidth();
+    const reserved = this.reservedShellWidth();
+    if (wrapperW === 0 || reserved === 0) {
+      return null;
+    }
+    return Math.max(0, wrapperW - reserved);
+  });
+
+  /**
+   * True when the wrapper is narrower than the bar's intrinsic width. Defaults
+   * to `true` so the first measurement pass captures compact widths and the
+   * compact shell; `measureIntrinsicWidth` flips it off when the wrapper fits
+   * the full-label bar.
+   */
+  readonly compact = signal(true);
 
   // Seeded from navigator so the first announcement (which can fire before any
   // keypress) has a sensible label; `handleShortcut` upgrades this to ground
@@ -140,23 +181,52 @@ export class BulkActionsBarComponent {
   private readonly keyManager = signal<FocusKeyManager<BulkActionButtonComponent> | undefined>(
     undefined,
   );
+  /** The items backing the current `keyManager`, in the order it navigates them. */
+  private readonly managedItems = signal<BulkActionButtonComponent[]>([]);
   private readonly destroyRef = inject(DestroyRef);
 
   constructor() {
     const injector = inject(Injector);
     this.initResizeObserver();
 
-    // Projected action data-holders may resolve async (e.g. when consumers
-    // compute them from observable signals), so the bar can mount with fewer
-    // buttons than its eventual steady state. Each emission of `primaryButtons`
-    // reflects the currently rendered button set; remeasure on every change so
-    // `initialBarWidth` tracks reality.
+    // Remeasure whenever the projected action set changes. Gated on
+    // `overflowList.ready()` so this function's forced-label DOM mutation
+    // doesn't race with the directive's own first-pass measurement.
     effect(() => {
       const buttons = this.primaryButtons();
-      if (buttons.length === 0) {
+      if (buttons.length === 0 || !this.overflowList().ready()) {
         return;
       }
       afterNextRender(() => this.measureIntrinsicWidth(), { injector });
+    });
+
+    // `compact` swaps label visibility and button padding, so item widths change
+    // with it, but the directive only remeasures on item-set changes. Without
+    // this, widths cached while wide would drive packing once we narrow.
+    effect(() => {
+      this.compact();
+      this.overflowList().remeasure();
+    });
+
+    // The shell contains the count text and the clear button, so its width tracks
+    // digit count and density — a reserve captured at `9` is wrong at `100`.
+    effect(() => {
+      this.effectiveCount();
+      // Only a compact reading is usable: a non-compact shell (clear button
+      // showing its label) would inflate the reserve.
+      if (!this.overflowList().ready() || !this.compact()) {
+        return;
+      }
+      afterNextRender(
+        () => {
+          const shellWidth = this.measureShellWidth();
+          // Detached / unrendered layout — keep the last usable reading.
+          if (shellWidth > 0) {
+            this.reservedShellWidth.set(shellWidth);
+          }
+        },
+        { injector },
+      );
     });
 
     // FocusKeyManager captures button references at construction. Rebuild it
@@ -175,8 +245,10 @@ export class BulkActionsBarComponent {
       const manager = new FocusKeyManager<BulkActionButtonComponent>(items)
         .withHorizontalOrientation("ltr")
         .withWrap()
-        .withHomeAndEnd();
+        .withHomeAndEnd()
+        .skipPredicate((item) => item.disabled || item.elementRef.nativeElement.hidden !== false);
       this.keyManager.set(manager);
+      this.managedItems.set(items);
       manager.updateActiveItem(0);
       this.applyRovingTabIndex(0, items);
 
@@ -185,6 +257,37 @@ export class BulkActionsBarComponent {
         .subscribe((idx) => this.applyRovingTabIndex(idx, items));
 
       onCleanup(() => manager.destroy());
+    });
+
+    // Packing a button into the menu — or hiding the trigger once nothing
+    // overflows — hides it without rebuilding the manager, so a roving tabindex
+    // left on it drops the toolbar out of the tab order.
+    effect(() => {
+      const hidden = this.overflowList().hiddenElements();
+      const unavailable = (item: BulkActionButtonComponent) =>
+        item.disabled || hidden.has(item.elementRef.nativeElement);
+
+      const manager = this.keyManager();
+      const items = this.managedItems();
+      const active = items[manager?.activeItemIndex ?? -1];
+
+      if (manager == null || active == null || !unavailable(active)) {
+        return;
+      }
+
+      // `updateActiveItem` bypasses `skipPredicate`, so pick a target that is
+      // actually focusable rather than assuming the close button.
+      const next = items.findIndex((item) => !unavailable(item));
+      if (next === -1) {
+        return;
+      }
+
+      const hadFocus = active.elementRef.nativeElement === this.document.activeElement;
+      manager.updateActiveItem(next);
+      this.applyRovingTabIndex(next, items);
+      if (hadFocus) {
+        items[next].focus();
+      }
     });
   }
 
@@ -201,14 +304,46 @@ export class BulkActionsBarComponent {
   private initResizeObserver(): void {
     afterNextRender(() => {
       const wrapperEl = this.wrapper().nativeElement;
+      // Prime the signal so dependent computed signals (compact threshold,
+      // container width) have a real value before the first RO dispatch.
+      this.wrapperWidth.set(wrapperEl.clientWidth);
 
       const observer = new ResizeObserver(() => {
-        const threshold = this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX;
-        this.compact.set(wrapperEl.clientWidth < threshold);
+        const width = wrapperEl.clientWidth;
+        this.wrapperWidth.set(width);
+        // Wait for a real threshold from `measureIntrinsicWidth`; flipping early
+        // would have the directive cache widths at the wrong density.
+        if (this.initialBarWidth() === 0) {
+          return;
+        }
+        this.compact.set(width < this.initialBarWidth() + COMPACT_THRESHOLD_BUFFER_PX);
       });
       observer.observe(wrapperEl);
       this.destroyRef.onDestroy(() => observer.disconnect());
     });
+  }
+
+  /**
+   * Width of everything in the bar except the overflow item row. With the items
+   * revealed, the overflow host's content is the full item row, so `bar - host`
+   * isolates the shell. Returns 0 for an unmeasurable layout (detached, jsdom).
+   */
+  private measureShellWidth(): number {
+    const barEl = this.bar()?.nativeElement;
+    const overflowEl = this.overflowHost()?.nativeElement;
+    if (!barEl || !overflowEl) {
+      return 0;
+    }
+
+    // Hidden items report zero width, so reveal them for the read. The directive
+    // re-applies the right hidden states on its next reactive pass.
+    const restore = this.primaryButtons().map((btn) =>
+      revealForMeasurement(btn.elementRef.nativeElement),
+    );
+    const shellWidth = measureWidth(barEl) - measureWidth(overflowEl);
+    restore.forEach((restoreItem) => restoreItem());
+
+    return shellWidth;
   }
 
   private measureIntrinsicWidth(): void {
@@ -218,37 +353,33 @@ export class BulkActionsBarComponent {
       return;
     }
 
-    // Pin `min-width: max-content` for the read so the flex parent can't
-    // shrink the bar below content size when mounted in a constrained
-    // context. `COMPACT_THRESHOLD_BUFFER_PX` absorbs any imprecision.
+    const trigger = this.additionalActionsTrigger();
+    const primaries = this.primaryButtons();
+    const labeledButtons = primaries.filter((btn) => btn !== trigger);
+
+    // Hidden items report zero width, so reveal them for the read. `min-width:
+    // max-content` stops a constrained flex parent from compressing the bar
+    // below its content. Mutate → measure → restore is synchronous, so the
+    // expanded state never paints. The additional-actions trigger stays
+    // icon-only by design.
+    const restorePrimaries = primaries.map((btn) =>
+      revealForMeasurement(btn.elementRef.nativeElement),
+    );
     const previousMinWidth = barEl.style.minWidth;
     barEl.style.minWidth = "max-content";
-
-    // While `compact` is true, the close + primary button labels are
-    // `display: none` via `tw-hidden`. Reading the width with those applied
-    // would capture the compact width and trap the bar in compact mode
-    // forever (the threshold would never be exceeded by a widening
-    // wrapper). Force them visible for the read; the additional-actions
-    // trigger is intentionally always icon-only, so we exclude it. Mutate
-    // → measure → restore happens synchronously, so the browser never
-    // paints with labels visible.
-    const trigger = this.additionalActionsTrigger();
-    const labeledButtons = this.primaryButtons().filter((btn) => btn !== trigger);
     labeledButtons.forEach((btn) => btn.forceLabelVisible(true));
-
-    const barWidth = Math.ceil(barEl.getBoundingClientRect().width);
-
+    const barWidth = measureWidth(barEl);
     labeledButtons.forEach((btn) => btn.forceLabelVisible(false));
     barEl.style.minWidth = previousMinWidth;
+    restorePrimaries.forEach((restore) => restore());
 
-    // Guard against unmeasurable layouts (detached element, jsdom) so we
-    // don't flip `compact` based on a zero-width read.
+    // Detached / unrendered layout — bail rather than flip `compact` on a
+    // zero-width read.
     if (barWidth === 0) {
       return;
     }
     this.initialBarWidth.set(barWidth);
-    const threshold = barWidth + COMPACT_THRESHOLD_BUFFER_PX;
-    this.compact.set(wrapperEl.clientWidth < threshold);
+    this.compact.set(wrapperEl.clientWidth < barWidth + COMPACT_THRESHOLD_BUFFER_PX);
   }
 
   protected handleShortcut(event: KeyboardEvent): void {
@@ -311,6 +442,10 @@ export class BulkActionsBarComponent {
 
   protected readonly elementWithDividerClasses = [
     "tw-relative",
+    // Pin in place when the bar narrows below its natural content — the
+    // overflow host (the bar's flex-auto child) is the only thing that
+    // should give ground.
+    "tw-shrink-0",
     "after:tw-content-['']",
     "after:tw-absolute",
     "after:tw-bg-bg-brand-strong",

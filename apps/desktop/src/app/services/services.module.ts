@@ -62,9 +62,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { WebCryptoFunctionService } from "@bitwarden/common/key-management/crypto/services/web-crypto-function.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
@@ -137,7 +134,12 @@ import {
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService as CryptoFunctionServiceAbstraction,
+  EncryptService,
+  LegacyCompatKeyService,
+  WebCryptoFunctionService,
+} from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UnlockService } from "@bitwarden/unlock";
 import {
@@ -150,6 +152,7 @@ import {
   RoutedVaultFilterBridgeService,
   VAULT_FILTER_BASE_ROUTE,
   Vfo1TerminologyService,
+  PasswordRepromptService,
 } from "@bitwarden/vault";
 
 import { DesktopLoginComponentService } from "../../auth/login/desktop-login-component.service";
@@ -159,7 +162,9 @@ import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopAutotypeDefaultSettingPolicy } from "../../autofill/services/desktop-autotype-policy.service";
+import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
+import { DesktopFido2UserVerificationService } from "../../autofill/services/desktop-fido2-user-verification.service.abstraction";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
@@ -435,6 +440,11 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
+    provide: DesktopFido2UserVerificationService,
+    useClass: DesktopFido2UnsupportedUserVerificationService,
+    deps: [LogServiceAbstraction],
+  }),
+  safeProvider({
     provide: DesktopFido2UserInterfaceService,
     useClass: DesktopFido2UserInterfaceService,
     deps: [
@@ -445,6 +455,8 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       Router,
       DesktopSettingsService,
+      DesktopFido2UserVerificationService,
+      PasswordRepromptService,
     ],
   }),
   safeProvider({

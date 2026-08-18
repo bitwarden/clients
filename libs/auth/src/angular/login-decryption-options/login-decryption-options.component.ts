@@ -431,6 +431,14 @@ export class LoginDecryptionOptionsComponent implements OnInit {
         message: this.i18nService.t("accountSuccessfullyCreated"),
       });
 
+      this.toastService.showToast({
+        variant: "success",
+        title: null,
+        message: this.i18nService.t("inviteAccepted"),
+      });
+
+      await this.persistUnlockSharingChoice();
+
       await this.loginDecryptionOptionsService.handleCreateUserSuccess();
 
       if (this.clientType === ClientType.Desktop) {

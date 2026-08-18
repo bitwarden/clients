@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Yêu thích"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Tóm tắt nhiệm vụ"
   },
@@ -1205,6 +1208,9 @@
   },
   "myFolders": {
     "message": "Thư mục của tôi"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
@@ -1764,6 +1770,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Tôi"
@@ -3404,6 +3413,24 @@
   "moreOptions": {
     "message": "Tùy chọn khác"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "preferences": {
     "message": "Tùy chỉnh"
   },
@@ -4692,7 +4719,7 @@
     "message": "Tên tổ chức"
   },
   "vaultName": {
-    "message": "Vault name"
+    "message": "Tên kho lưu trữ"
   },
   "accountOwnedBusiness": {
     "message": "Tài khoản này thuộc sở hữu của một doanh nghiệp."
@@ -4811,7 +4838,7 @@
     }
   },
   "limitedSharedFolders": {
-    "message": "Limited to $COUNT$ shared folders",
+    "message": "Giới hạn ở $COUNT$ thư mục chia sẻ",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4835,7 +4862,7 @@
     "message": "Tạo số lượng bộ sưu tập không giới hạn"
   },
   "createUnlimitedSharedFolders": {
-    "message": "Create unlimited shared folders"
+    "message": "Tạo không giới hạn thư mục chia sẻ"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ dung lượng lưu trữ tệp được mã hóa",
@@ -6539,7 +6566,7 @@
     }
   },
   "unableToJoinOrganizationName": {
-    "message": "Unable to join $ORGANIZATIONNAME$",
+    "message": "Không thể tham gia $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -6548,13 +6575,13 @@
     }
   },
   "openOrgInviteLinkNoLongerValid": {
-    "message": "The invite link is no longer valid."
+    "message": "Liên kết mời không còn hợp lệ."
   },
   "returnToLogin": {
-    "message": "Return to login"
+    "message": "Quay lại đăng nhập"
   },
   "returnToRegistration": {
-    "message": "Return to registration"
+    "message": "Quay lại đăng ký"
   },
   "joinOrganizationDesc": {
     "message": "Bạn đã được mời tham gia tổ chức bên trên. Để chấp nhận lời mời, bạn cần đăng nhập hoặc tạo tài khoản Bitwarden mới."
@@ -6584,16 +6611,16 @@
     }
   },
   "openOrgInviteAcceptFailed": {
-    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+    "message": "Không thể chấp nhận lời mời. Hãy yêu cầu quản trị viên tổ chức gửi một liên kết mời mới."
   },
   "openOrgInviteAcceptFailedTitle": {
-    "message": "Cannot accept invitation"
+    "message": "Không thể chấp nhận lời mời"
   },
   "openOrgInviteAcceptAlreadyMember": {
-    "message": "You are already a member of this organization."
+    "message": "Bạn đã là thành viên của tổ chức này."
   },
   "openOrgInviteAcceptEmailDomainNotAllowed": {
-    "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
+    "message": "Các email khớp với $DOMAIN$ không được phép trong tổ chức này.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -6602,52 +6629,52 @@
     }
   },
   "openOrgInviteAcceptFreeAdminLimit": {
-    "message": "You cannot join this organization because you are already the admin of a free organization."
+    "message": "Bạn không thể tham gia tổ chức này vì bạn đã là quản trị viên của một tổ chức miễn phí."
   },
   "openOrgInviteAcceptOrgAccessRevoked": {
-    "message": "You have been revoked from this organization. Contact your admin to regain access."
+    "message": "Quyền truy cập của bạn vào tổ chức này đã bị thu hồi. Hãy liên hệ với quản trị viên của bạn để lấy lại quyền truy cập."
   },
   "openOrgInviteAcceptProviderUser": {
-    "message": "Provider users may not join using this invitation link."
+    "message": "Người dùng nhà cung cấp dịch vụ không được tham gia bằng liên kết mời này."
   },
   "openOrgInviteAcceptResetPasswordKeyRequired": {
-    "message": "Something went wrong, please reload the page to try again."
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
-    "message": "An organization you are already a member of only allows its members to belong to one organization."
+    "message": "Một tổ chức mà bạn đã là thành viên chỉ cho phép các thành viên của mình thuộc về một tổ chức."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
-    "message": "The organization you are trying to join only allows its members to belong to one organization."
+    "message": "Tổ chức mà bạn đang cố gắng tham gia chỉ cho phép các thành viên của mình thuộc về một tổ chức."
   },
   "openOrgInviteAcceptTwoFactorRequired": {
-    "message": "You must set up two-step login in order to join this organization."
+    "message": "Bạn phải thiết lập đăng nhập hai bước để tham gia tổ chức này."
   },
   "openOrgInviteAcceptEmailNotVerified": {
-    "message": "You must verify your email address before joining an organization."
+    "message": "Bạn phải xác minh địa chỉ email của mình trước khi tham gia một tổ chức."
   },
   "openOrgInviteAcceptUnexpected": {
-    "message": "Something went wrong, please reload the page to try again."
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
   },
   "openOrgInviteNoSeatsMessage": {
-    "message": "Your invitation could not be accepted because there is not an available seat."
+    "message": "Không thể chấp nhận lời mời của bạn vì không còn ghế khả dụng."
   },
   "openOrgInviteStatusUnexpectedErrorMessage": {
-    "message": "Something went wrong, please reload the page to try again."
+    "message": "Đã xảy ra lỗi, vui lòng tải lại trang để thử lại."
   },
   "openOrgInviteEmailDomainNotAllowed": {
-    "message": "This domain isn't accepted by this organization. Try a different email address."
+    "message": "Tên miền này không được tổ chức này chấp nhận. Hãy thử một địa chỉ email khác."
   },
   "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
-    "message": "Could not accept invitation"
+    "message": "Không thể chấp nhận lời mời"
   },
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
-    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+    "message": "Không thể giải mã lời mời tham gia tổ chức. Hãy thử lại bằng cách sử dụng cùng một trình duyệt để bắt đầu và hoàn tất quá trình đăng ký."
   },
   "goToLogin": {
-    "message": "Go to login"
+    "message": "Đi tới đăng nhập"
   },
   "goToVault": {
-    "message": "Go to vault"
+    "message": "Đi tới kho lưu trữ"
   },
   "rememberEmail": {
     "message": "Ghi nhớ email"
@@ -9478,25 +9505,25 @@
     "message": "Gói Bitwarden Gia đình được tài trợ"
   },
   "sponsoredBitwardenFamiliesV2": {
-    "message": "Non-member redemptions"
+    "message": "Lượt quy đổi của người không phải thành viên"
   },
   "noSponsoredFamiliesMessage": {
     "message": "Không có gói gia đình được tài trợ nào"
   },
   "noSponsoredFamiliesMessageV2": {
-    "message": "No redemptions yet"
+    "message": "Chưa có lượt quy đổi nào"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Các gói Gia đình dành cho người không phải thành viên được tài trợ sẽ hiển thị tại đây"
   },
   "noSponsoredFamiliesDetailsV2": {
-    "message": "No non-members have redeemed the Sponsored Family Plan."
+    "message": "Chưa có người không phải thành viên nào quy đổi Gói Bitwarden Gia đình Được tài trợ."
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Thành viên tổ chức của bạn đủ điều kiện sử dụng gói Bitwarden Gia đình miễn phí. Bạn có thể tài trợ Bitwarden Gia đình miễn phí cho nhân viên không thuộc tổ chức Bitwarden của bạn. Việc tài trợ cho người không phải thành viên yêu cầu có chỗ trống trong tổ chức của bạn."
   },
   "sponsorshipFreeBitwardenFamiliesV2": {
-    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
+    "message": "Các thành viên của bạn đủ điều kiện quy đổi Gói Bitwarden Gia đình Được tài trợ. Bạn có thể tài trợ một gói Gia đình cho những nhân viên không phải là thành viên trong tổ chức Bitwarden của bạn, nhưng điều này sẽ yêu cầu số ghế khả dụng trong tổ chức của bạn."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Khi bạn hủy tài trợ đang hoạt động, một ghế trong tổ chức của bạn sẽ khả dụng sau ngày gia hạn của tổ chức được tài trợ."
@@ -9505,7 +9532,7 @@
     "message": "Bạn và gia đình đủ điều kiện nhận Gói Bitwarden Gia đình miễn phí. Hãy kích hoạt bằng email cá nhân để giữ dữ liệu của bạn an toàn ngay cả khi không ở nơi làm việc."
   },
   "sponsoredFamiliesEligibleV2": {
-    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+    "message": "Bạn và gia đình đủ điều kiện nhận Gói Bitwarden Gia đình Được tài trợ mà không mất thêm chi phí. Quy đổi gói này bằng email cá nhân của bạn để giữ cho dữ liệu an toàn và tách biệt khỏi tài khoản Bitwarden công việc của bạn."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Hãy nhận Gói Bitwarden Gia đình miễn phí của bạn ngay hôm nay để bảo vệ dữ liệu an toàn ngay cả khi bạn không ở nơi làm việc."
@@ -9514,7 +9541,7 @@
     "message": "Gói Bitwarden Gia đình bao gồm"
   },
   "sponsoredFamiliesIncludeMessageV2": {
-    "message": "The Bitwarden Families plan includes"
+    "message": "Gói Bitwarden Gia đình bao gồm"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Quyền truy cập Cao cấp cho tối đa 6 người dùng"
@@ -9523,7 +9550,7 @@
     "message": "Các bộ sưu tập được chia sẻ cho các thành viên trong gia đình"
   },
   "sponsoredFamiliesSharedFoldersForFamilyMembers": {
-    "message": "Shared folders for family members"
+    "message": "Thư mục chia sẻ cho các thành viên gia đình"
   },
   "memberFamilies": {
     "message": "Thành viên gia đình"
@@ -14246,7 +14273,7 @@
     "message": "Bộ sưu tập không giới hạn"
   },
   "unlimitedSharedFolders": {
-    "message": "Unlimited shared folders"
+    "message": "Thư mục chia sẻ không giới hạn"
   },
   "secureDataSharing": {
     "message": "Chia sẻ dữ liệu an toàn"
@@ -15483,7 +15510,7 @@
     "message": "Bộ sưu tập gia đình không giới hạn"
   },
   "familiesUnlimitedSharedFolders": {
-    "message": "Unlimited family shared folders"
+    "message": "Thư mục chia sẻ gia đình không giới hạn"
   },
   "familiesSharedStorage": {
     "message": "Bộ nhớ được chia sẻ cho thông tin gia đình quan trọng"
@@ -15507,7 +15534,7 @@
     }
   },
   "limitedSharedFoldersV2": {
-    "message": "Up to $COUNT$ shared folders",
+    "message": "Tối đa $COUNT$ thư mục chia sẻ",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15927,7 +15954,7 @@
     "message": "Mở trang đăng ký trên tài khoản đám mây Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải nó lên bên dưới."
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
-    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+    "message": "Mở trang đăng ký trên tài khoản Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải tệp lên bên dưới."
   },
   "viewAllPlans": {
     "message": "Xem tất cả các gói"
