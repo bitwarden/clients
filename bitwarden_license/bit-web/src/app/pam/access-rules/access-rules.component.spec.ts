@@ -108,4 +108,15 @@ describe("AccessRulesComponent — create/edit navigation", () => {
 
     expect(navigate).toHaveBeenCalledWith(["rule-1"], { relativeTo: route });
   });
+
+  it("navigates to the create page seeded from the rule being duplicated", async () => {
+    const fixture = await setup([rule("rule-1", "VPN")]);
+
+    await fixture.componentInstance["duplicate"](rule("rule-1", "VPN"));
+
+    expect(navigate).toHaveBeenCalledWith(["new"], {
+      relativeTo: route,
+      queryParams: { duplicateFrom: "rule-1" },
+    });
+  });
 });

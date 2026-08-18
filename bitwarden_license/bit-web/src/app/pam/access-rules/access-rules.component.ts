@@ -205,6 +205,17 @@ export class AccessRulesComponent {
   protected readonly openEdit = (rule: AccessRuleView): Promise<boolean> =>
     this.router.navigate([rule.id], { relativeTo: this.route });
 
+  /**
+   * Navigate to the create page seeded from an existing rule. The create page copies
+   * everything but the collections (a collection can only carry one rule) and suffixes
+   * the name; nothing is persisted until the user saves.
+   */
+  protected readonly duplicate = (rule: AccessRuleView): Promise<boolean> =>
+    this.router.navigate(["new"], {
+      relativeTo: this.route,
+      queryParams: { duplicateFrom: rule.id },
+    });
+
   protected readonly toggleEnabled = async (rule: AccessRuleView): Promise<void> => {
     const nextEnabled = !rule.enabled;
     try {

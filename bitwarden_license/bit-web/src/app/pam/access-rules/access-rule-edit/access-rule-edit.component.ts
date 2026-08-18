@@ -42,6 +42,7 @@ import {
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
   EXTENSION_DURATION_OPTIONS,
   formValueToRequest,
+  isAccessRuleCollectionConflict,
   isAccessRuleNotFound,
   isIpAllowlist,
   isKnownAccessCondition,
@@ -107,6 +108,9 @@ export class AccessRuleEditComponent {
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
+    AccessRuleId | undefined;
+  /** In create mode, the id of a rule to seed the form from (the row menu's "Duplicate"). */
+  private readonly duplicateFromId = this.route.snapshot.queryParams.duplicateFrom as
     AccessRuleId | undefined;
 
   protected readonly editing = this.accessRuleId != null;
@@ -187,6 +191,8 @@ export class AccessRuleEditComponent {
       if (rule != null) {
         this.existing.set(rule);
         this.applyRule(rule);
+      } else if (this.duplicateFromId != null) {
+        await this.applyDuplicateSource(this.duplicateFromId);
       } else {
         this.applyTemplate();
       }
@@ -218,6 +224,34 @@ export class AccessRuleEditComponent {
     this.formGroup.patchValue(accessRuleToFormValue(rule));
     // Seed the CIDR rows separately: a FormArray can't be resized via patchValue.
     this.setIpAllowlistCidrs(rule.conditions?.find(isIpAllowlist)?.cidrs ?? []);
+  }
+
+  /**
+   * Seed the create form from an existing rule (the list's "Duplicate" action). Everything
+   * copies over — including condition kinds this client doesn't model, via the same
+   * {@link applyRule} stash the edit path uses — except:
+   *
+   * - the name, suffixed so the copy doesn't trip the server's name-uniqueness check;
+   * - the collections, deliberately left empty: a collection can only be governed by one
+   *   rule, so the source's collections would be rejected on save. `existing` stays null,
+   *   so submitting creates a new rule (and `loadCollections(null)` preselects nothing).
+   *
+   * If the source can't be fetched (deleted from another tab, revoked access), toast and
+   * fall back to a blank create form rather than abandoning the page.
+   */
+  private async applyDuplicateSource(sourceId: AccessRuleId): Promise<void> {
+    try {
+      const source = await this.pamApi.getAccessRule(this.organizationId, sourceId);
+      this.applyRule(source);
+      this.formGroup.controls.name.setValue(
+        this.i18nService.t("pamAccessRuleDuplicateName", source.name),
+      );
+    } catch (e) {
+      const message = isAccessRuleNotFound(e)
+        ? this.i18nService.t("pamAccessRuleNotFound")
+        : (accessRuleErrorMessage(e) ?? this.i18nService.t("pamAccessRuleNotFound"));
+      this.toastService.showToast({ variant: "error", message });
+    }
   }
 
   private applyTemplate(): void {
@@ -352,7 +386,11 @@ export class AccessRuleEditComponent {
       }
       await this.navigateToList();
     } catch (e) {
-      const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
+      // The collection-conflict rejection gets friendlier copy than the server's line
+      // ("One or more collections are already governed by…"), which UAT found hard to parse.
+      const message = isAccessRuleCollectionConflict(e)
+        ? this.i18nService.t("pamAccessRuleCollectionConflict")
+        : (accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError"));
       this.toastService.showToast({ variant: "error", message });
     }
   };
