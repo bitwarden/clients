@@ -43,6 +43,7 @@ import {
   defaultRequestWindow,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
+import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { formatRemaining } from "../date/format-remaining";
@@ -94,6 +95,7 @@ export class CipherViewBannerComponent implements OnInit {
   readonly cipher = input.required<CipherView>();
 
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
+  private readonly accessRequestCancelService = inject(AccessRequestCancelService);
   private readonly accessLeaseSdkService = inject(AccessLeaseSdkService);
   private readonly accessRefreshService = inject(AccessRefreshService);
   private readonly leasingErrorService = inject(LeasingErrorService);
@@ -351,30 +353,16 @@ export class CipherViewBannerComponent implements OnInit {
   };
 
   /**
-   * Withdraw whichever request is outstanding. Covers both a pending one and an
-   * approved-but-unactivated one: either can be withdrawn until a lease is minted, after which the
-   * lease (not the request) governs access.
+   * Withdraw whichever request is outstanding — the shared cipher-scoped cancel flow, which
+   * covers both a pending request and an approved-but-unactivated one, toasts the outcome, and
+   * announces the refresh that drives this banner into its next state.
    */
   protected readonly cancelRequest = async (): Promise<void> => {
-    const request = this.pendingRequest() ?? this.approvedRequest();
-    if (request == null) {
+    const cipherId = this.cipher().id;
+    if (cipherId == null || (this.pendingRequest() ?? this.approvedRequest()) == null) {
       return;
     }
-    try {
-      await this.accessRequestSdkService.cancelAccessRequest(request.id);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pendingStateCancelSuccess"),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pendingStateCancelError"),
-      });
-    } finally {
-      this.notifyAccessChanged();
-    }
+    await this.accessRequestCancelService.cancelOutstandingRequest(String(cipherId));
   };
 
   /**
