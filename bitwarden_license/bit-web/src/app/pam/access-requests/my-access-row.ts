@@ -84,7 +84,6 @@ export type LeaseExtensionSummary = { addedSeconds: number; latestEndMs: number 
 export function statusBadgeVariant(status: AccessRequestStatus): BadgeVariant {
   switch (status) {
     case "approved":
-    case "activated":
       return "success";
     case "denied":
       return "danger";
@@ -105,8 +104,6 @@ export function statusLabelKey(status: AccessRequestStatus): string {
   switch (status) {
     case "approved":
       return "pamStatusApproved";
-    case "activated":
-      return "pamStatusActivated";
     case "denied":
       return "pamStatusDenied";
     case "canceled":
@@ -135,15 +132,17 @@ function endedByHolder(request: Pick<AccessRequestView, "requesterId" | "decisio
 }
 
 /**
- * Display status + badge for a request. Ported from the poc's `historyDisplayStatus`, adapted to
- * this backend's real `AccessLeaseStatus` (active/expired/revoked/unknown — no "cancelled" value).
+ * Display status + badge for a request.
  *
- * The poc keyed a self-ended-vs-operator-revoked lease off a mock-only `Cancelled` lease status.
- * This backend collapses both into `revoked`, so the distinction is derived from the decision log
- * instead: a human "deny" decision whose `id` is the requester's own id means the holder ended it
- * themselves ("Cancelled"); any other revoke means an operator did ("Revoked"). An `active`
- * produced lease is labelled like a live grant — callers exclude it from History (it belongs in
- * Active leases) but the detail page's top status field can still render it correctly.
+ * Activation is not a status of its own: an approved request that minted a lease is recognised by
+ * `producedLeaseId`, and the lease's `producedLeaseStatus` drives the label from there. An approved
+ * request not yet activated keeps the plain "Approved" label.
+ *
+ * A `revoked` lease covers both a self-service end and an operator revoke, so the distinction is
+ * derived from the decision log: a human "deny" decision whose `id` is the requester's own id means
+ * the holder ended it themselves ("Cancelled"); any other revoke means an operator did ("Revoked").
+ * An `active` produced lease is labelled like a live grant — callers exclude it from History (it
+ * belongs in Active leases) but the detail page's top status field can still render it correctly.
  */
 export function historyDisplayStatus(
   request: Pick<
@@ -151,7 +150,7 @@ export function historyDisplayStatus(
     "status" | "producedLeaseId" | "producedLeaseStatus" | "decisions" | "requesterId"
   >,
 ): Pick<MyAccessRequestRow, "statusLabelKey" | "statusVariant"> {
-  if (request.status === "activated" && request.producedLeaseId != null) {
+  if (request.status === "approved" && request.producedLeaseId != null) {
     if (request.producedLeaseStatus === "active") {
       return { statusLabelKey: "pamStatusActivated", statusVariant: "success" };
     }
@@ -237,10 +236,7 @@ export function extensionsByLeaseId(
 ): Map<string, LeaseExtensionSummary> {
   const byLease = new Map<string, LeaseExtensionSummary>();
   for (const request of requests) {
-    if (
-      request.extensionOfLeaseId == null ||
-      (request.status !== "approved" && request.status !== "activated")
-    ) {
+    if (request.extensionOfLeaseId == null || request.status !== "approved") {
       continue;
     }
     const leaseKey = uuidAsString(request.extensionOfLeaseId);
