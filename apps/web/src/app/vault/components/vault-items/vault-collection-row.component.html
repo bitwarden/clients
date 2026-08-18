@@ -91,7 +91,11 @@
   </td>
 }
 @if (showControlledAccess) {
-  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell"></td>
+  <td bitCell [ngClass]="RowHeightClass" class="tw-hidden lg:tw-table-cell">
+    @if (leaseBadge) {
+      <ng-container *ngComponentOutlet="leaseBadge; inputs: { collection: collection }" />
+    }
+  </td>
 }
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   @if (canEditCollection || canDeleteCollection || canViewCollectionInfo) {
