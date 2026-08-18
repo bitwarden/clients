@@ -32,7 +32,7 @@ import {
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
-import { VAULT_ROW_LEASE_BADGE, VaultRowLeaseBadge } from "./vault-row-lease-badge.token";
+import { VAULT_ROW_LEASE_BADGE } from "./vault-row-lease-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -44,9 +44,7 @@ import { VAULT_ROW_LEASE_BADGE, VaultRowLeaseBadge } from "./vault-row-lease-bad
 export class VaultCollectionRowComponent<C extends CipherViewLike> {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  protected readonly leaseBadge: VaultRowLeaseBadge | null = inject(VAULT_ROW_LEASE_BADGE, {
-    optional: true,
-  });
+  protected readonly leaseBadge = inject(VAULT_ROW_LEASE_BADGE, { optional: true });
 
   protected RowHeightClass = RowHeightClass;
   protected Unassigned = "unassigned";
