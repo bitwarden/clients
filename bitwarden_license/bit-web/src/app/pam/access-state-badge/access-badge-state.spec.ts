@@ -3,52 +3,29 @@ import type { CipherAccessStateView } from "../abstractions/access-lease";
 import { cipherAccessBadgeState } from "./access-badge-state";
 
 describe("cipherAccessBadgeState", () => {
-  const view = (over: Partial<CipherAccessStateView>): CipherAccessStateView =>
-    ({
-      activeLease: undefined,
-      pendingRequest: undefined,
-      approvedRequest: undefined,
-      ...over,
-    }) as CipherAccessStateView;
+  const view = (badgeState: CipherAccessStateView["badgeState"]): CipherAccessStateView =>
+    ({ badgeState }) as CipherAccessStateView;
 
   it("returns null when there is no access state", () => {
     expect(cipherAccessBadgeState(null)).toBeNull();
     expect(cipherAccessBadgeState(undefined)).toBeNull();
   });
 
-  it("resolves an active lease to the active state carrying its expiry", () => {
-    const notAfter = "2024-01-01T01:00:00.000Z";
+  it("carries the expiry through on the active variant, parsed as a Date", () => {
+    const expiresAt = "2024-01-01T01:00:00.000Z";
 
-    expect(cipherAccessBadgeState(view({ activeLease: { notAfter } as never }))).toEqual({
+    expect(cipherAccessBadgeState(view({ active: { expiresAt } }))).toEqual({
       kind: "active",
-      expiresAt: new Date(notAfter),
+      expiresAt: new Date(expiresAt),
     });
   });
 
-  it("ranks an active lease above an approved and a pending request", () => {
-    const state = cipherAccessBadgeState(
-      view({
-        activeLease: { notAfter: "2024-01-01T01:00:00.000Z" } as never,
-        approvedRequest: {} as never,
-        pendingRequest: {} as never,
-      }),
-    );
-
-    expect(state?.kind).toBe("active");
+  it.each(["ready", "pending", "privileged"] as const)("maps the %s badge", (badge) => {
+    expect(cipherAccessBadgeState(view(badge))).toEqual({ kind: badge });
   });
 
-  it("ranks an approved request (ready) above a pending one", () => {
-    expect(
-      cipherAccessBadgeState(view({ approvedRequest: {} as never, pendingRequest: {} as never }))
-        ?.kind,
-    ).toBe("ready");
-  });
-
-  it("resolves a pending request to the pending state", () => {
-    expect(cipherAccessBadgeState(view({ pendingRequest: {} as never }))?.kind).toBe("pending");
-  });
-
-  it("falls back to privileged for a gated item with no request or lease in play", () => {
-    expect(cipherAccessBadgeState(view({}))?.kind).toBe("privileged");
-  });
+  // Precedence between an active lease, an approved request and a pending one is applied in the
+  // SDK (`CipherAccessStateView`'s conversion) and covered by its tests — a badge derived from the
+  // ranked field cannot disagree with it, which is the point of reading `badgeState` rather than
+  // re-ranking the three here.
 });
