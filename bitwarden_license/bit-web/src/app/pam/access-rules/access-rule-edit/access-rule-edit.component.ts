@@ -51,11 +51,12 @@ import {
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
   accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessage,
+  accessRuleErrorMessageKey,
   accessRuleToFormValue,
   AccessRuleSdkService,
-  AccessRuleSaveErrorField,
-  classifyAccessRuleSaveError,
+  AccessRuleErrorField,
+  AccessRuleErrorOutcome,
+  classifyAccessRuleError,
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
   EXTENSION_DURATION_OPTIONS,
   formValueToRequest,
@@ -148,10 +149,19 @@ export class AccessRuleEditComponent {
   /**
    * The inline save-failure callout; null while there is nothing to report. A failed save must not
    * toast — the notice has to persist alongside the entered values so the admin can retry without
-   * re-keying the form. `canRetry` is off for a failure the admin has to change something to clear,
-   * where re-sending the same values would fail identically.
+   * re-keying the form. Only a `generic` outcome offers a retry: a mapped failure needs the admin
+   * to change something first, so re-sending the same values would fail identically.
    */
-  protected readonly saveError = signal<{ message: string; canRetry: boolean } | null>(null);
+  protected readonly saveError = signal<AccessRuleErrorOutcome | null>(null);
+
+  protected readonly saveErrorMessage = computed(() => {
+    const error = this.saveError();
+    return error == null
+      ? null
+      : this.i18nService.t(
+          error.kind === "mapped" ? error.messageKey : "pamAccessRuleSaveErrorGeneric",
+        );
+  });
 
   private readonly saveErrorCallout = viewChild("saveErrorCallout", {
     read: ElementRef<HTMLElement>,
@@ -282,7 +292,7 @@ export class AccessRuleEditComponent {
     } catch (e) {
       const message = isAccessRuleNotFound(e)
         ? this.i18nService.t("pamAccessRuleNotFound")
-        : this.errorToastMessage(e);
+        : this.i18nService.t(accessRuleErrorMessageKey(e));
       this.toastService.showToast({ variant: "error", message });
       await this.navigateToList();
       return null;
@@ -319,7 +329,7 @@ export class AccessRuleEditComponent {
     } catch (e) {
       const message = isAccessRuleNotFound(e)
         ? this.i18nService.t("pamAccessRuleNotFound")
-        : (accessRuleErrorMessage(e) ?? this.i18nService.t("pamAccessRuleNotFound"));
+        : this.i18nService.t(accessRuleErrorMessageKey(e));
       this.toastService.showToast({ variant: "error", message });
     }
   }
@@ -437,9 +447,9 @@ export class AccessRuleEditComponent {
    * clears the moment the admin edits the control — the next `updateValueAndValidity` recomputes
    * from the validators alone.
    */
-  private showFieldSaveError(field: AccessRuleSaveErrorField, messageKey: string): void {
+  private showFieldSaveError(field: AccessRuleErrorField, messageKey: string): void {
     const control = this.formGroup.controls[field];
-    control.setErrors({ pamServerRejected: { message: this.i18nService.t(messageKey) } });
+    control.setErrors({ serverError: { message: this.i18nService.t(messageKey) } });
     control.markAsTouched();
   }
 
@@ -469,19 +479,12 @@ export class AccessRuleEditComponent {
       }
       await this.navigateToList();
     } catch (e) {
-      const outcome = classifyAccessRuleSaveError(e);
-      if (outcome.kind === "generic") {
-        this.saveError.set({
-          message: this.i18nService.t("pamAccessRuleSaveErrorGeneric"),
-          canRetry: true,
-        });
-        return;
-      }
-      if (outcome.field != null) {
+      const outcome = classifyAccessRuleError(e);
+      if (outcome.kind === "mapped" && outcome.field != null) {
         this.showFieldSaveError(outcome.field, outcome.messageKey);
         return;
       }
-      this.saveError.set({ message: this.i18nService.t(outcome.messageKey), canRetry: false });
+      this.saveError.set(outcome);
     }
   };
 
@@ -547,15 +550,12 @@ export class AccessRuleEditComponent {
       });
       await this.navigateToList();
     } catch (e) {
-      this.toastService.showToast({ variant: "error", message: this.errorToastMessage(e) });
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      });
     }
   };
-
-  /** Toastable copy for a failed load or delete; unrecognised failures fall back to generic copy. */
-  private errorToastMessage(e: unknown): string {
-    const outcome = classifyAccessRuleSaveError(e);
-    return this.i18nService.t(outcome.kind === "mapped" ? outcome.messageKey : "unexpectedError");
-  }
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
   private navigateToList(): Promise<boolean> {

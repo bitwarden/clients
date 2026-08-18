@@ -416,10 +416,20 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     await setup({ queryParams: { duplicateFrom: "gone" } }, new Error("boom"));
 
     expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
+      expect.objectContaining({ variant: "error", message: "unexpectedError" }),
     );
     expect(controls().name.value).toBe("");
     // Unlike a failed edit-mode load, the user stays on the (now blank) create page.
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
+  it("names the missing rule when the duplicate source is gone", async () => {
+    await setup({ queryParams: { duplicateFrom: "gone" } }, accessRuleError("NotFound", ""));
+
+    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
+    );
+    expect(controls().name.value).toBe("");
     expect(navigate).not.toHaveBeenCalled();
   });
 
@@ -646,8 +656,7 @@ describe("AccessRuleEditComponent — form states", () => {
 
       expect(callout()).not.toBeNull();
       expect(callout()!.textContent).toContain("pamAccessRuleSaveErrorGeneric");
-      expect(callout()!.textContent).toContain("pamAccessRuleSaveErrorTryAgain");
-      expect(callout()!.textContent).not.toContain("pamAccessRuleSaveErrorTitle");
+      expect(callout()!.textContent).toContain("tryAgain");
       expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
       expect(navigate).not.toHaveBeenCalled();
     });
@@ -665,7 +674,7 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(rendered).not.toContain("AccessRuleWriteValidator.cs");
       expect(rendered).toContain("pamAccessRuleErrorCollectionsGoverned");
       expect(controls().collections.errors).toEqual({
-        pamServerRejected: { message: "pamAccessRuleErrorCollectionsGoverned" },
+        serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
       });
     });
 
@@ -724,7 +733,7 @@ describe("AccessRuleEditComponent — form states", () => {
 
       expect(callout()).toBeNull();
       expect(controls().name.errors).toEqual({
-        pamServerRejected: { message: "pamAccessRuleErrorNameTaken" },
+        serverError: { message: "pamAccessRuleErrorNameTaken" },
       });
       expect(fixture.nativeElement.textContent).toContain("pamAccessRuleErrorNameTaken");
     });
@@ -762,7 +771,7 @@ describe("AccessRuleEditComponent — form states", () => {
       await submitAndRender();
 
       expect(callout()!.textContent).toContain("pamAccessRuleErrorMissing");
-      expect(callout()!.textContent).not.toContain("pamAccessRuleSaveErrorTryAgain");
+      expect(callout()!.textContent).not.toContain("tryAgain");
     });
 
     it("resubmits the untouched form when Try again is clicked", async () => {

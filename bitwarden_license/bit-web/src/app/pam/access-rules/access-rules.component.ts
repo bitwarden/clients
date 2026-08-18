@@ -38,8 +38,8 @@ import {
   AccessRuleView,
   AccessRuleStatusFilter,
   accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
   accessRuleMatchesFilter,
-  classifyAccessRuleSaveError,
   resolveCollectionNames,
 } from "..";
 import { DurationLongPipe } from "../date/duration-long.pipe";
@@ -330,11 +330,10 @@ export class AccessRulesComponent {
    * server's serialized response, filesystem paths and all — never reaches the toast.
    */
   private showError(e: unknown): void {
-    const outcome = classifyAccessRuleSaveError(e);
-    const message = this.i18nService.t(
-      outcome.kind === "mapped" ? outcome.messageKey : "unexpectedError",
-    );
-    this.toastService.showToast({ variant: "error", message });
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+    });
   }
 }
 

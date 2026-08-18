@@ -18,7 +18,7 @@
   @if (loading()) {
     <bit-spinner />
   } @else {
-    <form #ruleForm [formGroup]="formGroup" [bitSubmit]="submit">
+    <form [formGroup]="formGroup" [bitSubmit]="submit">
       @if (saveError(); as error) {
         <bit-callout
           #saveErrorCallout
@@ -28,20 +28,19 @@
           [title]="null"
           [accessibleName]="'error' | i18n"
         >
-          <span class="tw-inline">{{ error.message }}</span>
-          @if (error.canRetry) {
-            <!-- Re-fires the form's own submit rather than calling the handler: that keeps Save's
-                 loading and disabled handling, which `bitAction`/`bitFormButton` cannot supply here
-                 (both inject `ButtonLikeAbstraction`, which `bitLink` does not provide). -->
+          <span class="tw-inline">{{ saveErrorMessage() }}</span>
+          @if (error.kind === "generic") {
+            <!-- A plain submit button so the retry rides the form's own `bitSubmit`, keeping Save's
+                 loading and disabled handling. `bitAction`/`bitFormButton` cannot supply that here:
+                 both inject `ButtonLikeAbstraction`, which `bitLink` does not provide. -->
             <button
-              type="button"
+              type="submit"
               bitLink
               linkType="danger"
               class="tw-ms-2 tw-font-bold"
-              (click)="ruleForm.requestSubmit()"
               id="access-rule-edit_button_retry-save"
             >
-              {{ "pamAccessRuleSaveErrorTryAgain" | i18n }}
+              {{ "tryAgain" | i18n }}
             </button>
           }
         </bit-callout>
