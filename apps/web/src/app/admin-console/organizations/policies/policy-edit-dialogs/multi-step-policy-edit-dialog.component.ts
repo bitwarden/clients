@@ -55,6 +55,8 @@ export class MultiStepPolicyEditDialogComponent
     { read: ViewContainerRef },
   );
 
+  readonly formGroup = this.formBuilder.group({});
+
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
 
