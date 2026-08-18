@@ -13,6 +13,7 @@ import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.s
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
 
+import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
@@ -34,6 +35,7 @@ import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-l
 import {
   AccessEventService,
   ApprovalSdkService,
+  AuditApiService,
   AccessLeaseSdkService,
   AccessRefreshService,
   AccessRequestSdkService,
@@ -96,6 +98,14 @@ export function providePam(): SafeProvider[] {
       provide: LeasingErrorService,
       useClass: DefaultLeasingErrorService,
       deps: [],
+    }),
+    // The module's only HTTP-backed contract — see `access-audit/audit-api.service.ts` for why it is
+    // the one exception to the SDK rule. Bound here so swapping it for an SDK-backed implementation,
+    // once the SDK exposes an audit surface, is a change to this line alone.
+    safeProvider({
+      provide: AuditApiService,
+      useClass: DefaultAuditApiService,
+      deps: [ApiService, AccountService],
     }),
     safeProvider({
       provide: CidrValidationService,

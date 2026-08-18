@@ -1,0 +1,191 @@
+import { NO_ERRORS_SCHEMA } from "@angular/core";
+import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ActivatedRoute } from "@angular/router";
+import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { I18nMockService } from "@bitwarden/components";
+
+import {
+  AccessNameResolverService,
+  emptyResolvedNames,
+} from "../access-requests/access-name-resolver.service";
+
+import { AccessAuditComponent } from "./access-audit.component";
+import { AuditApiService } from "./audit-api.service";
+import { AccessAuditEventResponse } from "./responses/access-audit-event.response";
+
+const ORGANIZATION_ID = "org-1";
+
+function event(overrides: Record<string, unknown> = {}): AccessAuditEventResponse {
+  return new AccessAuditEventResponse({
+    Kind: "requestApproved",
+    OccurredAt: "2026-08-18T09:00:00.000Z",
+    OrganizationId: ORGANIZATION_ID,
+    ActorId: "user-1",
+    ActorName: "Ada",
+    RequesterId: "user-2",
+    RequesterName: "Grace",
+    Automated: false,
+    Incomplete: false,
+    ...overrides,
+  });
+}
+
+describe("AccessAuditComponent", () => {
+  let fixture: ComponentFixture<AccessAuditComponent>;
+  let auditApiService: MockProxy<AuditApiService>;
+  let nameResolver: MockProxy<AccessNameResolverService>;
+
+  beforeEach(async () => {
+    auditApiService = mock<AuditApiService>();
+    nameResolver = mock<AccessNameResolverService>();
+    nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
+
+    await TestBed.configureTestingModule({
+      imports: [AccessAuditComponent],
+      providers: [
+        { provide: AuditApiService, useValue: auditApiService },
+        { provide: AccessNameResolverService, useValue: nameResolver },
+        { provide: LogService, useValue: mock<LogService>() },
+        {
+          provide: ActivatedRoute,
+          useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
+        },
+        {
+          provide: I18nService,
+          // I18nMockService throws on an unknown key, so this covers every key the template can
+          // render across all four status branches.
+          useValue: new I18nMockService({
+            loading: "Loading",
+            errorOccurred: "An error has occurred",
+            pamAuditLoadError: "Could not load the audit trail",
+            pamAuditEmptyTitle: "No audit activity",
+            pamAuditEmptyMessage: "Activity will appear here.",
+            pamAuditSearchPlaceholder: "Search the audit log",
+            pamAuditNoMatchesTitle: "No matching events",
+            pamAuditNoMatchesMessage: "No events match the current filters.",
+            pamAuditColumnTime: "Time",
+            pamAuditColumnEvent: "Event",
+            pamAuditColumnActor: "Actor",
+            pamAuditColumnRequester: "Requester",
+            pamAuditColumnItem: "Item",
+            pamAuditColumnDetail: "Detail",
+            pamAuditSystem: "System",
+            pamAuditIncomplete: "Incomplete",
+            pamAuditIncompleteTooltip: "Outcome never confirmed.",
+            pamAuditKindRequestApproved: "Request approved",
+            pamAuditKindLeaseActivated: "Lease activated",
+            pamAuditKindRuleCreated: "Access rule created",
+          }),
+        },
+      ],
+    })
+      // Stub the design-system children so these tests exercise this component's own
+      // load / filter / status logic rather than table and chip rendering.
+      .overrideComponent(AccessAuditComponent, { add: { schemas: [NO_ERRORS_SCHEMA] } })
+      .compileComponents();
+
+    fixture = TestBed.createComponent(AccessAuditComponent);
+  });
+
+  /** The component's protected surface, reached the way the template reaches it. */
+  const component = () => fixture.componentInstance as unknown as Record<string, any>;
+
+  it("reads the trail for the organization in the route", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(auditApiService.listAccessAuditTrail).toHaveBeenCalledWith(ORGANIZATION_ID);
+    expect(component().status()).toBe("ready");
+    expect(component().rows()).toHaveLength(1);
+  });
+
+  it("reports empty rather than ready for a trail with no events", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component().status()).toBe("empty");
+  });
+
+  it("reports error when the read fails, and logs it", async () => {
+    auditApiService.listAccessAuditTrail.mockRejectedValue(new Error("boom"));
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component().status()).toBe("error");
+    expect(TestBed.inject(LogService).error).toHaveBeenCalled();
+  });
+
+  // Only an event naming both a cipher and its collection can be matched to a local vault item, so
+  // the others must not be sent to the resolver.
+  it("asks the name resolver only about events naming both a cipher and a collection", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ CipherId: "cipher-1", CollectionId: "col-1" }),
+      event({ CipherId: "cipher-2", CollectionId: null }),
+      event({ Kind: "ruleCreated", RuleName: "Prod" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(nameResolver.resolveNames).toHaveBeenCalledWith([
+      { cipherId: "cipher-1", collectionId: "col-1" },
+    ]);
+  });
+
+  it("offers a kind filter option only for the kinds actually in the trail", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "leaseActivated" }),
+      event({ Kind: "requestApproved" }),
+      event({ Kind: "requestApproved" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    // Labelled and sorted alphabetically, one entry per distinct kind.
+    expect(component().kindOptions()).toEqual([
+      { label: "Lease activated", value: "leaseActivated" },
+      { label: "Request approved", value: "requestApproved" },
+    ]);
+  });
+
+  it("filters rows by the selected kind", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "leaseActivated" }),
+      event({ Kind: "requestApproved" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(component().filteredRows()).toHaveLength(2);
+
+    component().kindControl.setValue("leaseActivated");
+
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].kind).toBe("leaseActivated");
+  });
+
+  it("filters rows by free text over actor, requester, item, and detail", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ ActorName: "Ada" }),
+      event({ ActorName: "Linus" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    component().searchControl.setValue("ada");
+
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].actor).toBe("Ada");
+  });
+});
