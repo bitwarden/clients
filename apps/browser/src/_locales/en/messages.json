@@ -3108,6 +3108,9 @@
   "temporaryMasterPass": {
     "message": "Temporary master password"
   },
+  "passwordRequirements": {
+    "message": "Password requirements"
+  },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
   },

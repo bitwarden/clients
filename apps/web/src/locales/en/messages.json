@@ -3024,6 +3024,9 @@
   "temporaryMasterPass": {
     "message": "Temporary master password"
   },
+  "passwordRequirements": {
+    "message": "Password requirements"
+  },
   "encKeySettings": {
     "message": "Encryption key settings"
   },

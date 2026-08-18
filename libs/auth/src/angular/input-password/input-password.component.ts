@@ -622,6 +622,25 @@ export class InputPasswordComponent implements OnInit {
     this.passwordStrengthScore = score;
   }
 
+  protected getPasswordScorePolicyLabel(): string {
+    if (!this.masterPasswordPolicyOptions) {
+      return "";
+    }
+    let label: string;
+    switch (this.masterPasswordPolicyOptions.minComplexity) {
+      case 4:
+        label = this.i18nService.t("strong");
+        break;
+      case 3:
+        label = this.i18nService.t("good");
+        break;
+      default:
+        label = this.i18nService.t("weak");
+        break;
+    }
+    return `${label} (${this.masterPasswordPolicyOptions.minComplexity})`;
+  }
+
   protected async generatePassword() {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     this.formGroup.patchValue({
