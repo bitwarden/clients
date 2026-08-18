@@ -166,6 +166,7 @@ import { DesktopFido2MacOsUserVerificationService } from "../../autofill/service
 import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopFido2UserVerificationService } from "../../autofill/services/desktop-fido2-user-verification.service.abstraction";
+import { DesktopFido2WindowsUserVerificationService } from "../../autofill/services/desktop-fido2-windows-user-verification.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
@@ -450,6 +451,8 @@ const safeProviders: SafeProvider[] = [
       switch (platformUtilsService.getDevice()) {
         case DeviceType.MacOsDesktop:
           return new DesktopFido2MacOsUserVerificationService(i18nService, logService);
+        case DeviceType.WindowsDesktop:
+          return new DesktopFido2WindowsUserVerificationService(i18nService, logService);
         default:
           return new DesktopFido2UnsupportedUserVerificationService(logService);
       }
