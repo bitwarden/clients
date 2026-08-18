@@ -76,10 +76,36 @@ export class BitTableToolbarComponent {
     "tw-flex-wrap",
     "tw-items-center",
     "tw-gap-3",
+    // Row gap for when the `slot=end` controls wrap to their own line below `md`.
+    "tw-gap-y-4",
     "tw-p-5",
     ...(this.hasFilterRow()
       ? ["tw-border-0", "tw-border-b", "tw-border-solid", "tw-border-border-base"]
       : []),
+  ]);
+
+  /**
+   * The projected search (an empty slot collapses to nothing). Capped at ~400px on
+   * wide viewports so it doesn't run the length of the toolbar; below `md` it fills
+   * its row, since the `slot=end` controls have moved to a line of their own.
+   */
+  protected readonly searchClasses = computed(() => [
+    "tw-flex",
+    "tw-min-w-0",
+    "tw-flex-1",
+    ...(this.isLargeScreen() ? ["tw-max-w-[25rem]"] : []),
+  ]);
+
+  /**
+   * The projected `slot=end` controls. Inline after the search on wide viewports;
+   * below `md` they take a full-width line of their own (the search row wraps) and
+   * split it evenly, so a table's actions never crowd the search field.
+   */
+  protected readonly endSlotClasses = computed(() => [
+    "tw-flex",
+    "tw-items-center",
+    "tw-gap-3",
+    ...(this.isLargeScreen() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
   ]);
 
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
