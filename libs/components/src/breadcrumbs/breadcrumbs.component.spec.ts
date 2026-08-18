@@ -6,7 +6,7 @@ import { provideRouter } from "@angular/router";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { IconTileComponent, IconTileSize } from "../icon-tile";
-import { OverflowItemDirective } from "../overflow-list";
+import { OverflowItemDirective, OverflowListDirective } from "../overflow-list";
 import { I18nMockService } from "../utils/i18n-mock.service";
 
 import { BreadcrumbComponent } from "./breadcrumb.component";
@@ -84,6 +84,32 @@ describe("BreadcrumbsComponent", () => {
     fixture.detectChanges();
 
     expect(tileSize()).toBe("xs");
+  });
+
+  it("remeasures the overflow list when `size` flips", async () => {
+    // Crumb widths are size-dependent (typography and separator margins both change with
+    // `size`), but the directive only remeasures when the item set changes. Without this the
+    // row packs against widths captured at the other density — over-collapsing into the menu
+    // going small, and clipping instead of truncating going back to base.
+    fixture.detectChanges();
+    // The directive's first measurement pass awaits `document.fonts.ready`, so let that
+    // settle — `remeasure()` no-ops until it lands.
+    await fixture.whenStable();
+
+    const list = fixture.debugElement
+      .query(By.directive(OverflowListDirective))
+      .injector.get(OverflowListDirective);
+    expect(list.ready()).toBe(true);
+
+    const remeasure = jest.spyOn(list, "remeasure");
+
+    fixture.componentInstance.size.set("small");
+    fixture.detectChanges();
+    expect(remeasure).toHaveBeenCalledTimes(1);
+
+    fixture.componentInstance.size.set("base");
+    fixture.detectChanges();
+    expect(remeasure).toHaveBeenCalledTimes(2);
   });
 
   /** The overflow-item directives that gate each crumb's shrink/truncate behavior. */

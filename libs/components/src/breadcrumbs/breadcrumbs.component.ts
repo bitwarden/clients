@@ -9,6 +9,7 @@ import {
   ElementRef,
   inject,
   input,
+  viewChild,
 } from "@angular/core";
 import { RouterModule } from "@angular/router";
 
@@ -97,11 +98,21 @@ export class BreadcrumbsComponent {
 
   protected readonly breadcrumbs = contentChildren(BreadcrumbComponent);
 
+  private readonly overflowList = viewChild.required(OverflowListDirective);
+
   constructor() {
     // Push our size down to each child crumb so they can size projected icon tiles in step.
     effect(() => {
       const size = this.size();
       this.breadcrumbs().forEach((breadcrumb) => breadcrumb.size.set(size));
+    });
+
+    // `size` swaps crumb typography and separator margins, so item widths change with it,
+    // but the directive only remeasures on item-set changes. Without this, widths cached at
+    // one density would drive packing at the other.
+    effect(() => {
+      this.size();
+      this.overflowList().remeasure();
     });
   }
 
