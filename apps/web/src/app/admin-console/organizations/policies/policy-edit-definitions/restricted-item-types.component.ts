@@ -1,41 +1,16 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
-
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { CheckboxModule, FormFieldModule } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/ui-common";
 
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { BasePolicyEditDefinition } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 export class RestrictedItemTypesPolicy extends BasePolicyEditDefinition {
   name = "restrictedItemTypePolicy";
-  description = "restrictedItemTypePolicyDesc";
-  // Figma shows this row unchanged in the policies list under VFO1 - only the drawer body
-  // (v2.descriptionVfo1) changes. Pinning this to the same key as `description` prevents the
-  // list from leaking the drawer's `v2.descriptionVfo1` text when PolicyDrawers is also on.
+  description = "restrictedItemTypePolicyDescV2";
   descriptionVfo1 = "restrictedItemTypePolicyDesc";
   type = PolicyType.RestrictedItemTypes;
   category = PolicyCategory.VaultManagement;
   priority = 50;
-  component = RestrictedItemTypesPolicyComponent;
-  v2 = {
-    component: SimpleTogglePolicyComponent,
-    description: "restrictedItemTypePolicyDescV2",
-    descriptionVfo1: "restrictedItemTypePolicyDescVfo1",
-  };
-}
-
-@Component({
-  selector: "restricted-item-types-policy-edit",
-  templateUrl: "restricted-item-types.component.html",
-  imports: [ReactiveFormsModule, CheckboxModule, FormFieldModule, I18nPipe],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class RestrictedItemTypesPolicyComponent extends BasePolicyEditComponent {
-  constructor() {
-    super();
-  }
+  component = SimpleTogglePolicyComponent;
 }

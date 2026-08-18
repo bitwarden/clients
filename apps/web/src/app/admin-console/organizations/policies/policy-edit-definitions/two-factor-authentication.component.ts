@@ -1,38 +1,17 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
-
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 
-import { SharedModule } from "../../../../shared";
-import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { BasePolicyEditDefinition } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
 
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 export class TwoFactorAuthenticationPolicy extends BasePolicyEditDefinition {
   name = "twoStepLoginPolicyTitle";
-  description = "twoStepLoginPolicyDesc";
-  // Pins the short list text, overriding the v2 fallback ("...This policy won't be enforced for
-  // owners and admins.") that otherwise leaks into the list when PolicyDrawers is also on.
+  description = "twoStepLoginPolicyDescV2";
   descriptionVfo1 = "twoStepLoginPolicyDesc";
   type = PolicyType.TwoFactorAuthentication;
   category = PolicyCategory.Authentication;
   priority = 40;
-  component = TwoFactorAuthenticationPolicyComponent;
+  component = SimpleTogglePolicyComponent;
   warningKey = "twoStepLoginPolicyWarningV2";
-  v2 = {
-    component: SimpleTogglePolicyComponent,
-    description: "twoStepLoginPolicyDescV2",
-    // Figma shows this drawer body unchanged under VFO1 - only the list row changes. Pinning
-    // this to the same key as `description` prevents the drawer from leaking the list-only
-    // `descriptionVfo1` text.
-    descriptionVfo1: "twoStepLoginPolicyDescV2",
-  };
 }
-
-@Component({
-  selector: "two-factor-authentication-policy-edit",
-  templateUrl: "two-factor-authentication.component.html",
-  imports: [SharedModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class TwoFactorAuthenticationPolicyComponent extends BasePolicyEditComponent {}

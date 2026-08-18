@@ -115,6 +115,21 @@ export abstract class BasePolicyEditDefinition {
   warningKeyVfo1?: string;
 
   /**
+   * Optional i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent}
+   * above the policy form.
+   */
+  prerequisiteKey?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link prerequisiteKey}. Falls
+   * back to {@link prerequisiteKey} when not set.
+   */
+  prerequisiteKeyVfo1?: string;
+  /** URL for an optional "learn more" link inside the prerequisite callout. */
+  prerequisiteLinkHref?: string;
+  /** i18n key for the text of {@link prerequisiteLinkHref}. */
+  prerequisiteLinkTextKey?: string;
+
+  /**
    * Optional drawer-specific configuration for this policy.
    * When set, {@link PolicyEditDrawerComponent} is used in place of the standard
    * modal dialog, loading {@link v2.component} and rendering the drawer-specific layout.

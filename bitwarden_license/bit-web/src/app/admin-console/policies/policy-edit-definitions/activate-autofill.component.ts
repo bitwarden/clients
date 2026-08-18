@@ -17,13 +17,9 @@ import {
   BasePolicyEditComponent,
   PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
-  name = "activateAutofillPolicy";
-  // Figma shows this row's title unchanged ("Activate autofill") in the list under VFO1, even
-  // though the drawer title (v2.name = "enableAutofillOnPageLoad") otherwise leaks into the list
-  // when PolicyDrawers is also on. Pinning to the same key as `name` prevents that leak.
+  name = "enableAutofillOnPageLoad";
   nameVfo1 = "activateAutofillPolicy";
   description = "activateAutofillPolicyDescription";
   descriptionVfo1 = "activateAutofillPolicyDescriptionVfo1";
@@ -31,32 +27,15 @@ export class ActivateAutofillPolicy extends BasePolicyEditDefinition {
   category = PolicyCategory.VaultManagement;
   priority = 40;
   component = ActivateAutofillPolicyComponent;
-  v2 = {
-    component: ActivateAutofillV2PolicyComponent,
-    name: "enableAutofillOnPageLoad",
-    // Figma shows this drawer title unchanged under VFO1 - only the list row name changes.
-    // Pinning this to the same key as `name` prevents the drawer from leaking the list-only
-    // `nameVfo1` text.
-    nameVfo1: "enableAutofillOnPageLoad",
-    showDescription: false,
-  };
+  showDescription = false;
 
   display$(organization: Organization, _configService: ConfigService) {
     return of(organization.useActivateAutofillPolicy);
   }
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "activate-autofill-policy-edit",
-  templateUrl: "activate-autofill.component.html",
-  imports: [SharedModule],
-})
-export class ActivateAutofillPolicyComponent extends BasePolicyEditComponent {}
-
-@Component({
-  selector: "activate-autofill-v2-policy-edit",
   template: `
     <p bitTypography="body1">
       {{ "activateAutofillPolicyDescV2" | i18n }}
@@ -83,4 +62,4 @@ export class ActivateAutofillPolicyComponent extends BasePolicyEditComponent {}
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActivateAutofillV2PolicyComponent extends BasePolicyEditComponent {}
+export class ActivateAutofillPolicyComponent extends BasePolicyEditComponent {}
