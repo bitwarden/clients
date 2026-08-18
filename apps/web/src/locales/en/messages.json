@@ -3021,6 +3021,9 @@
   "confirmNewMasterPass": {
     "message": "Confirm new master password"
   },
+  "temporaryMasterPass": {
+    "message": "Temporary master password"
+  },
   "encKeySettings": {
     "message": "Encryption key settings"
   },

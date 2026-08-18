@@ -2946,6 +2946,9 @@
   "confirmNewMasterPass": {
     "message": "Confirm new master password"
   },
+  "temporaryMasterPass": {
+    "message": "Temporary master password"
+  },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
   },

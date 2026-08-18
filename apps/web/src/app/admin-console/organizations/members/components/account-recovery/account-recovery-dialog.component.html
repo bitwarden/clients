@@ -18,9 +18,9 @@
       <bit-form-control>
         <input type="checkbox" bitCheckbox formControlName="resetTwoFactor" />
         <bit-label>{{ "resetTwoStepLogin" | i18n }}</bit-label>
-        <bit-hint *ngIf="twoFactorPolicyEnabled$ | async">{{
-          "resetTwoStepLoginDesc" | i18n
-        }}</bit-hint>
+        @if (twoFactorPolicyEnabled$ | async) {
+          <bit-hint>{{ "resetTwoStepLoginDesc" | i18n }}</bit-hint>
+        }
       </bit-form-control>
     </form>
   </ng-container>
