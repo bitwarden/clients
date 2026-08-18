@@ -202,7 +202,7 @@ describe("MyAccessService", () => {
   });
 
   describe("endLease", () => {
-    it("optimistically removes the lease and marks its request revoked, without a reload", async () => {
+    it("optimistically removes the lease and marks its request cancelled, without a reload", async () => {
       requestsApi.listMyAccessRequests.mockResolvedValue([
         request("req-1", {
           status: "approved",
@@ -222,7 +222,7 @@ describe("MyAccessService", () => {
       expect(leases).toEqual([]);
       const history = await firstValueFrom(service.historyRows$);
       expect(history.map((r) => r.id)).toEqual(["req-1"]);
-      expect(history[0].statusLabelKey).toBe("pamStatusRevoked");
+      expect(history[0].statusLabelKey).toBe("pamStatusEndedByYou");
     });
 
     it("rolls back the optimistic patch and rethrows when the SDK call fails", async () => {
