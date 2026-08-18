@@ -1,6 +1,8 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { EncString } from "../../../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { SendTextApi } from "../../models/api/send-text.api";
 import { SendTextData } from "../../models/data/send-text.data";
 import { SendData } from "../../models/data/send.data";
