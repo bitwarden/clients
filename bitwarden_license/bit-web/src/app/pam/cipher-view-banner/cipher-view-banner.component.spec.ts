@@ -21,6 +21,7 @@ import type {
   AccessRequestView,
   CipherAccessStateView,
 } from "../abstractions/access-lease";
+import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
@@ -107,29 +108,41 @@ describe("CipherViewBannerComponent", () => {
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
     leasingErrors.isLeasingError.mockReturnValue(false);
 
+    // The real fan-out, not a mock: the notify-then-re-read path is the behaviour under test.
+    // No push here (NEVER) — the banner's own mutations are what should drive the re-read.
+    const accessRefresh = new DefaultAccessRefreshService({
+      accessChanged$: () => NEVER,
+      approverInboxChanged$: () => NEVER,
+    });
+    const logService = mock<LogService>();
+    const i18nService = {
+      t: (key: string, ...args: unknown[]) => [key, ...args].join(" "),
+    } as I18nService;
+
     TestBed.configureTestingModule({
       imports: [CipherViewBannerComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
-        // The real fan-out, not a mock: the notify-then-re-read path is the behaviour under test.
-        // No push here (NEVER) — the banner's own mutations are what should drive the re-read.
+        { provide: AccessRefreshService, useValue: accessRefresh },
+        // The real shared cancel flow over the same mocks, so the banner's cancel behaviour is
+        // still exercised end to end.
         {
-          provide: AccessRefreshService,
-          useValue: new DefaultAccessRefreshService({
-            accessChanged$: () => NEVER,
-            approverInboxChanged$: () => NEVER,
-          }),
+          provide: AccessRequestCancelService,
+          useValue: new AccessRequestCancelService(
+            requestsApi,
+            accessRefresh,
+            toastService,
+            i18nService,
+            logService,
+          ),
         },
         { provide: LeasingErrorService, useValue: leasingErrors },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
-        { provide: LogService, useValue: mock<LogService>() },
-        {
-          provide: I18nService,
-          useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
-        },
+        { provide: LogService, useValue: logService },
+        { provide: I18nService, useValue: i18nService },
       ],
     });
   });
