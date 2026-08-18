@@ -89,11 +89,13 @@ state. Anything separating "approved, still to start" from "already running" mus
 `producedLeaseId` rather than the status — that is what keeps the nav badge, the Pending list and
 the Start/Cancel actions off a grant the requester has already activated.
 
-`AccessLeaseStatus` does carry a distinct `canceled` (the requester ended their own lease) next to
-`revoked` (an operator did), and `AccessLeaseView` carries
-`termination: AccessLeaseTermination | undefined` spelling out which happened and when.
-`historyDisplayStatus` still derives that distinction from the decision log because it only
-receives the request, not the lease; adopting `canceled` / `termination` is tracked separately.
+`AccessLeaseStatus` carries a distinct `canceled` (the requester ended their own lease) next to
+`revoked` (an operator did), and `historyDisplayStatus` reads the label straight off
+`producedLeaseStatus` — it does not scan the decision log. Optimistic patches must therefore write
+the matching one: the holder's own `endLease` writes `canceled`, an approver's `revokeLease` writes
+`revoked`. `AccessLeaseView` additionally carries `termination: AccessLeaseTermination | undefined`,
+which spells out which happened and when; the row builders have no need for it, since
+`producedLeaseStatus` already rides on the request.
 
 ## Refresh model
 

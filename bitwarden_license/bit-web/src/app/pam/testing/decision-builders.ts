@@ -5,7 +5,7 @@ const DECIDED_AT = "2026-06-10T10:30:00.000Z";
 
 /**
  * A human decision, for tests that exercise decider resolution (`resolveResolver`,
- * `findHumanDecision`, `historyDisplayStatus`).
+ * `findHumanDecision`).
  *
  * The SDK models the decider as a tagged union, so a human decision is
  * `{ human: AccessApprover }` rather than a flat set of id/name/email fields. Building it here keeps
