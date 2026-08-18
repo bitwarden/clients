@@ -5,7 +5,12 @@ import { Subject, firstValueFrom, of } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { AccessEventService, AccessLeaseSdkService, AccessRequestSdkService } from "..";
+import {
+  AccessEventService,
+  AccessLeaseSdkService,
+  AccessRequestSdkService,
+  ApprovalSdkService,
+} from "..";
 import type {
   AccessLeaseId,
   AccessRequestId,
@@ -17,16 +22,14 @@ import {
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
 
-import { ApprovalApiService } from "./approval-api.service";
 import { ApproverInboxService } from "./approver-inbox.service";
-import type { AccessRequestDetailsResponse } from "./responses/access-request.response";
 
 const ME = "11111111-1111-4111-8111-111111111111" as UserId;
 
 /** A future window, so rows are actionable unless a test says otherwise. */
 const FUTURE = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-function request(overrides: Record<string, unknown> = {}): AccessRequestDetailsResponse {
+function request(overrides: Record<string, unknown> = {}): AccessRequestView {
   return {
     id: "req-1",
     cipherId: "cipher-1",
@@ -39,12 +42,12 @@ function request(overrides: Record<string, unknown> = {}): AccessRequestDetailsR
     decisions: [],
     requesterName: "Grace",
     ...overrides,
-  } as unknown as AccessRequestDetailsResponse;
+  } as unknown as AccessRequestView;
 }
 
 describe("ApproverInboxService", () => {
   let service: ApproverInboxService;
-  let approvalApi: MockProxy<ApprovalApiService>;
+  let approvalApi: MockProxy<ApprovalSdkService>;
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
@@ -52,7 +55,7 @@ describe("ApproverInboxService", () => {
   let inboxPush$: Subject<void>;
 
   beforeEach(() => {
-    approvalApi = mock<ApprovalApiService>();
+    approvalApi = mock<ApprovalSdkService>();
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
@@ -66,7 +69,7 @@ describe("ApproverInboxService", () => {
     TestBed.configureTestingModule({
       providers: [
         ApproverInboxService,
-        { provide: ApprovalApiService, useValue: approvalApi },
+        { provide: ApprovalSdkService, useValue: approvalApi },
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
@@ -232,7 +235,7 @@ describe("ApproverInboxService", () => {
       approvalApi.listHistory.mockResolvedValue([
         request({
           id: "req-1",
-          status: "activated",
+          status: "approved",
           producedLeaseId: "lease-1",
           producedLeaseStatus: "active",
         }),
@@ -285,7 +288,7 @@ describe("ApproverInboxService", () => {
         "boom",
       );
       const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].status).toBe("activated");
+      expect(history[0].status).toBe("approved");
     });
 
     it("never reaches for the HTTP seam to mutate", async () => {
@@ -304,7 +307,7 @@ describe("ApproverInboxService", () => {
     approvalApi.listHistory.mockResolvedValue([
       request({ id: "older", status: "denied", resolvedAt: "2026-08-17T09:00:00.000Z" }),
       request({ id: "newer", status: "denied", resolvedAt: "2026-08-17T11:00:00.000Z" }),
-    ] as unknown as AccessRequestView[] as AccessRequestDetailsResponse[]);
+    ]);
 
     await service.load();
 
