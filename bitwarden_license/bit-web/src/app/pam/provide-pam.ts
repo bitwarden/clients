@@ -25,6 +25,7 @@ import { ApprovalsSdkService } from "./services/approvals-sdk.service";
 import { DefaultAccessEventService } from "./services/default-access-event.service";
 import { DefaultAccessRefreshService } from "./services/default-access-refresh.service";
 import { DefaultLeasingErrorService } from "./services/default-leasing-error.service";
+import { GovernedCollectionsService } from "./services/governed-collections.service";
 import { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
@@ -57,7 +58,9 @@ import {
  * Also fills the OSS seams PAM owns, each injected `{ optional: true }` on the OSS
  * side so an unprovided token stays inert: `CIPHER_VIEW_BANNER` (the requester's
  * leasing entry point on an open cipher) and `VAULT_ROW_LEASE_BADGE` (the per-row
- * access-state pill), both component classes, plus `GATED_CIPHER_RELOADER` (the
+ * access-state pill, on cipher AND collection rows — collection rows show the
+ * "Privileged" pill backed by the shared `GovernedCollectionsService` lookup),
+ * both component classes, plus `GATED_CIPHER_RELOADER` (the
  * observable that reveals a gated cipher in place once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
  * edit dialog), `PamNavBadgeService` (the nav badge count), and
@@ -102,6 +105,13 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: VAULT_ROW_LEASE_BADGE,
       useValue: VaultRowLeaseBadgeComponent,
+    }),
+    // Root-level (not per-badge) so every collection-row badge AND the collection-dialog
+    // callout share one cached per-org rules read.
+    safeProvider({
+      provide: GovernedCollectionsService,
+      useClass: GovernedCollectionsService,
+      deps: [AccessRuleSdkService, LogService],
     }),
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
