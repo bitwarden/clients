@@ -31,9 +31,9 @@ import { KeyService } from "@bitwarden/key-management";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
-import { policyDescriptionKeys, policyTitleKeys } from "../base-policy-edit.component";
+import { policyDrawerDescriptionKeys, policyDrawerTitleKeys } from "../base-policy-edit.component";
 import {
-  PolicyEditDrawerComponent,
+  PolicyEditDialogComponent,
   PolicyEditDialogData,
   PolicyEditDialogResult,
 } from "../policy-edit-drawer.component";
@@ -47,7 +47,7 @@ import { PolicyStep } from "./models";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultiStepPolicyEditDialogComponent
-  extends PolicyEditDrawerComponent
+  extends PolicyEditDialogComponent
   implements AfterViewInit
 {
   private readonly policyFormViewRef: Signal<ViewContainerRef | undefined> = viewChild(
@@ -62,7 +62,9 @@ export class MultiStepPolicyEditDialogComponent
 
   private readonly terminology = inject(Vfo1TerminologyService);
 
-  private readonly dialogTitleKeys = computed<[string, string]>(() => policyTitleKeys(this.policy));
+  private readonly dialogTitleKeys = computed<[string, string]>(() =>
+    policyDrawerTitleKeys(this.policy),
+  );
 
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
@@ -75,7 +77,7 @@ export class MultiStepPolicyEditDialogComponent
   protected readonly showDescription = computed(() => this.policy.showDescription);
 
   private readonly dialogDescriptionKeys = computed<[string, string]>(() =>
-    policyDescriptionKeys(this.policy),
+    policyDrawerDescriptionKeys(this.policy),
   );
 
   protected readonly descriptionKey = computed(() => {

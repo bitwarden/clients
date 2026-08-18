@@ -4,6 +4,7 @@ import {
   ChangeDetectorRef,
   Component,
   DestroyRef,
+  Directive,
   Inject,
   Signal,
   ViewContainerRef,
@@ -41,8 +42,8 @@ import { SharedModule } from "../../../shared";
 import {
   BasePolicyEditDefinition,
   BasePolicyEditComponent,
-  policyTitleKeys,
-  policyDescriptionKeys,
+  policyDrawerTitleKeys,
+  policyDrawerDescriptionKeys,
 } from "./base-policy-edit.component";
 
 export type PolicyEditDialogData = {
@@ -64,6 +65,7 @@ export type PolicyEditDialogResult = "saved";
  * shared signals, and shared logic (load, discard guard) so concrete subclasses only need to
  * implement the template-specific parts ({@link ngAfterViewInit} and {@link submit}).
  */
+@Directive()
 export abstract class PolicyEditDialogComponent implements AfterViewInit {
   protected readonly destroyRef = inject(DestroyRef);
   /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
@@ -166,13 +168,6 @@ export abstract class PolicyEditDialogComponent implements AfterViewInit {
   abstract readonly submit: () => Promise<void>;
 
   abstract ngAfterViewInit(): Promise<void>;
-
-  static open(
-    _dialogService: DialogService,
-    _config: DialogConfig<PolicyEditDialogData>,
-  ): DialogRef<PolicyEditDialogResult> {
-    throw new Error("open() must be implemented by subclass");
-  }
 }
 
 @Component({
@@ -225,14 +220,14 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
    * [legacy, VFO1] i18n key pair for the drawer title.
    */
   get titleKeys(): [string, string] {
-    return policyTitleKeys(this.policy);
+    return policyDrawerTitleKeys(this.policy);
   }
 
   /**
    * [legacy, VFO1] i18n key pair for the drawer body description.
    */
   get descriptionKeys(): [string, string] {
-    return policyDescriptionKeys(this.policy);
+    return policyDrawerDescriptionKeys(this.policy);
   }
 
   /**
@@ -368,7 +363,7 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     return this.data.policy.component;
   }
 
-  static override readonly open = (
+  static readonly open = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ): DialogRef<PolicyEditDialogResult> => {

@@ -51,6 +51,11 @@ export abstract class BasePolicyEditDefinition {
    */
   nameVfo1?: string;
   /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link name} used in the
+   * drawer/dialog title. Falls back to {@link nameVfo1} when not set.
+   */
+  drawerNameVfo1?: string;
+  /**
    * i18n string for the policy description.
    * This is shown in the list of policies and in the policy edit drawer.
    */
@@ -61,6 +66,11 @@ export abstract class BasePolicyEditDefinition {
    * {@link description} when not set.
    */
   descriptionVfo1?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link description} used in the
+   * drawer/dialog body. Falls back to {@link descriptionVfo1} when not set.
+   */
+  drawerDescriptionVfo1?: string;
 
   /**
    * The PolicyType enum that this policy represents.
@@ -145,19 +155,40 @@ export abstract class BasePolicyEditDefinition {
 }
 
 /**
- * Returns the [legacy, VFO1] i18n key pair for a policy's title.
- * Shared by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
+ * Returns the [legacy, VFO1] i18n key pair for a policy's title in the policies list.
+ * Used by {@link PoliciesComponent}.
  */
 export function policyTitleKeys(policy: BasePolicyEditDefinition): [string, string] {
   return [policy.name, policy.nameVfo1 ?? policy.name];
 }
 
 /**
- * Returns the [legacy, VFO1] i18n key pair for a policy's description. See
- * {@link policyTitleKeys}.
+ * Returns the [legacy, VFO1] i18n key pair for a policy's title in the drawer/dialog.
+ * Falls back to {@link policyTitleKeys} when no drawer-specific VFO1 key is set.
+ * Used by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
+ */
+export function policyDrawerTitleKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.name, policy.drawerNameVfo1 ?? policy.nameVfo1 ?? policy.name];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's description in the policies list.
+ * Used by {@link PoliciesComponent}.
  */
 export function policyDescriptionKeys(policy: BasePolicyEditDefinition): [string, string] {
   return [policy.description, policy.descriptionVfo1 ?? policy.description];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's description in the drawer/dialog body.
+ * Falls back to {@link policyDescriptionKeys} when no drawer-specific VFO1 key is set.
+ * Used by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
+ */
+export function policyDrawerDescriptionKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [
+    policy.description,
+    policy.drawerDescriptionVfo1 ?? policy.descriptionVfo1 ?? policy.description,
+  ];
 }
 
 /**

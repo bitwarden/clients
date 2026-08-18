@@ -35,7 +35,12 @@ import { Vfo1I18nPipe } from "@bitwarden/vault";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
-import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
+import {
+  BasePolicyEditDefinition,
+  PolicyDialogComponent,
+  policyTitleKeys,
+  policyDescriptionKeys,
+} from "./base-policy-edit.component";
 import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
@@ -107,21 +112,8 @@ export class PoliciesComponent {
       }),
     );
 
-  /**
-   * Returns the [legacy, VFO1] i18n key pair for a policy's list name. Prefers the v2 drawer
-   * title (if set) for the legacy key, then falls back to the top-level name. The VFO1 key
-   * prefers a dedicated top-level override before falling back to the v2 drawer override.
-   */
-  protected nameKeys(p: BasePolicyEditDefinition): [string, string] {
-    return [p.name, p.nameVfo1 ?? p.name];
-  }
-
-  /**
-   * Returns the [legacy, VFO1] i18n key pair for a policy's list description. See {@link nameKeys}.
-   */
-  protected descriptionKeys(p: BasePolicyEditDefinition): [string, string] {
-    return [p.description, p.descriptionVfo1 ?? p.description];
-  }
+  protected readonly nameKeys = policyTitleKeys;
+  protected readonly descriptionKeys = policyDescriptionKeys;
 
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>

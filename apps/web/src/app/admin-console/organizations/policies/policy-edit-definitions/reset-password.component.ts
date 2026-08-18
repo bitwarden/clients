@@ -15,6 +15,7 @@ import {
   SwitchComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
 import { PolicyCategory } from "../pipes/policy-category";
@@ -46,6 +47,7 @@ export class ResetPasswordPolicy extends BasePolicyEditDefinition {
     ReactiveFormsModule,
     SwitchComponent,
     I18nPipe,
+    Vfo1I18nPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
