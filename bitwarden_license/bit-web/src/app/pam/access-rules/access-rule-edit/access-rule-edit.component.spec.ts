@@ -425,9 +425,8 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     ] satisfies SelectItemView[]);
     await component["submit"]();
 
-    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error", message: "pamAccessRuleCollectionConflict" }),
-    );
+    expect(component["saveError"]()).toBe("pamAccessRuleCollectionConflict");
+    expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
     expect(navigate).not.toHaveBeenCalled();
   });
 
@@ -670,6 +669,25 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(document.activeElement).toBe(callout());
     });
 
+    it("moves focus back to the callout when a second save fails in a row", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(new Error("boom"));
+      await submitAndRender();
+      await fixture.whenStable();
+
+      const nameInput = fixture.nativeElement.querySelector(
+        "#access-rule-edit_input_name",
+      ) as HTMLInputElement;
+      nameInput.focus();
+      expect(document.activeElement).toBe(nameInput);
+
+      await submitAndRender();
+      await fixture.whenStable();
+
+      expect(document.activeElement).toBe(callout());
+    });
+
     it("keeps everything the user entered when the save fails", async () => {
       await render();
       fillRequiredFields();
@@ -795,6 +813,31 @@ describe("AccessRuleEditComponent — form states", () => {
 
       await expect(component.confirmDiscard()).resolves.toBe(false);
       expect(dialog.openSimpleDialog).toHaveBeenCalled();
+    });
+
+    it("does not ask once a successful save has left the page", async () => {
+      await render();
+      fillRequiredFields();
+      controls().name.markAsDirty();
+
+      await component["submit"]();
+
+      expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+      await expect(component.confirmDiscard()).resolves.toBe(true);
+      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
+    });
+
+    it("does not ask once the rule has been deleted", async () => {
+      await render({ params: { accessRuleId: "rule-1" } });
+      controls().name.setValue("Renamed rule");
+      controls().name.markAsDirty();
+
+      await component["remove"]();
+
+      expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+      await expect(component.confirmDiscard()).resolves.toBe(true);
+      // Only the delete confirmation itself; no discard prompt on the way out.
+      expect(dialog.openSimpleDialog).toHaveBeenCalledTimes(1);
     });
 
     it("does not ask a second time for the navigation Cancel already confirmed", async () => {

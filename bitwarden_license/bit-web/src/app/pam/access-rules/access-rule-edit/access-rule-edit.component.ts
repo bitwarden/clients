@@ -155,12 +155,6 @@ export class AccessRuleEditComponent {
     read: ElementRef<HTMLElement>,
   });
 
-  /**
-   * True while a deliberate exit is under way (saved, deleted, or a confirmed discard), so
-   * {@link confirmDiscard} doesn't ask a second time for a navigation the admin already agreed to.
-   */
-  private readonly leaving = signal(false);
-
   protected readonly pageTypeKey = this.editing
     ? "pamAccessRuleEditTitle"
     : "pamAccessRuleCreateTitle";
@@ -246,6 +240,9 @@ export class AccessRuleEditComponent {
     // while Save sits below them, so without moving focus a failed save is silent for a screen
     // reader and off-screen for everyone else.
     effect(() => {
+      if (this.saveError() == null) {
+        return;
+      }
       this.saveErrorCallout()?.nativeElement.focus();
     });
     this.coupleDurationBounds();
@@ -474,27 +471,27 @@ export class AccessRuleEditComponent {
    * has nothing to lose, so it skips the dialog rather than asking about an empty page.
    */
   async confirmDiscard(): Promise<boolean> {
-    if (this.leaving() || !this.formGroup.dirty) {
+    if (!this.formGroup.dirty) {
       return true;
     }
 
     // Creating: the design names the thing being abandoned, the rule itself. Editing: the rule
     // already exists and only the edits are lost, so the repo's shared wording is the true one.
-    return this.editing
-      ? await this.dialogService.openSimpleDialog({
+    const copy = this.editing
+      ? {
           title: { key: "discardEditsTitle" },
           content: { key: "discardEditsConfirmation" },
           acceptButtonText: { key: "discardEdits" },
           cancelButtonText: { key: "keepEditing" },
-          type: "warning",
-        })
-      : await this.dialogService.openSimpleDialog({
+        }
+      : {
           title: { key: "pamAccessRuleDiscardTitle" },
           content: { key: "pamAccessRuleDiscardContent" },
           acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
           cancelButtonText: { key: "cancel" },
-          type: "warning",
-        });
+        };
+
+    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
   }
 
   protected readonly cancel = async (): Promise<void> => {
@@ -536,13 +533,11 @@ export class AccessRuleEditComponent {
   };
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
-  private async navigateToList(): Promise<boolean> {
-    this.leaving.set(true);
-    try {
-      return await this.router.navigate([".."], { relativeTo: this.route });
-    } finally {
-      this.leaving.set(false);
-    }
+  private navigateToList(): Promise<boolean> {
+    // A save, delete, or confirmed discard is an exit the admin has already agreed to, so the
+    // form has nothing left to lose and the CanDeactivate guard must not ask a second time.
+    this.formGroup.markAsPristine();
+    return this.router.navigate([".."], { relativeTo: this.route });
   }
 }
 
