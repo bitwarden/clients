@@ -115,7 +115,7 @@ describe("CollectionAccessRuleCalloutComponent", () => {
 
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("pamAccessRuleConditionRequiresApproval");
-    expect(text).toContain("pamAccessRuleSingleActiveLease");
+    expect(text).toContain("pamAccessRuleSingleActiveUser");
   });
 
   it("names every governing rule, not just the first", async () => {

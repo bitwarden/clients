@@ -1,9 +1,11 @@
+import { EnvironmentProviders, Provider } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of, throwError } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
@@ -26,6 +28,10 @@ const cidrValidationStub: CidrValidationService = { isValid: () => true };
 // Only the delete flow opens a dialog; specs that exercise it provide their own answer.
 const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
 
+const organizationServiceStub = (canAccessEventLogs = true) => ({
+  organizations$: () => of([{ id: "org-1", canAccessEventLogs }]),
+});
+
 // Preset durations offered by the pickers, in seconds.
 const THIRTY_MIN = 30 * 60;
 const ONE_HOUR = 60 * 60;
@@ -43,6 +49,24 @@ function routeStub(state: RouteState): Partial<ActivatedRoute> {
   } as unknown as ActivatedRoute;
 }
 
+/**
+ * The providers every block needs, with `overrides` appended so a block's own stub
+ * wins (Angular resolves the last provider for a token).
+ */
+const providersWith = (...overrides: Provider[]): (Provider | EnvironmentProviders)[] => [
+  provideRouter([]),
+  { provide: ActivatedRoute, useValue: routeStub({}) },
+  { provide: AccessRuleSdkService, useValue: {} },
+  { provide: ToastService, useValue: { showToast: jest.fn() } },
+  { provide: I18nService, useValue: i18nFake },
+  { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+  { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+  { provide: CidrValidationService, useValue: cidrValidationStub },
+  { provide: OrganizationService, useValue: organizationServiceStub() },
+  { provide: DialogService, useValue: declinedDialogStub },
+  ...overrides,
+];
+
 describe("AccessRuleEditComponent — default/max duration coupling", () => {
   let fixture: ComponentFixture<AccessRuleEditComponent>;
   let component: AccessRuleEditComponent;
@@ -52,17 +76,7 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: routeStub({}) },
-        { provide: AccessRuleSdkService, useValue: {} },
-        { provide: ToastService, useValue: { showToast: jest.fn() } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
-        { provide: DialogService, useValue: declinedDialogStub },
-      ],
+      providers: providersWith(),
     });
 
     fixture = TestBed.createComponent(AccessRuleEditComponent);
@@ -110,6 +124,85 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
   });
 });
 
+describe("AccessRuleEditComponent — page furniture", () => {
+  const render = async (
+    state: RouteState,
+    existing?: AccessRuleView,
+    canAccessEventLogs = true,
+  ) => {
+    TestBed.configureTestingModule({
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
+      providers: providersWith(
+        { provide: ActivatedRoute, useValue: routeStub(state) },
+        {
+          provide: AccessRuleSdkService,
+          useValue: { getAccessRule: jest.fn().mockResolvedValue(existing) },
+        },
+        { provide: OrganizationService, useValue: organizationServiceStub(canAccessEventLogs) },
+      ),
+    });
+
+    jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    const fixture = TestBed.createComponent(AccessRuleEditComponent);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  };
+
+  it("shows the rule's name as the heading, with the list and edit-page crumbs", async () => {
+    const fixture = await render({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Production database access",
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("Production database access");
+    expect(text).toContain("pamAccessRules");
+
+    const crumbs = fixture.nativeElement.querySelectorAll("bit-breadcrumbs button");
+    expect(crumbs).toHaveLength(0);
+
+    const pageTypeCrumb = fixture.nativeElement.querySelector(
+      '[slot="breadcrumbs"] [aria-current="page"]',
+    );
+    expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleEditTitle");
+  });
+
+  it("shows the create-page crumb and heading in create mode", async () => {
+    const fixture = await render({});
+
+    const crumbs = fixture.nativeElement.querySelectorAll("bit-breadcrumbs button");
+    expect(crumbs).toHaveLength(0);
+
+    const pageTypeCrumb = fixture.nativeElement.querySelector(
+      '[slot="breadcrumbs"] [aria-current="page"]',
+    );
+    expect(pageTypeCrumb.textContent.trim()).toBe("pamAccessRuleCreateTitle");
+
+    const heading = fixture.nativeElement.querySelector("h1");
+    expect(heading.textContent).toContain("pamAccessRuleCreateTitle");
+  });
+
+  it("links the event logs at the organization's reporting route", async () => {
+    const fixture = await render({});
+
+    const link = fixture.nativeElement.querySelector(
+      "#access-rule-edit_anchor_event-logs",
+    ) as HTMLAnchorElement | null;
+    expect(link).not.toBeNull();
+    expect(link!.getAttribute("href")).toBe("/organizations/org-1/reporting/events");
+  });
+
+  it("drops the event log notice for an organization without event log access", async () => {
+    const fixture = await render({}, undefined, false);
+
+    expect(fixture.nativeElement.querySelector("#access-rule-edit_anchor_event-logs")).toBeNull();
+    expect(fixture.nativeElement.textContent).not.toContain("pamAccessRuleEventLogNotice");
+  });
+});
+
 describe("AccessRuleEditComponent — load, collections, and submit", () => {
   let component: AccessRuleEditComponent;
   let navigate: jest.SpyInstance;
@@ -145,20 +238,16 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
+      providers: providersWith(
         { provide: ActivatedRoute, useValue: routeStub(state) },
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
         { provide: DialogService, useValue: dialog },
-      ],
+      ),
     });
 
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
@@ -424,20 +513,14 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: routeStub({}) },
+      providers: providersWith(
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
         {
           provide: CollectionAdminService,
           useValue: { collectionAdminViews$: () => throwError(() => new Error("boom")) },
         },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
-        { provide: DialogService, useValue: declinedDialogStub },
-      ],
+      ),
     });
 
     jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
@@ -467,17 +550,11 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: [
-        provideRouter([]),
+      providers: providersWith(
         { provide: ActivatedRoute, useValue: routeStub({ params: { accessRuleId: "missing" } }) },
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-        { provide: CidrValidationService, useValue: cidrValidationStub },
-        { provide: DialogService, useValue: declinedDialogStub },
-      ],
+      ),
     });
 
     navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
