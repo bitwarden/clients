@@ -956,6 +956,63 @@ describe("BrowserApi", () => {
   });
 
   describe("browserAutofillSettingsOverridden", () => {
+    beforeEach(() => {
+      chrome.storage.local.get.mockImplementation((_keys, callback) => callback({}));
+    });
+
+    it("uses the persisted state when the privacy API reports a different value", async () => {
+      chrome.storage.local.get.mockImplementation((_keys, callback) =>
+        callback({ bitwardenDefaultPasswordManagerEnabled: true }),
+      );
+      const privacyGet = jest.fn((_details, callback) =>
+        callback({ value: true, levelOfControl: "controlled_by_this_extension" }),
+      );
+      chrome.privacy.services.autofillAddressEnabled.get = privacyGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get = privacyGet;
+      chrome.privacy.services.passwordSavingEnabled.get = privacyGet;
+
+      await expect(BrowserApi.browserAutofillSettingsOverridden()).resolves.toBe(true);
+      expect(privacyGet).not.toHaveBeenCalled();
+    });
+
+    it("treats an explicitly persisted false state as authoritative", async () => {
+      chrome.storage.local.get.mockImplementation((_keys, callback) =>
+        callback({ bitwardenDefaultPasswordManagerEnabled: false }),
+      );
+
+      await expect(BrowserApi.browserAutofillSettingsOverridden()).resolves.toBe(false);
+      expect(chrome.privacy.services.passwordSavingEnabled.get).not.toHaveBeenCalled();
+    });
+
+    it("uses the privacy API when no persisted state exists", async () => {
+      const privacyGet = jest.fn((_details, callback) =>
+        callback({ value: false, levelOfControl: "controlled_by_this_extension" }),
+      );
+      chrome.privacy.services.autofillAddressEnabled.get = privacyGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get = privacyGet;
+      chrome.privacy.services.passwordSavingEnabled.get = privacyGet;
+
+      await expect(BrowserApi.browserAutofillSettingsOverridden()).resolves.toBe(true);
+      expect(chrome.storage.local.get).toHaveBeenCalledWith(
+        "bitwardenDefaultPasswordManagerEnabled",
+        expect.any(Function),
+      );
+    });
+
+    it("uses the privacy API when the persisted state is null", async () => {
+      chrome.storage.local.get.mockImplementation((_keys, callback) =>
+        callback({ bitwardenDefaultPasswordManagerEnabled: null }),
+      );
+      const privacyGet = jest.fn((_details, callback) =>
+        callback({ value: false, levelOfControl: "controlled_by_this_extension" }),
+      );
+      chrome.privacy.services.autofillAddressEnabled.get = privacyGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get = privacyGet;
+      chrome.privacy.services.passwordSavingEnabled.get = privacyGet;
+
+      await expect(BrowserApi.browserAutofillSettingsOverridden()).resolves.toBe(true);
+    });
+
     it("returns true if the browser autofill settings are overridden", async () => {
       const mockFn = jest.fn<
         void,
@@ -1062,6 +1119,10 @@ describe("BrowserApi", () => {
   });
 
   describe("updateDefaultBrowserAutofillSettings", () => {
+    beforeEach(() => {
+      chrome.storage.local.set.mockImplementation((_value, callback) => callback());
+    });
+
     it("updates the default browser autofill settings", async () => {
       await BrowserApi.updateDefaultBrowserAutofillSettings(false);
 
@@ -1074,6 +1135,23 @@ describe("BrowserApi", () => {
       expect(chrome.privacy.services.passwordSavingEnabled.set).toHaveBeenCalledWith({
         value: false,
       });
+      expect(chrome.storage.local.set).toHaveBeenCalledWith(
+        { bitwardenDefaultPasswordManagerEnabled: true },
+        expect.any(Function),
+      );
+    });
+
+    it("persists the requested state when a privacy setting cannot be applied", async () => {
+      chrome.privacy.services.autofillAddressEnabled.set.mockRejectedValue(
+        new Error("unsupported by browser"),
+      );
+
+      await expect(BrowserApi.updateDefaultBrowserAutofillSettings(false)).resolves.toBeUndefined();
+
+      expect(chrome.storage.local.set).toHaveBeenCalledWith(
+        { bitwardenDefaultPasswordManagerEnabled: true },
+        expect.any(Function),
+      );
     });
 
     it("only sets passwordSavingEnabled on Firefox", async () => {

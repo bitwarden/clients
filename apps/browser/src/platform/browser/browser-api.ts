@@ -14,6 +14,8 @@ import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-
 import { registerContentScriptsPolyfill } from "./browser-api.register-content-scripts-polyfill";
 import { ExtensionInstallType } from "./extension-install-type";
 
+const DefaultPasswordManagerStorageKey = "bitwardenDefaultPasswordManagerEnabled";
+
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
   static isSafariApi: boolean = isBrowserSafariApi();
@@ -946,6 +948,12 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    const localState = await BrowserApi.getDefaultPasswordManagerLocalState();
+
+    if (localState !== null) {
+      return localState;
+    }
+
     if (!(await BrowserApi.permissionsGranted(["privacy"]))) {
       return false;
     }
@@ -984,19 +992,28 @@ export class BrowserApi {
    * @param value - Determines whether to enable or disable the autofill settings.
    */
   static async updateDefaultBrowserAutofillSettings(value: boolean) {
-    if (BrowserApi.isFirefox) {
-      if (BrowserApi.isWebExtensionsApi) {
-        await browser.privacy?.services?.passwordSavingEnabled?.set({ value });
-      } else {
-        await chrome.privacy.services.passwordSavingEnabled.set({ value });
-      }
+    await BrowserApi.setDefaultPasswordManagerLocalState(!value);
 
+    if (BrowserApi.isFirefox) {
+      try {
+        if (BrowserApi.isWebExtensionsApi) {
+          await browser.privacy?.services?.passwordSavingEnabled?.set({ value });
+        } else {
+          await chrome.privacy.services.passwordSavingEnabled.set({ value });
+        }
+      } catch {
+        return;
+      }
       return;
     }
 
-    await chrome.privacy.services.autofillAddressEnabled.set({ value });
-    await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
-    await chrome.privacy.services.passwordSavingEnabled.set({ value });
+    try {
+      await chrome.privacy.services.autofillAddressEnabled.set({ value });
+      await chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+      await chrome.privacy.services.passwordSavingEnabled.set({ value });
+    } catch {
+      return;
+    }
   }
 
   /**
@@ -1034,5 +1051,36 @@ export class BrowserApi {
     filter?: chrome.scripting.ContentScriptFilter,
   ): Promise<void> {
     await chrome.scripting.unregisterContentScripts(filter);
+  }
+
+  private static async getDefaultPasswordManagerLocalState(): Promise<boolean | null> {
+    try {
+      const result = BrowserApi.isWebExtensionsApi
+        ? await browser.storage.local.get(DefaultPasswordManagerStorageKey)
+        : await new Promise<Record<string, unknown>>((resolve) =>
+            chrome.storage.local.get(DefaultPasswordManagerStorageKey, resolve),
+          );
+      const value = result[DefaultPasswordManagerStorageKey];
+      if (typeof value === "boolean") {
+        return value;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  private static async setDefaultPasswordManagerLocalState(value: boolean): Promise<void> {
+    try {
+      if (BrowserApi.isWebExtensionsApi) {
+        await browser.storage.local.set({ [DefaultPasswordManagerStorageKey]: value });
+      } else {
+        await new Promise<void>((resolve) =>
+          chrome.storage.local.set({ [DefaultPasswordManagerStorageKey]: value }, resolve),
+        );
+      }
+    } catch {
+      return;
+    }
   }
 }
