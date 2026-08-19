@@ -49,11 +49,17 @@ export function composeRequestWindow(
 
 /**
  * Validate a requested window, mirroring the two checks the server enforces: the end must be
- * strictly after the start, and the span must fit inside
- * {@link MAX_REQUEST_ACCESS_WINDOW_SECONDS}. Returns `null` for a valid window and for an
- * incomplete one — an unfinished form is not yet wrong.
+ * strictly after the start, and the span must fit inside `maxWindowSeconds`. Returns `null` for a
+ * valid window and for an incomplete one — an unfinished form is not yet wrong.
+ *
+ * `maxWindowSeconds` is the governing rule's cap as the pre-check published it, defaulting to the
+ * global ceiling for a caller that has not resolved one. Checking only the global ceiling let a
+ * window past the rule's own maximum look valid right up until submit rejected it.
  */
-export function requestWindowProblem(value: RequestWindowFormValue): RequestWindowProblem | null {
+export function requestWindowProblem(
+  value: RequestWindowFormValue,
+  maxWindowSeconds: number = MAX_REQUEST_ACCESS_WINDOW_SECONDS,
+): RequestWindowProblem | null {
   const window = composeRequestWindow(value);
   if (window == null) {
     return null;
@@ -62,7 +68,7 @@ export function requestWindowProblem(value: RequestWindowFormValue): RequestWind
   if (spanMs <= 0) {
     return "endBeforeStart";
   }
-  return spanMs > MAX_REQUEST_ACCESS_WINDOW_SECONDS * 1000 ? "exceedsMaxWindow" : null;
+  return spanMs > maxWindowSeconds * 1000 ? "exceedsMaxWindow" : null;
 }
 
 /** `YYYY-MM-DD` for a date, in local time — the value shape `<input type="date">` expects. */
