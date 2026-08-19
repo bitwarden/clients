@@ -44,6 +44,8 @@ page looks nice when the extension is popped out.
 - `full-width-notice`
   - Similar to `above-scroll-area`, this content will display before `above-scroll-area` without
     container margin or padding.
+- `floating-action`
+  - A single action pinned to the bottom of the page. See [Floating action](#floating-action) below.
 - default
   - Whatever content you want in `main`.
 
@@ -222,6 +224,46 @@ Usage example:
   <button bitButton buttonType="secondary">Cancel</button>
 </popup-footer>
 ```
+
+## Floating action
+
+The `floating-action` slot pins a single action to the bottom-trailing corner of the page content —
+typically a page's primary "create" action. It is anchored to the scroll viewport rather than the
+scrolled content, so it stays in place while the page scrolls, and the scroll region gains extra
+bottom padding so the last row is never permanently occluded.
+
+Because it is anchored to the page content area, it automatically sits above `popup-footer` and the
+bottom tab navigation. Pages configure nothing.
+
+<Canvas of={stories.WithFloatingAction} />
+
+<Canvas of={stories.WithFloatingActionAndFooter} />
+
+Usage example:
+
+```html
+<popup-page>
+  <popup-header slot="header" [pageTitle]="'vault' | i18n"></popup-header>
+  <app-vault-list></app-vault-list>
+  <button slot="floating-action" bitButton buttonType="primary" type="button" startIcon="bwi-plus">
+    {{ "new" | i18n }}
+  </button>
+</popup-page>
+```
+
+### Accessibility
+
+- **The slot renders before the scroll region in DOM and tab order.** Keyboard and screen reader
+  users reach the action right after the `above-scroll-area` controls (search, filters) rather than
+  after every row in the list. The mismatch between visual position and DOM order is intentional and
+  remains meaningful under
+  [WCAG 2.4.3 Focus Order](https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html), since a
+  "create" action logically follows the filter controls.
+- **The projected element must supply its own accessible name.** Use `bitButton` with visible text,
+  or `bitIconButton` with `[label]`. `popup-page` adds no labeling of its own.
+- The slot is a positioning wrapper, not a landmark or focus scope — project exactly one interactive
+  element into it.
+- The floating action is hidden while `loading` is `true`.
 
 # Page types
 

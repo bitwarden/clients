@@ -350,6 +350,81 @@ class MockSettingsPageComponent {}
 })
 class MockVaultSubpageComponent {}
 
+@Component({
+  selector: "mock-vault-page-floating-action",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page [loading]="loading()">
+      <popup-header slot="header" pageTitle="Test">
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+      </popup-header>
+      <mock-search slot="above-scroll-area"></mock-search>
+      <vault-placeholder></vault-placeholder>
+      <button
+        slot="floating-action"
+        bitButton
+        buttonType="primary"
+        type="button"
+        startIcon="bwi-plus"
+      >
+        Add
+      </button>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    ButtonModule,
+    MockPopoutButtonComponent,
+    MockCurrentAccountComponent,
+    MockSearchComponent,
+    VaultComponent,
+  ],
+})
+class MockVaultPageFloatingActionComponent {
+  readonly loading = input(false);
+}
+
+@Component({
+  selector: "mock-vault-subpage-floating-action",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Test" showBackButton>
+        <ng-container slot="end">
+          <mock-popout-button></mock-popout-button>
+        </ng-container>
+      </popup-header>
+      <vault-placeholder></vault-placeholder>
+      <button
+        slot="floating-action"
+        bitButton
+        buttonType="primary"
+        type="button"
+        startIcon="bwi-plus"
+      >
+        Add
+      </button>
+      <popup-footer slot="footer">
+        <button type="button" bitButton buttonType="primary">Save</button>
+        <button type="button" bitButton buttonType="secondary">Cancel</button>
+      </popup-footer>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    PopupFooterComponent,
+    ButtonModule,
+    MockPopoutButtonComponent,
+    VaultComponent,
+  ],
+})
+class MockVaultSubpageFloatingActionComponent {}
+
 // --- Table V2 list-presentation exploration -------------------------------------
 // Duplicated from libs/components Table V2 "Filterable" story so we can iterate on
 // the responsive table/list presentation inside the real extension popup chrome.
@@ -835,6 +910,8 @@ export default {
         MockBannerComponent,
         MockSearchComponent,
         MockVaultSubpageComponent,
+        MockVaultPageFloatingActionComponent,
+        MockVaultSubpageFloatingActionComponent,
         MockVaultPageComponent,
         MockSendPageComponent,
         MockGeneratorPageComponent,
@@ -1010,6 +1087,44 @@ export const PopupPageWithFooter: Story = {
     template: /* HTML */ `
       <extension-container>
         <mock-vault-subpage></mock-vault-subpage>
+      </extension-container>
+    `,
+  }),
+};
+
+/**
+ * The `floating-action` slot pins a single action to the bottom of the content area. It is anchored to
+ * the scroll viewport rather than the scrolled content, so it stays in place while the list scrolls,
+ * and the scroll region gains extra bottom padding so the last row is never occluded.
+ *
+ * The slot is projected *before* the scroll region in DOM order, so keyboard and screen reader users
+ * reach it right after the `above-scroll-area` controls instead of after every row. Tab from the top of
+ * the page to verify.
+ */
+export const WithFloatingAction: StoryObj = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <popup-tab-navigation [navButtons]="navButtons">
+          <mock-vault-page-floating-action [loading]="loading"></mock-vault-page-floating-action>
+        </popup-tab-navigation>
+      </extension-container>
+    `,
+  }),
+  args: { loading: false, navButtons: navButtons() },
+};
+
+/**
+ * The floating action is anchored to the page content area, so it automatically clears
+ * `popup-footer` and the bottom tab navigation. Pages configure nothing.
+ */
+export const WithFloatingActionAndFooter: Story = {
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-vault-subpage-floating-action></mock-vault-subpage-floating-action>
       </extension-container>
     `,
   }),
