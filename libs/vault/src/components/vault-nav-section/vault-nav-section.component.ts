@@ -31,7 +31,6 @@ export class VaultNavSectionComponent {
 
   readonly allItemsSelected = output<void>();
   readonly vaultSelected = output<VaultNavItemViewModel>();
-  readonly myItemsSelected = output<{ vault: VaultNavItemViewModel; collectionId: string }>();
 
   protected vaultTileColor(vault: VaultNavItemViewModel): string {
     return isAvatarColor(vault.color) ? defaultAvatarColors[vault.color] : vault.color;

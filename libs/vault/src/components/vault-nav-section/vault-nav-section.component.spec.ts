@@ -206,26 +206,14 @@ describe("VaultNavSectionComponent", () => {
       fixture.detectChanges();
     });
 
-    it("renders the org vault with a My items child, no Vaults header or personal vault", () => {
+    it("renders the org vault with no My items, Vaults header, or personal vault", () => {
       const text = navText();
 
       expect(text).toContain("Acme corporation");
-      expect(text).toContain("myItems");
+      expect(text).not.toContain("myItems");
       expect(text).not.toContain("vaults");
       expect(text).not.toContain("My vault");
       expect(text).not.toContain("allItems");
-    });
-
-    it("emits myItemsSelected with the vault and collection id when My items is clicked", () => {
-      const selected = jest.fn();
-      component.myItemsSelected.subscribe(selected);
-
-      clickNavItem(fixture.nativeElement, "myItems");
-
-      expect(selected).toHaveBeenCalledWith({
-        vault: orgDataOwnership.vaults[0],
-        collectionId: "col-a",
-      });
     });
   });
 });

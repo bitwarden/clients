@@ -12,7 +12,6 @@ import {
   singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -138,20 +137,13 @@ export class UserLayoutComponent implements OnInit {
     });
   }
 
-  protected async selectVault(vault: VaultNavItemViewModel) {
-    await this.navigateToVault({ vaultId: this.vaultIdParam(vault), type: null });
-  }
-
-  protected async selectMyItems(vault: VaultNavItemViewModel, collectionId: string) {
-    await this.navigateToVault({
-      vaultId: this.vaultIdParam(vault),
-      sharedFolderId: collectionId,
-      type: null,
-    });
-  }
-
   protected async selectAllItems() {
-    await this.navigateToVault({ vaultId: null, type: null });
+    await this.router.navigate(["/vault"]);
+  }
+
+  protected async selectVault(vault: VaultNavItemViewModel) {
+    const segment = vault.type === VaultNavItemType.Personal ? "my-vault" : vault.id;
+    await this.router.navigate(["/vault", segment]);
   }
 
   protected async selectItemType(type: RoutedVaultFilterItemType) {
@@ -173,10 +165,6 @@ export class UserLayoutComponent implements OnInit {
 
   protected async promptForPremium() {
     await this.premiumUpgradePromptService.promptForPremium();
-  }
-
-  private vaultIdParam(vault: VaultNavItemViewModel): string {
-    return vault.type === VaultNavItemType.Personal ? Unassigned : vault.id;
   }
 
   async ngOnInit() {

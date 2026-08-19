@@ -14,13 +14,6 @@
           [text]="'allVaultItems' | i18n"
           (mainContentClicked)="vaultSelected.emit(vault)"
         ></bit-nav-item>
-        @if (vault.defaultUserCollectionId; as collectionId) {
-          <bit-nav-item
-            icon="bwi-user"
-            [text]="'myItems' | i18n"
-            (mainContentClicked)="myItemsSelected.emit({ vault, collectionId })"
-          ></bit-nav-item>
-        }
       </bit-nav-group>
     }
   </ng-template>
