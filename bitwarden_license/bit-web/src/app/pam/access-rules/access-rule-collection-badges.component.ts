@@ -10,8 +10,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { resolveCollectionNames } from "..";
 
 /**
- * One count badge for a rule's collections, with their names as its tooltip so the column stays
- * narrow.
+ * Renders the collections a rule governs as one grouped count badge, resolving the rule's
+ * collection ids against the org's loaded collections. The resolved names ride along as
+ * the badge's tooltip, so the detail stays reachable without widening the column. Shows a
+ * muted placeholder when the rule targets none.
  */
 @Component({
   selector: "pam-access-rule-collection-badges",
@@ -21,15 +23,9 @@ import { resolveCollectionNames } from "..";
     @if (names().length === 0) {
       <span class="tw-text-muted">{{ "pamAccessRuleCollectionsNone" | i18n }}</span>
     } @else {
-      <span
-        bitBadge
-        variant="primary"
-        startIcon="bwi-collection-shared"
-        tabindex="0"
-        [bitTooltip]="tooltip()"
-        [addTooltipToDescribedby]="true"
-        >{{ label() }}</span
-      >
+      <span bitBadge variant="primary" startIcon="bwi-collection-shared" [title]="tooltip()">{{
+        label()
+      }}</span>
     }
   `,
 })
