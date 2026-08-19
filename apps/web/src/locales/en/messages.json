@@ -18253,12 +18253,6 @@
   "pamAccessRuleDurationColumn": {
     "message": "Maximum duration"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Conditions"
-  },
-  "pamAccessWindow": {
-    "message": "Access window"
-  },
   "pamAccessRuleLastModified": {
     "message": "Last modified"
   },
