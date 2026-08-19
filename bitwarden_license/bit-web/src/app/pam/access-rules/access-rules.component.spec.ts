@@ -16,6 +16,19 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
   translate: (id: string) => id,
 };
 
+/** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
+const accessRuleError = (variant: string, message: string) =>
+  Object.assign(new Error(message), { name: "AccessRuleError", variant });
+
+// A real rejected mutation: the whole wire response, stack trace and server filesystem paths
+// included, on the error's `message`. None of it may reach a toast.
+const RAW_SERVER_PAYLOAD =
+  'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
+  'collections are already governed by another access rule.","validationErrors":null,' +
+  '"exceptionStackTrace":" at Bit.Services.Pam.Services.AccessRuleWriteValidator' +
+  ".ValidateCollectionsAsync(Guid organizationId) in /Users/build/server/bitwarden_license/src/" +
+  'Services/Pam/Services/AccessRuleWriteValidator.cs:line 87"}';
+
 function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
   return {
     id,
@@ -173,6 +186,97 @@ describe("AccessRulesComponent — activation toasts", () => {
     expect(showToast).toHaveBeenCalledWith({
       variant: "success",
       message: "pamAccessRuleActivateSuccess",
+    });
+  });
+});
+
+describe("AccessRulesComponent — failed mutations", () => {
+  let showToast: jest.Mock;
+  let deleteAccessRule: jest.Mock;
+  let updateAccessRule: jest.Mock;
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  const setup = async (
+    rules: AccessRuleView[],
+  ): Promise<ComponentFixture<AccessRulesComponent>> => {
+    showToast = jest.fn();
+    deleteAccessRule = jest.fn();
+    updateAccessRule = jest.fn();
+
+    TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
+
+    TestBed.configureTestingModule({
+      imports: [AccessRulesComponent],
+      providers: [
+        provideRouter([]),
+        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            listAccessRules: jest.fn().mockResolvedValue(rules),
+            deleteAccessRule,
+            updateAccessRule,
+          },
+        },
+        { provide: ToastService, useValue: { showToast } },
+        { provide: I18nService, useValue: i18nFake },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
+      ],
+    });
+
+    // Overridden rather than provided: the component's imported modules bring their own
+    // `DialogService` into the standalone injector, which shadows a TestBed provider.
+    TestBed.overrideProvider(DialogService, {
+      useValue: { openSimpleDialog: jest.fn().mockResolvedValue(true) },
+    });
+
+    const fixture = TestBed.createComponent(AccessRulesComponent);
+    for (let i = 0; i < 3; i++) {
+      fixture.detectChanges();
+      await fixture.whenStable();
+    }
+    return fixture;
+  };
+
+  it("keeps the server's serialized response out of a failed delete's toast", async () => {
+    const target = rule("rule-1", "VPN");
+    const fixture = await setup([target]);
+    deleteAccessRule.mockRejectedValue(accessRuleError("Api", RAW_SERVER_PAYLOAD));
+
+    await fixture.componentInstance["remove"](target);
+
+    const message = showToast.mock.calls.at(-1)![0].message as string;
+    expect(message).toBe("pamAccessRuleErrorCollectionsGoverned");
+    expect(message).not.toContain("exceptionStackTrace");
+    expect(message).not.toContain("status code 400");
+  });
+
+  it("toasts generic copy for a delete rejected with an unrecognised message", async () => {
+    const target = rule("rule-1", "VPN");
+    const fixture = await setup([target]);
+    deleteAccessRule.mockRejectedValue(
+      accessRuleError("Api", "error in response: status code 500: something the UI cannot map"),
+    );
+
+    await fixture.componentInstance["remove"](target);
+
+    expect(showToast).toHaveBeenCalledWith({ variant: "error", message: "unexpectedError" });
+  });
+
+  it("toasts the rule-is-gone copy when a toggle finds the rule deleted", async () => {
+    const target = rule("rule-1", "VPN", true);
+    const fixture = await setup([target]);
+    updateAccessRule.mockRejectedValue(accessRuleError("NotFound", ""));
+
+    await fixture.componentInstance["toggleEnabled"](target);
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "pamAccessRuleErrorMissing",
     });
   });
 });
