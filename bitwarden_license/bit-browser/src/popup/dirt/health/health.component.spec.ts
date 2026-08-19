@@ -483,20 +483,20 @@ describe("HealthComponent", () => {
       expect(overview()?.report().atRiskCount).toBe(1);
     });
 
-    it("still generates for an account the service has nothing for", async () => {
-      // The guard above must not suppress a genuine first scan for another
-      // account whose report was never built in this popup session.
-      const otherUserId = Utils.newGuid() as UserId;
+    it("retries after a previous generation failed", async () => {
+      // A failed scan is not something to reuse: there is no report to preserve
+      // and no build to follow. The failure view offers no retry control, so
+      // reusing the error would strand the user on it for the life of the popup,
+      // and a popped-out window can live for hours.
       hasRunScan$.next(true);
-      published.next({
-        userId: otherUserId,
-        state: { status: "success", report: new VaultHealthReportView() },
-      });
+      published.next({ userId, state: { status: "error" } });
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 5, atRiskCount: 1 }));
 
       await initComponent();
       await settle();
 
       expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+      expect(overview()?.report().atRiskCount).toBe(1);
     });
 
     it("scans once and does not rescan when the vault changes", async () => {

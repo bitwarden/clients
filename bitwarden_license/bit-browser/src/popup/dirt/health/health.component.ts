@@ -165,10 +165,15 @@ export class HealthComponent {
     return this.vaultHealthReportService.getVaultHealthReportState$(userId).pipe(
       take(1),
       switchMap((existing) =>
-        existing.status === "idle"
+        // Nothing worth keeping, so generate. `error` counts as nothing: there is
+        // no report to preserve and no build to follow, and the failure view
+        // offers no retry, so reusing it would strand the user on it for the life
+        // of the popup. That matters more than it sounds, because this tab can be
+        // popped out into a window that lives for hours.
+        existing.status === "idle" || existing.status === "error"
           ? this.startGeneration$(userId)
-          : // Already generated, generating, or failed for this user. Follow it
-            // rather than starting a second one.
+          : // Already generated, or generating. Follow it rather than starting a
+            // second one.
             this.vaultHealthReportService.getVaultHealthReportState$(userId),
       ),
       // The service publishes its own failures as state, so reaching here means
