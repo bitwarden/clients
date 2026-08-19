@@ -9,7 +9,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -89,23 +89,8 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
 
   variant: "add" | "edit" = "add";
 
-  /** Applies the VFO1 name rules when the flag is on, a bare required check otherwise. */
-  private readonly nameValidator: ValidatorFn = (control) => {
-    if (!this.vfo1Enabled()) {
-      return Validators.required(control);
-    }
-
-    const value: string = (control.value ?? "").trim();
-
-    if (value.length === 0) {
-      return { folderNameRequired: { message: this.i18nService.t("enterAName") } };
-    }
-
-    return null;
-  };
-
   folderForm = this.formBuilder.group({
-    name: ["", this.nameValidator],
+    name: ["", Validators.required],
   });
 
   /** Callers can suppress the delete affordance even in the edit variant. */

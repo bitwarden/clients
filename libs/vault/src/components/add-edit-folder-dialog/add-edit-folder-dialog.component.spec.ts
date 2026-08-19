@@ -184,20 +184,4 @@ describe("AddEditFolderDialogComponent", () => {
       expect(close).toHaveBeenCalledWith(AddEditFolderDialogResult.Deleted);
     });
   });
-
-  describe("VFO1 name rules", () => {
-    it("applies the new rules when the flag resolves after construction", async () => {
-      vfo1Enabled$.next(true);
-      fixture.detectChanges();
-
-      await component.submit();
-
-      const errors = component.folderForm.controls.name.errors ?? {};
-      // `bit-error` renders `Object.keys(errors)[0]`, so the VFO1 error has to win over the
-      // native `required` the input's attribute also registers.
-      expect(Object.keys(errors)[0]).toBe("folderNameRequired");
-      expect(errors.folderNameRequired).toEqual({ message: "enterAName" });
-      expect(encrypt).not.toHaveBeenCalled();
-    });
-  });
 });
