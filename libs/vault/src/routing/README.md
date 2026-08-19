@@ -1,8 +1,9 @@
 # Vault Routing
 
-The vault's filter state lives in the URL. This folder holds the three pieces that depend on that:
-resolving which vault a URL is showing, remembering the filters each vault was last viewed with, and
-migrating URLs written before the filters moved into a namespace.
+The vault's filter state lives in the URL. This folder holds the pieces that depend on that:
+resolving which vault a URL is showing, remembering the filters each vault was last viewed with and
+restoring them on the way back in, and migrating URLs written before the filters moved into a
+namespace.
 
 ## The URL is the filter state
 
@@ -65,17 +66,40 @@ chip change, the memory keeps up without the table knowing it exists. The servic
 `rememberableParams()` subset of the query string — everything under the filter namespace except
 `vault.search`, which is free text the user typed and isn't expected to come back.
 
-**Restoring** is the caller's job. Read `paramsFor(scope)` and build the link:
+**Restoring** happens in [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts), on the
+route rather than at each link. A filter-less vault URL is redirected to the same route carrying the
+remembered params:
 
-```typescript
-protected readonly vaultRoute = computed(() =>
-  this.router.createUrlTree(["/vault"], {
-    queryParams: this.vaultFilterMemory.paramsFor(ALL_ITEMS_SCOPE),
-  }),
-);
+```
+/vault    →    /vault?vault.type=1&vault.folder=f-1
 ```
 
-`paramsFor` reads from a signal, so a link built in a `computed` updates as the memory does.
+It belongs on the route because most arrivals at the vault aren't a side nav click — the post-login
+and post-unlock landing comes from `redirectGuard`, the product switcher and `orgPermissionsGuard`
+navigate to `/vault` directly, and a bookmark skips the app's chrome entirely. A link that carried
+the params itself would restore for one of those and not the rest.
+
+Register it after `vaultFilterLegacyRedirectGuard`, whose rewrite produces namespaced params and so
+takes precedence over the memory on its own.
+
+The guard stands down in three cases:
+
+- **The URL states its own filters.** Checked with `hasFilterParams()`, which is deliberately broader
+  than `rememberableParams()` — a link carrying only `vault.search` states a filter the memory
+  doesn't record, and layering a remembered type onto it would show something the link didn't ask
+  for.
+- **The navigation is a `popstate`.** Back and forward have to land on the URL held in the history
+  stack; rewriting it would put the entry the user just left back in front of them.
+- **`VFO1Foundation` is off.** The route options are shared with the pre-VFO1 vault, which reads
+  un-namespaced params.
+
+### Clearing
+
+There is no separate gesture. The toolbar's **Clear all** empties every chip, `queryParamStore` drops
+a param whose key is empty, and the bare URL that leaves behind is recorded like any other — so the
+scope's memory becomes `{}` and the guard has nothing to restore. Navigating to a bare `/vault` by
+hand is _not_ a way to clear: a typed URL and a side nav click produce the identical URL, so nothing
+downstream can tell them apart.
 
 ### Persistence
 
@@ -110,4 +134,5 @@ it.
 | ---------------------------------------------------------------------------------- | ----------------------------------------------------------- |
 | [`vault-scope.ts`](./vault-scope.ts)                                               | Scope vocabulary, route → scope resolution, param filtering |
 | [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts)               | Records and serves each scope's last-seen filters           |
+| [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts)                 | Redirects a filter-less vault URL to the remembered filters |
 | [`vault-filter-legacy-redirect.guard.ts`](./vault-filter-legacy-redirect.guard.ts) | Rewrites pre-namespace URLs                                 |

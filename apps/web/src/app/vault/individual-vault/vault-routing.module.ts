@@ -3,7 +3,11 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { vaultFilterLegacyRedirectGuard, type VaultScopeRouteData } from "@bitwarden/vault";
+import {
+  vaultFilterLegacyRedirectGuard,
+  vaultFilterRestoreGuard,
+  type VaultScopeRouteData,
+} from "@bitwarden/vault";
 
 import { RouteDataProperties } from "../../core";
 
@@ -19,7 +23,9 @@ const routes: Routes = [
       path: "",
       data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &
         VaultScopeRouteData,
-      canActivate: [vaultFilterLegacyRedirectGuard],
+      // Order matters: the legacy rewrite runs first, so a pre-namespace URL's own filters win
+      // over the remembered ones.
+      canActivate: [vaultFilterLegacyRedirectGuard, vaultFilterRestoreGuard],
     },
   }),
 ];

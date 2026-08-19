@@ -4,6 +4,7 @@ import { provideRouter, Router } from "@angular/router";
 
 import {
   ALL_ITEMS_SCOPE,
+  hasFilterParams,
   MY_VAULT_SCOPE,
   rememberableParams,
   toVaultScope,
@@ -134,5 +135,25 @@ describe("rememberableParams", () => {
 
   it("returns nothing for a URL with no filter params", () => {
     expect(rememberableParams({ itemId: "c-1" })).toEqual({});
+  });
+});
+
+describe("hasFilterParams", () => {
+  it("is true for a param under the filter namespace", () => {
+    expect(hasFilterParams({ "vault.type": "1" })).toBe(true);
+  });
+
+  // Unlike `rememberableParams`, which drops it: a link carrying only a search term still states a
+  // filter, and remembered ones shouldn't be layered over it.
+  it("is true for a search term alone", () => {
+    expect(hasFilterParams({ "vault.search": "chase" })).toBe(true);
+  });
+
+  it("is false for params outside the filter namespace", () => {
+    expect(hasFilterParams({ itemId: "c-1", action: "view" })).toBe(false);
+  });
+
+  it("is false for a URL with no params", () => {
+    expect(hasFilterParams({})).toBe(false);
   });
 });

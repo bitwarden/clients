@@ -106,3 +106,15 @@ export function rememberableParams(params: Params): Params {
     ),
   );
 }
+
+/**
+ * Whether a URL already states its own filters, and so shouldn't have remembered ones applied over
+ * it.
+ *
+ * Broader than {@link rememberableParams}: a link carrying only `vault.search` states a filter this
+ * memory deliberately doesn't record, and layering a remembered type or folder onto it would show
+ * something other than what the link asked for.
+ */
+export function hasFilterParams(params: Params): boolean {
+  return Object.keys(params).some((key) => key.startsWith(`${VAULT_FILTER_NAMESPACE}.`));
+}
