@@ -102,7 +102,7 @@
   </bit-no-items>
 
   <!-- Name -->
-  <bit-column sortable defaultSort="asc" width="minmax(200px, 2fr)">
+  <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
     <bit-cell *bitCellDef="table.columns.name; let row">
@@ -156,7 +156,7 @@
   </bit-column>
 
   <!-- Vault -->
-  <bit-column sortable [sortFn]="sortByVault" width="minmax(140px, 1fr)">
+  <bit-column sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.vault; let row">
       <bit-icon
@@ -169,7 +169,7 @@
   </bit-column>
 
   <!-- Shared folders -->
-  <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(140px, 1fr)">
+  <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.sharedFolders; let row">
       <vault-items-table-chips-cell
