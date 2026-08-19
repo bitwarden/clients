@@ -18,13 +18,13 @@ import {
 } from "@bitwarden/components";
 
 @Component({
-  selector: "button[bitFab]",
+  selector: "button[vaultFab]",
   templateUrl: "fab.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [{ provide: FocusableElement, useExisting: BitFabComponent }],
+  providers: [{ provide: FocusableElement, useExisting: VaultFabComponent }],
   imports: [IconComponent],
   host: {
-    "[attr.bitFab]": "bitFab()",
+    "[attr.vaultFab]": "vaultFab()",
     class:
       "tw-relative tw-inline-flex tw-items-center tw-justify-center tw-shrink-0 tw-size-12 tw-rounded-full tw-shadow-md",
   },
@@ -33,13 +33,13 @@ import {
     { directive: BaseButtonDirective },
   ],
 })
-export class BitFabComponent implements FocusableElement {
+export class VaultFabComponent implements FocusableElement {
   private readonly baseButton = inject(BaseButtonDirective);
   private readonly elementRef = inject(ElementRef);
   private readonly tooltip = inject(TooltipDirective, { host: true, optional: true });
 
   /** The icon to display inside the FAB. */
-  readonly bitFab = model.required<BitwardenIcon>();
+  readonly vaultFab = model.required<BitwardenIcon>();
 
   /** Accessible label used for the tooltip and screen readers. */
   readonly label = input<string>();
