@@ -53,7 +53,8 @@ export class VaultFilterMemoryService {
 
   private readonly stored = toSignal(this.state.state$, { initialValue: null });
 
-  private readonly writes = new Subject<[scope: VaultScope, params: Params]>();
+  /** Signals that {@link session} has changed and is due to be written. */
+  private readonly writes = new Subject<void>();
 
   /**
    * Merged per scope rather than whole: a navigation recorded before the stored value arrives
@@ -67,10 +68,11 @@ export class VaultFilterMemoryService {
   constructor() {
     this.writes
       .pipe(debounceTime(PERSIST_DEBOUNCE_INTERVAL), takeUntilDestroyed())
-      .subscribe(([scope, params]) => {
+      .subscribe(() => {
+        const recorded = this.session();
         // Updating rather than replacing so an in-memory view that's missing a scope — because
         // it was recorded before the read resolved — can't drop it from state.
-        void this.state.update((prev) => ({ ...prev, [scope]: params }));
+        void this.state.update((prev) => ({ ...prev, ...recorded }));
       });
 
     this.router.events
@@ -94,6 +96,6 @@ export class VaultFilterMemoryService {
     }
     const params = rememberableParams(state.root.queryParams);
     this.session.update((session) => ({ ...session, [scope]: params }));
-    this.writes.next([scope, params]);
+    this.writes.next();
   }
 }

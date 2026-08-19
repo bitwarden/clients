@@ -164,6 +164,33 @@ describe("VaultFilterMemoryService", () => {
       expect(storedState()).toEqual({ [ALL_ITEMS_SCOPE]: { "vault.type": "3" } });
     }));
 
+    // The debounce collapses a burst of navigations into one write, so the write has to carry every
+    // scope the burst touched — not just the one that happened to be last.
+    it("persists every scope recorded inside the debounce window", fakeAsync(() => {
+      createService();
+
+      navigate("/vault?vault.type=1");
+      navigate(`/vault/${MY_VAULT_SCOPE}?vault.type=3`);
+      tick(PAST_DEBOUNCE);
+
+      expect(storedState()).toEqual({
+        [ALL_ITEMS_SCOPE]: { "vault.type": "1" },
+        [MY_VAULT_SCOPE]: { "vault.type": "3" },
+      });
+    }));
+
+    it("still writes only once for a burst spanning several scopes", fakeAsync(() => {
+      createService();
+
+      navigate("/vault?vault.type=1");
+      navigate(`/vault/${MY_VAULT_SCOPE}?vault.type=3`);
+      tick(PAST_DEBOUNCE);
+
+      expect(stateProvider.activeUser.getFake(VAULT_FILTER_MEMORY).nextMock).toHaveBeenCalledTimes(
+        1,
+      );
+    }));
+
     // The stored value resolves asynchronously, so a scope recorded before it lands must not
     // shadow the scopes it didn't touch.
     it("does not lose stored scopes to a navigation recorded before the read resolves", fakeAsync(() => {
