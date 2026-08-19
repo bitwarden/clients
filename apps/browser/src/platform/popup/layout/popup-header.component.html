@@ -1,22 +1,17 @@
 <!--
-  Each slot is declared exactly once. A `select` repeated across branches of a control flow block
-  would bind all matching content to whichever copy comes first, leaving the other branch empty.
-
-  `end` is the trailing edge of the topmost bar, so it belongs to the app bar when that bar exists and
-  to the title bar otherwise. Declaring it here and rendering it into whichever branch is live is the
-  only way to move it between the two.
+  `end` is the trailing edge of the topmost bar, so it renders into the app bar when that bar exists
+  and into the title bar otherwise. Declaring the slot once and rendering the template into whichever
+  branch is live is the only way to move it: a `select` repeated across both branches would bind all
+  matching content to whichever copy comes first, leaving the other empty.
 -->
 <ng-template #endSlot>
   <ng-content select="[slot=end]"></ng-content>
 </ng-template>
 
 <!--
-  One `header` around both bars, so the banner landmark covers the whole region regardless of the flag.
-  The bars themselves are plain containers: the app bar is chrome belonging to the extension, the title
-  bar belongs to the page, and neither is a landmark on its own.
-
-  `header` carries the styling of the one-bar header and nothing else. Two bars each paint themselves,
-  so with the flag on this is a bare landmark.
+  One `header` around both bars, so the banner landmark covers the whole region. The bars themselves
+  are plain containers: the app bar is chrome belonging to the extension, the title bar belongs to the
+  page, and neither is a landmark on its own.
 -->
 <header [class]="headerClasses()">
   @if (vfo1Enabled()) {
@@ -53,7 +48,7 @@
           ></button>
         }
         @if (vfo1Enabled()) {
-          <ng-content select="[slot=start]"></ng-content>
+          <ng-content select="[slot=title-start]"></ng-content>
         }
         @if (pageTitle()) {
           <div class="tw-inline-flex tw-items-center tw-gap-1">
@@ -64,9 +59,9 @@
           </div>
         }
         <!--
-          The app bar owns the extension's branding, and `pageTitle` owns the title, so the legacy
-          default slot has nothing left to carry once the flag is on. Its only consumers project a
-          Bitwarden logo, which the app bar would otherwise duplicate.
+          TODO: remove with the VFO1Foundation flag.
+          The app bar owns the extension's branding, so the default slot's only consumers — which
+          project a Bitwarden logo — would otherwise render it twice.
         -->
         @if (!vfo1Enabled()) {
           <ng-content></ng-content>

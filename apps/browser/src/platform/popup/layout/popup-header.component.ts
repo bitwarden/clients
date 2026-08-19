@@ -46,22 +46,22 @@ export class PopupHeaderComponent {
   private readonly scrollLayout = inject(ScrollLayoutService);
 
   /**
-   * Optional so that this temporary flag read doesn't force a `ConfigService` stub into every spec
-   * that happens to render a page header. Always present in the running extension.
+   * TODO: remove with the VFO1Foundation flag.
+   *
+   * Optional so that reading the flag doesn't force a `ConfigService` stub into every spec that
+   * happens to render a page header. Always present in the running extension.
    */
   private readonly configService = inject(ConfigService, { optional: true });
 
   /**
-   * Optional for the same reason as `ConfigService`: a spec can render a bare `popup-header` without
-   * standing up the page it is normally projected into. Only the v1 header reads it.
+   * TODO: remove with the VFO1Foundation flag.
+   *
+   * Optional so that a spec can render a bare `popup-header` without standing up the page it is
+   * normally projected into.
    */
   private readonly page = inject(PopupPageComponent, { optional: true });
 
-  /**
-   * Renders the two-bar header: a branded app bar above the page title bar.
-   *
-   * Remove this along with the v1 branch of the template when the flag is retired.
-   */
+  /** TODO: remove with the VFO1Foundation flag. Renders the two-bar header. */
   protected readonly vfo1Enabled = toSignal(
     this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
     { initialValue: false },
@@ -74,8 +74,6 @@ export class PopupHeaderComponent {
    *
    * - `"default"` sits on an opaque background with a bottom border
    * - `"alt"` is transparent and borderless, for pages that paint their own background
-   *
-   * Not gated by the flag: a page that owns its background owns it in either header.
    */
   readonly background = input<"default" | "alt">("default");
 
@@ -100,7 +98,10 @@ export class PopupHeaderComponent {
    */
   private readonly scrollDirection = scrollDirection(this.scrollLayout.scrollableRef);
 
-  /** Only the v1 header uses this, to grow a border under an `alt` bar once the page moves. */
+  /**
+   * TODO: remove with the VFO1Foundation flag. Grows a border under an `alt` bar once the page
+   * moves.
+   */
   private readonly pageScrolled = computed(() => this.page?.isScrolled() ?? false);
 
   protected readonly titleBarHidden = computed(
@@ -108,9 +109,10 @@ export class PopupHeaderComponent {
   );
 
   /**
-   * With the flag on, the two bars each paint themselves and `header` is a bare landmark. With the
-   * flag off there is only one bar, so `header` paints it — which also keeps it reachable by the
-   * `[&_header]:` overrides that pages such as the default password manager prompt rely on.
+   * TODO: remove with the VFO1Foundation flag, along with the `header` class binding it feeds.
+   *
+   * The one-bar header paints `header` itself rather than a descendant, which is what keeps it
+   * reachable by the `[&_header]:` overrides the default password manager prompt relies on.
    */
   protected readonly headerClasses = computed(() => {
     if (this.vfo1Enabled()) {

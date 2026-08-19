@@ -677,7 +677,7 @@ class MockVaultTablePageComponent {
           <mock-popout-button-vfo1></mock-popout-button-vfo1>
           <mock-current-account></mock-current-account>
         </ng-container>
-        <bit-icon-tile slot="start" icon="bwi-send" variant="brand" size="sm"></bit-icon-tile>
+        <bit-icon-tile slot="title-start" icon="bwi-send" variant="brand" size="sm"></bit-icon-tile>
         <span slot="title-end" bitTypography="body2" class="tw-text-muted">3 Sends</span>
       </popup-header>
       <mock-search slot="above-scroll-area"></mock-search>
@@ -710,7 +710,7 @@ class MockSendPageV2Component {}
           <mock-popout-button-vfo1></mock-popout-button-vfo1>
           <mock-current-account></mock-current-account>
         </ng-container>
-        <bit-icon-tile slot="start" icon="bwi-lock" variant="brand" size="sm"></bit-icon-tile>
+        <bit-icon-tile slot="title-start" icon="bwi-lock" variant="brand" size="sm"></bit-icon-tile>
         <span slot="title-end" bitTypography="body2" class="tw-text-muted">20 items</span>
       </popup-header>
       <mock-search slot="above-scroll-area"></mock-search>
@@ -744,7 +744,12 @@ class MockScrollingPageV2Component {}
           <mock-popout-button-vfo1></mock-popout-button-vfo1>
           <mock-current-account></mock-current-account>
         </ng-container>
-        <bit-icon-tile slot="start" icon="bwi-vault" variant="brand" size="sm"></bit-icon-tile>
+        <bit-icon-tile
+          slot="title-start"
+          icon="bwi-vault"
+          variant="brand"
+          size="sm"
+        ></bit-icon-tile>
         <button
           slot="title-suffix"
           type="button"

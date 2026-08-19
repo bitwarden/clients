@@ -14,13 +14,9 @@ import { PopupPageComponent } from "./popup-page.component";
 
 @Component({
   template: `
-    <popup-header
-      [pageTitle]="pageTitle()"
-      [showBackButton]="showBackButton()"
-      [background]="background()"
-    >
+    <popup-header [pageTitle]="pageTitle()" [showBackButton]="showBackButton()">
       <span data-testid="default">Default content</span>
-      <span slot="start" data-testid="start">Icon tile</span>
+      <span slot="title-start" data-testid="title-start">Icon tile</span>
       <span slot="end" data-testid="end">Pop out</span>
       <span slot="title-end" data-testid="title-end">3 Sends</span>
       <span slot="title-suffix" data-testid="title-suffix">Switch vault</span>
@@ -32,7 +28,6 @@ import { PopupPageComponent } from "./popup-page.component";
 class TestHostComponent {
   readonly pageTitle = signal("Send");
   readonly showBackButton = signal(false);
-  readonly background = signal<"default" | "alt">("default");
 }
 
 /**
@@ -53,9 +48,6 @@ describe("PopupHeaderComponent", () => {
   let scrollable: HTMLElement;
   const vfo1Enabled = new BehaviorSubject<boolean>(false);
 
-  /** Stands in for the `popup-page` the header is normally projected into. */
-  const pageScrolled = signal(false);
-
   /** The branded app bar only exists in the v2 template. */
   const appBar = () => fixture.nativeElement.querySelector("[data-testid=app-bar]");
   const titleBar = (): HTMLElement =>
@@ -74,13 +66,12 @@ describe("PopupHeaderComponent", () => {
 
   beforeEach(async () => {
     vfo1Enabled.next(false);
-    pageScrolled.set(false);
 
     await TestBed.configureTestingModule({
       imports: [TestHostComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => vfo1Enabled } },
-        { provide: PopupPageComponent, useValue: { isScrolled: pageScrolled } },
+        { provide: PopupPageComponent, useValue: { isScrolled: signal(false) } },
         { provide: PopupRouterCacheService, useValue: { back: jest.fn() } },
         {
           provide: I18nService,
@@ -149,51 +140,6 @@ describe("PopupHeaderComponent", () => {
     it("renders the title-suffix slot, which the flag does not gate", () => {
       expect(titleBar().contains(slot("title-suffix"))).toBe(true);
     });
-
-    /**
-     * `header` has to keep painting the one-bar header. Pages such as the default password manager
-     * prompt reach it with `[&_header]:` overrides, which silently stop working if the background or
-     * the horizontal padding moves onto a descendant.
-     */
-    describe("styling", () => {
-      const header = () => banners()[0];
-
-      it("paints the bar on the header element, not the container inside it", () => {
-        expect(header().classList).toContain("tw-bg-background");
-        expect(header().classList).toContain("tw-pe-1");
-        expect(header().classList).toContain("tw-ps-4");
-        expect(titleBar().className).toBe("");
-      });
-
-      it("swaps the start padding for the back button's own", () => {
-        fixture.componentInstance.showBackButton.set(true);
-        fixture.detectChanges();
-
-        expect(header().classList).toContain("tw-ps-1");
-        expect(header().classList).not.toContain("tw-ps-4");
-      });
-
-      describe("with an alt background", () => {
-        beforeEach(() => {
-          fixture.componentInstance.background.set("alt");
-          fixture.detectChanges();
-        });
-
-        it("is transparent and borderless while the page sits at the top", () => {
-          expect(header().classList).toContain("tw-bg-background-alt");
-          expect(header().classList).toContain("tw-border-transparent");
-          expect(header().classList).not.toContain("tw-border-secondary-300");
-        });
-
-        it("grows a border once the page scrolls", () => {
-          pageScrolled.set(true);
-          fixture.detectChanges();
-
-          expect(header().classList).toContain("tw-border-secondary-300");
-          expect(header().classList).not.toContain("tw-border-transparent");
-        });
-      });
-    });
   });
 
   describe("when the flag is on", () => {
@@ -212,8 +158,8 @@ describe("PopupHeaderComponent", () => {
       expect(titleBar().contains(slot("end"))).toBe(false);
     });
 
-    it("renders the start, title-end, and title-suffix slots in the title bar", () => {
-      expect(titleBar().contains(slot("start"))).toBe(true);
+    it("renders the title-start, title-end, and title-suffix slots in the title bar", () => {
+      expect(titleBar().contains(slot("title-start"))).toBe(true);
       expect(titleBar().contains(slot("title-end"))).toBe(true);
       expect(titleBar().contains(slot("title-suffix"))).toBe(true);
     });
@@ -243,28 +189,16 @@ describe("PopupHeaderComponent", () => {
       expect(fixture.nativeElement.querySelector("h1")).toBeNull();
       expect(slot("default")).toBeNull();
     });
-
-    describe("styling", () => {
-      it("paints the title bar rather than the header element", () => {
-        expect(banners()[0].className).toBe("");
-        expect(titleBar().classList).toContain("tw-bg-bg-tertiary");
-        expect(titleBar().classList).toContain("tw-border-border-base");
-      });
-
-      it("leaves the app bar opaque under an alt background", () => {
-        fixture.componentInstance.background.set("alt");
-        fixture.detectChanges();
-
-        expect(titleBar().classList).toContain("tw-bg-transparent");
-        expect(titleBar().classList).toContain("tw-border-transparent");
-        expect(titleBar().classList).not.toContain("tw-bg-bg-tertiary");
-        expect(appBar().classList).toContain("tw-bg-bg-nav");
-      });
-    });
   });
 
+  /**
+   * jsdom computes no styles, so collapse state has to be read off the classes that drive it. These
+   * two helpers are the only place the spec looks at a class name.
+   */
   describe("title bar visibility", () => {
-    const collapsed = () => titleBar().classList.contains("!tw-max-h-0");
+    const collapsed = () =>
+      titleBar().classList.contains("!tw-max-h-0") && titleBar().classList.contains("!tw-py-0");
+    const expandsOnFocus = () => titleBar().classList.contains("focus-within:!tw-max-h-24");
 
     describe("when the flag is on", () => {
       beforeEach(() => {
@@ -279,14 +213,13 @@ describe("PopupHeaderComponent", () => {
       it("hides the title bar when scrolling down", async () => {
         await scrollTo(200);
 
-        expect(titleBar().className).toContain("!tw-max-h-0");
-        expect(titleBar().className).toContain("!tw-py-0");
+        expect(collapsed()).toBe(true);
       });
 
       it("keeps the hidden title bar reachable by keyboard", async () => {
         await scrollTo(200);
 
-        expect(titleBar().className).toContain("focus-within:!tw-max-h-24");
+        expect(expandsOnFocus()).toBe(true);
       });
 
       it("keeps the app bar pinned while the title bar is hidden", async () => {

@@ -81,8 +81,10 @@ export class DefaultPasswordManagerPromptComponent implements OnInit {
   );
 
   /**
-   * The two-bar header supplies its own branding and its own gutter, so the logo this page projects
-   * and the padding override that aligns it with the page content both belong to the v1 header only.
+   * TODO: remove with the VFO1Foundation flag, along with the header class override it gates.
+   *
+   * The two-bar header paints and pads its own bars, so the `[&_header]:` overrides that reach into
+   * the one-bar header have nothing to correct there.
    */
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),

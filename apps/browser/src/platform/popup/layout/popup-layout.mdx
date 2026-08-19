@@ -117,7 +117,7 @@ landmark instead of one:
 The app bar is extension chrome rather than page content, so it renders on every screen that uses
 `popup-header` — dialogs and onboarding pages included. Because it owns the branding, the legacy
 default slot is dropped while the flag is on: a page that used it to project its own logo would
-otherwise render the logo twice. Content that still belongs in the title bar goes in `start`,
+otherwise render the logo twice. Content that still belongs in the title bar goes in `title-start`,
 `title-end`, or `title-suffix`.
 
 Toggle the flag in the **Feature Flags** addon panel to compare the two.
@@ -137,8 +137,10 @@ against it once the flag is on.
 
 **Additional slots, both title bar only**
 
-- `start`
-  - A leading element before the title, typically a `bit-icon-tile`.
+- `title-start`
+  - A leading element before the title, typically a `bit-icon-tile`. Named for the bar it lands in
+    rather than `start`, so it reads as the counterpart of `title-end` — `end` belongs to the
+    topmost bar, which is a different row once the app bar exists.
 - `title-end`
   - One or more elements on the trailing edge of the title bar — content belonging to the page
     rather than the extension, such as an item count, an "Add" button, or a status chip.
@@ -166,8 +168,8 @@ content sits outside a `bitScrollLayoutHost` region simply never collapses its t
 A page that needs a control next to its title keeps `pageTitle` and projects the control into
 `title-suffix`, so every page renders the same `h1`. The suffix sits in its own group with a tighter
 gap than the rest of the row, so it reads as part of the title rather than as another item beside
-it. Unlike `start` and `title-end`, this slot is not flag-gated — it renders in the one-bar header
-too.
+it. Unlike `title-start` and `title-end`, this slot is not flag-gated — it renders in the one-bar
+header too.
 
 <Canvas of={stories.HeaderV2TitleSuffix} />
 
