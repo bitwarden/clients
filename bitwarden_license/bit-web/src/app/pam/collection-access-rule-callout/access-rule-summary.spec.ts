@@ -37,7 +37,7 @@ describe("accessRuleSummaryKeys", () => {
   it("adds the single-active-lease restriction", () => {
     expect(accessRuleSummaryKeys(rule({ singleActiveLease: true }))).toEqual([
       "pamAccessRuleConditionAutoApproved",
-      "pamAccessRuleSingleActiveLease",
+      "pamAccessRuleSingleActiveUser",
     ]);
   });
 
@@ -50,7 +50,7 @@ describe("accessRuleSummaryKeys", () => {
     expect(accessRuleSummaryKeys(rule({ conditions, singleActiveLease: true }))).toEqual([
       "pamAccessRuleConditionRequiresApproval",
       "pamAccessRuleConditionIpRestricted",
-      "pamAccessRuleSingleActiveLease",
+      "pamAccessRuleSingleActiveUser",
     ]);
   });
 
