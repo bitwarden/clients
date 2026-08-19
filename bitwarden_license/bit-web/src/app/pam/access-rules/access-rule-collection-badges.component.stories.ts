@@ -33,7 +33,8 @@ export default {
           useFactory: () =>
             new I18nMockService({
               pamAccessRuleCollectionsNone: "Unassigned",
-              plusNMore: (n) => `+ ${n} more`,
+              pamAccessRuleCollectionCountSingular: "1 collection",
+              pamAccessRuleCollectionCount: (count) => `${count} collections`,
             }),
         },
       ],
@@ -52,17 +53,17 @@ export const Single: Story = {
   args: { collectionIds: ids("col-1") },
 };
 
-/** A handful of collections, all shown. */
+/** A handful of collections, grouped into one count badge. */
 export const Multiple: Story = {
   args: { collectionIds: ids("col-1", "col-2", "col-3") },
 };
 
-/** More than `MAX_VISIBLE_COLLECTIONS` — the rest collapse into a "+N more" badge. */
-export const Overflow: Story = {
+/** A longer list — the count badge keeps the column width flat. */
+export const Many: Story = {
   args: { collectionIds: ids("col-1", "col-2", "col-3", "col-4", "col-5") },
 };
 
-/** No collections targeted — a muted placeholder is shown instead of badges. */
+/** No collections targeted — a muted placeholder is shown instead of a badge. */
 export const None: Story = {
   args: { collectionIds: ids() },
 };
