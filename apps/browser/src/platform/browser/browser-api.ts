@@ -1055,11 +1055,17 @@ export class BrowserApi {
 
   private static async getDefaultPasswordManagerLocalState(): Promise<boolean | null> {
     try {
-      const result = BrowserApi.isWebExtensionsApi
-        ? await browser.storage.local.get(DefaultPasswordManagerStorageKey)
-        : await new Promise<Record<string, unknown>>((resolve) =>
-            chrome.storage.local.get(DefaultPasswordManagerStorageKey, resolve),
-          );
+    const result = BrowserApi.isWebExtensionsApi
+      ? await browser.storage.local.get(DefaultPasswordManagerStorageKey)
+      : await new Promise<Record<string, unknown>>((resolve, reject) => {
+          chrome.storage.local.get(DefaultPasswordManagerStorageKey, (items) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else {
+              resolve(items as Record<string, unknown>);
+            }
+          });
+        });
       const value = result[DefaultPasswordManagerStorageKey];
       if (typeof value === "boolean") {
         return value;
