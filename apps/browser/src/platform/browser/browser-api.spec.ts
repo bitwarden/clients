@@ -984,6 +984,35 @@ describe("BrowserApi", () => {
       expect(chrome.privacy.services.passwordSavingEnabled.get).not.toHaveBeenCalled();
     });
 
+    it("uses the privacy API when no persisted state exists", async () => {
+      const privacyGet = jest.fn((_details, callback) =>
+        callback({ value: false, levelOfControl: "controlled_by_this_extension" }),
+      );
+      chrome.privacy.services.autofillAddressEnabled.get = privacyGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get = privacyGet;
+      chrome.privacy.services.passwordSavingEnabled.get = privacyGet;
+
+      await expect(BrowserApi.browserAutofillSettingsOverridden()).resolves.toBe(true);
+      expect(chrome.storage.local.get).toHaveBeenCalledWith(
+        "bitwardenDefaultPasswordManagerEnabled",
+        expect.any(Function),
+      );
+    });
+
+    it("uses the privacy API when the persisted state is null", async () => {
+      chrome.storage.local.get.mockImplementation((_keys, callback) =>
+        callback({ bitwardenDefaultPasswordManagerEnabled: null }),
+      );
+      const privacyGet = jest.fn((_details, callback) =>
+        callback({ value: false, levelOfControl: "controlled_by_this_extension" }),
+      );
+      chrome.privacy.services.autofillAddressEnabled.get = privacyGet;
+      chrome.privacy.services.autofillCreditCardEnabled.get = privacyGet;
+      chrome.privacy.services.passwordSavingEnabled.get = privacyGet;
+
+      await expect(BrowserApi.browserAutofillSettingsOverridden()).resolves.toBe(true);
+    });
+
     it("returns true if the browser autofill settings are overridden", async () => {
       const mockFn = jest.fn<
         void,
