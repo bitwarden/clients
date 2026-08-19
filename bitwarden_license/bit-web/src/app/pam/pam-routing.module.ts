@@ -7,7 +7,10 @@ import { organizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-con
 
 import { AccessAuditComponent } from "./access-audit/access-audit.component";
 import { AccessNameResolverService } from "./access-requests/access-name-resolver.service";
-import { AccessRuleEditComponent } from "./access-rules/access-rule-edit/access-rule-edit.component";
+import {
+  AccessRuleEditComponent,
+  accessRuleEditDiscardGuard,
+} from "./access-rules/access-rule-edit/access-rule-edit.component";
 import { AccessRulesComponent } from "./access-rules/access-rules.component";
 
 const routes: Routes = [
@@ -42,11 +45,13 @@ const routes: Routes = [
           {
             path: "new",
             component: AccessRuleEditComponent,
+            canDeactivate: [accessRuleEditDiscardGuard],
             data: { titleId: "pamAccessRuleCreateTitle" },
           },
           {
             path: ":accessRuleId",
             component: AccessRuleEditComponent,
+            canDeactivate: [accessRuleEditDiscardGuard],
             data: { titleId: "pamAccessRuleEditTitle" },
           },
         ],
