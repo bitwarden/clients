@@ -284,7 +284,8 @@ export class ProductSwitcherService {
         if (acOrg) {
           bento.push(products.ac);
         } else if (!userHasSingleOrgPolicy && !vfo1FoundationEnabled) {
-          // Under VFO1, "Add plan" in Settings replaces the Organizations entry point
+          // Offered only while VFO1 is off — flag-on, "Add plan" in Settings
+          // replaces the Organizations entry point.
           other.push(products.orgs);
         }
 

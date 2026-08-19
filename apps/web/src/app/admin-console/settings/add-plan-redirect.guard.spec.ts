@@ -3,6 +3,7 @@ import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from "@angular/ro
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { addPlanRedirectGuard } from "./add-plan-redirect.guard";
 
@@ -15,15 +16,18 @@ describe("addPlanRedirectGuard", () => {
 
   const createUrlTree = jest.fn();
   const getFeatureFlag = jest.fn().mockResolvedValue(false);
+  const logError = jest.fn();
 
   beforeEach(() => {
     createUrlTree.mockClear();
     getFeatureFlag.mockClear();
+    logError.mockClear();
 
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: { createUrlTree } },
         { provide: ConfigService, useValue: { getFeatureFlag } },
+        { provide: LogService, useValue: { error: logError } },
       ],
     });
   });
@@ -73,5 +77,32 @@ describe("addPlanRedirectGuard", () => {
       fragment: undefined,
     });
     expect(result).toBe(urlTree);
+  });
+
+  it("preserves the URL fragment on redirect", async () => {
+    const urlTree = { toString: () => "/settings/add-plan" };
+    createUrlTree.mockReturnValueOnce(urlTree);
+    getFeatureFlag.mockResolvedValueOnce(true);
+    const route = Object.freeze({
+      queryParams: {},
+      fragment: "some-anchor",
+    }) as unknown as ActivatedRouteSnapshot;
+
+    const result = await runGuard(route);
+
+    expect(createUrlTree).toHaveBeenCalledWith(["/settings/add-plan"], {
+      queryParams: {},
+      fragment: "some-anchor",
+    });
+    expect(result).toBe(urlTree);
+  });
+
+  it("fails open and logs when the flag check throws", async () => {
+    const error = new Error("flag lookup failed");
+    getFeatureFlag.mockRejectedValueOnce(error);
+
+    expect(await runGuard()).toBe(true);
+    expect(logError).toHaveBeenCalledWith("Error in addPlanRedirectGuard", error);
+    expect(createUrlTree).not.toHaveBeenCalled();
   });
 });
