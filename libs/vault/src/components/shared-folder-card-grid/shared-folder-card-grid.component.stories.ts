@@ -56,6 +56,12 @@ const MANY_FOLDERS = folderNodes([
   "Research",
 ]);
 
+/**
+ * Narrow enough to drop the grid to two columns: below 744px each track bottoms out at 240px, so the
+ * container fits `floor((width + 24px) / 264px)` of them — two anywhere from 504px to 744px.
+ */
+const NARROW_WRAPPER = "tw-max-w-xl";
+
 const LONG_NAME_FOLDERS = folderNodes([
   "Engineering — Platform, Infrastructure, and Developer Experience",
   "Design — Brand, Product, and Marketing Systems",
@@ -135,6 +141,35 @@ export default {
 
 type Story = StoryObj<SharedFolderCardGridComponent>;
 
+/**
+ * Reveals the cards held behind the trigger. Both the accordion's open state and the overflow's live
+ * inside the component, so stories reach them by driving the same controls a user would — which means
+ * a story paints in its default state for a frame before its play function lands.
+ */
+const expandOverflow: Story["play"] = async (context) => {
+  const trigger = getByRole(context.canvasElement, "button", { name: "Show all" });
+  await userEvent.click(trigger);
+};
+
+/** Collapses the whole section by clicking the accordion's own header. */
+const collapseAccordion: Story["play"] = async (context) => {
+  const header = getByRole(context.canvasElement, "button", { name: /in Departments/ });
+  await userEvent.click(header);
+};
+
+/**
+ * Docs pages skip play functions by default, which would leave every story driven by one above
+ * showing its default state — the exact opposite of what it is there to document. Stories with a
+ * play function opt into running it inline on the docs page too.
+ */
+const autoplayInDocs: Story["parameters"] = {
+  docs: {
+    story: {
+      autoplay: true,
+    },
+  },
+};
+
 /** Five children — one full row of three plus a partial row, no overflow. */
 export const Default: Story = {};
 
@@ -161,10 +196,49 @@ export const ManyChildrenExpanded: Story = {
   args: {
     folders: MANY_FOLDERS,
   },
-  play: async (context) => {
-    const trigger = getByRole(context.canvasElement, "button", { name: "Show all" });
-    await userEvent.click(trigger);
+  play: expandOverflow,
+  parameters: autoplayInDocs,
+};
+
+/**
+ * The section closed. `bit-accordion` opens by default, so this collapses it the way a user would —
+ * the header stays readable, count and all, with every card hidden behind it.
+ */
+export const AccordionCollapsed: Story = {
+  args: {
+    folders: MANY_FOLDERS,
   },
+  play: collapseAccordion,
+  parameters: autoplayInDocs,
+};
+
+/**
+ * Two columns, so the nine collapsed cards span five rows and the last one sits alone — the slot
+ * beside it is empty while the grid is collapsed.
+ */
+export const NarrowContainerCollapsed: Story = {
+  decorators: [
+    componentWrapperDecorator((story) => `<div class="${NARROW_WRAPPER}">${story}</div>`),
+  ],
+  args: {
+    folders: MANY_FOLDERS,
+  },
+};
+
+/**
+ * The same two-column grid expanded. The tenth card fills the empty slot left beside the ninth
+ * rather than starting a row of its own, because the revealed cards join the grid that is already
+ * there instead of forming a second one beneath it.
+ */
+export const NarrowContainerExpanded: Story = {
+  decorators: [
+    componentWrapperDecorator((story) => `<div class="${NARROW_WRAPPER}">${story}</div>`),
+  ],
+  args: {
+    folders: MANY_FOLDERS,
+  },
+  play: expandOverflow,
+  parameters: autoplayInDocs,
 };
 
 /** Names truncate rather than blowing out the track width. */
