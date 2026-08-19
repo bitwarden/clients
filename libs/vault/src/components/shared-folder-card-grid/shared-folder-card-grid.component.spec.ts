@@ -50,8 +50,16 @@ describe("SharedFolderCardGridComponent", () => {
     fixture.detectChanges();
   }
 
+  /** The count is projected into the accordion trigger's `end` slot, alongside the title. */
   function countLabel(): string | undefined {
-    return fixture.nativeElement.querySelector("section span")?.textContent?.trim();
+    return fixture.nativeElement.querySelector('[slot="end"]')?.textContent?.trim();
+  }
+
+  /** `bit-accordion` renders its `title` input as the first span in its trigger. */
+  function accordionTitle(): string | undefined {
+    return fixture.nativeElement
+      .querySelector('[data-accordion-trigger] span:not([slot="end"])')
+      ?.textContent?.trim();
   }
 
   function cardLinks(): HTMLAnchorElement[] {
@@ -132,7 +140,7 @@ describe("SharedFolderCardGridComponent", () => {
     it("renders nothing when the parent passes an empty list", () => {
       createComponent([]);
 
-      expect(fixture.nativeElement.querySelector("section")).toBeNull();
+      expect(fixture.nativeElement.querySelector("bit-accordion")).toBeNull();
       expect(cardLinks()).toHaveLength(0);
     });
 
@@ -279,9 +287,7 @@ describe("SharedFolderCardGridComponent", () => {
     it("titles the section with the parent folder name", () => {
       createComponent(folderNodes(2), "Engineering");
 
-      expect(fixture.nativeElement.querySelector("h2").textContent.trim()).toBe(
-        "collectionsInParent:Engineering",
-      );
+      expect(accordionTitle()).toBe("collectionsInParent:Engineering");
     });
 
     it("shows the child count alongside the title", () => {
@@ -295,7 +301,7 @@ describe("SharedFolderCardGridComponent", () => {
 
       // The sentinel is substituted into the whole translated sentence, which is then split around
       // it, so the count is bold while the surrounding words keep their translated order.
-      const emphasized = fixture.nativeElement.querySelector("section strong");
+      const emphasized = fixture.nativeElement.querySelector('[slot="end"] strong');
       expect(emphasized.textContent).toBe("16");
       expect(emphasized.classList).toContain("tw-font-bold");
       expect(countLabel()).toBe("collectionCount:16");
@@ -314,9 +320,7 @@ describe("SharedFolderCardGridComponent", () => {
     it("uses the legacy terms for the title and count when the flag is off", () => {
       createComponent(folderNodes(2), "Engineering");
 
-      expect(fixture.nativeElement.querySelector("h2").textContent.trim()).toBe(
-        "collectionsInParent:Engineering",
-      );
+      expect(accordionTitle()).toBe("collectionsInParent:Engineering");
       expect(countLabel()).toBe("collectionCount:2");
     });
 
@@ -324,9 +328,7 @@ describe("SharedFolderCardGridComponent", () => {
       vfo1Enabled.set(true);
       createComponent(folderNodes(2), "Engineering");
 
-      expect(fixture.nativeElement.querySelector("h2").textContent.trim()).toBe(
-        "sharedFoldersInParent:Engineering",
-      );
+      expect(accordionTitle()).toBe("sharedFoldersInParent:Engineering");
       expect(countLabel()).toBe("sharedFolderCount:2");
     });
 
@@ -347,12 +349,14 @@ describe("SharedFolderCardGridComponent", () => {
       );
     });
 
-    it("names the section with its heading", () => {
+    it("names the region holding the cards with the titled accordion trigger", () => {
       createComponent(folderNodes(1));
 
-      const section = fixture.nativeElement.querySelector("section");
-      const heading = fixture.nativeElement.querySelector("h2");
-      expect(section.getAttribute("aria-labelledby")).toBe(heading.id);
+      const region = fixture.nativeElement.querySelector("[data-accordion-content]");
+      const accordionTrigger = fixture.nativeElement.querySelector("[data-accordion-trigger]");
+
+      expect(region.getAttribute("aria-labelledby")).toBe(accordionTrigger.id);
+      expect(region.querySelector("a[bit-item-content]")).not.toBeNull();
     });
   });
 });

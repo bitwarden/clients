@@ -67,8 +67,6 @@ type SharedFolderCard = {
   state?: Record<string, unknown>;
 };
 
-let nextId = 0;
-
 /**
  * Renders the direct child folders of the shared folder currently in view as a responsive card
  * grid. Each card is an anchor built from the host-provided {@link RoutedVaultFilterService}, so
@@ -112,7 +110,6 @@ export class SharedFolderCardGridComponent {
   /** Name of the shared folder in view, used to title the section. */
   readonly parentName = input.required<string>();
 
-  protected readonly headingId = `shared-folder-card-grid-heading-${nextId++}`;
   protected readonly gridTemplateColumns = GRID_TEMPLATE_COLUMNS;
 
   /** Identifies the current set of children, so navigating between folders re-collapses the grid. */
