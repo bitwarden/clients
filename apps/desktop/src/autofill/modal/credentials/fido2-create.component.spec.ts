@@ -1,15 +1,13 @@
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
@@ -27,9 +25,7 @@ describe("Fido2CreateComponent", () => {
   let mockDesktopSettingsService: MockProxy<DesktopSettingsService>;
   let mockFido2UserInterfaceService: MockProxy<DesktopFido2UserInterfaceService>;
   let mockAccountService: MockProxy<AccountService>;
-  let mockCipherService: MockProxy<CipherService>;
   let mockDialogService: MockProxy<DialogService>;
-  let mockDomainSettingsService: MockProxy<DomainSettingsService>;
   let mockLogService: MockProxy<LogService>;
   let mockRouter: MockProxy<Router>;
   let mockSession: MockProxy<DesktopFido2UserInterfaceSession>;
@@ -47,9 +43,7 @@ describe("Fido2CreateComponent", () => {
     mockDesktopSettingsService = mock<DesktopSettingsService>();
     mockFido2UserInterfaceService = mock<DesktopFido2UserInterfaceService>();
     mockAccountService = mock<AccountService>();
-    mockCipherService = mock<CipherService>();
     mockDialogService = mock<DialogService>();
-    mockDomainSettingsService = mock<DomainSettingsService>();
     mockLogService = mock<LogService>();
     mockRouter = mock<Router>();
     mockSession = mock<DesktopFido2UserInterfaceSession>();
@@ -58,27 +52,16 @@ describe("Fido2CreateComponent", () => {
     mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(mockSession);
     mockAccountService.activeAccount$ = activeAccountSubject;
 
-    // RP ID and user handle are read synchronously from the session when the
-    // component builds its `ciphers$` stream at construction.
-    Object.defineProperty(mockSession, "rpId", {
-      get: () => "example.com",
-      configurable: true,
-    });
-    Object.defineProperty(mockSession, "userHandle", {
-      get: () => [1, 2, 3],
-      configurable: true,
-    });
-    mockDomainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
-    mockCipherService.getAllDecrypted.mockResolvedValue([]);
+    // The component reads its cipher list from the session, which is the single
+    // source of truth for the logins the new passkey could be added to.
+    mockSession.getMatchingLogins.mockResolvedValue([]);
 
     await TestBed.configureTestingModule({
       providers: [
         { provide: DesktopSettingsService, useValue: mockDesktopSettingsService },
         { provide: DesktopFido2UserInterfaceService, useValue: mockFido2UserInterfaceService },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: CipherService, useValue: mockCipherService },
         { provide: DialogService, useValue: mockDialogService },
-        { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: LogService, useValue: mockLogService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },

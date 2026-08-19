@@ -15,8 +15,8 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { DialogService } from "@bitwarden/components";
-import { safeProvider } from "@bitwarden/ui-common";
+import { ButtonModule, DialogService } from "@bitwarden/components";
+import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
   AddItemDialogResult,
@@ -33,6 +33,7 @@ import {
 } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
+import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
@@ -56,6 +57,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
   imports: [
+    ButtonModule,
+    I18nPipe,
     HeaderModule,
     NewCipherMenuComponent,
     VaultBannersComponent,
@@ -182,5 +185,9 @@ export class VaultNextComponent {
     }
 
     await this.itemActions.add(result.cipherType);
+  }
+
+  protected openImportDialog(): void {
+    ImportDialogComponent.open(this.dialogService);
   }
 }
