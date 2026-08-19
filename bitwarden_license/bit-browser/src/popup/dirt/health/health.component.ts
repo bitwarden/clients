@@ -70,15 +70,8 @@ export class HealthComponent {
     { initialValue: false },
   );
 
-  /**
-   * The vault scan's lifecycle, or null before it has been started.
-   *
-   * Read through a single `toSignal`, so there is exactly one subscription no
-   * matter how many times the template reads it. The report service caches, so
-   * a second read would no longer repeat the breach lookup, but a second
-   * subscription would re-enter the pipeline and trigger a second scan.
-   */
-  private readonly scan = toSignal<HealthScanState | null>(
+  /** The vault scan's lifecycle, or null before it has been started. */
+  private readonly scanState = toSignal<HealthScanState | null>(
     toObservable(this.userId).pipe(
       filterOutNullish(),
       switchMap((userId) =>
@@ -100,12 +93,12 @@ export class HealthComponent {
   );
 
   /** True when the scan did not complete. */
-  protected readonly scanFailed = computed(() => this.scan()?.status === "error");
+  protected readonly scanFailed = computed(() => this.scanState()?.status === "error");
 
   /** The completed report, or null while scanning or after a failure. */
   protected readonly report = computed(() => {
-    const scan = this.scan();
-    return scan?.status === "success" ? scan.report : null;
+    const state = this.scanState();
+    return state?.status === "success" ? state.report : null;
   });
 
   constructor() {
@@ -139,20 +132,11 @@ export class HealthComponent {
    */
   private runScan$(userId: UserId): Observable<HealthScanState> {
     return this.cipherService.cipherViews$(userId).pipe(
-      // cipherViews$ is shareReplay-cached with refCount: false and emits null
-      // when the decrypted ciphers are cleared, so a fresh subscriber can
-      // receive null FIRST. Scanning it reports an empty vault and, because
-      // take(1) then completes, strands the user on a permanent "healthy"
-      // reading.
+      // cipherViews$ may emit null when decrypted ciphers are cleared.
       filterOutNullish(),
       // The scan does an external breach lookup; a vault edit must not re-run it.
       take(1),
       switchMap((ciphers) =>
-        // buildVaultHealthReport publishes the report into the service rather
-        // than returning it, so the category detail views can still read it
-        // once this tab is destroyed (/health/:category is a sibling route, not
-        // a child, so it cannot inherit the result from here). Rejections still
-        // propagate, which is what drives the failure state below.
         from(this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)).pipe(
           // The service publishes synchronously before the promise resolves, so
           // this read always sees the scan we just ran, never a stale one.
@@ -165,8 +149,6 @@ export class HealthComponent {
       ),
       map((report): HealthScanState => ({ status: "success", report })),
       catchError((error: unknown): Observable<HealthScanState> => {
-        // Message included so a failed scan is identifiable in a log dump;
-        // asked for in review to make report failures easier to debug.
         this.logService.error("Vault health scan failed", error);
         return of({ status: "error" });
       }),
