@@ -17434,17 +17434,29 @@
   "pamAccessRuleCollectionsNone": {
     "message": "Unassigned"
   },
+  "pamAccessRuleCollectionCountSingular": {
+    "message": "1 collection"
+  },
+  "pamAccessRuleCollectionCount": {
+    "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "pamSearchRules": {
     "message": "Search rules"
   },
   "pamAccessRuleAppliesTo": {
     "message": "Applies to"
   },
-  "pamAccessRuleConditionsColumn": {
-    "message": "Conditions"
+  "pamAccessRuleApprovalMethodColumn": {
+    "message": "Approval method"
   },
-  "pamAccessWindow": {
-    "message": "Access window"
+  "pamAccessRuleDurationColumn": {
+    "message": "Maximum duration"
   },
   "pamAccessRuleLastModified": {
     "message": "Last modified"
