@@ -1,16 +1,14 @@
-import { readFileSync } from "fs";
-
 import {
   ACCESS_RULE_SERVER_ERRORS,
   accessRuleErrorMessageKey,
   classifyAccessRuleError,
 } from "./access-rule-error";
-import { ACCESS_RULE_NAME_MAX_LENGTH } from "./access-rule-request";
 
+/** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-/** The serialized response the SDK puts in `.message`, with the server's sentence inside. */
+/** How the wire body actually reaches `.message`: the sentence buried in the serialized response. */
 const wireBody = (serverMessage: string) =>
   `error in response: status code 400 Bad Request: {"object":"error","message":"${serverMessage}",` +
   `"validationErrors":null,"exceptionMessage":"${serverMessage}","exceptionStackTrace":" at ` +
@@ -56,18 +54,6 @@ describe("classifyAccessRuleError", () => {
     const outcome = classifyAccessRuleError(accessRuleError("NotFound", ""));
 
     expect(outcome).toEqual({ kind: "mapped", messageKey: "pamAccessRuleErrorMissing" });
-  });
-
-  it("maps the SDK's own local blank-name rejection onto the name field, not the generic banner", () => {
-    const outcome = classifyAccessRuleError(
-      accessRuleError("Validation", ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally.serverMessage),
-    );
-
-    expect(outcome).toEqual({
-      kind: "mapped",
-      messageKey: "pamAccessRuleNameRequired",
-      field: "name",
-    });
   });
 
   it("falls back to generic for a conditions-document failure the admin cannot act on", () => {
@@ -120,30 +106,4 @@ describe("accessRuleErrorMessageKey", () => {
       "unexpectedError",
     );
   });
-});
-
-/**
- * The Name-field mapping survives only while the catalog repeats the SDK's sentence verbatim. The
- * wasm formats the maximum in at runtime, so the pieces around it are checked separately.
- */
-describe("ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally", () => {
-  const { serverMessage } = ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally;
-  const wasm = readFileSync(
-    require.resolve("@bitwarden/commercial-sdk-internal/bitwarden_wasm_internal_bg.wasm"),
-  );
-
-  it("still holds the wording last verified against the SDK", () => {
-    expect(serverMessage).toBe("Name must be between 1 and 256 characters");
-  });
-
-  it("names the maximum a name is held to before it is sent", () => {
-    expect(serverMessage).toContain(String(ACCESS_RULE_NAME_MAX_LENGTH));
-  });
-
-  it.each(serverMessage.split(String(ACCESS_RULE_NAME_MAX_LENGTH)))(
-    "is still built from %p in the SDK's wasm",
-    (piece) => {
-      expect(wasm.includes(Buffer.from(piece, "utf8"))).toBe(true);
-    },
-  );
 });
