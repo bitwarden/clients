@@ -16,7 +16,7 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
 
 import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
 
-/** Three columns × three rows render before the rest collapse. */
+/** Nine cards — three columns × three rows at full width — render before the rest collapse. */
 const COLLAPSED_CARD_COUNT = 9;
 
 const TRIGGER_SELECTOR = "#shared-folder-card-grid_button_toggle-overflow";
@@ -129,11 +129,11 @@ describe("SharedFolderCardGridComponent", () => {
     it("borders each card on all four sides rather than as a stacked list row", () => {
       createComponent(folderNodes(2));
 
-      // `bit-item` defaults to `tw-border-0 tw-border-b` for stacked rows; these cards stand alone
-      // and use the same border token as `BaseCardDirective`.
+      // Each card stands alone rather than sitting in a stacked list, so it carries `bit-item`'s own
+      // border on all four sides — no grid-local override.
       fixture.nativeElement.querySelectorAll("bit-item").forEach((item: HTMLElement) => {
-        expect(item.classList).toContain("!tw-border");
-        expect(item.classList).toContain("!tw-border-border-base");
+        expect(item.classList).toContain("tw-border");
+        expect(item.classList).toContain("tw-border-border-base");
       });
     });
 
@@ -201,31 +201,51 @@ describe("SharedFolderCardGridComponent", () => {
       expect(trigger()).toBeNull();
     });
 
-    it("collapses the overflow rows inside a disclosure controlled by the trigger", () => {
+    it("withholds the overflow cards until the trigger is used", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT + 3));
 
-      const disclosure = fixture.nativeElement.querySelector("bit-disclosure");
-      expect(disclosure.classList).toContain("tw-hidden");
-      expect(disclosure.querySelectorAll("a[bit-item-content]")).toHaveLength(3);
+      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT);
       expect(trigger()?.textContent?.trim()).toBe("showAll");
+
+      trigger()?.click();
+      fixture.detectChanges();
+
+      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT + 3);
+      expect(trigger()?.textContent?.trim()).toBe("showLess");
+    });
+
+    it("appends the overflow cards to the same grid so they fill the last partial row", () => {
+      createComponent(folderNodes(COLLAPSED_CARD_COUNT + 3));
+
+      trigger()?.click();
+      fixture.detectChanges();
+
+      // A second grid below the first would restart at its own first column, leaving any empty slot
+      // in the last row of the collapsed grid permanently blank.
+      const grids = fixture.nativeElement.querySelectorAll("ul");
+      expect(grids).toHaveLength(1);
+      expect(grids[0].querySelectorAll("a[bit-item-content]")).toHaveLength(
+        COLLAPSED_CARD_COUNT + 3,
+      );
     });
 
     it("reflects the open state on the trigger's aria-expanded", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT + 1));
 
       expect(trigger()?.getAttribute("aria-expanded")).toBe("false");
-      expect(trigger()?.getAttribute("aria-controls")).toBe(
-        fixture.nativeElement.querySelector("bit-disclosure").id,
-      );
 
       trigger()?.click();
       fixture.detectChanges();
 
       expect(trigger()?.getAttribute("aria-expanded")).toBe("true");
-      expect(trigger()?.textContent?.trim()).toBe("showLess");
-      expect(fixture.nativeElement.querySelector("bit-disclosure").classList).not.toContain(
-        "tw-hidden",
-      );
+    });
+
+    it("points the trigger at the grid it reveals cards into", () => {
+      createComponent(folderNodes(COLLAPSED_CARD_COUNT + 1));
+
+      const gridId = fixture.nativeElement.querySelector("ul").id;
+      expect(gridId).not.toBe("");
+      expect(trigger()?.getAttribute("aria-controls")).toBe(gridId);
     });
 
     it("flips the trigger's caret to match the open state", () => {
@@ -311,7 +331,7 @@ describe("SharedFolderCardGridComponent", () => {
     it("counts every child, not just the rows on show", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT + 7));
 
-      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT + 7);
+      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT);
       expect(countLabel()).toBe(`collectionCount:${COLLAPSED_CARD_COUNT + 7}`);
     });
   });

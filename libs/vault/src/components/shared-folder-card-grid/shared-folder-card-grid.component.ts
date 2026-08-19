@@ -18,8 +18,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import {
-  DisclosureComponent,
-  DisclosureTriggerForDirective,
   IconComponent,
   IconTileComponent,
   ItemModule,
@@ -35,7 +33,11 @@ import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
 import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
-/** The grid never grows past three columns, and three rows stay visible before the rest collapse. */
+/**
+ * The grid never grows past three columns, and nine cards — three full rows at that width — stay
+ * visible before the rest collapse. Narrower containers fit fewer columns, so the same nine cards
+ * spill over more (and a partially filled) rows.
+ */
 const MAX_COLUMNS = 3;
 const VISIBLE_ROWS = 3;
 const COLLAPSED_CARD_COUNT = MAX_COLUMNS * VISIBLE_ROWS;
@@ -56,6 +58,9 @@ const GRID_TEMPLATE_COLUMNS =
 // letting the number be emphasized in the template without embedding markup in (or splitting up)
 // the translated string. Mirrors the approach in `assign-collections.component.ts`.
 const COUNT_TOKEN = "\uFFFC";
+
+// The toggle sits below the grid it controls, so `aria-controls` has to point at the list by id.
+let nextId = 0;
 
 /** A single child folder, resolved to the route its card links to. */
 type SharedFolderCard = {
@@ -80,8 +85,6 @@ type SharedFolderCard = {
   templateUrl: "./shared-folder-card-grid.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    DisclosureComponent,
-    DisclosureTriggerForDirective,
     I18nPipe,
     IconComponent,
     IconTileComponent,
@@ -112,6 +115,8 @@ export class SharedFolderCardGridComponent {
 
   protected readonly gridTemplateColumns = GRID_TEMPLATE_COLUMNS;
 
+  protected readonly listId = `shared-folder-card-grid-list-${nextId++}`;
+
   /** Identifies the current set of children, so navigating between folders re-collapses the grid. */
   private readonly folderIds = computed(() =>
     this.folders()
@@ -119,7 +124,7 @@ export class SharedFolderCardGridComponent {
       .join(","),
   );
 
-  /** Two-way bound to the overflow disclosure so that expanding can be announced. */
+  /** Whether the overflow cards have been revealed. Toggled by the trigger below the grid. */
   protected readonly expanded = linkedSignal<string, boolean>({
     source: this.folderIds,
     computation: () => false,
@@ -179,8 +184,21 @@ export class SharedFolderCardGridComponent {
     return { before, count: this.count(), after };
   });
 
-  protected readonly visibleCards = computed(() => this.cards().slice(0, COLLAPSED_CARD_COUNT));
   protected readonly overflowCards = computed(() => this.cards().slice(COLLAPSED_CARD_COUNT));
+
+  /**
+   * The cards currently in the grid. Overflow cards are appended to the same list rather than
+   * rendered in a grid of their own, so a partially filled last row is topped up before a new row
+   * starts — otherwise a narrower container that fits only two columns leaves a permanent gap
+   * beside the ninth card.
+   */
+  protected readonly displayedCards = computed(() =>
+    this.expanded() ? this.cards() : this.cards().slice(0, COLLAPSED_CARD_COUNT),
+  );
+
+  protected toggleExpanded() {
+    this.expanded.update((expanded) => !expanded);
+  }
 
   constructor() {
     effect(() => {
@@ -188,8 +206,8 @@ export class SharedFolderCardGridComponent {
         return;
       }
 
-      // The disclosure renders above its own trigger, so the rows that just appeared are behind the
-      // user's focus and would otherwise go unnoticed by a screen reader.
+      // The grid sits above its own trigger, so the cards that just appeared are behind the user's
+      // focus and would otherwise go unnoticed by a screen reader.
       const message = untracked(() => {
         const overflowCardsCount = this.overflowCards().length;
         if (overflowCardsCount === 1) {

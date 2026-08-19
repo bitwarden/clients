@@ -12,11 +12,16 @@
       >{{ countText.after }}</span
     >
     <div>
+      <!--
+        Revealed overflow cards join this same grid rather than a second one below it, so they fill
+        any empty slot left in the last row instead of starting a fresh row beneath it.
+      -->
       <ul
+        [id]="listId"
         class="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0"
         [style.grid-template-columns]="gridTemplateColumns"
       >
-        @for (folder of visibleCards(); track folder.id) {
+        @for (folder of displayedCards(); track folder.id) {
           <ng-container
             [ngTemplateOutlet]="card"
             [ngTemplateOutletContext]="{ $implicit: folder }"
@@ -25,20 +30,6 @@
       </ul>
 
       @if (overflow.length > 0) {
-        <bit-disclosure #overflowRows [(open)]="expanded">
-          <ul
-            class="tw-m-0 tw-mt-3 tw-grid tw-list-none tw-gap-3 tw-p-0"
-            [style.grid-template-columns]="gridTemplateColumns"
-          >
-            @for (folder of overflow; track folder.id) {
-              <ng-container
-                [ngTemplateOutlet]="card"
-                [ngTemplateOutletContext]="{ $implicit: folder }"
-              ></ng-container>
-            }
-          </ul>
-        </bit-disclosure>
-
         <button
           id="shared-folder-card-grid_button_toggle-overflow"
           type="button"
@@ -46,7 +37,9 @@
           linkType="default"
           class="tw-text-sm tw-mt-3"
           [endIcon]="expanded() ? 'bwi-angle-up' : 'bwi-angle-down'"
-          [bitDisclosureTriggerFor]="overflowRows"
+          [attr.aria-expanded]="expanded()"
+          [attr.aria-controls]="listId"
+          (click)="toggleExpanded()"
         >
           {{ (expanded() ? "showLess" : "showAll") | i18n }}
         </button>
