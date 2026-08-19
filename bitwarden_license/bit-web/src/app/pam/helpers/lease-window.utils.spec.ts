@@ -1,6 +1,8 @@
 import {
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
+  REQUEST_ACCESS_DURATION_PRESETS,
   pickDurationUnit,
+  requestDurationOptions,
   snapToNearestAccessRuleDuration,
   snapToNearestDuration,
 } from "./lease-window.utils";
@@ -55,5 +57,54 @@ describe("snapToNearestAccessRuleDuration", () => {
     expect(snapToNearestAccessRuleDuration(50 * 60)).toBe(60 * 60);
     // 20m is closer to 15m than to 30m.
     expect(snapToNearestAccessRuleDuration(20 * 60)).toBe(15 * 60);
+  });
+});
+
+describe("requestDurationOptions", () => {
+  const seconds = (options: { seconds: number }[]) => options.map((o) => o.seconds);
+
+  it("drops presets above the rule's cap", () => {
+    // PM-39858: a rule capped at 30m must not offer the 1h preset.
+    expect(seconds(requestDurationOptions(30 * 60, 15 * 60))).toEqual([15 * 60, 30 * 60]);
+  });
+
+  it("offers every preset when the cap is the global ceiling", () => {
+    expect(seconds(requestDurationOptions(24 * 60 * 60, 60 * 60))).toEqual(
+      REQUEST_ACCESS_DURATION_PRESETS.map((p) => p.seconds),
+    );
+  });
+
+  it("keeps the i18n label of a preset-backed option", () => {
+    const [first] = requestDurationOptions(30 * 60, 15 * 60);
+
+    expect(first.labelKey).toBe("requestAccessModalDuration15m");
+  });
+
+  it("offers the cap itself when no preset matches it, unlabelled for value formatting", () => {
+    const options = requestDurationOptions(45 * 60, 15 * 60);
+
+    expect(seconds(options)).toEqual([15 * 60, 30 * 60, 45 * 60]);
+    expect(options[2].labelKey).toBeUndefined();
+  });
+
+  it("stays non-empty for a cap below the smallest preset", () => {
+    // Filtering alone would leave nothing to pick, making the form unsubmittable.
+    expect(seconds(requestDurationOptions(5 * 60, 5 * 60))).toEqual([5 * 60]);
+  });
+
+  it("offers the default so the pre-selected value is always a real option", () => {
+    const options = requestDurationOptions(60 * 60, 20 * 60);
+
+    expect(seconds(options)).toContain(20 * 60);
+    expect(seconds(options)).toEqual([15 * 60, 20 * 60, 30 * 60, 60 * 60]);
+  });
+
+  it("does not duplicate a default that already matches a preset", () => {
+    expect(seconds(requestDurationOptions(30 * 60, 30 * 60))).toEqual([15 * 60, 30 * 60]);
+  });
+
+  it("ignores a default above the cap rather than offering an over-cap option", () => {
+    // The server clamps the default, so this only guards a malformed pair.
+    expect(seconds(requestDurationOptions(30 * 60, 4 * 60 * 60))).toEqual([15 * 60, 30 * 60]);
   });
 });
