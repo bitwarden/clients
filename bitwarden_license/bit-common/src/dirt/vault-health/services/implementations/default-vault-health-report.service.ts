@@ -36,6 +36,17 @@ type ScopedState = {
 export class DefaultVaultHealthReportService implements VaultHealthReportService {
   private readonly state = new BehaviorSubject<ScopedState | null>(null);
 
+  /**
+   * Counts builds so a superseded one cannot publish.
+   *
+   * A build cannot be cancelled once its promise is in flight, so switching
+   * account mid-generation leaves the abandoned build running. Without this it
+   * would overwrite the new account's state on resolve, and because only one
+   * build runs per Health tab open, nothing would publish again: the tab would
+   * sit on the progress view indefinitely.
+   */
+  private generation = 0;
+
   constructor(
     private cipherRiskService: CipherRiskService,
     private logService: LogService,
@@ -52,19 +63,29 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
    * to route to a failure view.
    */
   async buildVaultHealthReport(ciphers: CipherView[], userId: UserId): Promise<void> {
+    const generation = ++this.generation;
     const retained = this.retainedReport(userId);
-    this.state.next({ userId, state: { status: "loading" }, report: retained });
+    this.publish(generation, { userId, state: { status: "loading" }, report: retained });
 
     try {
       const logins = this.filterScopedLogins(ciphers);
       const report = await this.buildReport(logins, userId);
-      this.state.next({ userId, state: { status: "success", report }, report });
+      this.publish(generation, { userId, state: { status: "success", report }, report });
     } catch (error) {
       // Logged here rather than in the caller so a failed report is
-      // identifiable in a log dump no matter who triggered it.
+      // identifiable in a log dump no matter who triggered it. Logged even when
+      // the build has been superseded, so the failure is not lost.
       this.logService.error("Vault health report generation failed", error);
-      this.state.next({ userId, state: { status: "error" }, report: retained });
+      this.publish(generation, { userId, state: { status: "error" }, report: retained });
     }
+  }
+
+  /** Publishes only while `generation` is still the newest build. */
+  private publish(generation: number, next: ScopedState): void {
+    if (generation !== this.generation) {
+      return;
+    }
+    this.state.next(next);
   }
 
   /** The last report successfully built for `userId`, or null if there is none. */

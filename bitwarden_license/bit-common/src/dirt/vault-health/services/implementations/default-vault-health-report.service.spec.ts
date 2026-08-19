@@ -264,6 +264,7 @@ describe("DefaultVaultHealthReportService", () => {
 
     await service.buildVaultHealthReport(ciphers, userId);
 
+    expect(emissions.length).toBeGreaterThan(0);
     expect(emissions.every((report) => report !== null)).toBe(true);
   });
 
@@ -354,6 +355,38 @@ describe("DefaultVaultHealthReportService", () => {
       await expect(
         firstValueFrom(service.getVaultHealthReportState$(otherUserId)),
       ).resolves.toEqual({ status: "idle" });
+    });
+
+    it("does not let a superseded build overwrite the state of the account that replaced it", async () => {
+      // Switching account mid-generation abandons the first build, but a promise
+      // cannot be cancelled, so it keeps running. If its late result were
+      // published it would reset the new account's state, and since only one
+      // build runs per Health tab open, nothing would publish again: the tab
+      // would sit on the progress view for good.
+      const otherUserId = "other-user-id" as UserId;
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+
+      let releaseFirst!: () => void;
+      const firstHangs = new Promise<void>((resolve) => (releaseFirst = resolve));
+      const computeRisk = cipherRiskService.computeRiskForCiphers.getMockImplementation()!;
+      cipherRiskService.computeRiskForCiphers.mockImplementation(async (given, id, options) => {
+        if (id === userId) {
+          await firstHangs;
+        }
+        return computeRisk(given, id, options);
+      });
+
+      const abandoned = service.buildVaultHealthReport(ciphers, userId);
+      await service.buildVaultHealthReport(ciphers, otherUserId);
+      releaseFirst();
+      await abandoned;
+
+      await expect(
+        firstValueFrom(service.getVaultHealthReportState$(otherUserId)),
+      ).resolves.toEqual(expect.objectContaining({ status: "success" }));
+      await expect(
+        firstValueFrom(service.getVaultHealthReport$(otherUserId)),
+      ).resolves.not.toBeNull();
     });
   });
 

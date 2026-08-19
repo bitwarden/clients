@@ -38,9 +38,10 @@ export abstract class VaultHealthReportService {
   abstract getVaultHealthReportState$(userId: UserId): Observable<VaultHealthReportState>;
 
   /** Get the latest vault health scan report for a user, run buildVaultHealthReport first to generate the report.
-   * @returns an observable that emits the latest report built for `userId`, or
-   * null unless generation succeeded for that user. Convenience view over
-   * `getVaultHealthReportState$` for callers that only need the report.
+   * @returns an observable that emits the last report successfully built for
+   * `userId`, or null when there is none. Retained while a rescan is in flight
+   * and after a failed one, so it never blinks to null mid-generation; read
+   * `getVaultHealthReportState$` to tell those apart.
    */
   abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportView | null>;
 
