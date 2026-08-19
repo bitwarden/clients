@@ -18097,9 +18097,6 @@
   "pamAccessRuleDuplicate": {
     "message": "Duplicate rule"
   },
-  "pamAccessRuleCollectionConflict": {
-    "message": "One or more of the selected collections already have an access rule. A collection can only have one access rule, so remove those collections here or edit their existing rule instead."
-  },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
   },
@@ -18136,9 +18133,6 @@
   "pamAccessRuleDeactivateConfirmContent": {
     "message": "This rule will stop applying to new access requests."
   },
-  "pamAccessRuleSaveErrorGeneric": {
-    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
-  },
   "pamAccessRuleNameRequired": {
     "message": "Enter a name."
   },
@@ -18157,9 +18151,6 @@
       }
     }
   },
-  "pamAccessRuleErrorCollectionsMissing": {
-    "message": "One of the collections you selected no longer exists. Select a different collection."
-  },
   "pamAccessRuleErrorCollectionsForeign": {
     "message": "One of the collections you selected is not part of this organization. Select a different collection."
   },
@@ -18169,11 +18160,14 @@
   "pamAccessRuleErrorMissing": {
     "message": "This rule no longer exists. It may have been deleted by another admin."
   },
-  "pamAccessRuleSaveErrorTitle": {
-    "message": "Rule not saved"
-  },
   "pamAccessRuleSaveErrorBody": {
     "message": "Something went wrong. Your rule wasn't saved, but your information is still here. Try again."
+  },
+  "pamAccessRuleSaveErrorGeneric": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
+  },
+  "pamAccessRuleErrorCollectionsMissing": {
+    "message": "One of the collections you selected no longer exists. Select a different collection."
   },
   "pamNoAccessRulesYetTitle": {
     "message": "No access rules yet"
