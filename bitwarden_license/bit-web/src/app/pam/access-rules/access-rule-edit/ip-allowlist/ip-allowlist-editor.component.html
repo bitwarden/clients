@@ -1,7 +1,7 @@
 <p bitTypography="body2">{{ "accessRuleIpAllowlistHelpText" | i18n }}</p>
 
 <div class="tw-flex tw-flex-col tw-gap-2">
-  @for (control of cidrArray().controls; track control) {
+  @for (control of cidrArray().controls; track $index) {
     <bit-form-field>
       <bit-label>{{ "accessRuleIpAllowlistCidrLabel" | i18n }}</bit-label>
       <input
@@ -12,10 +12,11 @@
         [readonly]="readonly()"
         (blur)="markTouched()"
       />
-      @if (!readonly() && cidrArray().length > 1) {
+      @if (!readonly() && control.value.trim().length > 0) {
         <button
-          slot="inline-end"
+          bitSuffix
           bitIconButton="bwi-trash"
+          size="small"
           type="button"
           buttonType="dangerGhost"
           [title]="'accessRuleIpAllowlistRemoveRow' | i18n"
@@ -26,6 +27,16 @@
     </bit-form-field>
   }
 </div>
+
+<p bitTypography="helper" class="tw-text-muted">
+  {{ "accessRuleIpAllowlistCidrHint" | i18n }}
+</p>
+
+@if (cidrArray().touched && cidrArray().hasError("duplicateCidrs")) {
+  <p class="tw-text-danger" bitTypography="helper">
+    {{ "accessRuleIpAllowlistDuplicateCidr" | i18n }}
+  </p>
+}
 
 @if (cidrArray().touched && cidrArray().hasError("atLeastOneCidr")) {
   <p class="tw-text-danger" bitTypography="helper">
