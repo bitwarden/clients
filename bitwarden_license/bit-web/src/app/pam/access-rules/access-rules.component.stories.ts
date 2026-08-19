@@ -58,6 +58,7 @@ const RULES: AccessRuleView[] = [
     conditions: [{ kind: "human_approval" }],
     collections: ["col-2", "col-3"],
     defaultLeaseDurationSeconds: 30 * 60,
+    maxLeaseDurationSeconds: 15 * 60,
     singleActiveLease: true,
     revisionDate: "2024-04-20T14:30:00.000Z",
   }),
@@ -67,6 +68,7 @@ const RULES: AccessRuleView[] = [
     enabled: false,
     collections: ["col-4"],
     defaultLeaseDurationSeconds: 8 * 60 * 60,
+    maxLeaseDurationSeconds: 24 * 60 * 60,
     revisionDate: "2024-03-15T08:00:00.000Z",
   }),
   rule({
@@ -114,7 +116,7 @@ export default {
 
 type Story = StoryObj<AccessRulesComponent>;
 
-/** The populated table: a mix of enabled/disabled rules, conditions, and lease windows. */
+/** The populated table: a mix of active/inactive rules, conditions, and duration caps. */
 export const Default: Story = {};
 
 /** No rules yet — the empty state with starter templates is shown. */
