@@ -57,25 +57,17 @@
 
 <ng-template #card let-folder>
   <li>
-    <!--
-      `bit-item` gives the interactive row composition these cards need (start/end slots, hover,
-      focus-visible-within, truncation) but is styled to stack as a list: `tw-border-0 tw-border-b`,
-      so only a bottom divider shows. Promote the border to all four sides using the same token
-      `BaseCardDirective` applies, so these match every other card in the system.
-      Remove once CL-1281 ships a first-class card variant.
-    -->
-    <bit-item class="!tw-mb-0 !tw-border !tw-border-border-base">
+    <bit-item size="lg">
       <a
         bit-item-content
         [routerLink]="folder.commands"
         [queryParams]="folder.queryParams"
         [queryParamsHandling]="folder.queryParamsHandling"
         [state]="folder.state"
-        class="tw-py-3 tw-pe-2"
       >
         <bit-icon-tile slot="start" [icon]="'bwi-collection-shared' | vfo1Icon"></bit-icon-tile>
         {{ folder.name }}
-        <bit-icon slot="end" name="bwi-angle-right" class="tw-text-main bwi-lg" />
+        <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
       </a>
     </bit-item>
   </li>
