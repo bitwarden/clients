@@ -389,7 +389,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         key: signal(SEARCH_FILTER_KEY),
         value: search.value,
         active: computed(() => (search.value() ?? "") !== ""),
-        setValue: (value) => search.writeValue((value as string) ?? ""),
+        setValue: (value) => search.writeValue(value == null ? "" : String(value)),
       };
       this.registerFilter(control);
       onCleanup(() => this.unregisterFilter(control));
