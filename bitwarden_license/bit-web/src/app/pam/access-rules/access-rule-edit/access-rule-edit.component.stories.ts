@@ -11,6 +11,7 @@ import {
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
@@ -96,6 +97,10 @@ export default {
           useValue: { collectionAdminViews$: () => of(ORG_COLLECTIONS) },
         },
         { provide: CidrValidationService, useValue: { isValid: () => true } },
+        {
+          provide: OrganizationService,
+          useValue: { organizations$: () => of([{ id: "org-1", canAccessEventLogs: true }]) },
+        },
         { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
       ],
     }),

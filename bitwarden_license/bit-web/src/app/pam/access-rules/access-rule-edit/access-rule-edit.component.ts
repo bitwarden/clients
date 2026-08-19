@@ -1,15 +1,17 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -20,6 +22,7 @@ import {
   DialogService,
   FormFieldModule,
   HeaderComponent,
+  LinkModule,
   MultiSelectModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -87,7 +90,9 @@ const NAME_MAX_LENGTH = 256;
     FormFieldModule,
     HeaderComponent,
     IpAllowlistEditorComponent,
+    LinkModule,
     MultiSelectModule,
+    RouterLink,
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
@@ -106,8 +111,11 @@ export class AccessRuleEditComponent {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly cidrValidation = inject(CidrValidationService);
   private readonly dialogService = inject(DialogService);
+
+  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
@@ -124,8 +132,34 @@ export class AccessRuleEditComponent {
   /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
-  protected readonly titleText = computed(() =>
-    this.i18nService.t(this.editing ? "pamAccessRuleEditTitle" : "pamAccessRuleCreateTitle"),
+
+  protected readonly pageTypeKey = this.editing
+    ? "pamAccessRuleEditTitle"
+    : "pamAccessRuleCreateTitle";
+
+  /**
+   * The page heading. Edit mode shows the rule's own name, per the design; it falls back to
+   * the page-type label until the rule has loaded. Create mode keeps the page-type label,
+   * since there is no name yet and a blank heading would be worse.
+   */
+  protected readonly titleText = computed(
+    () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
+  );
+
+  protected readonly eventLogRoute = ["/organizations", this.organizationId, "reporting", "events"];
+
+  /**
+   * Gates the footer notice. `canManageAccessRules` (this page's guard) does not imply access to
+   * event logs: `canAccessEventLogs` also requires the organization's `useEvents` entitlement, and
+   * without it the reporting route bounces the admin straight back out.
+   */
+  protected readonly canAccessEventLogs = toSignal(
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(this.organizationId),
+      map((organization) => organization?.canAccessEventLogs ?? false),
+    ),
+    { initialValue: false },
   );
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
@@ -275,7 +309,7 @@ export class AccessRuleEditComponent {
 
   private async loadCollections(rule: AccessRuleView | null): Promise<void> {
     try {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const userId = await firstValueFrom(this.activeUserId$);
       const collections = await firstValueFrom(
         this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
       );
