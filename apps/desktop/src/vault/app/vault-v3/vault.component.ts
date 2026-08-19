@@ -117,6 +117,7 @@ import {
   VaultBatchBarService,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
+  SharedFolderCardGridComponent,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -156,6 +157,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
     VaultBatchActionComponent,
     VaultOrganizationUserNotificationsComponent,
     AutofocusDirective,
+    SharedFolderCardGridComponent,
   ],
   providers: [
     { provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService },
@@ -254,6 +256,43 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected readonly vfo1Foundation = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
+  );
+
+  private readonly allCollections$: Observable<CollectionView[]> = this.userId$.pipe(
+    switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  private readonly nestedCollections$ = this.allCollections$.pipe(
+    map((collections) => getNestedCollectionTree(collections)),
+  );
+
+  /**
+   * The shared folder in view, located within the collection tree. `null` unless the filter targets
+   * a single shared folder — "All" and "Unassigned" have no parent to render children beneath.
+   */
+  private readonly selectedCollectionNode = toSignal(
+    combineLatest([this.nestedCollections$, this.routedVaultFilterService.filter$]).pipe(
+      map(([collections, filter]) => {
+        const collectionId = filter?.collectionId;
+        if (collectionId == null || collectionId === All || collectionId === Unassigned) {
+          return null;
+        }
+
+        return ServiceUtils.getTreeNodeObjectFromList(collections, collectionId) ?? null;
+      }),
+    ),
+    { initialValue: null as TreeNode<CollectionView> | null },
+  );
+
+  /** Direct children of the shared folder in view, rendered as cards above the item table. */
+  protected readonly sharedFolderChildren = computed(
+    () => this.selectedCollectionNode()?.children ?? [],
+  );
+
+  /** Name of the shared folder in view, used to title the card grid. */
+  protected readonly sharedFolderName = computed(
+    () => this.selectedCollectionNode()?.node.name ?? "",
   );
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
@@ -497,11 +536,6 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const filter$ = this.routedVaultFilterService.filter$;
 
-    const allCollections$ = this.collectionService.decryptedCollections$(activeUserId);
-    const nestedCollections$ = allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections)),
-    );
-
     this.searchText$
       .pipe(
         debounceTime(SearchTextDebounceInterval),
@@ -561,7 +595,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    const collections$ = combineLatest([nestedCollections$, filter$, this.currentSearchText$]).pipe(
+    const collections$ = combineLatest([
+      this.nestedCollections$,
+      filter$,
+      this.currentSearchText$,
+    ]).pipe(
       filter(([collections, filter]) => collections != undefined && filter != undefined),
       concatMap(async ([collections, filter, searchText]) => {
         if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
@@ -604,7 +642,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(
         tap(() => (this.refreshing = true)),
         switchMap(() =>
-          combineLatest([allCollections$, this.organizations$, ciphers$, collections$]),
+          combineLatest([this.allCollections$, this.organizations$, ciphers$, collections$]),
         ),
         takeUntil(this.destroy$),
       )
@@ -622,7 +660,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         this.changeDetectorRef.markForCheck();
       });
 
-    combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
+    combineLatest([this.allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
       .pipe(takeUntil(this.destroy$))
       .subscribe(([allCollections, hasCiphers]) =>
         this.vaultBatchBarService?.setConfig({ isOrgVault: false, allCollections, hasCiphers }),
