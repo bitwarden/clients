@@ -439,6 +439,66 @@ describe("HealthComponent", () => {
       expect(overview()).toBeNull();
     });
 
+    it("does not regenerate when the service already has a report for this user", async () => {
+      // Returning from a category detail re-creates this component, because
+      // /health/:category is a sibling route and the popup never reuses routes.
+      // Re-running the breach lookup for results the user was reading a second
+      // ago is waste they can see: a second lookup, and the progress view again.
+      hasRunScan$.next(true);
+      published.next({
+        userId,
+        state: {
+          status: "success",
+          report: new VaultHealthReportView({ totalCount: 10, atRiskCount: 2 }),
+        },
+      });
+
+      await initComponent();
+      await settle();
+
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(overview()?.report().atRiskCount).toBe(2);
+      expect(scanning()).toBeNull();
+    });
+
+    it("follows an in-flight generation rather than starting a second one", async () => {
+      hasRunScan$.next(true);
+      published.next({ userId, state: { status: "loading" } });
+
+      await initComponent();
+      await settle();
+
+      expect(reportService.buildVaultHealthReport).not.toHaveBeenCalled();
+      expect(scanning()).not.toBeNull();
+
+      published.next({
+        userId,
+        state: {
+          status: "success",
+          report: new VaultHealthReportView({ totalCount: 8, atRiskCount: 1 }),
+        },
+      });
+      await settle();
+
+      expect(overview()?.report().atRiskCount).toBe(1);
+    });
+
+    it("still generates for an account the service has nothing for", async () => {
+      // The guard above must not suppress a genuine first scan for another
+      // account whose report was never built in this popup session.
+      const otherUserId = Utils.newGuid() as UserId;
+      hasRunScan$.next(true);
+      published.next({
+        userId: otherUserId,
+        state: { status: "success", report: new VaultHealthReportView() },
+      });
+
+      await initComponent();
+      await settle();
+
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+    });
+
     it("scans once and does not rescan when the vault changes", async () => {
       hasRunScan$.next(true);
       const ciphers$ = new BehaviorSubject<CipherView[]>([]);

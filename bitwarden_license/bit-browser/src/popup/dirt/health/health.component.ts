@@ -148,11 +148,41 @@ export class HealthComponent {
   };
 
   /**
-   * Starts one report build for `userId` and reports the service's state for it.
+   * Reports where generation is for `userId`, starting it only if the service
+   * has nothing for them yet.
+   *
+   * Re-creating this component must not repeat the scan. `/health/:category` is
+   * a sibling route and the popup never reuses routes, so the back arrow
+   * destroys and rebuilds this component; without the guard the user pays a
+   * second breach lookup and watches the progress view again for results they
+   * were reading a moment earlier. The report service is popup-scoped, so
+   * closing the popup still discards everything and the next open scans afresh.
+   *
    * Never errors, so a failure renders the failure view instead of tearing down
    * the pipeline.
    */
   private generateReport$(userId: UserId): Observable<VaultHealthReportState> {
+    return this.vaultHealthReportService.getVaultHealthReportState$(userId).pipe(
+      take(1),
+      switchMap((existing) =>
+        existing.status === "idle"
+          ? this.startGeneration$(userId)
+          : // Already generated, generating, or failed for this user. Follow it
+            // rather than starting a second one.
+            this.vaultHealthReportService.getVaultHealthReportState$(userId),
+      ),
+      // The service publishes its own failures as state, so reaching here means
+      // the ciphers stream failed instead. Distinct message so the two failure
+      // classes are separable in a log dump.
+      catchError((error: unknown): Observable<VaultHealthReportState> => {
+        this.logService.error("Vault health scan pipeline failed", error);
+        return of({ status: "error" });
+      }),
+    );
+  }
+
+  /** Runs one report build for `userId` and reports the service's state for it. */
+  private startGeneration$(userId: UserId): Observable<VaultHealthReportState> {
     return this.cipherService.cipherViews$(userId).pipe(
       // cipherViews$ may emit null when decrypted ciphers are cleared.
       filterOutNullish(),
@@ -169,13 +199,6 @@ export class HealthComponent {
           this.vaultHealthReportService.getVaultHealthReportState$(userId),
         ),
       ),
-      // The service publishes its own failures as state, so reaching here means
-      // the ciphers stream failed instead. Distinct message so the two failure
-      // classes are separable in a log dump.
-      catchError((error: unknown): Observable<VaultHealthReportState> => {
-        this.logService.error("Vault health scan pipeline failed", error);
-        return of({ status: "error" });
-      }),
     );
   }
 }
