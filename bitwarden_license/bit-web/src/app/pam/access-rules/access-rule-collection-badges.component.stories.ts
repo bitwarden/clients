@@ -56,12 +56,12 @@ export const Multiple: Story = {
   args: { collectionIds: ids("col-1", "col-2", "col-3") },
 };
 
-/** The count badge keeps the column width flat. */
+/** A longer list — the count badge keeps the column width flat. */
 export const Many: Story = {
   args: { collectionIds: ids("col-1", "col-2", "col-3", "col-4", "col-5") },
 };
 
-/** A muted placeholder replaces the badge. */
+/** No collections targeted — a muted placeholder is shown instead of a badge. */
 export const None: Story = {
   args: { collectionIds: ids() },
 };
