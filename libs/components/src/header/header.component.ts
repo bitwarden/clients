@@ -1,5 +1,5 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -55,18 +55,12 @@ export class HeaderComponent {
    */
   readonly icon = input<BitwardenIcon>();
 
+  // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: true },
+    { initialValue: false },
   );
 
   /** Whether a projected `bit-breadcrumbs` has taken over rendering the page's `<h1>`. */
-  protected readonly hasActiveBreadcrumb = computed(() => this.headerContext.hasActiveBreadcrumb());
-
-  // remove when VFO1 flag is removed
-  constructor() {
-    effect(() => {
-      this.headerContext.shouldPromoteActiveBreadcrumb.set(this.vfo1Enabled());
-    });
-  }
+  protected readonly hasPromotedHeading = this.headerContext.hasPromotedHeading;
 }

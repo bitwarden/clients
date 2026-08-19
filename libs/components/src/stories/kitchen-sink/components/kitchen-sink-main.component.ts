@@ -114,6 +114,12 @@ export class KitchenSinkDialogWithAutofocusComponent {
   imports: [KitchenSinkSharedModule],
   template: `
     <bit-page>
+      <div>
+        <bit-banner>
+          Bitwarden is the most trusted password manager.
+          <a bitLink [linkType]="variant">Click me</a>
+        </bit-banner>
+      </div>
       <bit-header title="Kitchen Sink" icon="bwi-collection">
         <bit-breadcrumbs slot="breadcrumbs">
           @for (item of navItems; track item) {

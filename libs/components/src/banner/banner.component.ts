@@ -1,8 +1,18 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, computed, input, signal } from "@angular/core";
-import { outputFromObservable } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnInit,
+  computed,
+  inject,
+  input,
+  signal,
+} from "@angular/core";
+import { outputFromObservable, toSignal } from "@angular/core/rxjs-interop";
 import { Subject } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { IconButtonModule } from "../icon-button";
@@ -40,13 +50,34 @@ const bannerColors: Record<BannerVariant, string> = {
   templateUrl: "./banner.component.html",
   imports: [NgTemplateOutlet, IconButtonModule, IconTileComponent, I18nPipe, TypographyDirective],
   host: {
-    // Account for bit-layout's padding
-    class:
-      "tw-@container tw-flex tw-flex-col [bit-layout_&]:-tw-mx-8 [bit-layout_&]:-tw-my-6 [bit-layout_&]:tw-pb-6",
+    "[class]": "class()",
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BannerComponent implements OnInit {
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected readonly class = computed(() =>
+    [
+      "tw-@container",
+      "tw-flex",
+      "tw-flex-col",
+      // Account for bit-layout's padding
+      "[bit-layout_&]:-tw-mt-6",
+      "[bit-layout_&:not(bit-page_*)]:-tw-mb-6",
+    ].concat(
+      this.vfo1Enabled()
+        ? ["[bit-layout_&]:-tw-mx-10"]
+        : ["[bit-layout_&]:-tw-mx-8", "[bit-layout_&]:tw-pb-6"],
+    ),
+  );
+
   /**
    * The variant of banner, which determines its color scheme.
    */

@@ -5,7 +5,6 @@ import {
   Component,
   computed,
   contentChildren,
-  effect,
   inject,
   input,
 } from "@angular/core";
@@ -85,19 +84,16 @@ export class BreadcrumbsComponent {
    * and there is an active breadcrumb available
    *
    * (after VFO1 flag is removed, update this to check for the existence of HeaderContext instead
-   * of the check for shouldPromoteActiveBreadcrumb, which is solely a VFO1 flag gate)
+   * of the check for promoteActiveBreadcrumb, which is solely a VFO1 flag gate)
    */
   protected readonly displayActiveAsHeader = computed(
     () =>
-      (this.headerContext?.shouldPromoteActiveBreadcrumb() &&
-        this.activeBreadcrumb() != undefined) ??
-      false,
+      (this.headerContext?.promoteActiveBreadcrumb() ?? false) &&
+      this.activeBreadcrumb() != undefined,
   );
 
   constructor() {
-    effect(() => {
-      this.headerContext?.hasActiveBreadcrumb.set(this.displayActiveAsHeader());
-    });
+    this.headerContext?.registerPromotedHeading(this.displayActiveAsHeader);
   }
 
   /** Whether the breadcrumbs exceed the show limit and require an overflow menu */

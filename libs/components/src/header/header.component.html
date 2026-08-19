@@ -27,7 +27,7 @@
         <div class="tw-flex tw-items-center tw-h-full empty:tw-hidden">
           <ng-container *ngTemplateOutlet="breadcrumbs"></ng-container>
         </div>
-        @if (!hasActiveBreadcrumb()) {
+        @if (!hasPromotedHeading()) {
           <h1
             bitTypography="h1"
             noMargin

@@ -1,4 +1,8 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 /**
  * A page-level layout region for the main content area of a `bit-layout`.
@@ -25,4 +29,12 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
   },
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageComponent {}
+export class PageComponent {
+  private readonly configService = inject(ConfigService);
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+}
