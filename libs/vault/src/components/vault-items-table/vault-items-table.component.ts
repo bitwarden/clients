@@ -66,6 +66,23 @@ export const MY_VAULT = "myVault";
 /** Sentinel for the My folders chip's "no folder" option. */
 export const NO_FOLDER = "noFolder";
 
+/** The `queryParam` namespace shared by every filter chip in the vault table. */
+export const VAULT_FILTER_NAMESPACE = "vault";
+
+/**
+ * The `key` values for each filter chip in the vault table.
+ * Export these so consumers (the guard, deep-link builders) can reference them
+ * without coupling to string literals that diverge over time.
+ */
+export const VAULT_FILTER_KEYS = Object.freeze({
+  type: "type",
+  favorites: "favorites",
+  vault: "vault",
+  sharedFolder: "sharedFolder",
+  folder: "folder",
+  search: "search",
+} as const);
+
 /**
  * Every column the table declares, in display order. Doubles as the default column set — which of
  * them actually render is narrowed from here per the rows on hand, see {@link
@@ -202,6 +219,9 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
 })
 export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly i18nService = inject(I18nService);
+
+  protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
+  protected readonly filterKeys = VAULT_FILTER_KEYS;
 
   /** The rows to display. */
   readonly ciphers = input.required<C[]>();

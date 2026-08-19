@@ -116,3 +116,4 @@ export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-ba
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
+export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
