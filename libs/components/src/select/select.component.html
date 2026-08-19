@@ -1,7 +1,7 @@
 <ng-select
   [ngModel]="selectedOption()"
   (ngModelChange)="onChange($event)"
-  [disabled]="disabled"
+  [disabled]="disabled()"
   [placeholder]="placeholder()"
   [items]="items()"
   (blur)="onBlur()"

@@ -1,14 +1,13 @@
-import { Component, booleanAttribute, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, booleanAttribute, input } from "@angular/core";
 
 import { IconTileOptions } from "../icon-tile";
 import { BitwardenIcon } from "../shared/icon";
 
 import { MappedOptionComponent } from "./option";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-option",
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `<ng-template><ng-content></ng-content></ng-template>`,
 })
 export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
