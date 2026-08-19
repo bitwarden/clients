@@ -1,20 +1,9 @@
 import { Component, inject } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import {
-  DIALOG_DATA,
-  DialogConfig,
-  DialogRef,
-  DialogService,
-  ToastService,
-} from "@bitwarden/components";
+import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 
 import { UpdateLicenseDialogResult } from "./update-license-types";
 import { UpdateLicenseComponent } from "./update-license.component";
@@ -38,24 +27,8 @@ export class UpdateLicenseDialogComponent extends UpdateLicenseComponent {
   fromUserSubscriptionPage: boolean;
 
   constructor() {
-    const apiService = inject(ApiService);
-    const i18nService = inject(I18nService);
-    const platformUtilsService = inject(PlatformUtilsService);
-    const organizationApiService = inject(OrganizationApiServiceAbstraction);
-    const formBuilder = inject(FormBuilder);
-    const toastService = inject(ToastService);
-
-    super(
-      apiService,
-      i18nService,
-      platformUtilsService,
-      organizationApiService,
-      formBuilder,
-      toastService,
-    );
-    const dialogData = this.dialogData;
-
-    this.fromUserSubscriptionPage = dialogData?.fromUserSubscriptionPage ?? false;
+    super();
+    this.fromUserSubscriptionPage = this.dialogData?.fromUserSubscriptionPage ?? false;
   }
   async submitLicense() {
     const result = await this.submit();

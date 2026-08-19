@@ -35,11 +35,6 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
   standalone: false,
 })
 export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
-  protected readonly formBuilder: FormBuilder;
-  protected readonly i18nService: I18nService;
-  protected readonly platformUtilsService: PlatformUtilsService;
-  protected readonly toastService: ToastService;
-  protected readonly tokenService: TokenService;
   private readonly apiService = inject(ApiService);
   private readonly encryptService = inject(EncryptService);
   private readonly legacyCompatKeyService = inject(LegacyCompatKeyService);
@@ -56,19 +51,13 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
   @Output() onLicenseFileUploaded: EventEmitter<string> = new EventEmitter<string>();
 
   constructor() {
-    const formBuilder = inject(FormBuilder);
-    const i18nService = inject(I18nService);
-    const platformUtilsService = inject(PlatformUtilsService);
-    const toastService = inject(ToastService);
-    const tokenService = inject(TokenService);
-
-    super(formBuilder, i18nService, platformUtilsService, toastService, tokenService);
-
-    this.formBuilder = formBuilder;
-    this.i18nService = i18nService;
-    this.platformUtilsService = platformUtilsService;
-    this.toastService = toastService;
-    this.tokenService = tokenService;
+    super(
+      inject(FormBuilder),
+      inject(I18nService),
+      inject(PlatformUtilsService),
+      inject(ToastService),
+      inject(TokenService),
+    );
   }
 
   protected async submit(): Promise<void> {
