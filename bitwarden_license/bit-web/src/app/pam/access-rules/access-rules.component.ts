@@ -42,7 +42,7 @@ import {
   accessRuleMatchesFilter,
   resolveCollectionNames,
 } from "..";
-import { DurationShortPipe } from "../date/duration-short.pipe";
+import { DurationLongPipe } from "../date/duration-long.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
 import { AccessRulesService } from "../services/access-rules.service";
 
@@ -76,7 +76,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     TableModule,
     I18nPipe,
     RelativeTimePipe,
-    DurationShortPipe,
+    DurationLongPipe,
     ApprovalMethodPipe,
   ],
 })
@@ -264,10 +264,10 @@ export class AccessRulesComponent {
 
   // --- Bulk actions ---
 
-  protected readonly bulkEnable = (): void => {
+  protected readonly bulkActivate = (): void => {
     void this.bulkSetEnabled(true);
   };
-  protected readonly bulkDisable = (): void => {
+  protected readonly bulkDeactivate = (): void => {
     void this.bulkSetEnabled(false);
   };
   protected readonly bulkDelete = (): void => {
