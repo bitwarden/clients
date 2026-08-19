@@ -37,6 +37,7 @@ import {
   AccessRuleId,
   AccessRuleView,
   AccessRuleStatusFilter,
+  accessRuleDeleteConfirmOptions,
   accessRuleErrorMessage,
   accessRuleMatchesFilter,
   resolveCollectionNames,
@@ -234,16 +235,9 @@ export class AccessRulesComponent {
   };
 
   protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamAccessRuleDeleteConfirmTitle" },
-      content: {
-        key: "pamAccessRuleDeleteConfirmContent",
-        placeholders: [rule.name],
-      },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(rule.name),
+    );
     if (!confirmed) {
       return;
     }

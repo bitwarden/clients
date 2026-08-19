@@ -17,6 +17,7 @@ import {
   ButtonModule,
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   HeaderComponent,
   MultiSelectModule,
@@ -36,6 +37,7 @@ import {
   AccessRuleView,
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
+  accessRuleDeleteConfirmOptions,
   accessRuleErrorMessage,
   accessRuleToFormValue,
   AccessRuleSdkService,
@@ -105,6 +107,7 @@ export class AccessRuleEditComponent {
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly cidrValidation = inject(CidrValidationService);
+  private readonly dialogService = inject(DialogService);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
@@ -396,6 +399,36 @@ export class AccessRuleEditComponent {
   };
 
   protected readonly cancel = (): Promise<boolean> => this.navigateToList();
+
+  /**
+   * Delete the rule under edit, after confirmation. Edit mode only — there is nothing
+   * to delete before the rule exists on the server.
+   */
+  protected readonly remove = async (): Promise<void> => {
+    const existing = this.existing();
+    if (existing == null) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(existing.name),
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.pamApi.deleteAccessRule(this.organizationId, existing.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamAccessRuleDeleted"),
+      });
+      await this.navigateToList();
+    } catch (e) {
+      const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
+      this.toastService.showToast({ variant: "error", message });
+    }
+  };
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
   private navigateToList(): Promise<boolean> {
