@@ -20,6 +20,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 export class WebSetInitialPasswordService
@@ -42,6 +43,7 @@ export class WebSetInitialPasswordService
     private routerService: RouterService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
     protected registerSdkService: RegisterSdkService,
+    protected unlockService: UnlockService,
   ) {
     super(
       apiService,
@@ -57,6 +59,7 @@ export class WebSetInitialPasswordService
       userDecryptionOptionsService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   }
 

@@ -42,6 +42,7 @@ import {
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   InitializeJitPasswordCredentials,
@@ -67,6 +68,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected accountCryptographicStateService: AccountCryptographicStateService,
     protected registerSdkService: RegisterSdkService,
+    protected unlockService: UnlockService,
   ) {}
 
   /**
@@ -212,6 +214,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       );
     }
 
+    // Unlocking initializes the SDK from state, so it has to run after the account cryptographic
+    // state above has been persisted. handleResetPasswordAutoEnrollOld below reads the user key back
+    // out of state, so it has to run after this.
+    await this.unlockService.unlockWithDecryptedUserKey(userId, masterKeyEncryptedUserKey[0]);
+
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
     }
@@ -317,7 +324,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("Unexpected V2 account cryptographic state");
     }
 
-    // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
+    // Note: When SDK state management matures, the state writes and the unlock below should all be
+    // moved into post_keys_for_jit_password_registration
     // Set account cryptography state
     await this.accountCryptographicStateService.setAccountCryptographicState(
       registerResult.account_cryptographic_state,
@@ -332,17 +340,19 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
     await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
 
-    await this.keyService.setUserKey(
-      SymmetricCryptoKey.fromString(registerResult.user_key) as UserKey,
-      userId,
-    );
-
     await this.updateLegacyState(
       newPassword,
       fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
       new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
       userId,
       masterPasswordUnlockData,
+    );
+
+    // Unlocking initializes the SDK from state, so it has to run after the state written above -
+    // in particular the new KDF config - has been persisted.
+    await this.unlockService.unlockWithDecryptedUserKey(
+      userId,
+      SymmetricCryptoKey.fromString(registerResult.user_key),
     );
   }
 
@@ -474,7 +484,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       masterKeyEncryptedUserKey[1],
       userId,
     );
-    await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
   }
 
   // Deprecated legacy support - to be removed in future
