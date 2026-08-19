@@ -28,6 +28,10 @@
   }
 </div>
 
+<p bitTypography="helper" class="tw-text-muted">
+  {{ "accessRuleIpAllowlistCidrHint" | i18n }}
+</p>
+
 @if (cidrArray().touched && cidrArray().hasError("duplicateCidrs")) {
   <p class="tw-text-danger" bitTypography="helper">
     {{ "accessRuleIpAllowlistDuplicateCidr" | i18n }}
