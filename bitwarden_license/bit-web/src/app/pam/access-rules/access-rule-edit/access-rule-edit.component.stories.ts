@@ -152,6 +152,37 @@ export const SaveError: Story = {
 };
 
 /**
+ * A rejected save the admin can act on: the server reports the chosen collections are already
+ * governed. Recognised messages are reported on the field they name instead of in the callout,
+ * and without a retry — resending the same collections would fail identically.
+ */
+export const SaveErrorOnField: Story = {
+  decorators: [
+    moduleMetadata({
+      providers: [
+        { provide: ActivatedRoute, useValue: routeStub({ accessRuleId: "rule-1" }) },
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            updateAccessRule: () =>
+              Promise.reject(
+                Object.assign(
+                  new Error("One or more collections are already governed by another access rule."),
+                  { name: "AccessRuleError", variant: "Api" },
+                ),
+              ),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+  play: async (context) => {
+    await userEvent.click(getByText(context.canvasElement, "Save"));
+  },
+};
+
+/**
  * The validation summary above the action row: submitting the empty create form, where
  * name and collections are both required.
  */
