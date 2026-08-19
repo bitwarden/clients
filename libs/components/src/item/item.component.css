@@ -1,64 +1,51 @@
 /**
- * End slot children are separated by content type — text and links 8px, badges and chips 4px, icon
- * buttons 0px — where neighbors get the larger of their two values, not the sum. Each child
- * publishes its gutter to its own leading edge and to its next sibling, and `max()` resolves the
- * pair. The slot's own `pe-*` owns the trailing edge, so no child contributes trailing space.
+ * End slot children get a margin on both sides, keyed by content type: 8px for text and links, 4px
+ * for buttons, badges and chips, 0 for icon buttons. Margins never collapse, so the space between
+ * two neighbors is the sum of the two. The outer edges belong to the parent flex `gap` and the
+ * slot's own `pe-*`, so the first and last child drop theirs.
  *
- * Tiers match with descendant `:has()` because projected content is often wrapped several
+ * Global because these selectors must reach projected content, which is often wrapped several
  * components deep (e.g. `app-item-copy-actions > vault-item-copy-actions > bit-item-action >
- * button`). Global because `max()` over custom properties has no Tailwind equivalent and these
- * selectors must reach projected content.
+ * button`) — hence `:is(x, :has(x))`, matching a child that is `x` or merely contains one.
  */
 
+/* Tiers only set the custom property, so they can't out-specify the edge overrides below. */
 [data-bit-item-end-slot] > * {
-  /* Plain text, links, and anything unrecognized. */
-  --bit-end-slot-gutter: 0.5rem;
+  --bit-end-slot-gutter: 0.5rem; /* Text, links, and anything unrecognized. */
 
-  margin-inline-start: max(var(--bit-end-slot-gutter), var(--bit-end-slot-prev-gutter, 0px));
+  margin-inline: var(--bit-end-slot-gutter);
 }
 
-/* Badges and chips. */
-[data-bit-item-end-slot] > bit-badge,
-[data-bit-item-end-slot] > [bitBadge],
-[data-bit-item-end-slot] > bit-chip,
-[data-bit-item-end-slot] > [bit-chip-action],
-[data-bit-item-end-slot] > *:has(bit-badge, [bitBadge], bit-chip, [bit-chip-action]) {
-  --bit-end-slot-gutter: 0.25rem;
-}
-
-/* Icon buttons. */
-[data-bit-item-end-slot] > button[bitIconButton],
-[data-bit-item-end-slot] > *:has(button[bitIconButton]) {
-  --bit-end-slot-gutter: 0px;
-}
-
-/* Published to the next sibling. Specificity: tiers out-rank `> * + *`; icon buttons out-rank badges. */
-[data-bit-item-end-slot] > * + * {
-  --bit-end-slot-prev-gutter: 0.5rem;
-}
-
-[data-bit-item-end-slot] > bit-badge + *,
-[data-bit-item-end-slot] > [bitBadge] + *,
-[data-bit-item-end-slot] > bit-chip + *,
-[data-bit-item-end-slot] > [bit-chip-action] + *,
-[data-bit-item-end-slot] > *:has(bit-badge, [bitBadge], bit-chip, [bit-chip-action]) + * {
-  --bit-end-slot-prev-gutter: 0.25rem;
-}
-
-[data-bit-item-end-slot] > button[bitIconButton] + *,
-[data-bit-item-end-slot] > *:has(button[bitIconButton]) + * {
-  --bit-end-slot-prev-gutter: 0px;
-}
-
-/* The leading edge is the parent flex `gap`; the trailing edge is the slot's own `pe-*`. */
 [data-bit-item-end-slot] > *:first-child {
   margin-inline-start: 0;
 }
 
-/**
- * Neutralize spacing wrappers ship for standalone use (e.g. `vault-item-copy-actions`); in here the
- * tiers own it. Beats the Tailwind utilities on specificity, since this file loads first.
- */
+[data-bit-item-end-slot] > *:last-child {
+  margin-inline-end: 0;
+}
+
+/* Buttons, badges, and chips. Bare `button` covers the chip and `bitButton` button forms; links
+ * stay at 8px even when rendered as a button. */
+[data-bit-item-end-slot]
+  > *:is(button:not([bitLink]), a[bitButton], a[bit-chip-action], [bitBadge], bit-badge, bit-chip),
+[data-bit-item-end-slot]
+  > *:has(
+    button:not([bitLink]),
+    a[bitButton],
+    a[bit-chip-action],
+    [bitBadge],
+    bit-badge,
+    bit-chip
+  ) {
+  --bit-end-slot-gutter: 0.25rem;
+}
+
+/* Icon buttons tie the tier above on specificity, so keep this rule last. */
+[data-bit-item-end-slot] > *:is(button[bitIconButton], :has(button[bitIconButton])) {
+  --bit-end-slot-gutter: 0px;
+}
+
+/* Wrappers like `vault-item-copy-actions` ship spacing for standalone use; in here the tiers own it. */
 [data-bit-item-end-slot] > *:has(button[bitIconButton]),
 [data-bit-item-end-slot] > *:has(button[bitIconButton]) * {
   gap: 0;

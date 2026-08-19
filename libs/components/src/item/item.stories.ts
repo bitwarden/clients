@@ -15,6 +15,7 @@ import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
 import { AvatarModule } from "../avatar";
 import { BadgeModule } from "../badge";
+import { ButtonModule } from "../button";
 import { ChipActionComponent } from "../chips/chip-action";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -37,6 +38,7 @@ export default {
         AvatarModule,
         IconButtonModule,
         BadgeModule,
+        ButtonModule,
         ChipActionComponent,
         TypographyModule,
         ItemActionComponent,
@@ -536,6 +538,14 @@ export const EndSlotSpacing: Story = {
             <bit-item-action>
               <button type="button" bitIconButton="bwi-ellipsis-v" size="small" label="More options"></button>
             </bit-item-action>
+          </ng-container>
+        </bit-item>
+        <bit-item>
+          <bit-item-content>Button next to a badge and plain text</bit-item-content>
+          <ng-container slot="end">
+            <span>Updated today</span>
+            <span bitBadge variant="subtle">Shared</span>
+            <button type="button" bitButton buttonType="secondary" size="small">Manage</button>
           </ng-container>
         </bit-item>
         <bit-item>
