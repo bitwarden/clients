@@ -8,7 +8,6 @@ export type {
 } from "./abstractions/access-rule";
 export {
   accessRuleErrorMessage,
-  isAccessRuleCollectionConflict,
   isAccessRuleNotFound,
   isHumanApproval,
   isIpAllowlist,
@@ -99,3 +98,5 @@ export {
   classifyRequestAccessError,
 } from "./helpers/request-access-error";
 export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
+export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
+export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";

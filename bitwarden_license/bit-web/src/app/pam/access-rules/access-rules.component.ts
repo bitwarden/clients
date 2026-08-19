@@ -38,7 +38,7 @@ import {
   AccessRuleView,
   AccessRuleStatusFilter,
   accessRuleDeleteConfirmOptions,
-  accessRuleErrorMessage,
+  accessRuleErrorMessageKey,
   accessRuleMatchesFilter,
   resolveCollectionNames,
 } from "..";
@@ -325,9 +325,15 @@ export class AccessRulesComponent {
     return this.processedRows().filter((r) => this.selection.isSelected(r.id));
   }
 
+  /**
+   * Toast a rejected mutation. Routed through the classifier so the SDK's own message — the
+   * server's serialized response, filesystem paths and all — never reaches the toast.
+   */
   private showError(e: unknown): void {
-    const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
-    this.toastService.showToast({ variant: "error", message });
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+    });
   }
 }
 
