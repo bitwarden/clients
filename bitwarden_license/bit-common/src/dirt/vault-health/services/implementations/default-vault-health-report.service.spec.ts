@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
@@ -23,9 +23,13 @@ describe("DefaultVaultHealthReportService", () => {
   // keyed by id (mirrors the SDK, which stamps each result with its cipher id).
   let riskById: Map<string, CipherRiskResult>;
 
+  /** Tears down the long-lived subscriptions the emission tests set up. */
+  let destroy$: Subject<void>;
+
   beforeEach(() => {
     cipherRiskService = mock<CipherRiskService>();
     riskById = new Map();
+    destroy$ = new Subject<void>();
 
     cipherRiskService.buildPasswordReuseMap.mockResolvedValue({});
     cipherRiskService.computeRiskForCiphers.mockImplementation(async (ciphers) =>
@@ -36,6 +40,8 @@ describe("DefaultVaultHealthReportService", () => {
   });
 
   afterEach(() => {
+    destroy$.next();
+    destroy$.complete();
     jest.clearAllMocks();
   });
 
@@ -318,6 +324,118 @@ describe("DefaultVaultHealthReportService", () => {
       await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toBeNull();
       const other = await firstValueFrom(service.getVaultHealthReport$(otherUserId));
       expect(cipherIds(other!.categoryItems.weak)).toEqual(["b"]);
+    });
+  });
+
+  describe("deleteItemFromReport", () => {
+    /** Collects every report emitted from now on, so missed emissions are visible. */
+    const observeReports = (): VaultHealthReportView[] => {
+      const emitted: VaultHealthReportView[] = [];
+      service
+        .getVaultHealthReport$(userId)
+        .pipe(takeUntil(destroy$))
+        .subscribe((report) => {
+          if (report != null) {
+            emitted.push(report);
+          }
+        });
+      return emitted;
+    };
+
+    it("removes the item from the report and decrements counts", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        { cipher: login("c"), risk: risk("c", { exposed: 2 }) },
+      ]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      service.deleteItemFromReport("a", "exposed", userId);
+      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+
+      expect(updated!.atRiskCount).toBe(2);
+      expect(updated!.totalCount).toBe(2);
+      expect(cipherIds(updated!.categoryItems.exposed)).toEqual(["c"]);
+      expect(cipherIds(updated!.categoryItems.weak)).toEqual(["b"]);
+    });
+
+    // Guards against mutating the published report in place: subscribers already
+    // attached must see the delete, so a new report instance has to be emitted.
+    it("emits the updated report to subscribers attached before the delete", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        { cipher: login("c"), risk: risk("c", { exposed: 2 }) },
+      ]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      const emitted = observeReports();
+      service.deleteItemFromReport("a", "exposed", userId);
+
+      expect(emitted).toHaveLength(2);
+      expect(cipherIds(emitted[1].categoryItems.exposed)).toEqual(["c"]);
+      expect(emitted[1].atRiskCount).toBe(2);
+      expect(emitted[1].totalCount).toBe(2);
+      // the previously published report is left untouched
+      expect(cipherIds(emitted[0].categoryItems.exposed)).toEqual(["a", "c"]);
+      expect(emitted[0].atRiskCount).toBe(3);
+    });
+
+    it("recomputes the score from the adjusted counts", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+        { cipher: login("c"), risk: risk("c", { exposed: 2 }) },
+        { cipher: login("d"), risk: risk("d") },
+      ]);
+      await service.buildVaultHealthReport(ciphers, userId);
+      expect((await firstValueFrom(service.getVaultHealthReport$(userId)))!.score).toBe(0.75);
+
+      service.deleteItemFromReport("a", "exposed", userId);
+      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+
+      expect(updated!.score).toBeCloseTo(2 / 3);
+    });
+
+    it("scores an emptied report as 0 rather than NaN", async () => {
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      service.deleteItemFromReport("a", "exposed", userId);
+      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+
+      expect(updated!.totalCount).toBe(0);
+      expect(updated!.score).toBe(0);
+    });
+
+    it("does nothing if the item is not in the given category", async () => {
+      const ciphers = withRisks([
+        { cipher: login("a"), risk: risk("a", { exposed: 3 }) },
+        { cipher: login("b"), risk: risk("b", { strength: 1 }) },
+      ]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      const emitted = observeReports();
+      // "b" is bucketed as weak, so the exposed list must be left alone
+      service.deleteItemFromReport("b", "exposed", userId);
+
+      expect(emitted).toHaveLength(1);
+      expect(cipherIds(emitted[0].categoryItems.exposed)).toEqual(["a"]);
+      expect(cipherIds(emitted[0].categoryItems.weak)).toEqual(["b"]);
+      expect(emitted[0].atRiskCount).toBe(2);
+      expect(emitted[0].totalCount).toBe(2);
+    });
+
+    it("does nothing if the userId does not match the current report", async () => {
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      service.deleteItemFromReport("a", "exposed", "other-user-id" as UserId);
+      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+
+      expect(updated!.atRiskCount).toBe(1);
+      expect(updated!.totalCount).toBe(1);
+      expect(updated!.categoryItems.exposed).toHaveLength(1);
     });
   });
 });
