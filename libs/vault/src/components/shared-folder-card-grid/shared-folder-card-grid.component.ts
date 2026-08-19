@@ -25,6 +25,7 @@ import {
   ItemModule,
   LinkModule,
   TypographyModule,
+  AccordionComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -93,6 +94,7 @@ let nextId = 0;
     TypographyModule,
     Vfo1I18nPipe,
     Vfo1IconPipe,
+    AccordionComponent,
   ],
 })
 export class SharedFolderCardGridComponent {
