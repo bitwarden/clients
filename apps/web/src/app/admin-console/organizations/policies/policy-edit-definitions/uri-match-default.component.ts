@@ -19,6 +19,7 @@ export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   name = "uriMatchDetectionPolicy";
   description = "uriMatchDetectionPolicyDescV2";
   descriptionVfo1 = "uriMatchDetectionPolicyDescVfo1";
+  drawerDescriptionVfo1 = "uriMatchDetectionPolicyDescV2";
   type = PolicyType.UriMatchDefaults;
   category = PolicyCategory.VaultManagement;
   priority = 20;

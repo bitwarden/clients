@@ -7737,6 +7737,10 @@
     "message": "Require members to log in with the Enterprise Single Sign-On method.",
     "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
   },
+  "requireSsoPolicyDescV2Vfo1": {
+    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
+  },
   "requireSsoPolicyDesc": {
     "message": "Require members to log in with the Enterprise single sign-on method."
   },

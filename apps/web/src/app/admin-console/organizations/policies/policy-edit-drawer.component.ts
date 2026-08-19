@@ -363,13 +363,6 @@ export class PolicyEditDrawerComponent extends PolicyEditDialogComponent impleme
     return this.data.policy.component;
   }
 
-  static readonly open = (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ): DialogRef<PolicyEditDialogResult> => {
-    return dialogService.open<PolicyEditDialogResult>(PolicyEditDrawerComponent, config);
-  };
-
   static readonly openDrawer = (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
