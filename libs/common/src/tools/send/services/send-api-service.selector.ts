@@ -1,10 +1,12 @@
 import { Observable, firstValueFrom, map, shareReplay } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { SendAccessToken } from "../../../auth/send-access";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ListResponse } from "../../../models/response/list.response";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { Send } from "../models/domain/send";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";

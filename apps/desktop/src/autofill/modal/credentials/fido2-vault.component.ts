@@ -1,27 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
-/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import {
-  firstValueFrom,
-  map,
-  combineLatest,
-  of,
-  BehaviorSubject,
-  Observable,
-  Subject,
-  takeUntil,
-} from "rxjs";
+import { map, combineLatest, of, Observable, switchMap, catchError } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitwardenShield } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
   BadgeModule,
   ButtonModule,
@@ -37,10 +27,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
-import {
-  DesktopFido2UserInterfaceService,
-  DesktopFido2UserInterfaceSession,
-} from "../../services/desktop-fido2-user-interface.service";
+import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-user-interface.service";
 
 @Component({
   standalone: true,
@@ -62,36 +49,21 @@ import {
   templateUrl: "fido2-vault.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class Fido2VaultComponent implements OnInit, OnDestroy {
-  session?: DesktopFido2UserInterfaceSession = null;
-  private destroy$ = new Subject<void>();
-  private ciphersSubject = new BehaviorSubject<CipherView[]>([]);
-  ciphers$: Observable<CipherView[]> = this.ciphersSubject.asObservable();
-  cipherIds$: Observable<string[]> | undefined;
+export class Fido2VaultComponent {
+  private readonly desktopSettingsService = inject(DesktopSettingsService);
+  private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
+  private readonly cipherService = inject(CipherService);
+  private readonly accountService = inject(AccountService);
+  private readonly dialogService = inject(DialogService);
+  private readonly logService = inject(LogService);
+  private readonly router = inject(Router);
+
+  readonly session = this.fido2UserInterfaceService.getCurrentSession();
+  readonly ciphers$: Observable<CipherViewLike[]> = this.buildCiphers$();
   readonly Icons = { BitwardenShield };
+  protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
-  constructor(
-    private readonly desktopSettingsService: DesktopSettingsService,
-    private readonly fido2UserInterfaceService: DesktopFido2UserInterfaceService,
-    private readonly cipherService: CipherService,
-    private readonly accountService: AccountService,
-    private readonly dialogService: DialogService,
-    private readonly logService: LogService,
-    private readonly router: Router,
-  ) {}
-
-  async ngOnInit(): Promise<void> {
-    this.session = this.fido2UserInterfaceService.getCurrentSession();
-    this.cipherIds$ = this.session?.availableCipherIds$;
-    await this.loadCiphers();
-  }
-
-  async ngOnDestroy(): Promise<void> {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  async chooseCipher(cipher: CipherView): Promise<void> {
+  async chooseCipher(cipher: CipherViewLike): Promise<void> {
     if (!this.session) {
       await this.dialogService.openSimpleDialog({
         title: { key: "unexpectedErrorShort" },
@@ -113,7 +85,7 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
   async closeModal(): Promise<void> {
     if (this.session) {
       this.session.notifyConfirmCreateCredential(false);
-      this.session.confirmChosenCipher(null);
+      this.session.confirmChosenCipher(undefined);
     } else {
       await this.desktopSettingsService.setModalMode(false);
       await this.accountService.setShowHeader(true);
@@ -121,34 +93,38 @@ export class Fido2VaultComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async loadCiphers(): Promise<void> {
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+  private buildCiphers$(): Observable<CipherViewLike[]> {
+    return this.accountService.activeAccount$.pipe(
+      map((account) => account?.id),
+      switchMap((activeUserId) => {
+        if (!activeUserId) {
+          return of<CipherViewLike[]>([]);
+        }
+
+        // Combine the cipher list with the optional cipher IDs filter the
+        // session made available for this ceremony.
+        return combineLatest([
+          this.cipherService.cipherListViews$(activeUserId),
+          this.session?.availableCipherIds$ ?? of(null as string[] | null),
+        ]).pipe(
+          map(([ciphers, cipherIds]): CipherViewLike[] => {
+            const activeCiphers = ciphers.filter((cipher) => !cipher.deletedDate);
+
+            if (cipherIds != null && cipherIds.length > 0) {
+              return activeCiphers.filter((cipher) => {
+                const id = cipher.id?.toString();
+                return id != null && cipherIds.includes(id);
+              });
+            }
+
+            return activeCiphers;
+          }),
+        );
+      }),
+      catchError((error: unknown) => {
+        this.logService.error("Failed to load ciphers", error);
+        return of<CipherViewLike[]>([]);
+      }),
     );
-
-    if (!activeUserId) {
-      return;
-    }
-
-    // Combine cipher list with optional cipher IDs filter
-    combineLatest([this.cipherService.cipherListViews$(activeUserId), this.cipherIds$ || of(null)])
-      .pipe(
-        map(([ciphers, cipherIds]) => {
-          // Filter out deleted ciphers
-          const activeCiphers = ciphers.filter((cipher) => !cipher.deletedDate);
-
-          // If specific IDs provided, filter by them
-          if (cipherIds?.length > 0) {
-            return activeCiphers.filter((cipher) => cipherIds.includes(cipher.id as string));
-          }
-
-          return activeCiphers;
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe({
-        next: (ciphers) => this.ciphersSubject.next(ciphers as CipherView[]),
-        error: (error: unknown) => this.logService.error("Failed to load ciphers", error),
-      });
   }
 }

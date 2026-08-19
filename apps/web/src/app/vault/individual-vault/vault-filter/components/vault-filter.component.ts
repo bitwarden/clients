@@ -2,7 +2,6 @@ import { Component, EventEmitter, inject, Input, OnDestroy, OnInit, Output } fro
 import {
   combineLatest,
   distinctUntilChanged,
-  filter,
   firstValueFrom,
   map,
   merge,
@@ -133,14 +132,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   protected activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
-  /**
-   * Vault selection lives in the side nav's Vaults section under VFO1, so this panel stops
-   * offering it to avoid two competing vault selectors.
-   */
-  private get vaultSelectionInNav(): boolean {
-    return this.vfo1TerminologyService.enabled();
-  }
-
   constructor(
     protected vaultFilterService: VaultFilterService,
     protected policyService: PolicyService,
@@ -183,7 +174,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         ),
       )
       .pipe(
-        filter(() => !this.vaultSelectionInNav),
         switchMap(() => this.addOrganizationFilter()),
         takeUntil(this.destroy$),
       )
@@ -243,9 +233,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
 
     const builderFilter = {} as VaultFilterList;
-    if (!this.vaultSelectionInNav) {
-      builderFilter.organizationFilter = await this.addOrganizationFilter();
-    }
+    builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
