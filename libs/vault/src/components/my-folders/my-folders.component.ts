@@ -86,7 +86,7 @@ export class MyFoldersComponent {
       switchMap((userId) =>
         combineLatest([
           this.folderService.folderViews$(userId),
-          this.cipherService.cipherViews$(userId).pipe(filterOutNullish()),
+          this.cipherService.cipherListViews$(userId).pipe(filterOutNullish()),
         ]),
       ),
       map(([folders, ciphers]) => buildFolderRows(folders, ciphers)),

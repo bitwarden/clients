@@ -1,5 +1,8 @@
-import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 export type FolderTableRow = {
   id: string;
@@ -15,14 +18,22 @@ const EMPTY_NAME_PLACEHOLDER = "—";
  * `folderViews$` includes a synthetic "No folder" entry with an empty id. Item counts exclude
  * trashed ciphers and include archived ones.
  */
-export function buildFolderRows(folders: FolderView[], ciphers: CipherView[]): FolderTableRow[] {
+export function buildFolderRows(
+  folders: FolderView[],
+  ciphers: CipherViewLike[],
+): FolderTableRow[] {
   const countsByFolderId = new Map<string, number>();
 
   for (const cipher of ciphers) {
-    if (cipher.isDeleted || cipher.folderId == null || cipher.folderId === "") {
+    if (
+      CipherViewLikeUtils.isDeleted(cipher) ||
+      cipher.folderId == null ||
+      cipher.folderId === ""
+    ) {
       continue;
     }
-    countsByFolderId.set(cipher.folderId, (countsByFolderId.get(cipher.folderId) ?? 0) + 1);
+    const folderId = String(cipher.folderId);
+    countsByFolderId.set(folderId, (countsByFolderId.get(folderId) ?? 0) + 1);
   }
 
   return folders

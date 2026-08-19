@@ -42,7 +42,7 @@ const cipher = (folderId: string | undefined, overrides: Partial<CipherView> = {
 describe("MyFoldersComponent", () => {
   const userId = "user-id" as UserId;
   const folderViews$ = new BehaviorSubject<FolderView[]>([]);
-  const cipherViews$ = new BehaviorSubject<CipherView[]>([]);
+  const cipherListViews$ = new BehaviorSubject<CipherView[]>([]);
 
   const folderApiService = mock<FolderApiServiceAbstraction>();
   const folderService = mock<FolderService>();
@@ -86,7 +86,7 @@ describe("MyFoldersComponent", () => {
     jest.clearAllMocks();
 
     folderViews$.next([folder("1", "Travel"), folder("2", "Banking"), folder("3", "Work")]);
-    cipherViews$.next([cipher("1"), cipher("2"), cipher("2"), cipher("2")]);
+    cipherListViews$.next([cipher("1"), cipher("2"), cipher("2"), cipher("2")]);
 
     folderService.folderViews$.mockReturnValue(folderViews$);
     folderService.getDecrypted$.mockImplementation((id) =>
@@ -102,7 +102,7 @@ describe("MyFoldersComponent", () => {
       imports: [MyFoldersComponent, NoopAnimationsModule],
       providers: [
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
-        { provide: CipherService, useValue: { cipherViews$: () => cipherViews$ } },
+        { provide: CipherService, useValue: { cipherListViews$: () => cipherListViews$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: FolderApiServiceAbstraction, useValue: folderApiService },
         { provide: FolderService, useValue: folderService },
@@ -236,7 +236,7 @@ describe("MyFoldersComponent", () => {
       selectAll();
       expect(checkedRows()).toEqual([true, true, true]);
 
-      cipherViews$.next([cipher("1"), cipher("2"), cipher("2"), cipher("2")]);
+      cipherListViews$.next([cipher("1"), cipher("2"), cipher("2"), cipher("2")]);
       fixture.detectChanges();
 
       expect(checkedRows()).toEqual([true, true, true]);
