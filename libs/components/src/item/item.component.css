@@ -1,7 +1,8 @@
 /**
- * End slot children are spaced by content type — text and links 8px, badges and chips 4px, icon
+ * End slot children are separated by content type — text and links 8px, badges and chips 4px, icon
  * buttons 0px — where neighbors get the larger of their two values, not the sum. Each child
- * publishes its gutter to itself and to its next sibling, and `max()` resolves the pair.
+ * publishes its gutter to its own leading edge and to its next sibling, and `max()` resolves the
+ * pair. The slot's own `pe-*` owns the trailing edge, so no child contributes trailing space.
  *
  * Tiers match with descendant `:has()` because projected content is often wrapped several
  * components deep (e.g. `app-item-copy-actions > vault-item-copy-actions > bit-item-action >
@@ -49,13 +50,9 @@
   --bit-end-slot-prev-gutter: 0px;
 }
 
-/* The leading edge is the parent flex `gap`; the trailing edge stacks on the slot's own `pe-*`. */
+/* The leading edge is the parent flex `gap`; the trailing edge is the slot's own `pe-*`. */
 [data-bit-item-end-slot] > *:first-child {
   margin-inline-start: 0;
-}
-
-[data-bit-item-end-slot] > *:last-child {
-  margin-inline-end: var(--bit-end-slot-gutter);
 }
 
 /**

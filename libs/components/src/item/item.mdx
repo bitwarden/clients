@@ -126,19 +126,20 @@ Actions are commonly icon buttons or badge buttons.
 Spacing in the `"end"` slot is applied automatically based on the type of each child, so consumers
 should not add their own margins or wrapper padding to tune it.
 
-| Content               | Spacing on either side |
-| --------------------- | ---------------------- |
-| Plain text            | 8px                    |
-| Link                  | 8px                    |
-| Badge / chip          | 4px                    |
-| Icon button           | 0px                    |
-| Anything unrecognized | 8px                    |
+| Content               | Spacing from its neighbors |
+| --------------------- | -------------------------- |
+| Plain text            | 8px                        |
+| Link                  | 8px                        |
+| Badge / chip          | 4px                        |
+| Icon button           | 0px                        |
+| Anything unrecognized | 8px                        |
 
 The space between two neighbors is the larger of their two values, not the sum — a badge beside
-plain text gets 8px, while a badge beside an icon button gets 4px. Wrapped content is measured by
-what it contains, no matter how many components deep, so an icon button inside `<bit-item-action>`
-or inside an app-level component is still treated as an icon button. Spacing a wrapper applies to
-its own contents is ignored inside the slot.
+plain text gets 8px, while a badge beside an icon button gets 4px. These values apply between
+children only; the item's trailing padding owns the space after the last child, so the last child
+never adds its own. Wrapped content is measured by what it contains, no matter how many components
+deep, so an icon button inside `<bit-item-action>` or inside an app-level component is still treated
+as an icon button. Spacing a wrapper applies to its own contents is ignored inside the slot.
 
 <Canvas of={stories.EndSlotSpacing} />
 
