@@ -17667,7 +17667,13 @@
     "message": "End time must be after start time."
   },
   "requestAccessModalWindowExceedsMax": {
-    "message": "The window can't exceed 24 hours."
+    "message": "The window can't exceed $DURATION$.",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "30 minutes"
+      }
+    }
   },
   "requestAccessModalReasonRequired": {
     "message": "Reason"
