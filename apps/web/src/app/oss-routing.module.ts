@@ -55,7 +55,6 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
-import { type VaultScopeRouteData } from "@bitwarden/vault";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
 
 import { flagEnabled, Flags } from "../utils/flags";
@@ -676,7 +675,6 @@ const routes: Routes = [
         path: "vault",
         canActivate: [premiumInterestRedirectGuard, setupExtensionRedirectGuard],
         loadChildren: () => VaultModule,
-        data: { vaultFilterScope: true } satisfies VaultScopeRouteData,
       },
       {
         path: "sends",

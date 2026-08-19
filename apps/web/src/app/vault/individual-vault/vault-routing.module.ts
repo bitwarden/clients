@@ -3,7 +3,9 @@ import { RouterModule, Routes } from "@angular/router";
 
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { vaultFilterLegacyRedirectGuard } from "@bitwarden/vault";
+import { vaultFilterLegacyRedirectGuard, type VaultScopeRouteData } from "@bitwarden/vault";
+
+import { RouteDataProperties } from "../../core";
 
 import { VaultNextComponent } from "./vault-next.component";
 import { VaultComponent } from "./vault.component";
@@ -15,7 +17,8 @@ const routes: Routes = [
     featureFlag: FeatureFlag.VFO1Foundation,
     routeOptions: {
       path: "",
-      data: { titleId: "vaults" },
+      data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &
+        VaultScopeRouteData,
       canActivate: [vaultFilterLegacyRedirectGuard],
     },
   }),

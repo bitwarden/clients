@@ -24,16 +24,19 @@ describe("vaultScopeOf", () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([
-          // Mirrors web, where the vault is mounted under a pathless shell route.
+          // Mirrors web: a pathless shell route holds the `vault` path, which in turn lazy-loads the
+          // routes that declare the scope. Nothing on the way down carries the vault's own segment,
+          // which is the shape a positional read of the URL would get wrong.
           {
             path: "",
             children: [
-              { path: "vault", component: BlankComponent, data: inScope },
-              { path: "vault/:vaultId", component: BlankComponent, data: inScope },
               {
-                path: "vault/:vaultId/item/:itemId",
-                component: BlankComponent,
-                data: inScope,
+                path: "vault",
+                children: [
+                  { path: "", component: BlankComponent, data: inScope },
+                  { path: ":vaultId", component: BlankComponent, data: inScope },
+                  { path: ":vaultId/item/:itemId", component: BlankComponent, data: inScope },
+                ],
               },
             ],
           },
