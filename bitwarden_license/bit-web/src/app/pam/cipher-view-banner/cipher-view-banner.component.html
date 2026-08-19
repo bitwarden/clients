@@ -129,8 +129,12 @@
                 formControlName="durationSeconds"
                 id="pam-cipher-view-banner_select_duration"
               >
-                @for (option of durationOptions; track option.seconds) {
-                  <option [value]="option.seconds">{{ option.labelKey | i18n }}</option>
+                @for (option of durationOptions(); track option.seconds) {
+                  <option [value]="option.seconds">
+                    {{
+                      option.labelKey ? (option.labelKey | i18n) : (option.seconds | durationShort)
+                    }}
+                  </option>
                 }
               </select>
             </bit-form-field>
@@ -190,7 +194,9 @@
               </p>
             } @else if (windowExceedsMax()) {
               <p bitTypography="helper" class="tw-text-danger" data-testid="window-exceeds-max">
-                {{ "requestAccessModalWindowExceedsMax" | i18n }}
+                {{
+                  "requestAccessModalWindowExceedsMax" | i18n: (maxWindowSeconds() | durationLong)
+                }}
               </p>
             }
 
