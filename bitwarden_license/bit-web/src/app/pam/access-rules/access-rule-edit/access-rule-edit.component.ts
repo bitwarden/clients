@@ -1,8 +1,17 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router, RouterLink } from "@angular/router";
+import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
 import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
@@ -17,6 +26,7 @@ import {
   AsyncActionsModule,
   BreadcrumbsModule,
   ButtonModule,
+  CalloutModule,
   CardComponent,
   CheckboxModule,
   DialogService,
@@ -85,6 +95,7 @@ const NAME_MAX_LENGTH = 256;
     AsyncActionsModule,
     BreadcrumbsModule,
     ButtonModule,
+    CalloutModule,
     CardComponent,
     CheckboxModule,
     FormFieldModule,
@@ -132,6 +143,17 @@ export class AccessRuleEditComponent {
   /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
+
+  /**
+   * Message for the inline save-failure callout; null while there is nothing to report.
+   * A failed save must not toast — the notice has to persist alongside the entered values
+   * so the admin can retry without re-keying the form.
+   */
+  protected readonly saveError = signal<string | null>(null);
+
+  private readonly saveErrorCallout = viewChild("saveErrorCallout", {
+    read: ElementRef<HTMLElement>,
+  });
 
   protected readonly pageTypeKey = this.editing
     ? "pamAccessRuleEditTitle"
@@ -214,6 +236,15 @@ export class AccessRuleEditComponent {
   );
 
   constructor() {
+    // `bit-callout` is not a live region and the callout renders above three sections of form
+    // while Save sits below them, so without moving focus a failed save is silent for a screen
+    // reader and off-screen for everyone else.
+    effect(() => {
+      if (this.saveError() == null) {
+        return;
+      }
+      this.saveErrorCallout()?.nativeElement.focus();
+    });
     this.coupleDurationBounds();
     this.coupleIpAllowlistEnabled();
     void this.initialize();
@@ -399,6 +430,7 @@ export class AccessRuleEditComponent {
   }
 
   protected readonly submit = async (): Promise<void> => {
+    this.saveError.set(null);
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -425,14 +457,50 @@ export class AccessRuleEditComponent {
     } catch (e) {
       // The collection-conflict rejection gets friendlier copy than the server's line
       // ("One or more collections are already governed by…"), which UAT found hard to parse.
-      const message = isAccessRuleCollectionConflict(e)
-        ? this.i18nService.t("pamAccessRuleCollectionConflict")
-        : (accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError"));
-      this.toastService.showToast({ variant: "error", message });
+      this.saveError.set(
+        isAccessRuleCollectionConflict(e)
+          ? this.i18nService.t("pamAccessRuleCollectionConflict")
+          : (accessRuleErrorMessage(e) ?? this.i18nService.t("pamAccessRuleSaveErrorBody")),
+      );
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateToList();
+  /**
+   * Confirm before unsaved edits are thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A pristine form
+   * has nothing to lose, so it skips the dialog rather than asking about an empty page.
+   */
+  async confirmDiscard(): Promise<boolean> {
+    if (!this.formGroup.dirty) {
+      return true;
+    }
+
+    // Creating: the design names the thing being abandoned, the rule itself. Editing: the rule
+    // already exists and only the edits are lost, so the repo's shared wording is the true one.
+    const copy = this.editing
+      ? {
+          title: { key: "discardEditsTitle" },
+          content: { key: "discardEditsConfirmation" },
+          acceptButtonText: { key: "discardEdits" },
+          cancelButtonText: { key: "keepEditing" },
+        }
+      : {
+          title: { key: "pamAccessRuleDiscardTitle" },
+          content: { key: "pamAccessRuleDiscardContent" },
+          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+          cancelButtonText: { key: "cancel" },
+        };
+
+    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
+  }
+
+  protected readonly cancel = async (): Promise<void> => {
+    if (!(await this.confirmDiscard())) {
+      return;
+    }
+
+    await this.navigateToList();
+  };
 
   /**
    * Delete the rule under edit, after confirmation. Edit mode only — there is nothing
@@ -466,6 +534,12 @@ export class AccessRuleEditComponent {
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
   private navigateToList(): Promise<boolean> {
+    // A save, delete, or confirmed discard is an exit the admin has already agreed to, so the
+    // form has nothing left to lose and the CanDeactivate guard must not ask a second time.
+    this.formGroup.markAsPristine();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 }
+
+export const accessRuleEditDiscardGuard: CanDeactivateFn<AccessRuleEditComponent> = (component) =>
+  component.confirmDiscard();
