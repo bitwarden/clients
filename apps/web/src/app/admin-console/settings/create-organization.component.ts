@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
@@ -11,7 +11,7 @@ import {
   ProductTierType,
   ProductType,
 } from "@bitwarden/common/billing/enums";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { OrganizationPlansComponent } from "../../billing";
 import { HeaderModule } from "../../layouts/header/header.module";
@@ -21,7 +21,7 @@ import { SharedModule } from "../../shared";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   templateUrl: "create-organization.component.html",
-  imports: [SharedModule, OrganizationPlansComponent, HeaderModule],
+  imports: [SharedModule, OrganizationPlansComponent, HeaderModule, Vfo1I18nPipe],
 })
 export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected secretsManager = false;
@@ -29,8 +29,6 @@ export class CreateOrganizationComponent implements OnInit, OnDestroy {
   protected productTier: ProductTierType = ProductTierType.Free;
   protected trialLength?: number;
   protected initiationPath: InitiationPath = InitiationPath.NewOrganizationCreationInProduct;
-
-  protected readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
 
   constructor(private route: ActivatedRoute) {}
 

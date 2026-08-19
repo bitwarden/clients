@@ -5,7 +5,6 @@ import { of } from "rxjs";
 
 import { InitiationPath, ProductType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { OrganizationPlansComponent } from "../../billing";
@@ -42,15 +41,9 @@ class MockOrganizationPlansComponent {
 class MockContainerComponent {}
 
 describe("CreateOrganizationComponent", () => {
-  function createComponent(
-    queryParams: Record<string, unknown>,
-    vfo1Enabled = false,
-  ): CreateOrganizationComponent {
-    TestBed.resetTestingModule().configureTestingModule({
-      providers: [{ provide: Vfo1TerminologyService, useValue: { enabled: () => vfo1Enabled } }],
-    });
+  function createComponent(queryParams: Record<string, unknown>): CreateOrganizationComponent {
     const route = { queryParams: of(queryParams) } as unknown as ActivatedRoute;
-    return TestBed.runInInjectionContext(() => new CreateOrganizationComponent(route));
+    return new CreateOrganizationComponent(route);
   }
 
   describe("initiationPath derivation from the product query param", () => {
@@ -93,18 +86,14 @@ describe("CreateOrganizationComponent", () => {
           providers: [
             { provide: ActivatedRoute, useValue: { queryParams: of({}) } },
             { provide: I18nService, useValue: i18nService },
+            // The Vfo1I18nPipe rendering the copy injects this service.
             { provide: Vfo1TerminologyService, useValue: { enabled: () => vfo1Enabled } },
           ],
         })
         .overrideComponent(CreateOrganizationComponent, {
           remove: { imports: [SharedModule, OrganizationPlansComponent, HeaderModule] },
           add: {
-            imports: [
-              I18nPipe,
-              MockHeaderComponent,
-              MockOrganizationPlansComponent,
-              MockContainerComponent,
-            ],
+            imports: [MockHeaderComponent, MockOrganizationPlansComponent, MockContainerComponent],
           },
         })
         .compileComponents();
