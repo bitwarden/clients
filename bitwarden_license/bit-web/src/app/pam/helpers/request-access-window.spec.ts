@@ -66,6 +66,29 @@ describe("requestWindowProblem", () => {
     ).toBeNull();
     expect(end.getTime() - start.getTime()).toBe(MAX_REQUEST_ACCESS_WINDOW_SECONDS * 1000);
   });
+
+  // PM-39858: checking only the global ceiling let a window past the governing rule's own maximum
+  // look valid in the form, right up until submit rejected it.
+  it("rejects a window past an explicit per-rule maximum", () => {
+    const window = { date: "2026-08-17", start: "09:00", end: "11:00" };
+
+    // Two hours: inside the global ceiling, outside a 30-minute rule cap.
+    expect(requestWindowProblem(window)).toBeNull();
+    expect(requestWindowProblem(window, 30 * 60)).toBe("exceedsMaxWindow");
+  });
+
+  it("accepts a window exactly at an explicit per-rule maximum", () => {
+    expect(
+      requestWindowProblem({ date: "2026-08-17", start: "09:00", end: "09:30" }, 30 * 60),
+    ).toBeNull();
+  });
+
+  it("reports an inverted window before checking the per-rule maximum", () => {
+    // The end-before-start message is the more useful one, so it wins even when both are wrong.
+    expect(
+      requestWindowProblem({ date: "2026-08-17", start: "11:00", end: "09:00" }, 30 * 60),
+    ).toBe("endBeforeStart");
+  });
 });
 
 describe("defaultRequestWindow", () => {
