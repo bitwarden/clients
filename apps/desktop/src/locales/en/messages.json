@@ -2991,6 +2991,15 @@
       }
     }
   },
+  "policyInEffectMinComplexityShort": {
+    "message": "Complexity score of $SCORE$ or higher",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "Strong (4)"
+      }
+    }
+  },
   "policyInEffectMinLengthShort": {
     "message": "$LENGTH$ or more characters",
     "placeholders": {
