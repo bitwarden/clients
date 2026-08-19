@@ -2,9 +2,9 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
-import { firstValueFrom, map, Observable, of, switchMap } from "rxjs";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { Params, Router, RouterModule } from "@angular/router";
+import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import {
@@ -12,7 +12,6 @@ import {
   singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -22,9 +21,6 @@ import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/ciphe
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import {
   ChipActionComponent,
-  defaultAvatarColors,
-  IconTileComponent,
-  isAvatarColor,
   PopoverModule,
   SideNavService,
   SvgModule,
@@ -35,8 +31,7 @@ import {
   RoutedVaultFilterItemType,
   VaultNavItemType,
   VaultNavItemViewModel,
-  VaultNavService,
-  VaultsNavViewModel,
+  VaultNavSectionComponent,
 } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
@@ -57,7 +52,7 @@ import { WebLayoutModule } from "./web-layout.module";
     WebLayoutModule,
     SvgModule,
     ChipActionComponent,
-    IconTileComponent,
+    VaultNavSectionComponent,
     BillingFreeFamiliesNavItemComponent,
     PopoverModule,
     CoachmarkComponent,
@@ -75,8 +70,6 @@ export class UserLayoutComponent implements OnInit {
   protected readonly sideNavService = inject(SideNavService);
 
   private readonly router = inject(Router);
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly vaultNavService = inject(VaultNavService);
   private readonly cipherArchiveService = inject(CipherArchiveService);
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
 
@@ -84,24 +77,6 @@ export class UserLayoutComponent implements OnInit {
     inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
     { initialValue: false },
   );
-
-  protected readonly vaultNav: Signal<VaultsNavViewModel | undefined> = toSignal(
-    toObservable(this.vfo1Enabled).pipe(
-      switchMap((enabled) => (enabled ? this.vaultNavService.viewModel$ : of(undefined))),
-    ),
-  );
-
-  private readonly activeParams = toSignal(this.activatedRoute.queryParamMap);
-
-  /** The vault filter applied by the current query params. */
-  private readonly activeFilter = computed(() => {
-    const params = this.activeParams();
-    return {
-      vaultId: params?.get("vaultId") ?? null,
-      type: params?.get("type") ?? null,
-      sharedFolderId: params?.get("sharedFolderId") ?? null,
-    };
-  });
 
   private readonly userHasPremium = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -162,20 +137,13 @@ export class UserLayoutComponent implements OnInit {
     });
   }
 
-  protected async selectVault(vault: VaultNavItemViewModel) {
-    await this.navigateToVault({ vaultId: this.vaultIdParam(vault), type: null });
-  }
-
-  protected async selectMyItems(vault: VaultNavItemViewModel, collectionId: string) {
-    await this.navigateToVault({
-      vaultId: this.vaultIdParam(vault),
-      sharedFolderId: collectionId,
-      type: null,
-    });
-  }
-
   protected async selectAllItems() {
-    await this.navigateToVault({ vaultId: null, type: null });
+    await this.router.navigate(["/vault"]);
+  }
+
+  protected async selectVault(vault: VaultNavItemViewModel) {
+    const segment = vault.type === VaultNavItemType.Personal ? "my-vault" : vault.id;
+    await this.router.navigate(["/vault", segment]);
   }
 
   protected async selectItemType(type: RoutedVaultFilterItemType) {
@@ -197,35 +165,6 @@ export class UserLayoutComponent implements OnInit {
 
   protected async promptForPremium() {
     await this.premiumUpgradePromptService.promptForPremium();
-  }
-
-  protected vaultTileColor(vault: VaultNavItemViewModel): string {
-    return isAvatarColor(vault.color) ? defaultAvatarColors[vault.color] : vault.color;
-  }
-
-  private vaultIdParam(vault: VaultNavItemViewModel): string {
-    return vault.type === VaultNavItemType.Personal ? Unassigned : vault.id;
-  }
-
-  protected allItemsActive(): boolean {
-    const f = this.activeFilter();
-    return this.router.url.split("?")[0] === "/vault" && !f.vaultId && !f.type && !f.sharedFolderId;
-  }
-
-  protected vaultActive(vault: VaultNavItemViewModel): boolean {
-    const f = this.activeFilter();
-    return f.vaultId === this.vaultIdParam(vault) && !f.sharedFolderId && !f.type;
-  }
-
-  protected myItemsActive(vault: VaultNavItemViewModel): boolean {
-    const f = this.activeFilter();
-    return (
-      f.vaultId === this.vaultIdParam(vault) && f.sharedFolderId === vault.defaultUserCollectionId
-    );
-  }
-
-  protected itemTypeActive(type: RoutedVaultFilterItemType): boolean {
-    return this.activeFilter().type === type;
   }
 
   async ngOnInit() {
