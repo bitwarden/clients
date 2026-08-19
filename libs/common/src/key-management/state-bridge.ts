@@ -5,7 +5,6 @@ import { filter, firstValueFrom, map, race, timer } from "rxjs";
 import { fromSdkKdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   EncString,
-  KeyId,
   MasterPasswordUnlockData as SdkMasterPasswordUnlockData,
   PasswordProtectedKeyEnvelope,
   SymmetricKey,
