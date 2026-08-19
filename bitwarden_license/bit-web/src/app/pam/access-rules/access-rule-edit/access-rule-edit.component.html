@@ -19,6 +19,18 @@
     <bit-spinner />
   } @else {
     <form [formGroup]="formGroup" [bitSubmit]="submit">
+      @if (saveError(); as saveErrorMessage) {
+        <bit-callout
+          #saveErrorCallout
+          role="alert"
+          tabindex="-1"
+          type="danger"
+          [title]="'pamAccessRuleSaveErrorTitle' | i18n"
+        >
+          {{ saveErrorMessage }}
+        </bit-callout>
+      }
+
       <bit-section>
         <bit-section-header>
           <h2 bitTypography="h5">{{ "pamAccessRuleGeneralInfoHeading" | i18n }}</h2>
@@ -103,7 +115,9 @@
                 <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
-            <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+            @if (formGroup.controls.maxLeaseDurationSeconds.value !== noDurationCap) {
+              <bit-hint>{{ "pamAccessRuleMaxDurationHint" | i18n }}</bit-hint>
+            }
           </bit-form-field>
 
           <bit-form-control [disableMargin]="!formGroup.controls.allowsExtensions.value">
@@ -194,6 +208,8 @@
         </p>
       }
 
+      <bit-error-summary [formGroup]="formGroup" />
+
       <div class="tw-flex tw-items-center tw-gap-2">
         <button
           type="submit"
@@ -208,8 +224,7 @@
           type="button"
           bitButton
           buttonType="secondary"
-          bitFormButton
-          (click)="cancel()"
+          [bitAction]="cancel"
           id="access-rule-edit_button_cancel"
         >
           {{ "cancel" | i18n }}
