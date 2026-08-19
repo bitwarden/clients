@@ -1,3 +1,4 @@
+export { BitFabComponent } from "./components/fab/fab.component";
 export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,

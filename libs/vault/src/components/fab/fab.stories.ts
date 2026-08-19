@@ -5,9 +5,8 @@ import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 import { BitFabComponent } from "./fab.component";
 
 export default {
-  title: "Component Library/FAB",
+  title: "Vault/FAB",
   component: BitFabComponent,
-  decorators: [],
   args: {
     bitFab: "bwi-plus",
     label: "Add item",
@@ -27,14 +26,6 @@ export default {
         type: { summary: "string" },
       },
     },
-    disabled: {
-      control: { type: "boolean" },
-      description: "Whether the FAB is disabled",
-      table: {
-        type: { summary: "boolean" },
-        defaultValue: { summary: "false" },
-      },
-    },
   },
   parameters: {
     design: {
@@ -44,9 +35,7 @@ export default {
   },
 } as Meta<BitFabComponent>;
 
-type BitFabComponentWithHostDirectiveInputs = BitFabComponent & { disabled: boolean };
-
-type Story = StoryObj<BitFabComponentWithHostDirectiveInputs>;
+type Story = StoryObj<BitFabComponent>;
 
 export const Default: Story = {
   render: (args) => ({
@@ -55,11 +44,4 @@ export const Default: Story = {
       <button type="button" ${formatArgsForCodeSnippet<BitFabComponent>(args)}></button>
     `,
   }),
-};
-
-export const Disabled: Story = {
-  ...Default,
-  args: {
-    disabled: true,
-  },
 };
