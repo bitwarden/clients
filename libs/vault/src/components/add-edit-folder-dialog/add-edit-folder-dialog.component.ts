@@ -51,9 +51,6 @@ export type AddEditFolderDialogData = {
   hideDelete?: boolean;
 };
 
-/** Maximum number of characters allowed in a folder name under VFO1. */
-export const FOLDER_NAME_MAX_LENGTH = 50;
-
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -102,14 +99,6 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
 
     if (value.length === 0) {
       return { folderNameRequired: { message: this.i18nService.t("enterAName") } };
-    }
-
-    if (value.length > FOLDER_NAME_MAX_LENGTH) {
-      return {
-        folderNameMaxLength: {
-          message: this.i18nService.t("enterANameMaxLength", FOLDER_NAME_MAX_LENGTH),
-        },
-      };
     }
 
     return null;

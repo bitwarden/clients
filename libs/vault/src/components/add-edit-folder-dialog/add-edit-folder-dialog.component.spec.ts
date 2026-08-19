@@ -199,15 +199,5 @@ describe("AddEditFolderDialogComponent", () => {
       expect(errors.folderNameRequired).toEqual({ message: "enterAName" });
       expect(encrypt).not.toHaveBeenCalled();
     });
-
-    it("rejects a pre-filled name longer than the maximum once the flag resolves", async () => {
-      component.folderForm.controls.name.setValue("a".repeat(51));
-      vfo1Enabled$.next(true);
-      fixture.detectChanges();
-
-      await component.submit();
-
-      expect(encrypt).not.toHaveBeenCalled();
-    });
   });
 });

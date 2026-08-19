@@ -1100,15 +1100,6 @@
   "folderEdited": {
     "message": "Folder edited"
   },
-  "enterANameMaxLength": {
-    "message": "Enter a name that's $MAX$ characters or fewer.",
-    "placeholders": {
-      "max": {
-        "content": "$1",
-        "example": "50"
-      }
-    }
-  },
   "enterAName": {
     "message": "Enter a name."
   },
