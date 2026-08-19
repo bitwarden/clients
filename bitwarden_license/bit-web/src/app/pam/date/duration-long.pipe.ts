@@ -2,7 +2,11 @@ import { LOCALE_ID, Pipe, PipeTransform, inject } from "@angular/core";
 
 import { formatDuration } from "./format-duration";
 
-/** Spelled-out, localized duration label, e.g. `15 minutes`, `4 hours`, `1 day`. */
+/**
+ * Spelled-out, localized lease-duration label, e.g. `15 minutes`, `1 hour`, `4 hours`,
+ * `1 day`. Used by the access-rules table. See {@link formatDuration} for the shared
+ * unit selection and formatting.
+ */
 @Pipe({
   name: "durationLong",
 })
