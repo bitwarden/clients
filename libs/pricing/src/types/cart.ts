@@ -16,7 +16,7 @@ export type Cart = {
     additionalStorage?: CartItem;
   };
   secretsManager?: {
-    seats: CartItem;
+    seats?: CartItem;
     additionalServiceAccounts?: CartItem;
   };
   cadence: "annually" | "monthly";

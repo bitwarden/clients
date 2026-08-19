@@ -216,6 +216,34 @@ describe("CartSummaryComponent", () => {
       expect(additionalSA).toContain("$12.00"); // 2 * $6
     });
 
+    it("should render a secrets manager section without a seats line", () => {
+      // A preview whose SM section carries no seat line (mid-cycle SM removal) still renders
+      // its remaining lines instead of an empty, invalid seats row.
+      const cartWithoutSmSeats: Cart = {
+        ...mockCart,
+        secretsManager: {
+          additionalServiceAccounts: {
+            quantity: 2,
+            translationKey: "additionalServiceAccountsV2",
+            cost: 6,
+          },
+        },
+      };
+      fixture.componentRef.setInput("cart", cartWithoutSmSeats);
+      fixture.detectChanges();
+
+      const smSection = fixture.debugElement.query(By.css('[id="secrets-manager"]'));
+      const seatsLine = fixture.debugElement.query(By.css('[id="secrets-manager-members"]'));
+      const additionalSA = fixture.debugElement.query(By.css('[id="additional-service-accounts"]'))
+        .nativeElement.textContent;
+      const total = fixture.debugElement.query(By.css("[data-testid='final-total']"));
+
+      expect(smSection).toBeTruthy();
+      expect(seatsLine).toBeNull();
+      expect(additionalSA).toContain("2 Additional machine accounts");
+      expect(total.nativeElement.textContent).toContain("$291.60"); // 250 + 20 + 12 + 9.6
+    });
+
     it("should display correct tax and total", () => {
       // Arrange
       const taxSection = fixture.debugElement.query(By.css('[id="estimated-tax-section"]'));

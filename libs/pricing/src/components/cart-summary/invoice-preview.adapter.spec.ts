@@ -86,6 +86,44 @@ describe("adaptInvoicePreviewToCart", () => {
       });
     });
 
+    it("should map a secrets manager section with service accounts but no seats", () => {
+      const preview = basePreview({
+        secretsManager: {
+          additionalServiceAccounts: { reference: "sm-service-account", quantity: 4, cost: 3 },
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.secretsManager!.seats).toBeUndefined();
+      expect(cart.secretsManager!.additionalServiceAccounts).toEqual({
+        translationKey: "additionalServiceAccounts",
+        quantity: 4,
+        cost: 3,
+      });
+    });
+
+    it("should omit a secrets manager section that has no line items", () => {
+      // A mid-cycle SM removal leaves a section with only proration credits and nothing to render.
+      const preview = basePreview({
+        secretsManager: {
+          prorations: [{ credit: 2, charge: 0, tax: 0, total: -2, months: 6 }],
+        },
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.OrganizationCheckout,
+        logService,
+      );
+
+      expect(cart.secretsManager).toBeUndefined();
+    });
+
     it("should pass quantity and cost through unchanged", () => {
       const preview = basePreview({
         passwordManager: { seats: { reference: "pm-seat", quantity: 7, cost: 12.34 } },
@@ -128,6 +166,31 @@ describe("adaptInvoicePreviewToCart", () => {
       expect(cart.credit).toEqual({
         translationKey: "premiumSubscriptionCredit",
         value: 17.5,
+      });
+    });
+
+    it("should sum a seats-less secrets manager section's prorations into the credit row", () => {
+      const preview = basePreview({
+        passwordManager: {
+          seats: { reference: "pm-seat", quantity: 5, cost: 50 },
+          prorations: prorated([10]),
+        },
+        secretsManager: {
+          prorations: prorated([2.5]),
+        },
+        planTier: "enterprise",
+      });
+
+      const cart = adaptInvoicePreviewToCart(
+        preview,
+        InvoicePreviewFlowContext.PremiumOrgUpgrade,
+        logService,
+      );
+
+      expect(cart.secretsManager).toBeUndefined();
+      expect(cart.credit).toEqual({
+        translationKey: "premiumSubscriptionCredit",
+        value: 12.5,
       });
     });
 

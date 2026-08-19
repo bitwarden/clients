@@ -160,8 +160,7 @@
       </div>
 
       <!-- Secrets Manager Section -->
-      @let secretsManagerSeats = cart.secretsManager?.seats;
-      @if (secretsManagerSeats) {
+      @if (cart.secretsManager) {
         <div id="secrets-manager" class="tw-border-b tw-border-secondary-100 tw-py-2">
           <div class="tw-flex tw-justify-between">
             <div bitTypography="h5" class="tw-text-muted tw-font-semibold">
@@ -169,58 +168,64 @@
             </div>
           </div>
 
-          <!-- Secrets Manager Members -->
-          <div id="secrets-manager-members" class="tw-flex tw-justify-between">
-            <div bitTypography="body1" class="tw-text-muted tw-font-normal">
-              {{ secretsManagerSeats.quantity }}
-              {{
-                translateWithParams(
-                  secretsManagerSeats.translationKey,
-                  secretsManagerSeats.translationParams
-                )
-              }}
-              @if (!secretsManagerSeats.hideBreakdown) {
-                x
-                {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
-                @if (!hideTerm) {
-                  /
-                  {{ term }}
+          <!-- Secrets Manager Members (absent when the preview's SM section has no seat line) -->
+          @let secretsManagerSeats = cart.secretsManager.seats;
+          @if (secretsManagerSeats) {
+            <div id="secrets-manager-members" class="tw-flex tw-justify-between">
+              <div bitTypography="body1" class="tw-text-muted tw-font-normal">
+                {{ secretsManagerSeats.quantity }}
+                {{
+                  translateWithParams(
+                    secretsManagerSeats.translationKey,
+                    secretsManagerSeats.translationParams
+                  )
+                }}
+                @if (!secretsManagerSeats.hideBreakdown) {
+                  x
+                  {{ secretsManagerSeats.cost | currency: "USD" : "symbol" }}
+                  @if (!hideTerm) {
+                    /
+                    {{ term }}
+                  }
                 }
-              }
-            </div>
-            <div
-              bitTypography="body1"
-              class="tw-text-muted tw-font-normal"
-              data-testid="secrets-manager-seats-total"
-            >
-              {{ secretsManagerSeatsTotal() | currency: "USD" : "symbol" }}
-            </div>
-          </div>
-
-          <!-- Secrets Manager Seats Discounts -->
-          @for (discountRow of secretsManagerSeatsDiscountRows(); track $index) {
-            @if (discountRow.amount > 0) {
-              <div class="tw-flex tw-justify-between" data-testid="secrets-manager-seats-discount">
-                <div
-                  bitTypography="body1"
-                  class="tw-pl-4 tw-text-success-600"
-                  data-testid="secrets-manager-seats-discount-label"
-                >
-                  {{ discountRow.label }}
-                </div>
-                <div
-                  bitTypography="body1"
-                  class="tw-text-success-600"
-                  data-testid="secrets-manager-seats-discount-amount"
-                >
-                  -{{ discountRow.amount | currency: "USD" : "symbol" }}
-                </div>
               </div>
+              <div
+                bitTypography="body1"
+                class="tw-text-muted tw-font-normal"
+                data-testid="secrets-manager-seats-total"
+              >
+                {{ secretsManagerSeatsTotal() | currency: "USD" : "symbol" }}
+              </div>
+            </div>
+
+            <!-- Secrets Manager Seats Discounts -->
+            @for (discountRow of secretsManagerSeatsDiscountRows(); track $index) {
+              @if (discountRow.amount > 0) {
+                <div
+                  class="tw-flex tw-justify-between"
+                  data-testid="secrets-manager-seats-discount"
+                >
+                  <div
+                    bitTypography="body1"
+                    class="tw-pl-4 tw-text-success-600"
+                    data-testid="secrets-manager-seats-discount-label"
+                  >
+                    {{ discountRow.label }}
+                  </div>
+                  <div
+                    bitTypography="body1"
+                    class="tw-text-success-600"
+                    data-testid="secrets-manager-seats-discount-amount"
+                  >
+                    -{{ discountRow.amount | currency: "USD" : "symbol" }}
+                  </div>
+                </div>
+              }
             }
           }
 
           <!-- Additional Service Accounts -->
-          @let additionalServiceAccounts = cart.secretsManager?.additionalServiceAccounts;
+          @let additionalServiceAccounts = cart.secretsManager.additionalServiceAccounts;
           @if (additionalServiceAccounts) {
             <div id="additional-service-accounts" class="tw-flex tw-justify-between">
               <div bitTypography="body1" class="tw-text-muted tw-font-normal">

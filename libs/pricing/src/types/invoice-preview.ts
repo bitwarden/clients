@@ -77,7 +77,7 @@ export type InvoicePreview = {
     prorations?: PurchasableProration[];
   };
   secretsManager?: {
-    seats: InvoicePreviewItem;
+    seats?: InvoicePreviewItem;
     additionalServiceAccounts?: InvoicePreviewItem;
     prorations?: PurchasableProration[];
   };

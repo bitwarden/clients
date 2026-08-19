@@ -108,6 +108,19 @@ describe("InvoicePreviewResponse", () => {
       expect(response.startingBalance).toBe(0);
     });
 
+    it("should parse a secrets manager section without seats", () => {
+      // A mid-cycle SM removal yields a section with proration credits but no recurring seat line.
+      const response = new InvoicePreviewResponse({
+        ...minimal(),
+        SecretsManager: {
+          Prorations: [{ Credit: 2, Charge: 0, Tax: 0, Total: -2, Months: 6 }],
+        },
+      });
+
+      expect(response.secretsManager!.seats).toBeUndefined();
+      expect(response.secretsManager!.prorations).toHaveLength(1);
+    });
+
     it("should not set nextPaymentAttempt when the server omits it", () => {
       const response = new InvoicePreviewResponse({ ...minimal(), NextPaymentAttempt: null });
 

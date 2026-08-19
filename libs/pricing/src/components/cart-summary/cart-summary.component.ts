@@ -146,11 +146,11 @@ export class CartSummaryComponent {
    * Calculates total for Secrets Manager seats
    */
   readonly secretsManagerSeatsTotal = computed<number>(() => {
-    const { secretsManager } = this.cart();
-    if (!secretsManager) {
+    const seats = this.cart().secretsManager?.seats;
+    if (!seats) {
       return 0;
     }
-    return secretsManager.seats.quantity * secretsManager.seats.cost;
+    return seats.quantity * seats.cost;
   });
 
   /**

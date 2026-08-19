@@ -47,10 +47,12 @@ export const adaptInvoicePreviewToCart = (
         ? { additionalStorage: toCartItem(passwordManager.additionalStorage) }
         : {}),
     },
-    ...(secretsManager
+    ...(secretsManager && (secretsManager.seats || secretsManager.additionalServiceAccounts)
       ? {
           secretsManager: {
-            seats: toCartItem(secretsManager.seats, secretsManagerProrated),
+            ...(secretsManager.seats
+              ? { seats: toCartItem(secretsManager.seats, secretsManagerProrated) }
+              : {}),
             ...(secretsManager.additionalServiceAccounts
               ? {
                   additionalServiceAccounts: toCartItem(secretsManager.additionalServiceAccounts),
