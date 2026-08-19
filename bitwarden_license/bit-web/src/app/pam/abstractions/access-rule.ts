@@ -116,22 +116,6 @@ function apiErrorBodyMessage(message: string): string | undefined {
 }
 
 /**
- * True when `e` is the server's rejection of a rule whose collections are already
- * governed by a different access rule (a collection can only carry one rule).
- *
- * Matched on the server's message text — the `ErrorResponseModel` contract carries no
- * machine-readable code, so this fragment is the only discriminant on the wire. Kept
- * in sync with `AccessRuleWriteValidator` on the server; on drift this degrades to the
- * extracted server message rather than the friendlier client copy.
- */
-export function isAccessRuleCollectionConflict(e: unknown): boolean {
-  return (
-    accessRuleErrorMessage(e)?.toLowerCase().includes("already governed by another access rule") ??
-    false
-  );
-}
-
-/**
  * True when `e` is the SDK reporting a rule that does not exist — the caller followed a link to a
  * rule someone else deleted, or deleted it in another tab.
  *

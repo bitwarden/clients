@@ -27,6 +27,20 @@ const cidrValidationStub: CidrValidationService = { isValid: () => true };
 
 const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
 
+/** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
+const accessRuleError = (variant: string, message: string) =>
+  Object.assign(new Error(message), { name: "AccessRuleError", variant });
+
+// A real rejected save, verbatim in shape: the whole wire response, stack trace and server
+// filesystem paths included, on the error's `message`. None of it may reach the page.
+const RAW_SERVER_PAYLOAD =
+  'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
+  'collections are already governed by another access rule.","validationErrors":null,' +
+  '"exceptionMessage":"One or more collections are already governed by another access rule.",' +
+  '"exceptionStackTrace":" at Bit.Services.Pam.Services.AccessRuleWriteValidator' +
+  ".ValidateCollectionsAsync(Guid organizationId) in /Users/build/server/bitwarden_license/src/" +
+  'Services/Pam/Services/AccessRuleWriteValidator.cs:line 87"}';
+
 const organizationServiceStub = (canAccessEventLogs = true) => ({
   organizations$: () => of([{ id: "org-1", canAccessEventLogs }]),
 });
@@ -402,31 +416,20 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     await setup({ queryParams: { duplicateFrom: "gone" } }, new Error("boom"));
 
     expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
+      expect.objectContaining({ variant: "error", message: "unexpectedError" }),
     );
     expect(controls().name.value).toBe("");
     // Unlike a failed edit-mode load, the user stays on the (now blank) create page.
     expect(navigate).not.toHaveBeenCalled();
   });
 
-  it("shows the friendly collection-conflict message when the server rejects the collections", async () => {
-    await setup({});
-    const conflict = Object.assign(
-      new Error(
-        'error in response: status code 400 Bad Request: {"message":"One or more collections are already governed by another access rule."}',
-      ),
-      { name: "AccessRuleError", variant: "Api" },
+  it("names the missing rule when the duplicate source is gone", async () => {
+    await setup({ queryParams: { duplicateFrom: "gone" } }, accessRuleError("NotFound", ""));
+
+    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
     );
-    pamApi.createAccessRule.mockRejectedValue(conflict);
-
-    controls().name.setValue("Conflicting rule");
-    controls().collections.setValue([
-      { id: "col-1", listName: "Eng", labelName: "Eng", icon: "bwi-collection-shared" },
-    ] satisfies SelectItemView[]);
-    await component["submit"]();
-
-    expect(component["saveError"]()).toBe("pamAccessRuleCollectionConflict");
-    expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+    expect(controls().name.value).toBe("");
     expect(navigate).not.toHaveBeenCalled();
   });
 
@@ -538,7 +541,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
 
   it("toasts and navigates back when the edited rule can't be fetched", async () => {
     pamApi = {
-      getAccessRule: jest.fn().mockRejectedValue(new Error("404")),
+      getAccessRule: jest.fn().mockRejectedValue(accessRuleError("NotFound", "")),
       createAccessRule: jest.fn(),
       updateAccessRule: jest.fn(),
       deleteAccessRule: jest.fn(),
@@ -652,10 +655,27 @@ describe("AccessRuleEditComponent — form states", () => {
       await submitAndRender();
 
       expect(callout()).not.toBeNull();
-      expect(callout()!.textContent).toContain("pamAccessRuleSaveErrorTitle");
-      expect(callout()!.textContent).toContain("pamAccessRuleSaveErrorBody");
+      expect(callout()!.textContent).toContain("pamAccessRuleSaveErrorGeneric");
+      expect(callout()!.textContent).toContain("tryAgain");
       expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
       expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("keeps the server's serialized response out of the page", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(accessRuleError("Api", RAW_SERVER_PAYLOAD));
+
+      await submitAndRender();
+
+      const rendered = fixture.nativeElement.textContent as string;
+      expect(rendered).not.toContain("exceptionStackTrace");
+      expect(rendered).not.toContain("status code 400");
+      expect(rendered).not.toContain("AccessRuleWriteValidator.cs");
+      expect(rendered).toContain("pamAccessRuleErrorCollectionsGoverned");
+      expect(controls().collections.errors).toEqual({
+        serverError: { message: "pamAccessRuleErrorCollectionsGoverned" },
+      });
     });
 
     it("moves focus to the callout, which renders far above the Save button", async () => {
@@ -699,19 +719,81 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(controls().collections.value.map((c) => c.id)).toEqual(["col-1"]);
     });
 
-    it("prefers the server's own message over the generic sentence", async () => {
+    it("reports a name conflict on the name field, where the fix is", async () => {
       await render();
       fillRequiredFields();
-      const serverError = Object.assign(new Error("Rule name already in use."), {
-        name: "AccessRuleError",
-        variant: "Conflict",
-      });
-      pamApi.createAccessRule.mockRejectedValue(serverError);
+      pamApi.createAccessRule.mockRejectedValue(
+        accessRuleError(
+          "Api",
+          'error in response: {"message":"A rule with that name already exists."}',
+        ),
+      );
 
       await submitAndRender();
 
-      expect(callout()!.textContent).toContain("Rule name already in use.");
-      expect(callout()!.textContent).not.toContain("pamAccessRuleSaveErrorBody");
+      expect(callout()).toBeNull();
+      expect(controls().name.errors).toEqual({
+        serverError: { message: "pamAccessRuleErrorNameTaken" },
+      });
+      expect(fixture.nativeElement.textContent).toContain("pamAccessRuleErrorNameTaken");
+    });
+
+    it("clears a field-level save error once that field is edited again", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(
+        accessRuleError(
+          "Api",
+          'error in response: {"message":"One or more collections are already governed by another access rule."}',
+        ),
+      );
+
+      await submitAndRender();
+      expect(controls().collections.errors).not.toBeNull();
+
+      controls().collections.setValue([
+        {
+          id: "col-1",
+          listName: "Engineering",
+          labelName: "Engineering",
+          icon: "bwi-collection-shared",
+        },
+      ] satisfies SelectItemView[]);
+
+      expect(controls().collections.errors).toBeNull();
+    });
+
+    it("offers no retry for a failure that resending the same values cannot clear", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(accessRuleError("NotFound", ""));
+
+      await submitAndRender();
+
+      expect(callout()!.textContent).toContain("pamAccessRuleErrorMissing");
+      expect(callout()!.textContent).not.toContain("tryAgain");
+    });
+
+    it("resubmits the untouched form when Try again is clicked", async () => {
+      await render();
+      fillRequiredFields();
+      pamApi.createAccessRule.mockRejectedValue(new Error("boom"));
+      await submitAndRender();
+
+      pamApi.createAccessRule.mockResolvedValue(undefined);
+      const retry = fixture.nativeElement.querySelector(
+        "#access-rule-edit_button_retry-save",
+      ) as HTMLButtonElement;
+      retry.click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(pamApi.createAccessRule).toHaveBeenCalledTimes(2);
+      expect(pamApi.createAccessRule.mock.calls[1][1]).toEqual(
+        pamApi.createAccessRule.mock.calls[0][1],
+      );
+      expect(callout()).toBeNull();
+      expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
     });
 
     it("clears the callout when the user resubmits", async () => {
@@ -738,6 +820,26 @@ describe("AccessRuleEditComponent — form states", () => {
       const summary = fixture.nativeElement.querySelector("bit-error-summary") as HTMLElement;
       expect(summary.textContent).toContain("fieldsNeedAttention");
       expect(pamApi.createAccessRule).not.toHaveBeenCalled();
+    });
+
+    it("keeps name and collections marked required, sighted and announced", async () => {
+      await render();
+
+      // `bit-form-field` renders the danger asterisk and its sr-only "(required)" off
+      // `Validators.required`; nothing else in that template sets aria-required.
+      expect(Object.keys(controls().name.errors ?? {})).toEqual(["required"]);
+      expect(Object.keys(controls().collections.errors ?? {})).toEqual(["required"]);
+      const requiredMarkers = fixture.nativeElement.querySelectorAll("bit-form-field sup");
+      expect(requiredMarkers.length).toBeGreaterThanOrEqual(2);
+    });
+
+    it("counts one error per incomplete field, as the summary's wording promises", async () => {
+      await render();
+
+      await submitAndRender();
+
+      expect(Object.keys(controls().name.errors!)).toEqual(["required"]);
+      expect(Object.keys(controls().collections.errors!)).toEqual(["required"]);
     });
 
     it("shows no summary before the form has been submitted", async () => {
