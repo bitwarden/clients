@@ -340,7 +340,10 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
 
   /** Sets the chip's value — used to seed initial filters. */
   setValue(value: unknown): void {
-    this._value.set(value);
+    // A multi-select chip decoded from a single URL param arrives as a scalar;
+    // wrap it so active() and isSelected() can treat it uniformly as an array.
+    const normalized = this.multiple() && !Array.isArray(value) && value != null ? [value] : value;
+    this._value.set(normalized);
     this.committedCount.set(this.selectedCount());
   }
 

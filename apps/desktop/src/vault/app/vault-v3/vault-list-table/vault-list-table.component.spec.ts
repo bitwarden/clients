@@ -56,22 +56,6 @@ describe("VaultListTableComponent", () => {
     await setup();
   });
 
-  describe("initialFilterValues", () => {
-    it("returns an empty object when initialSearchText is not set", () => {
-      expect(component["initialFilterValues"]()).toEqual({});
-    });
-
-    it("returns an empty object when initialSearchText is an empty string", () => {
-      fixture.componentRef.setInput("initialSearchText", "");
-      expect(component["initialFilterValues"]()).toEqual({});
-    });
-
-    it("returns a search entry when initialSearchText has a value", () => {
-      fixture.componentRef.setInput("initialSearchText", "amazon");
-      expect(component["initialFilterValues"]()).toEqual({ search: "amazon" });
-    });
-  });
-
   describe("itemAction", () => {
     it("emits a viewCipher event for any cipher", () => {
       const cipher = cipherView();

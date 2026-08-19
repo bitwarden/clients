@@ -7,6 +7,7 @@
   [loading]="loading()"
   [selection]="selection"
   [virtualRowHeight]="56"
+  [queryParam]="filterNamespace"
   height="fill"
   (selectedChange)="selectedChange.emit($event)"
 >
@@ -16,7 +17,11 @@
     <!-- Page-level controls (Import, Add, ...) are the host's concern, not the table's. -->
     <ng-content select="[slot=toolbar]" slot="end"></ng-content>
 
-    <bit-filter-menu key="type" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
+    <bit-filter-menu
+      [key]="filterKeys.type"
+      [placeholderText]="'type' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
       @for (cipherType of availableCipherTypes(); track cipherType) {
         <bit-filter-option [value]="cipherType">
           {{ cipherTypeLabel(cipherType) | i18n }}
@@ -31,7 +36,7 @@
       `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
     -->
     <bit-filter-toggle
-      key="favorites"
+      [key]="filterKeys.favorites"
       [label]="'favorites' | i18n"
       icon="bwi-star"
       iconActive="bwi-star-f"
@@ -41,7 +46,7 @@
     ></bit-filter-toggle>
 
     @if (multipleVaults()) {
-      <bit-filter-menu key="vault" [placeholderText]="'vault' | i18n" multiple>
+      <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
           <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
         }
@@ -52,7 +57,11 @@
     }
 
     @if (showSharedFolders()) {
-      <bit-filter-menu key="sharedFolder" [placeholderText]="'sharedFolders' | i18n" multiple>
+      <bit-filter-menu
+        [key]="filterKeys.sharedFolder"
+        [placeholderText]="'sharedFolders' | i18n"
+        multiple
+      >
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {
             <bit-filter-section [label]="group.name" collapsible>
@@ -70,7 +79,7 @@
     }
 
     <bit-filter-menu
-      key="folder"
+      [key]="filterKeys.folder"
       [placeholderText]="'myFolders' | i18n"
       multiple
       [disabled]="noFolders()"
@@ -176,7 +185,7 @@
         [chips]="sharedFolderChips(row)"
         icon="bwi-shared-folder"
         [emptyLabel]="'noSharedFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, 'sharedFolder', $event)"
+        (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
       />
     </bit-cell>
   </bit-column>
@@ -189,7 +198,7 @@
         [chips]="folderChips(row)"
         icon="bwi-folder"
         [emptyLabel]="'noneFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, 'folder', $event)"
+        (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
       />
     </bit-cell>
   </bit-column>
