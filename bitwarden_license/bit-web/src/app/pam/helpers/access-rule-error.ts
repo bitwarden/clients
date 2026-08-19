@@ -4,18 +4,21 @@ import { accessRuleErrorMessage, isAccessRuleNotFound } from "../abstractions/ac
 export type AccessRuleErrorField = "name" | "collections" | "maxExtensionDurationSeconds";
 
 /**
- * The server's access-rule refusals, matched as prose since no machine-readable code crosses the
- * wire. Conditions-document failures are absent, since they are client bugs. `NameRequiredLocally`
- * is the SDK's own pre-HTTP message.
+ * The access-rule endpoints' error catalog, as the server words it, paired with the copy we show
+ * instead. Reproduced here rather than imported because the strings cross the wire as prose: the
+ * SDK surfaces a server 400 as an `AccessRuleError` with `variant: "Api"` and the whole serialized
+ * response body on `.message` — envelope, exception message and server-side stack trace included —
+ * with no machine-readable code to switch on. When the server grows a code, this catalog is the
+ * single place to retire.
+ *
+ * Sourced from `AccessRuleWriteValidator` and the create/update commands. The conditions-document
+ * failures raised by `AccessRuleValidator` ("Conditions must be an array.", and its siblings) are
+ * deliberately absent: the edit form builds that document itself, so any of them is a client bug
+ * the admin cannot act on, and the generic system-error copy is the honest thing to show.
  */
 export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
   NameRequired: {
     serverMessage: "Name is required.",
-    messageKey: "pamAccessRuleNameRequired",
-    field: "name",
-  },
-  NameRequiredLocally: {
-    serverMessage: "Name must be between 1 and 256 characters",
     messageKey: "pamAccessRuleNameRequired",
     field: "name",
   },
@@ -50,8 +53,13 @@ export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
 >);
 
 /**
- * `mapped` names something the admin can correct, never offered as a retry since resending would
- * fail identically. Everything else is `generic`, as the server's own words carry filesystem paths.
+ * How the UI should report a rejected access-rule read, write or delete.
+ *
+ * The distinction is whether the admin can act on it. A `mapped` outcome names something they can
+ * change, so it is offered as correctable copy — and, on the write path, never with a retry
+ * affordance, since resending the same values would fail identically. Everything else is `generic`:
+ * the server's own words are unfit for display (they carry its filesystem paths) and unfit for
+ * logging, so the caller shows its own system-error copy.
  */
 export type AccessRuleErrorOutcome =
   | {
@@ -62,8 +70,13 @@ export type AccessRuleErrorOutcome =
   | { readonly kind: "generic" };
 
 /**
- * Returns i18n keys only. The raw error never leaves this function, since its message is the
- * server's serialized response and would publish filesystem paths if shown or logged.
+ * Classify a rejected access-rule call. The returned outcome carries i18n keys only — the raw
+ * error never leaves this function, which is the point: its message is the server's serialized
+ * response, and putting it on screen or in a log would publish the server's filesystem paths.
+ *
+ * Matched with `includes` rather than equality: the wire body wraps the server's sentence in a JSON
+ * envelope and repeats it in `exceptionMessage`. The catalog entries are whole, distinct sentences,
+ * so a substring match is unambiguous while tolerating that framing.
  */
 export function classifyAccessRuleError(e: unknown): AccessRuleErrorOutcome {
   if (isAccessRuleNotFound(e)) {
