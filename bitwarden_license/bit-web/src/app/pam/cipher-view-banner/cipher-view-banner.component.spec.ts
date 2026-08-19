@@ -77,6 +77,11 @@ function preCheck(overrides: Partial<AccessPreCheckView> = {}): AccessPreCheckVi
     cipherId: "cipher-1",
     approvalMode: "automatic",
     hasActiveLease: false,
+    // The SDK resolves both bounds for every pre-check (falling back to the global ones), so they
+    // are always present on the wire; a fixture omitting them would leave the duration control
+    // empty and every submit path invalid.
+    defaultDurationSeconds: 3600,
+    maxDurationSeconds: 86_400,
     ...overrides,
   } as unknown as AccessPreCheckView;
 }
@@ -113,6 +118,10 @@ describe("CipherViewBannerComponent", () => {
 
   function query(selector: string): HTMLElement | null {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
+  }
+
+  function queryAll(selector: string): HTMLElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll(selector)) as HTMLElement[];
   }
 
   beforeEach(() => {
@@ -291,6 +300,97 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_input_date")).not.toBeNull();
       expect(component["humanForm"].getRawValue().date).not.toBe("");
       expect(component["humanForm"].getRawValue().start).not.toBe("");
+    });
+
+    // PM-39858: the picker offered a hardcoded 15m-24h preset list and pre-selected 1h, whatever the
+    // governing rule allowed. Both now come from the pre-check's bounds.
+    it("narrows the duration picker to the rule's maximum", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "automatic",
+          defaultDurationSeconds: 900,
+          maxDurationSeconds: 1800,
+        }),
+      );
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(component["durationOptions"]().map((o) => o.seconds)).toEqual([900, 1800]);
+      const rendered = queryAll("#pam-cipher-view-banner_select_duration option").map((o) =>
+        o.textContent?.trim(),
+      );
+      expect(rendered).toHaveLength(2);
+    });
+
+    it("pre-selects the rule's default duration rather than a hardcoded hour", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "automatic",
+          defaultDurationSeconds: 900,
+          maxDurationSeconds: 1800,
+        }),
+      );
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+
+      expect(component["automaticForm"].getRawValue().durationSeconds).toBe(900);
+    });
+
+    it("seeds the human path's window from the rule's default duration", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", defaultDurationSeconds: 900, maxDurationSeconds: 1800 }),
+      );
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+
+      const { start, end } = component["humanForm"].getRawValue();
+      const spanMinutes =
+        (Date.parse(`2026-01-01T${end}`) - Date.parse(`2026-01-01T${start}`)) / 60_000;
+      expect(spanMinutes).toBe(15);
+    });
+
+    it("validates the human path's window against the rule's maximum", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", defaultDurationSeconds: 900, maxDurationSeconds: 1800 }),
+      );
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+
+      // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
+      component["humanForm"].patchValue({ date: "2026-08-17", start: "09:00", end: "11:00" });
+      fixture.detectChanges();
+
+      expect(component["windowExceedsMax"]()).toBe(true);
+      expect(component["humanForm"].invalid).toBe(true);
+    });
+
+    it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "automatic",
+          defaultDurationSeconds: 900,
+          maxDurationSeconds: 1800,
+        }),
+      );
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      await component["toggleRequestForm"]();
+
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({
+          approvalMode: "automatic",
+          defaultDurationSeconds: 3600,
+          maxDurationSeconds: 86_400,
+        }),
+      );
+      await component["toggleRequestForm"]();
+
+      expect(component["automaticForm"].getRawValue().durationSeconds).toBe(3600);
+      expect(component["maxWindowSeconds"]()).toBe(86_400);
     });
 
     it("collapses without asking when the pre-check reports a lease raced in", async () => {

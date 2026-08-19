@@ -37,14 +37,19 @@ import {
   AccessRequestSdkService,
   DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
   LeasingErrorService,
+  MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
+  type RequestDurationOption,
   classifyRequestAccessError,
   composeRequestWindow,
   defaultRequestWindow,
+  requestDurationOptions,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
+import { DurationLongPipe } from "../date/duration-long.pipe";
+import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatRemaining } from "../date/format-remaining";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
@@ -87,6 +92,8 @@ import {
     ReactiveFormsModule,
     TypographyModule,
     AccessStateBadgeComponent,
+    DurationLongPipe,
+    DurationShortPipe,
     I18nPipe,
   ],
 })
@@ -190,7 +197,31 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly loadingRequestForm = signal(false);
   protected readonly requestError = signal<string | null>(null);
 
-  protected readonly durationOptions = REQUEST_ACCESS_DURATION_PRESETS;
+  /**
+   * The duration bounds the pre-check resolved from the governing rule — `null` until the fold-out
+   * runs it. Both paths read the cap from here rather than from a local constant, so the picker and
+   * the window validator can only offer what submit will accept.
+   */
+  private readonly requestBounds = signal<{ defaultSeconds: number; maxSeconds: number } | null>(
+    null,
+  );
+
+  /**
+   * The requester's duration choices for the resolved rule, narrowed to its cap. Falls back to the
+   * unnarrowed presets before the pre-check lands, which is only ever a transient state: the
+   * fold-out renders no form until `requestMode` is set, and that happens with the bounds.
+   */
+  protected readonly durationOptions = computed<readonly RequestDurationOption[]>(() => {
+    const bounds = this.requestBounds();
+    return bounds == null
+      ? REQUEST_ACCESS_DURATION_PRESETS
+      : requestDurationOptions(bounds.maxSeconds, bounds.defaultSeconds);
+  });
+
+  /** The cap the human path's window must fit inside, for the message under the time fields. */
+  protected readonly maxWindowSeconds = computed(
+    () => this.requestBounds()?.maxSeconds ?? MAX_REQUEST_ACCESS_WINDOW_SECONDS,
+  );
 
   protected readonly automaticForm = this.formBuilder.nonNullable.group({
     durationSeconds: [DEFAULT_REQUEST_ACCESS_DURATION_SECONDS, Validators.required],
@@ -204,7 +235,10 @@ export class CipherViewBannerComponent implements OnInit {
       end: ["", Validators.required],
       reason: ["", [Validators.required, nonBlank]],
     },
-    { validators: [requestWindowValidator] },
+    // Reads the cap through the signal on every run, so a fold-out re-opened against a different
+    // rule validates against that rule's maximum rather than the one in force when the form was
+    // built.
+    { validators: [requestWindowValidator(() => this.maxWindowSeconds())] },
   );
 
   protected readonly windowEndBeforeStart = computed(
@@ -252,6 +286,7 @@ export class CipherViewBannerComponent implements OnInit {
 
     this.requestError.set(null);
     this.requestMode.set(null);
+    this.requestBounds.set(null);
     this.automaticForm.reset({
       durationSeconds: DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
       reason: "",
@@ -269,12 +304,22 @@ export class CipherViewBannerComponent implements OnInit {
         this.notifyAccessChanged();
         return;
       }
+
+      // The rule's bounds, before either form is seeded: the automatic path's picker is built from
+      // them and the human path's default window is measured against them.
+      const bounds = {
+        defaultSeconds: preCheck.defaultDurationSeconds,
+        maxSeconds: preCheck.maxDurationSeconds,
+      };
+      this.requestBounds.set(bounds);
+
       if (preCheck.approvalMode === "human") {
-        const { date, start, end } = defaultRequestWindow(
-          new Date(),
-          DEFAULT_REQUEST_ACCESS_DURATION_SECONDS,
-        );
+        const { date, start, end } = defaultRequestWindow(new Date(), bounds.defaultSeconds);
         this.humanForm.patchValue({ date: date ?? "", start: start ?? "", end: end ?? "" });
+      } else {
+        // Pre-select the rule's own default rather than a hardcoded hour. `requestDurationOptions`
+        // guarantees it is one of the offered options, so the select cannot render blank.
+        this.automaticForm.patchValue({ durationSeconds: bounds.defaultSeconds });
       }
       this.requestMode.set(preCheck.approvalMode);
     } catch (e) {
