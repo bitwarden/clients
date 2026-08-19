@@ -118,8 +118,8 @@ export const KitchenSinkVfo1: Story = {
           <bit-breadcrumb>Foo</bit-breadcrumb>
           <bit-breadcrumb>Bar</bit-breadcrumb>
         </bit-breadcrumbs>
+        <button bitButton>Click Me 🎉</button>
         <button bitButton buttonType="primary">New</button>
-        <button bitButton slot="secondary">Click Me 🎉</button>
         <bit-tab-nav-bar slot="tabs">
           <bit-tab-link [route]="['foo']">Foo</bit-tab-link>
           <bit-tab-link [route]="['bar']">Bar</bit-tab-link>
@@ -255,18 +255,6 @@ export const WithSecondaryContent: Story = {
     </bit-header>
   `,
   }),
-};
-
-export const WithSecondaryContentVfo1: Story = {
-  render: (args) => ({
-    props: args,
-    template: /*html*/ `
-    <bit-header title="Foobar" icon="bwi-bug" class="tw-text-main">
-      <button bitButton slot="secondary">Click Me 🎉</button>
-    </bit-header>
-  `,
-  }),
-  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const BreadcrumbsWithPrimaryContent: Story = {

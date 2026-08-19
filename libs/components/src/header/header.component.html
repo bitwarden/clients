@@ -10,10 +10,6 @@
   <ng-content></ng-content>
 </ng-template>
 
-<ng-template #secondaryContent>
-  <ng-content select="[slot=secondary]"></ng-content>
-</ng-template>
-
 <ng-template #tabsContent>
   <ng-content select="[slot=tabs]"></ng-content>
 </ng-template>
@@ -31,7 +27,7 @@
           <h1
             bitTypography="h1"
             noMargin
-            class="tw-m-0 tw-mr-2 tw-leading-10 tw-flex tw-gap-1"
+            class="tw-m-0 tw-me-2 tw-leading-10 tw-flex tw-gap-1"
             [title]="title()"
           >
             <div class="tw-truncate">
@@ -47,13 +43,8 @@
           </h1>
         }
       </div>
-      <div class="tw-ml-auto tw-flex tw-flex-col tw-gap-4">
-        <div class="tw-flex tw-min-w-max tw-items-center tw-justify-end tw-gap-2 empty:tw-hidden">
-          <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
-        </div>
-        <div class="tw-flex tw-min-w-max tw-justify-end empty:tw-hidden">
-          <ng-container *ngTemplateOutlet="secondaryContent"></ng-container>
-        </div>
+      <div class="tw-flex tw-min-w-max tw-items-start tw-justify-end tw-gap-3 empty:tw-hidden">
+        <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
       </div>
     </div>
     <div data-tabs class="-tw-mb-px empty:tw-hidden">
@@ -90,7 +81,7 @@
           <ng-container *ngTemplateOutlet="defaultContent"></ng-container>
         </div>
         <div class="tw-ml-auto empty:tw-hidden">
-          <ng-container *ngTemplateOutlet="secondaryContent"></ng-container>
+          <ng-content select="[slot=secondary]"></ng-content>
         </div>
       </div>
     </div>
