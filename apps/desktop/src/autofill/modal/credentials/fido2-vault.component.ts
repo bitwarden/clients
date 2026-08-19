@@ -4,7 +4,6 @@ import { RouterModule, Router } from "@angular/router";
 import { map, combineLatest, of, Observable, switchMap, catchError } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { BitwardenShield } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -17,7 +16,6 @@ import {
   ButtonModule,
   DialogModule,
   DialogService,
-  SvgModule,
   ItemModule,
   SectionComponent,
   TableModule,
@@ -38,7 +36,6 @@ import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-u
     BitIconButtonComponent,
     TableModule,
     I18nPipe,
-    SvgModule,
     ButtonModule,
     DialogModule,
     SectionComponent,
@@ -60,7 +57,6 @@ export class Fido2VaultComponent {
 
   readonly session = this.fido2UserInterfaceService.getCurrentSession();
   readonly ciphers$: Observable<CipherViewLike[]> = this.buildCiphers$();
-  readonly Icons = { BitwardenShield };
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
   async chooseCipher(cipher: CipherViewLike): Promise<void> {
