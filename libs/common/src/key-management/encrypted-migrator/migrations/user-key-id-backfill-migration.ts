@@ -40,7 +40,7 @@ export class UserKeyIdBackfillMigration implements EncryptedMigration {
     assertNonNullish(userId, "userId");
 
     try {
-      if (!(await this.serverIsMissingKeyId(userId))) {
+      if (!(await this.needsBackfill(userId))) {
         return "noMigrationNeeded";
       }
 
@@ -48,7 +48,7 @@ export class UserKeyIdBackfillMigration implements EncryptedMigration {
       // reads as "missing". Another device may also have backfilled since the last sync, and the
       // server rejects a second write.
       await this.syncService.fullSync(false);
-      if (!(await this.serverIsMissingKeyId(userId))) {
+      if (!(await this.needsBackfill(userId))) {
         this.logService.info(
           `[UserKeyIdBackfillMigration] After syncing, user ${userId} does not need migration anymore. This means the migration was likely already performed on another client!`,
         );
@@ -68,7 +68,7 @@ export class UserKeyIdBackfillMigration implements EncryptedMigration {
    * Whether the SDK reports that the server holds no id for the current UserKey. Always false for
    * V1 user keys, which carry no key id to record.
    */
-  private async serverIsMissingKeyId(userId: UserId): Promise<boolean> {
+  private async needsBackfill(userId: UserId): Promise<boolean> {
     return await withPasswordManagerSdk(
       userId,
       this.sdkService,
