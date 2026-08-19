@@ -139,7 +139,6 @@ describe("AccessRulesComponent — activation toasts", () => {
     rules: AccessRuleView[],
   ): Promise<ComponentFixture<AccessRulesComponent>> => {
     showToast = jest.fn();
-    // Echo the request back as the updated rule; only the toast is under test here.
     const updateAccessRule = jest
       .fn()
       .mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
