@@ -1,10 +1,14 @@
 import { ChangeDetectionStrategy, Component, input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, map, of, ReplaySubject, Subject } from "rxjs";
+import { BehaviorSubject, map, of, ReplaySubject, Subject, throwError } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
-import { VaultHealthReportView } from "@bitwarden/bit-common/dirt/vault-health/models";
+import {
+  VAULT_HEALTH_REPORT_IDLE,
+  VaultHealthReportState,
+  VaultHealthReportView,
+} from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
 import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/pop-out.component";
@@ -90,25 +94,41 @@ describe("HealthComponent", () => {
   let reportService: MockProxy<VaultHealthReportService>;
   let logService: MockProxy<LogService>;
   /**
-   * Stands in for the service's published report. Scoped by user, exactly as
-   * DefaultVaultHealthReportService is, so a report published for one account is
+   * Stands in for the service's published state. Scoped by user, exactly as
+   * DefaultVaultHealthReportService is, so a state published for one account is
    * invisible to the next.
    */
-  let published: BehaviorSubject<{ userId: UserId; report: VaultHealthReportView } | null>;
+  let published: BehaviorSubject<{ userId: UserId; state: VaultHealthReportState } | null>;
 
   /**
-   * Makes a build publish `report` and then resolve, which is the contract the
-   * root depends on: the report is readable by the time the promise settles.
+   * Makes a build publish `loading` and then `success`, mirroring the real
+   * service. The publish happens before the promise resolves, exactly as the
+   * implementation does it.
    */
   function publishesOnBuild(report: VaultHealthReportView) {
     reportService.buildVaultHealthReport.mockImplementation(async (_ciphers, id) => {
-      published.next({ userId: id, report });
+      published.next({ userId: id, state: { status: "loading" } });
+      published.next({ userId: id, state: { status: "success", report } });
     });
   }
 
-  /** Leaves a build in flight forever, so the scan never completes. */
+  /**
+   * Makes a build fail the way the real service does: it publishes `error` and
+   * resolves, rather than rejecting.
+   */
+  function publishesErrorOnBuild() {
+    reportService.buildVaultHealthReport.mockImplementation(async (_ciphers, id) => {
+      published.next({ userId: id, state: { status: "loading" } });
+      published.next({ userId: id, state: { status: "error" } });
+    });
+  }
+
+  /** Leaves a build in flight forever, so generation never completes. */
   function buildNeverSettles() {
-    reportService.buildVaultHealthReport.mockReturnValue(new Promise<void>(() => {}));
+    reportService.buildVaultHealthReport.mockImplementation((_ciphers, id) => {
+      published.next({ userId: id, state: { status: "loading" } });
+      return new Promise<void>(() => {});
+    });
   }
 
   /** Creates the component and flushes the microtask that writes the state. */
@@ -165,13 +185,21 @@ describe("HealthComponent", () => {
     cipherService.cipherViews$.mockReturnValue(of([] as CipherView[]));
 
     reportService = mock<VaultHealthReportService>();
-    // Mirror the real service: buildVaultHealthReport publishes the report and
-    // resolves void, and getVaultHealthReport$ replays whatever was published.
-    // The publish happens before the promise resolves, exactly as the
-    // implementation does it, so a read after the build sees the fresh report.
-    published = new BehaviorSubject<{ userId: UserId; report: VaultHealthReportView } | null>(null);
+    // Mirror the real service: buildVaultHealthReport publishes state and
+    // resolves void, and the read streams are scoped to a single user so one
+    // account's state is invisible to the next.
+    published = new BehaviorSubject<{ userId: UserId; state: VaultHealthReportState } | null>(null);
+    reportService.getVaultHealthReportState$.mockImplementation((id) =>
+      published.pipe(
+        map((scoped) => (scoped?.userId === id ? scoped.state : VAULT_HEALTH_REPORT_IDLE)),
+      ),
+    );
     reportService.getVaultHealthReport$.mockImplementation((id) =>
-      published.pipe(map((scoped) => (scoped?.userId === id ? scoped.report : null))),
+      published.pipe(
+        map((scoped) =>
+          scoped?.userId === id && scoped.state.status === "success" ? scoped.state.report : null,
+        ),
+      ),
     );
     publishesOnBuild(new VaultHealthReportView());
 
@@ -290,11 +318,11 @@ describe("HealthComponent", () => {
     });
 
     it("renders the report the service published, not a locally held copy", async () => {
-      // The scan has to publish through the service, because /health/:category
+      // Generation has to publish through the service, because /health/:category
       // is a sibling route rather than a child: this component is destroyed on
       // navigation, and HealthRiskCategoryDetailComponent reads the report from
-      // getVaultHealthReport$ alone, bouncing back here when it is null. Keeping
-      // the result only in this component's own state would compile and quietly
+      // the service alone, bouncing back here when it is null. Keeping the
+      // result only in this component's own state would compile and quietly
       // break every category row, so pin the read path.
       hasRunScan$.next(true);
       publishesOnBuild(new VaultHealthReportView({ totalCount: 40, atRiskCount: 7 }));
@@ -302,13 +330,15 @@ describe("HealthComponent", () => {
       await initComponent();
       await settle();
 
-      expect(reportService.getVaultHealthReport$).toHaveBeenCalledWith(userId);
+      expect(reportService.getVaultHealthReportState$).toHaveBeenCalledWith(userId);
       expect(overview()?.report().atRiskCount).toBe(7);
     });
 
-    it("shows the scan failure view when the scan fails", async () => {
+    it("shows the scan failure view when report generation fails", async () => {
+      // The service publishes a failure as state rather than rejecting, so this
+      // is the path a real HIBP failure takes. The service logs it, not us.
       hasRunScan$.next(true);
-      reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
+      publishesErrorOnBuild();
 
       await initComponent();
       await settle();
@@ -318,14 +348,48 @@ describe("HealthComponent", () => {
       expect(scanning()).toBeNull();
     });
 
-    it("logs the error when the scan fails", async () => {
+    it("shows the scan failure view and logs when the ciphers stream fails", async () => {
+      // A cipherViews$ failure never reaches the report service, so the service
+      // cannot log it and cannot publish an error state for it. Without the
+      // pipeline's own catch the stream would tear down and strand the user on
+      // the progress view, so both halves are pinned here.
       hasRunScan$.next(true);
-      reportService.buildVaultHealthReport.mockRejectedValue(new Error("HIBP unavailable"));
+      cipherService.cipherViews$.mockReturnValue(
+        throwError(() => new Error("ciphers unavailable")) as never,
+      );
 
       await initComponent();
       await settle();
 
-      expect(logService.error).toHaveBeenCalledWith("Vault health scan failed", expect.anything());
+      expect(scanError()).not.toBeNull();
+      expect(scanning()).toBeNull();
+      expect(logService.error).toHaveBeenCalledWith(
+        "Vault health scan pipeline failed",
+        expect.anything(),
+      );
+    });
+
+    it("reflects a report the service publishes after generation completed", async () => {
+      // The tab follows the service's state rather than taking the first report
+      // and stopping, so removing an at-risk item from the report (which the
+      // delete dialog does through the service) reaches the overview.
+      hasRunScan$.next(true);
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 10, atRiskCount: 4 }));
+
+      await initComponent();
+      await settle();
+      expect(overview()?.report().atRiskCount).toBe(4);
+
+      published.next({
+        userId,
+        state: {
+          status: "success",
+          report: new VaultHealthReportView({ totalCount: 9, atRiskCount: 3 }),
+        },
+      });
+      await settle();
+
+      expect(overview()?.report().atRiskCount).toBe(3);
     });
 
     it("does not scan the replayed null from cipherViews$, which would report a permanently healthy vault", async () => {

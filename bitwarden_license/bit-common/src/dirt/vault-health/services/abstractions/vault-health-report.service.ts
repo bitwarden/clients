@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { RiskCategory } from "../../models";
+import { RiskCategory, VaultHealthReportState } from "../../models";
 import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 
 /**
@@ -13,22 +13,34 @@ import { VaultHealthReportView } from "../../models/view/vault-health-report.vie
  * logins in scope, runs the password-health checks via the Vault-owned
  * CipherRiskService (does not re-implement report logic), categorizes and
  * deduplicates the results (highest-risk-wins: Exposed > Weak > Reused), and
- * computes the vault-health score. The caller (the Health-tab root component)
- * owns fetching the ciphers and deciding when to recompute; this service owns
- * the resulting report state and publishes it to every Health page.
+ * computes the vault-health score. The caller owns fetching the ciphers and
+ * deciding when to recompute; this service owns the report and the state of
+ * generating it, and publishes both to every Health page.
  */
 export abstract class VaultHealthReportService {
   /**
    * Builds the aggregated vault-health report from the given ciphers and
-   * publishes it for `userId`. Errors from the underlying risk computation
-   * (e.g. an HIBP failure) propagate so the caller can route to the
-   * scan-failure state (PM-39223); they are not swallowed here.
+   * publishes it for `userId`.
+   *
+   * Publishes `loading` before starting and then `success` or `error`, so a
+   * failure in the underlying risk computation (e.g. an HIBP failure) surfaces
+   * through `getVaultHealthReportState$` rather than as a rejection. Callers
+   * read the outcome from that stream rather than catching failures from this
+   * call.
    */
   abstract buildVaultHealthReport(ciphers: CipherView[], userId: UserId): Promise<void>;
 
+  /**
+   * Where report generation is for `userId`.
+   * @returns an observable that emits the current state, starting at `idle`
+   * until a build is started for that user
+   */
+  abstract getVaultHealthReportState$(userId: UserId): Observable<VaultHealthReportState>;
+
   /** Get the latest vault health scan report for a user, run buildVaultHealthReport first to generate the report.
    * @returns an observable that emits the latest report built for `userId`, or
-   * null until a scan completes for that user
+   * null unless generation succeeded for that user. Convenience view over
+   * `getVaultHealthReportState$` for callers that only need the report.
    */
   abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportView | null>;
 

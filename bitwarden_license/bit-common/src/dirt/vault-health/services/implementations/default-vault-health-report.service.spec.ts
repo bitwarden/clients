@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -9,6 +10,7 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import type { CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
+import { VaultHealthReportState } from "../../models/vault-health-report-state";
 import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 
 import { DefaultVaultHealthReportService } from "./default-vault-health-report.service";
@@ -17,6 +19,7 @@ describe("DefaultVaultHealthReportService", () => {
   const userId = "test-user-id" as UserId;
 
   let cipherRiskService: ReturnType<typeof mock<CipherRiskService>>;
+  let logService: ReturnType<typeof mock<LogService>>;
   let service: DefaultVaultHealthReportService;
 
   // Per-test lookup so risk results are returned for exactly the ciphers passed,
@@ -28,6 +31,7 @@ describe("DefaultVaultHealthReportService", () => {
 
   beforeEach(() => {
     cipherRiskService = mock<CipherRiskService>();
+    logService = mock<LogService>();
     riskById = new Map();
     destroy$ = new Subject<void>();
 
@@ -36,7 +40,7 @@ describe("DefaultVaultHealthReportService", () => {
       ciphers.map((c) => riskById.get(c.id)!),
     );
 
-    service = new DefaultVaultHealthReportService(cipherRiskService);
+    service = new DefaultVaultHealthReportService(cipherRiskService, logService);
   });
 
   afterEach(() => {
@@ -204,13 +208,63 @@ describe("DefaultVaultHealthReportService", () => {
     expect(passed.map((c) => c.id)).toEqual(["personal"]);
   });
 
-  it("propagates errors from the risk computation instead of swallowing them", async () => {
+  it("publishes an error state instead of rejecting when the risk computation fails", async () => {
+    // Callers route to the scan-failure view off this state (PM-39223). Rejecting
+    // as well would mean every caller still needed its own catch, so the failure
+    // travels one way only.
     const ciphers = withRisks([{ cipher: login("a"), risk: risk("a") }]);
     cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(new Error("HIBP unavailable"));
 
-    await expect(service.buildVaultHealthReport(ciphers, userId)).rejects.toThrow(
-      "HIBP unavailable",
-    );
+    await expect(service.buildVaultHealthReport(ciphers, userId)).resolves.toBeUndefined();
+
+    await expect(firstValueFrom(service.getVaultHealthReportState$(userId))).resolves.toEqual({
+      status: "error",
+    });
+  });
+
+  it("logs the failure so a failed report is identifiable in a log dump", async () => {
+    // Asked for in review: the failure is logged where it happens, so it is
+    // captured for every caller rather than only the Health tab.
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a") }]);
+    const failure = new Error("HIBP unavailable");
+    cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(failure);
+
+    await service.buildVaultHealthReport(ciphers, userId);
+
+    expect(logService.error).toHaveBeenCalledWith("Vault health report generation failed", failure);
+  });
+
+  it("keeps the previous report readable when a rescan fails", async () => {
+    // The failure is carried by the state, not by blanking the report. Dropping
+    // the report would eject anyone reading a category detail view, which routes
+    // away from itself on a null report.
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+    await service.buildVaultHealthReport(ciphers, userId);
+    cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(new Error("HIBP unavailable"));
+
+    await service.buildVaultHealthReport(ciphers, userId);
+
+    await expect(firstValueFrom(service.getVaultHealthReportState$(userId))).resolves.toEqual({
+      status: "error",
+    });
+    const retained = await firstValueFrom(service.getVaultHealthReport$(userId));
+    expect(cipherIds(retained!.categoryItems.exposed)).toEqual(["a"]);
+  });
+
+  it("does not blink the report to null while a rescan is in flight", async () => {
+    // getVaultHealthReport$ is the accessor the detail view uses, and it must not
+    // emit null just because a new generation started.
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+    await service.buildVaultHealthReport(ciphers, userId);
+    const emissions: (VaultHealthReportView | null)[] = [];
+    service
+      .getVaultHealthReport$(userId)
+      .pipe(takeUntil(destroy$))
+      .subscribe((report) => emissions.push(report));
+
+    await service.buildVaultHealthReport(ciphers, userId);
+
+    expect(emissions.every((report) => report !== null)).toBe(true);
   });
 
   it("enables the exposed check and passes the pre-built reuse map", async () => {
@@ -249,6 +303,58 @@ describe("DefaultVaultHealthReportService", () => {
     expect(cipherIds(result.categoryItems.exposed)).toEqual(["a"]);
     expect(cipherIds(result.categoryItems.weak)).toEqual(["b"]);
     expect(cipherIds(result.categoryItems.reused)).toEqual(["c"]);
+  });
+
+  // --- the published generation state --------------------------------------
+
+  describe("getVaultHealthReportState$", () => {
+    it("emits idle before any generation has started", async () => {
+      await expect(firstValueFrom(service.getVaultHealthReportState$(userId))).resolves.toEqual({
+        status: "idle",
+      });
+    });
+
+    it("publishes loading before the report resolves, then success", async () => {
+      // The Health tab renders its progress view off loading, so it has to be
+      // observable while the build is still in flight rather than only after.
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      const seen: VaultHealthReportState[] = [];
+      service
+        .getVaultHealthReportState$(userId)
+        .pipe(takeUntil(destroy$))
+        .subscribe((state) => seen.push(state));
+
+      const build = service.buildVaultHealthReport(ciphers, userId);
+      expect(seen.map((state) => state.status)).toEqual(["idle", "loading"]);
+
+      await build;
+
+      expect(seen.map((state) => state.status)).toEqual(["idle", "loading", "success"]);
+    });
+
+    it("carries the report on the success state", async () => {
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      const state = await firstValueFrom(service.getVaultHealthReportState$(userId));
+
+      expect(state.status).toBe("success");
+      expect(state.status === "success" && cipherIds(state.report.categoryItems.exposed)).toEqual([
+        "a",
+      ]);
+    });
+
+    it("does not emit one user's state to another", async () => {
+      // Scoped per user for the same reason the report is: account B must never
+      // read anything belonging to account A.
+      const otherUserId = "other-user-id" as UserId;
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      await expect(
+        firstValueFrom(service.getVaultHealthReportState$(otherUserId)),
+      ).resolves.toEqual({ status: "idle" });
+    });
   });
 
   // --- the published report ------------------------------------------------
