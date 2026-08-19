@@ -97,7 +97,7 @@ export class CriticalApplicationsTabComponent {
   );
 
   protected readonly enableRequestPasswordChange = computed(
-    () => this.unassignedCipherIds().length > 0,
+    () => this.report() && this.report()!.summary.totalAtRiskMemberCount > 0,
   );
 
   protected readonly helpMembersOpen = computed(
