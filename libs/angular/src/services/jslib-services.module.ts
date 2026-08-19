@@ -1784,6 +1784,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
