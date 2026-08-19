@@ -91,7 +91,9 @@ export type DurationUnit = "day" | "hour" | "minute" | "second";
  *
  * Kept as bare value/unit data (no formatting) so locale-specific rendering
  * — `Intl.NumberFormat`'s `style: "unit"` — happens where the display
- * concern belongs: {@link DurationShortPipe} in the `access-rules` view.
+ * concern belongs: the `date/` duration pipes, spelled out (`durationLong`)
+ * in the `access-rules` table and compact (`durationShort`) in the
+ * `access-requests` tabs.
  */
 export function pickDurationUnit(seconds: number): { value: number; unit: DurationUnit } {
   const divisions: { seconds: number; unit: DurationUnit }[] = [

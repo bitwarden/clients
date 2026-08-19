@@ -61,7 +61,7 @@
           <th bitCell bitSortable="revisionDate" default="desc" [fn]="sortByRevisionDate">
             {{ "pamAccessRuleLastModified" | i18n }}
           </th>
-          <th bitCell class="tw-w-0"></th>
+          <th bitCell class="tw-w-0">{{ "options" | i18n }}</th>
         </tr>
       </ng-container>
       <ng-template body let-rows$>
@@ -95,9 +95,7 @@
           </td>
           <td bitCell>
             @if (r.maxLeaseDurationSeconds; as maxSeconds) {
-              <span bitBadge variant="subtle" startIcon="bwi-clock">{{
-                maxSeconds | durationShort
-              }}</span>
+              {{ maxSeconds | durationLong }}
             } @else {
               <span class="tw-text-muted">{{ "pamAccessRuleMaxDurationNoCap" | i18n }}</span>
             }
@@ -106,7 +104,9 @@
             @if (r.enabled) {
               <span bitBadge variant="success">{{ "pamAccessRuleActive" | i18n }}</span>
             } @else {
-              <span bitBadge variant="subtle">{{ "pamAccessRuleInactive" | i18n }}</span>
+              <span bitBadge variant="subtle" startIcon="bwi-subtract-circle">{{
+                "pamAccessRuleInactive" | i18n
+              }}</span>
             }
           </td>
           <td bitCell>
@@ -122,8 +122,13 @@
               label="{{ 'options' | i18n }}"
             ></button>
             <bit-menu #rowMenu>
+              <!--
+                Edit stays first: `bitMenuTriggerFor` focuses the first item on every open,
+                so a stray Enter must land on a navigation, not on the unconfirmed
+                activate/deactivate toggle.
+              -->
               <button type="button" bitMenuItem (click)="openEdit(r)">
-                <bit-icon name="bwi-pencil-square" class="tw-text-muted" />
+                <bit-icon name="bwi-pencil" class="tw-text-muted" />
                 {{ "edit" | i18n }}
               </button>
               <button type="button" bitMenuItem (click)="duplicate(r)">
@@ -158,14 +163,14 @@
 
     <bit-bulk-actions-bar [selectedCount]="selectedCount()" (clear)="clearSelection()">
       <bit-bulk-action
-        [action]="bulkEnable"
-        icon="bwi-check-circle"
-        [label]="'pamAccessRuleBulkActivate' | i18n"
+        [action]="bulkDeactivate"
+        icon="bwi-subtract-circle"
+        [label]="'pamAccessRuleBulkDeactivate' | i18n"
       />
       <bit-bulk-action
-        [action]="bulkDisable"
-        icon="bwi-circle"
-        [label]="'pamAccessRuleBulkDeactivate' | i18n"
+        [action]="bulkActivate"
+        icon="bwi-check-circle"
+        [label]="'pamAccessRuleBulkActivate' | i18n"
       />
       <bit-bulk-action [action]="bulkDelete" icon="bwi-trash" [label]="'delete' | i18n" />
     </bit-bulk-actions-bar>
