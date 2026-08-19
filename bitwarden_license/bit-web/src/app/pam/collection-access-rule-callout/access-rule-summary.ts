@@ -21,7 +21,7 @@ export function accessRuleSummaryKeys(rule: SummarizableRule): string[] {
     keys.push("pamAccessRuleConditionIpRestricted");
   }
   if (rule.singleActiveLease) {
-    keys.push("pamAccessRuleSingleActiveLease");
+    keys.push("pamAccessRuleSingleActiveUser");
   }
   return keys;
 }
