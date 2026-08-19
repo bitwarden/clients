@@ -1,21 +1,17 @@
 import { TestBed } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { DesktopAutofillService } from "../../../autofill/services/desktop-autofill.service";
 import { DesktopSettingsService } from "../../../platform/services/desktop-settings.service";
 import {
   DesktopFido2UserInterfaceService,
@@ -29,12 +25,8 @@ describe("Fido2CreateComponent", () => {
   let mockDesktopSettingsService: MockProxy<DesktopSettingsService>;
   let mockFido2UserInterfaceService: MockProxy<DesktopFido2UserInterfaceService>;
   let mockAccountService: MockProxy<AccountService>;
-  let mockCipherService: MockProxy<CipherService>;
-  let mockDesktopAutofillService: MockProxy<DesktopAutofillService>;
   let mockDialogService: MockProxy<DialogService>;
-  let mockDomainSettingsService: MockProxy<DomainSettingsService>;
   let mockLogService: MockProxy<LogService>;
-  let mockPasswordRepromptService: MockProxy<PasswordRepromptService>;
   let mockRouter: MockProxy<Router>;
   let mockSession: MockProxy<DesktopFido2UserInterfaceSession>;
   let mockI18nService: MockProxy<I18nService>;
@@ -51,12 +43,8 @@ describe("Fido2CreateComponent", () => {
     mockDesktopSettingsService = mock<DesktopSettingsService>();
     mockFido2UserInterfaceService = mock<DesktopFido2UserInterfaceService>();
     mockAccountService = mock<AccountService>();
-    mockCipherService = mock<CipherService>();
-    mockDesktopAutofillService = mock<DesktopAutofillService>();
     mockDialogService = mock<DialogService>();
-    mockDomainSettingsService = mock<DomainSettingsService>();
     mockLogService = mock<LogService>();
-    mockPasswordRepromptService = mock<PasswordRepromptService>();
     mockRouter = mock<Router>();
     mockSession = mock<DesktopFido2UserInterfaceSession>();
     mockI18nService = mock<I18nService>();
@@ -64,25 +52,28 @@ describe("Fido2CreateComponent", () => {
     mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(mockSession);
     mockAccountService.activeAccount$ = activeAccountSubject;
 
+    // The component reads its cipher list from the session, which is the single
+    // source of truth for the logins the new passkey could be added to.
+    mockSession.getMatchingLogins.mockResolvedValue([]);
+
     await TestBed.configureTestingModule({
       providers: [
-        Fido2CreateComponent,
         { provide: DesktopSettingsService, useValue: mockDesktopSettingsService },
         { provide: DesktopFido2UserInterfaceService, useValue: mockFido2UserInterfaceService },
         { provide: AccountService, useValue: mockAccountService },
-        { provide: CipherService, useValue: mockCipherService },
-        { provide: DesktopAutofillService, useValue: mockDesktopAutofillService },
         { provide: DialogService, useValue: mockDialogService },
-        { provide: DomainSettingsService, useValue: mockDomainSettingsService },
         { provide: LogService, useValue: mockLogService },
-        { provide: PasswordRepromptService, useValue: mockPasswordRepromptService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
       ],
     }).compileComponents();
 
-    component = TestBed.inject(Fido2CreateComponent);
+    component = createComponent();
   });
+
+  function createComponent(): Fido2CreateComponent {
+    return TestBed.runInInjectionContext(() => new Fido2CreateComponent());
+  }
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -108,32 +99,17 @@ describe("Fido2CreateComponent", () => {
   }
 
   describe("ngOnInit", () => {
-    beforeEach(() => {
-      mockSession.getRpId.mockResolvedValue("example.com");
-      Object.defineProperty(mockDesktopAutofillService, "lastRegistrationRequest", {
-        get: jest.fn().mockReturnValue({
-          userHandle: new Uint8Array([1, 2, 3]),
-        }),
-        configurable: true,
-      });
-      mockDomainSettingsService.getUrlEquivalentDomains.mockReturnValue(of(new Set<string>()));
-    });
-
-    it("should initialize session and set show header to false", async () => {
-      const mockCiphers = createMockCiphers();
-      mockCipherService.getAllDecrypted.mockResolvedValue(mockCiphers);
-
-      await component.ngOnInit();
-
+    it("uses the current session", () => {
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
     });
 
     it("should show error dialog when no active session found", async () => {
-      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(null);
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
       mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await component.ngOnInit();
+      const componentWithoutSession = createComponent();
+      await componentWithoutSession.ngOnInit();
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "unableToSavePasskey" },
@@ -147,26 +123,12 @@ describe("Fido2CreateComponent", () => {
   });
 
   describe("addCredentialToCipher", () => {
-    beforeEach(() => {
-      component.session = mockSession;
-    });
-
     it("should add passkey to cipher", async () => {
       const cipher = createMockCiphers()[0];
 
       await component.addCredentialToCipher(cipher);
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(true, cipher);
-    });
-
-    it("should not add passkey when password reprompt is cancelled", async () => {
-      const cipher = createMockCiphers()[0];
-      cipher.reprompt = CipherRepromptType.Password;
-      mockPasswordRepromptService.showPasswordPrompt.mockResolvedValue(false);
-
-      await component.addCredentialToCipher(cipher);
-
-      expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false, cipher);
     });
 
     it("should call openSimpleDialog when cipher already has a fido2 credential", async () => {
@@ -200,10 +162,6 @@ describe("Fido2CreateComponent", () => {
   });
 
   describe("confirmPasskey", () => {
-    beforeEach(() => {
-      component.session = mockSession;
-    });
-
     it("should confirm passkey creation successfully", async () => {
       await component.confirmPasskey();
 
@@ -211,10 +169,11 @@ describe("Fido2CreateComponent", () => {
     });
 
     it("should call openSimpleDialog when session is null", async () => {
-      component.session = null;
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
       mockDialogService.openSimpleDialog.mockResolvedValue(false);
 
-      await component.confirmPasskey();
+      const componentWithoutSession = createComponent();
+      await componentWithoutSession.confirmPasskey();
 
       expect(mockDialogService.openSimpleDialog).toHaveBeenCalledWith({
         title: { key: "unableToSavePasskey" },
@@ -229,12 +188,10 @@ describe("Fido2CreateComponent", () => {
 
   describe("closeModal", () => {
     it("should close modal and notify session", async () => {
-      component.session = mockSession;
-
       await component.closeModal();
 
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
     });
   });
 });

@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoriten"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Aus Favoriten entfernen"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "Meine Ordner"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "Geteilten Ordner hinzufügen"
@@ -527,6 +533,9 @@
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Wert kopieren",
@@ -3542,6 +3551,27 @@
   },
   "moreOptions": {
     "message": "Weitere Optionen"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Deine Sitzung ist abgelaufen. Bitte gehe zurück und versuche dich erneut anzumelden."

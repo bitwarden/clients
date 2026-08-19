@@ -1,6 +1,8 @@
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
 import {
   AuthEdit,
   CreateFileSendResponse,
@@ -17,7 +19,6 @@ import { SendAccessToken } from "../../../auth/send-access";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { UserId } from "../../../types/guid";
 import { Send } from "../models/domain/send";
 import { SendResponse } from "../models/response/send.response";
