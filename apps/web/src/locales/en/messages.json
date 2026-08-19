@@ -6619,6 +6619,12 @@
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "An organization you are already a member of only allows its members to belong to one organization."
   },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
+  },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "The organization you are trying to join only allows its members to belong to one organization."
   },
@@ -15955,6 +15961,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "View all plans"
