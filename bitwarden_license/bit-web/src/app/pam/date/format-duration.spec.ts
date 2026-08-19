@@ -1,7 +1,8 @@
-import { formatCompoundDuration, formatDuration } from "./format-duration";
+import { formatDuration } from "./format-duration";
 
 describe("formatDuration", () => {
-  // Asserts against Intl.NumberFormat's own output, so this doesn't hardcode ICU's wording.
+  // Assert against Intl.NumberFormat's own output (see duration-short.pipe.spec.ts for the
+  // same approach) so this doesn't hardcode ICU's exact wording.
   const expected = (
     value: number,
     unit: "day" | "hour" | "minute" | "second",
@@ -49,22 +50,5 @@ describe("formatDuration", () => {
     } finally {
       spy.mockRestore();
     }
-  });
-});
-
-describe("formatCompoundDuration", () => {
-  it("spells out each whole day, hour and minute", () => {
-    expect(formatCompoundDuration("en-US", 42 * 3600 + 15 * 60, "long")).toBe(
-      "1 day, 18 hours, 15 minutes",
-    );
-  });
-
-  it("skips empty units", () => {
-    expect(formatCompoundDuration("en-US", 3 * 86400, "long")).toBe("3 days");
-    expect(formatCompoundDuration("en-US", 86400 + 60, "long")).toBe("1 day, 1 minute");
-  });
-
-  it("falls back to seconds below a minute", () => {
-    expect(formatCompoundDuration("en-US", 20, "long")).toBe("20 seconds");
   });
 });
