@@ -50,7 +50,7 @@ import {
   IconTileComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { enabledFlags, featureFlagModes } from "@bitwarden/storybook";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -1185,7 +1185,6 @@ export const TransparentHeader: Story = {
  */
 export const HeaderV2: Story = {
   globals: enabledFlags(FeatureFlag.VFO1Foundation),
-  parameters: { chromatic: { modes: featureFlagModes(FeatureFlag.VFO1Foundation) } },
   render: (args) => ({
     props: args,
     template: /* HTML */ `

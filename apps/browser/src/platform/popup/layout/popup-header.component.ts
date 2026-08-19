@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   input,
+  linkedSignal,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { of } from "rxjs";
@@ -109,6 +110,20 @@ export class PopupHeaderComponent {
   );
 
   /**
+   * TODO: remove with the VFO1Foundation flag, along with the gate in `titleBarClasses`. Once the bar
+   * is styled on its first render, the transition classes go back in the base list unconditionally —
+   * an element never transitions on its first style resolution.
+   *
+   * True once the bar has collapsed at least once. `vfo1Enabled` resolves after the first paint, and
+   * CSS transitions from the after-change style alone, so a transition declared in that pass animates
+   * the arriving padding and border instead of a collapse.
+   */
+  private readonly titleBarAnimated = linkedSignal<boolean, boolean>({
+    source: this.titleBarHidden,
+    computation: (hidden, previous) => hidden || (previous?.value ?? false),
+  });
+
+  /**
    * TODO: remove with the VFO1Foundation flag, along with the `header` class binding it feeds.
    *
    * The one-bar header paints `header` itself rather than a descendant, which is what keeps it
@@ -165,10 +180,14 @@ export class PopupHeaderComponent {
       "tw-border-0",
       "tw-border-b",
       "tw-border-solid",
-      "motion-safe:tw-transition-all",
-      "tw-duration-200",
-      "tw-ease-out",
     ];
+
+    // TODO: remove with the VFO1Foundation flag — move these three back into the base list above.
+    // See `titleBarAnimated`: declaring the transition before the bar collapses would animate the
+    // padding and border that arrive with the flag rather than the collapse.
+    if (this.titleBarAnimated()) {
+      classes.push("motion-safe:tw-transition-all", "tw-duration-200", "tw-ease-out");
+    }
 
     // The transparent bar keeps the border box so both treatments collapse to the same height.
     classes.push(
