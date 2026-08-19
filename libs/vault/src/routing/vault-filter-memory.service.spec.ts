@@ -12,11 +12,13 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { VAULT_FILTER_MEMORY, VaultFilterMemoryService } from "./vault-filter-memory.service";
-import { ALL_ITEMS_SCOPE } from "./vault-scope";
+import { ALL_ITEMS_SCOPE, MY_VAULT_SCOPE, type VaultScopeRouteData } from "./vault-scope";
 
 /** Stands in as the target of every route the tests navigate between. */
 @Component({ template: "", standalone: true, changeDetection: ChangeDetectionStrategy.OnPush })
 class BlankComponent {}
+
+const inScope = { vaultFilterScope: true } satisfies VaultScopeRouteData;
 
 describe("VaultFilterMemoryService", () => {
   const mockUserId = Utils.newGuid() as UserId;
@@ -35,8 +37,8 @@ describe("VaultFilterMemoryService", () => {
       providers: [
         { provide: StateProvider, useValue: stateProvider },
         provideRouter([
-          { path: "vault", component: BlankComponent },
-          { path: "vault/:vaultId", component: BlankComponent },
+          { path: "vault", component: BlankComponent, data: inScope },
+          { path: "vault/:vaultId", component: BlankComponent, data: inScope },
           { path: "sends", component: BlankComponent },
         ]),
       ],
@@ -111,10 +113,10 @@ describe("VaultFilterMemoryService", () => {
     const service = createService();
 
     navigate("/vault?vault.type=1");
-    navigate("/vault/my-vault?vault.type=3");
+    navigate(`/vault/${MY_VAULT_SCOPE}?vault.type=3`);
 
     expect(service.paramsFor(ALL_ITEMS_SCOPE)).toEqual({ "vault.type": "1" });
-    expect(service.paramsFor("my-vault")).toEqual({ "vault.type": "3" });
+    expect(service.paramsFor(MY_VAULT_SCOPE)).toEqual({ "vault.type": "3" });
   }));
 
   describe("cross-session persistence", () => {
@@ -137,14 +139,14 @@ describe("VaultFilterMemoryService", () => {
     }));
 
     it("leaves other scopes in state untouched when writing one", fakeAsync(() => {
-      seedStored({ "my-vault": { "vault.type": "3" } });
+      seedStored({ [MY_VAULT_SCOPE]: { "vault.type": "3" } });
 
       createService();
       navigate("/vault?vault.type=1");
       tick(PAST_DEBOUNCE);
 
       expect(storedState()).toEqual({
-        "my-vault": { "vault.type": "3" },
+        [MY_VAULT_SCOPE]: { "vault.type": "3" },
         [ALL_ITEMS_SCOPE]: { "vault.type": "1" },
       });
     }));
@@ -168,10 +170,10 @@ describe("VaultFilterMemoryService", () => {
       const service = createService();
 
       navigate("/vault?vault.type=1");
-      seedStored({ "my-vault": { "vault.type": "3" } });
+      seedStored({ [MY_VAULT_SCOPE]: { "vault.type": "3" } });
       tick();
 
-      expect(service.paramsFor("my-vault")).toEqual({ "vault.type": "3" });
+      expect(service.paramsFor(MY_VAULT_SCOPE)).toEqual({ "vault.type": "3" });
       expect(service.paramsFor(ALL_ITEMS_SCOPE)).toEqual({ "vault.type": "1" });
     }));
 

@@ -9,10 +9,10 @@ import {
   VAULT_FILTER_DISK,
 } from "@bitwarden/common/platform/state";
 
-import { rememberableParams, vaultScopeKey } from "./vault-scope";
+import { rememberableParams, VaultScope, vaultScopeOf } from "./vault-scope";
 
 /** Remembered filter params, keyed by the scope they were seen under. */
-type RememberedParams = Record<string, Params>;
+type RememberedParams = Partial<Record<VaultScope, Params>>;
 
 /**
  * Remembered vault filters, by scope. Kept across locks so that returning to the vault the next
@@ -37,7 +37,7 @@ const PERSIST_DEBOUNCE_INTERVAL = 500;
  *
  * The vault table already mirrors its chips and sort to the URL, so this stores the URL's own
  * query params rather than a second representation of the same state — see
- * {@link rememberableParams} for which ones, and {@link vaultScopeKey} for how a URL resolves to a
+ * {@link rememberableParams} for which ones, and {@link vaultScopeOf} for how a route resolves to a
  * scope. Recording happens on navigation, which the table's URL sync triggers on every chip
  * change, so the memory keeps up without the table knowing it exists.
  *
@@ -53,7 +53,7 @@ export class VaultFilterMemoryService {
 
   private readonly stored = toSignal(this.state.state$, { initialValue: null });
 
-  private readonly writes = new Subject<[scope: string, params: Params]>();
+  private readonly writes = new Subject<[scope: VaultScope, params: Params]>();
 
   /**
    * Merged per scope rather than whole: a navigation recorded before the stored value arrives
@@ -82,17 +82,17 @@ export class VaultFilterMemoryService {
   }
 
   /** The remembered filter params for a scope, or `{}` if it hasn't been visited. */
-  paramsFor(scope: string): Params {
+  paramsFor(scope: VaultScope): Params {
     return this.remembered()[scope] ?? {};
   }
 
   private record(): void {
-    const tree = this.router.parseUrl(this.router.url);
-    const scope = vaultScopeKey(tree);
+    const state = this.router.routerState.snapshot;
+    const scope = vaultScopeOf(state);
     if (scope == null) {
       return;
     }
-    const params = rememberableParams(tree.queryParams);
+    const params = rememberableParams(state.root.queryParams);
     this.session.update((session) => ({ ...session, [scope]: params }));
     this.writes.next([scope, params]);
   }

@@ -118,4 +118,13 @@ export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
 export { VaultFilterMemoryService } from "./routing/vault-filter-memory.service";
-export { ALL_ITEMS_SCOPE } from "./routing/vault-scope";
+export {
+  ALL_ITEMS_SCOPE,
+  isVaultScope,
+  MY_VAULT_SCOPE,
+  toVaultScope,
+  VAULT_FILTER_SCOPE,
+  VAULT_SCOPE_PARAM,
+  type VaultScope,
+  type VaultScopeRouteData,
+} from "./routing/vault-scope";
