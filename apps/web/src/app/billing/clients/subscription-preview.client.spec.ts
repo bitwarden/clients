@@ -12,13 +12,14 @@ describe("SubscriptionPreviewClient", () => {
 
   const subscriptionPreviewJson = {
     Status: "active",
-    Cart: {
+    InvoicePreview: {
       PasswordManager: { Seats: { Reference: "pm-seat", Quantity: 1, Cost: 10 } },
       Cadence: "annually",
       PlanTier: "premium",
       EstimatedTax: 0,
       Total: 10,
       AmountDue: 10,
+      NextPaymentAttempt: "2026-06-01T00:00:00.000Z",
     },
     Storage: { Available: 5, Used: 1, ReadableUsed: "1 GB" },
   };
@@ -65,7 +66,7 @@ describe("SubscriptionPreviewClient", () => {
       const result = await sut.getAccountSubscriptionPreview();
 
       expect(result.status).toBe("active");
-      expect(result.cart.planTier).toBe("premium");
+      expect(result.invoicePreview.planTier).toBe("premium");
       expect(result.storage).toMatchObject({ available: 5, used: 1, readableUsed: "1 GB" });
     });
   });

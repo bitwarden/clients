@@ -24,7 +24,7 @@ const parseDate = (value: unknown): Date | undefined => {
 
 export class SubscriptionPreviewResponse extends BaseResponse {
   status: SubscriptionStatus;
-  cart: InvoicePreview;
+  invoicePreview: InvoicePreview;
   storage?: Storage;
   cancelAt?: Date;
   canceled?: Date;
@@ -48,7 +48,7 @@ export class SubscriptionPreviewResponse extends BaseResponse {
     }
     this.status = status;
 
-    this.cart = new InvoicePreviewResponse(this.getResponseProperty("Cart"));
+    this.invoicePreview = new InvoicePreviewResponse(this.getResponseProperty("InvoicePreview"));
 
     // Optional: the server returns no storage for subscribers without a maximum storage allowance.
     const storage = this.getResponseProperty("Storage");
@@ -79,6 +79,14 @@ export class SubscriptionPreviewResponse extends BaseResponse {
     if (this.status === Canceled && this.canceled == null) {
       throw new Error("Failed to parse missing canceled date for canceled subscription");
     }
+    if (
+      (this.status === Trialing || this.status === Active) &&
+      this.invoicePreview.nextPaymentAttempt == null
+    ) {
+      throw new Error(
+        `Failed to parse missing next payment attempt for subscription status: ${this.status}`,
+      );
+    }
   }
 
   /**
@@ -86,10 +94,11 @@ export class SubscriptionPreviewResponse extends BaseResponse {
    *
    * The cart is a parameter rather than being derived here because adapting a `InvoicePreview` into a
    * render-ready `Cart` needs a flow context and a logger, both of which belong to the facade.
-   * The facade adapts `this.cart` first, then passes the result in.
+   * The facade adapts `this.invoicePreview` first, then passes the result in.
    *
-   * The `canceled!` assertion is safe: the constructor throws when a canceled response lacks
-   * the date. Suspension details pass through as-is — they are optional on the suspension arm
+   * The `canceled!` and `nextPaymentAttempt!` assertions are safe: the constructor throws when a
+   * canceled response lacks the date, and when a trialing/active response lacks the next payment
+   * attempt. Suspension details pass through as-is — they are optional on the suspension arm
    * because `past_due`/`unpaid` responses legitimately omit them.
    */
   toDomain = (cart: Cart): SubscriptionPreview => {
@@ -112,6 +121,7 @@ export class SubscriptionPreviewResponse extends BaseResponse {
           cart,
           storage: this.storage,
           status: this.status,
+          nextCharge: this.invoicePreview.nextPaymentAttempt!,
           cancelAt: this.cancelAt,
         };
       }

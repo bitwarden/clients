@@ -3,18 +3,19 @@ import type { Cart } from "@bitwarden/pricing";
 import { SubscriptionPreviewResponse } from "./subscription-preview.response";
 
 describe("SubscriptionPreviewResponse", () => {
-  const cartJson = {
+  const invoicePreviewJson = {
     PasswordManager: { Seats: { Reference: "pm-seat", Quantity: 1, Cost: 10 } },
     Cadence: "annually",
     PlanTier: "premium",
     EstimatedTax: 0,
     Total: 10,
     AmountDue: 10,
+    NextPaymentAttempt: "2026-06-01T00:00:00.000Z",
   };
 
   const responseJson = (overrides: Record<string, unknown> = {}) => ({
     Status: "active",
-    Cart: cartJson,
+    InvoicePreview: invoicePreviewJson,
     Storage: { Available: 5, Used: 1, ReadableUsed: "1 GB" },
     ...overrides,
   });
@@ -28,11 +29,11 @@ describe("SubscriptionPreviewResponse", () => {
   };
 
   describe("parsing", () => {
-    it("should parse the cart via InvoicePreviewResponse", () => {
+    it("should parse the invoice preview via InvoicePreviewResponse", () => {
       const response = new SubscriptionPreviewResponse(responseJson());
 
-      expect(response.cart.planTier).toBe("premium");
-      expect(response.cart.passwordManager.seats.reference).toBe("pm-seat");
+      expect(response.invoicePreview.planTier).toBe("premium");
+      expect(response.invoicePreview.passwordManager.seats.reference).toBe("pm-seat");
     });
 
     it("should parse storage when present", () => {
@@ -128,6 +129,48 @@ describe("SubscriptionPreviewResponse", () => {
           ),
       ).toThrow("Failed to parse missing canceled date for canceled subscription");
     });
+
+    it.each(["trialing", "active"])(
+      "should throw when a %s response omits the next payment attempt",
+      (status) => {
+        expect(
+          () =>
+            new SubscriptionPreviewResponse(
+              responseJson({
+                Status: status,
+                InvoicePreview: { ...invoicePreviewJson, NextPaymentAttempt: null },
+              }),
+            ),
+        ).toThrow(
+          `Failed to parse missing next payment attempt for subscription status: ${status}`,
+        );
+      },
+    );
+
+    it("should treat a malformed next payment attempt as missing and throw for active", () => {
+      // InvoicePreviewResponse degrades a malformed date to absent, so the billable-arm guard
+      // catches it here rather than letting an Invalid Date reach the domain.
+      expect(
+        () =>
+          new SubscriptionPreviewResponse(
+            responseJson({
+              Status: "active",
+              InvoicePreview: { ...invoicePreviewJson, NextPaymentAttempt: "not-a-date" },
+            }),
+          ),
+      ).toThrow("Failed to parse missing next payment attempt for subscription status: active");
+    });
+
+    it("should parse a non-billable response without a next payment attempt rather than throwing", () => {
+      const response = new SubscriptionPreviewResponse(
+        responseJson({
+          Status: "past_due",
+          InvoicePreview: { ...invoicePreviewJson, NextPaymentAttempt: null },
+        }),
+      );
+
+      expect(response.invoicePreview.nextPaymentAttempt).toBeUndefined();
+    });
   });
 
   describe("toDomain across all seven statuses", () => {
@@ -178,6 +221,7 @@ describe("SubscriptionPreviewResponse", () => {
         cart: adaptedCart,
         storage: response.storage,
         status,
+        nextCharge: new Date("2026-06-01T00:00:00.000Z"),
         cancelAt: new Date("2026-12-01T00:00:00.000Z"),
       });
     });
@@ -187,7 +231,11 @@ describe("SubscriptionPreviewResponse", () => {
 
       const domain = response.toDomain(adaptedCart);
 
-      expect(domain).toMatchObject({ status: "active", cancelAt: undefined });
+      expect(domain).toMatchObject({
+        status: "active",
+        nextCharge: new Date("2026-06-01T00:00:00.000Z"),
+        cancelAt: undefined,
+      });
     });
 
     it("should build the canceled arm", () => {
@@ -213,7 +261,7 @@ describe("SubscriptionPreviewResponse", () => {
       const domain = response.toDomain(adaptedCart);
 
       expect(domain.cart).toBe(adaptedCart);
-      expect(domain.cart).not.toBe(response.cart);
+      expect(domain.cart).not.toBe(response.invoicePreview);
     });
 
     it("should carry undefined storage through to the domain", () => {

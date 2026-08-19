@@ -19,7 +19,7 @@ export class SubscriptionPreviewService {
     const response = await this.subscriptionPreviewClient.getAccountSubscriptionPreview();
 
     const cart = adaptInvoicePreviewToCart(
-      response.cart,
+      response.invoicePreview,
       InvoicePreviewFlowContext.PremiumSubscriptionPage,
       this.logService,
     );
@@ -34,7 +34,7 @@ export class SubscriptionPreviewService {
       await this.subscriptionPreviewClient.getOrganizationSubscriptionPreview(organizationId);
 
     const cart = adaptInvoicePreviewToCart(
-      response.cart,
+      response.invoicePreview,
       InvoicePreviewFlowContext.OrganizationSubscriptionPage,
       this.logService,
     );

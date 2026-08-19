@@ -16,13 +16,14 @@ describe("SubscriptionPreviewService", () => {
 
   const responseJson = (planTier: string) => ({
     Status: "active",
-    Cart: {
+    InvoicePreview: {
       PasswordManager: { Seats: { Reference: "pm-seat", Quantity: 1, Cost: 10 } },
       Cadence: "annually",
       PlanTier: planTier,
       EstimatedTax: 0,
       Total: 10,
       AmountDue: 10,
+      NextPaymentAttempt: "2026-06-01T00:00:00.000Z",
     },
     Storage: { Used: 1, Total: 5, Remaining: 4 },
   });
@@ -64,6 +65,16 @@ describe("SubscriptionPreviewService", () => {
       expect(result.cart.total).toBe(10);
       // The adapted cart is the view model, so it carries no raw preview fields.
       expect(Object.keys(result.cart)).not.toContain("planTier");
+    });
+
+    it("should populate nextCharge from the invoice preview's next payment attempt", async () => {
+      mockClient.getAccountSubscriptionPreview.mockResolvedValue(
+        new SubscriptionPreviewResponse(responseJson("premium")),
+      );
+
+      const result = await sut.getAccountSubscriptionPreview();
+
+      expect(result).toMatchObject({ nextCharge: new Date("2026-06-01T00:00:00.000Z") });
     });
   });
 

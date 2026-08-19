@@ -6,10 +6,8 @@ import { Storage } from "./storage";
  * The preview-driven counterpart to `BitwardenSubscription`, projected from a Stripe invoice
  * preview rather than the legacy subscription response.
  *
- * Two deliberate differences from `BitwardenSubscription`:
- * - `storage` is optional, because the server returns no storage for subscribers without a
- *   maximum storage allowance.
- * - There is no `nextCharge`; the billing-period boundary lives on `InvoicePreview.nextPaymentAttempt`.
+ * One deliberate difference from `BitwardenSubscription`: `storage` is optional, because the
+ * server returns no storage for subscribers without a maximum storage allowance.
  */
 
 type HasCart = {
@@ -39,6 +37,7 @@ type Suspension = {
 
 type Billable = {
   status: "trialing" | "active";
+  nextCharge: Date;
   cancelAt?: Date;
 };
 
