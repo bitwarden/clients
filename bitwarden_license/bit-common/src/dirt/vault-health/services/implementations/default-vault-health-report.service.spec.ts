@@ -264,8 +264,13 @@ describe("DefaultVaultHealthReportService", () => {
 
     await service.buildVaultHealthReport(ciphers, userId);
 
-    expect(emissions.length).toBeGreaterThan(0);
-    expect(emissions.every((report) => report !== null)).toBe(true);
+    // Pins the shape, not just the absence of nulls: the replayed report, then
+    // the rebuilt one, with nothing in between.
+    expect(emissions).toHaveLength(2);
+    expect(emissions.map((report) => cipherIds(report!.categoryItems.exposed))).toEqual([
+      ["a"],
+      ["a"],
+    ]);
   });
 
   it("enables the exposed check and passes the pre-built reuse map", async () => {

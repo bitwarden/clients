@@ -186,19 +186,15 @@ describe("HealthComponent", () => {
 
     reportService = mock<VaultHealthReportService>();
     // Mirror the real service: buildVaultHealthReport publishes state and
-    // resolves void, and the read streams are scoped to a single user so one
-    // account's state is invisible to the next.
+    // resolves void, and the state stream is scoped to a single user so one
+    // account's state is invisible to the next. getVaultHealthReport$ is
+    // deliberately left unmocked: this component does not read it, and a mock
+    // here would have to reproduce the service's report retention to avoid
+    // teaching the next reader the wrong contract.
     published = new BehaviorSubject<{ userId: UserId; state: VaultHealthReportState } | null>(null);
     reportService.getVaultHealthReportState$.mockImplementation((id) =>
       published.pipe(
         map((scoped) => (scoped?.userId === id ? scoped.state : VAULT_HEALTH_REPORT_IDLE)),
-      ),
-    );
-    reportService.getVaultHealthReport$.mockImplementation((id) =>
-      published.pipe(
-        map((scoped) =>
-          scoped?.userId === id && scoped.state.status === "success" ? scoped.state.report : null,
-        ),
       ),
     );
     publishesOnBuild(new VaultHealthReportView());
@@ -371,8 +367,8 @@ describe("HealthComponent", () => {
 
     it("reflects a report the service publishes after generation completed", async () => {
       // The tab follows the service's state rather than taking the first report
-      // and stopping, so removing an at-risk item from the report (which the
-      // delete dialog does through the service) reaches the overview.
+      // and stopping. Any later publish for this user therefore reaches the
+      // overview, which is what makes an in-place report update possible at all.
       hasRunScan$.next(true);
       publishesOnBuild(new VaultHealthReportView({ totalCount: 10, atRiskCount: 4 }));
 

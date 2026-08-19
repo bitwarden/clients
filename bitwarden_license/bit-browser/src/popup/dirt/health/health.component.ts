@@ -1,4 +1,11 @@
-import { Component, ChangeDetectionStrategy, computed, inject, effect } from "@angular/core";
+import {
+  Component,
+  ChangeDetectionStrategy,
+  computed,
+  inject,
+  effect,
+  Signal,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   Observable,
@@ -79,8 +86,14 @@ export class HealthComponent {
     { initialValue: false },
   );
 
-  /** Where report generation is for the active user, per the report service. */
-  private readonly scanState = toSignal<VaultHealthReportState>(
+  /**
+   * Where report generation is for the active user, per the report service.
+   *
+   * Annotated rather than passed as a type argument: `toSignal`'s only overload
+   * that accepts a non-null `initialValue` declares two type parameters, so one
+   * explicit argument disqualifies it on arity.
+   */
+  private readonly scanState: Signal<VaultHealthReportState> = toSignal(
     toObservable(this.userId).pipe(
       filterOutNullish(),
       switchMap((userId) =>
