@@ -51,6 +51,7 @@ export {
 } from "./helpers/access-rule-request";
 export type { AccessRuleFormPatch, AccessRuleFormValue } from "./helpers/access-rule-request";
 export { resolveCollectionNames } from "./helpers/collection-names";
+export { accessRuleDeleteConfirmOptions } from "./helpers/access-rule-delete-confirm";
 export { approvalMethodLabelKeys } from "./helpers/approval-method";
 export {
   AccessRuleStatusFilter,
