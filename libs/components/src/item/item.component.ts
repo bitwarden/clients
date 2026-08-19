@@ -14,12 +14,13 @@ import { ItemActionComponent } from "./item-action.component";
 export type ItemSize = "base" | "lg";
 
 /**
- * Trailing edge padding, keyed by the parent `bit-item`'s `size`. Shared with
- * `bit-item-content` so the two components can never drift apart.
+ * Padding per `size`, keyed by edge. Shared with `bit-item-content` so the two components can never
+ * drift apart. Spelled out rather than composed from a scale, since Tailwind only emits classes it
+ * can find as complete strings.
  */
-export const ITEM_TRAILING_PADDING: Record<ItemSize, string> = {
-  base: "tw-pe-3",
-  lg: "tw-pe-4",
+export const ITEM_PADDING: Record<ItemSize, Record<"leading" | "trailing" | "vertical", string>> = {
+  base: { leading: "tw-ps-3", trailing: "tw-pe-3", vertical: "tw-py-2" },
+  lg: { leading: "tw-ps-4", trailing: "tw-pe-4", vertical: "tw-py-3" },
 };
 
 /** Icon buttons and compact mode tighten the trailing edge regardless of `size`. */
@@ -47,7 +48,7 @@ export class ItemComponent implements AfterContentChecked {
 
   /** The bit-item end slot is always right-most when present, so it always owns trailing padding. */
   protected readonly endSlotPaddingClass = computed(
-    () => `${ITEM_TRAILING_PADDING[this.size()]} ${ITEM_END_SLOT_TRAILING_OVERRIDES}`,
+    () => `${ITEM_PADDING[this.size()].trailing} ${ITEM_END_SLOT_TRAILING_OVERRIDES}`,
   );
 
   /**
