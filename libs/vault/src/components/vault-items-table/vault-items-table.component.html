@@ -10,24 +10,7 @@
   height="fill"
   (selectedChange)="selectedChange.emit($event)"
 >
-  <!--
-    The design separates the search row from the filter row with a full-bleed rule, which
-    `bit-table-toolbar` doesn't offer as an input. Until it does, we draw it from here as a
-    top border on the filter row, selected by the one thing that identifies it structurally —
-    it's the row that holds the filter chips as direct children. The negative inline margin
-    cancels the toolbar's `p-3` so the rule reaches both edges.
-
-    Two things fall out of targeting the filter row rather than the search row: below `md` the
-    toolbar hides that row, so the rule disappears with it instead of doubling up on the
-    toolbar's own bottom border; and the small-screen active-filter row holds `bit-chip`s, not
-    filter menus, so it doesn't match.
-
-    TODO: replace with a first-class `bit-table-toolbar` affordance — this couples to the
-    toolbar's internal DOM.
-  -->
-  <bit-table-toolbar
-    class="[&_div:has(>bit-filter-menu)]:-tw-mx-3 [&_div:has(>bit-filter-menu)]:tw-border-0 [&_div:has(>bit-filter-menu)]:tw-border-t [&_div:has(>bit-filter-menu)]:tw-border-solid [&_div:has(>bit-filter-menu)]:tw-border-border-base [&_div:has(>bit-filter-menu)]:tw-px-3 [&_div:has(>bit-filter-menu)]:tw-pt-2"
-  >
+  <bit-table-toolbar>
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
     <!-- Page-level controls (Import, Add, ...) are the host's concern, not the table's. -->

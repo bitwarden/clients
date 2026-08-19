@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   Fido2Credential as SdkFido2Credential,
   Cipher as SdkCipher,
@@ -16,7 +18,6 @@ import { UriMatchStrategy } from "../../models/domain/domain-service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId, CipherId, OrganizationId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 import { CipherRepromptType, CipherType } from "../enums";

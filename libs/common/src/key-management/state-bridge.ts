@@ -14,6 +14,7 @@ import {
   WebAuthnPrfUnlockData as SdkWebAuthnPrfUnlockData,
   WrappedAccountCryptographicState,
   Kdf,
+  KeyId,
 } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 

@@ -216,6 +216,21 @@
           </bit-form-control>
         }
 
+        @if (showQuickCopyActionsSetting()) {
+          <bit-form-control>
+            <input
+              type="checkbox"
+              bitCheckbox
+              formControlName="showQuickCopyActions"
+              (change)="saveQuickCopyActions()"
+            />
+            <bit-label>
+              {{ "showQuickCopyActionsInVault" | i18n }}
+              <show-quick-copy-actions-details-popover slot="end" />
+            </bit-label>
+          </bit-form-control>
+        }
+
         <bit-form-field>
           <bit-label>{{ "theme" | i18n }}</bit-label>
           <bit-select formControlName="theme" [items]="themeOptions" />
