@@ -175,7 +175,7 @@
         </bit-card>
       </bit-section>
 
-      <div class="tw-flex tw-gap-2">
+      <div class="tw-flex tw-items-center tw-gap-2">
         <button
           type="submit"
           bitButton
@@ -195,6 +195,19 @@
         >
           {{ "cancel" | i18n }}
         </button>
+
+        @if (existing() != null) {
+          <button
+            type="button"
+            bitButton
+            buttonType="danger"
+            [bitAction]="remove"
+            class="tw-ms-auto"
+            id="access-rule-edit_button_delete"
+          >
+            {{ "delete" | i18n }}
+          </button>
+        }
       </div>
     </form>
   }
