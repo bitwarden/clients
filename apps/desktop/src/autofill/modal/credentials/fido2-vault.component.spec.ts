@@ -66,9 +66,13 @@ describe("Fido2VaultComponent", () => {
       .overrideProvider(DialogService, { useValue: mock<DialogService>() })
       .compileComponents();
 
+    createComponent();
+  });
+
+  function createComponent(): void {
     fixture = TestBed.createComponent(Fido2VaultComponent);
     component = fixture.componentInstance;
-  });
+  }
 
   const mockCiphers: any[] = [
     {
@@ -103,53 +107,48 @@ describe("Fido2VaultComponent", () => {
     },
   ];
 
-  describe("ngOnInit", () => {
-    it("should initialize session and load ciphers successfully", async () => {
+  describe("ciphers$", () => {
+    it("loads ciphers for the active account", () => {
       mockCipherService.cipherListViews$ = jest.fn().mockReturnValue(of(mockCiphers));
+      createComponent();
 
-      await component.ngOnInit();
+      let ciphersResult: CipherView[] = [];
+      component.ciphers$.subscribe((ciphers) => (ciphersResult = ciphers));
 
       expect(mockFido2UserInterfaceService.getCurrentSession).toHaveBeenCalled();
       expect(component.session).toBe(mockSession);
-      expect(component.cipherIds$).toBe(mockSession.availableCipherIds$);
       expect(mockCipherService.cipherListViews$).toHaveBeenCalledWith(mockActiveAccount.id);
+      expect(ciphersResult).toHaveLength(3);
     });
 
-    it("should handle when no active session found", async () => {
-      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
-
-      await component.ngOnInit();
-
-      expect(component.session).toBeUndefined();
-    });
-
-    it("should filter out deleted ciphers", async () => {
+    it("filters out deleted ciphers", () => {
       const ciphersWithDeleted = [
         ...mockCiphers.slice(0, 1),
         { ...mockCiphers[1], deletedDate: new Date() },
         ...mockCiphers.slice(2),
       ];
       mockCipherService.cipherListViews$ = jest.fn().mockReturnValue(of(ciphersWithDeleted));
-
-      await component.ngOnInit();
-      await new Promise((resolve) => setTimeout(resolve, 0));
+      createComponent();
 
       let ciphersResult: CipherView[] = [];
-      component.ciphers$.subscribe((ciphers) => {
-        ciphersResult = ciphers;
-      });
+      component.ciphers$.subscribe((ciphers) => (ciphersResult = ciphers));
 
       expect(ciphersResult).toHaveLength(2);
       expect(ciphersResult.every((cipher) => !cipher.deletedDate)).toBe(true);
     });
   });
 
+  describe("session", () => {
+    it("is undefined when no active session found", () => {
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
+      createComponent();
+
+      expect(component.session).toBeUndefined();
+    });
+  });
+
   describe("chooseCipher", () => {
     const cipher = mockCiphers[0];
-
-    beforeEach(() => {
-      component.session = mockSession;
-    });
 
     it("hands the chosen cipher to the session", async () => {
       await component.chooseCipher(cipher);
@@ -159,7 +158,9 @@ describe("Fido2VaultComponent", () => {
     });
 
     it("closes the modal if the session is not found when cipher is chosen ", async () => {
-      component.session = undefined;
+      mockFido2UserInterfaceService.getCurrentSession.mockReturnValue(undefined);
+      createComponent();
+
       await component.chooseCipher(cipher);
 
       // Verification (master-password reprompt or OS) is handled by the session.
@@ -170,13 +171,11 @@ describe("Fido2VaultComponent", () => {
 
   describe("closeModal", () => {
     it("should close modal and notify session", async () => {
-      component.session = mockSession;
-
       await component.closeModal();
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();
       expect(mockSession.notifyConfirmCreateCredential).toHaveBeenCalledWith(false);
-      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(null);
+      expect(mockSession.confirmChosenCipher).toHaveBeenCalledWith(undefined);
     });
   });
 });
