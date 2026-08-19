@@ -184,7 +184,7 @@ apps/desktop/src/autofill/models/ssh-agent-setting.ts          @bitwarden/team-d
 apps/desktop/src/autofill/components/approve-ssh-request.html  @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 apps/desktop/src/autofill/components/approve-ssh-request.ts    @bitwarden/team-desktop-native-dev  @bitwarden/wg-ssh-keys
 
-## Desktop Native Passkey files
+## Native Passkey files
 apps/desktop/desktop_native/autofill_provider                   @bitwarden/team-skunkworks
 apps/desktop/desktop_native/core/src/autofill                   @bitwarden/team-skunkworks
 apps/desktop/desktop_native/napi/src/autofill.rs                @bitwarden/team-skunkworks
