@@ -19,6 +19,8 @@ import {
   OrganizationInviteService,
 } from "@bitwarden/common/auth/organization-invite";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -58,6 +60,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
+  private readonly configService = inject(ConfigService);
 
   // Template access to the view-state kinds so the `@switch` cases below can compare
   // against symbolic references (`AcceptOrgOpenInviteViewState.Loading`) instead of
@@ -238,7 +241,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
         this.logService.error(
           "AcceptOrgOpenInviteComponent: recovery-key-mismatch — invite-bound org key differs from account-recovery public key.",
         );
-        this.renderMappedError("unexpected");
+        await this.renderMappedError("unexpected");
         return;
       case "unexpected":
         // Non-classified SDK / server / boundary failure. The SDK error text is
@@ -248,7 +251,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
           "AcceptOrgOpenInviteComponent: unexpected accept-endpoint failure.",
           result.errorMessage,
         );
-        this.renderMappedError("unexpected");
+        await this.renderMappedError("unexpected");
         return;
       case "link-not-found":
       case "plan-not-supported":
@@ -263,7 +266,7 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
       case "provider-users-disallowed":
       case "free-admin-limit-reached":
       case "reset-password-key-required":
-        this.renderMappedError(result.kind);
+        await this.renderMappedError(result.kind);
         return;
     }
   }
@@ -272,8 +275,9 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    * Renders the shared error surface for an accept-endpoint kind via the
    * {@link getOpenOrgInviteAcceptErrorUi} mapper.
    */
-  private renderMappedError(kind: OpenOrgInviteAcceptRenderableErrorKind): void {
-    const errorUi = getOpenOrgInviteAcceptErrorUi(kind);
+  private async renderMappedError(kind: OpenOrgInviteAcceptRenderableErrorKind): Promise<void> {
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+    const errorUi = getOpenOrgInviteAcceptErrorUi(kind, vfo1Enabled);
     this.renderErrorUi(errorUi, this.i18nService.t(errorUi.bodyMessageI18nKey));
   }
 
@@ -284,7 +288,8 @@ export class AcceptOrgOpenInviteComponent implements OnInit {
    * so the active account is populated).
    */
   private async renderEmailDomainNotAllowed(): Promise<void> {
-    const errorUi = getOpenOrgInviteAcceptErrorUi("email-domain-not-allowed");
+    const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
+    const errorUi = getOpenOrgInviteAcceptErrorUi("email-domain-not-allowed", vfo1Enabled);
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const email = activeAccount?.email ?? "";
     // Fallback to the full email if it lacks an `@` — server-side accept would not have

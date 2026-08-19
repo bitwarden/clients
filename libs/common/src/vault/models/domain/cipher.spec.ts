@@ -1,6 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CipherType as SdkCipherType,
   UriMatchType,
@@ -16,10 +18,7 @@ import {
   mockEnc,
   mockFromJson,
 } from "../../../../spec/utils";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { MockProxy } from "../../../platform/spec/mock-deep";
 import { UserId } from "../../../types/guid";
