@@ -73,6 +73,18 @@ immediately below the breadcrumbs.
 
 <Canvas of={stories.WithTrailingArrow} />
 
+#### Inside `bit-header`
+
+Breadcrumbs projected into a [Header](?path=/docs/component-library-header--docs) through
+`slot="breadcrumbs"` coordinate with it to determine which component renders the page's heading.
+When one of the breadcrumbs matches the current route, that active breadcrumb renders as the page's
+`<h1>` and the header suppresses its own title, so the page still has exactly one `<h1>`.
+
+Because the heading is then the last breadcrumb rather than a separate element below the list, don't
+use `showTrailingArrow` in that case. The coordination also relies on the two components sharing a
+`HeaderContext`, which a wrapper around `bit-header` has to provide. See
+[Page heading](?path=/docs/component-library-header--docs#page-heading) for the full behavior.
+
 ## Guidelines
 
 Breadcrumb labels should reflect the exact page or section name for clarity and consistency.

@@ -13,12 +13,18 @@ import { TypographyDirective } from "../typography/typography.directive";
 import { HeaderContext } from "./header-context";
 
 /**
+ * The header displays a page's title, an optional icon, and the controls and navigation that belong
+ * to that page. It renders the page's `<h1>`, so a page should contain exactly one header — unless a
+ * projected `bit-breadcrumbs` promotes its active breadcrumb to the heading instead.
+ *
+ * Clients typically wrap `bit-header` in their own header component (`app-header` in web,
+ * `app-desktop-header` in desktop) and project content through it rather than using `bit-header`
+ * directly.
+ *
  * TODO
  * - secondary text content
  * - layout & header padding / sizes (responsiveness)
- * - update mdx pages for breadcrumbs, header, page, layout
  */
-
 @Component({
   selector: "bit-header",
   templateUrl: "./header.component.html",
