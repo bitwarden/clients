@@ -51,7 +51,7 @@ export class AuthService implements AuthServiceAbstraction {
       }
 
       return combineLatest([
-        this.keyService.getInMemoryUserKeyFor$(userId),
+        this.keyService.userKey$(userId),
         this.tokenService.hasAccessToken$(userId),
       ]).pipe(
         map(([userKey, hasAccessToken]) => {

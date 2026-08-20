@@ -127,10 +127,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
       .state$.pipe(map((x) => x ?? false));
   }
 
-  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider.getUserState$(USER_KEY, userId);
-  }
-
   /**
    * @deprecated Use {@link userKey$} with a required {@link UserId} instead.
    */
