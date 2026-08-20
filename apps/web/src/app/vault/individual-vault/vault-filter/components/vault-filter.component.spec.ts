@@ -24,10 +24,17 @@ import { CipherListView, CipherListViewType } from "@bitwarden/sdk-internal";
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
   CipherTypeFilter,
+  ControlledAccessFilter,
+  VaultFilter,
   VaultFilterSection,
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
+
+import {
+  ControlledAccessFilterOption,
+  VaultControlledAccessFilter,
+} from "../../vault-controlled-access-filter.token";
 
 import { VaultFilterComponent } from "./vault-filter.component";
 
@@ -310,6 +317,60 @@ describe("VaultFilterComponent", () => {
 
         expect(section.add).toBeUndefined();
       });
+    });
+  });
+  describe("addControlledAccessFilter", () => {
+    function providerWith(options: ControlledAccessFilterOption[]): VaultControlledAccessFilter {
+      return { options$: of(options), narrow$: jest.fn() } as VaultControlledAccessFilter;
+    }
+
+    it("builds one child per option offered, under a translatable group heading", async () => {
+      const section = component.addControlledAccessFilter(
+        providerWith([{ id: "privileged", name: "Privileged", icon: "bwi-key" }]),
+      );
+
+      const tree = await firstValueFrom(section.data$);
+
+      expect(tree.node.name).toBe("controlledAccess");
+      expect(tree.children.map((c) => ({ id: c.node.id, name: c.node.name }))).toEqual([
+        { id: "privileged", name: "Privileged" },
+      ]);
+    });
+
+    it("emits no children when the host offers none, which is how the group stays hidden", async () => {
+      const section = component.addControlledAccessFilter(providerWith([]));
+
+      const tree = await firstValueFrom(section.data$);
+
+      expect(tree.children).toEqual([]);
+    });
+
+    it("is omitted entirely when no host fills the seam", async () => {
+      const cipherArchiveService = TestBed.inject(
+        CipherArchiveService,
+      ) as MockProxy<CipherArchiveService>;
+      cipherArchiveService.archivedCiphers$.mockReturnValue(of([]));
+      cipherArchiveService.userHasPremium$.mockReturnValue(of(true));
+
+      const filters = await component.buildAllFilters();
+
+      expect(filters.controlledAccessFilter).toBeUndefined();
+    });
+  });
+
+  describe("applyControlledAccessFilter", () => {
+    it("clears the other filters before selecting the node", async () => {
+      const node = new TreeNode<ControlledAccessFilter>(
+        { id: "privileged", name: "Privileged" },
+        null,
+      );
+      const resetFilter = jest.fn();
+      component.activeFilter = { resetFilter } as unknown as VaultFilter;
+
+      await component.applyControlledAccessFilter(node);
+
+      expect(resetFilter).toHaveBeenCalled();
+      expect(component.activeFilter.selectedControlledAccessNode).toBe(node);
     });
   });
 });

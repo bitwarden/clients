@@ -34,6 +34,12 @@ export interface RoutedVaultFilterModel {
   folderId?: string;
   organizationId?: OrganizationId | Unassigned;
   type?: RoutedVaultFilterItemType;
+  /**
+   * Id of the selected "Controlled access" child, as supplied by whichever host fills the
+   * controlled-access seam. Opaque here: this library never interprets it, it only carries it
+   * between the URL and that host.
+   */
+  controlledAccess?: string;
 
   organizationIdParamType?: "path" | "query";
 }

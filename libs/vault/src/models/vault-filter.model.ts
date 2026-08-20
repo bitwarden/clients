@@ -8,6 +8,7 @@ import {
   CipherStatus,
   CipherTypeFilter,
   CollectionFilter,
+  ControlledAccessFilter,
   FolderFilter,
   OrganizationFilter,
 } from "./vault-filter.type";
@@ -21,6 +22,7 @@ export class VaultFilter {
   selectedCipherTypeNode: TreeNode<CipherTypeFilter>;
   selectedFolderNode: TreeNode<FolderFilter>;
   selectedCollectionNode: TreeNode<CollectionFilter>;
+  selectedControlledAccessNode: TreeNode<ControlledAccessFilter>;
 
   /**
    * A list of collection filters that form a chain from the organization root to currently selected collection.
@@ -102,6 +104,10 @@ export class VaultFilter {
     return this.selectedCollectionNode?.node.id;
   }
 
+  get controlledAccessId(): string {
+    return this.selectedControlledAccessNode?.node.id;
+  }
+
   constructor(init?: Partial<VaultFilter>) {
     Object.assign(this, init);
   }
@@ -110,6 +116,7 @@ export class VaultFilter {
     this.selectedCipherTypeNode = null;
     this.selectedFolderNode = null;
     this.selectedCollectionNode = null;
+    this.selectedControlledAccessNode = null;
   }
 
   resetOrganization() {
