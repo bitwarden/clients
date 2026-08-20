@@ -294,6 +294,11 @@ describe("VaultNextComponent", () => {
         expect(component().scopedOrganizationId()).toBeUndefined();
         expect(component().title()).toBeUndefined();
       });
+
+      it("offers Import and New item", () => {
+        expect(component().showItemCreation()).toBe(true);
+        expect(creationActions().every((el) => el != null)).toBe(true);
+      });
     });
 
     describe("scoped to the personal vault", () => {
@@ -312,7 +317,17 @@ describe("VaultNextComponent", () => {
       it("titles the header My vault", () => {
         expect(component().title()).toBe("myVault");
       });
+
+      it("still offers Import and New item", () => {
+        expect(component().showItemCreation()).toBe(true);
+      });
     });
+
+    /** The toolbar's Import button and New item menu, as rendered. */
+    const creationActions = () => [
+      fixture.nativeElement.querySelector("#vault-next_button_import"),
+      fixture.nativeElement.querySelector("vault-new-cipher-menu"),
+    ];
 
     describe("scoped to trash", () => {
       beforeEach(() => scopeTo(TRASH_ROUTE));
@@ -330,6 +345,11 @@ describe("VaultNextComponent", () => {
       it("titles the header Trash", () => {
         expect(component().title()).toBe("trash");
       });
+
+      it("offers no way to add an item to it", () => {
+        expect(component().showItemCreation()).toBe(false);
+        expect(creationActions()).toEqual([null, null]);
+      });
     });
 
     describe("scoped to the archive", () => {
@@ -346,6 +366,11 @@ describe("VaultNextComponent", () => {
 
       it("titles the header Archive", () => {
         expect(component().title()).toBe("archiveNoun");
+      });
+
+      it("offers no way to add an item to it", () => {
+        expect(component().showItemCreation()).toBe(false);
+        expect(creationActions()).toEqual([null, null]);
       });
     });
 

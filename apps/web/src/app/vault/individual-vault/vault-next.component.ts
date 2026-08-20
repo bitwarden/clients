@@ -196,6 +196,15 @@ export class VaultNextComponent {
   });
 
   /**
+   * Whether the page offers the toolbar's Import and New item actions. New items cannot be created
+   * with a trashed or archived status and would "disappear" after creation on those views.
+   */
+  protected readonly showItemCreation = computed(() => {
+    const { type } = this.vaultScope();
+    return type !== VaultScopeType.Trash && type !== VaultScopeType.Archive;
+  });
+
+  /**
    * Placeholder header title for the scoped vault. Breadcrumbs replace this — see the page layout
    * epic — so it reuses the same strings the side nav labels these vaults with.
    *
