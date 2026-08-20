@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -92,6 +93,7 @@ import {
     ReactiveFormsModule,
     TypographyModule,
     AccessStateBadgeComponent,
+    DatePipe,
     DurationLongPipe,
     DurationShortPipe,
     I18nPipe,
@@ -188,6 +190,22 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly leaseRemainingLabel = computed(() =>
     this.activeLease() == null ? "" : formatRemaining(this.activeLeaseExpiryMs() - this.nowMs()),
+  );
+
+  /**
+   * The wall-clock end of the active lease, beside the countdown, so a requester can answer
+   * "can I finish this before it expires" without doing the arithmetic. Rendered through the same
+   * `date: "short"` format the Requests table uses for a lease window.
+   */
+  protected readonly activeLeaseEndsAt = computed(() => this.activeLease()?.notAfter ?? null);
+
+  /**
+   * The end of the window an approved request was granted. The lease itself is not minted until
+   * activation, so this is the point access cannot run past rather than a countdown that has
+   * started — the same value the Requests table shows for a startable row.
+   */
+  protected readonly approvedAccessEndsAt = computed(
+    () => this.approvedRequest()?.leaseNotAfter ?? null,
   );
 
   /** Whether the "Request access" entry point has folded out its form. */

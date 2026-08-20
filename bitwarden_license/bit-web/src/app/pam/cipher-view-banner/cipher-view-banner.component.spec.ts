@@ -1,3 +1,4 @@
+import { formatDate } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, NEVER, of } from "rxjs";
@@ -273,6 +274,61 @@ describe("CipherViewBannerComponent", () => {
 
       expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
       expect(query('[data-testid="cipher-view-banner-pending"]')).toBeNull();
+    });
+  });
+
+  describe("the absolute expiry beside the countdown", () => {
+    const NOW = Date.parse("2026-01-01T15:00:00.000Z");
+    const ENDS_AT = "2026-01-01T16:15:00.000Z";
+
+    // Pinned rather than faked with timers: the banner's countdown runs on a real `setInterval`,
+    // and replacing the timer implementation would stall `fixture.whenStable()`.
+    beforeEach(() => {
+      jest.spyOn(Date, "now").mockReturnValue(NOW);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    function until(iso: string): string {
+      return `pamWindowUntil ${formatDate(iso, "short", "en-US")}`;
+    }
+
+    it("pairs the active lease's countdown with the wall-clock time it ends", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ activeLease: leaseView({ notAfter: ENDS_AT }) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(text()).toContain("pamActiveLeaseBannerTitle 1h 15m");
+      expect(query('[data-testid="active-lease-ends-at"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
+      );
+    });
+
+    it("shows the end of the granted window on an approved request", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView({ leaseNotAfter: ENDS_AT }) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="approved-access-ends-at"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
+      );
+    });
+
+    it("renders no absolute time for an approved request with no window end", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView() }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
+      expect(query('[data-testid="approved-access-ends-at"]')).toBeNull();
     });
   });
 
