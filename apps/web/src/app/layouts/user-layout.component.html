@@ -22,6 +22,7 @@
         <bit-nav-item
           icon="bwi-archive"
           [text]="'archiveNoun' | i18n"
+          [forceActiveStyles]="archiveActive()"
           (mainContentClicked)="selectArchive()"
         >
           @if (showArchivePremiumBadge()) {

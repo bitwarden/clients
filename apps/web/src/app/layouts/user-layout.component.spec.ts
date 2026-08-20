@@ -147,7 +147,17 @@ describe("UserLayoutComponent", () => {
     Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
 
     await TestBed.configureTestingModule({
-      imports: [UserLayoutComponent, RouterModule.forRoot([]), NavigationModule],
+      imports: [
+        UserLayoutComponent,
+        // Real routes so `archiveActive` can be exercised by navigating rather than by stubbing
+        // the router state it reads.
+        RouterModule.forRoot([
+          { path: "vault", children: [] },
+          { path: "vault/archive", children: [] },
+          { path: "vault/trash", children: [] },
+        ]),
+        NavigationModule,
+      ],
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
@@ -275,6 +285,26 @@ describe("UserLayoutComponent", () => {
 
         expect(router.navigate).toHaveBeenCalledWith(["/vault", ARCHIVE_ROUTE]);
         expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
+      });
+
+      it("highlights Archive only while the archive is the current page", async () => {
+        const archive = () =>
+          fixture.debugElement
+            .queryAll(By.css("bit-nav-item"))
+            .find((el) => el.componentInstance.text() === "archiveNoun");
+
+        expect(archive().componentInstance.forceActiveStyles()).toBe(false);
+
+        // `navigate` is stubbed for the assertions above, so drive the real router directly.
+        await router.navigateByUrl(`/vault/${ARCHIVE_ROUTE}`);
+        fixture.detectChanges();
+
+        expect(archive().componentInstance.forceActiveStyles()).toBe(true);
+
+        await router.navigateByUrl(`/vault/${TRASH_ROUTE}`);
+        fixture.detectChanges();
+
+        expect(archive().componentInstance.forceActiveStyles()).toBe(false);
       });
 
       it("badges Archive for a non-premium user", () => {

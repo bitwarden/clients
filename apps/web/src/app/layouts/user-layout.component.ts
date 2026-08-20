@@ -3,8 +3,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Router, RouterModule } from "@angular/router";
-import { firstValueFrom, map, Observable, switchMap } from "rxjs";
+import { NavigationEnd, Router, RouterModule } from "@angular/router";
+import { filter, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
 import {
@@ -123,6 +123,34 @@ export class UserLayoutComponent implements OnInit {
 
   protected readonly trashRoute = vaultScopeCommands({ type: VaultScopeType.Trash });
 
+  private readonly archiveRoute = vaultScopeCommands({ type: VaultScopeType.Archive });
+
+  private readonly currentUrl = toSignal(
+    this.router.events.pipe(
+      filter((event) => event instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+
+  /**
+   * Archive is a button rather than a link (see {@link selectArchive}), so it gets no
+   * `routerLinkActive` and has to say for itself when it is the current page.
+   *
+   * `router.isActive` reads router state rather than a signal, so reading {@link currentUrl} is
+   * what ties this to navigation — without it the answer would be computed once and kept.
+   */
+  protected readonly archiveActive = computed(() => {
+    this.currentUrl();
+    return this.router.isActive(this.router.createUrlTree(this.archiveRoute), {
+      // Only this URL counts as the archive; a scoped vault route must not light it up.
+      paths: "exact",
+      queryParams: "ignored",
+      fragment: "ignored",
+      matrixParams: "ignored",
+    });
+  });
+
   /**
    * Stays a click handler rather than a `route` binding: a user without premium and without
    * anything archived is offered an upgrade instead of an empty archive.
@@ -137,7 +165,7 @@ export class UserLayoutComponent implements OnInit {
         return;
       }
     }
-    await this.router.navigate(vaultScopeCommands({ type: VaultScopeType.Archive }));
+    await this.router.navigate(this.archiveRoute);
   }
 
   protected async promptForPremium() {
