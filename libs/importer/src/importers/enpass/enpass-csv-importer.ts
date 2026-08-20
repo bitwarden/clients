@@ -23,7 +23,6 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
       }
 
       const cipher = this.initLoginCipher();
-      cipher.notes = this.getValueOrDefault(value[value.length - 1]);
       cipher.name = this.getValueOrDefault(value[0], "--");
 
       if (
@@ -47,25 +46,27 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
         cipher.card = new CardView();
       }
 
-      if (value.length > 2 && value.length % 2 === 0) {
-        for (let i = 0; i < value.length - 2; i += 2) {
+      if (value.length > 2) {
+        for (let i = 0; i < value.length - 1; i += 2) {
           const fieldValue: string = value[i + 2];
           if (this.isNullOrWhitespace(fieldValue)) {
             continue;
           }
 
           const fieldName: string = value[i + 1];
-          const fieldNameLower = fieldName.toLowerCase();
+          const fieldNameLower = fieldName.replace(/^\*/, "").trim().toLowerCase();
 
           if (cipher.type === CipherType.Login) {
             if (
-              fieldNameLower === "url" &&
+              (fieldNameLower === "url" || fieldNameLower === "website") &&
               (cipher.login.uris == null || cipher.login.uris.length === 0)
             ) {
               cipher.login.uris = this.makeUriArray(fieldValue);
               continue;
             } else if (
-              (fieldNameLower === "username" || fieldNameLower === "email") &&
+              (fieldNameLower === "username" ||
+                fieldNameLower === "email" ||
+                fieldNameLower === "e-mail") &&
               this.isNullOrWhitespace(cipher.login.username)
             ) {
               cipher.login.username = fieldValue;
