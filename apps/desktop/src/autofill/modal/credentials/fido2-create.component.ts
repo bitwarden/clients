@@ -4,7 +4,7 @@ import { RouterModule, Router } from "@angular/router";
 import { catchError, from, Observable, of } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
+import { NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
@@ -12,7 +12,7 @@ import {
   BadgeModule,
   ButtonModule,
   DialogModule,
-  SvgModule,
+  NoItemsModule,
   ItemModule,
   SectionComponent,
   TableModule,
@@ -34,7 +34,7 @@ import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-u
     BitIconButtonComponent,
     TableModule,
     I18nPipe,
-    SvgModule,
+    NoItemsModule,
     ButtonModule,
     DialogModule,
     SectionComponent,
@@ -54,7 +54,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
 
   readonly session = this.fido2UserInterfaceService.getCurrentSession();
   readonly ciphers$: Observable<CipherView[] | null> = this.buildCiphers$();
-  readonly Icons = { BitwardenShield, NoResults };
+  readonly Icons = { NoResults };
 
   private get DIALOG_MESSAGES() {
     return {
@@ -75,7 +75,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         acceptAction: async () => this.dialogService.closeAll(),
       },
       overwritePasskey: {
-        title: { key: "overwritePasskey" },
+        title: { key: "overwritePasskey2" },
         content: { key: "alreadyContainsPasskey" },
         type: "warning",
       },
