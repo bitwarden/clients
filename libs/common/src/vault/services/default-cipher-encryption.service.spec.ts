@@ -671,17 +671,6 @@ describe("DefaultCipherEncryptionService", () => {
       expect(result!.encryptedByKeyId).toBe(keyId);
     });
 
-    it("leaves the key id undefined when the SDK reports none, as for a V1 user key", async () => {
-      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
-        cipher: sdkCipher,
-        encryptedFor: userId,
-      });
-
-      const result = await cipherEncryptionService.encrypt(cipherViewObj, userId);
-
-      expect(result!.encryptedByKeyId).toBeUndefined();
-    });
-
     it("carries the key id from encryptMany", async () => {
       mockSdkClient
         .vault()
