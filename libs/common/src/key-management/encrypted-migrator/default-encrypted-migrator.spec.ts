@@ -167,7 +167,7 @@ describe("EncryptedMigrator", () => {
       );
     });
 
-    it("should run the user key id backfill before any other migration", async () => {
+    it("should run the migrations in the expected order", async () => {
       const order: string[] = [];
       mockUserKeyIdBackfillMigration.needsMigration.mockResolvedValue("needsMigration");
       mockUserKeyIdBackfillMigration.runMigrations.mockImplementation(async () => {
