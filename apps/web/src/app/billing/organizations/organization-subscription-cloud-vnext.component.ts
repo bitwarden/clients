@@ -12,6 +12,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
+  ContainerComponent,
   DialogService,
   FormControlModule,
   ProgressBarComponent,
@@ -70,6 +71,7 @@ const FAMILIES_OR_STARTER_PLANS: PlanType[] = [
     RouterModule,
     AsyncActionsModule,
     ButtonModule,
+    ContainerComponent,
     FormControlModule,
     ProgressBarComponent,
     SpinnerComponent,
@@ -106,7 +108,12 @@ export class OrganizationSubscriptionCloudVNextComponent {
     this.data.resellerSeatsRemaining$(this.organizationId),
   );
 
-  readonly subscription = resource({
+  /**
+   * Returns a subscription preview for the given organization.
+   * @returns A resource that resolves to the subscription preview for the given organization.
+   * @summary Provides a reactive resource for the subscription preview of the organization.
+   */
+  readonly subscriptionPreview = resource({
     params: () => ({ org: this.organization() }),
     loader: async ({ params: { org } }) => {
       return org ? await this.data.getSubscriptionPreview(org.id) : null;
@@ -350,7 +357,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   };
 
   readonly reinstate = async () => {
-    if (this.subscription.isLoading()) {
+    if (this.subscriptionPreview.isLoading()) {
       return;
     }
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -493,6 +500,6 @@ export class OrganizationSubscriptionCloudVNextComponent {
   }
 
   private reload() {
-    this.subscription.reload();
+    this.subscriptionPreview.reload();
   }
 }

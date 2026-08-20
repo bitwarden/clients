@@ -1,150 +1,152 @@
-@let subscriptionPreview = subscription.hasValue() ? subscription.value() : null;
+@let subscription = subscriptionPreview.hasValue() ? subscriptionPreview.value() : null;
 @let org = organization();
 @let orgSub = organizationSubscription();
 
-@if (showSubscription()) {
-  @if (subscriptionPreview) {
-    <billing-subscription-card
-      [title]="cardTitle()"
-      [subscription]="subscriptionPreview"
-      (callToActionClicked)="handleCardAction($event)"
-    >
-      <app-organization-scheduled-price-increase-warning [organization]="org" />
-    </billing-subscription-card>
-  } @else {
-    <bit-spinner></bit-spinner>
-  }
+<bit-container>
+  @if (showSubscription()) {
+    @if (subscriptionPreview && !subscriptionPreview.isLoading()) {
+      <billing-subscription-card
+        [title]="cardTitle()"
+        [subscription]="subscription"
+        (callToActionClicked)="handleCardAction($event)"
+      >
+        <app-organization-scheduled-price-increase-warning [organization]="org" />
+      </billing-subscription-card>
+    } @else {
+      <bit-spinner></bit-spinner>
+    }
 
-  @if (org?.canEditSubscription) {
-    @if (showChangePlanButton()) {
-      <div class="tw-mt-5">
-        <button bitButton buttonType="secondary" type="button" (click)="changePlan()">
-          {{ "changeBillingPlan" | i18n }}
+    @if (org?.canEditSubscription) {
+      @if (showChangePlanButton()) {
+        <div class="tw-mt-5">
+          <button bitButton buttonType="secondary" type="button" (click)="changePlan()">
+            {{ "changeBillingPlan" | i18n }}
+          </button>
+        </div>
+      }
+
+      @if (showSecretsManagerSubscribe() && orgSub) {
+        <div class="tw-mt-7">
+          <sm-subscribe-standalone
+            [plan]="orgSub.plan"
+            [organization]="org"
+            [customerDiscount]="customerDiscount()"
+            (onSubscribe)="subscriptionAdjusted()"
+          ></sm-subscribe-standalone>
+        </div>
+      }
+
+      <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+      <p bitTypography="body1">{{ subscriptionDesc() }}</p>
+
+      @if (canAdjustSubscription()) {
+        <h3 bitTypography="h3" class="tw-mt-7">{{ "passwordManager" | i18n }}</h3>
+        <app-adjust-subscription
+          [seatPrice]="seatPrice()"
+          [organizationId]="organizationId"
+          [interval]="billingInterval()"
+          [currentSeatCount]="seats()"
+          [maxAutoscaleSeats]="maxAutoscaleSeats()"
+          (onAdjusted)="subscriptionAdjusted()"
+        ></app-adjust-subscription>
+      }
+
+      @if (isSponsoredSubscription()) {
+        <button bitButton buttonType="danger" type="button" [bitAction]="removeSponsorship">
+          {{ "removeSponsorship" | i18n }}
         </button>
-      </div>
-    }
+      }
 
-    @if (showSecretsManagerSubscribe() && orgSub) {
-      <div class="tw-mt-7">
-        <sm-subscribe-standalone
-          [plan]="orgSub.plan"
-          [organization]="org"
-          [customerDiscount]="customerDiscount()"
-          (onSubscribe)="subscriptionAdjusted()"
-        ></sm-subscribe-standalone>
-      </div>
-    }
-
-    <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
-    <p bitTypography="body1">{{ subscriptionDesc() }}</p>
-
-    @if (canAdjustSubscription()) {
-      <h3 bitTypography="h3" class="tw-mt-7">{{ "passwordManager" | i18n }}</h3>
-      <app-adjust-subscription
-        [seatPrice]="seatPrice()"
-        [organizationId]="organizationId"
-        [interval]="billingInterval()"
-        [currentSeatCount]="seats()"
-        [maxAutoscaleSeats]="maxAutoscaleSeats()"
-        (onAdjusted)="subscriptionAdjusted()"
-      ></app-adjust-subscription>
-    }
-
-    @if (isSponsoredSubscription()) {
-      <button bitButton buttonType="danger" type="button" [bitAction]="removeSponsorship">
-        {{ "removeSponsorship" | i18n }}
-      </button>
-    }
-
-    @if (canAdjustStorage()) {
-      <h4 bitTypography="h4" class="tw-mt-9">{{ "storage" | i18n }}</h4>
-      <p bitTypography="body1">
-        {{ "subscriptionStorage" | i18n: maxStorageGb() : storageName() }}
-      </p>
-      <bit-progress-bar [value]="storagePercentage()" variant="success">
-        <bit-hint slot="start">{{ storagePercentage() }}%</bit-hint>
-      </bit-progress-bar>
-      @if (canModifySubscription()) {
-        <div class="tw-mt-3">
-          <div class="tw-flex tw-space-x-2">
-            <button
-              bitButton
-              buttonType="secondary"
-              type="button"
-              [bitAction]="adjustStorage(true)"
-            >
-              {{ "addStorage" | i18n }}
-            </button>
-            <button
-              bitButton
-              buttonType="secondary"
-              type="button"
-              [bitAction]="adjustStorage(false)"
-            >
-              {{ "removeStorage" | i18n }}
-            </button>
+      @if (canAdjustStorage()) {
+        <h4 bitTypography="h4" class="tw-mt-9">{{ "storage" | i18n }}</h4>
+        <p bitTypography="body1">
+          {{ "subscriptionStorage" | i18n: maxStorageGb() : storageName() }}
+        </p>
+        <bit-progress-bar [value]="storagePercentage()" variant="success">
+          <bit-hint slot="start">{{ storagePercentage() }}%</bit-hint>
+        </bit-progress-bar>
+        @if (canModifySubscription()) {
+          <div class="tw-mt-3">
+            <div class="tw-flex tw-space-x-2">
+              <button
+                bitButton
+                buttonType="secondary"
+                type="button"
+                [bitAction]="adjustStorage(true)"
+              >
+                {{ "addStorage" | i18n }}
+              </button>
+              <button
+                bitButton
+                buttonType="secondary"
+                type="button"
+                [bitAction]="adjustStorage(false)"
+              >
+                {{ "removeStorage" | i18n }}
+              </button>
+            </div>
           </div>
+        }
+      }
+
+      @if (showAdjustSecretsManager()) {
+        <h3 bitTypography="h3" class="tw-mt-9">{{ "secretsManager" | i18n }}</h3>
+        <app-sm-adjust-subscription
+          [organizationId]="organizationId"
+          [options]="smOptions()"
+          (onAdjusted)="subscriptionAdjusted()"
+        ></app-sm-adjust-subscription>
+      }
+
+      <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>
+      <p bitTypography="body1">{{ "additionalOptionsDesc" | i18n }}</p>
+      @if (canModifySubscription()) {
+        <div class="tw-flex tw-space-x-2">
+          <button bitButton buttonType="danger" type="button" (click)="cancelSubscription()">
+            {{ "cancelSubscription" | i18n }}
+          </button>
         </div>
       }
     }
-
-    @if (showAdjustSecretsManager()) {
-      <h3 bitTypography="h3" class="tw-mt-9">{{ "secretsManager" | i18n }}</h3>
-      <app-sm-adjust-subscription
-        [organizationId]="organizationId"
-        [options]="smOptions()"
-        (onAdjusted)="subscriptionAdjusted()"
-      ></app-sm-adjust-subscription>
-    }
-
-    <h2 bitTypography="h2" class="tw-mt-7">{{ "additionalOptions" | i18n }}</h2>
-    <p bitTypography="body1">{{ "additionalOptionsDesc" | i18n }}</p>
-    @if (canModifySubscription()) {
-      <div class="tw-flex tw-space-x-2">
-        <button bitButton buttonType="danger" type="button" (click)="cancelSubscription()">
-          {{ "cancelSubscription" | i18n }}
-        </button>
-      </div>
-    }
   }
-}
 
-@if (resellerSeatsRemaining() != null) {
-  <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
-  <p bitTypography="body1">
-    {{ "seatsRemaining" | i18n: resellerSeatsRemaining() ?? 0 : org?.seats ?? 0 }}
-  </p>
-}
+  @if (resellerSeatsRemaining() != null) {
+    <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+    <p bitTypography="body1">
+      {{ "seatsRemaining" | i18n: resellerSeatsRemaining() ?? 0 : org?.seats ?? 0 }}
+    </p>
+  }
 
-@if (showSelfHost()) {
-  <h2 bitTypography="h2" class="tw-mt-7">{{ "selfHostingTitleProper" | i18n }}</h2>
-  <p bitTypography="body1">{{ "toHostBitwardenOnYourOwnServer" | i18n }}</p>
-  <div class="tw-flex tw-space-x-2">
-    <button bitButton buttonType="secondary" type="button" (click)="downloadLicense()">
-      {{ "downloadLicense" | i18n }}
-    </button>
-    @if (canUseBillingSync()) {
-      <button bitButton buttonType="secondary" type="button" (click)="manageBillingSync()">
-        {{ (hasBillingSyncToken() ? "viewBillingToken" : "setUpBillingSync") | i18n }}
+  @if (showSelfHost()) {
+    <h2 bitTypography="h2" class="tw-mt-7">{{ "selfHostingTitleProper" | i18n }}</h2>
+    <p bitTypography="body1">{{ "toHostBitwardenOnYourOwnServer" | i18n }}</p>
+    <div class="tw-flex tw-space-x-2">
+      <button bitButton buttonType="secondary" type="button" (click)="downloadLicense()">
+        {{ "downloadLicense" | i18n }}
       </button>
-    }
-  </div>
-}
-
-@if (showConsolidatedBillingMsp()) {
-  <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
-  @if (org?.isProviderUser) {
-    <p bitTypography="body1">
-      {{ "manageSubscriptionFromThe" | i18n }}
-      <a [routerLink]="['/providers', org.providerId, 'billing', 'subscription']">
-        {{ "providerPortal" | i18n }}
-      </a>
-      .
-    </p>
-  } @else {
-    <p bitTypography="body1">
-      {{ "billingManagedByProvider" | i18n: org?.providerName || "" }}.
-      {{ "billingContactProviderForAssistance" | i18n }}.
-    </p>
+      @if (canUseBillingSync()) {
+        <button bitButton buttonType="secondary" type="button" (click)="manageBillingSync()">
+          {{ (hasBillingSyncToken() ? "viewBillingToken" : "setUpBillingSync") | i18n }}
+        </button>
+      }
+    </div>
   }
-}
+
+  @if (showConsolidatedBillingMsp()) {
+    <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
+    @if (org?.isProviderUser) {
+      <p bitTypography="body1">
+        {{ "manageSubscriptionFromThe" | i18n }}
+        <a [routerLink]="['/providers', org.providerId, 'billing', 'subscription']">
+          {{ "providerPortal" | i18n }}
+        </a>
+        .
+      </p>
+    } @else {
+      <p bitTypography="body1">
+        {{ "billingManagedByProvider" | i18n: org?.providerName || "" }}.
+        {{ "billingContactProviderForAssistance" | i18n }}.
+      </p>
+    }
+  }
+</bit-container>
