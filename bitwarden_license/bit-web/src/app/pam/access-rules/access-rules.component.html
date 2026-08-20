@@ -5,15 +5,43 @@
       bitButton
       buttonType="primary"
       startIcon="bwi-plus"
-      [bitAction]="openCreate"
+      [bitMenuTriggerFor]="createMenu"
       id="access-rules_button_new"
     >
       {{ "pamAccessRuleCreate" | i18n }}
     </button>
+    <bit-menu #createMenu [ariaLabel]="'pamAccessRuleCreate' | i18n">
+      <!-- Custom stays first: the trigger focuses the first item on every open. -->
+      <button type="button" bitMenuItem (click)="openCreate()" id="access-rules_button_new-custom">
+        <bit-icon fixedWidth name="bwi-lock-encrypted" slot="start" />
+        {{ "custom" | i18n }}
+      </button>
+      <bit-menu-divider />
+      <div role="group" aria-labelledby="access-rules_label_templates" class="tw-contents">
+        <span
+          id="access-rules_label_templates"
+          bitTypography="helper"
+          class="tw-px-2 tw-pt-1 tw-text-muted"
+        >
+          {{ "pamAccessRulesStartFromTemplate" | i18n }}
+        </span>
+        @for (template of templates; track template.key) {
+          <button
+            type="button"
+            bitMenuItem
+            (click)="openFromTemplate(template.key)"
+            [id]="'access-rules_button_new-template-' + template.key"
+          >
+            <bit-icon fixedWidth [name]="template.icon" slot="start" />
+            {{ template.titleKey | i18n }}
+          </button>
+        }
+      </div>
+    </bit-menu>
   }
 </app-header>
 
-<p bitTypography="body">{{ "pamAccessRulesSubheading" | i18n }}</p>
+<p bitTypography="body1">{{ "pamAccessRulesSubheading" | i18n }}</p>
 
 @if (!loading()) {
   @if (rules().length > 0) {
