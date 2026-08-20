@@ -10,8 +10,7 @@ import {
   extensionsByLeaseId,
   historyDisplayStatus,
   resolveResolver,
-  statusBadgeVariant,
-  statusLabelKey,
+  terminalStatusBadge,
   toLeaseRow,
   toRequestRow,
 } from "./my-access-row";
@@ -76,15 +75,14 @@ function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
   return { ...emptyResolvedNames(), ...overrides };
 }
 
-describe("statusLabelKey / statusBadgeVariant", () => {
+describe("terminalStatusBadge", () => {
   it.each([
     ["denied", "pamStatusDenied", "danger"],
     ["canceled", "pamStatusCanceled", "subtle"],
     ["expired", "pamStatusExpired", "warning"],
     ["unknown", "pamStatusUnknown", "subtle"],
   ] as const)("maps %s to %s / %s", (status, labelKey, variant) => {
-    expect(statusLabelKey(status)).toBe(labelKey);
-    expect(statusBadgeVariant(status)).toBe(variant);
+    expect(terminalStatusBadge(status)).toEqual({ labelKey, variant });
   });
 });
 
