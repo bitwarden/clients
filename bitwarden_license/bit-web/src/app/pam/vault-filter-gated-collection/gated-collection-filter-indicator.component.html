@@ -1,0 +1,10 @@
+@if (gated()) {
+  <bit-icon
+    class="tw-text-muted"
+    data-testid="vault-filter-gated-collection"
+    name="bwi-lock"
+    fixedWidth
+    [ariaLabel]="requiresRequestLabel"
+    [title]="requiresRequestLabel"
+  />
+}
