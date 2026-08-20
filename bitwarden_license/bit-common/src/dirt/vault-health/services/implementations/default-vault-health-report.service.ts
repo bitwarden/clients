@@ -1,4 +1,4 @@
-import { BehaviorSubject, distinctUntilChanged, map, Observable } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, Observable } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -17,22 +17,14 @@ import { VaultHealthReportStatus } from "../../models/vault-health-report-status
 import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 import { VaultHealthReportService } from "../abstractions/vault-health-report.service";
 
-/** A published state plus the user it belongs to. */
-type ScopedState = { userId: UserId } & VaultHealthReportState;
-
 export class DefaultVaultHealthReportService implements VaultHealthReportService {
-  private readonly state = new BehaviorSubject<ScopedState | null>(null);
-
   /**
-   * Counts builds so a superseded one cannot publish.
-   *
-   * A build cannot be cancelled once its promise is in flight, so switching
-   * account mid-generation leaves the abandoned build running. Without this it
-   * would overwrite the new account's state on resolve, and because only one
-   * build runs per Health tab open, nothing would publish again: the tab would
-   * sit on the progress view indefinitely.
+   * One stream per user, so a build that resolves after the account switched
+   * publishes into the user it belongs to and can't overwrite another. Dies with
+   * the popup. Overlapping builds for the same user are the caller's concern: the
+   * last to resolve wins.
    */
-  private generation = 0;
+  private readonly states = new Map<UserId, BehaviorSubject<VaultHealthReportState>>();
 
   constructor(
     private cipherRiskService: CipherRiskService,
@@ -45,54 +37,38 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
    * published status, not a thrown error).
    */
   async buildVaultHealthReport(ciphers: CipherView[], userId: UserId): Promise<void> {
-    const generation = ++this.generation;
-    const retained = this.retainedReport(userId);
-    this.publish(generation, {
-      userId,
-      status: VaultHealthReportStatus.Loading,
-      report: retained,
-    });
+    const state = this.stateFor(userId);
+    const retained = state.value.report;
+    state.next({ status: VaultHealthReportStatus.Loading, report: retained });
 
     try {
       const logins = this.filterScopedLogins(ciphers);
       const report = await this.buildReport(logins, userId);
-      this.publish(generation, { userId, status: VaultHealthReportStatus.Success, report });
+      state.next({ status: VaultHealthReportStatus.Success, report });
     } catch (error) {
-      // Logged here rather than in the caller so a failed report is
-      // identifiable in a log dump no matter who triggered it. Logged even when
-      // the build has been superseded, so the failure is not lost.
+      // Logged here so a failed report is identifiable in a log dump no matter
+      // who triggered it.
       this.logService.error("Vault health report generation failed", error);
-      this.publish(generation, {
-        userId,
-        status: VaultHealthReportStatus.Error,
-        report: retained,
-      });
+      state.next({ status: VaultHealthReportStatus.Error, report: retained });
     }
   }
 
-  /** Publishes only while `generation` is still the newest build. */
-  private publish(generation: number, next: ScopedState): void {
-    if (generation !== this.generation) {
-      return;
+  /**
+   * This user's stream, created on first use. Created on read too, so a
+   * subscriber that arrives before any build still receives its publishes.
+   */
+  private stateFor(userId: UserId): BehaviorSubject<VaultHealthReportState> {
+    let state = this.states.get(userId);
+    if (state == null) {
+      state = new BehaviorSubject<VaultHealthReportState>(VAULT_HEALTH_REPORT_IDLE);
+      this.states.set(userId, state);
     }
-    this.state.next(next);
-  }
-
-  /** The last report successfully built for `userId`, or null if there is none. */
-  private retainedReport(userId: UserId): VaultHealthReportView | null {
-    const current = this.state.value;
-    return current?.userId === userId ? current.report : null;
+    return state;
   }
 
   /** The user's scan status and latest report; `idle` with no report until a build runs. */
   getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState> {
-    return this.state.pipe(
-      map((scoped) =>
-        scoped?.userId === userId
-          ? { status: scoped.status, report: scoped.report }
-          : VAULT_HEALTH_REPORT_IDLE,
-      ),
-      // Each emit is a new object, so compare by fields rather than by reference.
+    return this.stateFor(userId).pipe(
       distinctUntilChanged((a, b) => a.status === b.status && a.report === b.report),
     );
   }
@@ -108,16 +84,13 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
    * @returns n/a
    */
   deleteItemFromReport(cipherId: string, category: RiskCategory, userId: UserId): void {
-    const current = this.state.value;
-    if (current?.userId !== userId) {
-      return;
-    }
+    const state = this.stateFor(userId);
     // Nothing to remove from until a report has been built for this user.
-    if (current.report == null) {
+    if (state.value.report == null) {
       return;
     }
 
-    const report = current.report;
+    const report = state.value.report;
     const items = report.categoryItems[category].filter((item) => item.cipherId !== cipherId);
     if (items.length === report.categoryItems[category].length) {
       return;
@@ -134,7 +107,7 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
       categoryItems: { ...report.categoryItems, [category]: items },
     });
 
-    this.state.next({ userId, status: VaultHealthReportStatus.Success, report: updated });
+    state.next({ status: VaultHealthReportStatus.Success, report: updated });
   }
 
   /**

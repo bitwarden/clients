@@ -404,7 +404,9 @@ describe("DefaultVaultHealthReportService", () => {
       await expect(currentReport()).resolves.not.toBeNull();
     });
 
-    it("drops the previous user's report once a scan runs for another user", async () => {
+    it("keeps each user's report independent when another user scans", async () => {
+      // Each user has their own stream, so scanning for one leaves the other's
+      // report untouched.
       const otherUserId = "other-user-id" as UserId;
       await service.buildVaultHealthReport(
         withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
@@ -415,7 +417,8 @@ describe("DefaultVaultHealthReportService", () => {
         otherUserId,
       );
 
-      await expect(currentReport()).resolves.toBeNull();
+      const mine = await currentReport();
+      expect(cipherIds(mine!.categoryItems.exposed)).toEqual(["a"]);
       const other = await currentReport(otherUserId);
       expect(cipherIds(other!.categoryItems.weak)).toEqual(["b"]);
     });
