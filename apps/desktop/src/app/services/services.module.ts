@@ -58,6 +58,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -166,6 +167,7 @@ import { DesktopFido2MacOsUserVerificationService } from "../../autofill/service
 import { DesktopFido2UnsupportedUserVerificationService } from "../../autofill/services/desktop-fido2-unsupported-user-verification.service";
 import { DesktopFido2UserInterfaceService } from "../../autofill/services/desktop-fido2-user-interface.service";
 import { DesktopFido2UserVerificationService } from "../../autofill/services/desktop-fido2-user-verification.service.abstraction";
+import { DesktopFido2WindowsUserVerificationService } from "../../autofill/services/desktop-fido2-windows-user-verification.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
 import { ElectronKeyService } from "../../key-management/electron-key.service";
@@ -450,6 +452,8 @@ const safeProviders: SafeProvider[] = [
       switch (platformUtilsService.getDevice()) {
         case DeviceType.MacOsDesktop:
           return new DesktopFido2MacOsUserVerificationService(i18nService, logService);
+        case DeviceType.WindowsDesktop:
+          return new DesktopFido2WindowsUserVerificationService(i18nService, logService);
         default:
           return new DesktopFido2UnsupportedUserVerificationService(logService);
       }
@@ -469,6 +473,7 @@ const safeProviders: SafeProvider[] = [
       DesktopSettingsService,
       DesktopFido2UserVerificationService,
       PasswordRepromptService,
+      DomainSettingsService,
     ],
   }),
   safeProvider({
@@ -531,6 +536,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
