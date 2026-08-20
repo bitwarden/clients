@@ -1,11 +1,16 @@
 import { ChangeDetectionStrategy, Component, ElementRef, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { BehaviorSubject } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { I18nMockService, ScrollLayoutService } from "@bitwarden/components";
+import {
+  BitIconButtonComponent,
+  I18nMockService,
+  ScrollLayoutService,
+} from "@bitwarden/components";
 
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
@@ -275,6 +280,22 @@ describe("PopupHeaderComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector("button[bitIconButton]")).not.toBeNull();
+    });
+
+    /** The one-bar header keeps `main`'s default button; the two-bar header sizes it down. */
+    it.each<[boolean, string]>([
+      [false, "default"],
+      [true, "small"],
+    ])("sizes the button for the bar it sits in (flag on: %s)", (enabled, size) => {
+      vfo1Enabled.next(enabled);
+      fixture.componentInstance.showBackButton.set(true);
+      fixture.detectChanges();
+
+      const button = fixture.debugElement
+        .query(By.directive(BitIconButtonComponent))
+        .injector.get(BitIconButtonComponent);
+
+      expect(button.size()).toBe(size);
     });
   });
 

@@ -17,7 +17,7 @@
       [buttonType]="backButtonType()"
       [label]="'back' | i18n"
       [bitAction]="backAction()"
-      size="small"
+      [size]="vfo1Enabled() ? 'small' : 'default'"
     ></button>
   }
 </ng-template>
@@ -31,17 +31,17 @@
   @if (vfo1Enabled()) {
     <div
       data-testid="app-bar"
-      class="tw-bg-bg-nav tw-text-fg-nav tw-py-3 bit-compact:tw-py-2 tw-px-4 bit-compact:tw-px-3"
+      class="tw-bg-bg-nav tw-text-fg-nav tw-py-2 bit-compact:tw-py-1.5 tw-px-4 bit-compact:tw-px-3"
     >
       <div
-        class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2 tw-h-9"
+        class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2"
       >
         <div class="tw-inline-flex tw-items-center tw-gap-2">
           @if (titleBarSuppressed()) {
             <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
           }
           <bit-svg
-            class="tw-block tw-w-28 [&_path]:tw-fill-fg-nav"
+            class="tw-block tw-w-[120px] [&_path]:tw-fill-fg-nav"
             [content]="logo"
             [ariaLabel]="'appLogoLabel' | i18n"
           ></bit-svg>
@@ -55,7 +55,11 @@
 
   <div data-testid="title-bar" [class]="titleBarClasses()">
     <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
-      <div class="tw-inline-flex tw-items-center tw-gap-2">
+      <!--
+        TODO: remove the `tw-h-9` bindings with the VFO1Foundation flag.
+        The one-bar header pins its content rows to a fixed 36px; the title bar sizes to its content.
+      -->
+      <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
         @if (!titleBarSuppressed()) {
           <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
         }
@@ -79,7 +83,7 @@
           <ng-content></ng-content>
         }
       </div>
-      <div class="tw-inline-flex tw-items-center tw-gap-2">
+      <div class="tw-inline-flex tw-items-center tw-gap-2" [class.tw-h-9]="!vfo1Enabled()">
         @if (vfo1Enabled()) {
           <ng-content select="[slot=title-end]"></ng-content>
         } @else {
