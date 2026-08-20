@@ -1,6 +1,8 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -10,6 +12,9 @@ import { AccessRequestSdkService } from "../abstractions/access-request-sdk.serv
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 
+const PAM_ORG = "org-1";
+const PLAIN_ORG = "org-2";
+
 describe("VaultRowLeaseBadgeComponent", () => {
   let fixture: ComponentFixture<VaultRowLeaseBadgeComponent>;
   let component: VaultRowLeaseBadgeComponent;
@@ -17,6 +22,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
   let accessRequestSdkService: {
     getCipherAccessState: jest.Mock<Promise<CipherAccessStateView>, [string]>;
   };
+  let organizations$: BehaviorSubject<{ id: string; usePam: boolean }[]>;
 
   function create(cipher: CipherView): void {
     fixture = TestBed.createComponent(VaultRowLeaseBadgeComponent);
@@ -32,22 +38,41 @@ describe("VaultRowLeaseBadgeComponent", () => {
     fixture.detectChanges();
   }
 
-  function gatedCipher(): CipherView {
+  function gatedCipher(organizationId = PAM_ORG): CipherView {
     const cipher = new CipherView();
     cipher.id = "cipher-1";
     cipher.partial = true;
+    cipher.organizationId = organizationId as CipherView["organizationId"];
     return cipher;
+  }
+
+  function ungatedCipher(organizationId?: string): CipherView {
+    const cipher = new CipherView();
+    cipher.id = "cipher-1";
+    cipher.partial = false;
+    cipher.organizationId = (organizationId ?? null) as CipherView["organizationId"];
+    return cipher;
+  }
+
+  function placeholder(): HTMLElement | null {
+    return fixture.nativeElement.querySelector("[data-testid='vault-row-no-access-rule']");
   }
 
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
     accessRequestSdkService = { getCipherAccessState: jest.fn() };
+    organizations$ = new BehaviorSubject<{ id: string; usePam: boolean }[]>([
+      { id: PAM_ORG, usePam: true },
+      { id: PLAIN_ORG, usePam: false },
+    ]);
 
     TestBed.configureTestingModule({
       imports: [VaultRowLeaseBadgeComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
         { provide: AccessRequestSdkService, useValue: accessRequestSdkService },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
@@ -58,11 +83,8 @@ describe("VaultRowLeaseBadgeComponent", () => {
 
   it("renders nothing for a non-gated cipher", async () => {
     accessRequestSdkService.getCipherAccessState.mockResolvedValue({} as CipherAccessStateView);
-    const cipher = new CipherView();
-    cipher.id = "cipher-1";
-    cipher.partial = false;
 
-    create(cipher);
+    create(ungatedCipher(PAM_ORG));
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -133,6 +155,97 @@ describe("VaultRowLeaseBadgeComponent", () => {
     fixture.detectChanges();
 
     expect(component["badge"]()).toBeNull();
+  });
+
+  describe("the no-access-rule placeholder", () => {
+    it("draws an em dash for an ungated cipher in a PAM organization", async () => {
+      create(ungatedCipher(PAM_ORG));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(true);
+      expect(placeholder()?.textContent?.trim()).toBe("\u2014");
+    });
+
+    it("names the empty state for screen readers, since the dash is aria-hidden", async () => {
+      create(ungatedCipher(PAM_ORG));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(placeholder()?.getAttribute("aria-hidden")).toBe("true");
+      expect(fixture.nativeElement.querySelector(".tw-sr-only")?.textContent?.trim()).toBe(
+        "pamNoAccessRule",
+      );
+    });
+
+    // `hasEnabledAccessRule` defaults to false and is read off the response as `|| false`, so a
+    // server too old to derive it looks exactly like one reporting no rule. Blank, not a dash.
+    it("draws no em dash for an ungoverned collection, whose flag cannot say it was checked", () => {
+      createForCollection({ hasEnabledAccessRule: false });
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
+    });
+
+    it("draws no em dash for a cipher whose organization does not use PAM", async () => {
+      create(ungatedCipher(PLAIN_ORG));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
+    });
+
+    it("draws no em dash for a collection a rule does govern", () => {
+      createForCollection({ hasEnabledAccessRule: true });
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
+    });
+
+    it("draws no em dash for a personal cipher, which belongs to no organization", async () => {
+      create(ungatedCipher());
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
+    });
+
+    it("draws no em dash while the PAM flag is off", async () => {
+      enabled$.next(false);
+
+      create(ungatedCipher(PAM_ORG));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
+    });
+
+    it("draws no em dash when the access-state fetch fails, which is not evidence of no rule", async () => {
+      accessRequestSdkService.getCipherAccessState.mockRejectedValue(new Error("boom"));
+
+      create(gatedCipher(PAM_ORG));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
+    });
+
+    it("draws the badge and no em dash when the row is governed", async () => {
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+        badgeState: "privileged",
+      } as unknown as CipherAccessStateView);
+
+      create(gatedCipher(PAM_ORG));
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
+    });
   });
 
   describe("on a collection row", () => {
