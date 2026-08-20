@@ -17343,8 +17343,8 @@
   "pamStartLeaseError": {
     "message": "Couldn't start access."
   },
-  "pamMyRequestsCancelSuccess": {
-    "message": "Request cancelled"
+  "pamMyRequestsCanceledToast": {
+    "message": "Request canceled"
   },
   "pamMyRequestsCancelError": {
     "message": "Could not cancel request"
@@ -17396,9 +17396,6 @@
   },
   "pamStatusRevoked": {
     "message": "Revoked"
-  },
-  "pamStatusEndedByYou": {
-    "message": "Cancelled"
   },
   "pamStatusUnknown": {
     "message": "Unknown"
@@ -17496,8 +17493,8 @@
   "pamAuditKindRequestDenied": {
     "message": "Request denied"
   },
-  "pamAuditKindRequestCancelled": {
-    "message": "Request cancelled"
+  "pamAuditKindRequestCanceled": {
+    "message": "Request canceled"
   },
   "pamAuditKindRequestExpiredUnanswered": {
     "message": "Request expired without a decision"
@@ -17820,8 +17817,8 @@
   "pamInboxRevokedToast": {
     "message": "Access revoked"
   },
-  "pamInboxCancelApprovalToast": {
-    "message": "Approval cancelled"
+  "pamInboxApprovalCanceledToast": {
+    "message": "Approval canceled"
   },
   "pamInboxCancelApprovalFailed": {
     "message": "Could not cancel approval"
