@@ -16834,6 +16834,10 @@
   "pamAccessRules": {
     "message": "Access rules"
   },
+  "pamCollectionRequiresRequest": {
+    "message": "Items in this collection require a request.",
+    "description": "Names the restriction on a collection governed by an access rule. Shared verbatim by the lock indicator in the vault's Filters sidebar and the banner shown when the collection is opened; the two must always say the same thing."
+  },
   "pamNoAccessRule": {
     "message": "No access rule",
     "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
