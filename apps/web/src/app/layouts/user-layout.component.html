@@ -2,62 +2,128 @@
   <app-side-nav>
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
 
-    <bit-nav-item icon="bwi-vault" [text]="'vaults' | i18n" route="vault"></bit-nav-item>
-    @if (sendEnabled$ | async) {
-      <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
-    }
-    <bit-nav-group
-      icon="bwi-wrench"
-      [text]="'tools' | i18n"
-      route="tools"
-      [open]="toolsNavGroupOpen()"
-      [bitPopoverAnchorFor]="importCoachmark.popover()"
-      [popoverOpen]="importCoachmarkOpen() && !sideNavService.open()"
-      [position]="coachmarkService.getStepPosition('importData')"
-      [closeOnBackdropClick]="false"
-      [spotlight]="true"
-    >
-      <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
-      <bit-nav-item
-        [text]="'importNoun' | i18n"
-        route="tools/import"
+    @if (vfo1Enabled()) {
+      <vault-nav-section />
+
+      <bit-nav-section [label]="'tools' | i18n">
+        <bit-nav-item icon="bwi-file-text" [text]="'reports' | i18n" route="reports"></bit-nav-item>
+        @if (sendEnabled$ | async) {
+          <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
+        }
+        <bit-nav-item
+          icon="bwi-generate"
+          [text]="'generator' | i18n"
+          route="tools/generator"
+        ></bit-nav-item>
+      </bit-nav-section>
+
+      <bit-nav-section [label]="'manage' | i18n">
+        <bit-nav-item icon="bwi-folder" [text]="'myFolders' | i18n"></bit-nav-item>
+        <bit-nav-item
+          icon="bwi-archive"
+          [text]="'archiveNoun' | i18n"
+          (mainContentClicked)="selectArchive()"
+        >
+          @if (showArchivePremiumBadge()) {
+            <button
+              type="button"
+              slot="end"
+              bit-chip-action
+              startIcon="bwi-diamond"
+              [label]="'upgrade' | i18n"
+              size="small"
+              (click)="promptForPremium()"
+            ></button>
+          }
+        </bit-nav-item>
+        <bit-nav-item
+          icon="bwi-trash"
+          [text]="'trash' | i18n"
+          (mainContentClicked)="selectItemType('trash')"
+        ></bit-nav-item>
+        <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
+          <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
+          <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
+          <bit-nav-item [text]="'appearance' | i18n" route="settings/appearance"></bit-nav-item>
+          @let vfo1SubscriptionRoute = subscriptionRoute$ | async;
+          @if (vfo1SubscriptionRoute) {
+            <bit-nav-item
+              [text]="'subscription' | i18n"
+              [route]="vfo1SubscriptionRoute"
+            ></bit-nav-item>
+          }
+          <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
+          @if (showEmergencyAccess()) {
+            <bit-nav-item
+              [text]="'emergencyAccess' | i18n"
+              route="settings/emergency-access"
+            ></bit-nav-item>
+          }
+          @if (!singleOrgPolicyApplies()) {
+            <bit-nav-item [text]="'addPlan' | i18n" route="settings/add-plan"></bit-nav-item>
+          }
+          <billing-free-families-nav-item></billing-free-families-nav-item>
+          <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
+        </bit-nav-group>
+      </bit-nav-section>
+    } @else {
+      <bit-nav-item icon="bwi-vault" [text]="'vaults' | i18n" route="vault"></bit-nav-item>
+      @if (sendEnabled$ | async) {
+        <bit-nav-item icon="bwi-send" [text]="'send' | i18n" route="sends"></bit-nav-item>
+      }
+      <bit-nav-group
+        icon="bwi-wrench"
+        [text]="'tools' | i18n"
+        route="tools"
+        [open]="toolsNavGroupOpen()"
         [bitPopoverAnchorFor]="importCoachmark.popover()"
-        [popoverOpen]="importCoachmarkOpen() && sideNavService.open()"
+        [popoverOpen]="importCoachmarkOpen() && !sideNavService.open()"
         [position]="coachmarkService.getStepPosition('importData')"
         [closeOnBackdropClick]="false"
         [spotlight]="true"
-      ></bit-nav-item>
-      <app-coachmark #importCoachmark stepId="importData" />
-      <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
-    </bit-nav-group>
-    <bit-nav-item
-      icon="bwi-sliders"
-      [text]="'reports' | i18n"
-      route="reports"
-      [bitPopoverAnchorFor]="reportsCoachmark.popover()"
-      [popoverOpen]="reportsCoachmarkOpen()"
-      [position]="coachmarkService.getStepPosition('monitorSecurity')"
-      [closeOnBackdropClick]="false"
-      [spotlight]="true"
-    ></bit-nav-item>
-    <app-coachmark #reportsCoachmark stepId="monitorSecurity" />
-    <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
-      <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
-      <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
-      <bit-nav-item [text]="'appearance' | i18n" route="settings/appearance"></bit-nav-item>
-      @let subscriptionRoute = subscriptionRoute$ | async;
-      @if (subscriptionRoute) {
-        <bit-nav-item [text]="'subscription' | i18n" [route]="subscriptionRoute"></bit-nav-item>
-      }
-      <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
-      @if (showEmergencyAccess()) {
+      >
+        <bit-nav-item [text]="'generator' | i18n" route="tools/generator"></bit-nav-item>
         <bit-nav-item
-          [text]="'emergencyAccess' | i18n"
-          route="settings/emergency-access"
+          [text]="'importNoun' | i18n"
+          route="tools/import"
+          [bitPopoverAnchorFor]="importCoachmark.popover()"
+          [popoverOpen]="importCoachmarkOpen() && sideNavService.open()"
+          [position]="coachmarkService.getStepPosition('importData')"
+          [closeOnBackdropClick]="false"
+          [spotlight]="true"
         ></bit-nav-item>
-      }
-      <billing-free-families-nav-item></billing-free-families-nav-item>
-    </bit-nav-group>
+        <app-coachmark #importCoachmark stepId="importData" />
+        <bit-nav-item [text]="'exportNoun' | i18n" route="tools/export"></bit-nav-item>
+      </bit-nav-group>
+      <bit-nav-item
+        icon="bwi-sliders"
+        [text]="'reports' | i18n"
+        route="reports"
+        [bitPopoverAnchorFor]="reportsCoachmark.popover()"
+        [popoverOpen]="reportsCoachmarkOpen()"
+        [position]="coachmarkService.getStepPosition('monitorSecurity')"
+        [closeOnBackdropClick]="false"
+        [spotlight]="true"
+      ></bit-nav-item>
+      <app-coachmark #reportsCoachmark stepId="monitorSecurity" />
+      <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n" route="settings">
+        <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
+        <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
+        <bit-nav-item [text]="'appearance' | i18n" route="settings/appearance"></bit-nav-item>
+        @let subscriptionRoute = subscriptionRoute$ | async;
+        @if (subscriptionRoute) {
+          <bit-nav-item [text]="'subscription' | i18n" [route]="subscriptionRoute"></bit-nav-item>
+        }
+        <bit-nav-item [text]="'domainRules' | i18n" route="settings/domain-rules"></bit-nav-item>
+        @if (showEmergencyAccess()) {
+          <bit-nav-item
+            [text]="'emergencyAccess' | i18n"
+            route="settings/emergency-access"
+          ></bit-nav-item>
+        }
+        <billing-free-families-nav-item></billing-free-families-nav-item>
+      </bit-nav-group>
+    }
   </app-side-nav>
 
   <router-outlet></router-outlet>
