@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,14 +7,8 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
 
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import type { AccessRuleView } from "../abstractions/access-rule";
-import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
-
-function accessRule(enabled: boolean, collections: string[]): AccessRuleView {
-  return { enabled, collections } as unknown as AccessRuleView;
-}
 
 describe("VaultRowLeaseBadgeComponent", () => {
   let fixture: ComponentFixture<VaultRowLeaseBadgeComponent>;
@@ -24,7 +17,6 @@ describe("VaultRowLeaseBadgeComponent", () => {
   let accessRequestSdkService: {
     getCipherAccessState: jest.Mock<Promise<CipherAccessStateView>, [string]>;
   };
-  let governedCollections: MockProxy<GovernedCollectionsService>;
 
   function create(cipher: CipherView): void {
     fixture = TestBed.createComponent(VaultRowLeaseBadgeComponent);
@@ -33,7 +25,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
     fixture.detectChanges();
   }
 
-  function createForCollection(collection: { id?: string; organizationId?: string }): void {
+  function createForCollection(collection: { hasEnabledAccessRule?: boolean }): void {
     fixture = TestBed.createComponent(VaultRowLeaseBadgeComponent);
     fixture.componentRef.setInput("collection", collection);
     component = fixture.componentInstance;
@@ -50,15 +42,12 @@ describe("VaultRowLeaseBadgeComponent", () => {
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
     accessRequestSdkService = { getCipherAccessState: jest.fn() };
-    governedCollections = mock<GovernedCollectionsService>();
-    governedCollections.rules$.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
       imports: [VaultRowLeaseBadgeComponent],
       providers: [
         { provide: ConfigService, useValue: { getFeatureFlag$: () => enabled$ } },
         { provide: AccessRequestSdkService, useValue: accessRequestSdkService },
-        { provide: GovernedCollectionsService, useValue: governedCollections },
         {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
@@ -147,44 +136,30 @@ describe("VaultRowLeaseBadgeComponent", () => {
   });
 
   describe("on a collection row", () => {
-    it("resolves the privileged pill for a collection governed by an enabled rule", () => {
-      governedCollections.rules$.mockReturnValue(of([accessRule(true, ["col-1"])]));
-
-      createForCollection({ id: "col-1", organizationId: "org-1" });
+    it("resolves the privileged pill when the collection has an enabled access rule", () => {
+      createForCollection({ hasEnabledAccessRule: true });
 
       expect(component["badge"]()).toEqual({ kind: "privileged" });
     });
 
-    it("renders nothing when only a disabled rule names the collection", () => {
-      governedCollections.rules$.mockReturnValue(of([accessRule(false, ["col-1"])]));
-
-      createForCollection({ id: "col-1", organizationId: "org-1" });
-
-      expect(component["badge"]()).toBeNull();
-    });
-
     it("renders nothing for an ungoverned collection", () => {
-      governedCollections.rules$.mockReturnValue(of([accessRule(true, ["col-other"])]));
-
-      createForCollection({ id: "col-1", organizationId: "org-1" });
+      createForCollection({ hasEnabledAccessRule: false });
 
       expect(component["badge"]()).toBeNull();
     });
 
-    it("renders nothing while the PAM flag is off, without reading rules", () => {
+    it("renders nothing while the PAM flag is off", () => {
       enabled$.next(false);
 
-      createForCollection({ id: "col-1", organizationId: "org-1" });
+      createForCollection({ hasEnabledAccessRule: true });
 
       expect(component["badge"]()).toBeNull();
-      expect(governedCollections.rules$).not.toHaveBeenCalled();
     });
 
-    it("renders nothing for pseudo-collections with no id or organization (e.g. Unassigned)", () => {
-      createForCollection({ id: undefined, organizationId: undefined });
+    it("renders nothing for pseudo-collections carrying no server state (e.g. Unassigned)", () => {
+      createForCollection({});
 
       expect(component["badge"]()).toBeNull();
-      expect(governedCollections.rules$).not.toHaveBeenCalled();
     });
   });
 });
