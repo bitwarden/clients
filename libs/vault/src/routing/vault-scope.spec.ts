@@ -133,6 +133,13 @@ describe("rememberableParams", () => {
     });
   });
 
+  // An allowlist, so a param that turns up under the namespace later isn't persisted by accident.
+  it("drops a namespaced param it doesn't recognize", () => {
+    expect(rememberableParams({ "vault.type": "1", "vault.selectedRow": "c-1" })).toEqual({
+      "vault.type": "1",
+    });
+  });
+
   it("returns nothing for a URL with no filter params", () => {
     expect(rememberableParams({ itemId: "c-1" })).toEqual({});
   });

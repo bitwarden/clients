@@ -21,6 +21,13 @@ const routes: Routes = [
     featureFlag: FeatureFlag.VFO1Foundation,
     routeOptions: {
       path: "",
+      data: { titleId: "vaults" } satisfies RouteDataProperties,
+    },
+    // Filter memory and the legacy param rewrite only mean anything to the VFO1 vault, so they hang
+    // off the flagged route. That keeps the pre-VFO1 vault from recording filters it can't read
+    // back, and saves `vaultFilterRestoreGuard` from re-checking the flag itself.
+    flaggedRouteOptions: {
+      path: "",
       data: { titleId: "vaults", vaultFilterScope: true } satisfies RouteDataProperties &
         VaultScopeRouteData,
       // Order matters: the legacy rewrite runs first, so a pre-namespace URL's own filters win

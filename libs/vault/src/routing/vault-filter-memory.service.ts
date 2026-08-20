@@ -1,18 +1,18 @@
-import { computed, inject, Injectable, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { NavigationEnd, Params, Router } from "@angular/router";
-import { debounceTime, filter, Subject } from "rxjs";
+import { inject, Injectable } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { NavigationEnd, NavigationStart, Params, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   StateProvider,
   UserKeyDefinition,
   VAULT_FILTER_DISK,
 } from "@bitwarden/common/platform/state";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { rememberableParams, VaultScope, vaultScopeOf } from "./vault-scope";
-
-/** Remembered filter params, keyed by the scope they were seen under. */
-type RememberedParams = Partial<Record<VaultScope, Params>>;
 
 /**
  * Remembered vault filters, by scope. Kept across locks so that returning to the vault the next
@@ -28,12 +28,9 @@ export const VAULT_FILTER_MEMORY = UserKeyDefinition.record<Params>(
   },
 );
 
-/** How long to wait after the last recorded change before writing it to state. */
-const PERSIST_DEBOUNCE_INTERVAL = 500;
-
 /**
- * Remembers the filters each vault route was last viewed with, so the side nav can return the user
- * to where they left off.
+ * Remembers the filters each vault route was last viewed with, so returning to a vault can put the
+ * user back where they left off.
  *
  * The vault table already mirrors its chips and sort to the URL, so this stores the URL's own
  * query params rather than a second representation of the same state — see
@@ -41,61 +38,89 @@ const PERSIST_DEBOUNCE_INTERVAL = 500;
  * scope. Recording happens on navigation, which the table's URL sync triggers on every chip
  * change, so the memory keeps up without the table knowing it exists.
  *
- * Restoring is the caller's job: read {@link paramsFor} and build the link with them.
+ * Restoring is the caller's job: await {@link paramsFor} and build the URL with them.
  */
 @Injectable({ providedIn: "root" })
 export class VaultFilterMemoryService {
   private readonly router = inject(Router);
-  private readonly state = inject(StateProvider).getActive(VAULT_FILTER_MEMORY);
-
-  /** Scopes recorded this session, which take precedence over what was read from state. */
-  private readonly session = signal<RememberedParams>({});
-
-  private readonly stored = toSignal(this.state.state$, { initialValue: null });
-
-  /** Signals that {@link session} has changed and is due to be written. */
-  private readonly writes = new Subject<void>();
+  private readonly accountService = inject(AccountService);
+  private readonly stateProvider = inject(StateProvider);
 
   /**
-   * Merged per scope rather than whole: a navigation recorded before the stored value arrives
-   * would otherwise shadow every scope it didn't touch.
+   * The write chain. Reads await it so a scope switch sees the filters the scope it just left was
+   * recorded with, rather than racing the write that recorded them.
    */
-  private readonly remembered = computed<RememberedParams>(() => ({
-    ...(this.stored() ?? {}),
-    ...this.session(),
-  }));
+  private pending: Promise<unknown> = Promise.resolve();
+
+  /**
+   * How the navigation now ending was triggered. Tracked from `NavigationStart` because the
+   * router has already cleared `getCurrentNavigation()` by the time `NavigationEnd` fires.
+   * Navigations are serial, so one field is enough — a cancelled navigation's replacement
+   * announces its own start before it ends.
+   */
+  private trigger: string = "imperative";
 
   constructor() {
-    this.writes
-      .pipe(debounceTime(PERSIST_DEBOUNCE_INTERVAL), takeUntilDestroyed())
-      .subscribe(() => {
-        const recorded = this.session();
-        // Updating rather than replacing so an in-memory view that's missing a scope — because
-        // it was recorded before the read resolved — can't drop it from state.
-        void this.state.update((prev) => ({ ...prev, ...recorded }));
-      });
-
-    this.router.events
-      .pipe(
-        filter((event) => event instanceof NavigationEnd),
-        takeUntilDestroyed(),
-      )
-      .subscribe(() => this.record());
+    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+      if (event instanceof NavigationStart) {
+        this.trigger = event.navigationTrigger ?? "imperative";
+      } else if (event instanceof NavigationEnd) {
+        this.record();
+      }
+    });
   }
 
   /** The remembered filter params for a scope, or `{}` if it hasn't been visited. */
-  paramsFor(scope: VaultScope): Params {
-    return this.remembered()[scope] ?? {};
+  async paramsFor(scope: VaultScope): Promise<Params> {
+    await this.pending;
+
+    const userId = await this.activeUserId();
+    if (userId == null) {
+      return {};
+    }
+
+    const remembered = await firstValueFrom(
+      this.stateProvider.getUser(userId, VAULT_FILTER_MEMORY).state$,
+    );
+    return remembered?.[scope] ?? {};
   }
 
   private record(): void {
+    // Back and forward retrace URLs that were already recorded when the user first visited them,
+    // so there's nothing to learn from them — and a history entry holding a bare vault URL would
+    // erase the scope's memory on the way past.
+    if (this.trigger === "popstate") {
+      return;
+    }
+
     const state = this.router.routerState.snapshot;
     const scope = vaultScopeOf(state);
     if (scope == null) {
       return;
     }
+
     const params = rememberableParams(state.root.queryParams);
-    this.session.update((session) => ({ ...session, [scope]: params }));
-    this.writes.next();
+
+    // Resolved from the account active as this navigation ends, not from whoever is active when
+    // the write lands. `getActive` would do the latter, and mid-switch that writes one account's
+    // filters into another's state.
+    const recordedFor = this.activeUserId();
+
+    this.pending = this.pending
+      .then(async () => {
+        const userId = await recordedFor;
+        if (userId == null) {
+          return;
+        }
+        await this.stateProvider
+          .getUser(userId, VAULT_FILTER_MEMORY)
+          .update((prev) => ({ ...prev, [scope]: params }));
+      })
+      // A failed write must not poison the chain for every read and write after it.
+      .catch((): void => undefined);
+  }
+
+  private activeUserId(): Promise<UserId | null> {
+    return firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
   }
 }

@@ -50,13 +50,31 @@ export const VAULT_SCOPE_PARAM = "vaultId";
 export type VaultScopeRouteData = { [VAULT_FILTER_SCOPE]: true };
 
 /**
- * Query params that are namespaced to the vault filters but deliberately not remembered:
- *
- * - `search` is free text the user typed and is not expected to be restored.
+ * The `bit-table-v2` param keys carrying sort state. Mirrored rather than imported because the
+ * table keeps them module-private, the same way the vault table mirrors its search key.
  */
-const EXCLUDED_PARAMS: ReadonlySet<string> = new Set([
-  `${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.search}`,
-]);
+const SORT_KEYS = ["sort", "direction"] as const;
+
+/**
+ * The keys worth carrying forward to the next visit. An allowlist rather than a denylist, so a
+ * param added under the namespace later isn't persisted by accident.
+ *
+ * Left out deliberately:
+ *
+ * - `search` is free text the user typed, not a filter they'd expect to come back.
+ * - pagination (`page`, `pageSize`) — returning someone to page 7 of a list they last saw
+ *   yesterday isn't where they left off.
+ */
+const REMEMBERED_KEYS: ReadonlySet<string> = new Set(
+  [
+    VAULT_FILTER_KEYS.type,
+    VAULT_FILTER_KEYS.favorites,
+    VAULT_FILTER_KEYS.vault,
+    VAULT_FILTER_KEYS.sharedFolder,
+    VAULT_FILTER_KEYS.folder,
+    ...SORT_KEYS,
+  ].map((key) => `${VAULT_FILTER_NAMESPACE}.${key}`),
+);
 
 /**
  * The filter-memory scope for the activated route, or `null` when no route on it opted in.
@@ -95,16 +113,11 @@ function scopedRoute(root: ActivatedRouteSnapshot): ActivatedRouteSnapshot | nul
 }
 
 /**
- * The subset of a vault URL's query params worth carrying forward to the next visit: everything
- * under the filter namespace except {@link EXCLUDED_PARAMS}.
- *
+ * The subset of a vault URL's query params worth carrying forward to the next visit — see
+ * {@link REMEMBERED_KEYS}.
  */
 export function rememberableParams(params: Params): Params {
-  return Object.fromEntries(
-    Object.entries(params).filter(
-      ([key]) => key.startsWith(`${VAULT_FILTER_NAMESPACE}.`) && !EXCLUDED_PARAMS.has(key),
-    ),
-  );
+  return Object.fromEntries(Object.entries(params).filter(([key]) => REMEMBERED_KEYS.has(key)));
 }
 
 /**

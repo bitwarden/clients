@@ -11,8 +11,6 @@ import {
 } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
 import { VaultFilterMemoryService } from "./vault-filter-memory.service";
@@ -27,7 +25,6 @@ jest.mock("@angular/router", () => ({
 const ORG_ID = "8f9a1b2c-3d4e-4f50-a1b2-c3d4e5f60718" as OrganizationId;
 
 describe("vaultFilterRestoreGuard", () => {
-  let configService: MockProxy<ConfigService>;
   let router: MockProxy<Router>;
   let paramsFor: jest.Mock;
 
@@ -55,18 +52,14 @@ describe("vaultFilterRestoreGuard", () => {
   }
 
   beforeEach(() => {
-    configService = mock<ConfigService>();
-    configService.getFeatureFlag.mockResolvedValue(true);
-
     router = mock<Router>();
     router.getCurrentNavigation.mockReturnValue({ trigger: "imperative" } as Navigation);
 
-    paramsFor = jest.fn().mockReturnValue({});
+    paramsFor = jest.fn().mockResolvedValue({});
     jest.mocked(createUrlTreeFromSnapshot).mockReturnValue(mockUrlTree);
 
     TestBed.configureTestingModule({
       providers: [
-        { provide: ConfigService, useValue: configService },
         { provide: Router, useValue: router },
         { provide: VaultFilterMemoryService, useValue: { paramsFor } },
       ],
@@ -78,7 +71,7 @@ describe("vaultFilterRestoreGuard", () => {
   });
 
   it("redirects to the remembered filters when the URL carries none", async () => {
-    paramsFor.mockReturnValue({ "vault.type": "1", "vault.folder": "f-1" });
+    paramsFor.mockResolvedValue({ "vault.type": "1", "vault.folder": "f-1" });
 
     await expect(runGuard(makeState({}))).resolves.toBe(mockUrlTree);
     expect(createUrlTreeFromSnapshot).toHaveBeenCalledWith(route, [], {
@@ -100,7 +93,7 @@ describe("vaultFilterRestoreGuard", () => {
   });
 
   it("carries a deep link's own params through the redirect", async () => {
-    paramsFor.mockReturnValue({ "vault.type": "1" });
+    paramsFor.mockResolvedValue({ "vault.type": "1" });
 
     await runGuard(makeState({ cipherId: "c-1", action: "view" }));
 
@@ -112,7 +105,7 @@ describe("vaultFilterRestoreGuard", () => {
   });
 
   it("passes through when the URL already states its filters", async () => {
-    paramsFor.mockReturnValue({ "vault.type": "1" });
+    paramsFor.mockResolvedValue({ "vault.type": "1" });
 
     await expect(runGuard(makeState({ "vault.folder": "f-1" }))).resolves.toBe(true);
     expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
@@ -121,7 +114,7 @@ describe("vaultFilterRestoreGuard", () => {
   // `vault.search` isn't remembered, so a link carrying only a search term reads as filter-less to
   // the memory. Layering a remembered type onto it would show something the link didn't ask for.
   it("passes through when the URL carries only a search term", async () => {
-    paramsFor.mockReturnValue({ "vault.type": "1" });
+    paramsFor.mockResolvedValue({ "vault.type": "1" });
 
     await expect(runGuard(makeState({ "vault.search": "gmail" }))).resolves.toBe(true);
     expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
@@ -133,26 +126,33 @@ describe("vaultFilterRestoreGuard", () => {
   });
 
   it("passes through on back and forward so the history entry is left alone", async () => {
-    paramsFor.mockReturnValue({ "vault.type": "1" });
+    paramsFor.mockResolvedValue({ "vault.type": "1" });
     router.getCurrentNavigation.mockReturnValue({ trigger: "popstate" } as Navigation);
 
     await expect(runGuard(makeState({}))).resolves.toBe(true);
     expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
   });
 
+  // The memory lives on disk. A synchronous read would miss it on the first vault navigation of a
+  // session — the bookmark and post-unlock arrivals this guard exists for.
+  it("waits for a memory that hasn't been read from disk yet", async () => {
+    let resolveRead: (params: Params) => void;
+    paramsFor.mockReturnValue(
+      new Promise<Params>((resolve) => {
+        resolveRead = resolve;
+      }),
+    );
+
+    const result = runGuard(makeState({}));
+    resolveRead!({ "vault.type": "1" });
+
+    await expect(result).resolves.toBe(mockUrlTree);
+  });
+
   it("passes through on a route that hasn't opted into the memory", async () => {
-    paramsFor.mockReturnValue({ "vault.type": "1" });
+    paramsFor.mockResolvedValue({ "vault.type": "1" });
 
     await expect(runGuard(makeState({}, { inScope: false }))).resolves.toBe(true);
     expect(paramsFor).not.toHaveBeenCalled();
-  });
-
-  it("passes through when VFO1Foundation is off", async () => {
-    paramsFor.mockReturnValue({ "vault.type": "1" });
-    configService.getFeatureFlag.mockResolvedValue(false);
-
-    await expect(runGuard(makeState({}))).resolves.toBe(true);
-    expect(configService.getFeatureFlag).toHaveBeenCalledWith(FeatureFlag.VFO1Foundation);
-    expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
   });
 });

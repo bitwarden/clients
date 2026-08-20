@@ -56,6 +56,11 @@ A route with no `:vaultId` resolves to `ALL_ITEMS_SCOPE`. A route that doesn't o
 > A new vault route that forgets `vaultFilterScope` won't have its filters remembered, and nothing
 > will fail loudly. If filters aren't sticking on a route, check its `data` first.
 
+> [!WARNING]
+> Only `/vault` (`ALL_ITEMS_SCOPE`) is registered today. Adding `/vault/myVault` or `/vault/:vaultId`
+> needs a fix in `bit-table-v2` first — without it, filters leak from one scope into the next and are
+> persisted under the wrong one. See [SCOPE-ROUTES-HANDOFF.md](./SCOPE-ROUTES-HANDOFF.md).
+
 ## Remembering filters
 
 [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts) records the filters each scope
@@ -63,8 +68,13 @@ was last viewed with, so the side nav can return the user to where they left off
 
 **Recording** happens on `NavigationEnd`. Because the table's URL sync triggers a navigation on every
 chip change, the memory keeps up without the table knowing it exists. The service takes the
-`rememberableParams()` subset of the query string — everything under the filter namespace except
-`vault.search`, which is free text the user typed and isn't expected to come back.
+`rememberableParams()` subset of the query string — an allowlist, so a param that turns up under the
+namespace later isn't persisted by accident. `vault.search` is left out (free text the user typed),
+as is pagination.
+
+Navigations the user reached with back or forward are skipped: they retrace URLs that were already
+recorded on the way in, and a history entry holding a bare vault URL would otherwise erase the
+scope's memory on the way past.
 
 **Restoring** happens in [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts), on the
 route rather than at each link. A filter-less vault URL is redirected to the same route carrying the
@@ -80,9 +90,15 @@ navigate to `/vault` directly, and a bookmark skips the app's chrome entirely. A
 the params itself would restore for one of those and not the rest.
 
 Register it after `vaultFilterLegacyRedirectGuard`, whose rewrite produces namespaced params and so
-takes precedence over the memory on its own.
+takes precedence over the memory on its own. Register both only on the VFO1 route — they hang off
+`featureFlaggedRoute`'s `flaggedRouteOptions`, so neither has to re-check the flag from the inside,
+and the pre-VFO1 vault writes nothing.
 
-The guard stands down in three cases:
+The read is awaited. The memory lives on disk, so on the first vault navigation of a session it
+hasn't been loaded yet — and a bookmark or the post-unlock landing is exactly the arrival this guard
+exists for. Reading it synchronously would no-op on the cases that matter most.
+
+The guard stands down in two cases:
 
 - **The URL states its own filters.** Checked with `hasFilterParams()`, which is deliberately broader
   than `rememberableParams()` — a link carrying only `vault.search` states a filter the memory
@@ -90,8 +106,6 @@ The guard stands down in three cases:
   for.
 - **The navigation is a `popstate`.** Back and forward have to land on the URL held in the history
   stack; rewriting it would put the entry the user just left back in front of them.
-- **`VFO1Foundation` is off.** The route options are shared with the pre-VFO1 vault, which reads
-  un-namespaced params.
 
 ### Clearing
 
@@ -103,10 +117,13 @@ downstream can tell them apart.
 
 ### Persistence
 
-Writes are debounced (`PERSIST_DEBOUNCE_INTERVAL`), so working through a few chips in a row costs one
-write rather than one per change. They also merge per scope rather than replacing the record
-wholesale — a navigation recorded before the stored value arrives would otherwise shadow every scope
-it didn't touch.
+Writes are serialized on a single chain, and reads await it. That's what makes a scope switch — which
+reads the memory mid-navigation, right after the outgoing scope was recorded — see the record instead
+of racing it. A failed write is swallowed so it can't poison the chain for everything after it.
+
+Each write names the user it recorded for, resolved when the navigation ended rather than when the
+write lands. Going through the active-user alias would resolve it at write time, which mid-switch is
+the account the filters didn't come from.
 
 State is kept on disk and cleared on **logout only**, not on lock. On web an unlock is the start of
 most sessions, so clearing on lock would leave nothing to restore.
@@ -128,6 +145,9 @@ Params it doesn't own (`cipherId`, `action`, …) are carried through untouched.
 translate — `trash`, `archive` — is deliberately left in place so the legacy filter can still apply
 it.
 
+It checks the flag itself, unlike `vaultFilterRestoreGuard`, because desktop registers it on a plain
+`/vault` route rather than a `featureFlaggedRoute` — there's no flagged route to hang it off there.
+
 ## Files
 
 | File                                                                               | Responsibility                                              |
@@ -136,3 +156,8 @@ it.
 | [`vault-filter-memory.service.ts`](./vault-filter-memory.service.ts)               | Records and serves each scope's last-seen filters           |
 | [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts)                 | Redirects a filter-less vault URL to the remembered filters |
 | [`vault-filter-legacy-redirect.guard.ts`](./vault-filter-legacy-redirect.guard.ts) | Rewrites pre-namespace URLs                                 |
+
+## Open work
+
+[SCOPE-ROUTES-HANDOFF.md](./SCOPE-ROUTES-HANDOFF.md) — what has to change before the per-vault scope
+routes can land. Delete it when they do.

@@ -1,9 +1,6 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, Router, createUrlTreeFromSnapshot } from "@angular/router";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-
 import { VaultFilterMemoryService } from "./vault-filter-memory.service";
 import { hasFilterParams, vaultScopeOf } from "./vault-scope";
 
@@ -18,14 +15,14 @@ import { hasFilterParams, vaultScopeOf } from "./vault-scope";
  * would restore for one of those and not the rest.
  *
  * Register it after `vaultFilterLegacyRedirectGuard`, whose rewrite produces namespaced params and
- * so takes precedence over the memory on its own.
+ * so takes precedence over the memory on its own. Register it only on routes that render the VFO1
+ * vault — it doesn't check `VFO1Foundation` itself, because the route it hangs off already does.
  *
  * A user clears the memory by clearing the filters: the bare URL that leaves behind is recorded
  * like any other, after which there is nothing here to restore.
  */
 export const vaultFilterRestoreGuard: CanActivateFn = async (route, state) => {
   const router = inject(Router);
-  const configService = inject(ConfigService);
   const filterMemory = inject(VaultFilterMemoryService);
 
   // Read before the first await, while this navigation is still the current one. Back and forward
@@ -45,13 +42,11 @@ export const vaultFilterRestoreGuard: CanActivateFn = async (route, state) => {
     return true;
   }
 
-  const remembered = filterMemory.paramsFor(scope);
+  // Awaited rather than read synchronously: the memory lives on disk, so on the first vault
+  // navigation of a session — a bookmark, or the post-unlock landing — it hasn't been read yet.
+  // Those are the arrivals this guard exists for.
+  const remembered = await filterMemory.paramsFor(scope);
   if (Object.keys(remembered).length === 0) {
-    return true;
-  }
-
-  // Only restore when VFO flag is enavled
-  if (!(await configService.getFeatureFlag(FeatureFlag.VFO1Foundation))) {
     return true;
   }
 
