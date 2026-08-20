@@ -14,7 +14,7 @@ import { LogoutService } from "@bitwarden/auth/common";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 // @bitwarden/organization-invite-link imports back from @bitwarden/common (BaseResponse,
 // ApiService, etc.), so this is a circular dependency in the static import graph. It
 // resolves at runtime because both libraries reach each other only through abstractions
@@ -45,7 +45,6 @@ import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/do
 import { Policy } from "../../../../admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "../../../../admin-console/models/request/organization-keys.request";
 import { FeatureFlag } from "../../../../enums/feature-flag.enum";
-import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "../../../../models/response/error.response";
 import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";

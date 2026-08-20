@@ -2,6 +2,8 @@ export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
+export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
+export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export {
   CopyCipherFieldService,
@@ -13,7 +15,7 @@ export {
   VaultCopyButtonsService,
   CopyButtonDisplayMode,
 } from "./services/vault-copy-buttons.service";
-export { OrgIconDirective } from "./components/org-icon.directive";
+export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
@@ -65,11 +67,14 @@ export * from "./models/routed-vault-filter.model";
 export * from "./models/routed-vault-filter-bridge.model";
 export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
+export * from "./models/vault-nav-view-model";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
 export * from "./services/bulk-delete.service";
+export { VaultNavService } from "./services/vault-nav.service";
+export { DefaultVaultNavService } from "./services/default-vault-nav.service";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,
@@ -111,3 +116,4 @@ export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-ba
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
+export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";

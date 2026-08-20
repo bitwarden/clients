@@ -3,11 +3,6 @@ import { Observable } from "rxjs";
 import { ProfileOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "@bitwarden/common/admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "@bitwarden/common/admin-console/models/response/profile-provider.response";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SignedPublicKey, WrappedSigningKey } from "@bitwarden/common/key-management/types";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import {
@@ -17,6 +12,13 @@ import {
   UserPrivateKey,
   UserPublicKey,
 } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptedString,
+  EncString,
+  SignedPublicKey,
+  WrappedSigningKey,
+} from "@bitwarden/legacy-crypto";
 
 export class UserPrivateKeyDecryptionFailedError extends Error {
   constructor() {
@@ -46,13 +48,6 @@ export abstract class KeyService {
    * @param userId The user id of the user to get the {@see UserKey} for.
    */
   abstract userKey$(userId: UserId): Observable<UserKey | null>;
-  /**
-   * Returns the an observable key for the given user id.
-   *
-   * @note this observable represents only user keys stored in memory. A null value does not indicate that we cannot load a user key from storage.
-   * @param userId The desired user
-   */
-  abstract getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null>;
   /**
    * Sets the provided user key and stores
    * any other necessary versions (such as auto, biometrics,
