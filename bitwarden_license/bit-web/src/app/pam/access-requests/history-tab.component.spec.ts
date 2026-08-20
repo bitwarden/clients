@@ -283,7 +283,7 @@ describe("HistoryTabComponent", () => {
       expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-2");
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "pamInboxCancelApprovalToast",
+        message: "pamInboxApprovalCanceledToast",
       });
     });
 
