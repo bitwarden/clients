@@ -93,6 +93,7 @@ describe("AccessRequestCancelService", () => {
         title: { key: "pamCancelRequestTitle" },
         content: { key: "pamCancelRequestPendingConfirm" },
         cancelButtonText: { key: "pamKeepRequest" },
+        type: "danger",
       }),
     );
   });

@@ -48,7 +48,7 @@ export class AccessRequestCancelService {
         content: { key: contentKey },
         acceptButtonText: { key: "pendingStateCancelRequest" },
         cancelButtonText: { key: "pamKeepRequest" },
-        type: "warning",
+        type: "danger",
       });
       if (!confirmed) {
         return;
