@@ -93,8 +93,14 @@ export class VaultFilterSectionComponent {
   ) {}
 
   isNodeSelected(filterNode: TreeNode<VaultFilterType>) {
-    const { organizationId, cipherTypeId, folderId, collectionId, isCollectionSelected } =
-      this.activeFilter;
+    const {
+      organizationId,
+      cipherTypeId,
+      folderId,
+      collectionId,
+      controlledAccessId,
+      isCollectionSelected,
+    } = this.activeFilter;
 
     const collectionStatus =
       filterNode?.node.id === "AllCollections" &&
@@ -104,6 +110,7 @@ export class VaultFilterSectionComponent {
       organizationId === filterNode?.node.id ||
       cipherTypeId === filterNode?.node.id ||
       folderId === filterNode?.node.id ||
+      controlledAccessId === filterNode?.node.id ||
       collectionStatus
     );
   }
