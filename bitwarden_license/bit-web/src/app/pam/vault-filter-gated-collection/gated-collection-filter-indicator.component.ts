@@ -28,9 +28,11 @@ type FilterCollection = { id?: string; organizationId?: OrganizationId };
  * before clicking that its items open through a request. Encapsulates every PAM dependency so
  * the sidebar stays PAM-free.
  *
- * "Governed" is the same claim the collection-row badge and the collection-dialog callout make,
- * derived from the same cached per-org read ({@link GovernedCollectionsService}) through the
- * same {@link rulesGoverningCollection} predicate, so the three surfaces cannot drift.
+ * "Governed" is the same claim the collection-dialog callout makes, derived from the same cached
+ * per-org read ({@link GovernedCollectionsService}) through the same {@link rulesGoverningCollection}
+ * predicate. The collection-row badge asserts the same thing from the server-derived
+ * `hasEnabledAccessRule`, which the server computes as "associated with an enabled rule" — the same
+ * condition this predicate filters for.
  *
  * The read is issued only for a collection whose own organization has Privileged Access. The
  * sidebar lists every organization's collections together, and asking for the access rules of an
