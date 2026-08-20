@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, Signal, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -15,7 +16,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
  */
 @Injectable()
 export class HeaderContext {
-  private readonly configService = inject(ConfigService);
+  private readonly configService = inject(ConfigService, { optional: true });
 
   /**
    * Whether a projected `bit-breadcrumbs` should promote its active crumb to the page `<h1>`.
@@ -24,7 +25,7 @@ export class HeaderContext {
    * `HeaderContext`.
    */
   readonly promoteActiveBreadcrumb = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
     { initialValue: false },
   );
 

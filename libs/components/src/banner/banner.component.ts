@@ -9,7 +9,7 @@ import {
   signal,
 } from "@angular/core";
 import { outputFromObservable, toSignal } from "@angular/core/rxjs-interop";
-import { Subject } from "rxjs";
+import { of, Subject } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -55,11 +55,11 @@ const bannerColors: Record<BannerVariant, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BannerComponent implements OnInit {
-  private readonly configService = inject(ConfigService);
+  private readonly configService = inject(ConfigService, { optional: true });
 
   // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
     { initialValue: false },
   );
 

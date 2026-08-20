@@ -15,6 +15,7 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
+import { of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -61,11 +62,11 @@ export class LayoutComponent {
   private readonly drawerService = inject(DrawerService);
   protected drawerPortal = this.drawerService.portal;
   protected footerPortal = inject(LayoutFooterService).portal;
-  private readonly configService = inject(ConfigService);
+  private readonly configService = inject(ConfigService, { optional: true });
 
   // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
     { initialValue: false },
   );
 

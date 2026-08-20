@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -43,7 +44,7 @@ import { HeaderContext } from "./header-context";
   ],
 })
 export class HeaderComponent {
-  private readonly configService = inject(ConfigService);
+  private readonly configService = inject(ConfigService, { optional: true });
 
   private readonly headerContext = inject(HeaderContext);
 
@@ -59,7 +60,7 @@ export class HeaderComponent {
 
   // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
     { initialValue: false },
   );
 
