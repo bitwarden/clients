@@ -14,6 +14,12 @@ export class CollectionData {
   manage: boolean = false;
   hidePasswords: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
+  /**
+   * True when the collection is governed by an access rule that is currently enabled, meaning its
+   * items are gated behind PAM leasing. Server-derived: the association alone is not enough,
+   * because a disabled rule gates nothing.
+   */
+  hasEnabledAccessRule: boolean = false;
 
   constructor(response: CollectionDetailsResponse) {
     this.id = response.id;
@@ -25,6 +31,7 @@ export class CollectionData {
     this.hidePasswords = response.hidePasswords;
     this.type = response.type;
     this.defaultUserCollectionEmail = response.defaultUserCollectionEmail;
+    this.hasEnabledAccessRule = response.hasEnabledAccessRule;
   }
 
   static fromJSON(obj: Jsonify<CollectionData | null>): CollectionData | null {

@@ -28,6 +28,12 @@ export class Collection extends Domain {
   manage: boolean = false;
   type: CollectionType = CollectionTypes.SharedCollection;
   defaultUserCollectionEmail: string | undefined;
+  /**
+   * True when the collection is governed by an access rule that is currently enabled, meaning its
+   * items are gated behind PAM leasing. Server-derived: the association alone is not enough,
+   * because a disabled rule gates nothing.
+   */
+  hasEnabledAccessRule: boolean = false;
 
   constructor(c: { id: CollectionId; name: EncString; organizationId: OrganizationId }) {
     super();
@@ -52,6 +58,7 @@ export class Collection extends Domain {
     collection.manage = obj.manage;
     collection.type = obj.type;
     collection.defaultUserCollectionEmail = obj.defaultUserCollectionEmail;
+    collection.hasEnabledAccessRule = obj.hasEnabledAccessRule;
 
     return collection;
   }
@@ -72,6 +79,7 @@ export class Collection extends Domain {
     collection.hidePasswords = view.hidePasswords;
     collection.manage = view.manage;
     collection.type = view.type;
+    collection.hasEnabledAccessRule = view.hasEnabledAccessRule;
 
     return collection;
   }
@@ -97,11 +105,18 @@ export class Collection extends Domain {
     collection.manage = sdkCollection.manage;
     collection.defaultUserCollectionEmail = sdkCollection.defaultUserCollectionEmail;
     collection.type = sdkCollection.type;
+    // hasEnabledAccessRule is deliberately absent from SdkCollection — see toSdkCollection below.
     return collection;
   }
 
   /**
    * Maps Collection to SDK format for use with the SDK crypto operations.
+   *
+   * WARNING: the SDK's `Collection` is `#[serde(deny_unknown_fields)]`, so this object must contain
+   * exactly the fields the Rust type declares. `hasEnabledAccessRule` is NOT one of them — adding it
+   * here throws at runtime rather than failing to compile. It rides alongside the SDK instead, the
+   * same way `defaultUserCollectionEmail` does on the way back (see
+   * {@link CollectionView.fromSdkCollectionView}).
    */
   toSdkCollection(): SdkCollection {
     return {
