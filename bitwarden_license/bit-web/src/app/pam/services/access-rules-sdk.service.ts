@@ -23,7 +23,7 @@ import { AccessRuleSdkService } from "..";
  * `SendSdkApiService` in `libs/common`): resolve the active user, take a client
  * `Ref` from `SdkService.userClient$`, and dispose it (`using`) once the call
  * settles. Errors surface as-is — the SDK's flat `AccessRuleError` shape — for
- * callers to interpret via `accessRuleErrorMessage`/`isAccessRuleNotFound`
+ * callers to interpret via `accessRuleErrorVariant`/`isAccessRuleNotFound`
  * (`..`); this service does not wrap or translate them.
  */
 export class AccessRulesSdkService extends AccessRuleSdkService {

@@ -57,23 +57,34 @@ raw-HTTP route.** Approver-side revoke and cancel-approval go through the SDK
 
 ## Error shape
 
+**Switch on `variant`, never on `message`.** The server answers a refused PAM request with an
+RFC 7807 problem carrying a stable, machine-readable code, and the SDK maps that code onto a typed
+error variant. The code is the contract — never localized, never reworded — so the variant is the
+only thing UI code may branch on. This module used to match the server's English sentences with
+`String.includes()`; a reword then silently turned a reconciliation into a red error toast, with no
+test failing on either side. Do not reintroduce that.
+
 `abstractions/access-rule.ts` re-exports the SDK's `AccessRuleError` — a flat shape
 (`{ name: "AccessRuleError", variant, message }`) following the wasm-bindgen error convention —
 and pairs it with a LOCAL structural guard, because the SDK's own `isAccessRuleError` is a runtime
 wasm import and this directory stays type-only (see "`export type` matters" below). Use
-`accessRuleErrorMessage()` / `isAccessRuleNotFound()` to interpret it; never treat it as
-`ErrorResponse`. `AccessRuleErrorVariant` bridges on `NotFound`, which the Rust side maps from the
-server's 404 on the by-id calls but no published `sdk-internal` declares yet; collapse the alias on
-the next bump. The SDK splits its own failures per client —
+`accessRuleErrorVariant()` / `isAccessRuleNotFound()` to read it; never treat it as `ErrorResponse`.
+`AccessRuleErrorVariant` bridges on the variants the Rust side has but no published `sdk-internal`
+declares yet; collapse the alias on the next bump. The SDK splits its own failures per client —
 `AccessRequestError` (request/activate/cancel), `ApprovalError` (decide) and `AccessLeaseError`
 (read/extend/end). `abstractions/access-lease.ts` unions them as `LeasingError`, detected
 through the injectable `LeasingErrorService` seam so consumers never import the wasm guards.
-All three carry an `Api` variant holding the server's message.
 
-A rejected access-request submit is interpreted by
-`helpers/request-access-error.ts`. Three of the server's messages mean the caller already
-has what they asked for; those are reconciled (collapse the form, re-read the state) rather
-than surfaced as errors.
+An unrecognised variant is by contract safe to treat as a plain failure, so every classifier falls
+back to generic copy rather than guessing — which is what lets the server add codes without waiting
+on a client release. The `Api` variant is the transport failure and one of those fallbacks: its
+message is the whole serialized response, unfit to show or log.
+
+The two classifiers are `helpers/request-access-error.ts` (a rejected submit) and
+`helpers/access-rule-error.ts` (a rejected rule write), each mapping variants onto i18n keys and,
+where one applies, the form control to mark invalid. Three request variants — `AlreadyActive`,
+`AlreadyApproved`, `AlreadyPending` — mean the caller already has what they asked for; those are
+reconciled (collapse the form, re-read the state) rather than surfaced as errors.
 
 ## `export type` matters
 

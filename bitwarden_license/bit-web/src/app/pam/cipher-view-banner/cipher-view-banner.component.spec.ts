@@ -13,7 +13,6 @@ import {
   AccessRefreshService,
   AccessRequestSdkService,
   LeasingErrorService,
-  REQUEST_ACCESS_SERVER_ERRORS,
 } from "..";
 import type {
   AccessLeaseView,
@@ -496,11 +495,12 @@ describe("CipherViewBannerComponent", () => {
   });
 
   describe("reconciling a rejected submit", () => {
-    async function submitAndFail(message: string): Promise<void> {
+    /** Fails a submit with the SDK error the server's code maps to. */
+    async function submitAndFail(variant: string): Promise<void> {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
-      const error = Object.assign(new Error(message), {
+      const error = Object.assign(new Error("the server's words, which we no longer read"), {
         name: "AccessRequestError",
-        variant: "Api",
+        variant,
       });
       leasingErrors.isLeasingError.mockReturnValue(true);
       requestsApi.submitAccessRequest.mockRejectedValue(error);
@@ -510,7 +510,7 @@ describe("CipherViewBannerComponent", () => {
     }
 
     it("treats 'already pending' as information, collapsing without an inline error", async () => {
-      await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.AlreadyPending);
+      await submitAndFail("AlreadyPending");
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "info",
@@ -522,27 +522,27 @@ describe("CipherViewBannerComponent", () => {
 
     it("re-reads the access state so the existing state drives the banner", async () => {
       requestsApi.getCipherAccessState.mockClear();
-      await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive);
+      await submitAndFail("AlreadyActive");
       await fixture.whenStable();
 
       expect(requestsApi.getCipherAccessState.mock.calls.length).toBeGreaterThan(1);
     });
 
-    it("echoes a validation failure inline and keeps the fold-out open", async () => {
-      await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+    it("shows our own copy for a correctable failure and keeps the fold-out open", async () => {
+      await submitAndFail("WindowExceedsMax");
 
-      expect(component["requestError"]()).toBe(REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax);
+      expect(component["requestError"]()).toBe("pamRequestAccessErrorWindowExceedsMax");
       expect(component["requestFormExpanded"]()).toBe(true);
     });
 
     it("pins a missing reason to the reason control", async () => {
-      await submitAndFail(REQUEST_ACCESS_SERVER_ERRORS.ReasonRequired);
+      await submitAndFail("ReasonRequired");
 
       expect(component["humanForm"].controls.reason.errors).toEqual({ required: true });
     });
 
-    it("falls back to generic copy for an unrecognised failure", async () => {
-      await submitAndFail("the server exploded");
+    it("falls back to generic copy for a transport failure", async () => {
+      await submitAndFail("Api");
 
       expect(component["requestError"]()).toBe("requestAccessModalGenericError");
     });

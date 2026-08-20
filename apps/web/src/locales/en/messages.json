@@ -17676,6 +17676,42 @@
   "requestAccessModalAlreadyPending": {
     "message": "You already have a pending request for this item."
   },
+  "pamRequestAccessErrorReasonRequired": {
+    "message": "A reason is required for items that need human approval."
+  },
+  "pamRequestAccessErrorDurationRequired": {
+    "message": "Choose how long you need access for."
+  },
+  "pamRequestAccessErrorDurationExceedsMax": {
+    "message": "That is longer than this item allows. Choose a shorter duration."
+  },
+  "pamRequestAccessErrorDurationExpected": {
+    "message": "This item is approved automatically. Reload and choose a duration instead."
+  },
+  "pamRequestAccessErrorWindowExpected": {
+    "message": "This item needs approval. Reload and choose a start and end time instead."
+  },
+  "pamRequestAccessErrorWindowRequired": {
+    "message": "Choose a start and end time."
+  },
+  "pamRequestAccessErrorWindowEndBeforeStart": {
+    "message": "The end time must be after the start time."
+  },
+  "pamRequestAccessErrorWindowExceedsMax": {
+    "message": "That window is longer than this item allows. Choose a shorter one."
+  },
+  "pamRequestAccessErrorNotGated": {
+    "message": "This item no longer requires a request. Reload to open it."
+  },
+  "pamRequestAccessErrorDeniedByNetwork": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamRequestAccessErrorDeniedBySchedule": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamRequestAccessErrorDenied": {
+    "message": "Access to this item is not permitted right now."
+  },
   "requestAccessModalApprovedSuccess": {
     "message": "Access approved — select Start access to begin."
   },

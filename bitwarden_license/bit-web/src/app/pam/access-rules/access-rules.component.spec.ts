@@ -20,8 +20,8 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-// A real rejected mutation: the whole wire response, stack trace and server filesystem paths
-// included, on the error's `message`. None of it may reach a toast.
+// What a transport failure still carries on its `message`: the whole wire response, stack trace and
+// server filesystem paths included. Never read, and so never at risk of reaching a toast.
 const RAW_SERVER_PAYLOAD =
   'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
   'collections are already governed by another access rule.","validationErrors":null,' +
@@ -242,10 +242,13 @@ describe("AccessRulesComponent — failed mutations", () => {
     return fixture;
   };
 
-  it("keeps the server's serialized response out of a failed delete's toast", async () => {
+  it("toasts our copy for a mapped delete failure, never the server's payload", async () => {
     const target = rule("rule-1", "VPN");
     const fixture = await setup([target]);
-    deleteAccessRule.mockRejectedValue(accessRuleError("Api", RAW_SERVER_PAYLOAD));
+    // The variant is what the toast is chosen from; the payload rides along and is ignored.
+    deleteAccessRule.mockRejectedValue(
+      accessRuleError("CollectionsAlreadyGoverned", RAW_SERVER_PAYLOAD),
+    );
 
     await fixture.componentInstance["remove"](target);
 
@@ -255,7 +258,7 @@ describe("AccessRulesComponent — failed mutations", () => {
     expect(message).not.toContain("status code 400");
   });
 
-  it("toasts generic copy for a delete rejected with an unrecognised message", async () => {
+  it("toasts generic copy for a delete rejected with an unmapped variant", async () => {
     const target = rule("rule-1", "VPN");
     const fixture = await setup([target]);
     deleteAccessRule.mockRejectedValue(

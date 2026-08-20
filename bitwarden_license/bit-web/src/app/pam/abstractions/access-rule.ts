@@ -53,15 +53,27 @@ export function isIpAllowlist(
 }
 
 /**
- * The `variant` values the SDK's access-rule operations can throw, plus `NotFound`.
+ * The `variant` values the SDK's access-rule operations can throw.
  *
- * `NotFound` is bridged on rather than read straight off `AccessRuleError["variant"]` because the
- * Rust side has it — `AccessRulesClient` maps the server's 404 on its by-id calls — but no
- * published `sdk-internal` declares it yet. Same shape of bridge as the partial-cipher aliases in
- * `libs/common/src/vault/models/domain/cipher.ts`; collapse it to `AccessRuleError["variant"]`
- * once the bump lands, and nothing else here changes.
+ * The named ones are bridged on rather than read straight off `AccessRuleError["variant"]` because
+ * the Rust side has them — `AccessRulesClient` maps the server's 404 on its by-id calls, and its
+ * error codes on the write paths — but no published `sdk-internal` declares them yet. Same shape
+ * of bridge as the partial-cipher aliases in `libs/common/src/vault/models/domain/cipher.ts`;
+ * collapse it to `AccessRuleError["variant"]` once the bump lands, and nothing else here changes.
  */
-export type AccessRuleErrorVariant = AccessRuleError["variant"] | "NotFound";
+export type AccessRuleErrorVariant =
+  | AccessRuleError["variant"]
+  | "NotFound"
+  | "NameRequired"
+  | "NameTaken"
+  | "ExtensionLengthRequired"
+  | "DefaultDurationMustBePositive"
+  | "MaxDurationMustBePositive"
+  | "DefaultDurationExceedsMax"
+  | "ConditionsRejected"
+  | "CollectionsMissing"
+  | "CollectionsForeign"
+  | "CollectionsAlreadyGoverned";
 
 /**
  * Structural guard for the SDK's `AccessRuleError`.
@@ -81,52 +93,21 @@ function isAccessRuleError(e: unknown): e is AccessRuleError {
 }
 
 /**
- * The toastable message carried by the SDK's `AccessRuleError`, or `undefined` when
- * `e` isn't that shape — callers fall back to a generic error message in that case.
+ * The variant the SDK reported, or `undefined` when `e` is not an `AccessRuleError` — callers fall
+ * back to generic copy in that case.
  *
- * The `Api` variant needs unwrapping first: the SDK stringifies the whole failed
- * response as `error in response: status code 400 Bad Request: {…ErrorResponseModel
- * JSON…}`, so the human-readable server message (`"A rule with that name already
- * exists."`, …) is buried inside a JSON body. Surface that inner message; when there
- * is no parsable body (network failures, serde errors) return `undefined` so callers
- * use their generic fallback rather than toasting the raw wrapper.
+ * The variant is the server's stable error code, mapped by the SDK. Reading it replaces unwrapping
+ * the `Api` variant's message, which used to be the whole serialized response — envelope,
+ * `exceptionMessage` and the server's filesystem paths — and so was unfit to show or even log.
  */
-export function accessRuleErrorMessage(e: unknown): string | undefined {
-  if (!isAccessRuleError(e)) {
-    return undefined;
-  }
-  return e.variant === "Api" ? apiErrorBodyMessage(e.message) : e.message;
-}
-
-/** Extract the server's `message` field from an `Api`-variant error string, if present. */
-function apiErrorBodyMessage(message: string): string | undefined {
-  const bodyStart = message.indexOf("{");
-  if (bodyStart === -1) {
-    return undefined;
-  }
-  try {
-    const body: unknown = JSON.parse(message.slice(bodyStart));
-    const serverMessage = (body as { message?: unknown }).message;
-    return typeof serverMessage === "string" && serverMessage.length > 0
-      ? serverMessage
-      : undefined;
-  } catch {
-    return undefined;
-  }
+export function accessRuleErrorVariant(e: unknown): AccessRuleErrorVariant | undefined {
+  return isAccessRuleError(e) ? (e.variant as AccessRuleErrorVariant) : undefined;
 }
 
 /**
  * True when `e` is the SDK reporting a rule that does not exist — the caller followed a link to a
  * rule someone else deleted, or deleted it in another tab.
- *
- * Reads the variant through {@link AccessRuleErrorVariant} because `NotFound` is not on the
- * published SDK type yet; see that alias.
  */
 export function isAccessRuleNotFound(e: unknown): boolean {
-  if (!isAccessRuleError(e)) {
-    return false;
-  }
-  // Widened at the comparison, not on a `const`: TypeScript narrows a const to its initializer's
-  // type, so annotating the variable would still leave `NotFound` outside the compared union.
-  return (e.variant as AccessRuleErrorVariant) === "NotFound";
+  return accessRuleErrorVariant(e) === "NotFound";
 }

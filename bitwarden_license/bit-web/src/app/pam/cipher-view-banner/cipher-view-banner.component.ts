@@ -517,12 +517,8 @@ export class CipherViewBannerComponent implements OnInit {
    * message echoed inline or the generic fallback.
    */
   private handleRequestError(e: unknown): void {
-    const message = this.leasingErrorService.isLeasingError(e)
-      ? e.message
-      : e instanceof Error
-        ? e.message
-        : undefined;
-    const outcome = classifyRequestAccessError(message);
+    const variant = this.leasingErrorService.isLeasingError(e) ? e.variant : undefined;
+    const outcome = classifyRequestAccessError(variant);
 
     switch (outcome.kind) {
       case "reconcile":
@@ -537,7 +533,7 @@ export class CipherViewBannerComponent implements OnInit {
         if (outcome.field === "reason") {
           this.humanForm.controls.reason.setErrors({ required: true });
         }
-        this.requestError.set(outcome.serverMessage);
+        this.requestError.set(this.i18nService.t(outcome.messageKey));
         return;
       case "generic":
         this.logService.error(e);

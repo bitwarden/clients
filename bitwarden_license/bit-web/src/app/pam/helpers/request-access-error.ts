@@ -1,30 +1,31 @@
+import type { AccessRequestError } from "../abstractions/access-lease";
+
 /**
- * The PAM lease-request endpoint's error catalog, as the server words it. Two jobs:
+ * The `variant` values a rejected access request can carry.
  *
- * - detect the three RECONCILIATION cases — the requester asked for something they already have —
- *   which are not really failures and must not surface as errors, and
- * - recognise the field-level validation failures worth echoing inline on the form.
- *
- * Reproduced here rather than imported because the strings cross the wire as prose: the SDK
- * surfaces a server 400 as a `LeasingError` with `variant: "Api"` and the server's message on
- * `.message`, with no machine-readable code to switch on. When the server grows a code, this
- * catalog is the single place to retire.
+ * The named variants are bridged on rather than read straight off `AccessRequestError["variant"]`
+ * because the Rust side has them — `AccessRequestsClient` maps the server's error codes onto them —
+ * but no published `sdk-internal` declares them yet. Same shape of bridge as
+ * `AccessRuleErrorVariant` in `abstractions/access-rule.ts`; collapse it to `AccessRequestError["variant"]` once the bump
+ * lands, and nothing else here changes.
  */
-export const REQUEST_ACCESS_SERVER_ERRORS = Object.freeze({
-  ReasonRequired: "A reason is required for items that need human approval.",
-  AlreadyActive: "You already have active access to this item.",
-  AlreadyApproved: "You already have an approved request for this item.",
-  AlreadyPending: "You already have a pending request for this item.",
-  AutomaticGotWindow: "This item is approved automatically; provide a duration, not a window.",
-  HumanGotDuration:
-    "This item requires human approval; provide a start and end date, not a duration.",
-  StartBeforeEnd: "The start date must be before the end date.",
-  StartEndRequired: "A start and end date are required.",
-  PositiveDurationRequired: "A positive duration is required.",
-  DurationExceedsMax: "The requested duration exceeds the maximum of 86400 seconds.",
-  WindowExceedsMax: "The requested window exceeds the maximum of 86400 seconds.",
-  NotLeasingGated: "This item does not require a lease.",
-} as const);
+export type RequestAccessErrorVariant =
+  | AccessRequestError["variant"]
+  | "AlreadyActive"
+  | "AlreadyPending"
+  | "AlreadyApproved"
+  | "CipherNotGated"
+  | "DurationExpected"
+  | "WindowExpected"
+  | "DurationMustBePositive"
+  | "DurationExceedsMax"
+  | "WindowRequired"
+  | "WindowEndBeforeStart"
+  | "WindowExceedsMax"
+  | "ReasonRequired"
+  | "DeniedByNetwork"
+  | "DeniedBySchedule"
+  | "Denied";
 
 /** How the cipher-view banner should respond to a failed access-request submit. */
 export type RequestAccessErrorOutcome =
@@ -35,68 +36,72 @@ export type RequestAccessErrorOutcome =
    */
   | { readonly kind: "reconcile"; readonly toastKey: string }
   /**
-   * A validation failure the requester can fix in place: echo `serverMessage` under the form and,
-   * when `field` is set, mark that control invalid too.
+   * A failure the requester can act on: show `messageKey` under the form and, when `field` is set,
+   * mark that control invalid too.
    */
-  | { readonly kind: "inline"; readonly serverMessage: string; readonly field?: "reason" }
+  | { readonly kind: "inline"; readonly messageKey: string; readonly field?: "reason" }
   /** Unrecognised — fall back to the generic "could not request access" copy. */
   | { readonly kind: "generic" };
 
-const RECONCILIATION_TOAST_KEYS: ReadonlyArray<{ serverMessage: string; toastKey: string }> = [
-  {
-    serverMessage: REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive,
-    toastKey: "requestAccessModalAlreadyActive",
-  },
-  {
-    serverMessage: REQUEST_ACCESS_SERVER_ERRORS.AlreadyApproved,
-    toastKey: "requestAccessModalAlreadyApproved",
-  },
-  {
-    serverMessage: REQUEST_ACCESS_SERVER_ERRORS.AlreadyPending,
-    toastKey: "requestAccessModalAlreadyPending",
-  },
-];
-
-const INLINE_SERVER_MESSAGES: ReadonlyArray<string> = [
-  REQUEST_ACCESS_SERVER_ERRORS.PositiveDurationRequired,
-  REQUEST_ACCESS_SERVER_ERRORS.DurationExceedsMax,
-  REQUEST_ACCESS_SERVER_ERRORS.AutomaticGotWindow,
-  REQUEST_ACCESS_SERVER_ERRORS.HumanGotDuration,
-  REQUEST_ACCESS_SERVER_ERRORS.StartEndRequired,
-  REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd,
-  REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
-  REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
-];
+/**
+ * The three variants that are not failures at all: the requester asked for something they already
+ * have, so the UI reconciles rather than reporting an error.
+ */
+const RECONCILIATION_TOAST_KEYS: Partial<Record<RequestAccessErrorVariant, string>> = {
+  AlreadyActive: "requestAccessModalAlreadyActive",
+  AlreadyApproved: "requestAccessModalAlreadyApproved",
+  AlreadyPending: "requestAccessModalAlreadyPending",
+};
 
 /**
- * Classify a failed submit from the message the SDK surfaced.
+ * The failures worth naming under the form, with our copy rather than the server's.
  *
- * Matched with `includes` rather than equality: the wasm boundary hands the server's 400 body up
- * as `LeasingError.message`, which may carry a wrapper prefix. The catalog entries are long,
- * distinct sentences, so a substring match is unambiguous while tolerating that framing.
+ * Most of these mean the client and the server disagree about the item's approval mode, which a
+ * fresh pre-check resolves; they are shown so the requester learns why the submit did not take
+ * rather than watching it fail silently.
+ */
+const INLINE_MESSAGE_KEYS: Partial<
+  Record<RequestAccessErrorVariant, { messageKey: string; field?: "reason" }>
+> = {
+  ReasonRequired: { messageKey: "pamRequestAccessErrorReasonRequired", field: "reason" },
+  DurationMustBePositive: { messageKey: "pamRequestAccessErrorDurationRequired" },
+  DurationExceedsMax: { messageKey: "pamRequestAccessErrorDurationExceedsMax" },
+  DurationExpected: { messageKey: "pamRequestAccessErrorDurationExpected" },
+  WindowExpected: { messageKey: "pamRequestAccessErrorWindowExpected" },
+  WindowRequired: { messageKey: "pamRequestAccessErrorWindowRequired" },
+  WindowEndBeforeStart: { messageKey: "pamRequestAccessErrorWindowEndBeforeStart" },
+  WindowExceedsMax: { messageKey: "pamRequestAccessErrorWindowExceedsMax" },
+  CipherNotGated: { messageKey: "pamRequestAccessErrorNotGated" },
+  DeniedByNetwork: { messageKey: "pamRequestAccessErrorDeniedByNetwork" },
+  DeniedBySchedule: { messageKey: "pamRequestAccessErrorDeniedBySchedule" },
+  Denied: { messageKey: "pamRequestAccessErrorDenied" },
+};
+
+/**
+ * Classify a failed submit from the variant the SDK surfaced.
+ *
+ * The variant is the server's error code, mapped to a typed SDK error — the contract is the code,
+ * which is never localized and never reworded. This used to match the server's English sentences
+ * with `String.includes()`, which meant a server-side reword silently turned a reconciliation into
+ * a red error toast.
+ *
+ * Anything unrecognised is `generic`: an unknown code is by contract safe to treat as a plain
+ * failure, so a server that grows one needs no client release.
  */
 export function classifyRequestAccessError(
-  message: string | null | undefined,
+  variant: string | null | undefined,
 ): RequestAccessErrorOutcome {
-  if (!message) {
+  if (!variant) {
     return { kind: "generic" };
   }
 
-  const reconciliation = RECONCILIATION_TOAST_KEYS.find((entry) =>
-    message.includes(entry.serverMessage),
-  );
-  if (reconciliation != null) {
-    return { kind: "reconcile", toastKey: reconciliation.toastKey };
+  const toastKey = RECONCILIATION_TOAST_KEYS[variant as RequestAccessErrorVariant];
+  if (toastKey != null) {
+    return { kind: "reconcile", toastKey };
   }
 
-  if (message.includes(REQUEST_ACCESS_SERVER_ERRORS.ReasonRequired)) {
-    return {
-      kind: "inline",
-      serverMessage: REQUEST_ACCESS_SERVER_ERRORS.ReasonRequired,
-      field: "reason",
-    };
-  }
-
-  const inline = INLINE_SERVER_MESSAGES.find((entry) => message.includes(entry));
-  return inline != null ? { kind: "inline", serverMessage: inline } : { kind: "generic" };
+  const inline = INLINE_MESSAGE_KEYS[variant as RequestAccessErrorVariant];
+  return inline != null
+    ? { kind: "inline", messageKey: inline.messageKey, field: inline.field }
+    : { kind: "generic" };
 }

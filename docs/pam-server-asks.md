@@ -1,5 +1,11 @@
 # PAM server ask — machine-readable error codes
 
+> **Resolved.** The server added the codes as RFC 7807 problem responses
+> (bitwarden/server#8235), the SDK maps them onto typed error variants
+> (bitwarden/sdk-internal `pam/error-codes`), and this repo's two sentence-matching catalogs are
+> gone. Kept as the record of why the contract exists — in particular, what the three
+> "reconcile, not an error" cases are and why rewording them is a breaking change.
+
 One request to the server team, blocking client work that cannot be done anywhere else. Described
 against the current `pm-37044-pam-v-0` surface.
 
