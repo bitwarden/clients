@@ -504,8 +504,22 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     // filteredCiphers$ already incorporates filter$, so re-combining here would let
     // the two observables race and double the narrowToControlledAccess SDK calls.
+    //
+    // filteredCiphers$ still emits twice per navigation on its own: its combineLatest takes both
+    // filter$ (route.queryParamMap) and currentSearchText$ (route.queryParams), which are the same
+    // subject seen twice, and combineLatest has no glitch avoidance. Deduping matters here and not
+    // for the other consumers because narrowToControlledAccess dispatches one uncached SDK read per
+    // gated row, and switchMap cannot recall them: narrow$ builds its forkJoin array synchronously
+    // on subscribe, so the dropped pass has already issued every read. The narrowing depends on
+    // nothing but the rows and `controlledAccess`, so matching on those two is the whole identity.
     const ciphers$ = filteredCiphers$.pipe(
       withLatestFrom(filter$),
+      distinctUntilChanged(
+        ([previousCiphers, previousFilter], [nextCiphers, nextFilter]) =>
+          previousFilter.controlledAccess === nextFilter.controlledAccess &&
+          previousCiphers.length === nextCiphers.length &&
+          previousCiphers.every((cipher, index) => cipher === nextCiphers[index]),
+      ),
       switchMap(([ciphers, filter]) => this.narrowToControlledAccess(ciphers, filter)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
