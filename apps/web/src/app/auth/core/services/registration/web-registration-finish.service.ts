@@ -17,13 +17,12 @@ import {
   OrgInviteKind,
 } from "@bitwarden/common/auth/organization-invite";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   OrganizationId as SdkOrganizationId,
   UserMasterPasswordRegistrationRequest,

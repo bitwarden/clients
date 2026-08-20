@@ -651,4 +651,72 @@ describe("DefaultCipherEncryptionService", () => {
       );
     });
   });
+
+  describe("encryptedByKeyId", () => {
+    const keyId = "000102030405060708090a0b0c0d0e0f";
+
+    beforeEach(() => {
+      jest.spyOn(Cipher, "fromSdkCipher").mockReturnValue({} as Cipher);
+    });
+
+    it("carries the key id from encrypt", async () => {
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+        encryptedByKeyId: keyId,
+      });
+
+      const result = await cipherEncryptionService.encrypt(cipherViewObj, userId);
+
+      expect(result!.encryptedByKeyId).toBe(keyId);
+    });
+
+    it("carries the key id from encryptMany", async () => {
+      mockSdkClient
+        .vault()
+        .ciphers()
+        .encrypt_list.mockReturnValue([
+          { cipher: sdkCipher, encryptedFor: userId, encryptedByKeyId: keyId },
+        ]);
+
+      const results = await cipherEncryptionService.encryptMany([cipherViewObj], userId);
+
+      expect(results[0].encryptedByKeyId).toBe(keyId);
+    });
+
+    it("carries the key id from moveToOrganization", async () => {
+      mockSdkClient.vault().ciphers().move_to_organization.mockReturnValue({
+        id: cipherId,
+        organizationId: orgId,
+      });
+      mockSdkClient.vault().ciphers().encrypt.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+        encryptedByKeyId: keyId,
+      });
+
+      const result = await cipherEncryptionService.moveToOrganization(cipherViewObj, orgId, userId);
+
+      expect(result!.encryptedByKeyId).toBe(keyId);
+    });
+
+    it("carries the new key's id from encryptCipherForRotation", async () => {
+      mockSdkClient.vault().ciphers().encrypt_cipher_for_rotation.mockReturnValue({
+        cipher: sdkCipher,
+        encryptedFor: userId,
+        encryptedByKeyId: keyId,
+      });
+      const newUserKey: UserKey = new SymmetricCryptoKey(
+        Utils.fromUtf8ToArray("00000000000000000000000000000000"),
+      ) as UserKey;
+
+      const result = await cipherEncryptionService.encryptCipherForRotation(
+        cipherViewObj,
+        userId,
+        newUserKey,
+      );
+
+      expect(result!.encryptedByKeyId).toBe(keyId);
+    });
+  });
 });
