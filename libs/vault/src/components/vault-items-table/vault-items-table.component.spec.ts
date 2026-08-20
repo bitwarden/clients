@@ -893,6 +893,62 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
+  describe("multi-select chip seeding from a scalar (URL param normalization)", () => {
+    // When a multi-select chip is seeded from a single URL query param, the router decodes
+    // it as a scalar string rather than an array. setValue() must normalize it so the chip
+    // is active and filters correctly.
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme" } as Organization,
+      ]);
+      fixture.componentRef.setInput("collections", [
+        { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+      ]);
+      fixture.componentRef.setInput("folders", [{ id: "folder-1", name: "Work" } as FolderView]);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({
+          id: "a",
+          name: "Match",
+          organizationId: "org-1" as never,
+          collectionIds: ["col-1"] as never,
+          folderId: "folder-1" as never,
+        }),
+        cipherView({
+          id: "b",
+          name: "No match",
+          organizationId: undefined,
+          collectionIds: [] as never,
+        }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("vault chip seeded with a scalar string filters correctly", () => {
+      filterControl("vault").setValue("org-1");
+      fixture.detectChanges();
+
+      expect(filterControl("vault").active()).toBe(true);
+      expect(filteredNames()).toEqual(["Match"]);
+    });
+
+    it("sharedFolder chip seeded with a scalar string filters correctly", () => {
+      filterControl("sharedFolder").setValue("col-1");
+      fixture.detectChanges();
+
+      expect(filterControl("sharedFolder").active()).toBe(true);
+      expect(filteredNames()).toEqual(["Match"]);
+    });
+
+    it("folder chip seeded with a scalar string filters correctly", () => {
+      filterControl("folder").setValue("folder-1");
+      fixture.detectChanges();
+
+      expect(filterControl("folder").active()).toBe(true);
+      expect(filteredNames()).toEqual(["Match"]);
+    });
+  });
+
   describe("grouping shared folders", () => {
     /** Builds `count` collections, split across "org-1" and "org-2", each with a distinct name. */
     function manyCollections(count: number): CollectionView[] {
