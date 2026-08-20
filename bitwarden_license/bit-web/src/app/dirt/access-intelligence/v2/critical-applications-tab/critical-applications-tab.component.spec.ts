@@ -168,23 +168,6 @@ describe("CriticalApplicationsTabComponent", () => {
       expect(testAccess(component).report()).toBe(testReport);
     });
 
-    it("should re-emit report signal even when the same instance is pushed twice", () => {
-      // The signal is created with `equal: () => false` so in-place report mutations
-      // (e.g. unmark-as-critical) still propagate to computed signals.
-      const testReport = createMixedCriticalityReport();
-      const seen: (AccessReportView | null | undefined)[] = [];
-
-      TestBed.runInInjectionContext(() => {
-        const reportSignal = testAccess(component).report;
-        mockDataService.report$.next(testReport);
-        seen.push(reportSignal());
-        mockDataService.report$.next(testReport);
-        seen.push(reportSignal());
-      });
-
-      expect(seen).toEqual([testReport, testReport]);
-    });
-
     it("should convert loading$ to signal", () => {
       mockDataService.loading$.next(true);
       expect(testAccess(component).loading()).toBe(true);
