@@ -140,8 +140,11 @@ export function providePam(): SafeProvider[] {
     }),
     // Root-level (not per-consumer) so the sidebar indicator AND repeated opens of the collection
     // dialog share one cached per-org rules read. The vault-row badge no longer reads it — the
-    // collection carries `hasEnabledAccessRule` — but both of these still do, because they need
-    // the rules themselves rather than just a count.
+    // collection carries `hasEnabledAccessRule` — but the sidebar's nodes do not: `buildCollectionTree`
+    // rebuilds each one through `new CollectionView(...)`, whose constructor copies only
+    // id/organizationId/name and whose field initializer resets that flag to `false`, so the indicator
+    // derives "governed" from the rules instead. The callout reads them because it names the governing
+    // rules rather than just counting them.
     safeProvider({
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,
