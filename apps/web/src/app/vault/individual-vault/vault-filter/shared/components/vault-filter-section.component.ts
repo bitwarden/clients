@@ -1,6 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, computed, inject, input, InjectionToken, Injector, Input } from "@angular/core";
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  InjectionToken,
+  Injector,
+  Input,
+  Type,
+} from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
@@ -17,6 +26,8 @@ import {
 } from "@bitwarden/vault";
 
 import { CoachmarkService } from "../../../../components/coachmark";
+
+import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./vault-filter-gated-collection-indicator.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -38,6 +49,11 @@ export class VaultFilterSectionComponent {
   @Input() isCollectionFilter = false;
 
   protected readonly coachmarkService = inject(CoachmarkService);
+
+  protected readonly gatedCollectionIndicator: Type<unknown> | null = inject(
+    VAULT_FILTER_GATED_COLLECTION_INDICATOR,
+    { optional: true },
+  );
 
   /** Computed signal for collections coachmark open state */
   protected readonly collectionsCoachmarkOpen = computed(
