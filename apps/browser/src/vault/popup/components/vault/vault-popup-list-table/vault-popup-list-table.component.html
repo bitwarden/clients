@@ -19,13 +19,98 @@
       (ngModelChange)="onSearchTextChanged()"
       appAutofocus
     ></bit-search>
+
+    <!--
+      The dimension chips. Each drives its `filterForm` control through
+      `bitVaultFilterChip`, which keeps the form authoritative rather than moving filter
+      state onto the chips — `filterFunction$` (applied upstream in
+      `VaultPopupItemsService`) reads the form, so a selection here re-narrows the rows
+      the table receives. Deliberately no Favorites toggle: favorites are their own
+      section rather than a filter.
+    -->
+    <bit-filter-menu
+      key="cipherType"
+      bitVaultFilterChip="cipherType"
+      [filterOptions]="cipherTypeOptions()"
+      [placeholderText]="'type' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
+      @for (option of cipherTypeOptions(); track option.value) {
+        <bit-filter-option [value]="option.value" [count]="cipherTypeCount(option.value)">{{
+          option.label
+        }}</bit-filter-option>
+      }
+    </bit-filter-menu>
+
+    @if (organizationOptions().length) {
+      <bit-filter-menu
+        key="organization"
+        bitVaultFilterChip="organization"
+        [filterOptions]="organizationOptions()"
+        [placeholderText]="'vault' | vfo1I18n: 'vaults'"
+        [unsetLabel]="'all' | i18n"
+      >
+        @for (option of organizationOptions(); track option.value.id) {
+          <bit-filter-option [value]="option.value" [count]="organizationCount(option.value)">{{
+            option.label
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+
+    @if (collectionOptions().length) {
+      <bit-filter-menu
+        key="collection"
+        bitVaultFilterChip="collection"
+        [filterOptions]="collectionOptions()"
+        [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
+        [unsetLabel]="'all' | i18n"
+        multiple
+      >
+        @for (option of collectionOptions(); track option.value.id) {
+          <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">{{
+            option.label
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
+
+    @if (folderOptions().length) {
+      <bit-filter-menu
+        key="folder"
+        bitVaultFilterChip="folder"
+        [filterOptions]="folderOptions()"
+        [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
+        multiple
+      >
+        @for (option of folderOptions(); track option.value.id) {
+          <bit-filter-option [value]="option.value" [count]="folderCount(option.value)">{{
+            option.label
+          }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
-  <!-- Zeroes `bit-no-items`' built-in top padding, which would offset the centering. -->
-  <bit-no-items slot="empty" class="tw-mx-3 tw-my-auto [&>div]:!tw-pt-0">
+  <!--
+    Zeroes `bit-no-items`' built-in top padding, which would offset the centering.
+
+    A suspended organization filter yields no rows, so it lands here rather than replacing the
+    table: unmounting would take the toolbar with it and leave the filter stuck with no way to
+    clear it.
+  -->
+  <bit-no-items
+    slot="empty"
+    class="tw-mx-3 tw-my-auto [&>div]:!tw-pt-0"
+    [icon]="showDeactivatedOrg() ? deactivatedIcon : noResultsIcon"
+  >
     <span slot="title">{{
-      (hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n
+      showDeactivatedOrg()
+        ? ("organizationIsDeactivated" | i18n)
+        : ((hasSearchText() ? "noItemsMatchSearch" : "nothingToShow") | i18n)
     }}</span>
-    @if (hasSearchText()) {
+    @if (showDeactivatedOrg()) {
+      <span slot="description">{{ "contactYourOrgAdmin" | i18n }}</span>
+    } @else if (hasSearchText()) {
       <span slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</span>
     }
   </bit-no-items>
@@ -103,7 +188,7 @@
             bitIconButton="bwi-external-link"
             size="small"
             (click)="launchCipher(row.cipher)"
-            [label]="'launchWebsite' | i18n"
+            [label]="'launchWebsiteForName' | i18n: row.cipher.name"
           ></button>
         }
         <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
@@ -116,7 +201,7 @@
     </bit-cell>
   </bit-column>
 
-  <bit-row-group [match]="isAutofill">
+  <bit-row-group collapsible [match]="isAutofill">
     <div class="tw-flex tw-gap-2 tw-items-center">
       {{ autofillSectionKey() | i18n }}
       @if (showRefresh) {

@@ -432,7 +432,10 @@
   "noFoldersAdded": {
     "message": "No folders added"
   },
-  "createFoldersToOrganize": {
+  "noFoldersLabel": {
+    "message": "No folders"
+  },
+"createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
   },
   "deleteFolderPermanently": {
@@ -7759,7 +7762,7 @@
   },
   "weakPasswordsDescription": {
     "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
-  },    
+  },
   "reusedPasswordsTitle": {
     "message": "Reused passwords"
   },

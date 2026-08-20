@@ -1,11 +1,13 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import {
   afterRenderEffect,
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   inject,
   OnDestroy,
@@ -17,9 +19,13 @@ import { filter, map, Subject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { DeactivatedOrg, NoResults } from "@bitwarden/assets/svg";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -33,8 +39,10 @@ import {
   BitTableToolbarComponent,
   BitTableV2Component,
   ChipActionComponent,
+  ChipFilterOption,
   CompactModeService,
   defineTable,
+  FilterMenuModule,
   IconButtonModule,
   IconComponent,
   NoItemsModule,
@@ -42,11 +50,16 @@ import {
   SearchModule,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective } from "@bitwarden/vault";
+import { OrgIconDirective, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
+import {
+  FilterOptionCounts,
+  NO_FOLDER_COUNT_KEY,
+  VaultPopupListFiltersService,
+} from "../../../services/vault-popup-list-filters.service";
 import {
   VaultPopupListTableService,
   VaultTableRow,
@@ -56,6 +69,19 @@ import { VaultPopupSectionService } from "../../../services/vault-popup-section.
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
+
+import { VaultFilterChipDirective } from "./vault-filter-chip.directive";
+
+/**
+ * Flattens a nested `ChipFilterOption` tree into a single depth-first list.
+ *
+ * Interim: the designs call for an indented, expand/collapse tree, but `bit-filter-option` has no
+ * depth or children concept, so a flat list is the only shape the menu renders today. Recursive
+ * nesting is being added in CL-985; revisit this (and drop the flattening) once it lands.
+ */
+function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
+  return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
+}
 
 @Component({
   selector: "app-vault-popup-list-table",
@@ -81,6 +107,7 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     BitCellDefDirective,
     BitRowGroupComponent,
     BitTableToolbarComponent,
+    FilterMenuModule,
     IconButtonModule,
     IconComponent,
     NoItemsModule,
@@ -90,6 +117,8 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
+    VaultFilterChipDirective,
+    Vfo1I18nPipe,
   ],
 })
 export class VaultPopupListTableComponent implements OnDestroy {
@@ -98,9 +127,11 @@ export class VaultPopupListTableComponent implements OnDestroy {
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
   private readonly listTableService = inject(VaultPopupListTableService);
+  private readonly listFiltersService = inject(VaultPopupListFiltersService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly scrollLayout = inject(ScrollLayoutService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   protected readonly i18nService = inject(I18nService);
   private readonly window = inject<Window>(WINDOW);
 
@@ -116,6 +147,10 @@ export class VaultPopupListTableComponent implements OnDestroy {
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
+  /** Empty-slot icons: the default no-results graphic, or the suspended-organization one. */
+  protected readonly noResultsIcon = NoResults;
+  protected readonly deactivatedIcon = DeactivatedOrg;
+
   protected searchText: string = "";
   private readonly searchText$ = new Subject<string>();
 
@@ -123,15 +158,98 @@ export class VaultPopupListTableComponent implements OnDestroy {
     initialValue: true,
   });
 
-  protected readonly rows = toSignal(this.listTableService.rows$, {
-    initialValue: [] as VaultTableRow[],
-  });
-
   protected readonly hasSearchText = toSignal(this.listTableService.hasSearchText$, {
     initialValue: false,
   });
 
+  /**
+   * Whether the selected organization filter points at a suspended organization. The toolbar stays
+   * mounted in this state so the filter that caused it remains clearable — unmounting the table
+   * would strip the chips and the search box along with it.
+   */
+  protected readonly showDeactivatedOrg = toSignal(this.listTableService.showDeactivatedOrg$, {
+    initialValue: false,
+  });
+
+  private readonly allRows = toSignal(this.listTableService.rows$, {
+    initialValue: [] as VaultTableRow[],
+  });
+
+  /**
+   * A suspended organization's ciphers still match its own filter, so they have to be withheld
+   * here rather than by `filterFunction$` — otherwise the list would show items belonging to an
+   * organization the user can no longer act on. Emptying the rows also hands the state over to the
+   * table's empty slot, which renders the notice.
+   */
+  protected readonly rows = computed(() => (this.showDeactivatedOrg() ? [] : this.allRows()));
+
   protected readonly table = defineTable<VaultTableRow, "name">(this.rows);
+
+  /**
+   * The dimension-filter options. Each stream hides its own chip when empty — organizations are
+   * absent for a user with no orgs, and folders/collections narrow to the selected organization —
+   * so the chips are rendered conditionally on these having entries.
+   */
+  protected readonly cipherTypeOptions = toSignal(this.listFiltersService.cipherTypes$, {
+    initialValue: [] as ChipFilterOption<CipherType>[],
+  });
+
+  protected readonly organizationOptions = toSignal(this.listFiltersService.organizations$, {
+    initialValue: [] as ChipFilterOption<Organization>[],
+  });
+
+  private readonly collectionTree = toSignal(this.listFiltersService.collections$, {
+    initialValue: [] as ChipFilterOption<CollectionView>[],
+  });
+
+  private readonly folderTree = toSignal(this.listFiltersService.folders$, {
+    initialValue: [] as ChipFilterOption<FolderView>[],
+  });
+
+  /**
+   * Collections and folders arrive as nested trees, but a chip's options are a flat list, so the
+   * nesting is flattened into one option per node.
+   *
+   * Each node keeps the label the tree gave it — the trailing path segment — so a child of "Work"
+   * shows as "EU" rather than "Work/EU". Options are therefore tracked by id, not label, since
+   * two folders like "Work/Personal" and "Home/Personal" flatten to the same label.
+   */
+  protected readonly collectionOptions = computed(() => flattenOptions(this.collectionTree()));
+  protected readonly folderOptions = computed(() => flattenOptions(this.folderTree()));
+
+  /**
+   * Item counts per filter option, shown to the right of each option row.
+   *
+   * The table can't derive these itself: `bit-table-v2` counts its own rows, which are already
+   * narrowed by `filterFunction$` upstream, so every unselected option would read zero. The
+   * service counts the whole vault instead.
+   */
+  private readonly optionCounts = toSignal(this.listFiltersService.filterOptionCounts$, {
+    initialValue: {
+      cipherType: new Map(),
+      organization: new Map(),
+      collection: new Map(),
+      folder: new Map(),
+    } as FilterOptionCounts,
+  });
+
+  /** An option's count, defaulting to zero so a dimension with no matches still renders a number. */
+  protected cipherTypeCount(type: CipherType): number {
+    return this.optionCounts().cipherType.get(type) ?? 0;
+  }
+
+  protected organizationCount(organization: Organization): number {
+    return this.optionCounts().organization.get(organization.id) ?? 0;
+  }
+
+  protected collectionCount(collection: CollectionView): number {
+    return this.optionCounts().collection.get(collection.id) ?? 0;
+  }
+
+  /** "Items with no folder" has no id, so it counts under {@link NO_FOLDER_COUNT_KEY}. */
+  protected folderCount(folder: FolderView): number {
+    return this.optionCounts().folder.get(folder.id ?? NO_FOLDER_COUNT_KEY) ?? 0;
+  }
 
   protected readonly itemHeight = toSignal(
     this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 59))),
@@ -210,6 +328,37 @@ export class VaultPopupListTableComponent implements OnDestroy {
   protected readonly autofillSectionKey = computed(() =>
     this.currentUriIsBlocked() ? "itemSuggestions" : "autofillSuggestions",
   );
+
+  /**
+   * The empty-slot title key, or `null` while rows are rendering. Mirrors the template's empty
+   * slot, which the table stamps whenever it has no rows to show.
+   */
+  private readonly emptyStateKey = computed(() => {
+    if (this.loading() || this.rows().length > 0) {
+      return null;
+    }
+
+    if (this.showDeactivatedOrg()) {
+      return "organizationIsDeactivated";
+    }
+
+    return this.hasSearchText() ? "noItemsMatchSearch" : "nothingToShow";
+  });
+
+  /**
+   * Announces the empty state as it appears.
+   *
+   * The message can't carry `role="status"` itself: the table stamps the empty slot with a
+   * structural `@if`, so the live region and its content would enter the DOM in the same pass and
+   * screen readers generally skip that. Announcing imperatively sidesteps the timing entirely.
+   */
+  private readonly _announceEmptyState = effect(() => {
+    const key = this.emptyStateKey();
+
+    if (key !== null) {
+      void this.liveAnnouncer.announce(this.i18nService.t(key), "polite");
+    }
+  });
 
   protected readonly favoritesOpenState = computed(
     () => this.vaultPopupSectionService.getOpenDisplayStateForSection("favorites")() ?? true,

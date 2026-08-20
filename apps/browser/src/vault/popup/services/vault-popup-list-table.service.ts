@@ -108,6 +108,13 @@ export class VaultPopupListTableService {
   readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
 
   /**
+   * Whether the selected organization filter points at a suspended organization. The table stays
+   * mounted in this state (so the filter remains clearable) and surfaces the notice in its empty
+   * slot instead.
+   */
+  readonly showDeactivatedOrg$ = this.vaultPopupItemsService.showDeactivatedOrg$;
+
+  /**
    * The inputs that decide each row's action affordances. `startWith` defaults keep {@link rows$}
    * emitting promptly: the feature flag and blocklist streams resolve asynchronously, so without a
    * seed the whole list would wait on them before first render.

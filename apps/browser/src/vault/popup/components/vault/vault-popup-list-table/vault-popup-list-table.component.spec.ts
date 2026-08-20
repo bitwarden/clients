@@ -1,5 +1,8 @@
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ElementRef } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { FormControl, FormGroup } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
@@ -8,6 +11,8 @@ import { BehaviorSubject, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -22,12 +27,15 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { SearchTextDebounceInterval } from "@bitwarden/common/vault/services/search.service";
 import {
+  ChipFilterOption,
   CompactModeService,
   DialogService,
+  FilterMenuComponent,
   ScrollLayoutService,
   ToastService,
 } from "@bitwarden/components";
@@ -36,6 +44,11 @@ import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vau
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
+import {
+  MY_VAULT_ID,
+  FilterOptionCounts,
+  VaultPopupListFiltersService,
+} from "../../../services/vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -77,6 +90,8 @@ describe("VaultPopupListTableComponent", () => {
   const loading$ = new BehaviorSubject<boolean>(false);
   const searchText$ = new BehaviorSubject<string>("");
   const hasSearchText$ = new BehaviorSubject<boolean>(false);
+  const showDeactivatedOrg$ = new BehaviorSubject<boolean>(false);
+  const liveAnnouncer = mock<LiveAnnouncer>();
   const clickItemsToAutofillVaultView$ = new BehaviorSubject<boolean>(true);
 
   const configService = {
@@ -100,6 +115,7 @@ describe("VaultPopupListTableComponent", () => {
     loading$: loading$.asObservable(),
     searchText$: searchText$.asObservable(),
     hasSearchText$: hasSearchText$.asObservable(),
+    showDeactivatedOrg$: showDeactivatedOrg$.asObservable(),
     applyFilter: jest.fn(),
   };
 
@@ -112,6 +128,36 @@ describe("VaultPopupListTableComponent", () => {
     updateSectionOpenStoredState: jest.fn(),
   };
 
+  // A real `FormGroup`, since the filter chips are bridged to it by `VaultFilterChipDirective` and
+  // the two-way sync is exercised through its actual value/`valueChanges` behavior.
+  const filterForm = new FormGroup({
+    organization: new FormControl<Organization | null>(null),
+    collection: new FormControl<CollectionView | null>(null),
+    folder: new FormControl<FolderView | null>(null),
+    cipherType: new FormControl<CipherType | null>(null),
+  });
+
+  const cipherTypes$ = new BehaviorSubject<ChipFilterOption<CipherType>[]>([]);
+  const organizations$ = new BehaviorSubject<ChipFilterOption<Organization>[]>([]);
+  const collections$ = new BehaviorSubject<ChipFilterOption<CollectionView>[]>([]);
+  const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
+
+  const filterOptionCounts$ = new BehaviorSubject<FilterOptionCounts>({
+    cipherType: new Map(),
+    organization: new Map(),
+    collection: new Map(),
+    folder: new Map(),
+  });
+
+  const vaultPopupListFiltersService = {
+    filterForm,
+    cipherTypes$: cipherTypes$.asObservable(),
+    organizations$: organizations$.asObservable(),
+    collections$: collections$.asObservable(),
+    folders$: folders$.asObservable(),
+    filterOptionCounts$: filterOptionCounts$.asObservable(),
+  };
+
   const compactModeEnabled$ = new BehaviorSubject<boolean>(false);
   const compactModeService = {
     enabled$: compactModeEnabled$.asObservable(),
@@ -119,6 +165,9 @@ describe("VaultPopupListTableComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
+    // `clearAllMocks` resets calls but not implementations, so restore the default open state —
+    // otherwise a test that seeds a section collapsed leaks that into the ones after it.
+    vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     featureFlag$.next(false);
     currentTabIsOnBlocklist$.next(false);
     autoFillCiphers$.next([]);
@@ -127,8 +176,15 @@ describe("VaultPopupListTableComponent", () => {
     loading$.next(false);
     searchText$.next("");
     hasSearchText$.next(false);
+    showDeactivatedOrg$.next(false);
     compactModeEnabled$.next(false);
+    filterForm.reset({ organization: null, collection: null, folder: null, cipherType: null });
+    cipherTypes$.next([]);
+    organizations$.next([]);
+    collections$.next([]);
+    folders$.next([]);
     clickItemsToAutofillVaultView$.next(true);
+    liveAnnouncer.announce.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [VaultPopupListTableComponent, NoopAnimationsModule, RouterTestingModule],
@@ -139,8 +195,10 @@ describe("VaultPopupListTableComponent", () => {
         { provide: VaultPopupItemsService, useValue: vaultPopupItemsService },
         { provide: VaultPopupLoadingService, useValue: vaultPopupLoadingService },
         { provide: VaultPopupSectionService, useValue: vaultPopupSectionService },
+        { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersService },
         { provide: CompactModeService, useValue: compactModeService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
+        { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: CipherService, useValue: mock<CipherService>() },
         { provide: AccountService, useValue: { activeAccount$: of({ id: "test-user-id" }) } },
         { provide: PasswordRepromptService, useValue: mock<PasswordRepromptService>() },
@@ -198,6 +256,64 @@ describe("VaultPopupListTableComponent", () => {
    * from an empty vault — both leave it with zero rows. The empty state is projected for that
    * reason, so these assert the rendered copy rather than the absence of something.
    */
+  describe("collapsible sections", () => {
+    /** The rendered collapse toggle for a section, found by its header label. */
+    const headerToggle = (label: string): HTMLButtonElement | undefined =>
+      Array.from(fixture.nativeElement.querySelectorAll("button[aria-expanded]")).find((button) =>
+        (button as HTMLButtonElement).textContent?.includes(label),
+      ) as HTMLButtonElement | undefined;
+
+    /**
+     * Renders the table with both collapsible sections populated.
+     *
+     * The table virtualizes its rows into a `height="fill"` viewport, which measures 0 in JSDOM and
+     * so renders nothing — the host needs a real height before the group headers exist to click.
+     */
+    const render = async () => {
+      favoriteCiphers$.next([makeCipher({ id: "fav-1", favorite: true })]);
+      filteredCiphers$.next([makeCipher({ id: "all-1" })]);
+      fixture.nativeElement.style.height = "600px";
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    };
+
+    it("persists the collapsed state when the user collapses a section", async () => {
+      await render();
+
+      const toggle = headerToggle("favorites");
+      expect(toggle).toBeDefined();
+      expect(toggle!.getAttribute("aria-expanded")).toBe("true");
+
+      toggle!.click();
+      fixture.detectChanges();
+
+      expect(vaultPopupSectionService.updateSectionOpenStoredState).toHaveBeenCalledWith(
+        "favorites",
+        false,
+      );
+      expect(headerToggle("favorites")!.getAttribute("aria-expanded")).toBe("false");
+    });
+
+    it("persists the expanded state when the user re-expands a section", async () => {
+      // Seeded collapsed before the first render, so the click is an expand. Set here rather than
+      // by rebuilding the fixture: a second live fixture fights the first over the scroll host.
+      vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => false);
+      await render();
+
+      const toggle = headerToggle("favorites");
+      expect(toggle!.getAttribute("aria-expanded")).toBe("false");
+
+      toggle!.click();
+      fixture.detectChanges();
+
+      expect(vaultPopupSectionService.updateSectionOpenStoredState).toHaveBeenCalledWith(
+        "favorites",
+        true,
+      );
+    });
+  });
+
   describe("empty state", () => {
     it("shows the search-specific copy and recovery hint when a search matches nothing", () => {
       hasSearchText$.next(true);
@@ -218,6 +334,83 @@ describe("VaultPopupListTableComponent", () => {
       expect(text).toContain("nothingToShow");
       expect(text).not.toContain("noItemsMatchSearch");
       expect(text).not.toContain("clearFiltersOrTryAnother");
+    });
+
+    /**
+     * A suspended organization's ciphers match its own filter, so the rows have to be withheld
+     * here — and the table has to stay mounted regardless, since it carries the only control that
+     * can clear the filter responsible for the state.
+     */
+    describe("deactivated organization", () => {
+      beforeEach(() => {
+        filteredCiphers$.next([makeCipher({ organizationId: "org-1" })]);
+        showDeactivatedOrg$.next(true);
+        fixture.detectChanges();
+      });
+
+      it("withholds the rows and shows the deactivated notice", () => {
+        expect(component["rows"]()).toEqual([]);
+
+        const text = fixture.nativeElement.textContent;
+        expect(text).toContain("organizationIsDeactivated");
+        expect(text).toContain("contactYourOrgAdmin");
+        expect(text).not.toContain("nothingToShow");
+      });
+
+      it("keeps the toolbar mounted so the filter stays clearable", () => {
+        expect(fixture.nativeElement.querySelector("bit-table-toolbar")).not.toBeNull();
+        expect(fixture.nativeElement.querySelector("bit-search")).not.toBeNull();
+      });
+
+      it("restores the rows once the filter moves off the suspended organization", () => {
+        showDeactivatedOrg$.next(false);
+        fixture.detectChanges();
+
+        expect(component["rows"]()).toHaveLength(1);
+        expect(fixture.nativeElement.textContent).not.toContain("organizationIsDeactivated");
+      });
+
+      it("announces the notice, which the empty slot can't carry a live region for", () => {
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith("organizationIsDeactivated", "polite");
+      });
+    });
+
+    /**
+     * The table stamps the empty slot with a structural `@if`, so a live region inside it would
+     * enter the DOM alongside its content and go unannounced. These cover the imperative
+     * announcement that replaces it.
+     */
+    describe("announcements", () => {
+      it("announces the search-specific copy when a search matches nothing", () => {
+        hasSearchText$.next(true);
+        filteredCiphers$.next([]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith("noItemsMatchSearch", "polite");
+      });
+
+      it("announces the generic copy when there is nothing to show", () => {
+        hasSearchText$.next(false);
+        filteredCiphers$.next([]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith("nothingToShow", "polite");
+      });
+
+      it("stays silent while rows are rendering", () => {
+        filteredCiphers$.next([makeCipher({})]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+      });
+
+      it("stays silent while loading, so the empty copy isn't announced before rows arrive", () => {
+        loading$.next(true);
+        filteredCiphers$.next([]);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+      });
     });
   });
 
@@ -401,6 +594,180 @@ describe("VaultPopupListTableComponent", () => {
       const row = makeRow("autofill", { type: CipherType.Identity });
       expect(component["isCard"](row)).toBe(false);
       expect(component["isIdentity"](row)).toBe(true);
+    });
+  });
+
+  /**
+   * The chips are bridged to `VaultPopupListFiltersService.filterForm` rather than owning the
+   * filter state themselves, so these assert the round trip in both directions. Filtering itself
+   * is applied upstream (`filterFunction$` in `VaultPopupItemsService`), so a chip's job ends at
+   * writing the form.
+   */
+  describe("filter chips", () => {
+    /** Resolves the projected `bit-filter-menu` for a `filterForm` control. */
+    const chipFor = (key: string) =>
+      fixture.debugElement
+        .queryAll(By.directive(FilterMenuComponent))
+        .find((chip) => chip.componentInstance.key() === key)?.componentInstance;
+
+    it("renders a chip per dimension, omitting those whose options are empty", () => {
+      cipherTypes$.next([{ value: CipherType.Login, label: "Login" }]);
+      fixture.detectChanges();
+
+      // Type is unconditional; the other three are hidden while their option streams are empty
+      // (no orgs, or folders/collections narrowed away by the selected organization).
+      expect(chipFor("cipherType")).toBeDefined();
+      expect(chipFor("organization")).toBeUndefined();
+      expect(chipFor("collection")).toBeUndefined();
+      expect(chipFor("folder")).toBeUndefined();
+
+      organizations$.next([{ value: { id: "org-1" } as Organization, label: "Org 1" }]);
+      fixture.detectChanges();
+
+      expect(chipFor("organization")).toBeDefined();
+    });
+
+    it("writes a chip selection back to its filterForm control", () => {
+      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
+      fixture.detectChanges();
+
+      chipFor("cipherType").toggle(CipherType.Card);
+      fixture.detectChanges();
+
+      expect(filterForm.controls.cipherType.value).toBe(CipherType.Card);
+    });
+
+    it("clears the filterForm control when the chip is cleared", () => {
+      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
+      fixture.detectChanges();
+
+      chipFor("cipherType").toggle(CipherType.Card);
+      fixture.detectChanges();
+      chipFor("cipherType").clear();
+      fixture.detectChanges();
+
+      expect(filterForm.controls.cipherType.value).toBeNull();
+    });
+
+    it("reflects filterForm writes made outside the table onto the chip", () => {
+      cipherTypes$.next([{ value: CipherType.Identity, label: "Identity" }]);
+      fixture.detectChanges();
+
+      // e.g. the vault header's own filter UI, or `resetFilterForm()`.
+      filterForm.controls.cipherType.setValue(CipherType.Identity);
+      fixture.detectChanges();
+
+      expect(chipFor("cipherType").value()).toBe(CipherType.Identity);
+      expect(chipFor("cipherType").active()).toBe(true);
+    });
+
+    it("seeds a chip from filters already applied before it rendered", () => {
+      // The view cache restores filters into the form before the table mounts.
+      filterForm.controls.cipherType.setValue(CipherType.Card);
+      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
+      fixture.detectChanges();
+
+      expect(chipFor("cipherType").value()).toBe(CipherType.Card);
+    });
+
+    it("flattens nested folder options into one option per node", () => {
+      const parent = { id: "f-1", name: "Parent" } as FolderView;
+      const child = { id: "f-2", name: "Parent/Child" } as FolderView;
+      // Nesting keeps only the trailing segment on each node, so the child's label is "Child".
+      folders$.next([
+        { value: parent, label: "Parent", children: [{ value: child, label: "Child" }] },
+      ]);
+      fixture.detectChanges();
+
+      expect(component["folderOptions"]().map((o) => o.value)).toEqual([parent, child]);
+    });
+
+    it("keeps each nested option's own label, which may repeat across branches", () => {
+      // "Work/Personal" and "Home/Personal" both nest to a node labeled "Personal". Options are
+      // rendered with their own label and tracked by id, so the repeat is expected, not a defect.
+      folders$.next([
+        {
+          value: { id: "f-1", name: "Work" } as FolderView,
+          label: "Work",
+          children: [
+            { value: { id: "f-2", name: "Work/Personal" } as FolderView, label: "Personal" },
+          ],
+        },
+        {
+          value: { id: "f-3", name: "Home" } as FolderView,
+          label: "Home",
+          children: [
+            { value: { id: "f-4", name: "Home/Personal" } as FolderView, label: "Personal" },
+          ],
+        },
+      ]);
+      fixture.detectChanges();
+
+      const options = component["folderOptions"]();
+      expect(options.map((o) => o.label)).toEqual(["Work", "Personal", "Home", "Personal"]);
+      // Ids stay unique, which is what keeps the `@for` track expression stable.
+      expect(new Set(options.map((o) => o.value.id)).size).toBe(4);
+    });
+
+    /**
+     * The chip matches its options by reference, but the form's value is frequently an
+     * equal-but-distinct object: the view cache rebuilds "My vault" as a fresh `Organization`, and
+     * `getAllFoldersNested` copies each `FolderView` per emission. Seeding the raw value would leave
+     * the chip active but label-less, so the directive resolves it against the option list first.
+     */
+    describe("identity-independent seeding", () => {
+      it("selects a seeded organization that is a different instance than its option", () => {
+        const option = { id: MY_VAULT_ID } as Organization;
+        organizations$.next([{ value: option, label: "My vault" }]);
+        // A distinct object with the same id — what `deserializeFilters` restores from the cache.
+        filterForm.controls.organization.setValue({ id: MY_VAULT_ID } as Organization);
+        fixture.detectChanges();
+
+        const chip = chipFor("organization");
+        expect(chip.active()).toBe(true);
+        // Resolved onto the option's own instance, so the chip's reference-based `isSelected` marks
+        // it selected — which is what drives the label and the menu/dialog checkmark.
+        expect(chip.value()).toBe(option);
+        expect(chip.isSelected(option)).toBe(true);
+      });
+
+      it("selects a seeded folder that is a different instance than its option", () => {
+        const option = { id: "folder-1", name: "Work" } as FolderView;
+        folders$.next([{ value: option, label: "Work" }]);
+        filterForm.controls.folder.setValue({ id: "folder-1", name: "Work" } as FolderView);
+        fixture.detectChanges();
+
+        const chip = chipFor("folder");
+        expect(chip.value()).toBe(option);
+        expect(chip.isSelected(option)).toBe(true);
+      });
+
+      it("re-resolves onto the new instance when the options are rebuilt", () => {
+        const first = { id: "folder-1", name: "Work" } as FolderView;
+        folders$.next([{ value: first, label: "Work" }]);
+        filterForm.controls.folder.setValue(first);
+        fixture.detectChanges();
+
+        // `folders$` re-emits rebuilt copies on any cipher change (a sync, an item edit).
+        const rebuilt = { id: "folder-1", name: "Work" } as FolderView;
+        folders$.next([{ value: rebuilt, label: "Work" }]);
+        fixture.detectChanges();
+
+        const chip = chipFor("folder");
+        expect(chip.value()).toBe(rebuilt);
+        expect(chip.isSelected(rebuilt)).toBe(true);
+      });
+
+      it("leaves a selection that matches no option untouched", () => {
+        // The org filter can name a folder the current option list no longer contains; clearing it
+        // here would fight `validateOrganizationChange`, which owns that reset.
+        const orphan = { id: "folder-gone", name: "Archived" } as FolderView;
+        folders$.next([{ value: { id: "folder-1", name: "Work" } as FolderView, label: "Work" }]);
+        filterForm.controls.folder.setValue(orphan);
+        fixture.detectChanges();
+
+        expect(filterForm.controls.folder.value).toBe(orphan);
+      });
     });
   });
 
