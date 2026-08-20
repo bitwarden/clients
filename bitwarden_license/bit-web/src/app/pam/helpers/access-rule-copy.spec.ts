@@ -3,7 +3,7 @@ import type { AccessRuleView } from "../abstractions/access-rule";
 import { accessRuleToCopyRequest, copyRuleName } from "./access-rule-copy";
 import { ACCESS_RULE_NAME_MAX_LENGTH } from "./access-rule-request";
 
-/** Stub for the i18n service, rendering the two copy-name templates as `en` words them. */
+/** Stands in for the i18n service, rendering the two copy-name templates as `en` words them. */
 const t = (key: string, name: string, count?: number): string =>
   key === "pamAccessRuleDuplicateNameNumbered" ? `${name} (copy ${count})` : `${name} (copy)`;
 
@@ -27,6 +27,7 @@ describe("copyRuleName", () => {
   });
 
   it("does not renumber around a gap it does not need", () => {
+    // "VPN (copy 2)" is free, so the numbering stops there rather than walking past the 3.
     expect(copyRuleName("VPN", ["VPN (copy)", "VPN (copy 3)"], t)).toBe("VPN (copy 2)");
   });
 
@@ -51,8 +52,9 @@ describe("copyRuleName", () => {
     });
 
     it("gives up rather than spinning when a locale renders every candidate the same", () => {
-      // A translation dropping $NUMBER$ makes every candidate identical; the server rejects the
-      // duplicate instead of an infinite loop.
+      // A translation that dropped $NUMBER$ makes each numbered candidate identical, so no
+      // amount of counting finds a free one. Terminating and letting the server reject the
+      // duplicate is the only outcome that is not a frozen tab.
       const degenerate = (_key: string, name: string) => `${name} (copy)`;
 
       expect(copyRuleName("VPN", ["VPN (copy)", "other"], degenerate)).toBe("VPN (copy)");

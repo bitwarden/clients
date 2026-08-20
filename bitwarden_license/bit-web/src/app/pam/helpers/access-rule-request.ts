@@ -25,6 +25,14 @@ export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
 export const ACCESS_RULE_DESCRIPTION_MAX_LENGTH = 512;
 
 /**
+ * The longest name the server will store. `dbo.AccessRule.Name` is `NVARCHAR(256)` and
+ * `AccessRule_Create` declares its `@Name` parameter the same width — which means SQL Server
+ * *silently truncates* anything longer rather than rejecting it, so a name must be kept within
+ * this before it is sent, not after.
+ */
+export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
+
+/**
  * The edit form's `getRawValue()`, declared structurally so this helper stays testable without a
  * TestBed. `collections` carries only the `id` the request needs.
  */
