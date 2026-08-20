@@ -73,6 +73,27 @@ describe("UserDecryptionResponse", () => {
     },
   );
 
+  describe("userKeyId", () => {
+    it("should parse userKeyId when UserKeyId is provided", () => {
+      const userDecryptionResponse = new UserDecryptionResponse({
+        UserKeyId: "userKeyId",
+      });
+
+      expect(userDecryptionResponse.userKeyId).toEqual("userKeyId");
+    });
+
+    it.each([null, undefined, 123])(
+      "should leave userKeyId undefined when UserKeyId is %s",
+      (userKeyId) => {
+        const userDecryptionResponse = new UserDecryptionResponse({
+          UserKeyId: userKeyId,
+        });
+
+        expect(userDecryptionResponse.userKeyId).toBeUndefined();
+      },
+    );
+  });
+
   describe("toSdk", () => {
     it("should map every option when the response is fully populated", () => {
       const userDecryptionResponse = new UserDecryptionResponse({
@@ -96,6 +117,7 @@ describe("UserDecryptionResponse", () => {
             Transports: ["usb"],
           },
         ],
+        UserKeyId: "userKeyId",
       });
 
       expect(userDecryptionResponse.toSdk()).toEqual({
@@ -118,6 +140,7 @@ describe("UserDecryptionResponse", () => {
             transports: ["usb"],
           },
         ],
+        userKeyId: "userKeyId",
       });
     });
 
@@ -128,6 +151,7 @@ describe("UserDecryptionResponse", () => {
         masterPasswordUnlock: undefined,
         v2UpgradeToken: undefined,
         webAuthnPrfOptions: [],
+        userKeyId: undefined,
       });
     });
 
