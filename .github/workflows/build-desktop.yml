@@ -939,6 +939,15 @@ jobs:
           _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
         run: node ./scripts/pack-signed-appx.mts --config electron-builder.beta.json --publisher $env:_APPX_PUBLISHER
 
+      # A signed Store package is rejected at ingestion and an unsigned direct download
+      # installs for nobody, so confirm each package ended up as intended before we
+      # upload any of them.
+      - name: Verify appx signing state and publishers
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
+        run: ./scripts/validate-appx-signatures.ps1 -Config electron-builder.beta.json -SignedPublisher $env:_APPX_PUBLISHER
+
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
