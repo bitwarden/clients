@@ -3,7 +3,7 @@ import { NEVER } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import type { AccessRequestId, CipherAccessStateView } from "../abstractions/access-lease";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
@@ -26,6 +26,7 @@ function state(overrides: Partial<CipherAccessStateView> = {}): CipherAccessStat
 
 describe("AccessRequestCancelService", () => {
   let requestsApi: MockProxy<AccessRequestSdkService>;
+  let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
   let logService: MockProxy<LogService>;
@@ -34,6 +35,8 @@ describe("AccessRequestCancelService", () => {
 
   beforeEach(() => {
     requestsApi = mock<AccessRequestSdkService>();
+    dialogService = mock<DialogService>();
+    dialogService.openSimpleDialog.mockResolvedValue(true);
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
     logService = mock<LogService>();
@@ -46,6 +49,7 @@ describe("AccessRequestCancelService", () => {
     service = new AccessRequestCancelService(
       requestsApi,
       accessRefresh,
+      dialogService,
       toastService,
       i18nService,
       logService,
@@ -75,6 +79,54 @@ describe("AccessRequestCancelService", () => {
     await service.cancelOutstandingRequest(CIPHER_ID);
 
     expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith(REQUEST_ID);
+  });
+
+  it("describes the pending case in the confirmation", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      state({ pendingRequest: { id: REQUEST_ID } as never }),
+    );
+
+    await service.cancelOutstandingRequest(CIPHER_ID);
+
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: { key: "pamCancelRequestTitle" },
+        content: { key: "pamCancelRequestPendingConfirm" },
+        cancelButtonText: { key: "pamKeepRequest" },
+      }),
+    );
+  });
+
+  it("describes the approved case in the confirmation", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      state({ approvedRequest: { id: REQUEST_ID } as never }),
+    );
+
+    await service.cancelOutstandingRequest(CIPHER_ID);
+
+    expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+      expect.objectContaining({ content: { key: "pamCancelRequestApprovedConfirm" } }),
+    );
+  });
+
+  it("withdraws nothing when the confirmation is dismissed", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(
+      state({ pendingRequest: { id: REQUEST_ID } as never }),
+    );
+    dialogService.openSimpleDialog.mockResolvedValue(false);
+
+    await service.cancelOutstandingRequest(CIPHER_ID);
+
+    expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+    expect(toastService.showToast).not.toHaveBeenCalled();
+  });
+
+  it("does not ask for confirmation when no request is outstanding anymore", async () => {
+    requestsApi.getCipherAccessState.mockResolvedValue(state());
+
+    await service.cancelOutstandingRequest(CIPHER_ID);
+
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
   });
 
   it("does nothing when no request is outstanding anymore", async () => {

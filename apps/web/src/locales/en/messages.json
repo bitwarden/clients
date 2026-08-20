@@ -17641,6 +17641,18 @@
   "pendingStateCancelRequest": {
     "message": "Cancel request"
   },
+  "pamKeepRequest": {
+    "message": "Keep request"
+  },
+  "pamCancelRequestTitle": {
+    "message": "Cancel access request"
+  },
+  "pamCancelRequestPendingConfirm": {
+    "message": "This withdraws your request before an approver has decided on it. You can submit a new request at any time."
+  },
+  "pamCancelRequestApprovedConfirm": {
+    "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
+  },
   "pendingStateCancelSuccess": {
     "message": "Request cancelled."
   },
