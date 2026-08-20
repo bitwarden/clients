@@ -31,10 +31,7 @@ describe("VaultRowLeaseBadgeComponent", () => {
     fixture.detectChanges();
   }
 
-  function createForCollection(collection: {
-    organizationId?: string;
-    hasEnabledAccessRule?: boolean;
-  }): void {
+  function createForCollection(collection: { hasEnabledAccessRule?: boolean }): void {
     fixture = TestBed.createComponent(VaultRowLeaseBadgeComponent);
     fixture.componentRef.setInput("collection", collection);
     component = fixture.componentInstance;
@@ -170,11 +167,24 @@ describe("VaultRowLeaseBadgeComponent", () => {
       expect(placeholder()?.textContent?.trim()).toBe("\u2014");
     });
 
-    it("draws an em dash for an ungoverned collection in a PAM organization", () => {
-      createForCollection({ organizationId: PAM_ORG, hasEnabledAccessRule: false });
+    it("names the empty state for screen readers, since the dash is aria-hidden", async () => {
+      create(ungatedCipher(PAM_ORG));
+      await fixture.whenStable();
+      fixture.detectChanges();
 
-      expect(component["showNoAccessRule"]()).toBe(true);
-      expect(placeholder()).not.toBeNull();
+      expect(placeholder()?.getAttribute("aria-hidden")).toBe("true");
+      expect(fixture.nativeElement.querySelector(".tw-sr-only")?.textContent?.trim()).toBe(
+        "pamNoAccessRule",
+      );
+    });
+
+    // `hasEnabledAccessRule` defaults to false and is read off the response as `|| false`, so a
+    // server too old to derive it looks exactly like one reporting no rule. Blank, not a dash.
+    it("draws no em dash for an ungoverned collection, whose flag cannot say it was checked", () => {
+      createForCollection({ hasEnabledAccessRule: false });
+
+      expect(component["showNoAccessRule"]()).toBe(false);
+      expect(placeholder()).toBeNull();
     });
 
     it("draws no em dash for a cipher whose organization does not use PAM", async () => {
@@ -186,8 +196,8 @@ describe("VaultRowLeaseBadgeComponent", () => {
       expect(placeholder()).toBeNull();
     });
 
-    it("draws no em dash for a collection whose organization does not use PAM", () => {
-      createForCollection({ organizationId: PLAIN_ORG, hasEnabledAccessRule: false });
+    it("draws no em dash for a collection a rule does govern", () => {
+      createForCollection({ hasEnabledAccessRule: true });
 
       expect(component["showNoAccessRule"]()).toBe(false);
       expect(placeholder()).toBeNull();
