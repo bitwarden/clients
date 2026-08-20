@@ -5,11 +5,14 @@ import {
   Component,
   computed,
   importProvidersFrom,
+  inject,
   input,
   signal,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
+import { of } from "rxjs";
 
 import {
   GeneratorActive,
@@ -23,6 +26,7 @@ import {
 } from "@bitwarden/assets/svg";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import {
@@ -37,6 +41,7 @@ import {
   BitTableV2Component,
   ChipActionComponent,
   ButtonModule,
+  type ButtonType,
   type ColumnName,
   defineTable,
   FilterMenuModule,
@@ -51,6 +56,7 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { enabledFlags } from "@bitwarden/storybook";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
 import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
@@ -130,31 +136,35 @@ class VaultComponent {
 })
 class MockAddButtonComponent {}
 
+/** Mirrors the real `app-pop-out` styling and label; the click is inert in Storybook. */
 @Component({
   selector: "mock-popout-button",
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <button bitIconButton="bwi-popout" size="small" type="button" label="Pop out"></button>
-  `,
-  imports: [IconButtonModule],
-})
-class MockPopoutButtonComponent {}
-
-@Component({
-  selector: "mock-popout-button-vfo1",
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button
       bitIconButton="bwi-popout"
       size="small"
       type="button"
-      buttonType="side-nav"
-      label="Pop out"
+      [buttonType]="buttonType()"
+      label="{{ 'popOutNewWindow' | i18n }}"
+      [title]="'popOutNewWindow' | i18n"
     ></button>
   `,
-  imports: [IconButtonModule],
+  imports: [I18nPipe, IconButtonModule],
 })
-class MockPopoutButtonVFO1Component {}
+class MockPopoutButtonComponent {
+  /** Optional so the mock still renders if a story runs without the feature-flag addon. */
+  private readonly configService = inject(ConfigService, { optional: true });
+
+  private readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
+
+  protected readonly buttonType = computed<ButtonType>(() =>
+    this.vfo1Enabled() ? "side-nav" : "primaryGhost",
+  );
+}
 
 @Component({
   selector: "mock-current-account",
@@ -207,7 +217,6 @@ class MockBannerComponent {}
     PopupHeaderComponent,
     MockAddButtonComponent,
     MockPopoutButtonComponent,
-    MockPopoutButtonVFO1Component,
     MockCurrentAccountComponent,
     MockSearchComponent,
     VaultComponent,
@@ -749,7 +758,7 @@ class MockVaultTablePageComponent {
     <popup-page>
       <popup-header slot="header" pageTitle="Send">
         <ng-container slot="end">
-          <mock-popout-button-vfo1></mock-popout-button-vfo1>
+          <mock-popout-button></mock-popout-button>
           <mock-current-account></mock-current-account>
         </ng-container>
         <bit-icon-tile slot="title-start" icon="bwi-send" variant="brand" size="sm"></bit-icon-tile>
@@ -762,7 +771,7 @@ class MockVaultTablePageComponent {
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
-    MockPopoutButtonVFO1Component,
+    MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     MockSearchComponent,
     IconTileComponent,
@@ -782,7 +791,7 @@ class MockSendPageV2Component {}
     <popup-page>
       <popup-header slot="header" pageTitle="Vault">
         <ng-container slot="end">
-          <mock-popout-button-vfo1></mock-popout-button-vfo1>
+          <mock-popout-button></mock-popout-button>
           <mock-current-account></mock-current-account>
         </ng-container>
         <bit-icon-tile slot="title-start" icon="bwi-lock" variant="brand" size="sm"></bit-icon-tile>
@@ -795,7 +804,7 @@ class MockSendPageV2Component {}
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
-    MockPopoutButtonVFO1Component,
+    MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     MockSearchComponent,
     IconTileComponent,
@@ -816,7 +825,7 @@ class MockScrollingPageV2Component {}
     <popup-page>
       <popup-header slot="header" pageTitle="My vault">
         <ng-container slot="end">
-          <mock-popout-button-vfo1></mock-popout-button-vfo1>
+          <mock-popout-button></mock-popout-button>
           <mock-current-account></mock-current-account>
         </ng-container>
         <bit-icon-tile
@@ -839,7 +848,7 @@ class MockScrollingPageV2Component {}
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
-    MockPopoutButtonVFO1Component,
+    MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     VaultComponent,
     IconButtonModule,
@@ -856,7 +865,7 @@ class MockVaultPageV2Component {}
     <popup-page>
       <popup-header slot="header" pageTitle="Item details" showBackButton>
         <ng-container slot="end">
-          <mock-popout-button-vfo1></mock-popout-button-vfo1>
+          <mock-popout-button></mock-popout-button>
           <mock-current-account></mock-current-account>
         </ng-container>
       </popup-header>
@@ -866,7 +875,7 @@ class MockVaultPageV2Component {}
   imports: [
     PopupPageComponent,
     PopupHeaderComponent,
-    MockPopoutButtonVFO1Component,
+    MockPopoutButtonComponent,
     MockCurrentAccountComponent,
     VaultComponent,
   ],
@@ -884,6 +893,7 @@ const popupLayoutI18nProvider = {
       loading: "Loading",
       search: "Search",
       appLogoLabel: "Bitwarden",
+      popOutNewWindow: "Pop out to a new window",
       vault: "Vault",
       generator: "Generator",
       send: "Send",
