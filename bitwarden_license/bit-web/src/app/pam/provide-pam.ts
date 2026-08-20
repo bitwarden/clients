@@ -72,9 +72,9 @@ import {
  * on a governed collection in the vault's Filters sidebar, backed by the shared
  * `GovernedCollectionsService` lookup) and `VAULT_GATED_COLLECTION_BANNER` (the notice
  * above the item list naming the same restriction while a governed collection is the
- * active filter), all component classes, and `VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's
- * "Controlled access" group and the narrowing its children apply to the item list),
- * plus `GATED_CIPHER_RELOADER` (the
+ * active filter), all component classes,
+ * plus `VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's "Controlled access" group and the
+ * narrowing its children apply to the item list), `GATED_CIPHER_RELOADER` (the
  * observable that reveals a gated cipher in place once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
  * edit dialog), `PamNavBadgeService` (the nav badge count), and
