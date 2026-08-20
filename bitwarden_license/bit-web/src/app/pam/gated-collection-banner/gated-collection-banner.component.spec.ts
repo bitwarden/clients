@@ -70,11 +70,11 @@ describe("GatedCollectionBannerComponent", () => {
     expect(banner()?.textContent).toContain("pamCollectionRequiresRequest");
   });
 
-  it("names the notice for assistive technology with the same sentence it displays", () => {
+  it("names the notice's landmark with a label distinct from the sentence it displays", () => {
     create(PAM_ORG, COLLECTION);
 
     expect(banner()?.querySelector("aside")?.getAttribute("aria-label")).toBe(
-      "pamCollectionRequiresRequest",
+      "pamGatedCollectionBannerName",
     );
   });
 
