@@ -43,6 +43,11 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   nodes are rebuilt through `new CollectionView(...)`, which resets that flag to `false`,
   and the banner is handed ids alone. Add a fifth surface by calling that helper, not by
   re-deriving the check.
+- `vault-filter-controlled-access/` — the vault sidebar's "Controlled access" group and the
+  narrowing its children apply to the item list. Its children partition
+  `AccessBadgeState.kind`: "Privileged" ships, "My requests" (`pending`/`ready`/`active`)
+  follows, and "Unavailable" cannot be built at all while `cipherAccessBadgeState()` never
+  produces that kind.
 - `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
   vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
   the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
@@ -144,6 +149,8 @@ governed collection in the vault's Filters sidebar, off the shared per-org
 through `new CollectionView(...)` and that resets `hasEnabledAccessRule` to `false`),
 `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list naming that same
 restriction while a governed collection is the active filter),
+`VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's "Controlled access" group plus the
+narrowing its children apply to the item list),
 `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry; all `apps/web`).
 Add a seam rather than importing PAM from OSS code.
