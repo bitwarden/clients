@@ -17379,9 +17379,6 @@
   "pamExtendLeaseError": {
     "message": "Couldn't extend access."
   },
-  "pamStatusPending": {
-    "message": "Pending"
-  },
   "pamStatusApproved": {
     "message": "Approved"
   },
