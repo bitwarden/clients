@@ -17949,6 +17949,9 @@
   "pamAccessRuleDeactivateConfirmContent": {
     "message": "This rule will stop applying to new access requests."
   },
+  "pamAccessRuleSaveErrorBody": {
+    "message": "Something went wrong. Your rule wasn't saved, but your information is still here. Try again."
+  },
   "pamAccessRuleNameRequired": {
     "message": "Enter a name."
   },
@@ -17975,9 +17978,6 @@
   },
   "pamAccessRuleErrorMissing": {
     "message": "This rule no longer exists. It may have been deleted by another admin."
-  },
-  "pamAccessRuleSaveErrorBody": {
-    "message": "Something went wrong. Your rule wasn't saved, but your information is still here. Try again."
   },
   "pamAccessRuleSaveErrorGeneric": {
     "message": "Something went wrong. Your rule wasn't saved, but your information is still here."
