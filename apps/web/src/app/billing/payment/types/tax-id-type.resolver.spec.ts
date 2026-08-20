@@ -1,4 +1,4 @@
-import { getTaxIdTypeForCountry, taxIdTypes } from "./tax-id-type";
+import { getTaxIdTypeForCountry, normalizeTaxIdValue, taxIdTypes } from "./tax-id-type";
 
 describe("getTaxIdTypeForCountry", () => {
   describe("value-aware resolution", () => {
@@ -25,6 +25,21 @@ describe("getTaxIdTypeForCountry", () => {
     it("resolves German values to the matching type", () => {
       expect(getTaxIdTypeForCountry("DE", "DE123456789")?.code).toBe("eu_vat");
       expect(getTaxIdTypeForCountry("DE", "1234567890")?.code).toBe("de_stn");
+    });
+  });
+
+  describe("value normalization", () => {
+    it("resolves a value with surrounding whitespace", () => {
+      expect(getTaxIdTypeForCountry("CA", " 987654321 ")?.code).toBe("ca_bn");
+    });
+
+    it("resolves a value regardless of case", () => {
+      expect(getTaxIdTypeForCountry("GB", "gb123456789")?.code).toBe("gb_vat");
+      expect(getTaxIdTypeForCountry("GB", "xi123456789")?.code).toBe("eu_vat");
+    });
+
+    it("resolves a value with mixed whitespace and case", () => {
+      expect(getTaxIdTypeForCountry("GB", " gb123456789 ")?.code).toBe("gb_vat");
     });
   });
 
@@ -112,5 +127,19 @@ describe("getTaxIdTypeForCountry", () => {
         }
       });
     });
+  });
+});
+
+describe("normalizeTaxIdValue", () => {
+  it("trims surrounding whitespace", () => {
+    expect(normalizeTaxIdValue(" 987654321 ")).toBe("987654321");
+  });
+
+  it("converts to uppercase", () => {
+    expect(normalizeTaxIdValue("gb123456789")).toBe("GB123456789");
+  });
+
+  it("reduces a whitespace-only value to an empty string", () => {
+    expect(normalizeTaxIdValue("   ")).toBe("");
   });
 });

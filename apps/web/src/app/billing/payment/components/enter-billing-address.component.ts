@@ -14,6 +14,7 @@ import {
   BillingAddress,
   findTaxIdTypeByValue,
   getTaxIdTypeForCountry,
+  normalizeTaxIdValue,
   selectableCountries,
   taxIdTypes,
 } from "../types";
@@ -35,9 +36,12 @@ export const getBillingAddressFromForm = (formGroup: BillingAddressFormGroup): B
 
 export const getBillingAddressFromControls = (controls: BillingAddressControls) => {
   const { taxId, ...addressFields } = controls;
-  const taxIdType = taxId ? getTaxIdTypeForCountry(addressFields.country, taxId) : null;
+  const normalizedTaxId = taxId ? normalizeTaxIdValue(taxId) : null;
+  const taxIdType = normalizedTaxId
+    ? getTaxIdTypeForCountry(addressFields.country, normalizedTaxId)
+    : null;
   return taxIdType
-    ? { ...addressFields, taxId: { code: taxIdType.code, value: taxId! } }
+    ? { ...addressFields, taxId: { code: taxIdType.code, value: normalizedTaxId! } }
     : { ...addressFields, taxId: null };
 };
 

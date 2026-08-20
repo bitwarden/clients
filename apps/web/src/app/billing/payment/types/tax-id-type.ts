@@ -8,10 +8,13 @@ export type TaxIdType = Readonly<{
   format?: RegExp;
 }>;
 
+// Formats are defined with digits and uppercase letters only, so normalizing case is always safe.
+export const normalizeTaxIdValue = (value: string): string => value.trim().toUpperCase();
+
 export const findTaxIdTypeByValue = (
   types: ReadonlyArray<TaxIdType>,
   value: string,
-): TaxIdType | undefined => types.find((type) => type.format?.test(value));
+): TaxIdType | undefined => types.find((type) => type.format?.test(normalizeTaxIdValue(value)));
 
 export const getTaxIdTypeForCountry = (country: string, value?: string): TaxIdType | null => {
   const types = taxIdTypes.filter((type) => type.iso === country);

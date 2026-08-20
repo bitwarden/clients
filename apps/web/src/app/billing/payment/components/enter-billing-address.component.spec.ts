@@ -53,6 +53,28 @@ describe("getBillingAddressFromControls", () => {
     ).toBe("eu_vat");
   });
 
+  it("trims and uppercases the taxId value before resolving and submitting it", () => {
+    const result = getBillingAddressFromControls(
+      buildControls({ country: "CA", taxId: " 987654321 " }),
+    );
+
+    expect(result.taxId).toEqual({ code: "ca_bn", value: "987654321" });
+  });
+
+  it("resolves a lowercase taxId value to its matching type", () => {
+    const result = getBillingAddressFromControls(
+      buildControls({ country: "GB", taxId: "gb123456789" }),
+    );
+
+    expect(result.taxId).toEqual({ code: "gb_vat", value: "GB123456789" });
+  });
+
+  it("returns a null taxId when the taxId control is only whitespace", () => {
+    const result = getBillingAddressFromControls(buildControls({ country: "CA", taxId: "   " }));
+
+    expect(result.taxId).toBeNull();
+  });
+
   it("returns a null taxId when the taxId control is null", () => {
     const result = getBillingAddressFromControls(buildControls({ country: "CA", taxId: null }));
 
