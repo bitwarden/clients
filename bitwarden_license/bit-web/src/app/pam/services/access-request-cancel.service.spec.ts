@@ -121,19 +121,12 @@ describe("AccessRequestCancelService", () => {
     expect(toastService.showToast).not.toHaveBeenCalled();
   });
 
-  it("does not ask for confirmation when no request is outstanding anymore", async () => {
-    requestsApi.getCipherAccessState.mockResolvedValue(state());
-
-    await service.cancelOutstandingRequest(CIPHER_ID);
-
-    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
-  });
-
   it("does nothing when no request is outstanding anymore", async () => {
     requestsApi.getCipherAccessState.mockResolvedValue(state());
 
     await service.cancelOutstandingRequest(CIPHER_ID);
 
+    expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
     expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
     expect(toastService.showToast).not.toHaveBeenCalled();
   });
