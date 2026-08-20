@@ -410,7 +410,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       map((options) => {
         const headNode = new TreeNode<ControlledAccessFilter>(
           { id: "headControlledAccess", name: "controlledAccess" },
-          null,
+          null!,
         );
         headNode.children = options.map(
           (option) =>
