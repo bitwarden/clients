@@ -193,26 +193,15 @@ export class CipherViewBannerComponent implements OnInit {
   );
 
   /**
-   * The wall-clock end of the active lease, beside the countdown, so a requester can answer
-   * "can I finish this before it expires" without doing the arithmetic. Rendered through the same
-   * `date: "short"` format the Requests table uses for a lease window.
+   * Whether an approved request's window has already opened — the same question
+   * `my-requests-tab.component.ts` asks as `startsNow`, so both surfaces state a granted window the
+   * same way: "until X" once it has opened, and the full `notBefore – notAfter` range while it is
+   * still scheduled. Without the distinction the banner describes a grant that cannot be started
+   * yet as available now.
    */
-  protected readonly activeLeaseEndsAt = computed(() => this.activeLease()?.notAfter ?? null);
-
-  /**
-   * The window an approved request was granted, as the Requests table states it
-   * (`my-requests-tab.component.html:63-68`): "until X" once the window has opened, and the full
-   * `notBefore – notAfter` range while it is still scheduled, since the banner otherwise describes
-   * a grant that cannot be started yet as available now.
-   */
-  protected readonly approvedAccessWindow = computed(() => {
+  protected readonly approvedRequestStartsNow = computed(() => {
     const request = this.approvedRequest();
-    if (request?.leaseNotAfter == null) {
-      return null;
-    }
-    const startsAt = request.leaseNotBefore;
-    const scheduled = startsAt != null && Date.parse(startsAt) > this.nowMs();
-    return { startsAt: scheduled ? startsAt : null, endsAt: request.leaseNotAfter };
+    return request != null && Date.parse(request.leaseNotBefore) <= this.nowMs();
   });
 
   /** Whether the "Request access" entry point has folded out its form. */

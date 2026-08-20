@@ -40,7 +40,14 @@ function leaseView(overrides: Partial<AccessLeaseView> = {}): AccessLeaseView {
 }
 
 function requestView(overrides: Partial<AccessRequestView> = {}): AccessRequestView {
-  return { id: "request-1", ...overrides } as unknown as AccessRequestView;
+  return {
+    id: "request-1",
+    // The server resolves both bounds at submit, so every real response carries them; a fixture
+    // omitting them would render a window the SDK's own type makes unrepresentable.
+    leaseNotBefore: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    leaseNotAfter: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+    ...overrides,
+  } as unknown as AccessRequestView;
 }
 
 /**
@@ -346,17 +353,6 @@ describe("CipherViewBannerComponent", () => {
           `${formatDate(STARTS_AT, "short", "en-US")} – ${formatDate(ENDS_AT, "short", "en-US")}`,
         ),
       );
-    });
-
-    it("renders no absolute time for an approved request with no window end", async () => {
-      requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ approvedRequest: requestView() }),
-      );
-
-      await create(gatedCipher());
-
-      expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
-      expect(query('[data-testid="approved-access-window"]')).toBeNull();
     });
   });
 
