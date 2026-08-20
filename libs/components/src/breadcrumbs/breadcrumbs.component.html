@@ -48,13 +48,18 @@
   into the "More" menu. Separators live inside each item/trigger so they hide in
   place along with their owner. The trigger sits right after the first crumb, so
   a collapsed trail renders as `First > … > survivors > Current`.
+
+  Clipping is `overflow-x-clip` (not `overflow-hidden`, which would force the cross
+  axis to `auto`) so focus rings stay visible vertically; the padding/negative-margin
+  pair gives the edge crumbs' rings room without changing the content-box width that
+  packing measures against.
 -->
 <div
   bitOverflowList
   strategy="middle"
   #ovf="bitOverflowList"
   [containerWidth]="availableWidth()"
-  class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-nowrap tw-items-center tw-overflow-hidden"
+  class="tw-flex tw-min-w-0 tw-flex-1 tw-flex-nowrap tw-items-center tw-overflow-x-clip tw--ms-0.5 tw-ps-0.5 tw--me-0.5 tw-pe-0.5"
   [class.tw-invisible]="!ovf.ready()"
 >
   @for (breadcrumb of breadcrumbs(); track breadcrumb; let i = $index; let first = $first) {
@@ -62,7 +67,7 @@
       bitOverflowItem
       #item="bitOverflowItem"
       class="tw-flex tw-items-center"
-      [class]="item.shouldShrink() ? 'tw-shrink tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'"
+      [class]="item.shouldShrink() ? 'tw-shrink tw-min-w-0' : 'tw-shrink-0'"
     >
       @if (!first) {
         <ng-container [ngTemplateOutlet]="arrow" />

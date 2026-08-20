@@ -125,7 +125,6 @@ export class BreadcrumbsComponent {
     "focus-visible:!tw-text-fg-brand",
     "focus-visible:tw-outline-none",
     "focus-visible:tw-ring-2",
-    "focus-visible:tw-ring-inset",
     "focus-visible:tw-ring-border-focus",
   ];
 
