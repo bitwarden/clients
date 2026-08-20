@@ -7,6 +7,7 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportState,
+  VaultHealthReportStatus,
   VaultHealthReportView,
 } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -98,7 +99,7 @@ describe("HealthComponent", () => {
    * DefaultVaultHealthReportService is, so a state published for one account is
    * invisible to the next.
    */
-  let published: BehaviorSubject<{ userId: UserId; state: VaultHealthReportState } | null>;
+  let published: BehaviorSubject<({ userId: UserId } & VaultHealthReportState) | null>;
 
   /**
    * Makes a build publish `loading` and then `success`, mirroring the real
@@ -107,8 +108,8 @@ describe("HealthComponent", () => {
    */
   function publishesOnBuild(report: VaultHealthReportView) {
     reportService.buildVaultHealthReport.mockImplementation(async (_ciphers, id) => {
-      published.next({ userId: id, state: { status: "loading" } });
-      published.next({ userId: id, state: { status: "success", report } });
+      published.next({ userId: id, status: VaultHealthReportStatus.Loading, report: null });
+      published.next({ userId: id, status: VaultHealthReportStatus.Success, report });
     });
   }
 
@@ -118,15 +119,15 @@ describe("HealthComponent", () => {
    */
   function publishesErrorOnBuild() {
     reportService.buildVaultHealthReport.mockImplementation(async (_ciphers, id) => {
-      published.next({ userId: id, state: { status: "loading" } });
-      published.next({ userId: id, state: { status: "error" } });
+      published.next({ userId: id, status: VaultHealthReportStatus.Loading, report: null });
+      published.next({ userId: id, status: VaultHealthReportStatus.Error, report: null });
     });
   }
 
   /** Leaves a build in flight forever, so generation never completes. */
   function buildNeverSettles() {
     reportService.buildVaultHealthReport.mockImplementation((_ciphers, id) => {
-      published.next({ userId: id, state: { status: "loading" } });
+      published.next({ userId: id, status: VaultHealthReportStatus.Loading, report: null });
       return new Promise<void>(() => {});
     });
   }
@@ -185,16 +186,16 @@ describe("HealthComponent", () => {
     cipherService.cipherViews$.mockReturnValue(of([] as CipherView[]));
 
     reportService = mock<VaultHealthReportService>();
-    // Mirror the real service: buildVaultHealthReport publishes state and
-    // resolves void, and the state stream is scoped to a single user so one
-    // account's state is invisible to the next. getVaultHealthReport$ is
-    // deliberately left unmocked: this component does not read it, and a mock
-    // here would have to reproduce the service's report retention to avoid
-    // teaching the next reader the wrong contract.
-    published = new BehaviorSubject<{ userId: UserId; state: VaultHealthReportState } | null>(null);
-    reportService.getVaultHealthReportState$.mockImplementation((id) =>
+    // Mirror the real service: getVaultHealthReport$ replays one flat
+    // { status, report } per user, so one account's state can't leak to the next.
+    published = new BehaviorSubject<({ userId: UserId } & VaultHealthReportState) | null>(null);
+    reportService.getVaultHealthReport$.mockImplementation((id) =>
       published.pipe(
-        map((scoped) => (scoped?.userId === id ? scoped.state : VAULT_HEALTH_REPORT_IDLE)),
+        map((scoped) =>
+          scoped?.userId === id
+            ? { status: scoped.status, report: scoped.report }
+            : VAULT_HEALTH_REPORT_IDLE,
+        ),
       ),
     );
     publishesOnBuild(new VaultHealthReportView());
@@ -326,7 +327,7 @@ describe("HealthComponent", () => {
       await initComponent();
       await settle();
 
-      expect(reportService.getVaultHealthReportState$).toHaveBeenCalledWith(userId);
+      expect(reportService.getVaultHealthReport$).toHaveBeenCalledWith(userId);
       expect(overview()?.report().atRiskCount).toBe(7);
     });
 
@@ -378,10 +379,8 @@ describe("HealthComponent", () => {
 
       published.next({
         userId,
-        state: {
-          status: "success",
-          report: new VaultHealthReportView({ totalCount: 9, atRiskCount: 3 }),
-        },
+        status: VaultHealthReportStatus.Success,
+        report: new VaultHealthReportView({ totalCount: 9, atRiskCount: 3 }),
       });
       await settle();
 
@@ -447,10 +446,8 @@ describe("HealthComponent", () => {
       hasRunScan$.next(true);
       published.next({
         userId,
-        state: {
-          status: "success",
-          report: new VaultHealthReportView({ totalCount: 10, atRiskCount: 2 }),
-        },
+        status: VaultHealthReportStatus.Success,
+        report: new VaultHealthReportView({ totalCount: 10, atRiskCount: 2 }),
       });
 
       await initComponent();
@@ -463,7 +460,7 @@ describe("HealthComponent", () => {
 
     it("follows an in-flight generation rather than starting a second one", async () => {
       hasRunScan$.next(true);
-      published.next({ userId, state: { status: "loading" } });
+      published.next({ userId, status: VaultHealthReportStatus.Loading, report: null });
 
       await initComponent();
       await settle();
@@ -473,10 +470,8 @@ describe("HealthComponent", () => {
 
       published.next({
         userId,
-        state: {
-          status: "success",
-          report: new VaultHealthReportView({ totalCount: 8, atRiskCount: 1 }),
-        },
+        status: VaultHealthReportStatus.Success,
+        report: new VaultHealthReportView({ totalCount: 8, atRiskCount: 1 }),
       });
       await settle();
 
@@ -489,7 +484,7 @@ describe("HealthComponent", () => {
       // reusing the error would strand the user on it for the life of the popup,
       // and a popped-out window can live for hours.
       hasRunScan$.next(true);
-      published.next({ userId, state: { status: "error" } });
+      published.next({ userId, status: VaultHealthReportStatus.Error, report: null });
       publishesOnBuild(new VaultHealthReportView({ totalCount: 5, atRiskCount: 1 }));
 
       await initComponent();

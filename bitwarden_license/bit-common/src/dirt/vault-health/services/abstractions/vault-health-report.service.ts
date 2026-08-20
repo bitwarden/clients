@@ -4,7 +4,6 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { RiskCategory, VaultHealthReportState } from "../../models";
-import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 
 /**
  * Report builder and publisher for the browser Health tab.
@@ -19,31 +18,17 @@ import { VaultHealthReportView } from "../../models/view/vault-health-report.vie
  */
 export abstract class VaultHealthReportService {
   /**
-   * Builds the aggregated vault-health report from the given ciphers and
-   * publishes it for `userId`.
-   *
-   * Publishes `loading` before starting and then `success` or `error`, so a
-   * failure in the underlying risk computation (e.g. an HIBP failure) surfaces
-   * through `getVaultHealthReportState$` rather than as a rejection. Callers
-   * read the outcome from that stream rather than catching failures from this
-   * call.
+   * Builds the report for `userId` and publishes it. Failures (e.g. a breach
+   * lookup being down) come back as an `error` status, not a thrown error, so
+   * callers read the outcome from {@link getVaultHealthReport$}.
    */
   abstract buildVaultHealthReport(ciphers: CipherView[], userId: UserId): Promise<void>;
 
   /**
-   * Where report generation is for `userId`.
-   * @returns an observable that emits the current state, starting at `idle`
-   * until a build is started for that user
+   * The user's scan status and latest report. Starts at `idle` with no report
+   * until a build runs.
    */
-  abstract getVaultHealthReportState$(userId: UserId): Observable<VaultHealthReportState>;
-
-  /** Get the latest vault health scan report for a user, run buildVaultHealthReport first to generate the report.
-   * @returns an observable that emits the last report successfully built for
-   * `userId`, or null when there is none. Retained while a rescan is in flight
-   * and after a failed one, so it never blinks to null mid-generation; read
-   * `getVaultHealthReportState$` to tell those apart.
-   */
-  abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportView | null>;
+  abstract getVaultHealthReport$(userId: UserId): Observable<VaultHealthReportState>;
 
   /**
    * Delete an item from an existing vault health report, without rebuilding the report.

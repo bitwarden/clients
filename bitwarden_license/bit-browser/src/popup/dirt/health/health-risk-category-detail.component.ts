@@ -95,6 +95,7 @@ export class HealthRiskCategoryDetailComponent {
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
+      map((state) => state.report),
     ),
     { initialValue: null },
   );

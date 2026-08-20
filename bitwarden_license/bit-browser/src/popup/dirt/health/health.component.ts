@@ -24,6 +24,7 @@ import {
 import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportState,
+  VaultHealthReportStatus,
 } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
@@ -115,12 +116,14 @@ export class HealthComponent {
   );
 
   /** True when report generation did not complete. */
-  protected readonly scanFailed = computed(() => this.scanState().status === "error");
+  protected readonly scanFailed = computed(
+    () => this.scanState().status === VaultHealthReportStatus.Error,
+  );
 
   /** The completed report, or null while generating or after a failure. */
   protected readonly report = computed(() => {
     const state = this.scanState();
-    return state.status === "success" ? state.report : null;
+    return state.status === VaultHealthReportStatus.Success ? state.report : null;
   });
 
   constructor() {
@@ -162,7 +165,7 @@ export class HealthComponent {
    * the pipeline.
    */
   private generateReport$(userId: UserId): Observable<VaultHealthReportState> {
-    return this.vaultHealthReportService.getVaultHealthReportState$(userId).pipe(
+    return this.vaultHealthReportService.getVaultHealthReport$(userId).pipe(
       take(1),
       switchMap((existing) =>
         // Nothing worth keeping, so generate. `error` counts as nothing: there is
@@ -170,18 +173,19 @@ export class HealthComponent {
         // offers no retry, so reusing it would strand the user on it for the life
         // of the popup. That matters more than it sounds, because this tab can be
         // popped out into a window that lives for hours.
-        existing.status === "idle" || existing.status === "error"
+        existing.status === VaultHealthReportStatus.Idle ||
+        existing.status === VaultHealthReportStatus.Error
           ? this.startGeneration$(userId)
           : // Already generated, or generating. Follow it rather than starting a
             // second one.
-            this.vaultHealthReportService.getVaultHealthReportState$(userId),
+            this.vaultHealthReportService.getVaultHealthReport$(userId),
       ),
       // The service publishes its own failures as state, so reaching here means
       // the ciphers stream failed instead. Distinct message so the two failure
       // classes are separable in a log dump.
       catchError((error: unknown): Observable<VaultHealthReportState> => {
         this.logService.error("Vault health scan pipeline failed", error);
-        return of({ status: "error" });
+        return of({ status: VaultHealthReportStatus.Error, report: null });
       }),
     );
   }
@@ -201,7 +205,7 @@ export class HealthComponent {
           defer(() => this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)).pipe(
             ignoreElements(),
           ),
-          this.vaultHealthReportService.getVaultHealthReportState$(userId),
+          this.vaultHealthReportService.getVaultHealthReport$(userId),
         ),
       ),
     );
