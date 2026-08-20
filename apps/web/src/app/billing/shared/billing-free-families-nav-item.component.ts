@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import { Component } from "@angular/core";
 import { Observable } from "rxjs";
 
 import { NavigationModule } from "@bitwarden/components";
@@ -15,11 +15,9 @@ import { BillingSharedModule } from "./billing-shared.module";
   imports: [NavigationModule, BillingSharedModule],
 })
 export class BillingFreeFamiliesNavItemComponent {
-  private freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
-
   showFreeFamilies$: Observable<boolean>;
 
-  constructor() {
+  constructor(private freeFamiliesPolicyService: FreeFamiliesPolicyService) {
     this.showFreeFamilies$ = this.freeFamiliesPolicyService.showFreeFamilies$;
   }
 }

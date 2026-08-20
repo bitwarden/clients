@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output, inject } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -22,9 +22,6 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
   standalone: false,
 })
 export class IndividualSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
-  protected readonly apiService = inject(ApiService);
-  protected readonly syncService = inject(SyncService);
-
   /**
    * Emitted when a license file has been successfully uploaded & processed.
    */
@@ -32,14 +29,16 @@ export class IndividualSelfHostingLicenseUploaderComponent extends AbstractSelfH
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onLicenseFileUploaded: EventEmitter<void> = new EventEmitter<void>();
 
-  constructor() {
-    super(
-      inject(FormBuilder),
-      inject(I18nService),
-      inject(PlatformUtilsService),
-      inject(ToastService),
-      inject(TokenService),
-    );
+  constructor(
+    protected readonly apiService: ApiService,
+    protected readonly formBuilder: FormBuilder,
+    protected readonly i18nService: I18nService,
+    protected readonly platformUtilsService: PlatformUtilsService,
+    protected readonly syncService: SyncService,
+    protected readonly toastService: ToastService,
+    protected readonly tokenService: TokenService,
+  ) {
+    super(formBuilder, i18nService, platformUtilsService, toastService, tokenService);
   }
 
   protected async submit(): Promise<void> {

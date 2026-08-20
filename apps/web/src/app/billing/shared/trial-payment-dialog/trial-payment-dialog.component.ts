@@ -1,12 +1,12 @@
 import {
   Component,
   EventEmitter,
+  Inject,
   OnDestroy,
   OnInit,
   Output,
   signal,
   ViewChild,
-  inject,
 } from "@angular/core";
 import { FormGroup } from "@angular/forms";
 import { combineLatest, firstValueFrom, map, Subject, takeUntil } from "rxjs";
@@ -79,22 +79,6 @@ interface OnSuccessArgs {
   standalone: false,
 })
 export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
-  private dialogParams = inject<TrialPaymentDialogParams>(DIALOG_DATA);
-  private dialogRef = inject<DialogRef<TrialPaymentDialogResultType>>(DialogRef);
-  private organizationService = inject(OrganizationService);
-  private i18nService = inject(I18nService);
-  private organizationApiService = inject(OrganizationApiServiceAbstraction);
-  private accountService = inject(AccountService);
-  private planCardService = inject(PlanCardService);
-  private pricingSummaryService = inject(PricingSummaryService);
-  private apiService = inject(ApiService);
-  private toastService = inject(ToastService);
-  private organizationBillingApiServiceAbstraction = inject(
-    OrganizationBillingApiServiceAbstraction,
-  );
-  private subscriberBillingClient = inject(SubscriberBillingClient);
-  private previewInvoiceClient = inject(PreviewInvoiceClient);
-
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(EnterPaymentMethodComponent) enterPaymentMethodComponent!: EnterPaymentMethodComponent;
@@ -124,7 +108,21 @@ export class TrialPaymentDialogComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor() {
+  constructor(
+    @Inject(DIALOG_DATA) private dialogParams: TrialPaymentDialogParams,
+    private dialogRef: DialogRef<TrialPaymentDialogResultType>,
+    private organizationService: OrganizationService,
+    private i18nService: I18nService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private accountService: AccountService,
+    private planCardService: PlanCardService,
+    private pricingSummaryService: PricingSummaryService,
+    private apiService: ApiService,
+    private toastService: ToastService,
+    private organizationBillingApiServiceAbstraction: OrganizationBillingApiServiceAbstraction,
+    private subscriberBillingClient: SubscriberBillingClient,
+    private previewInvoiceClient: PreviewInvoiceClient,
+  ) {
     this.initialPaymentMethod = this.dialogParams.initialPaymentMethod ?? PaymentMethodType.Card;
   }
 

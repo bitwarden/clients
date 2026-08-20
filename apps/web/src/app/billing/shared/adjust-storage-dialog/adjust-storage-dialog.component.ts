@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, inject } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -35,12 +35,6 @@ export enum AdjustStorageDialogResultType {
   standalone: false,
 })
 export class AdjustStorageDialogComponent {
-  protected dialogParams = inject<AdjustStorageDialogParams>(DIALOG_DATA);
-  private dialogRef = inject<DialogRef<AdjustStorageDialogResultType>>(DialogRef);
-  private i18nService = inject(I18nService);
-  private organizationApiService = inject(OrganizationApiServiceAbstraction);
-  private toastService = inject(ToastService);
-
   protected formGroup = new FormGroup({
     storage: new FormControl<number>(0, [
       Validators.required,
@@ -58,7 +52,13 @@ export class AdjustStorageDialogComponent {
 
   protected ResultType = AdjustStorageDialogResultType;
 
-  constructor() {
+  constructor(
+    @Inject(DIALOG_DATA) protected dialogParams: AdjustStorageDialogParams,
+    private dialogRef: DialogRef<AdjustStorageDialogResultType>,
+    private i18nService: I18nService,
+    private organizationApiService: OrganizationApiServiceAbstraction,
+    private toastService: ToastService,
+  ) {
     this.price = this.dialogParams.price;
     this.cadence = this.dialogParams.cadence;
     switch (this.dialogParams.type) {

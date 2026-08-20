@@ -1,6 +1,6 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, EventEmitter, Output, inject } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
@@ -34,14 +34,6 @@ import { AbstractSelfHostingLicenseUploaderComponent } from "../../shared/self-h
   standalone: false,
 })
 export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSelfHostingLicenseUploaderComponent {
-  private readonly apiService = inject(ApiService);
-  private readonly encryptService = inject(EncryptService);
-  private readonly legacyCompatKeyService = inject(LegacyCompatKeyService);
-  private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
-  private readonly syncService = inject(SyncService);
-  private readonly accountService = inject(AccountService);
-  private readonly configService = inject(ConfigService);
-
   /**
    * Notifies the parent component of the `organizationId` the license was created for.
    */
@@ -49,14 +41,21 @@ export class OrganizationSelfHostingLicenseUploaderComponent extends AbstractSel
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onLicenseFileUploaded: EventEmitter<string> = new EventEmitter<string>();
 
-  constructor() {
-    super(
-      inject(FormBuilder),
-      inject(I18nService),
-      inject(PlatformUtilsService),
-      inject(ToastService),
-      inject(TokenService),
-    );
+  constructor(
+    protected readonly formBuilder: FormBuilder,
+    protected readonly i18nService: I18nService,
+    protected readonly platformUtilsService: PlatformUtilsService,
+    protected readonly toastService: ToastService,
+    protected readonly tokenService: TokenService,
+    private readonly apiService: ApiService,
+    private readonly encryptService: EncryptService,
+    private readonly legacyCompatKeyService: LegacyCompatKeyService,
+    private readonly organizationApiService: OrganizationApiServiceAbstraction,
+    private readonly syncService: SyncService,
+    private readonly accountService: AccountService,
+    private readonly configService: ConfigService,
+  ) {
+    super(formBuilder, i18nService, platformUtilsService, toastService, tokenService);
   }
 
   protected async submit(): Promise<void> {
