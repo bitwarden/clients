@@ -55,7 +55,11 @@ import {
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
@@ -98,6 +102,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
   ],
 })
 export class SettingsDialogComponent implements OnInit {
@@ -127,6 +132,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly validationService = inject(ValidationService);
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
   protected readonly localeOptions: Option<string>[];
   protected readonly themeOptions: Option<string>[];
@@ -151,6 +157,12 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly userHasMasterPassword = signal(false);
   protected readonly userHasPinSet = signal(false);
 
+  /** Controls whether the quick copy actions setting is shown */
+  protected readonly showQuickCopyActionsSetting = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
   protected readonly pinEnabled = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
@@ -174,6 +186,7 @@ export class SettingsDialogComponent implements OnInit {
     clearClipboard: [null],
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
+    showQuickCopyActions: false,
     // App Settings
     runInBackground: false,
     openAtLogin: false,
@@ -273,6 +286,9 @@ export class SettingsDialogComponent implements OnInit {
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
+      showQuickCopyActions: await firstValueFrom(
+        this.vaultCopyButtonsService.showQuickCopyActions$,
+      ),
       runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
@@ -530,6 +546,12 @@ export class SettingsDialogComponent implements OnInit {
   protected async saveFavicons() {
     await this.domainSettingsService.setShowFavicons(this.form.value.enableFavicons);
     this.messagingService.send("refreshCiphers");
+  }
+
+  async saveQuickCopyActions() {
+    await this.vaultCopyButtonsService.setShowQuickCopyActions(
+      this.form.value.showQuickCopyActions,
+    );
   }
 
   protected async saveRunInBackground() {

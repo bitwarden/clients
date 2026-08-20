@@ -44,7 +44,9 @@ import {
   Translation,
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { DEFAULT_KDF_CONFIG, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG, KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
