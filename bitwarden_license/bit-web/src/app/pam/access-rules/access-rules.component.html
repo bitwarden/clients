@@ -159,9 +159,9 @@
                 <bit-icon name="bwi-pencil" class="tw-text-muted" />
                 {{ "edit" | i18n }}
               </button>
-              <button type="button" bitMenuItem (click)="duplicate(r)">
+              <button type="button" bitMenuItem (click)="makeCopy(r)">
                 <bit-icon name="bwi-clone" class="tw-text-muted" />
-                {{ "pamAccessRuleDuplicate" | i18n }}
+                {{ "makeACopy" | i18n }}
               </button>
               <button type="button" bitMenuItem (click)="toggleEnabled(r)">
                 @if (r.enabled) {
