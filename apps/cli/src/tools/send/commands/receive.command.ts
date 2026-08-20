@@ -122,10 +122,17 @@ export class SendReceiveCommand extends DownloadCommand {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
 
-    // Check if the URL origin matches any known region's send domain
+    // Match the web vault origin as well as the send domain: send.bitwarden.com is a vanity host
+    // that lands on https://vault.bitwarden.com/#/send/..., so the web vault origin is what a
+    // recipient actually copies. Origins are compared exactly — a suffix match would let
+    // send.bitwarden.com.example.test pass as Bitwarden cloud.
     const matchingRegion = this.environmentService
       .availableRegions()
-      .find((r) => r.urls.send != null && r.urls.send === url.origin);
+      .find(
+        (r) =>
+          (r.urls.send != null && r.urls.send === url.origin) ||
+          (r.urls.webVault != null && r.urls.webVault === url.origin),
+      );
     if (matchingRegion != null) {
       // availableRegions() lists every region, not just the configured one, so a Send from another
       // region is trusted but must still be minted at its own identity server.

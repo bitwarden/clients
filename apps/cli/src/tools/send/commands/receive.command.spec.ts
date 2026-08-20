@@ -520,6 +520,44 @@ describe("SendReceiveCommand", () => {
       expect(isConfiguredServer).toBe(true);
     });
 
+    // send.bitwarden.com is a vanity host; the link a recipient actually copies out of their
+    // browser is the web vault origin, which is not any region's urls.send.
+    it("trusts a cloud web vault origin from a differently-configured CLI", async () => {
+      environmentService.environment$ = of(
+        new CloudEnvironment(PRODUCTION_REGIONS.find((r) => r.key === Region.EU)),
+      );
+
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL("https://vault.bitwarden.com/#/send/abc123/key456"));
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
+      expect(isConfiguredServer).toBe(false);
+    });
+
+    it("trusts a Gov web vault origin from a differently-configured CLI", async () => {
+      const { apiUrl, identityUrl, trusted } = await (command as any).resolveSendServer(
+        new URL("https://vault.bitwarden-gov.com/#/send/abc123/key456"),
+      );
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden-gov.com");
+      expect(identityUrl).toBe("https://identity.bitwarden-gov.com");
+    });
+
+    it("still resolves the configured region's own web vault origin", async () => {
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL("https://vault.bitwarden.com/#/send/abc123/key456"));
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
+      expect(isConfiguredServer).toBe(true);
+    });
+
     it("trusts another Bitwarden region but does not treat it as the configured server", async () => {
       // Configured for US cloud; this link is EU. No trust prompt is warranted, but the token must
       // still be minted at EU's identity server rather than at api.bitwarden.eu with a US token.
