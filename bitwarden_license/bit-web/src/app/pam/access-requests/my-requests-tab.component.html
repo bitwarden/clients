@@ -247,7 +247,7 @@
               {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
             </td>
             <td bitCell>
-              <span bitBadge variant="success">{{ lease.notAfter | remainingTime: nowMs() }}</span>
+              <app-pam-access-state-badge [state]="leaseBadgeState(lease)" />
             </td>
             <td bitCell>
               <button

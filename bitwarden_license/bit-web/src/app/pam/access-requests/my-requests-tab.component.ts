@@ -36,6 +36,8 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessLeaseId, AccessRequestId } from "..";
+import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
@@ -68,6 +70,7 @@ type FilterableRow = {
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    AccessStateBadgeComponent,
     AccordionComponent,
     AccordionGroupComponent,
     BadgeComponent,
@@ -142,6 +145,21 @@ export class MyRequestsTabComponent implements OnInit {
   protected readonly leases = computed(() => this.applyFilters(this.allLeases()));
 
   /**
+   * Badge state is memoised per lease so the shared badge component sees a stable input across the
+   * one-second `nowMs` tick. A fresh object every tick would re-run the badge's own effect and
+   * restart its countdown interval, so the label could never settle on a whole second.
+   */
+  private readonly leaseBadgeStates = computed(
+    () =>
+      new Map<AccessLeaseId, AccessBadgeState>(
+        this.leases().map((lease) => [
+          lease.id,
+          { kind: "active", expiresAt: new Date(lease.notAfter) },
+        ]),
+      ),
+  );
+
+  /**
    * Each table renders from its own data source so `bit-table` can sort the rows independently.
    */
   protected readonly pendingDataSource = new TableDataSource<MyAccessRequestRow>();
@@ -192,6 +210,10 @@ export class MyRequestsTabComponent implements OnInit {
    */
   protected cipherFor(cipherId: string): CipherView | undefined {
     return this.cipherById().get(cipherId);
+  }
+
+  protected leaseBadgeState(lease: MyAccessLeaseRow): AccessBadgeState | null {
+    return this.leaseBadgeStates().get(lease.id) ?? null;
   }
 
   protected isCancelling(id: AccessRequestId): boolean {
