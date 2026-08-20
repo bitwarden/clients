@@ -1,6 +1,6 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { AccessRefreshService, AccessRequestSdkService } from "..";
 
@@ -19,23 +19,39 @@ export class AccessRequestCancelService {
   constructor(
     private readonly accessRequestSdkService: AccessRequestSdkService,
     private readonly accessRefreshService: AccessRefreshService,
+    private readonly dialogService: DialogService,
     private readonly toastService: ToastService,
     private readonly i18nService: I18nService,
     private readonly logService: LogService,
   ) {}
 
   /**
-   * Withdraw the cipher's outstanding request. Re-reads the access state at the moment of the
-   * call rather than trusting what the caller rendered — the request may have been decided or
-   * activated since. Never rejects: the outcome is surfaced as a toast here, and the shared
-   * refresh signal is always announced so every leasing surface reconciles through the usual
-   * path.
+   * Withdraw the cipher's outstanding request, after confirming. Re-reads the access state at the
+   * moment of the call rather than trusting what the caller rendered — the request may have been
+   * decided or activated since, and the confirmation has to describe the state that actually
+   * exists. Never rejects: the outcome is surfaced as a toast here, and the shared refresh signal
+   * is always announced so every leasing surface reconciles through the usual path.
    */
   async cancelOutstandingRequest(cipherId: string): Promise<void> {
     try {
       const state = await this.accessRequestSdkService.getCipherAccessState(cipherId);
       const request = state.pendingRequest ?? state.approvedRequest;
       if (request == null) {
+        return;
+      }
+      const confirmed = await this.dialogService.openSimpleDialog({
+        title: { key: "pamCancelRequestTitle" },
+        content: {
+          key:
+            state.pendingRequest != null
+              ? "pamCancelRequestPendingConfirm"
+              : "pamCancelRequestApprovedConfirm",
+        },
+        acceptButtonText: { key: "pendingStateCancelRequest" },
+        cancelButtonText: { key: "pamKeepRequest" },
+        type: "warning",
+      });
+      if (!confirmed) {
         return;
       }
       await this.accessRequestSdkService.cancelAccessRequest(request.id);
