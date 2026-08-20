@@ -38,27 +38,21 @@ export const MY_REQUESTS_FILTER_ID = "my-requests";
 
 type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name"> & {
   readonly nameKey: string;
-  readonly matches: (kind: AccessBadgeState["kind"]) => boolean;
+  readonly kinds: readonly AccessBadgeState["kind"][];
 };
-
-const MY_REQUESTS_KINDS: ReadonlySet<AccessBadgeState["kind"]> = new Set([
-  "pending",
-  "ready",
-  "active",
-]);
 
 const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
   {
     id: PRIVILEGED_FILTER_ID,
     nameKey: "pamAccessBadgePrivileged",
     icon: "bwi-key",
-    matches: (kind) => kind === "privileged",
+    kinds: ["privileged"],
   },
   {
     id: MY_REQUESTS_FILTER_ID,
     nameKey: "pamTabMyRequests",
     icon: "bwi-clock",
-    matches: (kind) => MY_REQUESTS_KINDS.has(kind),
+    kinds: ["pending", "ready", "active"],
   },
 ];
 
@@ -154,7 +148,7 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
     return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
       map((state) => {
         const kind = cipherAccessBadgeState(state)?.kind;
-        return kind != null && definition.matches(kind);
+        return kind != null && definition.kinds.includes(kind);
       }),
       // A failed read is not evidence of any particular state, and listing the row anyway would
       // make the filter overstate what it is showing.
