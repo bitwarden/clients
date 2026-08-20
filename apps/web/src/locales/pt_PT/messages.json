@@ -1068,6 +1068,9 @@
   "favorites": {
     "message": "Favoritos"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "taskSummary": {
     "message": "Resumo da tarefa"
   },
@@ -1206,11 +1209,11 @@
   "myFolders": {
     "message": "As minhas pastas"
   },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
-  },
-  "addToSharedFolder": {
-    "message": "Adicionar à pasta partilhada"
   },
   "newSharedFolder": {
     "message": "Nova pasta partilhada"
@@ -1254,11 +1257,8 @@
       }
     }
   },
-  "deleteSharedFolderDesc": {
-    "message": "Esta pasta partilhada será eliminada permanentemente."
-  },
-  "deleteSharedFolderNameDesc": {
-    "message": "A pasta partilhada $NAME$ será eliminada permanentemente.",
+  "deleteSharedFolderNameKeepItemsDesc": {
+    "message": "A pasta partilhada $NAME$ será eliminada permanentemente. Os itens da pasta não serão eliminados.",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1266,8 +1266,8 @@
       }
     }
   },
-  "deleteSharedFoldersDesc": {
-    "message": "Estas pastas partilhadas serão eliminadas permanentemente."
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Estas pastas partilhadas serão eliminadas permanentemente. Os itens das pastas não serão eliminados."
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ pasta(s) partilhada(s) serão eliminada(s) permanentemente.",
@@ -1310,6 +1310,47 @@
   },
   "coachmarkShareWithSharedFoldersDescription": {
     "message": "Ao mover um item para uma pasta partilhada, pode partilhá-lo de forma segura com outros membros do cofre."
+  },
+  "deleteManyOrganizationUsersWarningDescSharedFolders": {
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes aos seguintes membros. Os itens das pastas partilhadas não serão afetados.",
+    "description": "Warning description for the bulk delete organization users dialog when the vault terminology feature flag is on"
+  },
+  "deleteOrganizationUserWarningDescSharedFolders": {
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes a $NAME$. Os itens das pastas partilhadas não serão afetados.",
+    "description": "Warning description for the delete organization user dialog when the vault terminology feature flag is on",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "John Doe"
+      }
+    }
+  },
+  "adminDescSharedFolders": {
+    "message": "Gerir o acesso à organização, todas as pastas partilhadas, membros, relatórios e definições de segurança"
+  },
+  "adminRoleDescSharedFolders": {
+    "message": "Gerir todas as pastas partilhadas, membros, relatórios e definições de segurança"
+  },
+  "userDescSharedFolders": {
+    "message": "Aceder às pastas partilhadas atribuídas e adicionar-lhes itens"
+  },
+  "groupAccessUserDescSharedFolders": {
+    "message": "Atribua ao membro acesso às pastas partilhadas adicionando-o a um ou mais grupos."
+  },
+  "manageAllSharedFolders": {
+    "message": "Gerir todas as pastas partilhadas"
+  },
+  "createNewSharedFolders": {
+    "message": "Criar novas pastas partilhadas"
+  },
+  "editAnySharedFolder": {
+    "message": "Editar qualquer pasta partilhada"
+  },
+  "deleteAnySharedFolder": {
+    "message": "Eliminar qualquer pasta partilhada"
+  },
+  "cannotAddYourselfToSharedFolders": {
+    "message": "Não pode adicionar-se a pastas partilhadas."
   },
   "attachments": {
     "message": "Anexos"
@@ -1535,6 +1576,9 @@
   "item": {
     "message": "Item"
   },
+  "itemLower": {
+    "message": "item"
+  },
   "itemDetails": {
     "message": "Detalhes do item"
   },
@@ -1691,8 +1735,8 @@
       }
     }
   },
-  "copyInfoTitle": {
-    "message": "Copiar informações - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copiar detalhes de $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -1715,17 +1759,20 @@
     "message": "Nenhum valor introduzido",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Não existem valores para copiar"
+  "noDetailsToCopy": {
+    "message": "Não há detalhes para copiar"
   },
-  "launchWebsiteName": {
-    "message": "Iniciar site $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Abrir o site de $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
         "example": "Secret item"
       }
     }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "me": {
     "message": "Eu"
@@ -2681,6 +2728,21 @@
   "copyVerificationCode": {
     "message": "Copiar código de verificação"
   },
+  "noUsername": {
+    "message": "Sem nome de utilizador"
+  },
+  "noPassword": {
+    "message": "Sem palavras-passe"
+  },
+  "noVerificationCode": {
+    "message": "Sem código de verificação"
+  },
+  "noNumber": {
+    "message": "Sem número"
+  },
+  "noSecurityCode": {
+    "message": "Sem código de segurança"
+  },
   "copyUuid": {
     "message": "Copiar UUID"
   },
@@ -3047,6 +3109,15 @@
   "purgedOrganizationVault": {
     "message": "Cofre da organização purgado."
   },
+  "purgedOrganizationVaultWithName": {
+    "message": "Cofre de $ORGNAME$ esvaziado.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "vaultAccessedByProvider": {
     "message": "Cofre acedido pelo fornecedor."
   },
@@ -3250,6 +3321,79 @@
   "noFileChosen": {
     "message": "Nenhum ficheiro escolhido"
   },
+  "noFileSelected": {
+    "message": "Nenhum ficheiro selecionado"
+  },
+  "fileChosen": {
+    "message": "Ficheiro escolhido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Ficheiro adicionado: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ ficheiros adicionados: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Ficheiro removido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 ficheiro carregado"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ ficheiros carregados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Ficheiros carregados"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Clique para carregar ou arraste e largue"
+  },
+  "chooseFiles": {
+    "message": "Escolher ficheiros"
+  },
+  "maxFileSizeParam": {
+    "message": "Tamanho máx. do ficheiro: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou faça copiar/colar o conteúdo do ficheiro de importação"
   },
@@ -3265,6 +3409,27 @@
   },
   "options": {
     "message": "Opções"
+  },
+  "moreOptions": {
+    "message": "Mais opções"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "Preferências"
@@ -3283,6 +3448,9 @@
   },
   "showIconsChangePasswordUrls": {
     "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
+  },
+  "showQuickCopyActionsInVault": {
+    "message": "Mostrar ações rápidas de cópia no cofre"
   },
   "default": {
     "message": "Predefinido"
@@ -3649,11 +3817,15 @@
     "message": "Relatórios"
   },
   "reportsDesc": {
-    "message": "Identifique e elimine as lacunas de segurança nas suas contas online clicando nos relatórios abaixo.",
+    "message": "Identifique e elimine vulnerabilidades de segurança nas suas contas online clicando nos relatórios abaixo.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "orgsReportsDesc": {
-    "message": "Identifique e elimine as lacunas de segurança nas contas da sua organização ao clicar nos relatórios abaixo.",
+    "message": "Identifique e elimine vulnerabilidades de segurança nas contas da sua organização clicando nos relatórios abaixo.",
+    "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
+  },
+  "orgsReportsDescV2": {
+    "message": "Identifique e elimine vulnerabilidades de segurança no cofre da sua organização clicando nos relatórios abaixo.",
     "description": "Vault health reports can be used to evaluate the security of your Bitwarden individual or organization vault."
   },
   "unsecuredWebsitesReport": {
@@ -4168,6 +4340,15 @@
   "pendingCancellation": {
     "message": "Cancelamento pendente"
   },
+  "pendingAnnualUpgradeNotice": {
+    "message": "Vai mudar para a faturação anual em $DATE$. O plano e o preço apresentados correspondem à sua próxima subscrição anual.",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
+  },
   "subscriptionPendingCanceled": {
     "message": "A subscrição foi marcada para cancelamento no final do período de faturação atual."
   },
@@ -4537,6 +4718,9 @@
   "organizationName": {
     "message": "Nome da organização"
   },
+  "vaultName": {
+    "message": "Nome do cofre"
+  },
   "accountOwnedBusiness": {
     "message": "Esta conta é propriedade de uma empresa."
   },
@@ -4653,6 +4837,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "Limitado a $COUNT$ pastas partilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "Adicione e partilhe com um máximo de $COUNT$ utilizadores",
     "placeholders": {
@@ -4667,6 +4860,9 @@
   },
   "createUnlimitedCollections": {
     "message": "Criar coleções ilimitadas"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "Criar pastas partilhadas ilimitadas"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ de armazenamento de ficheiros encriptados",
@@ -4917,10 +5113,14 @@
     "message": "Convidar"
   },
   "inviteUserDesc": {
-    "message": "Convide um novo utilizador para a sua organização introduzindo o endereço de e-mail da sua conta Bitwarden abaixo. Se o utilizador ainda não tiver uma conta Bitwarden, ser-lhe-á pedido que crie uma nova conta."
+    "message": "Convide um novo utilizador para a sua organização introduzindo o endereço de e-mail da respetiva conta Bitwarden abaixo. Se ainda não tiver uma conta Bitwarden, ser-lhe-á pedido que crie uma nova conta."
   },
   "inviteUserDescription": {
     "message": "Convide novos utilizadores para a sua organização introduzindo o respetivo endereço de e-mail abaixo."
+  },
+  "inviteUserDescSharedFolders": {
+    "message": "Convide um novo utilizador para o cofre da sua organização introduzindo abaixo o endereço de e-mail da respetiva conta Bitwarden. Se ainda não tiver uma conta Bitwarden, ser-lhe-á pedido que crie uma nova conta.",
+    "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
     "message": "Introduza até $COUNT$ e-mails, separados por vírgulas.",
@@ -5014,7 +5214,7 @@
     "message": "Utilizador"
   },
   "userDesc": {
-    "message": "Aceder e adicionar itens às coleções atribuídas"
+    "message": "Aceder às coleções atribuídas e adicionar-lhes itens"
   },
   "all": {
     "message": "Todos"
@@ -5107,8 +5307,26 @@
   "exportedOrganizationVault": {
     "message": "Cofre da organização exportado."
   },
+  "exportedOrganizationVaultWithName": {
+    "message": "Cofre de $ORGNAME$ exportado.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "editedOrgSettings": {
     "message": "Definições da organização editadas."
+  },
+  "editedOrgSettingsWithName": {
+    "message": "Definições do cofre de $ORGNAME$ editadas.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "createdItemId": {
     "message": "Item $ID$ criado.",
@@ -5303,6 +5521,19 @@
       "id": {
         "content": "$1",
         "example": "'Google'"
+      }
+    }
+  },
+  "movedItemIdToOrgWithName": {
+    "message": "Item $ID$ movido para o cofre de $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "'Google'"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5687,6 +5918,19 @@
       }
     }
   },
+  "revokedUserIdWithOrgName": {
+    "message": "Acesso ao cofre de $ORGNAME$ revogado a $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "stagedUserId": {
     "message": "Utilizador em preparação $ID$ adicionado.",
     "placeholders": {
@@ -5723,12 +5967,38 @@
       }
     }
   },
+  "revokedUserIdTwoFactorNonComplianceWithOrgName": {
+    "message": "Acesso ao cofre de $ORGNAME$ revogado a $ID$ por incumprimento da política de autenticação de dois fatores.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "revokedUserIdSingleOrganizationNonCompliance": {
     "message": "Revogado o acesso à organização para $ID$ por incumprimento da política de organização única.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "revokedUserIdSingleOrganizationNonComplianceWithOrgName": {
+    "message": "Acesso ao cofre de $ORGNAME$ revogado a $ID$ por incumprimento da política de adesão a uma única organização.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5741,12 +6011,38 @@
       }
     }
   },
+  "revokedUserIdDeclinedTransferWithOrgName": {
+    "message": "Acesso revogado a $ID$ por recusar a transferência da propriedade do cofre para $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "restoredUserId": {
     "message": "Acesso à organização restaurado para $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "John Smith"
+      }
+    }
+  },
+  "restoredUserIdWithOrgName": {
+    "message": "Acesso ao cofre de $ORGNAME$ restaurado a $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5786,8 +6082,26 @@
       }
     }
   },
+  "editedSharedFoldersForItem": {
+    "message": "Pastas partilhadas do item $ID$ editadas.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      }
+    }
+  },
   "userAcceptedTransfer": {
     "message": "Transferência para propriedade da organização aceite."
+  },
+  "userAcceptedTransferWithOrgName": {
+    "message": "Transferência da propriedade do cofre para $ORGNAME$ aceite.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "invitedUserId": {
     "message": "Utilizador $ID$ convidado.",
@@ -5855,12 +6169,38 @@
       }
     }
   },
+  "createdOrganizationIdWithName": {
+    "message": "$ID$ criado no cofre de $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "addedOrganizationId": {
     "message": "Organização $ID$ adicionada.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "addedOrganizationIdWithName": {
+    "message": "$ID$ adicionado ao cofre de $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -5873,12 +6213,38 @@
       }
     }
   },
+  "removedOrganizationIdWithName": {
+    "message": "$ID$ removido do cofre de $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "accessedClientVault": {
     "message": "Cofre da organização $ID$ acedido.",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Google"
+      }
+    }
+  },
+  "accessedClientVaultWithName": {
+    "message": "$ID$ acedido no cofre de $ORGNAME$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Google"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
       }
     }
   },
@@ -6199,6 +6565,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "Não foi possível aderir a $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "O link de convite já não é válido."
+  },
+  "returnToLogin": {
+    "message": "Voltar ao início de sessão"
+  },
+  "returnToRegistration": {
+    "message": "Voltar ao registo"
+  },
   "joinOrganizationDesc": {
     "message": "Foi convidado a juntar-se à organização listada acima. Para aceitar o convite, é necessário iniciar sessão ou criar uma nova conta Bitwarden."
   },
@@ -6225,6 +6609,72 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "Não foi possível aceitar o convite. Peça a um administrador da organização para enviar um novo link de convite."
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "Não foi possível aceitar o convite"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "Já é membro desta organização."
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "Os endereços de e-mail com o domínio $DOMAIN$ não são permitidos nesta organização.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "Não pode aderir a esta organização porque já é administrador de uma organização gratuita."
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "O seu acesso a esta organização foi revogado. Contacte o seu administrador para recuperar o acesso."
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "Os utilizadores de fornecedores não podem aderir através deste link de convite."
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "Uma organização da qual já é membro só permite que os membros pertençam a uma única organização."
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "A organização à qual está a tentar aderir só permite que os membros pertençam a uma única organização."
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "Tem de configurar a verificação de dois passos para aderir a esta organização."
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "Tem de verificar o seu endereço de e-mail antes de aderir a uma organização."
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "Não foi possível aceitar o seu convite porque não há lugares disponíveis."
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "Ocorreu um problema. Volte a carregar a página para tentar novamente."
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "Este domínio não é aceite por esta organização. Tente utilizar um endereço de e-mail diferente."
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "Não foi possível aceitar o convite"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "Não foi possível desencriptar o convite da organização. Tente novamente utilizando o mesmo navegador para iniciar e concluir o processo de registo."
+  },
+  "goToLogin": {
+    "message": "Ir para o início de sessão"
+  },
+  "goToVault": {
+    "message": "Ir para o cofre"
   },
   "rememberEmail": {
     "message": "Memorizar e-mail"
@@ -6422,7 +6872,7 @@
     "description": "Seat = User Seat"
   },
   "subscriptionDesc": {
-    "message": "Os ajustes à sua subscrição resultarão em alterações proporcionais aos seus totais de faturação. Se os novos utilizadores convidados excederem o número de licenças da sua subscrição, receberá imediatamente uma cobrança proporcional pelos utilizadores adicionais."
+    "message": "Os ajustes à sua subscrição resultarão em acertos proporcionais na faturação. Se os utilizadores recém-convidados excederem o número de lugares incluídos na sua subscrição, ser-lhe-á cobrado imediatamente um valor proporcional pelos utilizadores adicionais."
   },
   "subscriptionUserSeats": {
     "message": "A sua subscrição permite um total de $COUNT$ membros.",
@@ -6452,7 +6902,7 @@
     "message": "Para obter ajuda adicional na gestão da sua subscrição, por favor, contacte o apoio ao cliente."
   },
   "subscriptionUserSeatsUnlimitedAutoscale": {
-    "message": "Os ajustes à sua subscrição resultarão em alterações proporcionais aos seus totais de faturação. Se os novos utilizadores convidados excederem o número de licenças da sua subscrição, receberá imediatamente uma cobrança proporcional pelos utilizadores adicionais."
+    "message": "Os ajustes à sua subscrição resultarão em acertos proporcionais na faturação. Se os membros recém-convidados excederem o número de lugares incluídos na sua subscrição, ser-lhe-á cobrado imediatamente um valor proporcional pelos membros adicionais."
   },
   "smStandaloneTrialSeatCountUpdateMessageFragment1": {
     "message": "Se pretender adicionar mais"
@@ -6461,7 +6911,7 @@
     "message": "lugares sem a oferta agregada, por favor, contacte"
   },
   "subscriptionUserSeatsLimitedAutoscale": {
-    "message": "Os ajustes à sua subscrição resultarão em alterações proporcionais aos seus totais de faturação. Se os novos utilizadores convidados excederem o número de licenças da sua subscrição, receberá imediatamente uma cobrança proporcional pelos utilizadores adicionais até que o seu limite de $MAX$ licenças seja atingido.",
+    "message": "Os ajustes à sua subscrição resultarão em acertos proporcionais na faturação. Se os membros recém-convidados excederem o número de lugares incluídos na sua subscrição, ser-lhe-á cobrado imediatamente um valor proporcional pelos membros adicionais, até ser atingido o limite de $MAX$ lugares.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -6673,6 +7123,9 @@
   },
   "inviteLink": {
     "message": "Link de convite"
+  },
+  "transferAndAdd": {
+    "message": "Transferir e adicionar"
   },
   "lastGenerated": {
     "message": "Gerado pela última vez a $DATE$",
@@ -7856,6 +8309,23 @@
       }
     }
   },
+  "inviteLinkEventConfirmEnabled": {
+    "message": "A exigência de aprovação do administrador para o link de convite está desativada",
+    "description": "Confirmation turned on. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventConfirmDisabled": {
+    "message": "A exigência de aprovação do administrador para o link de convite está desativada",
+    "description": "Confirmation turned off. The disable and enable look backward because the text is user-friendly, while the boolean is system-friendly."
+  },
+  "inviteLinkEventMemberConfirmed": {
+    "message": "O membro $ID$ foi confirmado através do link de convite",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 characters of a GUID"
+      }
+    }
+  },
   "system": {
     "message": "Sistema"
   },
@@ -8625,7 +9095,7 @@
     "message": "Os utilizadores do serviço podem aceder e gerir todas as organizações de clientes."
   },
   "providerInviteUserDesc": {
-    "message": "Convide um novo utilizador para o seu fornecedor introduzindo o endereço de e-mail da sua conta Bitwarden abaixo. Se o utilizador ainda não tiver uma conta Bitwarden, ser-lhe-á pedido que crie uma nova conta."
+    "message": "Convide um novo utilizador para o seu fornecedor introduzindo o endereço de e-mail da respetiva conta Bitwarden abaixo. Se ainda não tiver uma conta Bitwarden, ser-lhe-á pedido que crie uma nova conta."
   },
   "joinProvider": {
     "message": "Juntar-se ao fornecedor"
@@ -9034,14 +9504,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "Planos familiares patrocinados"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "Resgates por não membros"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "Sem planos familiares patrocinados"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "Ainda não há resgates"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Os planos familiares patrocinados para não membros serão apresentados aqui"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "Nenhum não membro resgatou o Plano Familiar Patrocinado."
+  },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Os membros da sua organização são elegíveis para o plano Familiar Bitwarden gratuito. Pode patrocinar planos Familiares Bitwarden gratuitos para empregados que não sejam membros da sua organização Bitwarden. O patrocínio de um não membro requer um lugar disponível na sua organização."
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "Os seus membros são elegíveis para resgatar um Plano Familiar Patrocinado. Pode patrocinar um plano Familiar para funcionários que não sejam membros da sua organização Bitwarden, mas isso requer lugares disponíveis na sua organização."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Quando remover um patrocínio ativo, ficará disponível um lugar na sua organização após a data de renovação da organização patrocinada."
@@ -9049,17 +9531,26 @@
   "sponsoredFamiliesEligible": {
     "message": "O utilizador e a sua família são elegíveis para o plano Familiar gratuito Bitwarden. Resgate com o seu e-mail pessoal para manter os seus dados seguros mesmo quando não estiver no trabalho."
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "É elegível, juntamente com a sua família, para um Plano Familiar Patrocinado sem custos adicionais. Resgate este plano com o seu e-mail pessoal para manter os seus dados seguros e separados da sua conta Bitwarden profissional."
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "Resgate hoje mesmo o seu plano Familiar gratuito Bitwarden para manter os seus dados seguros mesmo quando não está no trabalho."
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "O plano Bitwarden Familiar inclui"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "O plano Familiar Bitwarden inclui"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Acesso Premium para um máximo de 6 utilizadores"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
     "message": "Coleções partilhadas para membros familiares"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "Pastas partilhadas para membros da família"
   },
   "memberFamilies": {
     "message": "Membros do plano familiar"
@@ -10671,17 +11162,29 @@
   "editGroupMembersDesc": {
     "message": "Atribua aos membros acesso às coleções atribuídas ao grupo."
   },
+  "editGroupMembersDescSharedFolders": {
+    "message": "Atribua aos membros acesso às pastas partilhadas atribuídas ao grupo."
+  },
   "editGroupCollectionsDesc": {
     "message": "Atribua acesso às coleções adicionando os membros a este grupo."
   },
+  "editGroupSharedFoldersDesc": {
+    "message": "Atribua acesso às pastas partilhadas adicionando os membros a este grupo."
+  },
   "restrictedCollectionAssignmentDesc": {
     "message": "Só pode atribuir coleções que gere."
+  },
+  "restrictedSharedFolderAssignmentDesc": {
+    "message": "Só pode atribuir pastas partilhadas que gere."
   },
   "selectMembers": {
     "message": "Selecionar membros"
   },
   "selectCollections": {
     "message": "Selecionar coleções"
+  },
+  "selectSharedFolders": {
+    "message": "Selecionar pastas partilhadas"
   },
   "role": {
     "message": "Função"
@@ -10710,6 +11213,9 @@
   },
   "noCollectionsAdded": {
     "message": "Não foram adicionadas coleções"
+  },
+  "noSharedFoldersAdded": {
+    "message": "Nenhuma pasta partilhada adicionada"
   },
   "noMembersAdded": {
     "message": "Nenhum membro adicionado"
@@ -11596,6 +12102,30 @@
     "message": "política de organização",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescVfo1Link1": {
+    "message": "cofre de organização único",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Link2": {
+    "message": "SSO obrigatório",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part2": {
+    "message": ",",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Comma separator immediately following the first policy link — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Part3": {
+    "message": " e",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Separator between the second and third policy links — rendered tight against the preceding </a> tag to prevent a leading space."
+  },
+  "memberDecryptionOptionTdeDescVfo1Link3": {
+    "message": "Administração da recuperação da conta",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Part of the sentence: 'The [single organization vault], [SSO required], and [Account recovery administration] policies will turn on automatically.'"
+  },
+  "memberDecryptionOptionTdeDescVfo1Part4": {
+    "message": "serão ativadas automaticamente.",
+    "description": "VFO1 flag-on hint text for the SSO Trusted Devices option. Closing text after the final policy link."
+  },
   "memberDecryptionOptionTdeDescPart2": {
     "message": "única,",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Members will not need a master password when logging in with SSO. Master password is replaced with an encryption key stored on the device, making that device trusted. The first device a member creates their account and logs into will be trusted. New devices will need to be approved by an existing trusted device or by an administrator. The single organization policy, SSO required policy, and account recovery administration policy will turn on when this option is used.'"
@@ -11919,17 +12449,38 @@
   "collectionManagement": {
     "message": "Gestão de coleções"
   },
+  "sharedFolderManagement": {
+    "message": "Definições das pastas partilhadas"
+  },
   "collectionManagementDescription": {
     "message": "Configurar o comportamento da coleção da organização"
   },
+  "sharedFolderManagementDescription": {
+    "message": "Configure o comportamento das pastas partilhadas no cofre da organização."
+  },
+  "learnMoreAboutCollectionManagement": {
+    "message": "Saiba mais sobre as coleções"
+  },
+  "learnMoreAboutSharedFolderManagement": {
+    "message": "Saiba mais sobre as pastas partilhadas"
+  },
   "allowAdminAccessToAllCollectionItemsDescription": {
-    "message": "Permitir aos proprietários e administradores gerir todas as coleções e itens a partir da consola de administração"
+    "message": "Permita que os proprietários e administradores gerem todas as coleções e respetivos itens na consola de administração"
+  },
+  "allowAdminAccessToAllSharedFoldersDescription": {
+    "message": "Permita que os proprietários e administradores gerem todas as pastas partilhadas e respetivos itens na consola de administração"
   },
   "restrictCollectionCreationDescription": {
     "message": "Restringir a criação de coleções aos proprietários e administradores"
   },
+  "restrictSharedFolderCreationDescription": {
+    "message": "Restringir a criação de pastas partilhadas aos proprietários e administradores"
+  },
   "restrictCollectionDeletionDescription": {
     "message": "Restringir a eliminação de coleções aos proprietários e administradores"
+  },
+  "restrictSharedFolderDeletionDescription": {
+    "message": "Restringir a eliminação de pastas partilhadas aos proprietários e administradores"
   },
   "restrictItemDeletionDescriptionStart": {
     "message": "Restringir a eliminação de itens a membros com a permissão ",
@@ -11941,6 +12492,9 @@
   },
   "updatedCollectionManagement": {
     "message": "Definição de gestão de coleções atualizada"
+  },
+  "updatedSharedFolderManagement": {
+    "message": "Definição de gestão de pastas partilhadas atualizada"
   },
   "passwordManagerPlanPrice": {
     "message": "Preço do plano do Gestor de Palavras-passe"
@@ -12033,8 +12587,26 @@
       }
     }
   },
+  "modifiedSharedFolderManagement": {
+    "message": "Definição de gestão de pastas partilhadas $ID$ modificada.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "limitCollectionCreationEnabled": {
-    "message": "Ativada a definição de criação de coleções restrita $ID$.",
+    "message": "Definição de restrição da criação de coleções ($ID$) ativada.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationEnabled": {
+    "message": "Definição de restrição da criação de pastas partilhadas ($ID$) ativada.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12043,7 +12615,16 @@
     }
   },
   "limitCollectionCreationDisabled": {
-    "message": "Desativada a definição de criação de coleções restrita $ID$.",
+    "message": "Definição de restrição da criação de coleções ($ID$) desativada.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderCreationDisabled": {
+    "message": "Definição de restrição da criação de pastas partilhadas ($ID$) desativada.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12052,7 +12633,16 @@
     }
   },
   "limitCollectionDeletionEnabled": {
-    "message": "Ativada a definição de eliminação de coleções restrita $ID$.",
+    "message": "Definição de restrição da eliminação de coleções ($ID$) ativada.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionEnabled": {
+    "message": "Definição de restrição da eliminação de pastas partilhadas ($ID$) ativada.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12061,7 +12651,16 @@
     }
   },
   "limitCollectionDeletionDisabled": {
-    "message": "Desativada a definição de eliminação de coleções restrita $ID$.",
+    "message": "Definição de restrição da eliminação de coleções ($ID$) desativada.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "limitSharedFolderDeletionDisabled": {
+    "message": "Definição de restrição da eliminação de pastas partilhadas ($ID$) desativada.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12070,7 +12669,7 @@
     }
   },
   "limitItemDeletionEnabled": {
-    "message": "Ativada a definição de eliminação de itens restrita $ID$.",
+    "message": "Definição de restrição da eliminação de itens ($ID$) ativada.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12079,7 +12678,7 @@
     }
   },
   "limitItemDeletionDisabled": {
-    "message": "Desativada a definição de eliminação de itens restrita $ID$.",
+    "message": "Definição de restrição da eliminação de itens ($ID$) desativada.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12096,8 +12695,26 @@
       }
     }
   },
+  "allowAdminAccessToAllSharedFolderItemsEnabled": {
+    "message": "Definição de permissão para os proprietários e administradores gerirem todas as pastas partilhadas e itens ($ID$) ativada.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "allowAdminAccessToAllCollectionItemsDisabled": {
     "message": "Desativada a definição de permitir aos proprietários e administradores gerir todas as coleções e itens $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "allowAdminAccessToAllSharedFolderItemsDisabled": {
+    "message": "Definição de permissão para os proprietários e administradores gerirem todas as pastas partilhadas e itens ($ID$) desativada.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12339,6 +12956,36 @@
     "message": "Reorganização, aquisição, mudança de prioridades ou deixámos de precisar de um gestor de palavras-passe.",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "Mude para a faturação anual e poupe $SAVINGS$ por ano",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "Custo atual (faturação mensal)",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "Custo da faturação anual",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "Os preços apresentados não incluem os impostos aplicáveis. A mudança entra em vigor na próxima data de renovação.",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "Mudar para a faturação anual",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "A sua subscrição passará para a faturação anual na próxima data de renovação.",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "Mau apoio ao cliente",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -12370,10 +13017,10 @@
     "message": "Com sucesso"
   },
   "restrictedGroupAccess": {
-    "message": "Não se pode adicionar a si próprio a grupos."
+    "message": "Não pode adicionar-se a grupos."
   },
   "cannotAddYourselfToCollections": {
-    "message": "Não se pode adicionar a si próprio às coleções."
+    "message": "Não pode adicionar-se a coleções."
   },
   "assign": {
     "message": "Atribuir"
@@ -12393,14 +13040,23 @@
   "assignToCollections": {
     "message": "Atribuir às coleções"
   },
+  "addToSharedFolder": {
+    "message": "Adicionar à pasta partilhada"
+  },
   "assignToTheseCollections": {
     "message": "Atribuir a estas coleções"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver o item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver o item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver os itens."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver os itens."
   },
   "selectCollectionsToAssign": {
     "message": "Selecione as coleções a atribuir"
@@ -12411,17 +13067,32 @@
   "successfullyAssignedCollections": {
     "message": "Coleções atribuídas com sucesso"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Pastas partilhadas adicionadas com sucesso"
+  },
   "itemMovedToCollection": {
     "message": "Item movido para a coleção"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item adicionado à pasta partilhada"
   },
   "itemMovedToCollections": {
     "message": "Item movido para as coleções"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item adicionado à pastas partilhadas"
+  },
   "itemsMovedToCollection": {
     "message": "Itens movidos para a coleção"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Itens adicionados à pasta partilhada"
+  },
   "itemsMovedToCollections": {
     "message": "Itens movidos para as coleções"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Itens adicionados às pastas partilhadas"
   },
   "itemAssignedToCollections": {
     "message": "Item atribuído a coleções"
@@ -12450,6 +13121,9 @@
   },
   "items": {
     "message": "Itens"
+  },
+  "itemsLower": {
+    "message": "itens"
   },
   "assignedSeats": {
     "message": "Lugares atribuídos"
@@ -12713,7 +13387,7 @@
     "message": "Acesso à conta de máquina atualizado"
   },
   "restrictedGroupAccessDesc": {
-    "message": "Não se pode adicionar a si próprio a um grupo."
+    "message": "Não pode adicionar-se a um grupo."
   },
   "deleteProvider": {
     "message": "Eliminar fornecedor"
@@ -13198,7 +13872,7 @@
     "message": "Identifique os riscos de segurança através da auditoria do acesso dos membros"
   },
   "onlyAvailableForEnterpriseOrganization": {
-    "message": "Visualize rapidamente o acesso dos membros em toda a organização atualizando para um plano Empresarial."
+    "message": "Atualize para um plano Empresarial para ver rapidamente o acesso dos membros em toda a organização."
   },
   "date": {
     "message": "Data"
@@ -13213,7 +13887,10 @@
     "message": "Certifique-se de que os membros têm acesso às credenciais corretas e que as suas contas estão seguras. Utilize este relatório para obter um CSV das configurações de acesso e de contas dos membros."
   },
   "memberAccessReportPageDesc": {
-    "message": "Audite o acesso dos membros da organização a grupos, coleções e itens de coleção. A exportação CSV fornece uma análise detalhada por membro, incluindo informações sobre permissões de coleção e configurações de conta."
+    "message": "Audite o acesso dos membros da organização a grupos, coleções e itens das coleções. A exportação para CSV fornece uma análise detalhada de cada membro, incluindo informações sobre as permissões das coleções e as configurações da conta."
+  },
+  "memberAccessReportPageDescV2": {
+    "message": "Audite o acesso dos membros a grupos, coleções e itens das coleções. A exportação para CSV fornece uma análise detalhada de cada membro, incluindo informações sobre as permissões das coleções e as configurações da conta."
   },
   "memberAccessReportNoCollection": {
     "message": "(Sem coleção)"
@@ -13333,8 +14010,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item será transferido permanentemente para a organização selecionada. Deixará de ser o proprietário deste item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item será transferido permanentemente para o cofre selecionado. Deixará de ser o proprietário deste item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para a organização selecionada. Deixará de ser o proprietário destes itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para o cofre selecionado. Deixará de ser o proprietário destes itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -13583,6 +14272,9 @@
   "unlimitedCollections": {
     "message": "Coleções ilimitadas"
   },
+  "unlimitedSharedFolders": {
+    "message": "Pastas partilhadas ilimitadas"
+  },
   "secureDataSharing": {
     "message": "Partilha segura de dados"
   },
@@ -13720,7 +14412,7 @@
     }
   },
   "deleteOrganizationUserWarningDesc": {
-    "message": "Esta ação eliminará permanentemente todos os itens pertencentes a $NAME$. Os itens da coleção não são afetados.",
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes a $NAME$. Os itens das coleções não serão afetados.",
     "description": "Warning description for the delete organization user dialog",
     "placeholders": {
       "name": {
@@ -13730,7 +14422,7 @@
     }
   },
   "deleteManyOrganizationUsersWarningDesc": {
-    "message": "Esta ação eliminará permanentemente todos os itens pertencentes aos seguintes membros. Os itens da coleção não são afetados.",
+    "message": "Esta ação eliminará permanentemente todos os itens pertencentes aos seguintes membros. Os itens das coleções não serão afetados.",
     "description": "Warning description for the bulk delete organization users dialog"
   },
   "organizationUserDeleted": {
@@ -13763,6 +14455,19 @@
       }
     }
   },
+  "userLeftOrganizationWithName": {
+    "message": "Utilizador $ID$ saiu do cofre de $ORGNAME$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "First 8 Character of a GUID"
+      },
+      "orgname": {
+        "content": "$2",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "userSelfRevokedFromOrganization": {
     "message": "O utilizador $ID$ revogou o próprio acesso à organização.",
     "placeholders": {
@@ -13774,6 +14479,15 @@
   },
   "userSelfRevokedOrganizationOwnership": {
     "message": "Revogado por recusa de transferência para propriedade da organização."
+  },
+  "userSelfRevokedOrganizationOwnershipWithName": {
+    "message": "Revogado por recusar a transferência da propriedade do cofre para $ORGNAME$.",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
   },
   "suspendedOrganizationTitle": {
     "message": "A $ORGANIZATION$ está suspensa",
@@ -13821,9 +14535,18 @@
     "message": "Código descritor"
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "message": "Não pode remover coleções com permissões apenas de visualização: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Não pode remover pastas partilhadas com permissões apenas de visualização: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -14530,6 +15253,9 @@
   "permitCipherDetailsDescription": {
     "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adiciona 3 botões de cópia rápida junto aos itens para copiar o nome de utilizador, a palavra-passe ou o código de verificação para a área de transferência."
+  },
   "billingAddress": {
     "message": "Endereço de faturação"
   },
@@ -14783,6 +15509,9 @@
   "familiesUnlimitedCollections": {
     "message": "Coleções familiares ilimitadas"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "Pastas partilhadas ilimitadas para a família"
+  },
   "familiesSharedStorage": {
     "message": "Armazenamento partilhado para informações importantes da família"
   },
@@ -14797,6 +15526,15 @@
   },
   "limitedCollectionsV2": {
     "message": "Até $COUNT$ coleções",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "Até $COUNT$ pastas partilhadas",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15214,6 +15952,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "Abra a página de subscrição da sua conta Bitwarden na cloud e transfira o ficheiro de licença. Depois, regresse a este ecrã e carregue-o abaixo."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "Abra a página da subscrição na sua conta Bitwarden e transfira o ficheiro de licença. Em seguida, volte a este ecrã e carregue-o abaixo."
   },
   "viewAllPlans": {
     "message": "Ver todos os planos"
@@ -15826,7 +16567,7 @@
     "message": "Um ou mais domínios são inválidos"
   },
   "domainNotAllowed": {
-    "message": "Incluir apenas os seguintes domínios: $DOMAINS$. Por favor, reveja e tente novamente",
+    "message": "Inclua apenas os seguintes domínios: $DOMAINS$. Reveja-os e tente novamente",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -16066,6 +16807,282 @@
   },
   "copy": {
     "message": "Copiar"
+  },
+  "pam": {
+    "message": "PAM"
+  },
+  "pamAccessRules": {
+    "message": "Regras de acesso"
+  },
+  "pamAccessRuleEnabled": {
+    "message": "Ativada"
+  },
+  "pamAccessRuleEnabledHint": {
+    "message": "Quando desativada, a regra fica inativa e não restringe o acesso."
+  },
+  "pamAccessRuleEnable": {
+    "message": "Ativar regra"
+  },
+  "pamAccessRuleDisable": {
+    "message": "Desativar regra"
+  },
+  "pamAccessRuleEnableSuccess": {
+    "message": "Regra de acesso ativada."
+  },
+  "pamAccessRuleDisableSuccess": {
+    "message": "Regra de acesso desativada."
+  },
+  "pamAccessRuleNotFound": {
+    "message": "Regra de acesso não encontrada."
+  },
+  "pamAccessRulesSubheading": {
+    "message": "Defina regras para controlar quem pode solicitar acesso a credenciais sensíveis, em que condições e durante quanto tempo."
+  },
+  "pamAccessRuleNew": {
+    "message": "Nova regra"
+  },
+  "pamAccessRuleCreateTitle": {
+    "message": "Nova regra de acesso"
+  },
+  "pamAccessRuleEditTitle": {
+    "message": "Editar regra de acesso"
+  },
+  "pamAccessRuleName": {
+    "message": "Nome"
+  },
+  "pamAccessRuleNamePlaceholder": {
+    "message": "ex.: VPN + horário de trabalho"
+  },
+  "pamAccessRuleGeneralInfoHeading": {
+    "message": "Informações gerais"
+  },
+  "pamAccessRuleAccessDurationHeading": {
+    "message": "Duração do acesso"
+  },
+  "pamAccessRuleOptionalConditionsHeading": {
+    "message": "Condições opcionais"
+  },
+  "pamAccessRuleCollectionsSelect": {
+    "message": "Selecionar coleções"
+  },
+  "pamAccessRuleCollectionsHint": {
+    "message": "Esta regra de acesso será aplicada a todas as coleções selecionadas."
+  },
+  "pamAccessRuleCollectionsLoadError": {
+    "message": "Não foi possível carregar as coleções. Atualize a página para tentar novamente."
+  },
+  "pamAccessRuleDefaultDurationHint": {
+    "message": "Esta duração será preenchida automaticamente nos pedidos de acesso."
+  },
+  "pamAccessRuleDescription": {
+    "message": "Descrição"
+  },
+  "pamAccessRuleDefaultDuration": {
+    "message": "Duração de acesso predefinida"
+  },
+  "pamAccessRuleMaxDuration": {
+    "message": "Duração máxima de acesso"
+  },
+  "pamAccessRuleMaxDurationNoCap": {
+    "message": "Sem limite"
+  },
+  "pamAccessRuleMaxDurationHint": {
+    "message": "Qualquer acesso concedido terá, no máximo, esta duração, independentemente da duração solicitada."
+  },
+  "pamAccessRuleDuration15m": {
+    "message": "15 minutos"
+  },
+  "pamAccessRuleDuration30m": {
+    "message": "30 minutos"
+  },
+  "pamAccessRuleDuration1h": {
+    "message": "1 hora"
+  },
+  "pamAccessRuleDuration2h": {
+    "message": "2 horas"
+  },
+  "pamAccessRuleDuration4h": {
+    "message": "4 horas"
+  },
+  "pamAccessRuleDuration8h": {
+    "message": "8 horas"
+  },
+  "pamAccessRuleDuration24h": {
+    "message": "24 horas"
+  },
+  "pamAccessRuleDuration7d": {
+    "message": "7 dias"
+  },
+  "pamAccessRuleSingleActiveLease": {
+    "message": "Apenas um utilizador pode ter um acesso ativo de cada vez"
+  },
+  "pamAccessRuleSingleActiveLeaseHint": {
+    "message": "Os novos pedidos ficam em espera até que o acesso atual termine ou seja revogado."
+  },
+  "pamAccessRuleAllowExtensions": {
+    "message": "Permitir extensões do acesso"
+  },
+  "pamAccessRuleAllowExtensionsHint": {
+    "message": "Os membros podem prolongar um acesso ativo uma única vez, sem necessidade de uma nova aprovação, até à duração máxima definida abaixo."
+  },
+  "pamAccessRuleMaxExtensionLength": {
+    "message": "Duração máxima da extensão"
+  },
+  "pamAccessRuleMaxExtensionLengthHint": {
+    "message": "A duração máxima permitida para uma única extensão."
+  },
+  "pamAccessRuleConditionHumanApproval": {
+    "message": "Exigir aprovação"
+  },
+  "pamAccessRuleConditionIpAllowlist": {
+    "message": "Restringir por endereço IP"
+  },
+  "pamAccessRuleApprovers": {
+    "message": "Aprovadores"
+  },
+  "pamAccessRuleApproversCollectionManagers": {
+    "message": "Gestores da coleção"
+  },
+  "pamAccessRuleCreated": {
+    "message": "Regra de acesso criada."
+  },
+  "pamAccessRuleUpdated": {
+    "message": "Regra de acesso atualizada."
+  },
+  "pamAccessRuleDeleteConfirmTitle": {
+    "message": "Eliminar regra de acesso?"
+  },
+  "pamAccessRuleDeleteConfirmContent": {
+    "message": "Eliminar \"$NAME$\"? As coleções que utilizam esta regra deixarão de permitir o acesso temporário.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      }
+    }
+  },
+  "pamNoAccessRulesYetTitle": {
+    "message": "Ainda não há regras de acesso"
+  },
+  "pamNoAccessRulesYetDescription": {
+    "message": "Crie uma regra para reforçar a proteção das coleções sensíveis."
+  },
+  "pamAccessRuleCreateCustom": {
+    "message": "Criar regra personalizada"
+  },
+  "pamAccessRulesStartFromTemplate": {
+    "message": "Partir de um modelo"
+  },
+  "pamAccessRuleUseTemplate": {
+    "message": "Utilizar modelo"
+  },
+  "pamTemplateJustInTimeTitle": {
+    "message": "Just-in-Time"
+  },
+  "pamTemplateJustInTimeSummary": {
+    "message": "Aprovado automaticamente • Expira ao fim de 1h • Registado na auditoria"
+  },
+  "pamTemplateJustInTimeName": {
+    "message": "Acesso Just-in-Time"
+  },
+  "pamTemplateApprovalRequiredTitle": {
+    "message": "Aprovação necessária"
+  },
+  "pamTemplateApprovalRequiredSummary": {
+    "message": "Aprovação manual • 1 aprovador necessário • Registado na auditoria"
+  },
+  "pamTemplateApprovalRequiredName": {
+    "message": "Aprovação necessária"
+  },
+  "pamTemplateIpRestrictedTitle": {
+    "message": "Restrito por IP"
+  },
+  "pamTemplateIpRestrictedSummary": {
+    "message": "Aprovado automaticamente • Lista de permissões de IP • Registado na auditoria"
+  },
+  "pamTemplateIpRestrictedName": {
+    "message": "Acesso restrito por IP"
+  },
+  "pamAccessRuleCollectionsColumn": {
+    "message": "Coleções"
+  },
+  "pamAccessRuleCollectionsNone": {
+    "message": "Não atribuído"
+  },
+  "pamSearchRules": {
+    "message": "Pesquisar regras"
+  },
+  "pamAccessRuleAppliesTo": {
+    "message": "Aplica-se a"
+  },
+  "pamAccessRuleConditionsColumn": {
+    "message": "Condições"
+  },
+  "pamAccessWindow": {
+    "message": "Janela de acesso"
+  },
+  "pamAccessRuleLastModified": {
+    "message": "Última modificação"
+  },
+  "pamAccessRuleConditionAutoApproved": {
+    "message": "Aprovado automaticamente"
+  },
+  "pamAccessRuleConditionRequiresApproval": {
+    "message": "Requer aprovação"
+  },
+  "pamAccessRuleConditionIpRestricted": {
+    "message": "Restrito por IP"
+  },
+  "pamAccessRulesNoResults": {
+    "message": "Nenhuma regra de acesso corresponde aos seus filtros."
+  },
+  "pamAccessRuleBulkEnable": {
+    "message": "Ativar"
+  },
+  "pamAccessRuleBulkDisable": {
+    "message": "Desativar"
+  },
+  "pamAccessRulesUpdated": {
+    "message": "Regras de acesso atualizadas."
+  },
+  "pamAccessRulesDeleted": {
+    "message": "Regras de acesso eliminadas."
+  },
+  "pamAccessRuleBulkDeleteConfirmTitle": {
+    "message": "Eliminar regras de acesso?"
+  },
+  "pamAccessRuleBulkDeleteConfirmContent": {
+    "message": "$COUNT$ regras de acesso serão eliminadas permanentemente. Esta ação não pode ser anulada.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "accessRuleIpAllowlistHelpText": {
+    "message": "Apenas serão permitidos pedidos provenientes destes intervalos de endereços IP."
+  },
+  "accessRuleIpAllowlistCidrLabel": {
+    "message": "Intervalo CIDR"
+  },
+  "accessRuleIpAllowlistCidrPlaceholder": {
+    "message": "ex.: 10.0.0.0/8"
+  },
+  "accessRuleIpAllowlistAddRow": {
+    "message": "Adicionar intervalo CIDR"
+  },
+  "accessRuleIpAllowlistRemoveRow": {
+    "message": "Remover intervalo CIDR"
+  },
+  "accessRuleIpAllowlistAtLeastOne": {
+    "message": "Adicione pelo menos um intervalo CIDR."
+  },
+  "accessRuleIpAllowlistInvalidCidr": {
+    "message": "Introduza um intervalo CIDR válido."
+  },
+  "accessRuleIpAllowlistDuplicateCidr": {
+    "message": "Este intervalo CIDR já foi adicionado."
   },
   "paymentSuccessful": {
     "message": "Pagamento bem-sucedido"

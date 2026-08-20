@@ -18,6 +18,7 @@ import { Constructor } from "type-fest";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -37,7 +38,19 @@ import { KeyService } from "@bitwarden/key-management";
 import { SharedModule } from "../../../shared";
 
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "./base-policy-edit.component";
-import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
+
+export type PolicyEditDialogData = {
+  /**
+   * The metadata containing information about how to display and edit the policy.
+   */
+  policy: BasePolicyEditDefinition;
+  /**
+   * The organization for the policy.
+   */
+  organization: Organization;
+};
+
+export type PolicyEditDialogResult = "saved";
 
 @Component({
   selector: "app-policy-edit-drawer",
@@ -47,7 +60,7 @@ import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit
 })
 export class PolicyEditDrawerComponent implements AfterViewInit {
   private readonly policyFormRef = viewChild("policyForm", { read: ViewContainerRef });
-  private readonly destroyRef = inject(DestroyRef);
+  protected readonly destroyRef = inject(DestroyRef);
   /** Disarmed on lock/logout so neither closePredicate nor beforeunload prompts during teardown. */
   private readonly guardArmed = signal(true);
 
@@ -65,23 +78,23 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
 
   constructor(
     @Inject(DIALOG_DATA) protected readonly data: PolicyEditDialogData,
-    private readonly accountService: AccountService,
-    private readonly policyApiService: PolicyApiServiceAbstraction,
-    private readonly i18nService: I18nService,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly formBuilder: FormBuilder,
-    private readonly dialogRef: DialogRef<PolicyEditDialogResult>,
-    private readonly toastService: ToastService,
-    private readonly keyService: KeyService,
-    private readonly dialogService: DialogService,
-    private readonly authService: AuthService,
+    protected readonly accountService: AccountService,
+    protected readonly policyApiService: PolicyApiServiceAbstraction,
+    protected readonly i18nService: I18nService,
+    protected readonly cdr: ChangeDetectorRef,
+    protected readonly formBuilder: FormBuilder,
+    protected readonly dialogRef: DialogRef<PolicyEditDialogResult>,
+    protected readonly toastService: ToastService,
+    protected readonly keyService: KeyService,
+    protected readonly dialogService: DialogService,
+    protected readonly authService: AuthService,
   ) {}
 
   get policy(): BasePolicyEditDefinition {
     return this.data.policy;
   }
 
-  private isFormDirty(): boolean {
+  protected isFormDirty(): boolean {
     const component = this.policyComponent();
     if (!component) {
       return false;
@@ -98,7 +111,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     cancelButtonText: { key: "backToEditing" },
   };
 
-  private setupDiscardGuard(): void {
+  protected setupDiscardGuard(): void {
     this.dialogRef.closePredicate = async (result?: PolicyEditDialogResult) => {
       // A truthy result means an intentional close (e.g. after a successful save) — always allow.
       if (result || !this.isFormDirty()) {
@@ -151,6 +164,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     const componentRef = policyFormRef.createComponent(this.getComponentToLoad());
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("policyResponse", policyResponse);
+    componentRef.setInput("organizationId", this.data.organization.id);
     const component = componentRef.instance;
     this.policyComponent.set(component);
     this.policyEnabled.set(this.data.policy.enabled(policyResponse));
@@ -181,16 +195,25 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     this.setupDiscardGuard();
   }
 
-  private policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
+  protected policyDataHasChanged(oldPolicyData: any, newPolicyData: any) {
     const oldPolicy = oldPolicyData ?? {};
     const newPolicy = newPolicyData ?? {};
     return (
       Object.keys(oldPolicy).length !== Object.keys(newPolicy).length ||
-      Object.keys(newPolicy).some((newKey) => oldPolicy[newKey] !== newPolicy[newKey])
+      Object.keys(newPolicy).some((newKey) => {
+        const oldValue = oldPolicy[newKey];
+        const newValue = newPolicy[newKey];
+        if (Array.isArray(oldValue) || Array.isArray(newValue)) {
+          return (
+            JSON.stringify((oldValue || []).sort()) !== JSON.stringify((newValue || []).sort())
+          );
+        }
+        return oldValue !== newValue;
+      })
     );
   }
 
-  async load() {
+  protected async load() {
     try {
       return await this.policyApiService.getPolicy(
         this.data.organization.id,
@@ -228,7 +251,7 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     }
   };
 
-  private async submitPolicy(policyComponent: BasePolicyEditComponent): Promise<void> {
+  protected async submitPolicy(policyComponent: BasePolicyEditComponent): Promise<void> {
     const orgKey = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
@@ -251,8 +274,8 @@ export class PolicyEditDrawerComponent implements AfterViewInit {
     );
   }
 
-  private getComponentToLoad(): Constructor<BasePolicyEditComponent> {
-    return this.data.policy.v2?.component ?? this.data.policy.component;
+  protected getComponentToLoad(): Constructor<BasePolicyEditComponent> {
+    return this.data.policy.component;
   }
 
   static readonly openDrawer = (

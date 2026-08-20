@@ -27,7 +27,6 @@ import {
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -42,6 +41,8 @@ import { Guid, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService, ScrollLayoutHostDirective, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { featureFlagModes } from "@bitwarden/storybook";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 

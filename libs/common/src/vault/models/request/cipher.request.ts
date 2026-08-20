@@ -21,6 +21,7 @@ import { PasswordHistoryRequest } from "./password-history.request";
 
 export class CipherRequest {
   encryptedFor: UserId;
+  encryptedByKeyId?: string;
   type: CipherType;
   folderId: string;
   organizationId: string;
@@ -46,9 +47,10 @@ export class CipherRequest {
   key: string;
   data?: string;
 
-  constructor({ cipher, encryptedFor }: EncryptionContext) {
+  constructor({ cipher, encryptedFor, encryptedByKeyId }: EncryptionContext) {
     this.type = cipher.type;
     this.encryptedFor = encryptedFor;
+    this.encryptedByKeyId = encryptedByKeyId;
     this.folderId = cipher.folderId;
     this.organizationId = cipher.organizationId;
     this.name = cipher.name ? cipher.name.encryptedString : null;

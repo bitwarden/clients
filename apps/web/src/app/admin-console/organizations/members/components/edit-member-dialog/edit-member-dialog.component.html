@@ -101,6 +101,17 @@
                 </bit-label>
               </bit-form-control>
             }
+            @if (organization.usePam && privilegedControlsEnabled()) {
+              <bit-form-control>
+                <input
+                  id="edit-member_checkbox_access-privileged-controls"
+                  type="checkbox"
+                  bitCheckbox
+                  formControlName="accessPam"
+                />
+                <bit-label>{{ "userAccessPrivilegedControls" | i18n }}</bit-label>
+              </bit-form-control>
+            }
             @if (customUserTypeSelected()) {
               <div class="tw-grid tw-grid-cols-12 tw-gap-4" [formGroup]="permissionsGroup">
                 <div class="tw-col-span-4">
@@ -291,6 +302,21 @@
                 />
                 <bit-label>
                   {{ "userAccessSecretsManagerGA" | i18n }}
+                </bit-label>
+              </bit-form-control>
+            }
+            @if (organization.usePam && privilegedControlsEnabled()) {
+              <h3 class="tw-mt-4">{{ "privilegedControls" | i18n }}</h3>
+              <p class="tw-text-muted">{{ "privilegedControlsAccessDescription" | i18n }}</p>
+              <bit-form-control>
+                <input
+                  id="edit-member_checkbox_access-privileged-controls-section"
+                  type="checkbox"
+                  bitCheckbox
+                  formControlName="accessPam"
+                />
+                <bit-label>
+                  {{ "userAccessPrivilegedControls" | i18n }}
                 </bit-label>
               </bit-form-control>
             }

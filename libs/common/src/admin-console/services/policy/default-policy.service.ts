@@ -4,7 +4,7 @@ import { OrganizationUserPolicyContext } from "@bitwarden/sdk-internal";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
 import { getUserId } from "../../../auth/services/account.service";
-import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
@@ -279,7 +279,7 @@ export class DefaultPolicyService implements PolicyService {
     organization: Organization,
   ): OrganizationUserPolicyContext {
     return {
-      id: organization.id,
+      id: asUuid(organization.id),
       status: organization.status,
       role: organization.type,
       enabled: organization.enabled,

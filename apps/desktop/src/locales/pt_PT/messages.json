@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoritos"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Remover dos favoritos"
   },
@@ -116,11 +119,56 @@
   "myFolders": {
     "message": "As minhas pastas"
   },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
   },
   "newSharedFolder": {
     "message": "Nova pasta partilhada"
+  },
+  "searchSharedFolder": {
+    "message": "Pesquisar pasta partilhada"
+  },
+  "searchMyFolder": {
+    "message": "Pesquisar as minhas pastas"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Ver pasta partilhada - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Eliminar pasta partilhada"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Eliminar $COUNT$ pastas partilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Esta pasta partilhada será eliminada permanentemente. Os itens da pasta não serão eliminados."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Estas pastas partilhadas serão eliminadas permanentemente. Os itens das pastas não serão eliminados."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Os itens e as pastas partilhadas selecionados serão eliminados permanentemente."
+  },
+  "sharedFolderDeleted": {
+    "message": "Pasta partilhada eliminada"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Pastas partilhadas eliminadas"
   },
   "share": {
     "message": "Partilhar"
@@ -476,6 +524,18 @@
   },
   "launch": {
     "message": "Iniciar"
+  },
+  "launchWebsiteForName": {
+    "message": "Abrir o site de $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Copiar valor",
@@ -1964,6 +2024,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Mostrar ações rápidas de cópia no cofre"
+  },
+  "copyNoteTitle": {
+    "message": "Copiar nota - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Não há detalhes para copiar"
+  },
   "runInBackground": {
     "message": "Manter o Bitwarden em execução em segundo plano"
   },
@@ -2059,6 +2135,31 @@
   },
   "copyVerificationCode": {
     "message": "Copiar código de verificação"
+  },
+  "noUsername": {
+    "message": "Sem nome de utilizador"
+  },
+  "noPassword": {
+    "message": "Sem palavras-passe"
+  },
+  "noVerificationCode": {
+    "message": "Sem código de verificação"
+  },
+  "noNumber": {
+    "message": "Sem número"
+  },
+  "noSecurityCode": {
+    "message": "Sem código de segurança"
+  },
+  "copyDetailsTitle": {
+    "message": "Copiar detalhes de $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Copiar nome de utilizador"
@@ -3448,6 +3549,30 @@
   "options": {
     "message": "Opções"
   },
+  "moreOptions": {
+    "message": "Mais opções"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "A sua sessão expirou. Por favor, volte atrás e tente iniciar sessão novamente."
   },
@@ -4473,6 +4598,79 @@
   "noFileChosen": {
     "message": "Nenhum ficheiro escolhido"
   },
+  "noFileSelected": {
+    "message": "Nenhum ficheiro selecionado"
+  },
+  "fileChosen": {
+    "message": "Ficheiro escolhido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Ficheiro adicionado: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ ficheiros adicionados: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Ficheiro removido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 ficheiro carregado"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ ficheiros carregados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Ficheiros carregados"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Clique para carregar ou arraste e largue"
+  },
+  "chooseFiles": {
+    "message": "Escolher ficheiros"
+  },
+  "maxFileSizeParam": {
+    "message": "Tamanho máx. do ficheiro: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou faça copiar/colar o conteúdo do ficheiro de importação"
   },
@@ -5138,9 +5336,18 @@
     "message": "Não tem as permissões necessárias para realizar esta ação."
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "message": "Não pode remover coleções com permissões apenas de visualização: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Não pode remover pastas partilhadas com permissões apenas de visualização: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -5244,8 +5451,23 @@
   "permitCipherDetailsDescription": {
     "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adiciona 3 botões de cópia rápida junto aos itens para copiar o nome de utilizador, a palavra-passe ou o código de verificação para a área de transferência."
+  },
   "assignToCollections": {
     "message": "Atribuir às coleções"
+  },
+  "addToSharedFolder": {
+    "message": "Adicionar à pasta partilhada"
+  },
+  "transferAndAdd": {
+    "message": "Transferir e adicionar"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "itens"
   },
   "assignToTheseCollections": {
     "message": "Atribuir a estas coleções"
@@ -5253,8 +5475,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver o item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver o item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver os itens."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver os itens."
   },
   "noCollectionsAssigned": {
     "message": "Não foram atribuídas quaisquer coleções"
@@ -5314,8 +5542,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item será transferido permanentemente para a organização selecionada. Deixará de ser o proprietário deste item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item será transferido permanentemente para o cofre selecionado. Deixará de ser o proprietário deste item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para a organização selecionada. Deixará de ser o proprietário destes itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para o cofre selecionado. Deixará de ser o proprietário destes itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5579,32 @@
   "successfullyAssignedCollections": {
     "message": "Coleções atribuídas com sucesso"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Pastas partilhadas adicionadas com sucesso"
+  },
   "itemMovedToCollection": {
     "message": "Item movido para a coleção"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item adicionado à pasta partilhada"
   },
   "itemMovedToCollections": {
     "message": "Item movido para as coleções"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item adicionado à pastas partilhadas"
+  },
   "itemsMovedToCollection": {
     "message": "Itens movidos para a coleção"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Itens adicionados à pasta partilhada"
+  },
   "itemsMovedToCollections": {
     "message": "Itens movidos para as coleções"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Itens adicionados às pastas partilhadas"
   },
   "itemAssignedToCollections": {
     "message": "Item atribuído a coleções"
@@ -5839,7 +6094,7 @@
     "message": "Falha na verificação do utilizador."
   },
   "domainNotAllowed": {
-    "message": "Incluir apenas os seguintes domínios: $DOMAINS$. Por favor, reveja e tente novamente",
+    "message": "Inclua apenas os seguintes domínios: $DOMAINS$. Reveja-os e tente novamente",
     "placeholders": {
       "domains": {
         "content": "$1"

@@ -1,4 +1,5 @@
-import { Argon2KdfConfig, KdfConfig, KdfType } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfConfig, KdfType } from "@bitwarden/legacy-crypto";
 
 export class MasterPasswordUnlockDataRequest {
   kdfType: KdfType = KdfType.PBKDF2_SHA256;

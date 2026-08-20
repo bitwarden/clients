@@ -22,8 +22,8 @@ export class DesktopAutotypeDefaultSettingPolicy {
 
   /**
    * Emits the autotype policy enabled status when account is unlocked and WindowsDesktopAutotype is enabled.
-   * - true: autotype policy exists and is enabled
-   * - null: no autotype policy exists for the user's organization
+   * - true: autotype policy applies to the user (enabled and the user is not exempt, e.g. an Owner)
+   * - null: no autotype policy applies to the user's organization, or the user is exempt from it
    */
   readonly autotypeDefaultSetting$: Observable<boolean | null> = this.configService
     .getFeatureFlag$(FeatureFlag.WindowsDesktopAutotype)
@@ -43,16 +43,13 @@ export class DesktopAutotypeDefaultSettingPolicy {
               distinctUntilChanged(),
             );
 
-            const policy$ = this.policyService.policies$(userId).pipe(
-              map((policies) => {
-                const autotypePolicy = policies.find(
-                  (policy) => policy.type === PolicyType.AutotypeDefaultSetting && policy.enabled,
-                );
-                return autotypePolicy ? true : null;
-              }),
-              distinctUntilChanged(),
-              shareReplay({ bufferSize: 1, refCount: true }),
-            );
+            const policy$ = this.policyService
+              .policyAppliesToUser$(PolicyType.AutotypeDefaultSetting, userId)
+              .pipe(
+                map((applies) => (applies ? true : null)),
+                distinctUntilChanged(),
+                shareReplay({ bufferSize: 1, refCount: true }),
+              );
 
             return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : of(null))));
           }),

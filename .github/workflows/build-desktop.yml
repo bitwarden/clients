@@ -55,10 +55,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Verify
         run: |
@@ -77,6 +78,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
+      beta_package_version: ${{ steps.retrieve-version.outputs.beta_package_version }}
       release_channel: ${{ steps.release-channel.outputs.channel }}
       build_number: ${{ steps.increment-version.outputs.build_number }}
       rc_branch_exists: ${{ steps.branch-check.outputs.rc_branch_exists }}
@@ -88,10 +90,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: true
+          allow-unsafe-pr-checkout: true
 
       - name: Get Package Version
         id: retrieve-version
@@ -99,6 +102,19 @@ jobs:
           PKG_VERSION=$(jq -r .version src/package.json)
           echo "Setting version number to $PKG_VERSION"
           echo "package_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
+
+          # beta-release.json holds the beta ordinal, which is bumped on rc for a
+          # second beta off the same base version. electron-updater only serves a beta
+          # that out-ranks the installed one.
+          BETA_NUMBER=$(jq -r '.betaNumber' beta-release.json)
+          if [[ ! "$BETA_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "[!] Invalid beta ordinal '$BETA_NUMBER'; expected a positive integer"
+            exit 1
+          fi
+
+          BETA_PKG_VERSION="$PKG_VERSION-beta.$BETA_NUMBER"
+          echo "Setting beta version number to $BETA_PKG_VERSION"
+          echo "beta_package_version=$BETA_PKG_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Increment Version
         id: increment-version
@@ -173,11 +189,12 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Free disk space
         uses: bitwarden/gh-actions/free-disk-space@main
@@ -333,10 +350,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -481,10 +499,11 @@ jobs:
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -748,15 +767,16 @@ jobs:
         shell: pwsh
         working-directory: apps/desktop
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.beta_package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -810,17 +830,6 @@ jobs:
         run: npm ci
         working-directory: ./
 
-      # The `-beta` semver prerelease tag is what makes electron-builder
-      # emit beta.yml (not latest.yml) so the auto-updater serves beta and
-      # prod channels independently. It also puts `-beta` in artifact names.
-      - name: Append -beta to version
-        shell: pwsh
-        working-directory: apps/desktop
-        run: |
-          $package = Get-Content -Raw -Path src/package.json | ConvertFrom-Json
-          $package.version = "$($package.version)-beta"
-          $package | ConvertTo-Json -Depth 32 | Set-Content -Path src/package.json
-
       - name: Download SDK Artifacts
         if: ${{ inputs.sdk_branch != '' && needs.setup.outputs.has_secrets == 'true' }}
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -862,13 +871,19 @@ jobs:
           CHANNEL: beta
         run: npm run build
 
+      # pack:win:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
+      # electron-builder reads for artifact names and the channel file. The `-beta.N`
+      # tag selects beta.yml over latest.yml.
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
+        env:
+          BETA_PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
         run: npm run pack:win:beta
 
       - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
+          BETA_PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
           SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
@@ -884,108 +899,108 @@ jobs:
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-ia32.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-ia32-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-x64.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-x64-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-arm64.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-arm64-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
+            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
+            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
+          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
+            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64-store.appx"
 
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-ia32.nsis.7z `
-            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-beta-ia32.nsis.7z
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-x64.nsis.7z `
-            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-beta-x64.nsis.7z
-          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-beta-arm64.nsis.7z `
-            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-beta-arm64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.nsis.7z `
+            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-ia32.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.nsis.7z `
+            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-x64.nsis.7z
+          Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.nsis.7z `
+            -NewName bitwarden-beta-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}-beta.exe
-          path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}-beta.exe
+          name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
+          path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload installer exe artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}-beta.exe
-          path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}-beta.exe
+          name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
+          path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32.appx
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
           if-no-files-found: error
 
       - name: Upload store appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32-store.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-ia32-store.appx
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           if-no-files-found: error
 
       - name: Upload NSIS ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-ia32.nsis.7z
-          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-ia32.nsis.7z
+          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
+          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64.appx
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
           if-no-files-found: error
 
       - name: Upload store appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64-store.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-x64-store.appx
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
           if-no-files-found: error
 
       - name: Upload NSIS x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-x64.nsis.7z
-          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-x64.nsis.7z
+          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
+          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           if-no-files-found: error
 
       - name: Upload appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64.appx
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
           if-no-files-found: error
 
       - name: Upload store appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64-store.appx
-          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-beta-arm64-store.appx
+          name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
+          path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           if-no-files-found: error
 
       - name: Upload NSIS ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-arm64.nsis.7z
-          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-beta-arm64.nsis.7z
+          name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
+          path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           if-no-files-found: error
 
       - name: Upload auto-update artifact
@@ -1013,10 +1028,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -1239,10 +1255,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -1498,7 +1515,7 @@ jobs:
       contents: read
       id-token: write
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.beta_package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     defaults:
@@ -1506,10 +1523,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -1621,16 +1639,6 @@ jobs:
         run: npm ci
         working-directory: ./
 
-      # The `-beta` semver prerelease tag is what makes electron-builder
-      # emit beta-mac.yml (not latest-mac.yml) so the auto-updater serves beta
-      # and prod channels independently. It also puts `-beta` in artifact names.
-      - name: Append -beta to version
-        shell: pwsh
-        run: |
-          $package = Get-Content -Raw -Path src/package.json | ConvertFrom-Json
-          $package.version = "$($package.version)-beta"
-          $package | ConvertTo-Json -Depth 32 | Set-Content -Path src/package.json
-
       - name: Download SDK Artifacts
         if: ${{ inputs.sdk_branch != '' }}
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -1684,8 +1692,12 @@ jobs:
           EOF
           echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
+      # pack:mac:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
+      # electron-builder reads for artifact names and the channel file. The `-beta.N`
+      # tag selects beta-mac.yml over latest-mac.yml.
       - name: Build application (beta dist)
         env:
+          BETA_PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
@@ -1695,15 +1707,15 @@ jobs:
       - name: Upload .zip artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal-mac.zip
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal-mac.zip
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
+          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal.dmg
-          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-beta-universal.dmg
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload auto-update artifact
@@ -1733,10 +1745,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -2069,10 +2082,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -2113,11 +2127,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download deb artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2157,11 +2172,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2199,11 +2215,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2255,11 +2272,12 @@ jobs:
       - linux-arm64
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download flatpak artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2308,11 +2326,12 @@ jobs:
       _CPU_ARCH: ${{ matrix.os == 'ubuntu-22.04' && 'amd64' || 'arm64' }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download snap artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2353,11 +2372,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download dmg artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2398,11 +2418,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download portable artifact
         uses: bitwarden/gh-actions/download-artifacts@main

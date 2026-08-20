@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Любими"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "Премахване от любимите"
   },
@@ -116,11 +119,56 @@
   "myFolders": {
     "message": "Моите папки"
   },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
   },
   "newSharedFolder": {
     "message": "Нова споделена папка"
+  },
+  "searchSharedFolder": {
+    "message": "Търсене в споделената папка"
+  },
+  "searchMyFolder": {
+    "message": "Търсене в моите папки"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Преглед на споделена папка — $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Изтриване на споделената папка"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Изтриване на $COUNT$ споделени папки",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Тази споделена папка ще бъде изтрита завинаги. Елементите в папката няма да бъдат изтрити."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Тези споделени папки ще бъдат изтрити завинаги. Елементите в папките няма да бъдат изтрити."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Избраните елементи и споделени папки ще бъдат изтрити завинаги."
+  },
+  "sharedFolderDeleted": {
+    "message": "Споделената папка е изтрита"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Споделените папки са изтрити"
   },
   "share": {
     "message": "Споделяне"
@@ -476,6 +524,18 @@
   },
   "launch": {
     "message": "Пускане"
+  },
+  "launchWebsiteForName": {
+    "message": "Отваряне на уеб сайта за $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
+  },
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "Копиране на стойността",
@@ -1964,6 +2024,22 @@
   "showIconsChangePasswordUrls": {
     "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Показване на действията за бързо копиране в трезора"
+  },
+  "copyNoteTitle": {
+    "message": "Копиране на бележката – $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "noDetailsToCopy": {
+    "message": "Няма подробности за копиране"
+  },
   "runInBackground": {
     "message": "Поддържайте Битуорден работещ във фонов режим"
   },
@@ -2059,6 +2135,31 @@
   },
   "copyVerificationCode": {
     "message": "Копиране на кода за потвърждаване"
+  },
+  "noUsername": {
+    "message": "Няма потребителско име"
+  },
+  "noPassword": {
+    "message": "Няма парола"
+  },
+  "noVerificationCode": {
+    "message": "Няма код за потвърждаване"
+  },
+  "noNumber": {
+    "message": "Няма номер"
+  },
+  "noSecurityCode": {
+    "message": "Няма код за сигурност"
+  },
+  "copyDetailsTitle": {
+    "message": "Копиране на подробностите за $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
   },
   "copyUsername": {
     "message": "Копиране на потребителското име"
@@ -3448,6 +3549,30 @@
   "options": {
     "message": "Настройки"
   },
+  "moreOptions": {
+    "message": "Още настройки"
+  },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "Сесията Ви изтече. Моля, върнете се назад и се опитайте да влезете отново."
   },
@@ -4473,6 +4598,79 @@
   "noFileChosen": {
     "message": "Не е избран файл"
   },
+  "noFileSelected": {
+    "message": "Няма избрани файлове"
+  },
+  "fileChosen": {
+    "message": "Избран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Добавен файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ файла са добавени: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Премахната файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл е качен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файла са качени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Качени файлове"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Щракнете за качване, или влачете и пуснете тук"
+  },
+  "chooseFiles": {
+    "message": "Изберете файлове"
+  },
+  "maxFileSizeParam": {
+    "message": "Максимален размер на файл: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или поставете съдържанието му"
   },
@@ -5146,6 +5344,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Не можете да премахвате споделени папки с права „Само за преглед“: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "move": {
     "message": "Преместване"
   },
@@ -5244,8 +5451,23 @@
   "permitCipherDetailsDescription": {
     "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Добавяне на 3 бутона за бързо копиране до елементите, с които могат да се копират потребителското име, паролата и кода за потвърждаване."
+  },
   "assignToCollections": {
     "message": "Свързване с колекции"
+  },
+  "addToSharedFolder": {
+    "message": "Добавяне към споделена папка"
+  },
+  "transferAndAdd": {
+    "message": "Прехвърляне и добавяне"
+  },
+  "itemLower": {
+    "message": "елемент"
+  },
+  "itemsLower": {
+    "message": "елементи"
   },
   "assignToTheseCollections": {
     "message": "Свързване с тези колекции"
@@ -5253,8 +5475,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елемента."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елемента."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Само членовете на организацията, които имат достъп до тези колекции, ще могат да виждат елементите."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Само членовете на трезора, които имат достъп до тези споделени папки, ще могат да виждат елементите."
   },
   "noCollectionsAssigned": {
     "message": "Няма свързани колекции"
@@ -5314,8 +5542,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 елемент ще бъде преместен завинаги в избраната организация. Вече няма да притежавате този елемент."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 елемент ще бъде преместен завинаги в избрания трезор. Вече няма да притежавате този елемент."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избраната организация. Вече няма да притежавате тези елементи.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ елемента ще бъдат преместени завинаги в избрания трезор. Вече няма да притежавате тези елементи.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5579,32 @@
   "successfullyAssignedCollections": {
     "message": "Успешно свързване на колекциите"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Споделените папки са добавени успешно"
+  },
   "itemMovedToCollection": {
     "message": "Елементът е преместен в колекция"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Елементът е добавен към споделена папка"
   },
   "itemMovedToCollections": {
     "message": "Елементът е преместен в колекции"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Елементът е добавен към споделени папки"
+  },
   "itemsMovedToCollection": {
     "message": "Елементите са преместени в колекция"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Елементите са добавени към споделена папка"
+  },
   "itemsMovedToCollections": {
     "message": "Елементите са преместени в колекции"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Елементите са добавени към споделени папки"
   },
   "itemAssignedToCollections": {
     "message": "Елементът е добавен към колекции"

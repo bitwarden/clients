@@ -16,15 +16,15 @@ import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { MasterKey } from "@bitwarden/common/types/key";
 import {
   BiometricsService,
   BiometricStateService,
-  KdfConfig,
   KdfConfigService,
 } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import {
   EncString,

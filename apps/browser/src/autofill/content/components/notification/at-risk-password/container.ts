@@ -56,13 +56,15 @@ export function AtRiskNotification({
         theme,
         riskMessage,
       })}
-      ${handleChangePasswordClick
-        ? AtRiskNotificationFooter({
-            i18n,
-            theme,
-            handleChangePasswordClick,
-          })
-        : nothing}
+      ${
+        handleChangePasswordClick
+          ? AtRiskNotificationFooter({
+              i18n,
+              theme,
+              handleChangePasswordClick,
+            })
+          : nothing
+      }
     </div>
   `;
 }

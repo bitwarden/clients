@@ -45,18 +45,23 @@ import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/mode
 import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
 import { SubscriptionDiscount } from "@bitwarden/common/billing/models/response/subscription-discount.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { IconComponent, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { Cart, CartSummaryComponent, Discount, DiscountTypes } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   OrganizationSubscriptionPurchase,
@@ -103,6 +108,7 @@ const Allowed2020PlansForLegacyProviders = [
     EnterBillingAddressComponent,
     IconComponent,
     CartSummaryComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class OrganizationPlansComponent implements OnInit, OnDestroy {
@@ -520,6 +526,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private router: Router,
     private syncService: SyncService,
@@ -1028,7 +1035,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           .orgKeys$(userId!)
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId() as OrganizationId] ?? null)),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey!);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey!);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString as string);
     }
 

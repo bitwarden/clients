@@ -16,6 +16,16 @@ import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 import { filterOutNullish } from "../utils/observable-utilities";
 
+/** True for ciphers the risk service evaluates: non-deleted Logins with a non-empty password. */
+export function isRiskableLoginCipher(cipher: CipherView): boolean {
+  return (
+    cipher.type === CipherType.Login &&
+    cipher.login?.password != null &&
+    cipher.login.password !== "" &&
+    !cipher.isDeleted
+  );
+}
+
 export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
   constructor(
     private sdkService: SdkService,
@@ -97,22 +107,13 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
    * Only includes Login ciphers with non-empty passwords.
    */
   private mapToLoginDetails(ciphers: CipherView[]): CipherLoginDetails[] {
-    return ciphers
-      .filter((cipher) => {
-        return (
-          cipher.type === CipherType.Login &&
-          cipher.login?.password != null &&
-          cipher.login.password !== "" &&
-          !cipher.isDeleted
-        );
-      })
-      .map(
-        (cipher) =>
-          ({
-            id: asUuid<SdkCipherId>(cipher.id),
-            password: cipher.login.password!,
-            username: cipher.login.username,
-          }) satisfies CipherLoginDetails,
-      );
+    return ciphers.filter(isRiskableLoginCipher).map(
+      (cipher) =>
+        ({
+          id: asUuid<SdkCipherId>(cipher.id),
+          password: cipher.login.password!,
+          username: cipher.login.username,
+        }) satisfies CipherLoginDetails,
+    );
   }
 }

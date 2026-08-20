@@ -3,10 +3,7 @@ import { ConnectedPosition } from "@angular/cdk/overlay";
 const ORIGIN_OFFSET_PX = 10;
 
 export type TooltipPositionIdentifier =
-  | "right-center"
-  | "left-center"
-  | "below-center"
-  | "above-center";
+  "right-center" | "left-center" | "below-center" | "above-center";
 
 export interface TooltipPosition extends ConnectedPosition {
   id: TooltipPositionIdentifier;

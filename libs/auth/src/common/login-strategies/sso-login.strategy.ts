@@ -322,7 +322,8 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (userKey) {
-      await this.keyService.setUserKey(userKey, userId);
+      // TDE unlock during SSO login; the user key comes from DeviceTrustService.decryptUserKeyWithDeviceKey.
+      await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
     }
   }
 
@@ -340,7 +341,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(userKey, userId);
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
   }
 
   exportCache(): CacheData {

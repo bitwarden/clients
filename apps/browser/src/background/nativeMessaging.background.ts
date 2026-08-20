@@ -1,16 +1,20 @@
 import { firstValueFrom, Subscription, timer } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncryptService,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 
@@ -84,6 +88,7 @@ export class NativeMessagingBackground {
   private callbacks = new Map<number, Callback>();
   constructor(
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
     private messagingService: MessagingService,
@@ -455,7 +460,7 @@ export class NativeMessagingBackground {
     if (this.secureChannel?.publicKey == null) {
       return;
     }
-    const fingerprint = await this.keyService.getFingerprint(
+    const fingerprint = await this.legacyCompatKeyService.getFingerprint(
       this.appId!,
       this.secureChannel.publicKey,
     );

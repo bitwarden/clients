@@ -25,6 +25,7 @@ import {
   CopyCipherFieldDirective,
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
+  VaultCopyButtonsService,
 } from "@bitwarden/vault";
 
 import { VaultCipherRowComponent } from "./vault-cipher-row.component";
@@ -88,6 +89,10 @@ describe("VaultCipherRowComponent", () => {
         {
           provide: PlatformUtilsService,
           useValue: mock<PlatformUtilsService>(),
+        },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: { showQuickCopyActions$: new BehaviorSubject(false).asObservable() },
         },
       ],
     }).compileComponents();

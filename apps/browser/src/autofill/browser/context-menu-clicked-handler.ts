@@ -33,6 +33,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
+import { TabMessage } from "../../types/tab-messages";
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
 import {
@@ -40,12 +41,26 @@ import {
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillCipherTypeId } from "../types";
 import {
   AutofillTriageBrowserInfo,
   AutofillTriagePageResult,
   AutofillTriageResponse,
 } from "../types/autofill-triage";
+import {
+  addSelector,
+  ContainerCandidate,
+  fieldSelectorsForActive,
+  SelectorEntry,
+  setPendingContainer,
+  Slot,
+  toggleIrrelevant,
+} from "../webmapper/draft";
+import { isWebmapperMenuId, parseWebmapperMenuId, WebmapperMenuAction } from "../webmapper/menu";
+import { WebmapperCommand, WebmapperContainerCandidatesResponse } from "../webmapper/messaging";
+import { GeneratedSelector } from "../webmapper/selector";
+import { ParsedUrl, parseUrl } from "../webmapper/url";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
 export type CopyToClipboardAction = (options: CopyToClipboardOptions) => void;
@@ -86,10 +101,17 @@ export class ContextMenuClickedHandler {
     private userVerificationService: UserVerificationService,
     private accountService: AccountService,
     private triageService: AutofillTriageService,
+    private webmapperDrafts: WebmapperDraftService,
   ) {}
 
   async run(info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) {
     if (!tab) {
+      return;
+    }
+
+    const menuItemId = String(info.menuItemId);
+    if (isWebmapperMenuId(menuItemId)) {
+      await this.webmapperAction(menuItemId, info, tab);
       return;
     }
 
@@ -340,6 +362,207 @@ export class ContextMenuClickedHandler {
         },
       );
     });
+  }
+
+  // ---------- webmapper ----------
+
+  private async webmapperAction(
+    menuItemId: string,
+    info: chrome.contextMenus.OnClickData,
+    tab: chrome.tabs.Tab,
+  ) {
+    if (!tab.id) {
+      return;
+    }
+    const action = parseWebmapperMenuId(menuItemId);
+    if (!action) {
+      // A non-actionable parent/group item — nothing to do.
+      return;
+    }
+
+    // Open the panel first, while the user gesture is still valid (same ordering
+    // constraint as autofillTriageAction).
+    await this.openWebmapperPanel(tab);
+
+    const parsed = tab.url ? parseUrl(tab.url) : null;
+    if (!parsed) {
+      await this.sendWebmapperFeedback(tab.id, "error", "Webmapper only works on http(s) pages.");
+      return;
+    }
+
+    switch (action.kind) {
+      case "toggle-irrelevant": {
+        const next = await this.webmapperDrafts.updateDraft(
+          parsed.host,
+          parsed.pathname,
+          toggleIrrelevant,
+        );
+        await this.sendWebmapperFeedback(
+          tab.id,
+          "success",
+          next.irrelevant ? "Marked page irrelevant" : "Cleared irrelevant flag",
+        );
+        return;
+      }
+      case "set-container":
+        await this.webmapperPickContainer(parsed, tab, info);
+        return;
+      case "field":
+      case "action":
+        await this.webmapperCapture(parsed, tab, info, action);
+        return;
+    }
+  }
+
+  private async openWebmapperPanel(tab: chrome.tabs.Tab) {
+    if (tab.id == null) {
+      return;
+    }
+    if (BrowserApi.isSidePanelApiSupported) {
+      void BrowserApi.setSidePanelOptions({
+        path: "popup/index.html?uilocation=sidepanel#/autofill-triage?view=webmapper",
+        tabId: tab.id,
+        enabled: true,
+      });
+      await BrowserApi.openSidePanel({ tabId: tab.id });
+    } else {
+      await BrowserPopupUtils.openPopout("popup/index.html#/autofill-triage?view=webmapper", {
+        singleActionKey: AUTOFILL_TRIAGE_ID,
+        senderWindowId: tab.windowId,
+      });
+    }
+  }
+
+  private async webmapperCapture(
+    parsed: ParsedUrl,
+    tab: chrome.tabs.Tab,
+    info: chrome.contextMenus.OnClickData,
+    action: Extract<WebmapperMenuAction, { key: string }>,
+  ) {
+    const capture = await this.webmapperGetSelector(tab, info);
+    if (!capture) {
+      await this.sendWebmapperFeedback(
+        tab.id!,
+        "error",
+        "No content script in this frame. Reload the page and try again.",
+      );
+      return;
+    }
+    if (!capture.selector) {
+      await this.sendWebmapperFeedback(
+        tab.id!,
+        "error",
+        "Couldn't generate a selector (no element captured).",
+      );
+      return;
+    }
+
+    const captured: SelectorEntry = {
+      selector: capture.selector,
+      warnings: capture.warnings ?? [],
+      alternates: capture.alternates ?? [],
+    };
+    const slot: Slot = {
+      kind: action.kind === "field" ? "fields" : "actions",
+      key: action.key,
+    };
+    // Written through updateDraft, not a read-modify-write: the selector round trip
+    // above is long enough for the open panel to have persisted an edit meanwhile.
+    await this.webmapperDrafts.updateDraft(parsed.host, parsed.pathname, (d) =>
+      addSelector(d, slot, captured),
+    );
+
+    const warnCount = captured.warnings.length;
+    const warnSuffix = warnCount ? ` (${warnCount} warning${warnCount === 1 ? "" : "s"})` : "";
+    await this.sendWebmapperFeedback(
+      tab.id!,
+      "success",
+      `Captured ${action.kind}:${action.key} — ${capture.selector}${warnSuffix}`,
+    );
+  }
+
+  private async webmapperPickContainer(
+    parsed: ParsedUrl,
+    tab: chrome.tabs.Tab,
+    info: chrome.contextMenus.OnClickData,
+  ) {
+    // Read only to seed the candidate walk; the write below re-reads.
+    const draft = await this.webmapperDrafts.getDraft(parsed.host, parsed.pathname);
+    const candidates = await this.webmapperGetContainerCandidates(
+      tab,
+      info,
+      fieldSelectorsForActive(draft),
+    );
+    if (candidates == null) {
+      await this.sendWebmapperFeedback(
+        tab.id!,
+        "error",
+        "No content script in this frame. Reload the page and try again.",
+      );
+      return;
+    }
+    if (candidates.length === 0) {
+      await this.sendWebmapperFeedback(
+        tab.id!,
+        "error",
+        "Right-click an element on the page first.",
+      );
+      return;
+    }
+    await this.webmapperDrafts.updateDraft(parsed.host, parsed.pathname, (d) =>
+      setPendingContainer(d, candidates),
+    );
+    await this.sendWebmapperFeedback(
+      tab.id!,
+      "success",
+      `Pick a container in the panel (${candidates.length} candidate${
+        candidates.length === 1 ? "" : "s"
+      })`,
+    );
+  }
+
+  // Ask the content script in the clicked frame for a capture. Resolves null
+  // when no content script answers (chrome.runtime.lastError) so callers can
+  // tell "no script here" apart from a script that responded with no result.
+  private webmapperSend<T>(
+    tab: chrome.tabs.Tab,
+    info: chrome.contextMenus.OnClickData,
+    message: TabMessage,
+  ): Promise<T | null> {
+    return new Promise((resolve) => {
+      BrowserApi.sendTabsMessage<T>(tab.id!, message, { frameId: info.frameId }, (response) => {
+        resolve(chrome.runtime.lastError ? null : (response ?? null));
+      });
+    });
+  }
+
+  private webmapperGetSelector(
+    tab: chrome.tabs.Tab,
+    info: chrome.contextMenus.OnClickData,
+  ): Promise<GeneratedSelector | null> {
+    return this.webmapperSend<GeneratedSelector>(tab, info, {
+      command: WebmapperCommand.GetSelector,
+    });
+  }
+
+  private async webmapperGetContainerCandidates(
+    tab: chrome.tabs.Tab,
+    info: chrome.contextMenus.OnClickData,
+    fieldSelectors: string[],
+  ): Promise<ContainerCandidate[] | null> {
+    const response = await this.webmapperSend<WebmapperContainerCandidatesResponse>(tab, info, {
+      command: WebmapperCommand.GetContainerCandidates,
+      fieldSelectors,
+    });
+    return response ? (response.candidates ?? []) : null;
+  }
+
+  private async sendWebmapperFeedback(
+    tabId: number,
+    type: "success" | "error",
+    message: string,
+  ): Promise<void> {
+    await BrowserApi.sendMessage("webmapperCaptureFeedback", { tabId, type, message });
   }
 
   private async isPasswordRepromptRequired(cipher: CipherView): Promise<boolean> {

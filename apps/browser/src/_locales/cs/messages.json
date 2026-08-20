@@ -119,6 +119,9 @@
   "vault": {
     "message": "Trezor"
   },
+  "vaults": {
+    "message": "Trezory"
+  },
   "myVault": {
     "message": "Můj trezor"
   },
@@ -505,6 +508,45 @@
   "options": {
     "message": "Volby"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
   "length": {
     "message": "Délka"
   },
@@ -709,8 +751,8 @@
   "launchWebsite": {
     "message": "Otevřít webovou stránku"
   },
-  "launchWebsiteName": {
-    "message": "Spustit web $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Spustit web pro $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -1557,6 +1599,21 @@
   "copyVerificationCode": {
     "message": "Kopírovat ověřovací kód"
   },
+  "noUsername": {
+    "message": "Žádné uživatelské jméno"
+  },
+  "noPassword": {
+    "message": "Žádné heslo"
+  },
+  "noVerificationCode": {
+    "message": "Žádný ověřovací kód"
+  },
+  "noNumber": {
+    "message": "Žádné číslo"
+  },
+  "noSecurityCode": {
+    "message": "Žádný bezpečnostní kód"
+  },
   "attachments": {
     "message": "Přílohy"
   },
@@ -1949,6 +2006,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "Zobrazit karty jako návrhy"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Zobrazit návrhy, když je vybrána ikona"
@@ -5002,6 +5062,79 @@
   "noFileChosen": {
     "message": "Není vybrán žádný soubor"
   },
+  "noFileSelected": {
+    "message": "Nebyl vybrán žádný soubor"
+  },
+  "fileChosen": {
+    "message": "Byl vybrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Byl přidán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Bylo přidáno $COUNT$ souborů: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Byl odebrán soubor: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 soubor byl nahrán"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ souborů bylo nahráno",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Nahrané soubory"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Klepnutím nahrajte nebo přetáhněte a pusťte"
+  },
+  "chooseFiles": {
+    "message": "Vybrat soubory"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. velikost souboru: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "nebo zkopírujte a vložte obsah souboru"
   },
@@ -5618,8 +5751,8 @@
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtry nebo zkuste jiný hledaný výraz"
   },
-  "copyInfoTitle": {
-    "message": "Kopírovat informace - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Kopírovat podrobnosti pro $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5727,11 +5860,17 @@
     "message": "Nebyla zadána žádná hodnota",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "Žádné hodnoty ke zkopírování"
+  "noDetailsToCopy": {
+    "message": "Žádné podrobnosti ke kopírování"
   },
   "assignToCollections": {
     "message": "Přiřadit ke sbírkám"
+  },
+  "addToSharedFolder": {
+    "message": "Přidat do sdílené složky"
+  },
+  "transferAndAdd": {
+    "message": "Převést a přidat"
   },
   "copyEmail": {
     "message": "Kopírovat e-mail"
@@ -6200,8 +6339,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položku."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položku."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Jen členové organizace s přístupem k těmto sbírkám budou moci vidět položky."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Jen členové trezoru s přístupem k těmto sdíleným složkám budou moci vidět položky."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
@@ -6307,8 +6452,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 položka bude trvale převedena do vybrané organizace. Tuto položku již nebudete vlastnit."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 položka bude trvale převedena do vybraného trezoru. Tuto položku již nebudete vlastnit."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybrané organizace. Tyto položky již nebudete vlastnit.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ položek bude trvale převedeno do vybraného trezoru. Tyto položky již nebudete vlastnit.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6341,17 +6498,32 @@
   "successfullyAssignedCollections": {
     "message": "Sbírky byly úspěšně přiřazeny"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Sdílené složky byly úspěšně přidány"
+  },
   "itemMovedToCollection": {
     "message": "Položka byla přesunuta do sbírky"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Položka byla přidána do sdílené složky"
   },
   "itemMovedToCollections": {
     "message": "Položka byla přesunuta do sbírek"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Položka byla přidána do sdílených složek"
+  },
   "itemsMovedToCollection": {
     "message": "Položky byly přesunuty do sbírky"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Položky byly přidány do sdílené složky"
+  },
   "itemsMovedToCollections": {
     "message": "Položky byly přesunuty do sbírek"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Položky byly přidány do sdílených složek"
   },
   "itemAssignedToCollections": {
     "message": "Položka byla přiřazena do sbírek"
@@ -6401,10 +6573,16 @@
     "message": "Umístění položky"
   },
   "fileSends": {
-    "message": "Sends se soubory"
+    "message": "Sends se soubory",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "Sends s texty"
+    "message": "Sends s texty",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Položky Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "Činnosti účtu"
@@ -6424,8 +6602,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "Zobrazit tlačítka pro rychlé zkopírování v trezoru"
+  "showQuickCopyActionsInVault": {
+    "message": "Zobrazit tlačítka pro rychlé kopírování v trezoru"
   },
   "systemDefault": {
     "message": "Výchozí systémový"
@@ -6739,6 +6917,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Nemůžete odebrat sdílené složky s oprávněními jen pro zobrazení: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "Aktualizujte aplikaci pro stolní počítač"
   },
@@ -6920,6 +7107,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden bude používat uložené přihlašovací URI k identifikaci, která ikona nebo změna adresy URL by měla být použita pro zlepšení Vašeho zážitku. Při používání této služby nejsou shromažďovány ani ukládány žádné informace."
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Přidá vedle položek 3 tlačítka pro rychlé kopírování, pomocí kterých můžete zkopírovat své uživatelské jméno, heslo nebo ověřovací kód do schránky."
   },
   "noPermissionsViewPage": {
     "message": "Nemáte oprávnění k zobrazení této stránky. Zkuste se přihlásit jiným účtem."
@@ -7431,5 +7621,122 @@
   },
   "health": {
     "message": "Zdraví"
+  },
+  "scanMyVault": {
+    "message": "Prohledat můj trezor"
+  },
+  "introducingHealth": {
+    "message": "Představujeme Zdraví"
+  },
+  "healthIntroDescription": {
+    "message": "Sledujte a zlepšujte zdraví Vašeho trezoru opravením hesel, která jsou ohrožená, slabá a/nebo znovu použita."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Your vault is healthy",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Your vault risk is high",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "No exposed passwords",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 exposed password",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ exposed passwords",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Exposed in data breaches",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "None of your passwords were found in data breaches",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "No weak passwords",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 weak password",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ weak passwords",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Too short or simple",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "All your passwords are strong",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "No reused passwords",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 reused password",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ reused passwords",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Reused for several logins",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "All your passwords are unique",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Risks identified",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "No items need attention",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }

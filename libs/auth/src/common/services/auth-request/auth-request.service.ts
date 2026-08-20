@@ -9,8 +9,6 @@ import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/a
 import { PasswordlessAuthRequest } from "@bitwarden/common/auth/models/request/passwordless-auth.request";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { AuthRequestPushNotification } from "@bitwarden/common/models/response/notification.response";
@@ -24,6 +22,9 @@ import {
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestApiServiceAbstraction } from "../../abstractions/auth-request-api.service";
 import { AuthRequestServiceAbstraction } from "../../abstractions/auth-request.service.abstraction";
@@ -53,11 +54,13 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
     private appIdService: AppIdService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private apiService: ApiService,
     private stateProvider: StateProvider,
     private authRequestApiService: AuthRequestApiServiceAbstraction,
     private accountService: AccountService,
+    private unlockService: UnlockService,
   ) {
     this.authRequestPushNotification$ = this.authRequestPushNotificationSubject.asObservable();
     this.adminLoginApproved$ = this.adminLoginApprovedSubject.asObservable();
@@ -159,7 +162,7 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
       authReqResponse.key,
       authReqPrivateKey,
     );
-    await this.keyService.setUserKey(userKey, userId);
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
   }
 
   // Decryption helpers
@@ -182,7 +185,9 @@ export class AuthRequestService implements AuthRequestServiceAbstraction {
   }
 
   async getFingerprintPhrase(email: string, publicKey: Uint8Array): Promise<string> {
-    return (await this.keyService.getFingerprint(email.toLowerCase(), publicKey)).join("-");
+    return (await this.legacyCompatKeyService.getFingerprint(email.toLowerCase(), publicKey)).join(
+      "-",
+    );
   }
 
   emitAdminLoginApproved(): void {

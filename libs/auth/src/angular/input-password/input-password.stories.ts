@@ -19,7 +19,9 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 // eslint-disable-next-line no-restricted-imports
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { DEFAULT_KDF_CONFIG, KdfConfigService } from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 
 // FIXME: remove `/apps` import from `/libs`
 // FIXME: remove `src` and fix import

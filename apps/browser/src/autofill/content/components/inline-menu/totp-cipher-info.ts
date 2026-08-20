@@ -27,9 +27,11 @@ export function TotpCipherInfo({
   return html`
     <div>
       <span title=${heading} class=${primaryTextStyles(theme)}>${heading}</span>
-      ${username
-        ? html`<span title=${username} class=${secondaryTextStyles(theme)}>${username}</span>`
-        : nothing}
+      ${
+        username
+          ? html`<span title=${username} class=${secondaryTextStyles(theme)}>${username}</span>`
+          : nothing
+      }
       <span
         class=${totpCodeStyles(theme, masked)}
         data-testid="totp-code"

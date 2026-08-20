@@ -39,7 +39,8 @@ import {
   IconModule,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -86,7 +87,7 @@ export class SetInitialPasswordComponent implements OnInit {
     private anonLayoutWrapperDataService: AnonLayoutWrapperDataService,
     private dialogService: DialogService,
     private i18nService: I18nService,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logoutService: LogoutService,
     private logService: LogService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
@@ -142,13 +143,13 @@ export class SetInitialPasswordComponent implements OnInit {
         assertNonNullish(passwordInputResult.kdfConfig, "kdfConfig", ctx);
         assertTruthy(this.email, "email", ctx);
 
-        const newMasterKey = await this.keyService.makeMasterKey(
+        const newMasterKey = await this.legacyCompatKeyService.makeMasterKey(
           passwordInputResult.newPassword,
           this.email.trim().toLowerCase(),
           passwordInputResult.kdfConfig,
         );
 
-        const newServerMasterKeyHash = await this.keyService.hashMasterKey(
+        const newServerMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
           passwordInputResult.newPassword,
           newMasterKey,
         );

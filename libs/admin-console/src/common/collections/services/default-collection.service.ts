@@ -18,7 +18,6 @@ import {
   Collection,
   CollectionData,
 } from "@bitwarden/common/admin-console/models/collections";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SingleUserState, StateProvider } from "@bitwarden/common/platform/state";
@@ -27,6 +26,8 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
 import { CollectionService } from "../abstractions/collection.service";

@@ -24,6 +24,7 @@ export class OrganizationUserAdminView {
   groups: string[] = [];
 
   accessSecretsManager: boolean;
+  accessPam: boolean;
 
   constructor(c: {
     id: Guid;
@@ -37,6 +38,7 @@ export class OrganizationUserAdminView {
     ssoExternalId: string;
     permissions: PermissionsApi;
     accessSecretsManager: boolean;
+    accessPam: boolean;
     resetPasswordEnrolled: boolean;
     hasMasterPassword: boolean;
     claimedByOrganization: boolean;
@@ -52,6 +54,7 @@ export class OrganizationUserAdminView {
     this.ssoExternalId = c.ssoExternalId;
     this.permissions = c.permissions;
     this.accessSecretsManager = c.accessSecretsManager;
+    this.accessPam = c.accessPam;
     this.resetPasswordEnrolled = c.resetPasswordEnrolled;
     this.hasMasterPassword = c.hasMasterPassword;
     this.claimedByOrganization = c.claimedByOrganization;
@@ -78,6 +81,7 @@ export class OrganizationUserAdminView {
       ssoExternalId: response.ssoExternalId,
       permissions: response.permissions,
       accessSecretsManager: response.accessSecretsManager ?? false,
+      accessPam: response.accessPam ?? false,
       resetPasswordEnrolled: response.resetPasswordEnrolled ?? false,
       hasMasterPassword: response.hasMasterPassword ?? false,
       claimedByOrganization: response.claimedByOrganization ?? false,

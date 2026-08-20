@@ -40,6 +40,7 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import { ButtonModule, DialogModule, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { Cart, CartSummaryComponent } from "@bitwarden/pricing";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { SubscriberBillingClient } from "../../../clients/subscriber-billing.client";
@@ -82,6 +83,7 @@ export type PremiumOrgUpgradePaymentResult = {
     ButtonModule,
     EnterBillingAddressComponent,
     DisplayPaymentMethodInlineComponent,
+    Vfo1I18nPipe,
   ],
   templateUrl: "./premium-org-upgrade-payment.component.html",
 })

@@ -150,6 +150,10 @@ export class EditMemberDialogComponent {
     from(this.configService.getFeatureFlag(FeatureFlag.PM28365_ChangeMemberEmail)),
   );
 
+  protected readonly privilegedControlsEnabled = toSignal(
+    from(this.configService.getFeatureFlag(FeatureFlag.Pam)),
+  );
+
   protected readonly emailEditable = computed(
     () => (this.params.claimedByOrganization ?? false) && !(this.params.hasMasterPassword ?? true),
   );
@@ -168,6 +172,7 @@ export class EditMemberDialogComponent {
     // set to readonly in the template
     ssoExternalId: this.formBuilder.control({ value: "", disabled: false }),
     accessSecretsManager: false,
+    accessPam: false,
     access: [[] as AccessItemValue[]],
     groups: [[] as AccessItemValue[]],
   });
@@ -178,6 +183,8 @@ export class EditMemberDialogComponent {
       new_email_domain_not_claimed: "emailErrorNotClaimedDomain",
       email_already_in_use: "emailErrorAlreadyInUse",
       email_claimed_by_another_organization: "emailErrorClaimedByOrg",
+      email_taken_by_organization_member: "emailErrorAlreadyInUse",
+      email_taken_outside_organization: "emailErrorClaimedByOrg",
       member_has_master_password: "emailErrorHasMasterPassword",
       email_change_failed: "emailErrorChangeFailed",
     },
@@ -414,6 +421,7 @@ export class EditMemberDialogComponent {
       ssoExternalId: userDetails.ssoExternalId,
       access: accessSelections,
       accessSecretsManager: userDetails.accessSecretsManager,
+      accessPam: userDetails.accessPam,
       groups: groupAccessSelections,
     });
 
@@ -471,6 +479,7 @@ export class EditMemberDialogComponent {
       : this.formGroup.value.groups?.map((m) => m.id);
 
     const accessSecretsManager = this.formGroup.value.accessSecretsManager ?? undefined;
+    const accessPam = this.formGroup.value.accessPam ?? undefined;
 
     const email = this.emailEditable()
       ? (this.formGroup.getRawValue().email ?? undefined)
@@ -484,6 +493,7 @@ export class EditMemberDialogComponent {
       groups,
       collections,
       accessSecretsManager,
+      accessPam,
       email,
       name,
     });

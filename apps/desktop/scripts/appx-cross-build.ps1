@@ -91,13 +91,6 @@ if (!(Get-Command osslsigncode -ErrorAction SilentlyContinue)) {
     Exit 1
 }
 
-if (!(Get-Command cargo-xwin -ErrorAction SilentlyContinue)) {
-    Write-Error "The `cargo-xwin` tool is required to cross-compile Windows native code."
-    Write-Error "You can install with cargo:"
-    Write-Error "  cargo install --version 0.23.0 --locked cargo-xwin"
-    Exit 1
-}
-
 try {
 
 # Resolve certificate file before we change directories.

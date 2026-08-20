@@ -554,6 +554,7 @@ export class MemberDialogComponent implements OnDestroy {
       collections,
       groups,
       accessSecretsManager: this.formGroup.value.accessSecretsManager,
+      accessPam: false,
       resetPasswordEnrolled: false,
       hasMasterPassword: false,
       claimedByOrganization: false,

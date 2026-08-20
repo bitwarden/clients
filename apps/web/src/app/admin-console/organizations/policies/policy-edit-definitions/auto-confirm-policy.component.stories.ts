@@ -4,11 +4,6 @@ import { PolicyDialogStoryArgs, policyDrawerMeta } from "../policy-drawer-story.
 
 import { AutoConfirmPolicy } from "./auto-confirm-policy.component";
 
-/**
- * Renders the PolicyDrawers-flag-on (drawer) experience for this policy. This policy uses
- * MultiStepPolicyEditDialogComponent for both the drawer and modal experiences, so pair this with
- * auto-confirm-policy-modal.component.stories.ts to catch a v2 leak into the modal.
- */
 export default {
   ...policyDrawerMeta(new AutoConfirmPolicy()),
   title: "Admin Console/Organizations/Policies/Auto-confirm",

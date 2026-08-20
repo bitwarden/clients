@@ -6,7 +6,7 @@
   <!-- 17px gap need to visually align clear button divider element spacing -->
   <div
     #bar
-    class="tw-mb-4 tw-flex tw-items-center tw-gap-[17px] tw-p-2 tw-rounded-xl tw-bg-bg-brand-stronger tw-transition-[transform,opacity] tw-duration-200 tw-ease-out"
+    class="tw-mb-4 tw-flex tw-items-center tw-gap-[17px] tw-p-2 tw-rounded-xl tw-bg-bg-brand-stronger tw-transition-[transform,opacity] tw-duration-200 tw-ease-out tw-max-w-full"
     [class]="barStateClasses()"
     [attr.inert]="!visible() ? '' : null"
     [attr.aria-hidden]="!visible() ? 'true' : null"
@@ -34,10 +34,20 @@
       {{ "clear" | i18n }}
     </button>
 
-    <div class="tw-flex tw-items-center tw-gap-2">
+    <div
+      #overflowHost
+      bitOverflowList
+      [gap]="8"
+      [containerWidth]="overflowContainerWidth()"
+      #ovf="bitOverflowList"
+      class="tw-flex tw-items-center tw-flex-auto tw-min-w-0"
+      [class.tw-invisible]="!ovf.ready() || overflowContainerWidth() === null"
+    >
       @for (primary of primaryActions(); track primary) {
         <button
           bitBulkActionButton
+          bitOverflowItem
+          class="tw-shrink-0"
           type="button"
           [icon]="primary.icon()"
           [compact]="compact()"
@@ -48,20 +58,21 @@
         </button>
       }
 
-      @if (hasAdditionalActions()) {
-        <button
-          #additionalActionsTrigger
-          bitBulkActionButton
-          icon="bwi-ellipsis-v"
-          [compact]="true"
-          type="button"
-          [bitMenuTriggerFor]="additionalActionsMenu"
-          menuPosition="above-end"
-          [attr.aria-label]="'additionalActions' | i18n"
-        >
-          {{ "additionalActions" | i18n }}
-        </button>
-      }
+      <button
+        #additionalActionsTrigger
+        bitBulkActionButton
+        bitOverflowTrigger
+        [alwaysShow]="hasAdditionalActions()"
+        class="tw-shrink-0"
+        icon="bwi-ellipsis-v"
+        [compact]="true"
+        type="button"
+        [bitMenuTriggerFor]="additionalActionsMenu"
+        menuPosition="above-end"
+        [attr.aria-label]="'additionalActions' | i18n"
+      >
+        {{ "additionalActions" | i18n }}
+      </button>
     </div>
   </div>
 
@@ -70,6 +81,16 @@
 </div>
 
 <bit-menu #additionalActionsMenu>
+  @for (i of ovf.overflow(); track i) {
+    @let primary = primaryActions()[i];
+    <button bitMenuItem type="button" [disabled]="primary.disabled()" (click)="primary.action()()">
+      <bit-icon slot="start" [name]="primary.icon()" />
+      {{ primary.label() }}
+    </button>
+  }
+  @if (ovf.overflow().length > 0 && hasAdditionalActions()) {
+    <bit-menu-divider></bit-menu-divider>
+  }
   @for (additional of additionalActions(); track additional) {
     <button
       bitMenuItem

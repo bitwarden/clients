@@ -6,6 +6,7 @@ import {
   forwardRef,
   inject,
   input,
+  model,
   signal,
   TemplateRef,
   viewChild,
@@ -34,14 +35,16 @@ export class BitRowGroupComponent<T = unknown> {
   /** When set, the header becomes a toggle that collapses the group's rows (open by default). */
   readonly collapsible = input(false, { transform: booleanAttribute });
 
-  private readonly _collapsed = signal(false);
-
-  /** Whether the group's rows are currently hidden. Only meaningful when {@link collapsible}. */
-  readonly collapsed = this._collapsed.asReadonly();
+  /**
+   * Whether the group's rows are currently hidden. Only meaningful when {@link collapsible}.
+   * Two-way bindable (`[(collapsed)]`) so a consumer can seed the initial state and persist
+   * changes when the user toggles the header.
+   */
+  readonly collapsed = model(false);
 
   /** Flips the collapsed state; the table re-derives its render list. */
   toggle(): void {
-    this._collapsed.update((collapsed) => !collapsed);
+    this.collapsed.update((collapsed) => !collapsed);
   }
 
   /** The projected header label, stamped by `<bit-table-v2>` once per non-empty group. */

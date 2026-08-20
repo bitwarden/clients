@@ -1,12 +1,11 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { Component, Inject, OnInit } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
 
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DIALOG_DATA, DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 
@@ -28,8 +27,8 @@ export class UserConfirmComponent implements OnInit {
   publicKey: Uint8Array;
 
   loading = true;
-  fingerprint: string;
-  formPromise: Promise<any>;
+  fingerprint: string | undefined;
+  formPromise?: Promise<any>;
 
   formGroup = new FormGroup({
     dontAskAgain: new FormControl(false),
@@ -38,7 +37,7 @@ export class UserConfirmComponent implements OnInit {
   constructor(
     @Inject(DIALOG_DATA) protected data: UserConfirmDialogData,
     private dialogRef: DialogRef,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logService: LogService,
     private organizationManagementPreferencesService: OrganizationManagementPreferencesService,
   ) {
@@ -50,7 +49,10 @@ export class UserConfirmComponent implements OnInit {
   async ngOnInit() {
     try {
       if (this.publicKey != null) {
-        const fingerprint = await this.keyService.getFingerprint(this.userId, this.publicKey);
+        const fingerprint = await this.legacyCompatKeyService.getFingerprint(
+          this.userId,
+          this.publicKey,
+        );
         if (fingerprint != null) {
           this.fingerprint = fingerprint.join("-");
         }

@@ -1,4 +1,6 @@
-import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString } from "@bitwarden/legacy-crypto";
+
 import { ProviderId } from "../../../types/guid";
 import { CRYPTO_DISK, UserKeyDefinition } from "../../state";
 

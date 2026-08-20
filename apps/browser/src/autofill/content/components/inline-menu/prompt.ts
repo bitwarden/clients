@@ -20,6 +20,7 @@ export type InlineMenuPromptProps = {
   i18n: InlineMenuPromptI18n;
   theme: Theme;
   handleAction: (e: Event) => void;
+  handleKeyUp?: (e: KeyboardEvent) => void;
   icon?: (props: IconProps) => TemplateResult;
   dataTestId?: string;
   actionDataTestId?: string;
@@ -31,6 +32,7 @@ export function InlineMenuPrompt({
   i18n,
   theme,
   handleAction,
+  handleKeyUp,
   icon,
   dataTestId,
   actionDataTestId,
@@ -41,28 +43,40 @@ export function InlineMenuPrompt({
     }
   };
 
+  const handleButtonKeyUp = (event: KeyboardEvent) => {
+    if (handleKeyUp && EventSecurity.isEventTrusted(event)) {
+      handleKeyUp(event);
+    }
+  };
+
   return InlineMenuContainer({
     theme,
     dataTestId,
     children: html`
-      ${message
-        ? html`<div class=${messageStyles(theme)} title=${message}>${message}</div>`
-        : nothing}
+      ${
+        message
+          ? html`<div class=${messageStyles(theme)} title=${message}>${message}</div>`
+          : nothing
+      }
       <div class=${actionContainerStyles(theme, !!message)}>
         <button
           type="button"
           class=${actionButtonStyles(theme)}
+          tabindex="-1"
           data-testid="${actionDataTestId}"
           aria-label=${i18n.actionAria}
           @click=${handleButtonClick}
+          @keyup=${handleButtonKeyUp}
         >
-          ${icon
-            ? html`
-                <span class=${actionIconStyles}>
-                  ${icon({ theme, color: themes[theme].primary["600"] })}
-                </span>
-              `
-            : null}
+          ${
+            icon
+              ? html`
+                  <span class=${actionIconStyles}>
+                    ${icon({ theme, color: themes[theme].primary["600"] })}
+                  </span>
+                `
+              : null
+          }
           <span>${actionText}</span>
         </button>
       </div>
@@ -85,11 +99,13 @@ const actionContainerStyles = (theme: Theme, borderedTop: boolean) => css`
   padding: calc(${spacing["1"]} / 2);
   transition: background-color 0.2s ease-in-out;
   background-color: ${themes[theme].background.DEFAULT};
-  ${borderedTop
-    ? css`
-        border-top: 1px solid ${themes[theme].secondary["300"]};
-      `
-    : css``}
+  ${
+    borderedTop
+      ? css`
+          border-top: 1px solid ${themes[theme].secondary["300"]};
+        `
+      : css``
+  }
 
   :hover {
     background-color: ${themes[theme].background.alt};

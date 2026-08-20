@@ -13,7 +13,8 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ToastService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import {
   EnterBillingAddressComponent,
   EnterPaymentMethodComponent,
@@ -49,7 +50,7 @@ export class SetupComponent implements OnInit, OnDestroy {
     private router: Router,
     private i18nService: I18nService,
     private route: ActivatedRoute,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private syncService: SyncService,
     private validationService: ValidationService,
     private providerApiService: ProviderApiServiceAbstraction,
@@ -124,7 +125,7 @@ export class SetupComponent implements OnInit, OnDestroy {
         return;
       }
       const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-      const providerKey = await this.keyService.makeOrgKey<ProviderKey>(activeUserId);
+      const providerKey = await this.legacyCompatKeyService.makeOrgKey<ProviderKey>(activeUserId);
       const key = providerKey[0].encryptedString;
 
       const request = new ProviderSetupRequest();

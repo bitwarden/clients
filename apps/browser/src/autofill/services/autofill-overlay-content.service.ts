@@ -70,6 +70,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   pageDetailsUpdateRequired = false;
   private showInlineMenuIdentities: boolean = false;
   private showInlineMenuCards: boolean = false;
+  private showInlineMenuSshKeys: boolean = false;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Map<ElementWithOpId<FormFieldElement>, AutofillField> = new Map();
@@ -186,6 +187,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.isMonitoring = true;
     void this.getInlineMenuCardsVisibility();
     void this.getInlineMenuIdentitiesVisibility();
+    void this.getInlineMenuSshKeysVisibility();
 
     if (globalThis.document.readyState === "loading") {
       globalThis.document.addEventListener(EVENTS.DOMCONTENTLOADED, this.setupGlobalEventListeners);
@@ -371,6 +373,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       };
 
       await this.sendExtensionMessage(command, { addNewCipherType, identity });
+
+      return;
+    }
+
+    if (addNewCipherType === CipherType.SshKey) {
+      // SSH keys cannot be captured from the page, so open a blank add/edit item.
+      await this.sendExtensionMessage(command, { addNewCipherType });
     }
   }
 
@@ -1182,6 +1191,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return false;
     }
 
+    // SSH key fields must be checked before the ignored-types early return, since the SSH
+    // public key field is a textarea (which is otherwise an ignored inline menu field type).
+    if (
+      this.showInlineMenuSshKeys &&
+      this.inlineMenuFieldQualificationService.isFieldForSshKeyForm(autofillFieldData, pageDetails)
+    ) {
+      autofillFieldData.inlineMenuFillType = CipherType.SshKey;
+      return false;
+    }
+
     if (autofillFieldData.type != null && this.ignoredFieldTypes.has(autofillFieldData.type)) {
       return true;
     }
@@ -1511,6 +1530,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       "getInlineMenuIdentitiesVisibility",
     );
     this.showInlineMenuIdentities = inlineMenuIdentitiesVisibility ?? true;
+  }
+
+  /**
+   * Queries the background script for the autofill inline menu's SSH keys visibility setting.
+   * If the setting is not found, a default value of true will be used
+   * @private
+   */
+  private async getInlineMenuSshKeysVisibility() {
+    const inlineMenuSshKeysVisibility = await this.sendExtensionMessage(
+      "getInlineMenuSshKeysVisibility",
+    );
+    this.showInlineMenuSshKeys = inlineMenuSshKeysVisibility ?? true;
   }
 
   /**

@@ -4,9 +4,10 @@ import { BehaviorSubject, of } from "rxjs";
 import { newGuid } from "@bitwarden/guid";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { AccountInfo, AccountService } from "../../auth/abstractions/account.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { UserKey } from "../../types/key";
 

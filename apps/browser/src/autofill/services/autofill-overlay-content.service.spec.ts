@@ -2275,6 +2275,22 @@ describe("AutofillOverlayContentService", () => {
           },
         });
       });
+
+      it("sends a message that facilitates adding an SSH key cipher vault item without captured page data", async () => {
+        jest
+          .spyOn(autofillOverlayContentService as any, "isInlineMenuListVisible")
+          .mockResolvedValue(true);
+
+        sendMockExtensionMessage({
+          command: "addNewVaultItemFromOverlay",
+          addNewCipherType: CipherType.SshKey,
+        });
+        await flushPromises();
+
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayAddNewVaultItem", {
+          addNewCipherType: CipherType.SshKey,
+        });
+      });
     });
 
     describe("unsetMostRecentlyFocusedField message handler", () => {

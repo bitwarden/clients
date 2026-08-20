@@ -1,5 +1,7 @@
 import { firstValueFrom, switchMap, catchError } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { DECRYPT_ERROR } from "@bitwarden/legacy-crypto";
 import {
   CipherListView,
   CipherView as SdkCipherView,
@@ -7,7 +9,6 @@ import {
   CreatedAttachment,
 } from "@bitwarden/sdk-internal";
 
-import { DECRYPT_ERROR } from "../../key-management/crypto/models/enc-string";
 import { LogService } from "../../platform/abstractions/log.service";
 import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import {

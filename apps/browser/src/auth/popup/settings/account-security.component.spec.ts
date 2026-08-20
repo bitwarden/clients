@@ -36,6 +36,8 @@ import { DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 import { BiometricStateService, KeyService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { NativeMessagingPermissionDialogComponent } from "../../../key-management/shared-unlock/popup/native-messaging-permission-dialog.component";
 import { BrowserApi } from "../../../platform/browser/browser-api";
@@ -76,6 +78,7 @@ describe("AccountSecurityComponent", () => {
   const configService = mock<ConfigService>();
   const dialogService = mock<DialogService>();
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const lockService = mock<LockService>();
   const policyService = mock<PolicyService>();
   const phishingDetectionSettingsService = mock<PhishingDetectionSettingsServiceAbstraction>();
@@ -114,6 +117,7 @@ describe("AccountSecurityComponent", () => {
         { provide: EnvironmentService, useValue: mock<EnvironmentService>() },
         { provide: I18nService, useValue: mockI18nService },
         { provide: KeyService, useValue: keyService },
+        { provide: LegacyCompatKeyService, useValue: legacyCompatKeyService },
         { provide: LockService, useValue: lockService },
         { provide: LogService, useValue: mock<LogService>() },
         { provide: MessageSender, useValue: mock<MessageSender>() },

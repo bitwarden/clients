@@ -80,8 +80,7 @@ export class KeyRotationDialogComponent {
         ]).pipe(
           map(
             ([hasMasterPassword, usesKeyConnector, keyConnectorManagingOrganization, usesTde]):
-              | UserPrimaryEncryptionType
-              | undefined => {
+              UserPrimaryEncryptionType | undefined => {
               if (hasMasterPassword) {
                 return "masterPassword";
               }

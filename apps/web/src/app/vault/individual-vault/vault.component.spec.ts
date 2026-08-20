@@ -63,6 +63,7 @@ import {
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
   VaultBatchBarService,
+  VaultCopyButtonsService,
   VaultFilter,
   VaultFilterServiceAbstraction,
   VaultItem,
@@ -301,6 +302,10 @@ describe("VaultComponent", () => {
             {
               provide: VaultItemsTransferService,
               useValue: mock<VaultItemsTransferService>(),
+            },
+            {
+              provide: VaultCopyButtonsService,
+              useValue: { showQuickCopyActions$: of(false) },
             },
             {
               provide: VaultBatchBarService,

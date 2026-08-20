@@ -1,7 +1,8 @@
 import { TestBed } from "@angular/core/testing";
 import { firstValueFrom, skip, Subject } from "rxjs";
 
-import { VaultPopupCopyButtonsService } from "./vault-popup-copy-buttons.service";
+import { VaultCopyButtonsService } from "@bitwarden/vault";
+
 import { VaultPopupItemsService } from "./vault-popup-items.service";
 import { VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
 import { VaultPopupLoadingService } from "./vault-popup-loading.service";
@@ -23,7 +24,7 @@ describe("VaultPopupLoadingService", () => {
         { provide: VaultPopupItemsService, useValue: { loading$: itemsLoading$ } },
         { provide: VaultPopupListFiltersService, useValue: { allFilters$: allFilters$ } },
         {
-          provide: VaultPopupCopyButtonsService,
+          provide: VaultCopyButtonsService,
           useValue: { showQuickCopyActions$: showQuickCopyActions$ },
         },
       ],

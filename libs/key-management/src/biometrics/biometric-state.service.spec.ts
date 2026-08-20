@@ -1,6 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   makeEncString,
   trackEmissions,
@@ -10,6 +9,8 @@ import {
   mockAccountServiceWith,
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString } from "@bitwarden/legacy-crypto";
 
 import { BiometricStateService, DefaultBiometricStateService } from "./biometric-state.service";
 import {

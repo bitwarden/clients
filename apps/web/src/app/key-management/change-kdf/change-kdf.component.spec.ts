@@ -20,12 +20,9 @@ import {
   SelectModule,
   TypographyModule,
 } from "@bitwarden/components";
-import {
-  KdfConfigService,
-  Argon2KdfConfig,
-  PBKDF2KdfConfig,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { Argon2KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 import { Kdf, PasswordManagerClient } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 

@@ -145,6 +145,16 @@
                     </button>
                     <bit-menu-divider></bit-menu-divider>
                   }
+                  @if (canUsePrivilegedControls()) {
+                    <button
+                      type="button"
+                      bitMenuItem
+                      (click)="isProcessing ? null : bulkActivatePrivilegedControls(organization)"
+                    >
+                      {{ "activatePrivilegedControls" | i18n }}
+                    </button>
+                    <bit-menu-divider />
+                  }
                   @if (bulkActions.showBulkReinviteUsers) {
                     <button
                       type="button"

@@ -10,13 +10,13 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 
-import { OrganizationDataOwnershipPolicyV2Component } from "./organization-data-ownership-v2.component";
 import {
   OrganizationDataOwnershipPolicy,
   OrganizationDataOwnershipPolicyComponent,
@@ -42,22 +42,16 @@ describe("OrganizationDataOwnershipPolicy", () => {
     expect(policy.description).toEqual("centralizeDataOwnershipDesc");
     expect(policy.type).toEqual(PolicyType.OrganizationDataOwnership);
     expect(policy.component).toEqual(OrganizationDataOwnershipPolicyComponent);
-    expect(policy.v2?.component).toEqual(OrganizationDataOwnershipPolicyV2Component);
   });
 
-  it("hides the dialog's description in both v1 and v2 (both components render their own)", () => {
+  it("hides the dialog's description (the component renders its own)", () => {
     expect(policy.showDescription).toBe(false);
-    expect(policy.v2?.showDescription).toBe(false);
   });
 });
 
-// MultiStepPolicyEditDialogComponent renders OrganizationDataOwnershipPolicyV2Component only
-// when the dialog is opened as a drawer (PolicyDrawers flag on); otherwise it renders
-// OrganizationDataOwnershipPolicyComponent (above). See
-// multi-step-policy-edit-dialog.component.spec.ts for coverage of that gating.
-describe("OrganizationDataOwnershipPolicyV2Component", () => {
-  let component: OrganizationDataOwnershipPolicyV2Component;
-  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyV2Component>;
+describe("OrganizationDataOwnershipPolicyComponent", () => {
+  let component: OrganizationDataOwnershipPolicyComponent;
+  let fixture: ComponentFixture<OrganizationDataOwnershipPolicyComponent>;
   let mockOrganizationService: MockProxy<OrganizationService>;
   let accountService: FakeAccountService;
 
@@ -86,7 +80,7 @@ describe("OrganizationDataOwnershipPolicyV2Component", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyV2Component);
+    fixture = TestBed.createComponent(OrganizationDataOwnershipPolicyComponent);
     component = fixture.componentInstance;
   });
 
@@ -137,6 +131,18 @@ describe("OrganizationDataOwnershipPolicyV2Component", () => {
       await component.ngOnInit();
 
       expect(component.data.controls.enableIndividualItemsTransfer.disabled).toBe(true);
+    });
+
+    it("should resolve the organization from the organizationId input when the policy has never been saved (404 response has no organizationId)", async () => {
+      setupOrg(true);
+      // Simulates PolicyEditDrawerComponent/MultiStepPolicyEditDialogComponent's 404 fallback:
+      // `new PolicyResponse({ Enabled: false })` has no OrganizationId.
+      fixture.componentRef.setInput("policyResponse", new PolicyStatusResponse({ Enabled: true }));
+      fixture.componentRef.setInput("organizationId", ORG_ID);
+
+      await component.ngOnInit();
+
+      expect(component.data.controls.enableIndividualItemsTransfer.enabled).toBe(true);
     });
 
     it("should enable enableIndividualItemsTransfer control when enabled changes to true and useMyItems is true", async () => {

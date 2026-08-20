@@ -4,6 +4,8 @@ import {
 } from "../../../../key-management/master-password/types/master-password.types";
 import { KeysRequest } from "../../../../models/request/keys.request";
 
+import { OpenOrgInviteRequest } from "./open-org-invite.request";
+
 export class RegisterFinishRequest {
   constructor(
     public email: string,
@@ -21,10 +23,13 @@ export class RegisterFinishRequest {
     public providerInviteToken?: string,
     public providerUserId?: string,
 
-    // Org Invite data (only applies on web)
+    public salesAssistedToken?: string,
+
+    // Direct Org Invite data (only applies on web)
     public organizationUserId?: string,
     public orgInviteToken?: string,
 
-    public salesAssistedToken?: string,
+    // Open-org-invite data (only applies on web).
+    public openOrgInvite?: OpenOrgInviteRequest,
   ) {}
 }

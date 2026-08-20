@@ -8,8 +8,9 @@ import { EncryptedMigrator } from "@bitwarden/common/key-management/encrypted-mi
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
 import { UnlockService } from "@bitwarden/unlock";
 

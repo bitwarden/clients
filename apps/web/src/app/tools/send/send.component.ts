@@ -107,8 +107,7 @@ export class SendComponent implements OnDestroy {
   };
 
   private sendItemDialogRef?:
-    | DialogRef<SendItemDialogResult, SendAddEditDialogComponent>
-    | undefined;
+    DialogRef<SendItemDialogResult, SendAddEditDialogComponent> | undefined;
   noItemIcon = NoSendsIcon;
   selectedToggleValue?: SendFilterType;
 

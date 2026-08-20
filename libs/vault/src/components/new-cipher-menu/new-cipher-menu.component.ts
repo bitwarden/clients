@@ -138,7 +138,7 @@ export class NewCipherMenuComponent {
         return "add";
       }
     } else {
-      return "new";
+      return this.terminology.enabled() ? "add" : "new";
     }
   }
 

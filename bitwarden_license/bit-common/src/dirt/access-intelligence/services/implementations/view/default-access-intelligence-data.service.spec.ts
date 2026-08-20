@@ -5,9 +5,10 @@ import {
   OrganizationUserUserDetailsResponse,
 } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { OrganizationId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { ReportProgress } from "../../../../reports/risk-insights/models/report-models";

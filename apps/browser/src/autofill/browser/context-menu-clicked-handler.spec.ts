@@ -28,7 +28,14 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillTriageService } from "../services/abstractions/autofill-triage.service";
+import { WebmapperDraftService } from "../services/webmapper-draft.service";
 import { AutofillTriageFieldResult } from "../types/autofill-triage";
+import { emptyDraft, WebmapperDraft } from "../webmapper/draft";
+import {
+  WEBMAPPER_CONTAINER_ID,
+  WEBMAPPER_IRRELEVANT_ID,
+  WEBMAPPER_ROOT_ID,
+} from "../webmapper/menu";
 
 import {
   CopyToClipboardAction,
@@ -83,6 +90,7 @@ describe("ContextMenuClickedHandler", () => {
   let eventCollectionService: MockProxy<EventCollectionService>;
   let userVerificationService: MockProxy<UserVerificationService>;
   let triageService: MockProxy<AutofillTriageService>;
+  let webmapperDrafts: MockProxy<WebmapperDraftService>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -97,6 +105,7 @@ describe("ContextMenuClickedHandler", () => {
     eventCollectionService = mock();
     userVerificationService = mock();
     triageService = mock();
+    webmapperDrafts = mock();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
@@ -109,6 +118,7 @@ describe("ContextMenuClickedHandler", () => {
       userVerificationService,
       accountService,
       triageService,
+      webmapperDrafts,
     );
   });
 
@@ -435,6 +445,145 @@ describe("ContextMenuClickedHandler", () => {
         await sut.run(createData(AUTOFILL_TRIAGE_ID), mockTab);
 
         expect(sendMessageSpy).toHaveBeenCalledWith("triageResultReady", { tabId: mockTab.id });
+      });
+    });
+
+    describe("webmapper", () => {
+      const mockTab = { id: 42, url: "https://example.com/login", windowId: 1 } as chrome.tabs.Tab;
+      let sendMessageSpy: jest.SpyInstance;
+
+      /** Answers the content script round trip with `response`. */
+      function contentScriptAnswers(response: unknown) {
+        jest
+          .spyOn(BrowserApi, "sendTabsMessage")
+          .mockImplementation((_tabId, _message, _options, callback?: (r: any) => void) => {
+            callback?.(response);
+          });
+      }
+
+      /** The draft produced by the last updateDraft call, mutator applied. */
+      function written(): WebmapperDraft {
+        const [host, pathname, mutate] = webmapperDrafts.updateDraft.mock.calls.at(-1)!;
+        const draft = emptyDraft(host, pathname);
+        mutate(draft);
+        return draft;
+      }
+
+      function feedback(): { type: string; message: string } {
+        const call = sendMessageSpy.mock.calls.find((c) => c[0] === "webmapperCaptureFeedback");
+        return call?.[1];
+      }
+
+      beforeEach(() => {
+        // webmapperSend reads chrome.runtime.lastError to tell "no content script
+        // here" apart from "script answered with nothing"; start each test clean.
+        (global as any).chrome = { runtime: {} };
+        sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
+        jest.spyOn(BrowserPopupUtils, "openPopout").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "setSidePanelOptions").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "openSidePanel").mockResolvedValue(undefined);
+        jest.spyOn(BrowserApi, "isSidePanelApiSupported", "get").mockReturnValue(false);
+        webmapperDrafts.getDraft.mockResolvedValue(emptyDraft("example.com", "/login"));
+        webmapperDrafts.updateDraft.mockImplementation(async (host, pathname, mutate) => {
+          const draft = emptyDraft(host, pathname);
+          mutate(draft);
+          return draft;
+        });
+        contentScriptAnswers({ selector: "#user", warnings: [], alternates: [] });
+      });
+
+      it("opens the panel on the webmapper view", async () => {
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith(
+          expect.stringContaining("view=webmapper"),
+          expect.anything(),
+        );
+      });
+
+      it("captures a field selector into the draft for the tab's host and path", async () => {
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(webmapperDrafts.updateDraft).toHaveBeenCalledWith(
+          "example.com",
+          "/login",
+          expect.any(Function),
+        );
+        expect(written().forms[0].fields.username).toEqual([
+          { selector: "#user", warnings: [], alternates: [] },
+        ]);
+        expect(feedback().type).toBe("success");
+      });
+
+      it("captures an action selector into the actions slot", async () => {
+        await sut.run(createData("webmapper:action:submit"), mockTab);
+
+        expect(written().forms[0].actions.submit).toHaveLength(1);
+      });
+
+      it("reports an error and writes nothing when no content script answers", async () => {
+        contentScriptAnswers(undefined);
+        (global as any).chrome.runtime.lastError = { message: "no receiving end" };
+
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("reports an error and writes nothing when no selector could be generated", async () => {
+        contentScriptAnswers({ selector: null, warnings: [], alternates: [] });
+
+        await sut.run(createData("webmapper:field:username"), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("toggles the irrelevant flag and reports the resulting state", async () => {
+        await sut.run(createData(WEBMAPPER_IRRELEVANT_ID), mockTab);
+
+        expect(written().irrelevant).toBe(true);
+        expect(feedback()).toEqual(
+          expect.objectContaining({ type: "success", message: "Marked page irrelevant" }),
+        );
+      });
+
+      it("stores container candidates for the panel to choose from", async () => {
+        contentScriptAnswers({
+          candidates: [{ selector: "form#login", label: "nearest <form>", tag: "form" }],
+        });
+
+        await sut.run(createData(WEBMAPPER_CONTAINER_ID), mockTab);
+
+        expect(written().forms[0].pendingContainer).toHaveLength(1);
+        expect(feedback().type).toBe("success");
+      });
+
+      it("reports an error when no container candidates come back", async () => {
+        contentScriptAnswers({ candidates: [] });
+
+        await sut.run(createData(WEBMAPPER_CONTAINER_ID), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("refuses to map a non-http(s) page", async () => {
+        await sut.run(createData("webmapper:field:username"), {
+          ...mockTab,
+          url: "chrome://extensions",
+        } as chrome.tabs.Tab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(feedback().type).toBe("error");
+      });
+
+      it("ignores a click on a non-actionable parent item", async () => {
+        await sut.run(createData(WEBMAPPER_ROOT_ID), mockTab);
+
+        expect(webmapperDrafts.updateDraft).not.toHaveBeenCalled();
+        expect(BrowserPopupUtils.openPopout).not.toHaveBeenCalled();
       });
     });
   });

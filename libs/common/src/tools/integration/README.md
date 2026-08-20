@@ -38,11 +38,7 @@ type ImporterConfiguration = IntegrationConfiguration & {
   importer: {
     fileless: false | { selector: string };
     formats: ContentType[];
-    crep:
-      | false
-      | {
-          /* credential exchange protocol configuration */
-        };
+    crep: false | {/* credential exchange protocol configuration */};
     // ...
   };
 };

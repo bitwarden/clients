@@ -15,6 +15,9 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   SubscriberBillingClient,
   PreviewInvoiceClient,
@@ -27,8 +30,11 @@ import { ChangePlanDialogComponent } from "./change-plan-dialog.component";
 
 describe("ChangePlanDialogComponent (additional service accounts)", () => {
   let component: ChangePlanDialogComponent;
+  let vfo1Enabled: jest.Mock<boolean, []>;
 
   beforeEach(() => {
+    vfo1Enabled = jest.fn<boolean, []>().mockReturnValue(false);
+
     TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
       providers: [
@@ -39,6 +45,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         { provide: ApiService, useValue: mock<ApiService>() },
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: KeyService, useValue: mock<KeyService>() },
+        { provide: LegacyCompatKeyService, useValue: mock<LegacyCompatKeyService>() },
         { provide: Router, useValue: mock<Router>() },
         { provide: SyncService, useValue: mock<SyncService>() },
         { provide: PolicyService, useValue: mock<PolicyService>() },
@@ -53,6 +60,7 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
         { provide: SubscriberBillingClient, useValue: mock<SubscriberBillingClient>() },
         { provide: PreviewInvoiceClient, useValue: mock<PreviewInvoiceClient>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
+        { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
       ],
     });
 
@@ -95,6 +103,36 @@ describe("ChangePlanDialogComponent (additional service accounts)", () => {
       component.sub = { smServiceAccounts: 75, smServiceAccountsGrace: 30 } as any;
 
       expect(component.additionalServiceAccount).toBe(0);
+    });
+  });
+
+  describe("resolveHeaderName (VFO1 terminology)", () => {
+    let i18nService: jest.Mocked<I18nService>;
+
+    beforeEach(() => {
+      i18nService = (component as any).i18nService as jest.Mocked<I18nService>;
+      i18nService.t.mockImplementation((key: string) => key);
+      (component as any).dialogParams.productTierType = ProductTierType.Teams;
+    });
+
+    it("uses the VFO1 terminology title when the flag is enabled", () => {
+      vfo1Enabled.mockReturnValue(true);
+
+      const result = component.resolveHeaderName({ subscription: null } as any);
+
+      expect(result).toBe("upgradeYourPlan");
+    });
+
+    it("falls back to the legacy plan-specific title when the flag is disabled", () => {
+      vfo1Enabled.mockReturnValue(false);
+
+      const result = component.resolveHeaderName({ subscription: null } as any);
+
+      expect(result).toBe("upgradeFreeOrganization");
+      expect(i18nService.t).toHaveBeenCalledWith(
+        "upgradeFreeOrganization",
+        component.resolvePlanName(ProductTierType.Teams),
+      );
     });
   });
 

@@ -259,7 +259,7 @@ export declare namespace autostart {
   export function setAutostart(enabled: boolean, config: AutostartConfig): Promise<void>
 }
 
-export declare namespace autotype {
+export declare namespace autotype_mvp {
   export function getForegroundWindowTitle(): string
   export function typeInput(input: Array<number>, keyboardShortcut: Array<string>): void
 }

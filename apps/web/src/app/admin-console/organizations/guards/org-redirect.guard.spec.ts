@@ -98,6 +98,11 @@ describe("Organization Redirect Guard", () => {
             component: AdminConsoleComponent,
             canActivate: [organizationRedirectGuard(() => ["exponential", "success"])],
           },
+          {
+            path: "organizations/:organizationId/undefinedCallback",
+            component: AdminConsoleComponent,
+            canActivate: [organizationRedirectGuard(() => undefined)],
+          },
         ]),
       ],
     });
@@ -138,6 +143,15 @@ describe("Organization Redirect Guard", () => {
     await routerHarness.navigateByUrl(`organizations/${org.id}/arrayCallback`);
     expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
       "This is a subroute of the admin console!",
+    );
+  });
+
+  it("falls back to the admin console redirect when the redirect callback returns undefined", async () => {
+    const org = orgFactory();
+    organizationService.organizations$.calledWith(userId).mockReturnValue(of([org]));
+    await routerHarness.navigateByUrl(`organizations/${org.id}/undefinedCallback`);
+    expect(routerHarness.routeNativeElement?.querySelector("h1")?.textContent?.trim() ?? "").toBe(
+      "This is the admin console!",
     );
   });
 });

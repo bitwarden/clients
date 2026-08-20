@@ -1,3 +1,5 @@
+import "core-js/proposals/explicit-resource-management";
+
 import { webcrypto } from "crypto";
 import "@bitwarden/ui-common/setup-jest";
 

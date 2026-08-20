@@ -1,14 +1,13 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { DialogService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { LogRecorder } from "../log-recorder";

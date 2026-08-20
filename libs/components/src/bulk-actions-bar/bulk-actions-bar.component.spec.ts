@@ -83,6 +83,11 @@ describe("BulkActionsBarComponent", () => {
                 "__$1__ items selected. The bulk actions bar is now available at the bottom of the screen. Press __$2__ to toggle focus to the bulk action bar.",
               close: "Close",
               loading: "Loading",
+              // The overflow trigger is always rendered (the directive measures
+              // it on first paint then hides it when there's nothing to surface),
+              // so its `aria-label` and label content pipe through i18n even when
+              // no additional actions are projected.
+              additionalActions: "Additional actions",
             }),
         },
       ],
@@ -320,25 +325,228 @@ describe("BulkActionsBarComponent", () => {
       fixture.detectChanges();
     });
 
-    it("defaults to non-compact with labels visible", () => {
-      expect(host.bar().compact()).toBe(false);
-      expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(false);
-      expect(labelSpan(firstAction())?.textContent?.trim()).toBe("First");
-    });
-
-    it("hides labels when compact is true", () => {
-      host.bar().compact.set(true);
-      fixture.detectChanges();
+    it("defaults to compact (icon-only) so the overflow list caches compact widths", () => {
+      // JSDOM's getBoundingClientRect returns 0, so measureIntrinsicWidth
+      // early-returns and never flips the signal — the bar stays at its
+      // initial compact state. In production this default also gets
+      // corrected by the first real measurement when the bar is wide.
+      expect(host.bar().compact()).toBe(true);
       expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(true);
-      expect(labelSpan(closeBtn())?.classList.contains("tw-hidden")).toBe(true);
     });
 
-    it("restores labels when compact toggles back off", () => {
-      host.bar().compact.set(true);
-      fixture.detectChanges();
+    it("shows labels when compact is set to false", () => {
       host.bar().compact.set(false);
       fixture.detectChanges();
       expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(false);
+      expect(labelSpan(firstAction())?.textContent?.trim()).toBe("First");
+      expect(labelSpan(closeBtn())?.classList.contains("tw-hidden")).toBe(false);
+    });
+
+    it("re-hides labels when compact toggles back on", () => {
+      host.bar().compact.set(false);
+      fixture.detectChanges();
+      host.bar().compact.set(true);
+      fixture.detectChanges();
+      expect(labelSpan(firstAction())?.classList.contains("tw-hidden")).toBe(true);
+    });
+
+    it("remeasures the overflow list when compact flips", () => {
+      // Item widths are density-dependent (labels and padding both change with
+      // `compact`), but the directive only remeasures when the item set
+      // changes. Without this the bar packs against widths captured at the
+      // wrong density and overflows actions while it still has room.
+      const list = host.bar()["overflowList"]();
+      expect(list.ready()).toBe(true);
+
+      const remeasure = jest.spyOn(list, "remeasure");
+
+      host.bar().compact.set(false);
+      fixture.detectChanges();
+      expect(remeasure).toHaveBeenCalledTimes(1);
+
+      host.bar().compact.set(true);
+      fixture.detectChanges();
+      expect(remeasure).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe("reserved shell width", () => {
+    // JSDOM reports zero for every geometry read, so the shell measurement
+    // normally finds nothing usable. Stub the bar and overflow host so the shell
+    // (count display + clear button + bar padding) reports `shellWidth`, which
+    // each test moves to stand in for a wider count or for labels showing.
+    const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+    const COMPACT_SHELL = 100;
+    /** Compact shell with a three-digit count instead of one. */
+    const WIDE_COUNT_SHELL = 114;
+    const FULL_SHELL = 180;
+    const ITEMS = 200;
+    let shellWidth: number;
+
+    const reserve = () => host.bar()["reservedShellWidth"]();
+
+    beforeEach(async () => {
+      shellWidth = COMPACT_SHELL;
+      Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
+        let width = 0;
+        if (this.getAttribute("role") === "toolbar") {
+          width = shellWidth + ITEMS;
+        } else if (this.hasAttribute("bitOverflowList")) {
+          width = ITEMS;
+        }
+        return {
+          width,
+          height: 0,
+          top: 0,
+          left: 0,
+          right: width,
+          bottom: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect;
+      };
+
+      host.count.set(9);
+      fixture.detectChanges();
+      await fixture.whenStable();
+    });
+
+    afterEach(() => {
+      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    });
+
+    it("refreshes the reserve when the selected-count text changes width", async () => {
+      expect(reserve()).toBe(COMPACT_SHELL);
+
+      // Three digits render wider than one. Left stale, the reserve over-reports
+      // the room available to the item row and the trailing action spills past
+      // the bar instead of packing into the menu.
+      shellWidth = WIDE_COUNT_SHELL;
+      host.count.set(100);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(reserve()).toBe(WIDE_COUNT_SHELL);
+    });
+
+    it("ignores a shell reading taken while the bar is not compact", async () => {
+      // A non-compact shell (clear button showing its label) would inflate the
+      // reserve and overflow actions prematurely once the viewport narrows.
+      host.bar().compact.set(false);
+      shellWidth = FULL_SHELL;
+      host.count.set(100);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(reserve()).toBe(COMPACT_SHELL);
+    });
+
+    it("recaptures the reserve after a non-compact round trip", async () => {
+      host.bar().compact.set(false);
+      shellWidth = FULL_SHELL;
+      host.count.set(100);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(reserve()).toBe(COMPACT_SHELL);
+
+      // Narrowing hides the labels again, so the shell is measurable — and it
+      // has to be remeasured, since the count grew while it wasn't.
+      shellWidth = WIDE_COUNT_SHELL;
+      host.bar().compact.set(true);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(reserve()).toBe(WIDE_COUNT_SHELL);
+    });
+  });
+
+  describe("roving tabindex when an action overflows", () => {
+    const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+
+    beforeEach(async () => {
+      // Only the overflow items report a width. The toolbar keeps reading 0,
+      // so `measureIntrinsicWidth` early-returns and can't overwrite the
+      // shell reserve the tests set below.
+      Element.prototype.getBoundingClientRect = function (this: Element): DOMRect {
+        const width = this.hasAttribute("bitOverflowItem") ? 100 : 0;
+        return {
+          width,
+          height: 0,
+          top: 0,
+          left: 0,
+          right: width,
+          bottom: 0,
+          x: 0,
+          y: 0,
+          toJSON: () => ({}),
+        } as DOMRect;
+      };
+
+      host.count.set(2);
+      fixture.detectChanges();
+      host.bar()["overflowList"]().remeasure();
+      await fixture.whenStable();
+      fixture.detectChanges();
+    });
+
+    afterEach(() => {
+      Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
+    });
+
+    /** Narrow the container until the second primary action packs into the menu. */
+    const overflowSecondAction = () => {
+      const bar = host.bar();
+      // 208 - 100 = 108 available: the first action (100) fits, the second
+      // (100 + 8 gap) does not.
+      bar["wrapperWidth"].set(208);
+      bar["reservedShellWidth"].set(100);
+      fixture.detectChanges();
+
+      expect(bar["overflowList"]().overflow()).toEqual([1]);
+    };
+
+    const arrowRight = (from: HTMLElement) => {
+      from.focus();
+      from.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "ArrowRight", keyCode: 39, bubbles: true }),
+      );
+      fixture.detectChanges();
+    };
+
+    it("moves the roving tabindex off a button that packs into the menu", () => {
+      arrowRight(closeBtn());
+      arrowRight(primaryButtons()[0]);
+      expect(primaryButtons()[1].getAttribute("tabindex")).toBe("0");
+
+      overflowSecondAction();
+
+      // Without this the only `tabindex="0"` in the toolbar is on a
+      // `display: none` button, so the whole bar drops out of the tab order.
+      expect(primaryButtons()[1].getAttribute("tabindex")).toBe("-1");
+      expect(closeBtn().getAttribute("tabindex")).toBe("0");
+    });
+
+    it("keeps focus in the toolbar when the focused button packs into the menu", () => {
+      arrowRight(closeBtn());
+      arrowRight(primaryButtons()[0]);
+      expect(document.activeElement).toBe(primaryButtons()[1]);
+
+      overflowSecondAction();
+
+      expect(document.activeElement).toBe(closeBtn());
+    });
+
+    it("leaves the roving tabindex alone when the active button still fits", () => {
+      arrowRight(closeBtn());
+      expect(primaryButtons()[0].getAttribute("tabindex")).toBe("0");
+
+      overflowSecondAction();
+
+      // Only the second action overflowed — nothing should be reset, and
+      // focus must not be pulled away from where the user left it.
+      expect(primaryButtons()[0].getAttribute("tabindex")).toBe("0");
+      expect(document.activeElement).toBe(primaryButtons()[0]);
     });
   });
 });
@@ -382,6 +590,14 @@ describe("BulkActionsBarComponent — additional actions", () => {
   const menuItems = (): HTMLButtonElement[] =>
     Array.from(document.querySelectorAll<HTMLButtonElement>("button[bitMenuItem]"));
 
+  // The OverflowListDirective sets the trigger's `hidden` state inside a
+  // `document.fonts.ready` microtask. Tests that assert on the trigger's
+  // visibility need to flush the microtask first.
+  const flushOverflowReady = async () => {
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AdditionalActionsHostComponent],
@@ -404,6 +620,7 @@ describe("BulkActionsBarComponent — additional actions", () => {
     fixture = TestBed.createComponent(AdditionalActionsHostComponent);
     host = fixture.componentInstance;
     fixture.detectChanges();
+    await flushOverflowReady();
     document.body.setAttribute("tabindex", "-1");
     document.body.appendChild(fixture.nativeElement);
   });
@@ -415,15 +632,22 @@ describe("BulkActionsBarComponent — additional actions", () => {
     document.body.removeAttribute("tabindex");
   });
 
-  it("does not render the trigger when no <bit-bulk-additional-action> is projected", () => {
+  it("hides the trigger when no <bit-bulk-additional-action> is projected and nothing has overflowed", async () => {
     host.showAdditional.set(false);
     fixture.detectChanges();
-    expect(trigger()).toBeNull();
+    await flushOverflowReady();
+    // The trigger element stays in the DOM (the overflow directive needs it
+    // there to measure on the first render and to surface overflow when the
+    // bar narrows) but the directive sets `hidden = true` whenever neither
+    // condition that requires it is met.
+    expect(trigger()).not.toBeNull();
+    expect(trigger()!.hidden).toBe(true);
   });
 
-  it("renders an ellipsis trigger when at least one additional action is projected", () => {
+  it("shows the ellipsis trigger when at least one additional action is projected", () => {
     const btn = trigger();
     expect(btn).not.toBeNull();
+    expect(btn!.hidden).toBe(false);
     expect(btn!.querySelector("bit-icon")).not.toBeNull();
   });
 
@@ -432,6 +656,12 @@ describe("BulkActionsBarComponent — additional actions", () => {
   });
 
   it("keeps the trigger label hidden even when the bar is not compact", () => {
+    // The bar defaults to `compact = true` so the OverflowListDirective caches
+    // compact item widths on first measurement; flip it back to non-compact
+    // here to assert that the trigger's label stays hidden regardless of
+    // compact state (the trigger is bound to `[compact]="true"` directly).
+    host.bar().compact.set(false);
+    fixture.detectChanges();
     expect(host.bar().compact()).toBe(false);
     const labelSpan = trigger()!.querySelector("span") as HTMLSpanElement;
     expect(labelSpan.classList.contains("tw-hidden")).toBe(true);
@@ -470,6 +700,16 @@ describe("BulkActionsBarComponent — additional actions", () => {
     expect(host.shareClicks()).toBe(1);
   });
 
+  it("does not render a divider when no primary actions have overflowed", () => {
+    trigger()!.click();
+    fixture.detectChanges();
+    // The `bit-menu-divider` separates overflowed primaries from additional
+    // actions; with nothing overflowed (the default in JSDOM, since
+    // getBoundingClientRect returns zero widths and everything "fits") it
+    // shouldn't appear.
+    expect(document.querySelector("bit-menu-divider")).toBeNull();
+  });
+
   it("includes the trigger in the toolbar's roving tabindex", () => {
     // `End` jumps to the last item in the FocusKeyManager — if the trigger
     // were missing from the items list, focus would land on the last
@@ -485,18 +725,20 @@ describe("BulkActionsBarComponent — additional actions", () => {
     expect(document.activeElement).toBe(trigger());
   });
 
-  it("rebuilds the toolbar's items when additional actions are toggled off after mount", () => {
+  it("hides the trigger and excludes it from focus when additional actions are toggled off after mount", async () => {
     host.showAdditional.set(false);
     fixture.detectChanges();
-    expect(trigger()).toBeNull();
+    await flushOverflowReady();
+    expect(trigger()!.hidden).toBe(true);
 
     const closeBtn = fixture.nativeElement.querySelector(
       'button[icon="bwi-clear"]',
     ) as HTMLButtonElement;
-    // After toggling additional actions off, the trigger is gone and the only
-    // remaining bulk-action button without `icon="bwi-clear"` is the primary.
+    // After toggling off, the trigger is hidden — pick the only remaining
+    // visible primary so we can assert focus lands there (the FocusKeyManager
+    // skipPredicate filters hidden items out of arrow-key navigation).
     const primary = fixture.nativeElement.querySelector(
-      'button[bitBulkActionButton]:not([icon="bwi-clear"])',
+      'button[bitBulkActionButton]:not([icon="bwi-clear"]):not([icon="bwi-ellipsis-v"])',
     ) as HTMLButtonElement;
 
     closeBtn.focus();
@@ -507,12 +749,56 @@ describe("BulkActionsBarComponent — additional actions", () => {
     expect(document.activeElement).toBe(primary);
   });
 
-  it("rebuilds the toolbar's items when additional actions are toggled on after mount", () => {
+  it("returns the roving tabindex when the trigger hides", async () => {
+    const closeBtn = fixture.nativeElement.querySelector(
+      'button[icon="bwi-clear"]',
+    ) as HTMLButtonElement;
+    // `End` moves the manager onto the trigger, leaving it the toolbar's only
+    // `tabindex="0"`.
+    closeBtn.focus();
+    closeBtn.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
+    );
+    fixture.detectChanges();
+    expect(trigger()!.getAttribute("tabindex")).toBe("0");
+
     host.showAdditional.set(false);
     fixture.detectChanges();
+    await flushOverflowReady();
+
+    // Without the handoff the toolbar's only tab stop would be a hidden
+    // element, dropping the whole bar out of the tab order.
+    expect(trigger()!.hidden).toBe(true);
+    expect(trigger()!.getAttribute("tabindex")).toBe("-1");
+    expect(closeBtn.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("moves focus off the trigger when it hides while focused", async () => {
+    const closeBtn = fixture.nativeElement.querySelector(
+      'button[icon="bwi-clear"]',
+    ) as HTMLButtonElement;
+    closeBtn.focus();
+    closeBtn.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "End", keyCode: 35, bubbles: true }),
+    );
+    fixture.detectChanges();
+    expect(document.activeElement).toBe(trigger());
+
+    host.showAdditional.set(false);
+    fixture.detectChanges();
+    await flushOverflowReady();
+
+    expect(document.activeElement).toBe(closeBtn);
+  });
+
+  it("re-shows the trigger and lets focus reach it when additional actions are toggled back on", async () => {
+    host.showAdditional.set(false);
+    fixture.detectChanges();
+    await flushOverflowReady();
     host.showAdditional.set(true);
     fixture.detectChanges();
-    expect(trigger()).not.toBeNull();
+    await flushOverflowReady();
+    expect(trigger()!.hidden).toBe(false);
 
     const closeBtn = fixture.nativeElement.querySelector(
       'button[icon="bwi-clear"]',

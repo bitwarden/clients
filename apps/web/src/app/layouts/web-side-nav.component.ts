@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 
-import { SideNavVariant, NavigationModule } from "@bitwarden/components";
+import { SideNavVariant, NavigationModule, SideNavService } from "@bitwarden/components";
 
 import { ProductSwitcherModule } from "./product-switcher/product-switcher.module";
 
@@ -12,4 +12,5 @@ import { ProductSwitcherModule } from "./product-switcher/product-switcher.modul
 })
 export class WebSideNavComponent {
   readonly variant = input<SideNavVariant>("primary");
+  protected readonly sideNavService = inject(SideNavService);
 }

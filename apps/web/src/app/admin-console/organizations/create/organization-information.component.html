@@ -1,6 +1,6 @@
 <form #form [formGroup]="formGroup" *ngIf="nameOnly">
   <bit-form-field>
-    <bit-label>{{ "organizationName" | i18n }}</bit-label>
+    <bit-label>{{ "organizationName" | vfo1I18n: "vaultName" }}</bit-label>
     <input bitInput type="text" formControlName="name" />
   </bit-form-field>
 </form>
@@ -8,7 +8,7 @@
   <h2>{{ "generalInformation" | i18n }}</h2>
   <div class="tw-flex tw-w-full tw-space-x-4" *ngIf="createOrganization">
     <bit-form-field class="tw-w-1/2">
-      <bit-label>{{ "organizationName" | i18n }}</bit-label>
+      <bit-label>{{ "organizationName" | vfo1I18n: "vaultName" }}</bit-label>
       <input bitInput type="text" formControlName="name" />
     </bit-form-field>
     <bit-form-field class="tw-w-1/2">

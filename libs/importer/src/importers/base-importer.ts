@@ -359,7 +359,9 @@ export abstract class BaseImporter {
 
     let folderIndex = result.folders.length;
     // Replace backslashes with forward slashes, ensuring we create sub-folders
-    folderName = folderName.replace(/\\/g, "/");
+    // If the name starts with slashes it will create unnecessary, empty name
+    // folders so we trim them
+    folderName = folderName.replace(/\\/g, "/").replace(/^\/+/g, "");
     let addFolder = true;
 
     for (let i = 0; i < result.folders.length; i++) {

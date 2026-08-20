@@ -10,7 +10,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { KeyService } from "@bitwarden/key-management";
 
-import { MasterPasswordPolicyV2Component } from "./master-password-v2.component";
 import { MasterPasswordPolicy, MasterPasswordPolicyComponent } from "./master-password.component";
 
 describe("MasterPasswordPolicy", () => {
@@ -20,25 +19,16 @@ describe("MasterPasswordPolicy", () => {
     expect(policy.name).toEqual("masterPassPolicyTitle");
     expect(policy.description).toEqual("masterPassPolicyDesc");
     expect(policy.component).toEqual(MasterPasswordPolicyComponent);
-    expect(policy.v2?.component).toEqual(MasterPasswordPolicyV2Component);
   });
 
-  it("shows the top-level description for v1 (MasterPasswordPolicyComponent doesn't render its own)", () => {
-    expect(policy.showDescription).toBe(true);
-  });
-
-  it("hides the dialog's description for v2 (MasterPasswordPolicyV2Component renders its own)", () => {
-    expect(policy.v2?.showDescription).toBe(false);
+  it("hides the dialog's description (the component renders its own)", () => {
+    expect(policy.showDescription).toBe(false);
   });
 });
 
-// MultiStepPolicyEditDialogComponent renders MasterPasswordPolicyV2Component only when the
-// dialog is opened as a drawer (PolicyDrawers flag on); otherwise it renders
-// MasterPasswordPolicyComponent (below). See multi-step-policy-edit-dialog.component.spec.ts for
-// coverage of that gating.
-describe("MasterPasswordPolicyV2Component", () => {
-  let component: MasterPasswordPolicyV2Component;
-  let fixture: ComponentFixture<MasterPasswordPolicyV2Component>;
+describe("MasterPasswordPolicyComponent", () => {
+  let component: MasterPasswordPolicyComponent;
+  let fixture: ComponentFixture<MasterPasswordPolicyComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -53,7 +43,7 @@ describe("MasterPasswordPolicyV2Component", () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MasterPasswordPolicyV2Component);
+    fixture = TestBed.createComponent(MasterPasswordPolicyComponent);
     component = fixture.componentInstance;
   });
 

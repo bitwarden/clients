@@ -88,6 +88,7 @@ function buildUserDetails(
     ssoExternalId: "",
     permissions: new PermissionsApi(),
     accessSecretsManager: false,
+    accessPam: false,
     resetPasswordEnrolled: false,
     hasMasterPassword: true,
     claimedByOrganization: false,

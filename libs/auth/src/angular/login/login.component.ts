@@ -14,7 +14,7 @@ import { ActivatedRoute, Params, Router, RouterModule } from "@angular/router";
 import { firstValueFrom, Subject, take, takeUntil, skip, combineLatest, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
+import { LockIcon, VaultIcon, WaveIcon } from "@bitwarden/assets/svg";
 import {
   LoginEmailServiceAbstraction,
   LoginStrategyServiceAbstraction,
@@ -26,8 +26,10 @@ import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/mod
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
+import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { PasswordPreloginService } from "@bitwarden/common/auth/password-prelogin";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -94,7 +96,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   @ViewChild("masterPasswordInputRef") masterPasswordInputRef: ElementRef | undefined;
 
   private destroy$ = new Subject<void>();
-  readonly Icons = { WaveIcon, VaultIcon };
+  readonly Icons = { WaveIcon, VaultIcon, LockIcon };
 
   clientType: ClientType;
   ClientType = ClientType;
@@ -149,6 +151,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     private ssoLoginService: SsoLoginServiceAbstraction,
     private environmentService: EnvironmentService,
     private passwordPreloginService: PasswordPreloginService,
+    private organizationInviteService: OrganizationInviteService,
   ) {
     this.clientType = this.platformUtilsService.getClientType();
   }
@@ -162,6 +165,15 @@ export class LoginComponent implements OnInit, OnDestroy {
     if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
     }
+
+    // Push the open-org-invite title last so it wins over any chrome the steps above
+    // (route data, defaultOnInit's auto-submit override) may have set. Harmless on
+    // the auto-submit path — autoProgressToMpEntry already writes the same
+    // "Join <org>" title for the same org, and setAnonLayoutWrapperData merges only
+    // defined fields so the subtitle/icon set by the SSO override are preserved.
+    // TODO: consider replacing with a `pageTitle` route resolver so the correct title
+    // renders on first paint instead of flashing the default first.
+    await this.applyOpenOrgInviteTitleOverride();
   }
 
   ngOnDestroy(): void {
@@ -531,6 +543,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         pageSubtitle: null, // remove subtitle when going back to email entry
       });
 
+      // Re-apply the open-org-invite title for back-nav from MP entry; the default push
+      // above would otherwise clobber it.
+      await this.applyOpenOrgInviteTitleOverride();
+
       // Reset master password only when going from validated to not validated so that autofill can work properly
       this.formGroup.controls.masterPassword.reset();
 
@@ -594,12 +610,123 @@ export class LoginComponent implements OnInit, OnDestroy {
    */
   protected async continue(mpEntryLayoutOverride?: Partial<AnonLayoutWrapperData>): Promise<void> {
     const isEmailValid = this.validateEmail();
-
-    if (isEmailValid) {
-      this.prefetchPasswordPreloginData();
-
-      await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, mpEntryLayoutOverride);
+    if (!isEmailValid) {
+      return;
     }
+
+    const email = this.emailFormControl.value;
+    if (email && !(await this.openOrgInviteDomainAllowed(email))) {
+      return;
+    }
+
+    // SSO-callback overrides (currently direct-invite only) take precedence; otherwise
+    // synthesize an override for the open-org-invite path so "Join <org>" survives the
+    // transition. Falls through to toggleLoginUiState's built-in default when neither
+    // applies.
+    const override = mpEntryLayoutOverride ?? (await this.buildOpenOrgInviteMpEntryOverride());
+
+    this.prefetchPasswordPreloginData();
+    await this.toggleLoginUiState(LoginUiState.MASTER_PASSWORD_ENTRY, override);
+  }
+
+  /**
+   * Pre-auth UX check for open-org-invite domain restrictions. Layered UX only — the
+   * accept endpoint enforces the policy server-side, so this fails open on transient
+   * errors (returns true) rather than blocking login. Also returns true when no
+   * open-org invite is stashed or the feature is off.
+   */
+  private async openOrgInviteDomainAllowed(email: string): Promise<boolean> {
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
+    if (invite == null) {
+      return true;
+    }
+    // Defense in depth: stale flag-on state may persist into a flag-off session.
+    // Skip the domain check when disabled.
+    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+    // guard clause.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return true;
+    }
+    const result = await this.organizationInviteService.validateOpenOrgInviteEmailDomain(
+      invite.organizationId,
+      invite.inviteLinkCode,
+      email,
+    );
+    switch (result.kind) {
+      case "allowed":
+        return true;
+      case "not-allowed":
+        this.emailFormControl.setErrors({
+          error: { message: this.i18nService.t("openOrgInviteEmailDomainNotAllowed") },
+        });
+        return false;
+      case "link-invalid":
+        await this.organizationInviteService.clearOpenOrgInvite();
+        await this.router.navigate(["/organization-invite-link-invalid"], {
+          queryParams: { orgName: invite.organizationName, returnTo: "login" },
+        });
+        return false;
+      case "unexpected":
+        this.validationService.showError(result.errorMessage);
+        return true;
+    }
+  }
+
+  /**
+   * Returns the open-org-invite if one is in state and the feature is enabled; otherwise
+   * `null`. Centralizes the "should we apply open-org-invite chrome here?" predicate so
+   * the kind + flag guard isn't restated at every override site.
+   *
+   * Defense in depth: stale flag-on state may persist into a flag-off session.
+   */
+  private async getActiveOpenOrgInvite(): Promise<{ organizationName: string } | null> {
+    const invite = await this.organizationInviteService.getOpenOrgInvite();
+    if (invite == null) {
+      return null;
+    }
+    // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+    // guard clause.
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))) {
+      return null;
+    }
+    return invite;
+  }
+
+  /**
+   * Pushes the "Join <organizationName>" title for the email-entry surface when an
+   * open org invite is in state. The override is the last write to the anon-layout
+   * wrapper data on this surface, so it survives until the next state transition
+   * (which is expected to re-apply it where needed — see `toggleLoginUiState`).
+   */
+  private async applyOpenOrgInviteTitleOverride(): Promise<void> {
+    const invite = await this.getActiveOpenOrgInvite();
+    if (invite == null) {
+      return;
+    }
+    this.anonLayoutWrapperDataService.setAnonLayoutWrapperData({
+      pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
+    });
+  }
+
+  /**
+   * Builds the MP-entry anon-layout override for the open-org-invite path: preserves
+   * "Join <org>" title, surfaces the entered email as subtitle (matching the default
+   * MP-entry treatment), and swaps the icon to LockIcon. Returns undefined when no
+   * open org invite is in state or the feature is disabled, so the caller can fall
+   * through to the default override path.
+   */
+  private async buildOpenOrgInviteMpEntryOverride(): Promise<
+    Partial<AnonLayoutWrapperData> | undefined
+  > {
+    const invite = await this.getActiveOpenOrgInvite();
+    if (invite == null) {
+      return undefined;
+    }
+    return {
+      pageTitle: { key: "joinOrganizationName", placeholders: [invite.organizationName] },
+      pageSubtitle: this.emailFormControl.value,
+      pageIcon: this.Icons.LockIcon,
+    };
   }
 
   /**

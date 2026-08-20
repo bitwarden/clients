@@ -17,22 +17,18 @@ import { PolicyCategory } from "../pipes/policy-category";
 
 export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   name = "uriMatchDetectionPolicy";
-  description = "uriMatchDetectionPolicyDesc";
+  description = "uriMatchDetectionPolicyDescV2";
   type = PolicyType.UriMatchDefaults;
   category = PolicyCategory.VaultManagement;
   priority = 20;
   component = UriMatchDefaultPolicyComponent;
-  v2 = {
-    component: UriMatchDefaultPolicyV2Component,
-    description: "uriMatchDetectionPolicyDescV2",
-    prerequisiteKey: "requireSsoPolicyReqV2",
-  };
+  prerequisiteKey = "requireSsoPolicyReqV2";
 }
 @Component({
   selector: "uri-match-default-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "uri-match-default.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, SwitchComponent],
 })
 export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   readonly uriMatchOptions: {
@@ -85,16 +81,3 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
     return request;
   }
 }
-
-/**
- * Drawer (v2) variant. Reuses all form logic from the standard component and only swaps the
- * template: the enable toggle is rendered as a switch instead of a checkbox, and the prerequisite
- * callout is rendered by the surrounding PolicyEditDrawerComponent instead of the form.
- */
-@Component({
-  selector: "uri-match-default-v2-policy-edit",
-  templateUrl: "uri-match-default-v2.component.html",
-  imports: [SharedModule, SwitchComponent],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-})
-export class UriMatchDefaultPolicyV2Component extends UriMatchDefaultPolicyComponent {}

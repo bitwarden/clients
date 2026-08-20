@@ -15,8 +15,8 @@
     @if (showCollectionsFilter()) {
       <bit-nav-group
         [icon]="'bwi-collection-shared' | vfo1Icon"
-        [text]="'collections' | i18n"
-        [appA11yTitle]="'collections' | i18n"
+        [text]="'collections' | vfo1I18n: 'sharedFolders'"
+        [appA11yTitle]="'collections' | vfo1I18n: 'sharedFolders'"
         [disableToggleOnClick]="true"
       >
         @for (collection of collections()?.children ?? []; track collection.node.id) {
@@ -26,8 +26,8 @@
     }
     <bit-nav-group
       icon="bwi-folder"
-      [text]="'folders' | i18n"
-      [appA11yTitle]="'folders' | i18n"
+      [text]="'folders' | vfo1I18n: 'myFolders'"
+      [appA11yTitle]="'folders' | vfo1I18n: 'myFolders'"
       [disableToggleOnClick]="true"
     >
       @for (folder of folders()?.children ?? []; track folder.node.id) {

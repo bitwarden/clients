@@ -19,6 +19,7 @@ import { OrganizationUserView } from "../../../core/views/organization-user.view
 import { AccountRecoveryDialogComponent } from "../../components/account-recovery/account-recovery-dialog.component";
 import { BulkConfirmDialogComponent } from "../../components/bulk/bulk-confirm-dialog.component";
 import { BulkDeleteDialogComponent } from "../../components/bulk/bulk-delete-dialog.component";
+import { BulkEnablePrivilegedControlsDialogComponent } from "../../components/bulk/bulk-enable-privileged-controls-dialog.component";
 import { BulkEnableSecretsManagerDialogComponent } from "../../components/bulk/bulk-enable-sm-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
@@ -426,6 +427,49 @@ describe("MemberDialogManagerService", () => {
       const users = [user1];
 
       await service.openBulkEnableSecretsManagerDialog(mockOrganization, users);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        title: "errorOccurred",
+        message: "noSelectedUsersApplicable",
+      });
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("openBulkActivatePrivilegedControlsDialog", () => {
+    it("should open dialog with eligible users only", async () => {
+      const mockDialogRef = { closed: of(undefined) };
+      dialogService.open.mockReturnValue(mockDialogRef as any);
+
+      const user1 = { ...mockUser, accessPam: false } as OrganizationUserView;
+      const user2 = {
+        ...mockUser,
+        id: "user-2",
+        accessPam: true,
+      } as OrganizationUserView;
+      const users = [user1, user2];
+
+      await service.openBulkActivatePrivilegedControlsDialog(mockOrganization, users);
+
+      expect(dialogService.open).toHaveBeenCalledWith(
+        BulkEnablePrivilegedControlsDialogComponent,
+        expect.objectContaining({
+          data: expect.objectContaining({
+            orgId: mockOrganization.id,
+            users: [user1],
+          }),
+        }),
+      );
+    });
+
+    it("should show error toast when no eligible users", async () => {
+      i18nService.t.mockImplementation((key) => key);
+
+      const user1 = { ...mockUser, accessPam: true } as OrganizationUserView;
+      const users = [user1];
+
+      await service.openBulkActivatePrivilegedControlsDialog(mockOrganization, users);
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",

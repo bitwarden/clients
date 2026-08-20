@@ -113,7 +113,7 @@ pub(crate) fn perform_user_verification(
             Ok(signature)
         }
         NTE_USER_CANCELLED => Err(WinWebAuthnError::new(
-            ErrorKind::Other,
+            ErrorKind::UserCancelled,
             "User cancelled user verification",
         )),
         _ => Err(WinWebAuthnError::with_cause(

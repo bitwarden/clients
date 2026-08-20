@@ -101,6 +101,11 @@ export class ConfirmKeyConnectorDomainComponent implements OnInit {
         message: this.i18nService.t("domainVerified"),
       });
     }
+    // Server accepts a JIT provisioned org user if org user exists and is invited
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("inviteAccepted"),
+    });
 
     await this.syncService.fullSync(true);
 

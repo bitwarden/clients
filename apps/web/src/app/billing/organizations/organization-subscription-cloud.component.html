@@ -13,6 +13,12 @@
       (reinstatementRequested)="reinstate()"
       *ngIf="!userOrg.isFreeOrg"
     ></app-subscription-status>
+    <bit-callout type="info" *ngIf="sub.pendingAnnualUpgrade">
+      {{
+        "pendingAnnualUpgradeNotice"
+          | i18n: (sub.pendingAnnualUpgrade.effectiveDate | date: "mediumDate")
+      }}
+    </bit-callout>
     <ng-container *ngIf="userOrg.canEditSubscription">
       <div class="tw-flex-col">
         <strong

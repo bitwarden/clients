@@ -123,7 +123,7 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
             type: "danger",
             title:
               count === 1
-                ? { key: sharedFolderTerminology ? "deleteSharedFolder" : "deleteCollection" }
+                ? { key: "deleteCollection" }
                 : {
                     key: sharedFolderTerminology
                       ? "deleteSharedFoldersCount"
@@ -132,9 +132,7 @@ export class BulkDeleteDialogWebAdapter implements BulkDeleteDialogRef {
                   },
             content: {
               key: sharedFolderTerminology
-                ? count === 1
-                  ? "deleteSharedFolderDesc"
-                  : "deleteSharedFoldersDesc"
+                ? "deleteSharedFoldersKeepItemsDesc"
                 : count === 1
                   ? "deleteCollectionDesc"
                   : "deleteCollectionsDesc",

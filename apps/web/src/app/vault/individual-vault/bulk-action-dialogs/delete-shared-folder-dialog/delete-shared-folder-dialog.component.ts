@@ -50,7 +50,7 @@ export class DeleteSharedFolderDialogComponent {
   // middle, so translators control word order. It's split around the marker to
   // render the name in an italic span between the surrounding text.
   private readonly descriptionParts = this.i18nService
-    .t("deleteSharedFolderNameDesc", NAME_MARKER)
+    .t("deleteSharedFolderNameKeepItemsDesc", NAME_MARKER)
     .split(NAME_MARKER);
   protected readonly descriptionBefore = this.descriptionParts[0] ?? "";
   protected readonly descriptionAfter = this.descriptionParts[1] ?? "";

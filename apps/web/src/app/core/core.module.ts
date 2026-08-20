@@ -68,8 +68,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -141,6 +139,12 @@ import {
   SessionTimeoutSettingsComponentService,
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncryptService,
+  LegacyCompatKeyService,
+} from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
 import { UnlockService } from "@bitwarden/unlock";
 import {
@@ -303,7 +307,7 @@ const safeProviders: SafeProvider[] = [
     provide: RegistrationFinishServiceAbstraction,
     useClass: WebRegistrationFinishService,
     deps: [
-      KeyServiceAbstraction,
+      LegacyCompatKeyService,
       AccountApiServiceAbstraction,
       MasterPasswordServiceAbstraction,
       ConfigService,
@@ -332,6 +336,7 @@ const safeProviders: SafeProvider[] = [
       I18nServiceAbstraction,
       KdfConfigService,
       KeyServiceAbstraction,
+      LegacyCompatKeyService,
       MasterPasswordApiService,
       InternalMasterPasswordServiceAbstraction,
       OrganizationApiServiceAbstraction,
@@ -341,6 +346,7 @@ const safeProviders: SafeProvider[] = [
       RouterService,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -541,7 +547,7 @@ const safeProviders: SafeProvider[] = [
     useClass: DefaultWebAuthnPrfUnlockService,
     deps: [
       WebAuthnLoginPrfKeyServiceAbstraction,
-      InternalUserDecryptionOptionsServiceAbstraction,
+      StateProvider,
       EncryptService,
       EnvironmentService,
       PlatformUtilsService,
@@ -558,6 +564,7 @@ const safeProviders: SafeProvider[] = [
       KdfConfigService,
       ApiService,
       KeyServiceAbstraction,
+      LegacyCompatKeyService,
     ],
   }),
 ];

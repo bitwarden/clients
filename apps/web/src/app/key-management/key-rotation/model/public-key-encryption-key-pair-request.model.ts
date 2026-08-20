@@ -1,5 +1,6 @@
-import { UnsignedPublicKey, WrappedPrivateKey } from "@bitwarden/common/key-management/types";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+// eslint-disable-next-line no-restricted-imports
+import { UnsignedPublicKey, WrappedPrivateKey } from "@bitwarden/legacy-crypto";
 import { SignedPublicKey } from "@bitwarden/sdk-internal";
 
 export class PublicKeyEncryptionKeyPairRequestModel {

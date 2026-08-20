@@ -7,13 +7,18 @@
   </ng-container>
   <ng-container *ngIf="!loading">
     <p bitTypography="body1">
-      {{ "sponsoredFamiliesEligible" | i18n }}
+      {{ "sponsoredFamiliesEligible" | vfo1I18n: "sponsoredFamiliesEligibleV2" }}
     </p>
     <div bitTypography="body1">
-      {{ "sponsoredFamiliesIncludeMessage" | i18n }}:
+      {{ "sponsoredFamiliesIncludeMessage" | vfo1I18n: "sponsoredFamiliesIncludeMessageV2" }}:
       <ul class="tw-list-outside">
         <li>{{ "sponsoredFamiliesPremiumAccess" | i18n }}</li>
-        <li>{{ "sponsoredFamiliesSharedCollectionsForFamilyMembers" | i18n }}</li>
+        <li>
+          {{
+            "sponsoredFamiliesSharedCollectionsForFamilyMembers"
+              | vfo1I18n: "sponsoredFamiliesSharedFoldersForFamilyMembers"
+          }}
+        </li>
       </ul>
     </div>
     <form [formGroup]="sponsorshipForm" [bitSubmit]="submit" *ngIf="anyOrgsAvailable$ | async">

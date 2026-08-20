@@ -1,12 +1,18 @@
+mod context;
 mod status;
 mod sync;
+mod user_verification;
 
 use std::{fs::File, io::Read, path::PathBuf, sync::OnceLock};
 
 use anyhow::{anyhow, Context, Result};
+pub use context::{create_context_string, parse_context_string};
 use serde::{Deserialize, Serialize};
 use status::{handle_status_request, StatusResponse};
 use sync::{handle_sync_request, SyncParameters, SyncResponse};
+use user_verification::{
+    handle_user_verification_request, UserVerificationParameters, UserVerificationResponse,
+};
 use win_webauthn::plugin::Clsid;
 use windows::{
     core::HRESULT, ApplicationModel::Package, Win32::Foundation::APPMODEL_ERROR_NO_PACKAGE,
@@ -33,6 +39,9 @@ async fn dispatch_command(value: String) -> Result<CommandResponse> {
     tokio::task::spawn_blocking(move || match request.command {
         RunCommand::Status(_) => handle_status_request().map(CommandResponse::from),
         RunCommand::Sync(params) => handle_sync_request(params).map(CommandResponse::from),
+        RunCommand::UserVerification(params) => {
+            handle_user_verification_request(params).map(CommandResponse::from)
+        }
     })
     .await
     .context("Autofill command task failed")?
@@ -52,6 +61,7 @@ struct RunCommandRequest {
 enum RunCommand {
     Status(()),
     Sync(SyncParameters),
+    UserVerification(UserVerificationParameters),
 }
 
 #[derive(Serialize)]
@@ -77,6 +87,7 @@ impl From<anyhow::Result<CommandResponse>> for CommandResult {
 enum CommandResponse {
     Status(StatusResponse),
     Sync(SyncResponse),
+    UserVerification(UserVerificationResponse),
 }
 
 impl From<StatusResponse> for CommandResponse {

@@ -15,7 +15,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { KdfConfig, KdfType } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig, KdfType } from "@bitwarden/legacy-crypto";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

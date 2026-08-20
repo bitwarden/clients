@@ -37,8 +37,7 @@ import { TwoFactorSetupMethodBaseComponent } from "./two-factor-setup-method-bas
 
 type TwoFactorDuoResponseUnion = TwoFactorDuoResponse | TwoFactorOrganizationDuoResponse;
 type TwoFactorDuoUpdateResponseUnion =
-  | TwoFactorDuoUpdateResponse
-  | TwoFactorOrganizationDuoUpdateResponse;
+  TwoFactorDuoUpdateResponse | TwoFactorOrganizationDuoUpdateResponse;
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection

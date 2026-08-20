@@ -129,8 +129,7 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
   async function respondToCredentialRequest(
     command: string,
     type:
-      | typeof MessageTypes.CredentialCreationResponse
-      | typeof MessageTypes.CredentialGetResponse,
+      typeof MessageTypes.CredentialCreationResponse | typeof MessageTypes.CredentialGetResponse,
     requestId: string,
     messageData: InsecureCreateCredentialParams | InsecureAssertCredentialParams,
   ): Promise<Message | undefined> {

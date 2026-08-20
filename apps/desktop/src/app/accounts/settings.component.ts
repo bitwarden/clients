@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
@@ -50,13 +51,17 @@ import {
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
 import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -96,6 +101,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
@@ -128,6 +134,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   pinEnabled$: Observable<boolean> = of(true);
 
+  /** Controls whether the quick copy actions setting is shown */
+  protected readonly showQuickCopyActionsSetting = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
   form = this.formBuilder.group({
     // Security
     pin: [null as boolean | null],
@@ -146,6 +158,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
+    showQuickCopyActions: false,
     enableAutotype: this.formBuilder.control<boolean>({
       value: false,
       disabled: true,
@@ -174,7 +187,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
     private desktopSettingsService: DesktopSettingsService,
-    private desktopAutotypeService: DesktopAutotypeService,
+    private desktopAutotypeMvpService: DesktopAutotypeMvpService,
     private biometricStateService: BiometricStateService,
     private biometricsService: DesktopBiometricsService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
@@ -184,6 +197,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private validationService: ValidationService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private vaultCopyButtonsService: VaultCopyButtonsService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
@@ -289,6 +303,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
       ),
+      showQuickCopyActions: await firstValueFrom(
+        this.vaultCopyButtonsService.showQuickCopyActions$,
+      ),
       enableHardwareAcceleration: await firstValueFrom(
         this.desktopSettingsService.hardwareAcceleration$,
       ),
@@ -297,9 +314,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
-      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
+      enableAutotype: await firstValueFrom(
+        this.desktopAutotypeMvpService.autotypeEnabledUserSetting$,
+      ),
       autotypeShortcut: this.getFormattedAutotypeShortcutText(
-        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
+        (await firstValueFrom(this.desktopAutotypeMvpService.autotypeKeyboardShortcut$)) ?? [],
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
@@ -510,6 +529,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.messagingService.send("refreshCiphers");
   }
 
+  async saveQuickCopyActions() {
+    await this.vaultCopyButtonsService.setShowQuickCopyActions(
+      this.form.value.showQuickCopyActions,
+    );
+  }
+
   async saveRunInBackground() {
     await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
@@ -609,9 +634,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveEnableAutotype() {
-    await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(this.form.value.enableAutotype);
     const currentShortcut = await firstValueFrom(
-      this.desktopAutotypeService.autotypeKeyboardShortcut$,
+      this.desktopAutotypeMvpService.autotypeKeyboardShortcut$,
     );
     if (currentShortcut) {
       this.form.controls.autotypeShortcut.setValue(
@@ -626,14 +651,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // it is not necessary to check if it's already enabled, because
     // the edit shortcut is only available if the feature is enabled
     // in the settings.
-    await this.desktopAutotypeService.setAutotypeEnabledState(false);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(false);
 
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
     const newShortcutArray = await firstValueFrom(dialogRef.closed);
 
     // re-enable
-    await this.desktopAutotypeService.setAutotypeEnabledState(true);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(true);
 
     if (!newShortcutArray) {
       return;
@@ -642,7 +667,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.form.controls.autotypeShortcut.setValue(
       this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
-    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
+    await this.desktopAutotypeMvpService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
   ngOnDestroy() {

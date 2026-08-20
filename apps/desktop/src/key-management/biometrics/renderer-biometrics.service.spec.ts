@@ -2,11 +2,11 @@ import { mock } from "jest-mock-extended";
 
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { CryptoClient } from "@bitwarden/sdk-internal";
 
 import { RendererBiometricsService } from "./renderer-biometrics.service";

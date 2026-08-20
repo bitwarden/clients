@@ -21,9 +21,6 @@ import {
 import { KeeperAuthDialogComponent } from "./dialog/keeper-auth-dialog.component";
 import { KEEPER_SSO_TAB_MONITOR } from "./services/keeper-sso-tab-monitor";
 
-const SSO_CALLBACK_URL_PATTERN =
-  /^https:\/\/keepersecurity\.[^/]+\/api\/rest\/sso\/saml\/\d+\/saml\/sso/i;
-
 export type KeeperAuthStage =
   | { kind: "idle" }
   | { kind: "selectApproval"; methods: DeviceApprovalChannel[] }
@@ -270,7 +267,7 @@ export class KeeperDirectImportUIService implements Ui {
     // loading state covers the wait, and the tab monitor delivers the token.
     if (this.autoCaptureSsoToken) {
       try {
-        return await this.ssoTabMonitor.launchAndWaitForToken(url, SSO_CALLBACK_URL_PATTERN);
+        return await this.ssoTabMonitor.launchAndWaitForToken(url);
       } finally {
         this.ssoTabMonitor.cancel();
       }
@@ -278,9 +275,7 @@ export class KeeperDirectImportUIService implements Ui {
 
     // Desktop / web: open the IdP and let the user paste the token back.
     this.setStage({ kind: "ssoToken" });
-    void this.ssoTabMonitor
-      .launchAndWaitForToken(url, SSO_CALLBACK_URL_PATTERN)
-      .catch((): void => undefined);
+    void this.ssoTabMonitor.launchAndWaitForToken(url).catch((): void => undefined);
 
     try {
       return await this.waitForUser<string | typeof Cancel>();

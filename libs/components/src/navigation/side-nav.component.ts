@@ -1,6 +1,6 @@
 import { CdkTrapFocus } from "@angular/cdk/a11y";
 import { DragDropModule, CdkDragMove } from "@angular/cdk/drag-drop";
-import { AsyncPipe } from "@angular/common";
+import { AsyncPipe, NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -8,8 +8,12 @@ import {
   input,
   viewChild,
   inject,
+  effect,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitIconButtonComponent } from "../icon-button/icon-button.component";
@@ -32,6 +36,7 @@ export type SideNavVariant = "primary" | "secondary";
     I18nPipe,
     DragDropModule,
     AsyncPipe,
+    NgTemplateOutlet,
   ],
   host: {
     // Grid placement: always col 1.  In overlay mode the element is also
@@ -56,6 +61,16 @@ export class SideNavComponent {
   private readonly toggleButton = viewChild("toggleButton", { read: ElementRef });
 
   private readonly elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
+
+  private readonly configService = inject(ConfigService);
+
+  /**
+   * Whether the VFO1 Foundation flag is enabled, which selects the v2 side nav layout.
+   */
+  private readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected readonly handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === "Escape") {
@@ -82,5 +97,11 @@ export class SideNavComponent {
     if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
       this.sideNavService.setWidthFromKeys(event.key);
     }
+  }
+
+  constructor() {
+    effect(() => {
+      this.sideNavService.version.set(this.vfo1Enabled() ? "vfo1" : "default");
+    });
   }
 }
