@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { Component, EventEmitter, inject, Input, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, map, Observable, switchMap } from "rxjs";
 
@@ -11,6 +11,7 @@ import type { Organization } from "@bitwarden/common/admin-console/models/domain
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { DialogService, IconModule, NavigationModule } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -19,6 +20,9 @@ import { DialogService, IconModule, NavigationModule } from "@bitwarden/componen
   imports: [CommonModule, JslibModule, NavigationModule, IconModule],
 })
 export class OrgSwitcherComponent {
+  /** Under VFO1, "Add plan" in Settings replaces the "New organization" entry. */
+  protected readonly vfo1Enabled = inject(Vfo1TerminologyService).enabled;
+
   protected organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     switchMap((account) =>
       this.organizationService
