@@ -17359,9 +17359,6 @@
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collection managers"
   },
-  "pamAccessRuleDuplicate": {
-    "message": "Duplicate rule"
-  },
   "pamAccessRuleDuplicateName": {
     "message": "$NAME$ (copy)",
     "placeholders": {
@@ -17370,6 +17367,23 @@
         "example": "VPN + business hours"
       }
     }
+  },
+  "pamAccessRuleDuplicateNameNumbered": {
+    "message": "$NAME$ (copy $NUMBER$)",
+    "description": "Used when '$NAME$ (copy)' is already taken, since rule names must be unique.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "VPN + business hours"
+      },
+      "number": {
+        "content": "$2",
+        "example": "2"
+      }
+    }
+  },
+  "pamAccessRuleCopyCreated": {
+    "message": "Copy created. Choose the collections it applies to."
   },
   "pamAccessRuleCreated": {
     "message": "Access rule created."
