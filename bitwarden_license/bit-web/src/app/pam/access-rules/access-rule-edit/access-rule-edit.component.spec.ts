@@ -31,8 +31,8 @@ const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
 const accessRuleError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
 
-// A real rejected save, verbatim in shape: the whole wire response, stack trace and server
-// filesystem paths included, on the error's `message`. None of it may reach the page.
+// What a rejected save still carries on its `message`: the whole wire response, stack trace and
+// server filesystem paths included. Never read, and so never at risk of reaching the page.
 const RAW_SERVER_PAYLOAD =
   'error in response: status code 400 Bad Request: {"object":"error","message":"One or more ' +
   'collections are already governed by another access rule.","validationErrors":null,' +
@@ -664,7 +664,9 @@ describe("AccessRuleEditComponent — form states", () => {
     it("keeps the server's serialized response out of the page", async () => {
       await render();
       fillRequiredFields();
-      pamApi.createAccessRule.mockRejectedValue(accessRuleError("Api", RAW_SERVER_PAYLOAD));
+      pamApi.createAccessRule.mockRejectedValue(
+        accessRuleError("CollectionsAlreadyGoverned", RAW_SERVER_PAYLOAD),
+      );
 
       await submitAndRender();
 
@@ -722,12 +724,7 @@ describe("AccessRuleEditComponent — form states", () => {
     it("reports a name conflict on the name field, where the fix is", async () => {
       await render();
       fillRequiredFields();
-      pamApi.createAccessRule.mockRejectedValue(
-        accessRuleError(
-          "Api",
-          'error in response: {"message":"A rule with that name already exists."}',
-        ),
-      );
+      pamApi.createAccessRule.mockRejectedValue(accessRuleError("NameTaken", "unread"));
 
       await submitAndRender();
 
@@ -742,10 +739,7 @@ describe("AccessRuleEditComponent — form states", () => {
       await render();
       fillRequiredFields();
       pamApi.createAccessRule.mockRejectedValue(
-        accessRuleError(
-          "Api",
-          'error in response: {"message":"One or more collections are already governed by another access rule."}',
-        ),
+        accessRuleError("CollectionsAlreadyGoverned", "unread"),
       );
 
       await submitAndRender();

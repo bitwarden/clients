@@ -1,109 +1,77 @@
-import {
-  ACCESS_RULE_SERVER_ERRORS,
-  accessRuleErrorMessageKey,
-  classifyAccessRuleError,
-} from "./access-rule-error";
+import { accessRuleErrorMessageKey, classifyAccessRuleError } from "./access-rule-error";
 
 /** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
-const accessRuleError = (variant: string, message: string) =>
+const accessRuleError = (variant: string, message = "boom") =>
   Object.assign(new Error(message), { name: "AccessRuleError", variant });
-
-/** How the wire body actually reaches `.message`: the sentence buried in the serialized response. */
-const wireBody = (serverMessage: string) =>
-  `error in response: status code 400 Bad Request: {"object":"error","message":"${serverMessage}",` +
-  `"validationErrors":null,"exceptionMessage":"${serverMessage}","exceptionStackTrace":" at ` +
-  "Bit.Services.Pam.Services.AccessRuleWriteValidator.ValidateAsync(Guid organizationId) in " +
-  '/Users/build/server/bitwarden_license/src/Services/Pam/Services/AccessRuleWriteValidator.cs:line 87"}';
 
 describe("classifyAccessRuleError", () => {
   const cases: ReadonlyArray<[string, string, string | undefined]> = [
-    [ACCESS_RULE_SERVER_ERRORS.NameRequired.serverMessage, "pamAccessRuleNameRequired", "name"],
-    [ACCESS_RULE_SERVER_ERRORS.NameTaken.serverMessage, "pamAccessRuleErrorNameTaken", "name"],
+    ["NameRequired", "pamAccessRuleNameRequired", "name"],
+    ["NameTaken", "pamAccessRuleErrorNameTaken", "name"],
     [
-      ACCESS_RULE_SERVER_ERRORS.ExtensionLengthRequired.serverMessage,
+      "ExtensionLengthRequired",
       "pamAccessRuleErrorExtensionLengthRequired",
       "maxExtensionDurationSeconds",
     ],
-    [
-      ACCESS_RULE_SERVER_ERRORS.CollectionsMissing.serverMessage,
-      "pamAccessRuleErrorCollectionsMissing",
-      "collections",
-    ],
-    [
-      ACCESS_RULE_SERVER_ERRORS.CollectionsForeign.serverMessage,
-      "pamAccessRuleErrorCollectionsForeign",
-      "collections",
-    ],
-    [
-      ACCESS_RULE_SERVER_ERRORS.CollectionsGoverned.serverMessage,
-      "pamAccessRuleErrorCollectionsGoverned",
-      "collections",
-    ],
+    ["CollectionsMissing", "pamAccessRuleErrorCollectionsMissing", "collections"],
+    ["CollectionsForeign", "pamAccessRuleErrorCollectionsForeign", "collections"],
+    ["CollectionsAlreadyGoverned", "pamAccessRuleErrorCollectionsGoverned", "collections"],
   ];
 
   it.each(cases)(
-    "maps %p out of the serialized response body onto its own copy",
-    (serverMessage, messageKey, field) => {
-      const outcome = classifyAccessRuleError(accessRuleError("Api", wireBody(serverMessage)));
-
-      expect(outcome).toEqual({ kind: "mapped", messageKey, field });
+    "maps %s to correctable copy against its control",
+    (variant, messageKey, field) => {
+      expect(classifyAccessRuleError(accessRuleError(variant))).toEqual({
+        kind: "mapped",
+        messageKey,
+        field,
+      });
     },
   );
 
-  it("maps the NotFound variant onto the rule-is-gone copy, with no field to blame", () => {
-    const outcome = classifyAccessRuleError(accessRuleError("NotFound", ""));
-
-    expect(outcome).toEqual({ kind: "mapped", messageKey: "pamAccessRuleErrorMissing" });
-  });
-
-  it("falls back to generic for a conditions-document failure the admin cannot act on", () => {
-    const outcome = classifyAccessRuleError(
-      accessRuleError("Validation", "Conditions must be an array."),
-    );
-
-    expect(outcome).toEqual({ kind: "generic" });
+  it("maps a missing rule to its own copy, with no control to correct", () => {
+    expect(classifyAccessRuleError(accessRuleError("NotFound", ""))).toEqual({
+      kind: "mapped",
+      messageKey: "pamAccessRuleErrorMissing",
+      field: undefined,
+    });
   });
 
   it.each([
-    ["an unrecognised server message", accessRuleError("Api", "Something else entirely.")],
-    ["an error that isn't the SDK's shape", new Error("boom")],
-    ["an empty message", accessRuleError("Api", "")],
-    ["a non-error", "not an error"],
-    ["nothing at all", undefined],
-  ])("falls back to generic for %s", (_name, thrown) => {
+    ["the transport variant", accessRuleError("Api")],
+    ["a variant this client version does not know", accessRuleError("InventedNextYear")],
+    ["a rule-shape failure the form cannot produce", accessRuleError("ConditionsRejected")],
+    ["an error that is not the SDK's", new Error("boom")],
+    ["a non-error", null],
+  ])("falls back to generic for %s", (_label, thrown) => {
     expect(classifyAccessRuleError(thrown)).toEqual({ kind: "generic" });
   });
 
-  it("never returns the server's own words, whatever it was handed", () => {
-    const outcomes = [
-      ...cases.map(([serverMessage]) =>
-        classifyAccessRuleError(accessRuleError("Api", wireBody(serverMessage))),
-      ),
-      classifyAccessRuleError(accessRuleError("Api", wireBody("Something else entirely."))),
-    ];
+  it("never reads the error's message", () => {
+    // The message used to be the server's whole serialized response — filesystem paths included —
+    // so the classifier refused to show or log it. Reading the variant retires that hazard.
+    const carrier = accessRuleError(
+      "NameTaken",
+      "/Users/build/server/…/AccessRuleWriteValidator.cs",
+    );
 
-    for (const outcome of outcomes) {
-      const serialized = JSON.stringify(outcome);
-      expect(serialized).not.toContain("exceptionStackTrace");
-      expect(serialized).not.toContain("status code 400");
-      expect(serialized).not.toContain(".cs:line");
-    }
+    const outcome = classifyAccessRuleError(carrier);
+
+    expect(JSON.stringify(outcome)).not.toContain("AccessRuleWriteValidator");
   });
 });
 
 describe("accessRuleErrorMessageKey", () => {
-  it("returns the mapped copy's key", () => {
-    expect(
-      accessRuleErrorMessageKey(
-        accessRuleError("Api", wireBody(ACCESS_RULE_SERVER_ERRORS.NameTaken.serverMessage)),
-      ),
-    ).toBe("pamAccessRuleErrorNameTaken");
+  it("returns the mapped key when there is one", () => {
+    expect(accessRuleErrorMessageKey(accessRuleError("NameTaken"))).toBe(
+      "pamAccessRuleErrorNameTaken",
+    );
   });
 
-  it("returns the generic key for anything unrecognised", () => {
-    expect(accessRuleErrorMessageKey(new Error("boom"))).toBe("unexpectedError");
-    expect(accessRuleErrorMessageKey(accessRuleError("Api", wireBody("Something else.")))).toBe(
-      "unexpectedError",
-    );
+  it.each([
+    ["a non-SDK error", new Error("boom")],
+    ["an unmapped variant", accessRuleError("Api")],
+  ])("falls back to the generic key for %s", (_label, thrown) => {
+    expect(accessRuleErrorMessageKey(thrown)).toBe("unexpectedError");
   });
 });

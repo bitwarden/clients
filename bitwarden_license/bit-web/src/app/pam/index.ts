@@ -7,7 +7,7 @@ export type {
   KnownAccessCondition,
 } from "./abstractions/access-rule";
 export {
-  accessRuleErrorMessage,
+  accessRuleErrorVariant,
   isAccessRuleNotFound,
   isHumanApproval,
   isIpAllowlist,
@@ -95,10 +95,14 @@ export {
   toTimeInputValue,
 } from "./helpers/request-access-window";
 export type { RequestWindowFormValue, RequestWindowProblem } from "./helpers/request-access-window";
-export {
-  REQUEST_ACCESS_SERVER_ERRORS,
-  classifyRequestAccessError,
+export { classifyRequestAccessError } from "./helpers/request-access-error";
+export type {
+  RequestAccessErrorOutcome,
+  RequestAccessErrorVariant,
 } from "./helpers/request-access-error";
-export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
-export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
+export {
+  ACCESS_RULE_ERROR_COPY,
+  accessRuleErrorMessageKey,
+  classifyAccessRuleError,
+} from "./helpers/access-rule-error";
 export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";

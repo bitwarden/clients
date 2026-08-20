@@ -1,70 +1,59 @@
-import { REQUEST_ACCESS_SERVER_ERRORS, classifyRequestAccessError } from "./request-access-error";
+import { classifyRequestAccessError } from "./request-access-error";
 
 describe("classifyRequestAccessError", () => {
   describe("reconciliation cases", () => {
     it.each([
-      [REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive, "requestAccessModalAlreadyActive"],
-      [REQUEST_ACCESS_SERVER_ERRORS.AlreadyApproved, "requestAccessModalAlreadyApproved"],
-      [REQUEST_ACCESS_SERVER_ERRORS.AlreadyPending, "requestAccessModalAlreadyPending"],
-    ])("maps %s to its information toast", (message, toastKey) => {
-      expect(classifyRequestAccessError(message)).toEqual({ kind: "reconcile", toastKey });
-    });
-
-    it("recognises the case through a wrapper prefix the wasm boundary may add", () => {
-      const wrapped = `Api error: ${REQUEST_ACCESS_SERVER_ERRORS.AlreadyPending}`;
-
-      expect(classifyRequestAccessError(wrapped)).toEqual({
-        kind: "reconcile",
-        toastKey: "requestAccessModalAlreadyPending",
-      });
+      ["AlreadyActive", "requestAccessModalAlreadyActive"],
+      ["AlreadyApproved", "requestAccessModalAlreadyApproved"],
+      ["AlreadyPending", "requestAccessModalAlreadyPending"],
+    ])("maps %s to its information toast", (variant, toastKey) => {
+      // Not failures: the requester asked for something they already have, so the banner reconciles
+      // instead of reporting an error. This used to hinge on the server's exact wording.
+      expect(classifyRequestAccessError(variant)).toEqual({ kind: "reconcile", toastKey });
     });
   });
 
-  describe("inline validation cases", () => {
+  describe("correctable cases", () => {
     it("pins a missing reason to the reason control", () => {
-      expect(classifyRequestAccessError(REQUEST_ACCESS_SERVER_ERRORS.ReasonRequired)).toEqual({
+      expect(classifyRequestAccessError("ReasonRequired")).toEqual({
         kind: "inline",
-        serverMessage: REQUEST_ACCESS_SERVER_ERRORS.ReasonRequired,
+        messageKey: "pamRequestAccessErrorReasonRequired",
         field: "reason",
       });
     });
 
     it.each([
-      REQUEST_ACCESS_SERVER_ERRORS.PositiveDurationRequired,
-      REQUEST_ACCESS_SERVER_ERRORS.DurationExceedsMax,
-      REQUEST_ACCESS_SERVER_ERRORS.AutomaticGotWindow,
-      REQUEST_ACCESS_SERVER_ERRORS.HumanGotDuration,
-      REQUEST_ACCESS_SERVER_ERRORS.StartEndRequired,
-      REQUEST_ACCESS_SERVER_ERRORS.StartBeforeEnd,
-      REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax,
-      REQUEST_ACCESS_SERVER_ERRORS.NotLeasingGated,
-    ])("echoes %s inline with no pinned field", (message) => {
-      expect(classifyRequestAccessError(message)).toEqual({
+      ["DurationMustBePositive", "pamRequestAccessErrorDurationRequired"],
+      ["DurationExceedsMax", "pamRequestAccessErrorDurationExceedsMax"],
+      ["DurationExpected", "pamRequestAccessErrorDurationExpected"],
+      ["WindowExpected", "pamRequestAccessErrorWindowExpected"],
+      ["WindowRequired", "pamRequestAccessErrorWindowRequired"],
+      ["WindowEndBeforeStart", "pamRequestAccessErrorWindowEndBeforeStart"],
+      ["WindowExceedsMax", "pamRequestAccessErrorWindowExceedsMax"],
+      ["CipherNotGated", "pamRequestAccessErrorNotGated"],
+      ["DeniedByNetwork", "pamRequestAccessErrorDeniedByNetwork"],
+      ["DeniedBySchedule", "pamRequestAccessErrorDeniedBySchedule"],
+      ["Denied", "pamRequestAccessErrorDenied"],
+    ])("shows %s inline with no pinned field", (variant, messageKey) => {
+      expect(classifyRequestAccessError(variant)).toEqual({
         kind: "inline",
-        serverMessage: message,
+        messageKey,
+        field: undefined,
       });
     });
   });
 
   describe("fallback", () => {
     it.each([
-      ["an unrecognised message", "Something else went wrong"],
-      ["an empty message", ""],
-      ["a null message", null],
-      ["an undefined message", undefined],
-    ])("falls back to generic for %s", (_label, message) => {
-      expect(classifyRequestAccessError(message)).toEqual({ kind: "generic" });
-    });
-  });
-
-  it("prefers reconciliation over inline when a message somehow carries both", () => {
-    // Reconciliation is checked first on purpose: telling the requester "you already have this"
-    // is more useful than pointing at a field they cannot fix.
-    const message = `${REQUEST_ACCESS_SERVER_ERRORS.WindowExceedsMax} ${REQUEST_ACCESS_SERVER_ERRORS.AlreadyActive}`;
-
-    expect(classifyRequestAccessError(message)).toEqual({
-      kind: "reconcile",
-      toastKey: "requestAccessModalAlreadyActive",
+      ["the transport variant", "Api"],
+      ["a variant this client version does not know", "InventedNextYear"],
+      ["an empty variant", ""],
+      ["a null variant", null],
+      ["an undefined variant", undefined],
+    ])("falls back to generic for %s", (_label, variant) => {
+      // An unknown code is safe to treat as a plain failure by contract, which is what lets the
+      // server add codes without waiting on a client release.
+      expect(classifyRequestAccessError(variant)).toEqual({ kind: "generic" });
     });
   });
 });
