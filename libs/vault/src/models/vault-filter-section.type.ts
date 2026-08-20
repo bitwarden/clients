@@ -6,18 +6,20 @@ import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
 import {
   CipherTypeFilter,
   CollectionFilter,
+  ControlledAccessFilter,
   FolderFilter,
   OrganizationFilter,
 } from "./vault-filter.type";
 
 export type VaultFilterType =
-  OrganizationFilter | CipherTypeFilter | FolderFilter | CollectionFilter;
+  OrganizationFilter | CipherTypeFilter | FolderFilter | CollectionFilter | ControlledAccessFilter;
 
 export const VaultFilterLabel = {
   OrganizationFilter: "organizationFilter",
   TypeFilter: "typeFilter",
   FolderFilter: "folderFilter",
   CollectionFilter: "collectionFilter",
+  ControlledAccessFilter: "controlledAccessFilter",
   ArchiveFilter: "archiveFilter",
   TrashFilter: "trashFilter",
 } as const;

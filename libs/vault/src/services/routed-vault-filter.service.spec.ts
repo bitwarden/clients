@@ -57,6 +57,22 @@ describe("RoutedVaultFilterService", () => {
 
       expect(filter.collectionId).toBeUndefined();
     });
+
+    it("reads the controlled-access child from its query param", async () => {
+      const service = setup(false, { controlledAccess: "privileged" });
+
+      const filter = await firstValueFrom(service.filter$);
+
+      expect(filter.controlledAccess).toBe("privileged");
+    });
+
+    it("leaves controlled access undefined when the param is absent", async () => {
+      const service = setup(false, {});
+
+      const filter = await firstValueFrom(service.filter$);
+
+      expect(filter.controlledAccess).toBeUndefined();
+    });
   });
 
   describe("createRoute writer", () => {
@@ -82,6 +98,22 @@ describe("RoutedVaultFilterService", () => {
         collectionId: null,
         sharedFolderId: "col-1",
       });
+    });
+
+    it("clears the controlled-access param when the filter carries no child", () => {
+      const service = setup(false);
+
+      const [, extras] = service.createRoute(filter);
+
+      expect(extras?.queryParams).toMatchObject({ controlledAccess: null });
+    });
+
+    it("writes the selected controlled-access child", () => {
+      const service = setup(false);
+
+      const [, extras] = service.createRoute({ controlledAccess: "privileged" });
+
+      expect(extras?.queryParams).toMatchObject({ controlledAccess: "privileged" });
     });
 
     it("merges query params so unrelated params are preserved", () => {
