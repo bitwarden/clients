@@ -208,9 +208,15 @@ export class LoginComponent implements OnInit, OnDestroy {
       ? await this.loginComponentService.handleQueryParamErrors?.(params)
       : undefined;
 
+    // Handler already navigated to another route; stop running the rest of init
+    // so we don't set up subscriptions/state that Angular is about to tear down.
+    if (queryParamResult?.kind === "redirected") {
+      return;
+    }
+
     // Auto-progress when the hook signals it. Via continuePressed (not continue) so its
     // pushState lets back-button return to email entry rather than the SSO callback URL.
-    if (queryParamResult?.autoSubmit && paramEmailIsSet) {
+    if (queryParamResult?.kind === "auto-submit" && paramEmailIsSet) {
       await this.continuePressed(queryParamResult.mpEntryLayoutOverride);
     }
 

@@ -7116,6 +7116,15 @@
       }
     }
   },
+  "ssoStagedOrgUserDirectInviteEmailSent": {
+    "message": "An invitation to join $ORGANIZATION_NAME$ has been sent to your email.",
+    "placeholders": {
+      "organization_name": {
+        "content": "$1",
+        "example": "Acme Inc"
+      }
+    }
+  },
   "acceptPolicies": {
     "message": "By checking this box you agree to the following:"
   },
