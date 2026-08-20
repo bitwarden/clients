@@ -22,6 +22,9 @@ export class OrganizationSubscriptionDataService {
   private readonly subscriptionPreviewService = inject(SubscriptionPreviewService);
   private readonly accountService = inject(AccountService);
 
+  /**
+   * Returns the organization information for the given organization ID.
+   */
   readonly organization$ = (organizationId: string): Observable<Organization | undefined> => {
     return getUserId(this.accountService.activeAccount$).pipe(
       switchMap((userId) =>
@@ -32,6 +35,9 @@ export class OrganizationSubscriptionDataService {
     );
   };
 
+  /**
+   * Returns the subscription information for the given organization.
+   */
   readonly organizationSubscription$ = (
     organizationId: string,
   ): Observable<OrganizationSubscriptionResponse | null> => {
@@ -40,6 +46,9 @@ export class OrganizationSubscriptionDataService {
     );
   };
 
+  /**
+   * Returns whether the given organization has a billing sync token.
+   */
   readonly hasBillingSyncToken$ = (organizationId: string): Observable<boolean> => {
     return this.organization$(organizationId).pipe(
       switchMap((org) =>
@@ -54,6 +63,9 @@ export class OrganizationSubscriptionDataService {
     );
   };
 
+  /**
+   * Returns the number of reseller seats remaining for the given organization.
+   */
   readonly resellerSeatsRemaining$ = (organizationId: string): Observable<number | null> => {
     return this.organization$(organizationId).pipe(
       switchMap((org) =>
@@ -75,6 +87,11 @@ export class OrganizationSubscriptionDataService {
     );
   };
 
+  /**
+   * Returns a subscription preview for the given organization.
+   * @param organizationId The ID of the organization for which to get the subscription preview.
+   * @returns A promise that resolves to the subscription preview for the given organization.
+   */
   async getSubscriptionPreview(organizationId: string): Promise<SubscriptionPreview> {
     return this.subscriptionPreviewService.getOrganizationSubscriptionPreview(organizationId);
   }
