@@ -215,7 +215,7 @@ describe("VaultPopupListTableComponent", () => {
           provide: StateProvider,
           useValue: {
             getUserState$: () => of({ hasSeen: true, hasDismissed: true }),
-            getUser: () => ({ update: async () => { } }),
+            getUser: () => ({ update: async () => {} }),
           },
         },
         { provide: RestrictedItemTypesService, useValue: { restricted$: of([]) } },
@@ -259,9 +259,9 @@ describe("VaultPopupListTableComponent", () => {
   describe("collapsible sections", () => {
     /** The rendered collapse toggle for a section, found by its header label. */
     const headerToggle = (label: string): HTMLButtonElement | undefined =>
-      Array.from(
-        fixture.nativeElement.querySelectorAll<HTMLButtonElement>("button[aria-expanded]"),
-      ).find((button) => button.textContent?.includes(label));
+      Array.from(fixture.nativeElement.querySelectorAll("button[aria-expanded]")).find((button) =>
+        (button as HTMLButtonElement).textContent?.includes(label),
+      ) as HTMLButtonElement | undefined;
 
     /**
      * Renders the table with both collapsible sections populated.
