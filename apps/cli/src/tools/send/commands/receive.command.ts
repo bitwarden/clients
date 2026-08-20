@@ -20,12 +20,9 @@ import {
   GetSendAccessTokenError,
   SendAccessDomainCredentials,
 } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SdkEndpointOverrides } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -58,7 +55,6 @@ export class SendReceiveCommand extends DownloadCommand {
     private sendApiService: SendApiService,
     apiService: ApiService,
     private sendTokenService: SendTokenService,
-    private configService: ConfigService,
   ) {
     super(encryptService, apiService);
   }
@@ -75,7 +71,7 @@ export class SendReceiveCommand extends DownloadCommand {
       return Response.badRequest("Failed to parse the provided Send url");
     }
 
-    const endpoints = await this.getEndpoints(urlObject);
+    const apiUrl = await this.getApiUrl(urlObject);
     const [id, key] = this.getIdAndKey(urlObject);
 
     if (Utils.isNullOrWhitespace(id) || Utils.isNullOrWhitespace(key)) {
@@ -84,7 +80,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
     const keyArray = Utils.fromUrlB64ToArray(key);
 
-    return await this.attemptAccess(endpoints, id, keyArray, options);
+    return await this.attemptAccess(apiUrl, id, keyArray, options);
   }
 
   private getIdAndKey(url: URL): [string, string] {
@@ -92,14 +88,7 @@ export class SendReceiveCommand extends DownloadCommand {
     return [result[0], result[1]];
   }
 
-  /**
-   * Resolves the Bitwarden instance hosting the Send from its link.
-   *
-   * The Send may live on a server the CLI is not signed in to, in which case both endpoints have
-   * to follow the link rather than the local configuration: the API endpoint serves the Send
-   * itself, and the identity endpoint issues the send access token.
-   */
-  private async getEndpoints(url: URL): Promise<SdkEndpointOverrides> {
+  private async getApiUrl(url: URL) {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
 
@@ -108,18 +97,15 @@ export class SendReceiveCommand extends DownloadCommand {
       .availableRegions()
       .find((r) => r.urls.send != null && r.urls.send === url.origin);
     if (matchingRegion != null) {
-      return { apiUrl: matchingRegion.urls.api, identityUrl: matchingRegion.urls.identity };
+      return matchingRegion.urls.api;
     }
 
-    // The Send is hosted on the server this CLI is configured against, so its identity server is
-    // the locally configured one.
     if (url.origin === urls.api) {
-      return { apiUrl: url.origin, identityUrl: env.getIdentityUrl() };
+      return url.origin;
     } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
-      return { apiUrl: urls.api, identityUrl: env.getIdentityUrl() };
+      return urls.api;
     } else {
-      // Self-hosted deployments serve both services under their web vault origin.
-      return { apiUrl: url.origin + "/api", identityUrl: url.origin + "/identity" };
+      return url.origin + "/api";
     }
   }
 
@@ -134,17 +120,17 @@ export class SendReceiveCommand extends DownloadCommand {
   }
 
   private async attemptAccess(
-    endpoints: SdkEndpointOverrides,
+    apiUrl: string,
     id: string,
     keyArray: Uint8Array,
     options: OptionValues,
   ): Promise<Response> {
     let authType: AuthType = AuthType.None;
 
-    const currentResponse = await this.getTokenWithRetry(id, endpoints);
+    const currentResponse = await this.getTokenWithRetry(id);
 
     if (currentResponse instanceof SendAccessToken) {
-      return await this.accessSendWithToken(currentResponse, keyArray, endpoints, options);
+      return await this.accessSendWithToken(currentResponse, keyArray, apiUrl, options);
     }
 
     if (currentResponse.kind === "expected_server") {
@@ -166,9 +152,9 @@ export class SendReceiveCommand extends DownloadCommand {
       if (!this.canInteract) {
         return Response.badRequest("Email verification required. Run in interactive mode.");
       }
-      return await this.handleEmailOtpAuth(id, keyArray, endpoints, options);
+      return await this.handleEmailOtpAuth(id, keyArray, apiUrl, options);
     } else if (authType === AuthType.Password) {
-      return await this.handlePasswordAuth(id, keyArray, endpoints, options);
+      return await this.handlePasswordAuth(id, keyArray, apiUrl, options);
     }
 
     // The auth layer will immediately return a token for Sends with AuthType.None
@@ -182,27 +168,14 @@ export class SendReceiveCommand extends DownloadCommand {
 
   private async getTokenWithRetry(
     sendId: string,
-    endpoints: SdkEndpointOverrides,
     credentials?: SendAccessDomainCredentials,
   ): Promise<SendAccessToken | GetSendAccessTokenError> {
     let expiredAttempts = 0;
 
-    // Cross-instance token requests build an ephemeral SDK client instead of reusing the shared
-    // one; gate that behind the flag so `bw receive` is unchanged while it's off, matching every
-    // other Send operation this flag controls.
-    const useSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
-    const tokenEndpoints = useSdk ? endpoints : undefined;
-
     while (expiredAttempts < 3) {
-      // The token has to come from the identity server of the instance hosting the Send, which is
-      // not necessarily the one this CLI is signed in to.
       const response = credentials
-        ? await firstValueFrom(
-            this.sendTokenService.getSendAccessToken$(sendId, credentials, tokenEndpoints),
-          )
-        : await firstValueFrom(
-            this.sendTokenService.tryGetSendAccessToken$(sendId, tokenEndpoints),
-          );
+        ? await firstValueFrom(this.sendTokenService.getSendAccessToken$(sendId, credentials))
+        : await firstValueFrom(this.sendTokenService.tryGetSendAccessToken$(sendId));
 
       if (response instanceof SendAccessToken) {
         return response;
@@ -259,12 +232,12 @@ export class SendReceiveCommand extends DownloadCommand {
   private async handleEmailOtpAuth(
     sendId: string,
     keyArray: Uint8Array,
-    endpoints: SdkEndpointOverrides,
+    apiUrl: string,
     options: OptionValues,
   ): Promise<Response> {
     const email = await this.promptForEmail();
 
-    const emailResponse = await this.getTokenWithRetry(sendId, endpoints, {
+    const emailResponse = await this.getTokenWithRetry(sendId, {
       kind: "email",
       email: email,
     });
@@ -286,14 +259,14 @@ export class SendReceiveCommand extends DownloadCommand {
         const promptResponse = await this.promptForOtp(sendId, email);
 
         // Use retry helper for expired token handling
-        const otpResponse = await this.getTokenWithRetry(sendId, endpoints, {
+        const otpResponse = await this.getTokenWithRetry(sendId, {
           kind: "email_otp",
           email: email,
           otp: promptResponse,
         });
 
         if (otpResponse instanceof SendAccessToken) {
-          return await this.accessSendWithToken(otpResponse, keyArray, endpoints, options);
+          return await this.accessSendWithToken(otpResponse, keyArray, apiUrl, options);
         }
 
         if (otpResponse.kind === "expected_server") {
@@ -311,7 +284,7 @@ export class SendReceiveCommand extends DownloadCommand {
   private async handlePasswordAuth(
     sendId: string,
     keyArray: Uint8Array,
-    endpoints: SdkEndpointOverrides,
+    apiUrl: string,
     options: OptionValues,
   ): Promise<Response> {
     let password = options.password;
@@ -340,13 +313,13 @@ export class SendReceiveCommand extends DownloadCommand {
     const passwordHashB64 = await this.getUnlockedPassword(password, keyArray);
 
     // Use retry helper for expired token handling
-    const response = await this.getTokenWithRetry(sendId, endpoints, {
+    const response = await this.getTokenWithRetry(sendId, {
       kind: "password",
       passwordHashB64: passwordHashB64 as SendHashedPasswordB64,
     });
 
     if (response instanceof SendAccessToken) {
-      return await this.accessSendWithToken(response, keyArray, endpoints, options);
+      return await this.accessSendWithToken(response, keyArray, apiUrl, options);
     }
 
     if (response.kind === "expected_server") {
@@ -367,11 +340,11 @@ export class SendReceiveCommand extends DownloadCommand {
   private async accessSendWithToken(
     accessToken: SendAccessToken,
     keyArray: Uint8Array,
-    endpoints: SdkEndpointOverrides,
+    apiUrl: string,
     options: OptionValues,
   ): Promise<Response> {
     try {
-      const sendResponse = await this.sendApiService.postSendAccess(accessToken, endpoints.apiUrl);
+      const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
 
       const sendAccess = new SendAccess(sendResponse);
       this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
@@ -390,7 +363,7 @@ export class SendReceiveCommand extends DownloadCommand {
           const downloadData = await this.sendApiService.getSendFileDownloadData(
             decryptedView,
             accessToken,
-            endpoints.apiUrl,
+            apiUrl,
           );
 
           const decryptBufferFn = async (resp: globalThis.Response) => {
