@@ -1,1 +1,7 @@
-<app-pam-access-state-badge [state]="badge()" />
+@if (badge(); as state) {
+  <app-pam-access-state-badge [state]="state" />
+} @else if (showNoAccessRule()) {
+  <span class="tw-text-muted" data-testid="vault-row-no-access-rule" aria-hidden="true"
+    >&mdash;</span
+  >
+}
