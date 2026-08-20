@@ -147,12 +147,13 @@ export class MyRequestsTabComponent implements OnInit {
   /**
    * Badge state is memoised per lease so the shared badge component sees a stable input across the
    * one-second `nowMs` tick. A fresh object every tick would re-run the badge's own effect and
-   * restart its countdown interval, so the label could never settle on a whole second.
+   * restart its countdown interval, so the label could never settle on a whole second. Keyed off
+   * the unfiltered rows so that typing in the search box does not churn the surviving badges.
    */
   private readonly leaseBadgeStates = computed(
     () =>
       new Map<AccessLeaseId, AccessBadgeState>(
-        this.leases().map((lease) => [
+        this.allLeases().map((lease) => [
           lease.id,
           { kind: "active", expiresAt: new Date(lease.notAfter) },
         ]),
@@ -212,8 +213,8 @@ export class MyRequestsTabComponent implements OnInit {
     return this.cipherById().get(cipherId);
   }
 
-  protected leaseBadgeState(lease: MyAccessLeaseRow): AccessBadgeState | null {
-    return this.leaseBadgeStates().get(lease.id) ?? null;
+  protected leaseBadgeState(id: AccessLeaseId): AccessBadgeState | null {
+    return this.leaseBadgeStates().get(id) ?? null;
   }
 
   protected isCancelling(id: AccessRequestId): boolean {
