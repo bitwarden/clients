@@ -1,0 +1,11 @@
+@if (gated()) {
+  <bit-callout
+    type="subtle"
+    icon="bwi-lock"
+    [title]="null"
+    [accessibleName]="requiresRequestLabel"
+    data-testid="pam-gated-collection-banner"
+  >
+    {{ requiresRequestLabel }}
+  </bit-callout>
+}

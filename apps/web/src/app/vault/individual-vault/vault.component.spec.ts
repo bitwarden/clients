@@ -1,5 +1,12 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { ElementRef, NO_ERRORS_SCHEMA, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  input,
+  NO_ERRORS_SCHEMA,
+  signal,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, convertToParamMap, Params, provideRouter, Router } from "@angular/router";
@@ -82,8 +89,21 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { WelcomeDialogService } from "../services/welcome-dialog.service";
 
 import { VaultBannersService } from "./vault-banners/services/vault-banners.service";
+import { VAULT_GATED_COLLECTION_BANNER } from "./vault-gated-collection-banner.token";
 import { VaultOnboardingService } from "./vault-onboarding/services/abstraction/vault-onboarding.service";
 import { VaultComponent } from "./vault.component";
+
+@Component({
+  selector: "app-test-gated-collection-banner",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="gated-collection-banner"
+    >{{ organizationId() }}/{{ collectionId() }}</span
+  >`,
+})
+class TestGatedCollectionBannerComponent {
+  readonly organizationId = input<string | undefined>(undefined);
+  readonly collectionId = input<string | undefined>(undefined);
+}
 
 const TEST_CIPHER_ID = "test-cipher-id";
 const TEST_USER_ID = "test-user-id" as UserId;
@@ -146,6 +166,10 @@ describe("VaultComponent", () => {
       imports: [VaultComponent],
       providers: [
         provideRouter([]),
+        {
+          provide: VAULT_GATED_COLLECTION_BANNER,
+          useValue: TestGatedCollectionBannerComponent,
+        },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: BroadcasterService, useValue: mock<BroadcasterService>() },
@@ -453,6 +477,41 @@ describe("VaultComponent", () => {
           });
         });
       });
+    });
+  });
+
+  describe("gated collection banner", () => {
+    function banner(): HTMLElement | null {
+      return fixture.nativeElement.querySelector("[data-testid='gated-collection-banner']");
+    }
+
+    function selectCollection(node: TreeNode<any> | undefined): void {
+      (component as any).selectedCollection = node;
+      fixture.detectChanges();
+    }
+
+    it("mounts the host's banner with the selected collection's organization and id", () => {
+      // `canEdit`/`canDelete` are here because the same node also feeds `app-vault-header`,
+      // whose template calls them; the banner outlet reads only the two ids.
+      selectCollection(
+        new TreeNode(
+          {
+            id: "collection-1",
+            organizationId: "org-1",
+            canEdit: () => false,
+            canDelete: () => false,
+          } as any,
+          null,
+        ),
+      );
+
+      expect(banner()?.textContent).toBe("org-1/collection-1");
+    });
+
+    it("mounts nothing while no single collection is the active filter", () => {
+      selectCollection(undefined);
+
+      expect(banner()).toBeNull();
     });
   });
 
