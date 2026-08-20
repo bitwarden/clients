@@ -105,14 +105,14 @@ const categories = [
     category: RiskCategory.Weak,
     titleKey: "weakPasswordsTitle",
     descriptionKey: "weakPasswordsDescription",
-    emptyKey: "weakPasswordsEmpty",
+    emptyKey: "weakPasswordEmpty",
     icon: LockIcon,
   },
   {
     category: RiskCategory.Reused,
     titleKey: "reusedPasswordsTitle",
     descriptionKey: "reusedPasswordsDescription",
-    emptyKey: "reusedPasswordsEmpty",
+    emptyKey: "reusedPasswordEmpty",
     icon: NoCredentialsIcon,
   },
 ] as const;

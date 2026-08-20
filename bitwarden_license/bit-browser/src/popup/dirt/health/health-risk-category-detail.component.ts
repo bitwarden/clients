@@ -160,13 +160,13 @@ export class HealthRiskCategoryDetailComponent {
     [RiskCategory.Weak]: {
       titleKey: "weakPasswordsTitle",
       descriptionKey: "weakPasswordsDescription",
-      emptyKey: "weakPasswordsEmpty",
+      emptyKey: "weakPasswordEmpty",
       emptyIcon: LockIcon,
     },
     [RiskCategory.Reused]: {
       titleKey: "reusedPasswordsTitle",
       descriptionKey: "reusedPasswordsDescription",
-      emptyKey: "reusedPasswordsEmpty",
+      emptyKey: "reusedPasswordEmpty",
       emptyIcon: NoCredentialsIcon,
     },
   };

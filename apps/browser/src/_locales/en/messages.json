@@ -7731,10 +7731,10 @@
   "exposedPasswordsEmpty": {
     "message": "None of your passwords were found in data breaches."
   },  
-  "weakPasswordsEmpty": {
+  "weakPasswordEmpty": {
     "message": "All your passwords are strong."
   },
-  "reusedPasswordsEmpty": {
+  "reusedPasswordEmpty": {
     "message": "All your passwords are unique."
   },
   "youreAllSet": {
