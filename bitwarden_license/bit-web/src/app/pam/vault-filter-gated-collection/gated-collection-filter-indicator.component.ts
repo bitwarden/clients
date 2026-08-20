@@ -12,7 +12,7 @@ import { gatedCollection, GatedCollection } from "../services/gated-collection";
  * the sidebar stays PAM-free.
  *
  * Whether the collection is governed is decided by the shared {@link gatedCollection} check, the
- * same one behind the vault banner, the collection-row badge and the collection-dialog callout.
+ * same one behind the vault banner.
  */
 @Component({
   selector: "app-pam-gated-collection-filter-indicator",
