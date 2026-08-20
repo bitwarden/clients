@@ -82,6 +82,7 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly allCollections = input<CollectionView[]>([]);
   protected readonly userCanArchive = input<boolean>();
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
+  protected readonly showShareViaLink = input<boolean>(false);
   protected readonly placeholderText = input<string>("");
   protected readonly ciphers = input<C[]>([]);
   protected readonly collections = input<CollectionView[]>([]);

@@ -121,6 +121,7 @@ import {
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
+import { ShareItemDesktopComponent } from "../vault/share-item";
 
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
 import { BulkDeleteDialogDesktopAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-desktop.adapter";
@@ -688,6 +689,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         await this.editCipher(fullCipher);
         break;
       }
+      case "shareViaLink": {
+        const cipher = await this.cipherService.getFullCipherView(event.item);
+        await this.shareViaLink(cipher);
+        break;
+      }
     }
   }
 
@@ -714,6 +720,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   async shouldReprompt(cipher: CipherView): Promise<boolean> {
     return !(await this.passwordReprompt(cipher));
+  }
+
+  async shareViaLink(cipher: CipherView) {
+    if (await this.shouldReprompt(cipher)) {
+      return;
+    }
+    await firstValueFrom(ShareItemDesktopComponent.open(this.dialogService, cipher).closed);
   }
 
   async editCipher(cipher: CipherView) {

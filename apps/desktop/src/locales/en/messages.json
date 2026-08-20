@@ -6397,6 +6397,10 @@
   "duplicateAttachmentNameError": {
     "message": "Items cannot have multiple attachments with the same file name"
   },
+  "shareViaLink": {
+    "message": "Share via link",
+    "description": "Menu option to share a vault item via a shareable link"
+  },
   "labelWithNotification": {
     "message": "$LABEL$: New notification",
     "description": "Label for the notification with a new login suggestion.",
