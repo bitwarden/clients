@@ -93,7 +93,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   private readonly organizationApiService = inject(OrganizationApiServiceAbstraction);
   private readonly organizationBillingClient = inject(OrganizationBillingClient);
 
-  private readonly organizationId: string = this.route.snapshot.params.organizationId;
+  readonly organizationId: string = this.route.snapshot.params.organizationId;
 
   // The card is the only resource() (reloaded after a mutation); the organization and its legacy
   // OrganizationSubscriptionResponse-derived reads are toSignal streams, per the breakdown.
