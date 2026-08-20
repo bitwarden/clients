@@ -25,12 +25,24 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(value[0], "--");
 
+      // Enpass appends a note as an unpaired trailing column, making the row length even
+      const hasTrailingNote = value.length % 2 === 0;
+      if (hasTrailingNote) {
+        cipher.notes = this.getValueOrDefault(value[value.length - 1]);
+      }
+
+      // Field labels live at odd indices below pairsEnd; excludes the title and the trailing note
+      const pairsEnd = hasTrailingNote ? value.length - 1 : value.length;
+      const labels = value.filter((_: string, i: number) => i % 2 === 1 && i < pairsEnd);
+
       if (
         value.length === 2 ||
-        (!this.containsField(value, "username") &&
-          !this.containsField(value, "password") &&
-          !this.containsField(value, "email") &&
-          !this.containsField(value, "url"))
+        (!this.containsField(labels, "username") &&
+          !this.containsField(labels, "password") &&
+          !this.containsField(labels, "email") &&
+          !this.containsField(labels, "e-mail") &&
+          !this.containsField(labels, "url") &&
+          !this.containsField(labels, "website"))
       ) {
         cipher.type = CipherType.SecureNote;
         cipher.secureNote = new SecureNoteView();
@@ -38,23 +50,23 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
       }
 
       if (
-        this.containsField(value, "cardholder") &&
-        this.containsField(value, "number") &&
-        this.containsField(value, "expiry date")
+        this.containsField(labels, "cardholder") &&
+        this.containsField(labels, "number") &&
+        this.containsField(labels, "expiry date")
       ) {
         cipher.type = CipherType.Card;
         cipher.card = new CardView();
       }
 
-      if (value.length > 2) {
-        for (let i = 0; i < value.length - 1; i += 2) {
+      if (pairsEnd > 2) {
+        for (let i = 0; i < pairsEnd - 1; i += 2) {
           const fieldValue: string = value[i + 2];
           if (this.isNullOrWhitespace(fieldValue)) {
             continue;
           }
 
           const fieldName: string = value[i + 1];
-          const fieldNameLower = fieldName.replace(/^\*/, "").trim().toLowerCase();
+          const fieldNameLower = this.normalizeFieldName(fieldName);
 
           if (cipher.type === CipherType.Login) {
             if (
@@ -125,9 +137,13 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
     if (fields == null || name == null) {
       return false;
     }
-    return (
-      fields.filter((f) => !this.isNullOrWhitespace(f) && f.toLowerCase() === name.toLowerCase())
-        .length > 0
+    return fields.some(
+      (f) => !this.isNullOrWhitespace(f) && this.normalizeFieldName(f) === name.toLowerCase(),
     );
+  }
+
+  // Enpass prefixes sensitive field labels (e.g. Password, Security answer) with '*'
+  private normalizeFieldName(name: string): string {
+    return this.isNullOrWhitespace(name) ? "" : name.replace(/^\*/, "").trim().toLowerCase();
   }
 }

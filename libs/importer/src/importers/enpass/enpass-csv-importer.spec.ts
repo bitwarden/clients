@@ -1,8 +1,13 @@
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
+import { data as cardData } from "../spec-data/enpass-csv/enpass.card.csv";
+import { data as loginNoUsernameData } from "../spec-data/enpass-csv/enpass.login-no-username.csv";
 import { data as loginQuotedData } from "../spec-data/enpass-csv/enpass.login-quoted.csv";
+import { data as loginStarredOnlyData } from "../spec-data/enpass-csv/enpass.login-starred-only.csv";
+import { data as loginTrailingNoteData } from "../spec-data/enpass-csv/enpass.login-trailing-note.csv";
 import { data as loginData } from "../spec-data/enpass-csv/enpass.login.csv";
+import { data as secureNoteData } from "../spec-data/enpass-csv/enpass.secure-note.csv";
 
 import { EnpassCsvImporter } from "./enpass-csv-importer";
 
@@ -79,5 +84,73 @@ describe("Enpass CSV Importer", () => {
     expect(wikipedia.login.uris[0].uri).toEqual(
       "https://en.wikipedia.org/w/index.php?title=Special:UserLogin&returnto=Main+Page",
     );
+  });
+
+  it("should parse a note-only row (title + bare note, no field pairs)", async () => {
+    const result = await importer.parse(secureNoteData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toEqual(1);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.SecureNote);
+    expect(cipher.name).toEqual("MyNote");
+    expect(cipher.notes).toEqual("Some note text");
+  });
+
+  it("should parse a login row with a trailing unpaired note column", async () => {
+    const result = await importer.parse(loginTrailingNoteData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toEqual(1);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.name).toEqual("SomeSite");
+    expect(cipher.login.username).toEqual("someuser");
+    expect(cipher.login.password).toEqual("somepass");
+    expect(cipher.notes).toEqual("Some trailing note text");
+  });
+
+  it("should classify a row as Login when it has *Password/Website but no literal Username", async () => {
+    const result = await importer.parse(loginNoUsernameData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toEqual(1);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.name).toEqual("Router");
+    expect(cipher.login.password).toEqual("secret");
+    expect(cipher.login.uris[0].uri).toEqual("https://router.local");
+  });
+
+  it("should classify a row as Login from a *Password label alone, with no Username/Website", async () => {
+    const result = await importer.parse(loginStarredOnlyData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toEqual(1);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.Login);
+    expect(cipher.name).toEqual("Router");
+    expect(cipher.login.password).toEqual("secret");
+  });
+
+  it("should parse card items, including starred field labels", async () => {
+    const result = await importer.parse(cardData);
+
+    expect(result.success).toBe(true);
+    expect(result.ciphers.length).toEqual(1);
+
+    const cipher = result.ciphers[0];
+    expect(cipher.type).toEqual(CipherType.Card);
+    expect(cipher.name).toEqual("Visa");
+    expect(cipher.card.cardholderName).toEqual("John Doe");
+    expect(cipher.card.number).toEqual("4111111111111111");
+    expect(cipher.card.brand).toEqual("Visa");
+    expect(cipher.card.code).toEqual("123");
+    expect(cipher.card.expMonth).toEqual("1");
+    expect(cipher.card.expYear).toEqual("2030");
   });
 });
