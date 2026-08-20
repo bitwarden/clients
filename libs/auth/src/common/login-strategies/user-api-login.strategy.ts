@@ -5,9 +5,11 @@ import { Jsonify } from "type-fest";
 
 import { UserApiTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
@@ -30,6 +32,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
   constructor(
     data: UserApiLoginStrategyData,
     private keyConnectorService: KeyConnectorService,
+    private unlockService: UnlockService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -52,17 +55,30 @@ export class UserApiLoginStrategy extends LoginStrategy {
   }
 
   protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    if (response.apiUseKeyConnector) {
+    const sdkHandledKeyConnector =
+      response.canUnlockWithKeyConnector() &&
+      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
+
+    if (!sdkHandledKeyConnector && response.apiUseKeyConnector) {
       const env = await firstValueFrom(this.environmentService.environment$);
       const keyConnectorUrl = env.getKeyConnectorUrl();
       await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
     }
   }
 
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
+    const sdkHandledKeyConnector =
+      response.canUnlockWithKeyConnector() &&
+      (await this.configService.getFeatureFlag(FeatureFlag.UnlockKeyConnectorWithSdk));
+
+    if (sdkHandledKeyConnector) {
+      await this.unlockService.unlockWithKeyConnector(
+        userId,
+        response.intoKeyConnectorUnlockData(),
+      );
+      return;
+    }
+
     if (response.key) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
     }
@@ -74,19 +90,9 @@ export class UserApiLoginStrategy extends LoginStrategy {
           masterKey,
           userId,
         );
-        await this.keyService.setUserKey(userKey, userId);
+        await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
       }
     }
-  }
-
-  protected override async setPrivateKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.keyService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
-      userId,
-    );
   }
 
   // Overridden to save client ID and secret to token service

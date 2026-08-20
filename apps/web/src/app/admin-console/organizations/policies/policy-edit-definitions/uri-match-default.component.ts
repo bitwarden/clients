@@ -2,34 +2,44 @@ import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { PolicyRequest } from "@bitwarden/common/admin-console/models/request/policy.request";
+import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
 import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrgKey } from "@bitwarden/common/types/key";
+import { SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
 
 export class UriMatchDefaultPolicy extends BasePolicyEditDefinition {
   name = "uriMatchDetectionPolicy";
-  description = "uriMatchDetectionPolicyDesc";
+  description = "uriMatchDetectionPolicyDescV2";
   type = PolicyType.UriMatchDefaults;
+  category = PolicyCategory.VaultManagement;
+  priority = 20;
   component = UriMatchDefaultPolicyComponent;
+  prerequisiteKey = "requireSsoPolicyReqV2";
 }
 @Component({
   selector: "uri-match-default-policy-edit",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "uri-match-default.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, SwitchComponent],
 })
 export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
-  uriMatchOptions: { label: string; value: UriMatchStrategySetting | null; disabled?: boolean }[];
+  readonly uriMatchOptions: {
+    label: string;
+    value: UriMatchStrategySetting | null;
+    disabled?: boolean;
+  }[];
 
   constructor(
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
+    private readonly formBuilder: FormBuilder,
+    private readonly i18nService: I18nService,
   ) {
     super();
 
@@ -49,7 +59,7 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
   }
 
   protected loadData() {
-    const uriMatchDetection = this.policyResponse?.data?.uriMatchDetection;
+    const uriMatchDetection = this.policyResponse()?.data?.uriMatchDetection;
 
     this.data?.patchValue({
       uriMatchDetection: uriMatchDetection,
@@ -62,9 +72,9 @@ export class UriMatchDefaultPolicyComponent extends BasePolicyEditComponent {
     };
   }
 
-  async buildRequest(): Promise<PolicyRequest> {
-    const request = await super.buildRequest();
-    if (request.data?.uriMatchDetection == null) {
+  override async buildRequest(orgKey?: OrgKey): Promise<SavePolicyRequest> {
+    const request = await super.buildRequest(orgKey);
+    if (request.policy.data?.uriMatchDetection == null) {
       throw new Error(this.i18nService.t("invalidUriMatchDefaultPolicySetting"));
     }
 

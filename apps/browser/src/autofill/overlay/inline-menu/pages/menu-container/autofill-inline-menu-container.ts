@@ -56,12 +56,13 @@ export class AutofillInlineMenuContainer {
     pointerEvents: "auto",
     margin: "0",
     padding: "0",
-    colorScheme: "normal",
+    colorScheme: "auto",
   };
   private readonly defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
     sandbox: "allow-scripts",
+    credentialless: "",
     allowtransparency: "true",
     tabIndex: "-1",
   };
@@ -129,7 +130,12 @@ export class AutofillInlineMenuContainer {
     }
     try {
       const urlObj = new URL(url);
-      const isExtensionProtocol = /^[a-z]+(-[a-z]+)?-extension:$/i.test(urlObj.protocol);
+      const extensionProtocols = new Set([
+        "chrome-extension:",
+        "moz-extension:",
+        "safari-web-extension:",
+      ]);
+      const isExtensionProtocol = extensionProtocols.has(urlObj.protocol);
 
       if (!isExtensionProtocol) {
         return false;

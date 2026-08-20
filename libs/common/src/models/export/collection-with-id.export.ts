@@ -1,9 +1,10 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { Collection as CollectionDomain, CollectionView } from "@bitwarden/admin-console/common";
-import { CollectionId } from "@bitwarden/common/types/guid";
+import {
+  CollectionView,
+  Collection as CollectionDomain,
+} from "../../admin-console/models/collections";
+import { CollectionId } from "../../types/guid";
 
 import { CollectionExport } from "./collection.export";
 

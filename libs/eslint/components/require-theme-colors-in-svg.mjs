@@ -25,7 +25,7 @@ export default {
           tagNames: {
             type: "array",
             items: { type: "string" },
-            default: ["svgIcon"],
+            default: ["svg"],
           },
         },
         additionalProperties: false,
@@ -35,7 +35,7 @@ export default {
 
   create(context) {
     const options = context.options[0] || {};
-    const tagNames = options.tagNames || ["svgIcon"];
+    const tagNames = options.tagNames || ["svg"];
 
     function isSvgTaggedTemplate(node) {
       return (

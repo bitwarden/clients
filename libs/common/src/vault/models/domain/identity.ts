@@ -1,10 +1,10 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Identity as SdkIdentity } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { IdentityData } from "../data/identity.data";
 import { IdentityView } from "../view/identity.view";
@@ -56,9 +56,8 @@ export class Identity extends Domain {
   }
 
   decrypt(
-    orgId: string | undefined,
+    encKey: SymmetricCryptoKey,
     context: string = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<IdentityView> {
     return this.decryptObj<Identity, IdentityView>(
       this,
@@ -83,7 +82,6 @@ export class Identity extends Domain {
         "passportNumber",
         "licenseNumber",
       ],
-      orgId ?? null,
       encKey,
       "DomainType: Identity; " + context,
     );

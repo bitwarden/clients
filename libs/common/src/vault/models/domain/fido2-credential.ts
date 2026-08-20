@@ -1,10 +1,10 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Fido2Credential as SdkFido2Credential } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
@@ -46,10 +46,7 @@ export class Fido2Credential extends Domain {
     this.creationDate = new Date(obj.creationDate);
   }
 
-  async decrypt(
-    orgId: string | undefined,
-    encKey?: SymmetricCryptoKey,
-  ): Promise<Fido2CredentialView> {
+  async decrypt(decryptionKey: SymmetricCryptoKey): Promise<Fido2CredentialView> {
     const view = await this.decryptObj<Fido2Credential, Fido2CredentialView>(
       this,
       new Fido2CredentialView(),
@@ -65,8 +62,7 @@ export class Fido2Credential extends Domain {
         "rpName",
         "userDisplayName",
       ],
-      orgId ?? null,
-      encKey,
+      decryptionKey,
     );
 
     const { counter } = await this.decryptObj<
@@ -74,7 +70,7 @@ export class Fido2Credential extends Domain {
       {
         counter: string;
       }
-    >(this, { counter: "" }, ["counter"], orgId ?? null, encKey);
+    >(this, { counter: "" }, ["counter"], decryptionKey);
     // Counter will end up as NaN if this fails
     view.counter = parseInt(counter);
 
@@ -82,8 +78,7 @@ export class Fido2Credential extends Domain {
       this,
       { discoverable: "" },
       ["discoverable"],
-      orgId ?? null,
-      encKey,
+      decryptionKey,
     );
     view.discoverable = discoverable === "true";
     view.creationDate = this.creationDate;

@@ -1,21 +1,23 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
+import { SendAccessToken } from "../../../auth/send-access";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ListResponse } from "../../../models/response/list.response";
 import {
   FileUploadApiMethods,
   FileUploadService,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SendType } from "../enums/send-type";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
-import { SendAccessRequest } from "../models/request/send-access.request";
 import { SendRequest } from "../models/request/send.request";
 import { SendAccessResponse } from "../models/response/send-access.response";
 import { SendFileDownloadDataResponse } from "../models/response/send-file-download-data.response";
 import { SendFileUploadDataResponse } from "../models/response/send-file-upload-data.response";
 import { SendResponse } from "../models/response/send.response";
 import { SendAccessView } from "../models/view/send-access.view";
+import { SendType } from "../types/send-type";
 
 import { SendApiService as SendApiServiceAbstraction } from "./send-api.service.abstraction";
 import { InternalSendService } from "./send.service.abstraction";
@@ -32,42 +34,38 @@ export class SendApiService implements SendApiServiceAbstraction {
     return new SendResponse(r);
   }
 
-  async postSendAccess(
-    id: string,
-    request: SendAccessRequest,
-    apiUrl?: string,
-  ): Promise<SendAccessResponse> {
-    const addSendIdHeader = (headers: Headers) => {
-      headers.set("Send-Id", id);
+  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
+    const setAuthTokenHeader = (headers: Headers) => {
+      headers.set("Authorization", "Bearer " + accessToken.token);
     };
     const r = await this.apiService.send(
       "POST",
-      "/sends/access/" + id,
-      request,
+      "/sends/access",
+      null,
       false,
       true,
       apiUrl,
-      addSendIdHeader,
+      setAuthTokenHeader,
     );
     return new SendAccessResponse(r);
   }
 
   async getSendFileDownloadData(
     send: SendAccessView,
-    request: SendAccessRequest,
+    accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
-    const addSendIdHeader = (headers: Headers) => {
-      headers.set("Send-Id", send.id);
+    const setAuthTokenHeader = (headers: Headers) => {
+      headers.set("Authorization", "Bearer " + accessToken.token);
     };
     const r = await this.apiService.send(
       "POST",
-      "/sends/" + send.id + "/access/file/" + send.file.id,
-      request,
+      "/sends/access/file/" + send.file.id,
+      null,
       false,
       true,
       apiUrl,
-      addSendIdHeader,
+      setAuthTokenHeader,
     );
     return new SendFileDownloadDataResponse(r);
   }
@@ -75,39 +73,6 @@ export class SendApiService implements SendApiServiceAbstraction {
   async getSends(): Promise<ListResponse<SendResponse>> {
     const r = await this.apiService.send("GET", "/sends", null, true, true);
     return new ListResponse(r, SendResponse);
-  }
-
-  async postSend(request: SendRequest): Promise<SendResponse> {
-    const r = await this.apiService.send("POST", "/sends", request, true, true);
-    return new SendResponse(r);
-  }
-
-  async postFileTypeSend(request: SendRequest): Promise<SendFileUploadDataResponse> {
-    const r = await this.apiService.send("POST", "/sends/file/v2", request, true, true);
-    return new SendFileUploadDataResponse(r);
-  }
-
-  async renewSendFileUploadUrl(
-    sendId: string,
-    fileId: string,
-  ): Promise<SendFileUploadDataResponse> {
-    const r = await this.apiService.send(
-      "GET",
-      "/sends/" + sendId + "/file/" + fileId,
-      null,
-      true,
-      true,
-    );
-    return new SendFileUploadDataResponse(r);
-  }
-
-  postSendFile(sendId: string, fileId: string, data: FormData): Promise<any> {
-    return this.apiService.send("POST", "/sends/" + sendId + "/file/" + fileId, data, true, false);
-  }
-
-  async putSend(id: string, request: SendRequest): Promise<SendResponse> {
-    const r = await this.apiService.send("PUT", "/sends/" + id, request, true, true);
-    return new SendResponse(r);
   }
 
   async putSendRemovePassword(id: string): Promise<SendResponse> {
@@ -125,7 +90,11 @@ export class SendApiService implements SendApiServiceAbstraction {
     return this.apiService.send("DELETE", "/sends/" + id, null, true, false);
   }
 
-  async save(sendData: [Send, EncArrayBuffer]): Promise<Send> {
+  // `plaintextPassword` is part of the shared `SendApiService` contract for the SDK path, which
+  // derives the send password over the key it generates. The legacy path derives it in
+  // `SendService.encrypt` before `save` and carries the result on `Send.password`, so it ignores
+  // the plaintext here — behavior is unchanged.
+  async save(sendData: [Send, EncArrayBuffer], _plaintextPassword?: string): Promise<Send> {
     const response = await this.upload(sendData);
 
     const data = new SendData(response);
@@ -146,8 +115,42 @@ export class SendApiService implements SendApiServiceAbstraction {
 
   // Send File Upload methods
 
+  private async postSend(request: SendRequest): Promise<SendResponse> {
+    const r = await this.apiService.send("POST", "/sends", request, true, true);
+    return new SendResponse(r);
+  }
+
+  private async postFileTypeSend(request: SendRequest): Promise<SendFileUploadDataResponse> {
+    const r = await this.apiService.send("POST", "/sends/file/v2", request, true, true);
+    return new SendFileUploadDataResponse(r);
+  }
+
+  private async renewSendFileUploadUrl(
+    sendId: string,
+    fileId: string,
+  ): Promise<SendFileUploadDataResponse> {
+    const r = await this.apiService.send(
+      "GET",
+      "/sends/" + sendId + "/file/" + fileId,
+      null,
+      true,
+      true,
+    );
+    return new SendFileUploadDataResponse(r);
+  }
+
+  private postSendFile(sendId: string, fileId: string, data: FormData): Promise<any> {
+    return this.apiService.send("POST", "/sends/" + sendId + "/file/" + fileId, data, true, false);
+  }
+
+  private async putSend(id: string, request: SendRequest): Promise<SendResponse> {
+    const r = await this.apiService.send("PUT", "/sends/" + id, request, true, true);
+    return new SendResponse(r);
+  }
+
   private async upload(sendData: [Send, EncArrayBuffer]): Promise<SendResponse> {
     const request = new SendRequest(sendData[0], sendData[1]?.buffer.byteLength);
+
     let response: SendResponse;
     if (sendData[0].id == null) {
       if (sendData[0].type === SendType.Text) {

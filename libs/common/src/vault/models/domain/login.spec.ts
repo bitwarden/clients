@@ -1,7 +1,9 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
+
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
@@ -14,6 +16,10 @@ import { Fido2CredentialView } from "../view/fido2-credential.view";
 import { Fido2Credential } from "./fido2-credential";
 
 describe("Login DTO", () => {
+  beforeEach(() => {
+    mockContainerService();
+  });
+
   it("Convert from empty LoginData", () => {
     const data = new LoginData();
     const login = new Login(data);
@@ -107,7 +113,7 @@ describe("Login DTO", () => {
       loginUri.validateChecksum.mockResolvedValue(true);
       login.uris = [loginUri];
 
-      const loginView = await login.decrypt(null, true);
+      const loginView = await login.decrypt(true, null);
       expect(loginView).toEqual(expectedView);
     });
 
@@ -119,7 +125,7 @@ describe("Login DTO", () => {
         .mockResolvedValueOnce(true);
       login.uris = [loginUri, loginUri, loginUri];
 
-      const loginView = await login.decrypt(null, false);
+      const loginView = await login.decrypt(false, null);
       expect(loginView).toEqual(expectedView);
     });
   });

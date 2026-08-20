@@ -1,15 +1,15 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LoginUri as SdkLoginUri } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import {
   normalizeUriMatchStrategyForSdk,
   UriMatchStrategySetting,
 } from "../../../models/domain/domain-service";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { conditionalEncString, encStringFrom } from "../../utils/domain-utils";
 import { LoginUriData } from "../data/login-uri.data";
 import { LoginUriView } from "../view/login-uri.view";
@@ -31,29 +31,27 @@ export class LoginUri extends Domain {
   }
 
   decrypt(
-    orgId: string | undefined,
+    encKey: SymmetricCryptoKey,
     context: string = "No Cipher Context",
-    encKey?: SymmetricCryptoKey,
   ): Promise<LoginUriView> {
     return this.decryptObj<LoginUri, LoginUriView>(
       this,
       new LoginUriView(this),
       ["uri"],
-      orgId ?? null,
       encKey,
       context,
     );
   }
 
-  async validateChecksum(clearTextUri: string, orgId?: string, encKey?: SymmetricCryptoKey) {
+  async validateChecksum(clearTextUri: string, encKey: SymmetricCryptoKey) {
     if (this.uriChecksum == null) {
       return false;
     }
 
-    const keyService = Utils.getContainerService().getEncryptService();
-    const localChecksum = await keyService.hash(clearTextUri, "sha256");
+    const encryptService = Utils.getContainerService().getEncryptService();
+    const localChecksum = await encryptService.hash(clearTextUri, "sha256");
 
-    const remoteChecksum = await this.uriChecksum.decrypt(orgId ?? null, encKey);
+    const remoteChecksum = await encryptService.decryptString(this.uriChecksum, encKey);
     return remoteChecksum === localChecksum;
   }
 

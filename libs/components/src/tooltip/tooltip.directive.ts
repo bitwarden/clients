@@ -11,12 +11,15 @@ import {
   signal,
   model,
   computed,
+  effect,
+  OnDestroy,
 } from "@angular/core";
 
 import { TooltipPositionIdentifier, tooltipPositions } from "./tooltip-positions";
 import { TooltipComponent, TOOLTIP_DATA } from "./tooltip.component";
 
 export const TOOLTIP_DELAY_MS = 800;
+
 /**
  * Directive to add a tooltip to any element. The tooltip content is provided via the `bitTooltip` input.
  * The position of the tooltip can be set via the `tooltipPosition` input. Default position is "above-center".
@@ -26,12 +29,12 @@ export const TOOLTIP_DELAY_MS = 800;
   host: {
     "(mouseenter)": "showTooltip()",
     "(mouseleave)": "hideTooltip()",
-    "(focus)": "showTooltip()",
-    "(blur)": "hideTooltip()",
+    "(focusin)": "onFocusIn($event)",
+    "(focusout)": "onFocusOut()",
     "[attr.aria-describedby]": "resolvedDescribedByIds()",
   },
 })
-export class TooltipDirective implements OnInit {
+export class TooltipDirective implements OnInit, OnDestroy {
   private static nextId = 0;
   /**
    * The value of this input is forwarded to the tooltip.component to render
@@ -48,8 +51,16 @@ export class TooltipDirective implements OnInit {
    */
   readonly addTooltipToDescribedby = input<boolean>(false);
 
+  /**
+   * When `true`, any visible tooltip is torn down and `showTooltip()` becomes a no-op.
+   * Sibling directives on the same element (e.g. `MenuTriggerForDirective`) flip this
+   * so a tooltip can't compete with a popover that's owning the user's attention.
+   */
+  readonly suppressed = signal(false);
+
   private readonly isVisible = signal(false);
   private overlayRef: OverlayRef | undefined;
+  private showTimeoutId: ReturnType<typeof setTimeout> | undefined;
   private elementRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private overlay = inject(Overlay);
   private viewContainerRef = inject(ViewContainerRef);
@@ -61,6 +72,14 @@ export class TooltipDirective implements OnInit {
   private tooltipId = `bit-tooltip-${TooltipDirective.nextId++}`;
   private currentDescribedByIds =
     this.elementRef.nativeElement.getAttribute("aria-describedby") || null;
+
+  constructor() {
+    effect(() => {
+      if (this.suppressed()) {
+        this.destroyTooltip();
+      }
+    });
+  }
 
   private tooltipPortal = new ComponentPortal(
     TooltipComponent,
@@ -80,13 +99,33 @@ export class TooltipDirective implements OnInit {
     }),
   );
 
+  /**
+   * Clear any pending show timeout
+   *
+   * Use cases: prevent tooltip from appearing after hide; clear existing timeout before showing a
+   * new tooltip
+   */
+  private clearTimeout() {
+    if (this.showTimeoutId !== undefined) {
+      clearTimeout(this.showTimeoutId);
+      this.showTimeoutId = undefined;
+    }
+  }
+
   private destroyTooltip = () => {
+    this.clearTimeout();
     this.overlayRef?.dispose();
     this.overlayRef = undefined;
     this.isVisible.set(false);
   };
 
   protected showTooltip = () => {
+    if (this.suppressed()) {
+      return;
+    }
+
+    this.clearTimeout();
+
     if (!this.overlayRef) {
       this.overlayRef = this.overlay.create({
         ...this.defaultPopoverConfig,
@@ -96,14 +135,29 @@ export class TooltipDirective implements OnInit {
       this.overlayRef.attach(this.tooltipPortal);
     }
 
-    setTimeout(() => {
+    this.showTimeoutId = setTimeout(() => {
       this.isVisible.set(true);
+      this.showTimeoutId = undefined;
     }, TOOLTIP_DELAY_MS);
   };
 
   protected hideTooltip = () => {
     this.destroyTooltip();
   };
+
+  /**
+   * Show tooltip on focus-visible (keyboard navigation) but not on regular focus (mouse click).
+   */
+  protected onFocusIn(event: FocusEvent) {
+    const target = event.target as HTMLElement;
+    if (target.matches(":focus-visible")) {
+      this.showTooltip();
+    }
+  }
+
+  protected onFocusOut() {
+    this.hideTooltip();
+  }
 
   protected readonly resolvedDescribedByIds = computed(() => {
     if (this.addTooltipToDescribedby()) {
@@ -132,5 +186,9 @@ export class TooltipDirective implements OnInit {
 
   ngOnInit() {
     this.positionStrategy.withPositions(this.computePositions(this.tooltipPosition()));
+  }
+
+  ngOnDestroy(): void {
+    this.destroyTooltip();
   }
 }

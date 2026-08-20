@@ -37,6 +37,7 @@ export class Organization {
   useResetPassword: boolean;
   useSecretsManager: boolean;
   usePasswordManager: boolean;
+  usePam: boolean;
   useActivateAutofillPolicy: boolean;
   useAutomaticUserConfirmation: boolean;
   selfHost: boolean;
@@ -88,17 +89,20 @@ export class Organization {
    */
   allowAdminAccessToAllCollectionItems: boolean;
   /**
-   * Indicates if this organization manages the user.
-   * A user is considered managed by an organization if their email domain
+   * Indicates if this organization claims the user.
+   * A user is considered claimed by an organization if their email domain
    * matches one of the verified domains of that organization, and the user is a member of it.
    */
-  userIsManagedByOrganization: boolean;
+  userIsClaimedByOrganization: boolean;
   useAccessIntelligence: boolean;
   useAdminSponsoredFamilies: boolean;
+  useDisableSMAdsForUsers: boolean;
   isAdminInitiated: boolean;
   ssoEnabled: boolean;
   ssoMemberDecryptionType?: MemberDecryptionType;
   usePhishingBlocker: boolean;
+  useMyItems: boolean;
+  useInviteLinks: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -125,6 +129,7 @@ export class Organization {
     this.useResetPassword = obj.useResetPassword;
     this.useSecretsManager = obj.useSecretsManager;
     this.usePasswordManager = obj.usePasswordManager;
+    this.usePam = obj.usePam;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
     this.useAutomaticUserConfirmation = obj.useAutomaticUserConfirmation;
     this.selfHost = obj.selfHost;
@@ -157,13 +162,16 @@ export class Organization {
     this.limitCollectionDeletion = obj.limitCollectionDeletion;
     this.limitItemDeletion = obj.limitItemDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
-    this.userIsManagedByOrganization = obj.userIsManagedByOrganization;
+    this.userIsClaimedByOrganization = obj.userIsClaimedByOrganization;
     this.useAccessIntelligence = obj.useAccessIntelligence;
     this.useAdminSponsoredFamilies = obj.useAdminSponsoredFamilies;
+    this.useDisableSMAdsForUsers = obj.useDisableSMAdsForUsers ?? false;
     this.isAdminInitiated = obj.isAdminInitiated;
     this.ssoEnabled = obj.ssoEnabled;
     this.ssoMemberDecryptionType = obj.ssoMemberDecryptionType;
     this.usePhishingBlocker = obj.usePhishingBlocker;
+    this.useMyItems = obj.useMyItems;
+    this.useInviteLinks = obj.useInviteLinks;
   }
 
   get canAccess() {
@@ -304,6 +312,10 @@ export class Organization {
     return (this.isAdmin || this.permissions.managePolicies) && this.usePolicies;
   }
 
+  get canManageAccessRules() {
+    return this.isAdmin && this.usePam;
+  }
+
   get canManageUsers() {
     return this.isAdmin || this.permissions.manageUsers;
   }
@@ -381,6 +393,13 @@ export class Organization {
     return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
   }
 
+  /**
+   * Do not call this function to perform business logic, use the function in @link AutomaticUserConfirmationService instead.
+   **/
+  get canManageAutoConfirm() {
+    return this.isMember && this.canManageUsers && this.useAutomaticUserConfirmation;
+  }
+
   static fromJSON(json: Jsonify<Organization>) {
     if (json == null) {
       return null;
@@ -401,5 +420,9 @@ export class Organization {
         this.permissions.manageGroups ||
         this.permissions.accessEventLogs)
     );
+  }
+
+  get canUseAccessIntelligence() {
+    return this.useAccessIntelligence;
   }
 }

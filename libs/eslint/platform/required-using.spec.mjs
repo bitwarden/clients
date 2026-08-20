@@ -5,7 +5,6 @@ import rule, { errorMessage } from "./required-using.mjs";
 const ruleTester = new RuleTester({
   languageOptions: {
     parserOptions: {
-      project: [__dirname + "/../tsconfig.spec.json"],
       projectService: {
         allowDefaultProject: ["*.ts*"],
       },

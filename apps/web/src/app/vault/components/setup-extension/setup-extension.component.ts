@@ -1,4 +1,3 @@
-import { NgIf } from "@angular/common";
 import { Component, DestroyRef, inject, OnDestroy, OnInit, DOCUMENT } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
@@ -18,7 +17,7 @@ import {
   CenterPositionStrategy,
   DialogRef,
   DialogService,
-  IconModule,
+  SvgModule,
   LinkModule,
 } from "@bitwarden/components";
 
@@ -48,11 +47,10 @@ type SetupExtensionState = UnionOfValues<typeof SetupExtensionState>;
   selector: "vault-setup-extension",
   templateUrl: "./setup-extension.component.html",
   imports: [
-    NgIf,
     JslibModule,
     ButtonComponent,
     LinkModule,
-    IconModule,
+    SvgModule,
     RouterModule,
     AddExtensionVideosComponent,
     ManuallyOpenExtensionComponent,
@@ -109,7 +107,7 @@ export class SetupExtensionComponent implements OnInit, OnDestroy {
 
         // Extension was not installed and now it is, show success state
         if (previousState === false && currentState) {
-          this.dialogRef?.close();
+          void this.dialogRef?.close();
           void this.dismissExtensionPage();
           this.state = SetupExtensionState.Success;
         }

@@ -1,43 +1,71 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { ChangeDetectionStrategy, Component, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
+import { AsyncPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { map } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
-import {
-  getOrganizationById,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import {
+  CalloutComponent,
+  CheckboxModule,
+  FormControlModule,
+  FormFieldModule,
+  SelectModule,
+  SwitchComponent,
+  TypographyModule,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
+import { MultiStepPolicyEditDialogComponent } from "../policy-edit-dialogs";
 
 export class MasterPasswordPolicy extends BasePolicyEditDefinition {
   name = "masterPassPolicyTitle";
   description = "masterPassPolicyDesc";
   type = PolicyType.MasterPassword;
+  category = PolicyCategory.Authentication;
+  priority = 10;
   component = MasterPasswordPolicyComponent;
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
+  // MasterPasswordPolicyComponent renders its own description inline, so the dialog's
+  // description is hidden.
+  showDescription = false;
 }
 
 @Component({
   selector: "master-password-policy-edit",
   templateUrl: "master-password.component.html",
-  imports: [SharedModule],
+  imports: [
+    AsyncPipe,
+    CalloutComponent,
+    CheckboxModule,
+    FormControlModule,
+    FormFieldModule,
+    ReactiveFormsModule,
+    SelectModule,
+    SwitchComponent,
+    TypographyModule,
+    I18nPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MasterPasswordPolicyComponent extends BasePolicyEditComponent implements OnInit {
-  MinPasswordLength = Utils.minimumPasswordLength;
+export class MasterPasswordPolicyComponent extends BasePolicyEditComponent {
+  readonly MinPasswordLength = Utils.minimumPasswordLength;
+  readonly MaxPasswordLength = Utils.maximumPasswordLength;
 
-  data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
-    minComplexity: [null],
-    minLength: [this.MinPasswordLength, [Validators.min(Utils.minimumPasswordLength)]],
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly i18nService = inject(I18nService);
+
+  readonly data: FormGroup<ControlsOf<MasterPasswordPolicyOptions>> = this.formBuilder.group({
+    minComplexity: [0],
+    minLength: [
+      this.MinPasswordLength,
+      [Validators.min(Utils.minimumPasswordLength), Validators.max(this.MaxPasswordLength)],
+    ],
     requireUpper: [false],
     requireLower: [false],
     requireNumbers: [false],
@@ -45,35 +73,16 @@ export class MasterPasswordPolicyComponent extends BasePolicyEditComponent imple
     enforceOnLogin: [false],
   });
 
-  passwordScores: { name: string; value: number }[];
-  showKeyConnectorInfo = false;
+  readonly showKeyConnectorInfo$ = this.organization$.pipe(
+    map((org) => org?.keyConnectorEnabled ?? false),
+  );
 
-  constructor(
-    private formBuilder: FormBuilder,
-    i18nService: I18nService,
-    private organizationService: OrganizationService,
-    private accountService: AccountService,
-  ) {
-    super();
-
-    this.passwordScores = [
-      { name: "-- " + i18nService.t("select") + " --", value: null },
-      { name: i18nService.t("weak") + " (0)", value: 0 },
-      { name: i18nService.t("weak") + " (1)", value: 1 },
-      { name: i18nService.t("weak") + " (2)", value: 2 },
-      { name: i18nService.t("good") + " (3)", value: 3 },
-      { name: i18nService.t("strong") + " (4)", value: 4 },
-    ];
-  }
-
-  async ngOnInit() {
-    super.ngOnInit();
-    const userId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const organization = await firstValueFrom(
-      this.organizationService
-        .organizations$(userId)
-        .pipe(getOrganizationById(this.policyResponse.organizationId)),
-    );
-    this.showKeyConnectorInfo = organization.keyConnectorEnabled;
-  }
+  readonly passwordScores: { name: string; value: number | null }[] = [
+    { name: "-- " + this.i18nService.t("select") + " --", value: null },
+    { name: this.i18nService.t("weak") + " (0)", value: 0 },
+    { name: this.i18nService.t("weak") + " (1)", value: 1 },
+    { name: this.i18nService.t("weak") + " (2)", value: 2 },
+    { name: this.i18nService.t("good") + " (3)", value: 3 },
+    { name: this.i18nService.t("strong") + " (4)", value: 4 },
+  ];
 }

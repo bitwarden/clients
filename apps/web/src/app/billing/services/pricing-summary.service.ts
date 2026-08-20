@@ -31,9 +31,10 @@ export class PricingSummaryService {
 
     const additionalServiceAccount = this.getAdditionalServiceAccount(plan, sub);
 
+    const storageGb = Math.max(0, (sub?.maxStorageGb ?? 0) - plan.PasswordManager.baseStorageGb);
+
     const additionalStorageTotal = plan.PasswordManager?.hasAdditionalStorageOption
-      ? plan.PasswordManager.additionalStoragePricePerGb *
-        (sub?.maxStorageGb ? sub.maxStorageGb - 1 : 0)
+      ? plan.PasswordManager.additionalStoragePricePerGb * storageGb
       : 0;
 
     const additionalStoragePriceMonthly = plan.PasswordManager?.additionalStoragePricePerGb || 0;
@@ -66,7 +67,6 @@ export class PricingSummaryService {
       : (sub?.customerDiscount?.percentOff ?? 0);
     const discountPercentage = 20;
     const acceptingSponsorship = false;
-    const storageGb = sub?.maxStorageGb ? sub?.maxStorageGb - 1 : 0;
 
     const total = organization?.useSecretsManager
       ? passwordManagerSubtotal + secretsManagerSubtotal + estimatedTax
@@ -104,7 +104,7 @@ export class PricingSummaryService {
       return 0;
     }
     const baseServiceAccount = plan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = sub?.smServiceAccounts || 0;
+    const usedServiceAccounts = (sub?.smServiceAccounts || 0) - (sub?.smServiceAccountsGrace || 0);
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
     return additionalServiceAccounts <= 0 ? Math.abs(additionalServiceAccounts) : 0;
   }

@@ -40,7 +40,7 @@ export class SecretRestoreDialogComponent {
       this.data.secretIds.length === 1
         ? "secretRestoredSuccessToast"
         : "secretsRestoredSuccessToast";
-    this.dialogRef.close(this.data.secretIds);
+    await this.dialogRef.close(this.data.secretIds);
     this.toastService.showToast({
       variant: "success",
       title: null,

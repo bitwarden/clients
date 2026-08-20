@@ -10,12 +10,14 @@ export const featuredImportOptions = [
   { id: "dashlanecsv", name: "Dashlane (csv)" },
   { id: "firefoxcsv", name: "Firefox (csv)" },
   { id: "keepass2xml", name: "KeePass 2 (xml)" },
+  { id: "keeper", name: "Keeper" },
   { id: "lastpasscsv", name: "LastPass" },
   { id: "safaricsv", name: "Safari and macOS (csv)" },
   { id: "1password1pux", name: "1Password (1pux/json)" },
 ] as const;
 
 export const regularImportOptions = [
+  { id: "keepasskdbx", name: "KeePass (kdbx)" },
   { id: "keepassxcsv", name: "KeePassX (csv)" },
   { id: "1password1pif", name: "1Password (1pif)" },
   { id: "1passwordwincsv", name: "1Password 6 and 7 Windows (csv)" },
@@ -23,8 +25,7 @@ export const regularImportOptions = [
   { id: "dashlanejson", name: "Dashlane (json)" },
   { id: "roboformcsv", name: "RoboForm (csv)" },
   { id: "keepercsv", name: "Keeper (csv)" },
-  // Temporarily remove this option for the Feb release
-  // { id: "keeperjson", name: "Keeper (json)" },
+  { id: "keeperjson", name: "Keeper (json)" },
   { id: "enpasscsv", name: "Enpass (csv)" },
   { id: "enpassjson", name: "Enpass (json)" },
   { id: "protonpass", name: "ProtonPass (zip/json)" },
@@ -46,6 +47,7 @@ export const regularImportOptions = [
   { id: "ascendocsv", name: "Ascendo DataVault (csv)" },
   { id: "meldiumcsv", name: "Meldium (csv)" },
   { id: "passkeepcsv", name: "PassKeep (csv)" },
+  { id: "arccsv", name: "Arc" },
   { id: "edgecsv", name: "Edge" },
   { id: "operacsv", name: "Opera" },
   { id: "vivaldicsv", name: "Vivaldi" },
@@ -75,8 +77,9 @@ export const regularImportOptions = [
   { id: "passwordxpcsv", name: "Password XP (csv)" },
   { id: "netwrixpasswordsecure", name: "Netwrix Password Secure (csv)" },
   { id: "passworddepot17xml", name: "Password Depot 17 (xml)" },
+  { id: "delineaxml", name: "Delinea (xml)" },
+  { id: "delineacsv", name: "Delinea (csv)" },
 ] as const;
 
 export type ImportType =
-  | (typeof featuredImportOptions)[number]["id"]
-  | (typeof regularImportOptions)[number]["id"];
+  (typeof featuredImportOptions)[number]["id"] | (typeof regularImportOptions)[number]["id"];

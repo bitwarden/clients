@@ -5,6 +5,11 @@ export const AuthWebRouteSegment = Object.freeze({
   EmergencyAccess: "emergency-access",
 
   // settings/security routes
+  /**
+   * IMPORTANT: This `AuthWebRouteSegment.Password` route path must NOT contain the substring "change-password". The `authGuard`
+   * uses a substring check (`url.includes("change-password")`) to exempt the forced `/change-password` route from redirection — a route
+   * containing that substring would be incorrectly exempted. See PM-34258 for further explanation/future cleanup.
+   */
   Password: "password",
   TwoFactor: "two-factor",
   SecurityKeys: "security-keys",
@@ -20,7 +25,7 @@ export const AuthWebRoute = Object.freeze({
   AcceptEmergencyAccessInvite: "accept-emergency",
   RecoverDeleteAccount: "recover-delete",
   VerifyRecoverDeleteAccount: "verify-recover-delete",
-  AcceptOrganizationInvite: "accept-organization",
+  AcceptOrgDirectInvite: "accept-organization",
 
   // Composed routes from segments (allowing for router.navigate / routerLink usage)
   AccountSettings: `settings/${AuthWebRouteSegment.Account}`,

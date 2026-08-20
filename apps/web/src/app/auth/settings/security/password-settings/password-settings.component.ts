@@ -30,6 +30,7 @@ export class PasswordSettingsComponent implements OnInit {
   ) {}
 
   async ngOnInit() {
+    // TODO: eventually this redirection logic should be replaced w/ usage of the hasPasswordGuard
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const userHasMasterPassword = await firstValueFrom(
       this.userDecryptionOptionsService.hasMasterPasswordById$(userId),

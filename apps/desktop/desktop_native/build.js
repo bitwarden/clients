@@ -11,56 +11,119 @@ const rustTargetsMap = {
     "aarch64-pc-windows-msvc":    { nodeArch: 'arm64', platform: 'win32'  },
     "x86_64-apple-darwin":        { nodeArch: 'x64',   platform: 'darwin' },
     "aarch64-apple-darwin":       { nodeArch: 'arm64', platform: 'darwin' },
-    'x86_64-unknown-linux-musl':  { nodeArch: 'x64',   platform: 'linux'  },
-    'aarch64-unknown-linux-musl': { nodeArch: 'arm64', platform: 'linux'  },
+    'x86_64-unknown-linux-gnu':   { nodeArch: 'x64',   platform: 'linux'  },
+    'aarch64-unknown-linux-gnu':  { nodeArch: 'arm64', platform: 'linux'  },
 }
 
 // Ensure the dist directory exists
 fs.mkdirSync(path.join(__dirname, "dist"), { recursive: true });
 
+/**
+ * Read a tool version pinned in [workspace.metadata.bin] so nothing here carries a
+ * second copy of it. Kept as a local regex rather than importing scripts/*.mjs
+ * because this file is CommonJS.
+ * @param {string} tool Name of the tool as it appears in [workspace.metadata.bin].
+ */
+function pinnedBinVersion(tool) {
+    const cargoToml = fs.readFileSync(path.join(__dirname, "Cargo.toml"), "utf8");
+    const match = new RegExp(`^${tool}\\s*=\\s*\\{\\s*version\\s*=\\s*"=?([^"]+)"`, "m").exec(cargoToml);
+    if (!match) {
+        throw new Error(`Could not find '${tool}' in [workspace.metadata.bin] of desktop_native/Cargo.toml`);
+    }
+    return match[1];
+}
+
 const args = process.argv.slice(2); // Get arguments passed to the script
 const mode = args.includes("--release") ? "release" : "debug";
+const isRelease = mode === "release";
 const targetArg = args.find(arg => arg.startsWith("--target="));
 const target = targetArg ? targetArg.split("=")[1] : null;
 
 let crossPlatform = process.argv.length > 2 && process.argv[2] === "cross-platform";
 
+/**
+ * Execute a command.
+ * @param {string} bin Executable to run.
+ * @param {string[]} args Arguments for executable.
+ * @param {string} [workingDirectory] Path to working directory, relative to the script directory. Defaults to the script directory.
+ * @param {string} [useShell] Whether to use a shell to execute the command. Defaults to false.
+ */
+function runCommand(bin, args, workingDirectory = "", useShell = false) {
+    const options = { stdio: 'inherit', cwd: path.resolve(__dirname, workingDirectory), shell: useShell }
+    console.debug("Running command:", bin, args, options)
+    child_process.execFileSync(bin, args, options)
+}
+
 function buildNapiModule(target, release = true) {
-    const targetArg = target ? `--target ${target}` : "";
+    const targetArg = target ? `--target=${target}` : "";
     const releaseArg = release ? "--release" : "";
-    child_process.execSync(`npm run build -- ${releaseArg} ${targetArg}`, { stdio: 'inherit', cwd: path.join(__dirname, "napi") });
+    const crossCompileArg = effectivePlatform(target) !== process.platform ? "--cross-compile" : "";
+    runCommand("npm", ["run", "build", "--", crossCompileArg, releaseArg, targetArg].filter(s => s != ''), "./napi", true);
+}
+
+/**
+ * Build a Rust binary with Cargo.
+ *
+ * If {@link target} is specified, cross-compilation helpers are used to build if necessary, and the resulting
+ * binary is copied to the `dist` folder.
+ * @param {string} bin Name of cargo binary package in `desktop_native` workspace.
+ * @param {string?} target Rust compiler target, e.g. `aarch64-pc-windows-msvc`.
+ * @param {boolean} release Whether to build in release mode.
+ */
+function cargoBuild(bin, target, release) {
+    const targetArg = target ? `--target=${target}` : "";
+    const releaseArg = release ? "--release" : "";
+    const args = ["build", "--bin", bin, releaseArg, targetArg]
+    // Use cross-compilation helper if necessary. Dispatch through cargo rather than
+    // `cargo bin cargo-xwin`: installTarget() has already installed the version
+    // pinned in [workspace.metadata.bin] globally, because buildNapiModule() needs
+    // cargo-xwin on PATH anyway (see the comment there). Reusing it avoids a second
+    // build of the same pinned version, and `cargo install --version --locked` is
+    // source-only, which `cargo bin` is not when cargo-binstall is on PATH.
+    //
+    // NOTE: this relies on installTarget() running first, which every path that can
+    // reach a Windows target does (both the `--target=` and `cross-platform` flows).
+    if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+        args.unshift("xwin")
+    }
+    runCommand("cargo", args.filter(s => s != ''))
+
+    // Infer the architecture and platform if not passed explicitly
+    let nodeArch, platform;
+    if (target) {
+        nodeArch = rustTargetsMap[target].nodeArch;
+        platform = rustTargetsMap[target].platform;
+    }
+    else {
+        nodeArch = process.arch;
+        platform = process.platform;
+    }
+
+    // Copy the resulting binary to the dist folder
+    const profileFolder = isRelease ? "release" : "debug";
+    const ext = platform === "win32" ? ".exe" : "";
+    const src = path.join(__dirname, "target", target ? target : "", profileFolder, `${bin}${ext}`)
+    const dst = path.join(__dirname, "dist", `${bin}.${platform}-${nodeArch}${ext}`)
+    console.log(`Copying ${src} to ${dst}`);
+    fs.copyFileSync(src, dst);
 }
 
 function buildProxyBin(target, release = true) {
-    const targetArg = target ? `--target ${target}` : "";
-    const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo build --bin desktop_proxy ${releaseArg} ${targetArg}`, {stdio: 'inherit', cwd: path.join(__dirname, "proxy")});
+    cargoBuild("desktop_proxy", target, release)
+}
 
-    if (target) {
-        // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
-        const ext = process.platform === "win32" ? ".exe" : "";
-        const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `desktop_proxy${ext}`), path.join(__dirname, "dist", `desktop_proxy.${process.platform}-${nodeArch}${ext}`));
+function buildWindowsPluginBin(target, release = true) {
+    // This is for windows, but we use effectivePlatform so we can
+    // cross-compile to Windows from other hosts.
+    if (effectivePlatform(target) == "win32") {
+        cargoBuild("windows_plugin_authenticator", target, release)
     }
 }
 
 function buildImporterBinaries(target, release = true) {
     // These binaries are only built for Windows, so we can skip them on other platforms
-    if (process.platform !== "win32") {
-        return;
-    }
-
-    const bin = "bitwarden_chromium_import_helper";
-    const targetArg = target ? `--target ${target}` : "";
-    const releaseArg = release ? "--release" : "";
-    child_process.execSync(`cargo build --bin ${bin} ${releaseArg} ${targetArg}`);
-
-    if (target) {
-        // Copy the resulting binary to the dist folder
-        const targetFolder = release ? "release" : "debug";
-        const nodeArch = rustTargetsMap[target].nodeArch;
-        fs.copyFileSync(path.join(__dirname, "target", target, targetFolder, `${bin}.exe`), path.join(__dirname, "dist", `${bin}.${process.platform}-${nodeArch}.exe`));
+    if (effectivePlatform(target) == "win32") {
+        cargoBuild("bitwarden_chromium_import_helper", target, release)
     }
 }
 
@@ -69,23 +132,50 @@ function buildProcessIsolation() {
         return;
     }
 
-    child_process.execSync(`cargo build --release`, {
-        stdio: 'inherit',
-        cwd: path.join(__dirname, "process_isolation")
-    });
+    runCommand("cargo", ["build", "--package", "process_isolation", "--release"]);
 
     console.log("Copying process isolation library to dist folder");
     fs.copyFileSync(path.join(__dirname, "target", "release", "libprocess_isolation.so"), path.join(__dirname, "dist", `libprocess_isolation.so`));
 }
 
 function installTarget(target) {
-    child_process.execSync(`rustup target add ${target}`, { stdio: 'inherit', cwd: __dirname });
+    runCommand("rustup", ["target", "add", target]);
+    // Cross-building for Windows needs cargo-xwin on PATH: buildNapiModule() hands
+    // off to the napi CLI, which spawns `cargo xwin` itself, and cargoBuild()
+    // dispatches the same way. Install the version pinned in Cargo.toml under
+    // [workspace.metadata.bin] so that stays the single source of truth for it.
+    //
+    // Nothing here goes through cargo-run-bin, so this deliberately does not
+    // bootstrap it; `cargo bin` is only used by the lint runner and CI.
+    if (target.includes('windows') && process.platform !== 'win32') {
+        runCommand("cargo", ["install", "--version", pinnedBinVersion("cargo-xwin"), "--locked", "cargo-xwin"]);
+        // install tools needed for packaging Appx, only supported on macOS for now.
+        if (process.platform === "darwin") {
+            runCommand("brew", ["install", "iinuwa/msix-packaging-tap/msix-packaging", "osslsigncode"]);
+        }
+    }
+}
+
+function effectivePlatform(target) {
+    if (target) {
+        return rustTargetsMap[target].platform
+    }
+    return process.platform
+}
+
+// Commands spawned by `runCommand` inherit `process.env`, so variables set here are picked up by
+// every build tool we invoke, as well as the tools those spawn in turn (`napi` -> `cargo-xwin` -> `cargo`).
+if (effectivePlatform(target) === "win32" && process.platform !== "win32") {
+    // In order to compile the ring crate, we need to force cargo-xwin to use the clang
+    // compiler rather than clang-cl.
+    process.env["XWIN_CROSS_COMPILER"] = "clang";
 }
 
 if (!crossPlatform && !target) {
     console.log(`Building native modules in ${mode} mode for the native architecture`);
     buildNapiModule(false, mode === "release");
     buildProxyBin(false, mode === "release");
+    buildWindowsPluginBin(false, mode === "release");
     buildImporterBinaries(false, mode === "release");
     buildProcessIsolation();
     return;
@@ -94,9 +184,10 @@ if (!crossPlatform && !target) {
 if (target) {
     console.log(`Building for target: ${target} in ${mode} mode`);
     installTarget(target);
-    buildNapiModule(target, mode === "release");
-    buildProxyBin(target, mode === "release");
-    buildImporterBinaries(false, mode === "release");
+    buildNapiModule(target, isRelease);
+    buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
+    buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
     return;
 }
@@ -113,8 +204,9 @@ if (process.platform === "linux") {
 
 platformTargets.forEach(([target, _]) => {
     installTarget(target);
-    buildNapiModule(target);
-    buildProxyBin(target);
-    buildImporterBinaries(target);
+    buildNapiModule(target, isRelease);
+    buildProxyBin(target, isRelease);
+    buildWindowsPluginBin(target, isRelease);
+    buildImporterBinaries(target, isRelease);
     buildProcessIsolation();
 });

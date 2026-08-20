@@ -1,5 +1,8 @@
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { BiometricsStatus } from "./biometrics-status";
 
@@ -7,6 +10,8 @@ import { BiometricsStatus } from "./biometrics-status";
  * The biometrics service is used to provide access to the status of and access to biometric functionality on the platforms.
  */
 export abstract class BiometricsService {
+  unlockService: UnlockService | null = null;
+
   supportsBiometric() {
     throw new Error("Method not implemented.");
   }
@@ -40,4 +45,29 @@ export abstract class BiometricsService {
   abstract getShouldAutopromptNow(): Promise<boolean>;
   abstract setShouldAutopromptNow(value: boolean): Promise<void>;
   abstract canEnableBiometricUnlock(): Promise<boolean>;
+  abstract setBiometricProtectedUnlockKeyForUser(
+    userId: UserId,
+    value: SymmetricCryptoKey,
+  ): Promise<void>;
+
+  /**
+   * Enrolls a persistent biometric key for the given user. The persistent key survives app restarts.
+   * Default no-op for platforms that don't support persistent biometric keys.
+   * @param userId the user to enroll
+   * @param key the user key to enroll
+   */
+  abstract enrollPersistent(userId: UserId, key: SymmetricCryptoKey): Promise<void>;
+
+  /**
+   * Checks if the given user has a persistent biometric key enrolled.
+   * Default returns false for platforms that don't support persistent biometric keys.
+   * @param userId the user to check
+   * @returns true if a persistent key is enrolled
+   */
+  abstract hasPersistentKey(userId: UserId): Promise<boolean>;
+
+  // Cannot be DI injected because of circular dependency
+  async setUnlockService(service: UnlockService): Promise<void> {
+    this.unlockService = service;
+  }
 }

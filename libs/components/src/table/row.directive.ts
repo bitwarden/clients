@@ -23,10 +23,13 @@ export class RowDirective {
     return [
       "tw-border-0",
       "tw-border-b",
-      "tw-border-secondary-300",
+      "tw-border-border-base",
       "tw-border-solid",
-      "hover:tw-bg-hover-default",
+      "has-[input[type=checkbox]:hover]:tw-bg-bg-brand-softer",
+      "has-[input[type=checkbox]:focus-visible]:tw-bg-bg-brand-softer",
+      "has-[input[type=checkbox]:checked]:tw-bg-bg-brand-soft",
       "last:tw-border-0",
+      "tw-transition-colors",
       this.alignmentClass,
     ];
   }

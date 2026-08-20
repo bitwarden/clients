@@ -1,3 +1,4 @@
+export { ArcCsvImporter } from "./arc-csv-importer";
 export { AscendoCsvImporter } from "./ascendo-csv-importer";
 export { AvastCsvImporter, AvastJsonImporter } from "./avast";
 export { AviraCsvImporter } from "./avira-csv-importer";
@@ -13,6 +14,8 @@ export { ButtercupCsvImporter } from "./buttercup-csv-importer";
 export { ClipperzHtmlImporter } from "./clipperz-html-importer";
 export { CodebookCsvImporter } from "./codebook-csv-importer";
 export { DashlaneCsvImporter, DashlaneJsonImporter } from "./dashlane";
+export { DelineaCsvImporter } from "./delinea-csv-importer";
+export { DelineaXmlImporter } from "./delinea-xml-importer";
 export { EncryptrCsvImporter } from "./encryptr-csv-importer";
 export { EnpassCsvImporter, EnpassJsonImporter } from "./enpass";
 export { FirefoxCsvImporter } from "./firefox-csv-importer";

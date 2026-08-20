@@ -38,6 +38,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { LogService } from "@bitwarden/logging";
 
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import {
   buildPasswordUseMap,
   createNewSummaryData,
@@ -66,7 +67,6 @@ import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
 import { CriticalAppsService } from "./critical-apps.service";
 import { PasswordHealthService } from "./password-health.service";
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
 import { RiskInsightsReportService } from "./risk-insights-report.service";
 
 export class RiskInsightsOrchestratorService {
@@ -140,7 +140,10 @@ export class RiskInsightsOrchestratorService {
   reportProgress$ = this._reportProgressSubject.asObservable();
 
   // --------------------------- Critical Application data ---------------------
-  criticalReportResults$: Observable<RiskInsightsEnrichedData | null> = of(null);
+  private _criticalReportResultsSubject = new BehaviorSubject<RiskInsightsEnrichedData | null>(
+    null,
+  );
+  criticalReportResults$ = this._criticalReportResultsSubject.asObservable();
 
   // --------------------------- Trigger subjects ---------------------
   private _initializeOrganizationTriggerSubject = new Subject<OrganizationId>();
@@ -160,7 +163,7 @@ export class RiskInsightsOrchestratorService {
     private passwordHealthService: PasswordHealthService,
     private reportApiService: RiskInsightsApiService,
     private reportService: RiskInsightsReportService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: LegacyRiskInsightsEncryptionService,
   ) {
     this.logService.debug("[RiskInsightsOrchestratorService] Setting up");
     this._setupCriticalApplicationContext();
@@ -225,7 +228,7 @@ export class RiskInsightsOrchestratorService {
    * @param criticalApplication Application name of the critical application to remove
    * @returns
    */
-  removeCriticalApplication$(criticalApplication: string): Observable<ReportState> {
+  removeCriticalApplications$(applicationsToUnmark: Set<string>): Observable<ReportState> {
     this.logService.info(
       "[RiskInsightsOrchestratorService] Removing critical applications from report",
     );
@@ -242,11 +245,10 @@ export class RiskInsightsOrchestratorService {
           throwError(() => Error("Tried to update critical applications without a report"));
         }
 
-        // Create a set for quick lookup of the new critical apps
         const existingApplicationData = report!.applicationData || [];
-        const updatedApplicationData = this._removeCriticalApplication(
+        const updatedApplicationData = this._removeCriticalApplications(
           existingApplicationData,
-          criticalApplication,
+          applicationsToUnmark,
         );
 
         // Updated summary data after changing critical apps
@@ -649,7 +651,7 @@ export class RiskInsightsOrchestratorService {
       catchError((error: unknown) => {
         this.logService.error("[RiskInsightsOrchestratorService] Failed to fetch report", error);
         return of({
-          status: ReportStatus.Error,
+          status: ReportStatus.LoadError,
           error: "Failed to fetch report",
           data: null,
           organizationId,
@@ -775,6 +777,7 @@ export class RiskInsightsOrchestratorService {
         };
       }),
       catchError((): Observable<ReportState> => {
+        this._reportProgressSubject.next(null);
         return of({
           status: ReportStatus.Error,
           error: "Failed to generate or save report",
@@ -914,12 +917,12 @@ export class RiskInsightsOrchestratorService {
   }
 
   // Toggles the isCritical flag on applications via criticalApplicationName
-  private _removeCriticalApplication(
+  private _removeCriticalApplications(
     applicationData: OrganizationReportApplication[],
-    criticalApplication: string,
+    applicationsToUnmark: Set<string>,
   ): OrganizationReportApplication[] {
     const updatedApplicationData = applicationData.map((application) => {
-      if (application.applicationName == criticalApplication) {
+      if (applicationsToUnmark.has(application.applicationName)) {
         return { ...application, isCritical: false } as OrganizationReportApplication;
       }
       return application;
@@ -989,7 +992,7 @@ export class RiskInsightsOrchestratorService {
   // Setup the pipeline to create a report view filtered to only critical applications
   private _setupCriticalApplicationReport() {
     const criticalReportResultsPipeline$ = this.enrichedReportData$.pipe(
-      filter((state) => !!state),
+      filter((state) => !!state && !!state.summaryData),
       map((enrichedReports) => {
         const criticalApplications = enrichedReports!.reportData.filter(
           (app) => app.isMarkedAsCritical,
@@ -997,11 +1000,11 @@ export class RiskInsightsOrchestratorService {
         // Generate a new summary based on just the critical applications
         const summary = this.reportService.getApplicationsSummary(
           criticalApplications,
-          enrichedReports.applicationData,
-          enrichedReports.summaryData.totalMemberCount,
+          enrichedReports!.applicationData,
+          enrichedReports!.summaryData.totalMemberCount,
         );
         return {
-          ...enrichedReports,
+          ...enrichedReports!,
           summaryData: summary,
           reportData: criticalApplications,
         };
@@ -1009,7 +1012,9 @@ export class RiskInsightsOrchestratorService {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    this.criticalReportResults$ = criticalReportResultsPipeline$;
+    criticalReportResultsPipeline$.pipe(takeUntil(this._destroy$)).subscribe((data) => {
+      this._criticalReportResultsSubject.next(data);
+    });
   }
 
   /**

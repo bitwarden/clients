@@ -16,6 +16,7 @@ export function buildCipherIcon(
   iconsServerUrl: string | null,
   cipher: CipherViewLike,
   showFavicon: boolean,
+  newItemTypes?: boolean,
 ): CipherIconDetails {
   let icon: string = "bwi-globe";
   let image: string | null = null;
@@ -42,17 +43,19 @@ export function buildCipherIcon(
 
   switch (cipherType) {
     case CipherType.Login:
-      icon = "bwi-globe";
+      icon = newItemTypes ? "bwi-lock" : "bwi-globe";
 
       if (uri) {
         let hostnameUri = uri;
         let isWebsite = false;
 
         if (hostnameUri.indexOf("androidapp://") === 0) {
-          icon = "bwi-android";
+          // @TODO Re-add once we have Android icon https://bitwarden.atlassian.net/browse/PM-29028
+          // icon = "bwi-android";
           image = null;
         } else if (hostnameUri.indexOf("iosapp://") === 0) {
-          icon = "bwi-apple";
+          // @TODO Re-add once we have iOS icon https://bitwarden.atlassian.net/browse/PM-29028
+          // icon = "bwi-apple";
           image = null;
         } else if (
           showFavicon &&
@@ -93,10 +96,19 @@ export function buildCipherIcon(
       }
       break;
     case CipherType.Identity:
-      icon = "bwi-id-card";
+      icon = newItemTypes ? "bwi-user" : "bwi-id-card";
       break;
     case CipherType.SshKey:
       icon = "bwi-key";
+      break;
+    case CipherType.BankAccount:
+      icon = "bwi-bank";
+      break;
+    case CipherType.Passport:
+      icon = "bwi-passport";
+      break;
+    case CipherType.DriversLicense:
+      icon = "bwi-id-card";
       break;
     default:
       break;

@@ -1,11 +1,10 @@
 import { Observable } from "rxjs";
 
-import {
-  OrganizationUserConfirmRequest,
-  OrganizationUserBulkResponse,
-} from "@bitwarden/admin-console/common";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
+
+import { OrganizationUserConfirmRequest, OrganizationUserBulkResponse } from "../..";
+import { OrganizationUserUpdateRequest } from "../models/requests";
 
 export abstract class OrganizationUserService {
   /**
@@ -42,4 +41,22 @@ export abstract class OrganizationUserService {
     organization: Organization,
     userIdsWithKeys: { id: string; key: string }[],
   ): Observable<ListResponse<OrganizationUserBulkResponse>>;
+
+  abstract restoreUser(organization: Organization, userId: string): Observable<void>;
+
+  abstract bulkRestoreUsers(
+    organization: Organization,
+    userIds: string[],
+  ): Observable<ListResponse<OrganizationUserBulkResponse>>;
+
+  /**
+   * Updates a user's role and settings in an organization. When the target role is subject to the
+   * Centralize Organization Ownership policy (i.e. User or Custom), an encrypted default collection
+   * name is included so the server can create the "My Items" collection if it is missing.
+   */
+  abstract updateUser(
+    organization: Organization,
+    userId: string,
+    request: OrganizationUserUpdateRequest,
+  ): Observable<void>;
 }

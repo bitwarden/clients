@@ -1,3 +1,5 @@
+import { AutofillTargetingRuleType, FormPurposeCategory } from "@bitwarden/common/autofill/types";
+
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
@@ -68,6 +70,8 @@ export default class AutofillField {
 
   "label-data"?: string | null;
 
+  "aria-describedby"?: string | null;
+
   "aria-hidden"?: boolean;
 
   "aria-disabled"?: boolean;
@@ -96,9 +100,9 @@ export default class AutofillField {
    */
   readonly?: boolean;
   /**
-   * The `opid` attribute value of the form that contains the field
+   * The `opid` attribute value of the form that contains the field, null if no form or opid is absent
    */
-  form?: string;
+  form?: string | null;
   /**
    * The `x-autocompletetype`, `autocompletetype`, or `autocomplete` attribute for the field
    */
@@ -122,7 +126,19 @@ export default class AutofillField {
 
   showPasskeys?: boolean;
 
-  fieldQualifier?: AutofillFieldQualifierType;
+  fieldQualifier?: AutofillFieldQualifierType | AutofillTargetingRuleType;
+
+  /**
+   * Indicates this field was qualified by targeting rules rather than heuristics
+   */
+  targeted?: boolean;
+
+  /**
+   * The `category` of the targeting-rule form this field was resolved from
+   * (e.g. `account-login`). Only set for targeted fields; undefined for
+   * heuristically-gathered fields.
+   */
+  formCategory?: FormPurposeCategory;
 
   accountCreationFieldType?: InlineMenuAccountCreationFieldTypes;
 
@@ -131,3 +147,6 @@ export default class AutofillField {
    */
   fieldRect?: FieldRect;
 }
+
+/** `readonly` / `disabled` from collected field data; a full {@link AutofillField} is assignable. */
+export type AutofillFieldReadonlyDisabledState = Pick<AutofillField, "readonly" | "disabled">;

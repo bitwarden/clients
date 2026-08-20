@@ -1,4 +1,7 @@
+import { OverlayModule } from "@angular/cdk/overlay";
 import { NgModule } from "@angular/core";
+
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { ReportsSharedModule } from "../../../dirt/reports";
 import { HeaderModule } from "../../../layouts/header/header.module";
@@ -8,7 +11,14 @@ import { OrganizationReportingRoutingModule } from "./organization-reporting-rou
 import { ReportsHomeComponent } from "./reports-home.component";
 
 @NgModule({
-  imports: [SharedModule, ReportsSharedModule, OrganizationReportingRoutingModule, HeaderModule],
+  imports: [
+    SharedModule,
+    OverlayModule,
+    ReportsSharedModule,
+    OrganizationReportingRoutingModule,
+    HeaderModule,
+    Vfo1I18nPipe,
+  ],
   declarations: [ReportsHomeComponent],
 })
 export class OrganizationReportingModule {}

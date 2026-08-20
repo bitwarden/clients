@@ -1,15 +1,41 @@
-<ng-container *ngIf="canCreateCipher() || canCreateCollection() || canCreateFolder()">
+@if (useNewItemDialog() && (canCreateCipher() || canCreateCollection() || canCreateFolder())) {
+  <button
+    bitButton
+    [buttonType]="buttonType()"
+    type="button"
+    (click)="handleButtonClick()"
+    id="newItemButton"
+    [disabled]="disabled()"
+    [appA11yTitle]="getButtonLabel() | i18n"
+    [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
+    [bitPopoverAnchorFor]="coachmarkPopover()"
+    [popoverOpen]="coachmarkPopoverOpen()"
+    [position]="coachmarkPosition()"
+    [spotlight]="!!coachmarkPopover()"
+    [startIcon]="icon()"
+  >
+    {{ getButtonLabel() | i18n }}
+  </button>
+} @else if (canCreateCipher() || canCreateCollection() || canCreateFolder()) {
   <div>
     <button
       bitButton
-      buttonType="primary"
+      [buttonType]="buttonType()"
       type="button"
-      [bitMenuTriggerFor]="addOptions"
+      [bitMenuTriggerFor]="isOnlyCollectionCreation() ? null : addOptions"
+      (click)="handleButtonClick()"
       id="newItemDropdown"
-      [appA11yTitle]="'new' | i18n"
+      [disabled]="disabled()"
+      [appA11yTitle]="getButtonLabel() | i18n"
+      [bitTooltip]="disabled() ? ('organizationIsSuspended' | i18n) : ''"
+      [bitPopoverAnchorFor]="coachmarkPopover()"
+      [popoverOpen]="coachmarkPopoverOpen()"
+      [position]="coachmarkPosition()"
+      [spotlight]="!!coachmarkPopover()"
+      [closeOnBackdropClick]="false"
+      [startIcon]="icon()"
     >
-      <i class="bwi bwi-plus" aria-hidden="true"></i>
-      {{ "new" | i18n }}
+      {{ getButtonLabel() | i18n }}
     </button>
     <bit-menu #addOptions aria-labelledby="newItemDropdown">
       @for (item of cipherMenuItems$ | async; track item.type) {
@@ -18,20 +44,21 @@
           {{ item.labelKey | i18n }}
         </button>
       }
-      <bit-menu-divider *ngIf="canCreateCipher()"></bit-menu-divider>
-      <button *ngIf="canCreateFolder()" type="button" bitMenuItem (click)="folderAdded.emit()">
-        <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
-        {{ "folder" | i18n }}
-      </button>
-      <button
-        *ngIf="canCreateCollection()"
-        type="button"
-        bitMenuItem
-        (click)="collectionAdded.emit()"
-      >
-        <i class="bwi bwi-fw bwi-collection-shared" aria-hidden="true"></i>
-        {{ "collection" | i18n }}
-      </button>
+      @if (canCreateCipher()) {
+        <bit-menu-divider></bit-menu-divider>
+      }
+      @if (canCreateFolder()) {
+        <button type="button" bitMenuItem (click)="folderAdded.emit()">
+          <i class="bwi bwi-fw bwi-folder" aria-hidden="true"></i>
+          {{ "folder" | i18n }}
+        </button>
+      }
+      @if (canCreateCollection()) {
+        <button type="button" bitMenuItem (click)="collectionAdded.emit()">
+          <bit-icon fixedWidth [name]="'bwi-collection-shared' | vfo1Icon" slot="start" />
+          {{ "collection" | vfo1I18n: "sharedFolder" }}
+        </button>
+      }
     </bit-menu>
   </div>
-</ng-container>
+}

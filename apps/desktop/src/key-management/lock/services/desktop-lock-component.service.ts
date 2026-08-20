@@ -1,9 +1,10 @@
 import { inject } from "@angular/core";
-import { combineLatest, defer, map, Observable } from "rxjs";
+import { combineLatest, defer, filter, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { DeviceType } from "@bitwarden/common/enums";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
+import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
@@ -14,6 +15,7 @@ export class DesktopLockComponentService implements LockComponentService {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly biometricsService = inject(BiometricsService);
   private readonly pinService = inject(PinServiceAbstraction);
+  private readonly sharedUnlockLeaderService = inject(SharedUnlockLeaderService);
 
   constructor() {}
 
@@ -50,6 +52,13 @@ export class DesktopLockComponentService implements LockComponentService {
     }
   }
 
+  getExternalUnlock$(userId: UserId): Observable<void> {
+    return this.sharedUnlockLeaderService.externalUnlock$.pipe(
+      filter((id) => id === userId),
+      map((): void => undefined),
+    );
+  }
+
   getAvailableUnlockOptions$(userId: UserId): Observable<UnlockOptions> {
     return combineLatest([
       // Note: defer is preferable b/c it delays the execution of the function until the observable is subscribed to
@@ -68,6 +77,9 @@ export class DesktopLockComponentService implements LockComponentService {
           biometrics: {
             enabled: biometricsStatus == BiometricsStatus.Available,
             biometricsStatus: biometricsStatus,
+          },
+          prf: {
+            enabled: false,
           },
         };
 

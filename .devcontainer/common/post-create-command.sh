@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+echo "Running post-create-command.sh"
+
+# Load configuration (use .env.example as fallback for defaults)
+if [ -f ".devcontainer/common/.env" ]; then
+    source .devcontainer/common/.env
+else
+    source .devcontainer/common/.env.example
+fi
+
+# Configure git safe directory
+git config --global --add safe.directory /workspace
+
+echo "Installing system dependencies..."
+# Packages needed:
+#   libnss3-tools: mkcert certificate installation
+#   build-essential, pkg-config: native module compilation
+#   libsecret-1-dev, libglib2.0-dev: desktop native module dependencies
+#   Remaining packages: Electron runtime dependencies
+sudo apt-get update && sudo apt-get install -y \
+    libnss3-tools \
+    build-essential \
+    pkg-config \
+    libsecret-1-dev \
+    libglib2.0-dev \
+    libdbus-1-3 \
+    libgtk-3-0 \
+    libnss3 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libx11-xcb1 \
+    libxcb-dri3-0 \
+    libxtst6 \
+    libxss1 \
+    libasound2 \
+    libgbm1
+
+if [ "$SETUP_MKCERT" = "yes" ]; then
+    # Install mkcert for SSL certificates (needed for WebAuthn)
+    echo "Installing mkcert..."
+    curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+    chmod +x mkcert-v*-linux-amd64
+    sudo mv mkcert-v*-linux-amd64 /usr/local/bin/mkcert
+
+    # Generate SSL certificates for localhost
+    echo "Generating SSL certificates..."
+    mkcert -install
+    cd /workspace/apps/web
+    mkcert -cert-file dev-server.local.pem -key-file dev-server.local.pem localhost bitwarden.test
+    cd /workspace
+fi
+
+# Fix ownership of anonymous volume mount points (created as root by Docker)
+sudo chown node:node /workspace/node_modules /workspace/apps/desktop/desktop_native/target
+
+if [ "$RUN_NPM_CI" = "yes" ]; then
+    # Install npm dependencies
+    echo "Running npm ci..."
+    npm ci
+fi
+
+if [ "$SETUP_DESKTOP_NATIVE" = "yes" ]; then
+    # Install the pinned Rust nightly toolchain (required for desktop native
+    # module). The pin lives in desktop_native/rust-toolchain.toml; rustfmt.toml
+    # enables unstable options whose output changes between nightlies, so a
+    # rolling nightly would disagree with CI.
+    echo "Installing Rust nightly toolchain..."
+    RUST_NIGHTLY_TOOLCHAIN="$(node scripts/rust-toolchain.mjs --nightly)"
+    rustup toolchain install "$RUST_NIGHTLY_TOOLCHAIN" -c rustfmt
+
+    # Bootstrap cargo-run-bin for pre-commit hooks and lint-rust.mjs. The individual
+    # tools (cargo-sort, cargo-udeps, cargo-deny, ...) are pinned in
+    # apps/desktop/desktop_native/Cargo.toml under [workspace.metadata.bin] and
+    # built lazily on first `cargo bin <tool>`.
+    echo "Bootstrapping cargo-run-bin for cargo tools..."
+    cargo install cargo-run-bin --locked --version 1.7.4
+
+    # Build the desktop native module
+    echo "Building desktop native module..."
+    cd /workspace/apps/desktop/desktop_native/napi
+    npm run build
+    cd /workspace
+fi
+
+echo "post-create-command.sh completed"

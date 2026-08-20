@@ -1,6 +1,6 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { EncString } from "../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { FieldType, LinkedIdType } from "../../vault/enums";
 import { Field as FieldDomain } from "../../vault/models/domain/field";
 import { FieldView } from "../../vault/models/view/field.view";
@@ -26,16 +26,16 @@ export class FieldExport {
 
   static toDomain(req: FieldExport, domain = new FieldDomain()) {
     domain.type = req.type;
-    domain.value = req.value != null ? new EncString(req.value) : null;
-    domain.name = req.name != null ? new EncString(req.name) : null;
+    domain.value = req.value != null ? new EncString(req.value) : undefined;
+    domain.name = req.name != null ? new EncString(req.name) : undefined;
     domain.linkedId = req.linkedId;
     return domain;
   }
 
-  name: string;
-  value: string;
-  type: FieldType;
-  linkedId: LinkedIdType;
+  name?: string;
+  value?: string;
+  type: FieldType = FieldType.Text;
+  linkedId?: LinkedIdType;
 
   constructor(o?: FieldView | FieldDomain) {
     if (o == null) {

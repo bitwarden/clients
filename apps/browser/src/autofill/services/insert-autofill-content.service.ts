@@ -10,8 +10,7 @@ import {
   currentlyInSandboxedIframe,
   elementIsFillableFormField,
   elementIsInputElement,
-  elementIsSelectElement,
-  elementIsTextAreaElement,
+  isReadonlyOrDisabledFormFieldElement,
 } from "../utils";
 
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -24,6 +23,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     click_on_opid: ({ opid }) => this.handleClickOnFieldByOpidAction(opid),
     focus_by_opid: ({ opid }) => this.handleFocusOnFieldByOpidAction(opid),
   };
+  private showAnimations: boolean = true;
 
   /**
    * InsertAutofillContentService constructor. Instantiates the
@@ -38,10 +38,12 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * Handles autofill of the forms on the current page based on the
    * data within the passed fill script object.
    * @param {AutofillScript} fillScript
+   * @param {boolean} showAnimations
    * @returns {Promise<void>}
    * @public
    */
-  async fillForm(fillScript: AutofillScript) {
+  async fillForm(fillScript: AutofillScript, showAnimations: boolean = true) {
+    this.showAnimations = showAnimations;
     if (
       !fillScript.script?.length ||
       currentlyInSandboxedIframe() ||
@@ -201,18 +203,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       return;
     }
 
-    const elementCanBeReadonly =
-      elementIsInputElement(element) || elementIsTextAreaElement(element);
-    const elementCanBeFilled = elementCanBeReadonly || elementIsSelectElement(element);
     const elementValue = (element as HTMLInputElement)?.value || element?.innerText || "";
-
     const elementAlreadyHasTheValue = !!(elementValue?.length && elementValue === value);
 
-    if (
-      elementAlreadyHasTheValue ||
-      (elementCanBeReadonly && element.readOnly) ||
-      (elementCanBeFilled && element.disabled)
-    ) {
+    if (elementAlreadyHasTheValue || isReadonlyOrDisabledFormFieldElement(element)) {
       return;
     }
 
@@ -292,6 +286,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private triggerFillAnimationOnElement(element: FormFieldElement): void {
+    if (!this.showAnimations) {
+      return;
+    }
+
     const skipAnimatingElement =
       elementIsFillableFormField(element) &&
       !new Set(["email", "text", "password", "number", "tel", "url"]).has(element?.type);

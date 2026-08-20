@@ -1,35 +1,22 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { OrganizationUserResetPasswordWithIdRequest } from "@bitwarden/admin-console/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { WebauthnRotateCredentialRequest } from "@bitwarden/common/auth/models/request/webauthn-rotate-credential.request";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
+import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { MasterPasswordSalt } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
-import {
-  SignedPublicKey,
-  SignedSecurityState,
-  UnsignedPublicKey,
-  VerifyingKey,
-  WrappedPrivateKey,
-  WrappedSigningKey,
-} from "@bitwarden/common/key-management/types";
-import { VaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -41,19 +28,32 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 import { DialogService, ToastService } from "@bitwarden/components";
-import {
-  KeyService,
-  PBKDF2KdfConfig,
-  KdfConfigService,
-  KdfConfig,
-  KdfType,
-} from "@bitwarden/key-management";
+import { KeyService, KdfConfigService } from "@bitwarden/key-management";
 import {
   AccountRecoveryTrustComponent,
   EmergencyAccessTrustComponent,
   KeyRotationTrustInfoComponent,
 } from "@bitwarden/key-management-ui";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncryptedString,
+  EncryptService,
+  EncString,
+  KdfConfig,
+  KdfType,
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+  SignedPublicKey,
+  SignedSecurityState,
+  SymmetricCryptoKey,
+  UnsignedPublicKey,
+  VerifyingKey,
+  WrappedPrivateKey,
+  WrappedSigningKey,
+} from "@bitwarden/legacy-crypto";
 import { BitwardenClient, PureCrypto } from "@bitwarden/sdk-internal";
+import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { WebauthnLoginAdminService } from "../../auth";
@@ -270,12 +270,13 @@ describe("KeyRotationService", () => {
   let mockResetPasswordService: MockProxy<OrganizationUserResetPasswordService>;
   let mockDeviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
   let mockKeyService: MockProxy<KeyService>;
+  let mockLegacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let mockEncryptService: MockProxy<EncryptService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockSyncService: MockProxy<SyncService>;
   let mockWebauthnLoginAdminService: MockProxy<WebauthnLoginAdminService>;
   let mockLogService: MockProxy<LogService>;
-  let mockVaultTimeoutService: MockProxy<VaultTimeoutService>;
+  let mockLogoutService: MockProxy<LogoutService>;
   let mockDialogService: MockProxy<DialogService>;
   let mockToastService: MockProxy<ToastService>;
   let mockI18nService: MockProxy<I18nService>;
@@ -283,13 +284,18 @@ describe("KeyRotationService", () => {
   let mockKdfConfigService: MockProxy<KdfConfigService>;
   let mockSdkClientFactory: MockProxy<SdkClientFactory>;
   let mockSecurityStateService: MockProxy<SecurityStateService>;
+  let mockMasterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
+  let mockSdkUserKeyRotationService: MockProxy<UserKeyRotationServiceAbstraction>;
 
   const mockUser = {
     id: "mockUserId" as UserId,
-    email: "mockEmail",
-    emailVerified: true,
-    name: "mockName",
+    ...mockAccountInfoWith({
+      email: "mockEmail",
+      name: "mockName",
+    }),
   };
+
+  const mockUserSalt = "usersalt";
 
   const mockTrustedPublicKeys = [Utils.fromUtf8ToArray("test-public-key")];
 
@@ -330,17 +336,19 @@ describe("KeyRotationService", () => {
     );
     mockDeviceTrustService = mock<DeviceTrustServiceAbstraction>();
     mockKeyService = mock<KeyService>();
+    mockLegacyCompatKeyService = mock<LegacyCompatKeyService>();
     mockEncryptService = mock<EncryptService>();
     mockConfigService = mock<ConfigService>();
     mockSyncService = mock<SyncService>();
     mockWebauthnLoginAdminService = mock<WebauthnLoginAdminService>();
     mockLogService = mock<LogService>();
-    mockVaultTimeoutService = mock<VaultTimeoutService>();
+    mockLogoutService = mock<LogoutService>();
     mockToastService = mock<ToastService>();
     mockI18nService = mock<I18nService>();
     mockDialogService = mock<DialogService>();
     mockCryptoFunctionService = mock<CryptoFunctionService>();
     mockKdfConfigService = mock<KdfConfigService>();
+    mockSdkUserKeyRotationService = mock<UserKeyRotationServiceAbstraction>();
     mockSdkClientFactory = mock<SdkClientFactory>();
     mockSdkClientFactory.createSdkClient.mockResolvedValue({
       crypto: () => {
@@ -351,7 +359,9 @@ describe("KeyRotationService", () => {
         } as any;
       },
     } as BitwardenClient);
+
     mockSecurityStateService = mock<SecurityStateService>();
+    mockMasterPasswordService = mock<MasterPasswordServiceAbstraction>();
 
     keyRotationService = new TestUserKeyRotationService(
       mockApiService,
@@ -362,11 +372,12 @@ describe("KeyRotationService", () => {
       mockResetPasswordService,
       mockDeviceTrustService,
       mockKeyService,
+      mockLegacyCompatKeyService,
       mockEncryptService,
       mockSyncService,
       mockWebauthnLoginAdminService,
       mockLogService,
-      mockVaultTimeoutService,
+      mockLogoutService,
       mockToastService,
       mockI18nService,
       mockDialogService,
@@ -375,6 +386,8 @@ describe("KeyRotationService", () => {
       mockKdfConfigService,
       mockSdkClientFactory,
       mockSecurityStateService,
+      mockMasterPasswordService,
+      mockSdkUserKeyRotationService,
     );
   });
 
@@ -389,21 +402,21 @@ describe("KeyRotationService", () => {
       value: Promise.resolve(),
       configurable: true,
     });
+    mockMasterPasswordService.saltForUser$.mockReturnValue(of(mockUserSalt as MasterPasswordSalt));
   });
 
   describe("rotateUserKeyMasterPasswordAndEncryptedData", () => {
-    let privateKey: BehaviorSubject<UserPrivateKey | null>;
     let keyPair: BehaviorSubject<{ privateKey: UserPrivateKey; publicKey: UserPublicKey }>;
 
     beforeEach(() => {
       mockSyncService.getLastSync.mockResolvedValue(new Date());
-      mockKeyService.makeUserKey.mockResolvedValue([
+      mockLegacyCompatKeyService.makeUserKey.mockResolvedValue([
         new SymmetricCryptoKey(new Uint8Array(64)) as UserKey,
         {
           encryptedString: "mockNewUserKey",
         } as any,
       ]);
-      mockKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
+      mockLegacyCompatKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
       mockConfigService.getFeatureFlag.mockResolvedValue(false);
 
       mockEncryptService.wrapSymmetricKey.mockResolvedValue({
@@ -416,11 +429,7 @@ describe("KeyRotationService", () => {
       // Mock user key
       mockKeyService.userKey$.mockReturnValue(new BehaviorSubject("mockOriginalUserKey" as any));
 
-      mockKeyService.getFingerprint.mockResolvedValue(["a", "b"]);
-
-      // Mock private key
-      privateKey = new BehaviorSubject("mockPrivateKey" as any);
-      mockKeyService.userPrivateKeyWithLegacySupport$.mockReturnValue(privateKey);
+      mockLegacyCompatKeyService.getFingerprint.mockResolvedValue(["a", "b"]);
 
       keyPair = new BehaviorSubject({
         privateKey: "mockPrivateKey",
@@ -467,7 +476,7 @@ describe("KeyRotationService", () => {
       mockKeyService.userKey$.mockReturnValue(
         new BehaviorSubject(new SymmetricCryptoKey(new Uint8Array(64)) as UserKey),
       );
-      mockKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
+      mockLegacyCompatKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
       mockKeyService.userEncryptedPrivateKey$.mockReturnValue(
         new BehaviorSubject(
           "2.eh465OrUcluL9UpnCOUTAg==|2HXNXwrLwAjUfZ/U75c92rZEltt1eHxjMkp/ADAmx346oT1+GaQvaL1QIV/9Om0T72m8AnlO92iUfWdhbA/ifHZ+lhFoUVeyw1M88CMzktbVcq42rFoK7SGHSAGdTL3ccUWKI8yCCQJhpt2X6a/5+T7ey5k2CqvylKyOtkiCnVeLmYqETn5BM9Rl3tEgJW1yDLuSJ+L+Qh9xnk/Z3zJUV5HAs+YwjKwuSNrd00SXjDyx8rBEstD9MKI+lrk7to/q90vqKqCucAj/dzUpVtHe88al2AAlBVwQ13HUPdNFOyti6niUgCAWx+DzRqlhkFvl/z/rtxtQsyqq/3Eh/EL54ylxKzAya0ev9EaIOm/dD1aBmI58p4Bs0eMOCIKJjtw+Cmdql+RhCtKtumgFShqyXv+LfD/FgUsdTVNExk3YNhgwPR4jOaMa/j9LCrBMCLKxdAhQyBe7T3qoX1fBBirvY6t77ifMu1YEQ6DfmFphVSwDH5C9xGeTSh5IELSf0tGVtlWUe9RffDDzccD0L1lR8U+dqzoSTYCuXvhEhQptdIW6fpH/47u0M5MiI97/d35A7Et2I1gjHp7WF3qsY20ellBueu7ZL5P1BmqPXl58yaBBXJaCutYHDfIucspqdZmfBGEbdRT4wmuZRON0J8zLmUejM0VR/2MOmpfyYQXnJhTfrvnZ1bOg1aMhUxJ2vhDNPXUFm5b+vwsho4GEvcLAKq9WwbvOJ/sK7sEVfTfEO2IG+0X6wkWm7RpR6Wq9FGKSrv2PSjMAYnb+z3ETeWiaaiD+tVFxa2AaqsbOuX092/86GySpHES7cFWhQ/YMOgj6egUi8mEC0CqMXYsx0TTJDsn16oP+XB3a2WoRqzE0YBozp2aMXxhVf/jMZ03BmEmRQu5B+Sq1gMEZwtIfJ+srkZLMYlLjvVw92FRoFy+N6ytPiyf6RMHMUnJ3vEZSBogaElYoQAtFJ5kK811CUzb78zEHH8xWtPrCZn9zZfvf/zaWxo7fpV8VwAwUeHXHcQMraZum5QeO+5tLRUYrLm85JNelGfmUA3BjfNyFbfb32PhkWWd0CbDaPME48uIriVK32pNEtvtR/+I/f3YgA/jP9kSlDvbzG/OAg/AFBIpNwKUzsu4+va8mI+O5FDufw5D74WwdGJ9DeyEb2CHtWMR1VwtFKL0ZZsqltNf8EkBeJ5RtTNtAMM8ie4dDZaKC96ymQHKrdB4hjkAr0F1XFsU4XdOa9Nbkdcm/7KoNc6bE6oJtG9lqE8h+1CysfcbfJ7am+hvDFzT0IPmp3GDSMAk+e6xySgFQw0C/SZ7LQsxPa1s6hc+BOtTn0oClZnU7Mowxv+z+xURJj4Yp3Cy6tAoia1jEQSs6lSMNKPf9bi3xFKtPl4143hwhpvTAzJUcski9OVGd7Du+VyxwIrvLqp5Ct/oNrESVJpf1EDCs9xT1EW+PiSkRmHXoZ1t5MOLFEiMAZL2+bNe3A2661oJeMtps8zrfCVc251OUE1WvqWePlTOs5TDVqdwDH88J6rHLsbaf33Mxh5DP8gMfZQxE44Nsp6H0/Szfkss5UmFwBEpHjl1GJMWDnB3u2d+l1CSkLoB6C+diAUlY6wL/VwJBeMPHZTf6amQIS2B/lo/CnvV/E3k=|uuoY4b7xwMYBNIZi85KBsaHmNqtJl5FrKxZI9ugeNwc=" as EncryptedString,
@@ -504,7 +513,12 @@ describe("KeyRotationService", () => {
       );
       mockKeyService.userSigningKey$.mockReturnValue(new BehaviorSubject(null));
       mockSecurityStateService.accountSecurityState$.mockReturnValue(new BehaviorSubject(null));
-      mockConfigService.getFeatureFlag.mockResolvedValue(true);
+      mockConfigService.getFeatureFlag.mockImplementation(async (flag: FeatureFlag) => {
+        if (flag === FeatureFlag.EnrollAeadOnKeyRotation) {
+          return true;
+        }
+        return false;
+      });
 
       const spy = jest.spyOn(keyRotationService, "getRotatedAccountKeysFlagged").mockResolvedValue({
         userKey: TEST_VECTOR_USER_KEY_V2,
@@ -541,7 +555,7 @@ describe("KeyRotationService", () => {
       expect(spy).toHaveBeenCalledWith(
         mockUser.id,
         expect.any(PBKDF2KdfConfig),
-        mockUser.email,
+        mockUserSalt,
         expect.objectContaining({ version: 1 }),
         true,
       );
@@ -681,7 +695,7 @@ describe("KeyRotationService", () => {
           },
           signingKey: TEST_VECTOR_SIGNING_KEY_V2 as WrappedSigningKey,
           securityState: TEST_VECTOR_SECURITY_STATE_V2 as SignedSecurityState,
-        },
+        } as V2CryptographicStateParameters,
       );
       expect(mockGetV2RotatedAccountKeys).toHaveBeenCalled();
       expect(result).toEqual({
@@ -747,10 +761,10 @@ describe("KeyRotationService", () => {
 
   describe("createMasterPasswordUnlockData", () => {
     it("returns the master password unlock data", async () => {
-      mockKeyService.makeMasterKey.mockResolvedValue(
+      mockLegacyCompatKeyService.makeMasterKey.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
       );
-      mockKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
+      mockLegacyCompatKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
       const newKey = TEST_VECTOR_USER_KEY_V1;
       const userAccount = mockUser;
       const masterPasswordUnlockData =
@@ -808,12 +822,12 @@ describe("KeyRotationService", () => {
           masterPasswordHash: "omitted",
           otp: undefined,
           authRequestAccessCode: undefined,
-        },
+        } as OrganizationUserResetPasswordWithIdRequest,
       ]);
-      mockKeyService.makeMasterKey.mockResolvedValue(
+      mockLegacyCompatKeyService.makeMasterKey.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
       );
-      mockKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
+      mockLegacyCompatKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
 
       const initialKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       const newKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
@@ -1060,10 +1074,10 @@ describe("KeyRotationService", () => {
 
   describe("makeServerMasterKeyAuthenticationHash", () => {
     it("returns the master key authentication hash", async () => {
-      mockKeyService.makeMasterKey.mockResolvedValue(
+      mockLegacyCompatKeyService.makeMasterKey.mockResolvedValue(
         new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
       );
-      mockKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
+      mockLegacyCompatKeyService.hashMasterKey.mockResolvedValue("mockMasterPasswordHash");
       const masterKeyAuthenticationHash =
         await keyRotationService.makeServerMasterKeyAuthenticationHash(
           "mockMasterPassword",
@@ -1071,15 +1085,14 @@ describe("KeyRotationService", () => {
           "mockEmail",
         );
       expect(masterKeyAuthenticationHash).toBe("mockMasterPasswordHash");
-      expect(mockKeyService.makeMasterKey).toHaveBeenCalledWith(
+      expect(mockLegacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
         "mockMasterPassword",
         "mockEmail",
         new PBKDF2KdfConfig(600_000),
       );
-      expect(mockKeyService.hashMasterKey).toHaveBeenCalledWith(
+      expect(mockLegacyCompatKeyService.hashMasterKey).toHaveBeenCalledWith(
         "mockMasterPassword",
         new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-        HashPurpose.ServerAuthorization,
       );
     });
   });
@@ -1095,6 +1108,9 @@ describe("KeyRotationService", () => {
       );
       mockKeyService.userSigningKey$.mockReturnValue(
         new BehaviorSubject(TEST_VECTOR_SIGNING_KEY_V2 as WrappedSigningKey),
+      );
+      mockKeyService.userSignedPublicKey$.mockReturnValue(
+        new BehaviorSubject(TEST_VECTOR_SIGNED_PUBLIC_KEY_V2 as SignedPublicKey),
       );
       mockSecurityStateService.accountSecurityState$.mockReturnValue(
         new BehaviorSubject(TEST_VECTOR_SECURITY_STATE_V2 as SignedSecurityState),
@@ -1117,7 +1133,7 @@ describe("KeyRotationService", () => {
       const cryptographicState = await keyRotationService.getCryptographicStateForUser(mockUser);
       expect(cryptographicState).toEqual({
         masterKeyKdfConfig: new PBKDF2KdfConfig(100000),
-        masterKeySalt: "mockemail", // the email is lowercased to become the salt
+        masterKeySalt: mockUserSalt,
         cryptographicStateParameters: {
           version: 1,
           userKey: TEST_VECTOR_USER_KEY_V1,
@@ -1133,13 +1149,14 @@ describe("KeyRotationService", () => {
       const cryptographicState = await keyRotationService.getCryptographicStateForUser(mockUser);
       expect(cryptographicState).toEqual({
         masterKeyKdfConfig: new PBKDF2KdfConfig(100000),
-        masterKeySalt: "mockemail", // the email is lowercased to become the salt
+        masterKeySalt: mockUserSalt,
         cryptographicStateParameters: {
           version: 2,
           userKey: TEST_VECTOR_USER_KEY_V2,
           publicKeyEncryptionKeyPair: {
             wrappedPrivateKey: TEST_VECTOR_PRIVATE_KEY_V2,
             publicKey: Utils.fromB64ToArray(TEST_VECTOR_PUBLIC_KEY_V2) as UnsignedPublicKey,
+            signedPublicKey: TEST_VECTOR_SIGNED_PUBLIC_KEY_V2 as SignedPublicKey,
           },
           signingKey: TEST_VECTOR_SIGNING_KEY_V2 as WrappedSigningKey,
           securityState: TEST_VECTOR_SECURITY_STATE_V2 as SignedSecurityState,

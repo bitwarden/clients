@@ -2,8 +2,6 @@
 // @ts-strict-ignore
 import { program, Command } from "commander";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
 import { ConfirmCommand } from "./admin-console/commands/confirm.command";
 import { ShareCommand } from "./admin-console/commands/share.command";
 import { BaseProgram } from "./base-program";
@@ -23,26 +21,19 @@ const writeLn = CliUtils.writeLn;
 
 export class VaultProgram extends BaseProgram {
   async register() {
-    const isArchivedEnabled = await this.serviceContainer.configService.getFeatureFlag(
-      FeatureFlag.PM19148_InnovationArchive,
-    );
-
     program
-      .addCommand(this.listCommand(isArchivedEnabled))
+      .addCommand(this.listCommand())
       .addCommand(this.getCommand())
       .addCommand(this.createCommand())
       .addCommand(this.editCommand())
       .addCommand(this.deleteCommand())
-      .addCommand(this.restoreCommand(isArchivedEnabled))
+      .addCommand(this.restoreCommand())
       .addCommand(this.shareCommand("move", false))
       .addCommand(this.confirmCommand())
       .addCommand(this.importCommand())
       .addCommand(this.exportCommand())
-      .addCommand(this.shareCommand("share", true));
-
-    if (isArchivedEnabled) {
-      program.addCommand(this.archiveCommand());
-    }
+      .addCommand(this.shareCommand("share", true))
+      .addCommand(this.archiveCommand());
   }
 
   private validateObject(requestedObject: string, validObjects: string[]): boolean {
@@ -62,7 +53,7 @@ export class VaultProgram extends BaseProgram {
     return success;
   }
 
-  private listCommand(isArchivedEnabled: boolean): Command {
+  private listCommand(): Command {
     const listObjects = [
       "items",
       "folders",
@@ -105,9 +96,7 @@ export class VaultProgram extends BaseProgram {
           "    bw list items --folderid 60556c31-e649-4b5d-8daf-fc1c391a1bf2 --organizationid notnull",
         );
         writeLn("    bw list items --trash");
-        if (isArchivedEnabled) {
-          writeLn("    bw list items --archived");
-        }
+        writeLn("    bw list items --archived");
         writeLn("    bw list folders --search email");
         writeLn("    bw list org-members --organizationid 60556c31-e649-4b5d-8daf-fc1c391a1bf2");
         writeLn("", true);
@@ -137,9 +126,7 @@ export class VaultProgram extends BaseProgram {
         this.processResponse(response);
       });
 
-    if (isArchivedEnabled) {
-      command.option("--archived", "Filter items that are archived.");
-    }
+    command.option("--archived", "Filter items that are archived.");
 
     return command;
   }
@@ -204,6 +191,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.totpService,
           this.serviceContainer.auditService,
           this.serviceContainer.keyService,
+          this.serviceContainer.legacyCompatKeyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.searchService,
           this.serviceContainer.apiService,
@@ -212,6 +200,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
           this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
@@ -258,6 +247,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationService,
           this.serviceContainer.accountService,
           this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, encodedJson, cmd);
         this.processResponse(response);
@@ -308,6 +298,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cliRestrictedItemTypesService,
           this.serviceContainer.policyService,
           this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.cipherAuthorizationService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);
@@ -379,7 +370,6 @@ export class VaultProgram extends BaseProgram {
         const command = new ArchiveCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
-          this.serviceContainer.configService,
           this.serviceContainer.cipherArchiveService,
           this.serviceContainer.billingAccountProfileStateService,
         );
@@ -388,11 +378,12 @@ export class VaultProgram extends BaseProgram {
       });
   }
 
-  private restoreCommand(isArchivedEnabled: boolean): Command {
+  private restoreCommand(): Command {
     const restoreObjects = ["item"];
-    const command = new Command("restore")
+    return new Command("restore")
       .argument("<object>", "Valid objects are: " + restoreObjects.join(", "))
       .argument("<id>", "Object's globally unique `id`.")
+      .description("Restores an object from the trash or archive.")
       .on("--help", () => {
         writeLn("\n  Examples:");
         writeLn("");
@@ -410,19 +401,10 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.accountService,
           this.serviceContainer.cipherAuthorizationService,
           this.serviceContainer.cipherArchiveService,
-          this.serviceContainer.configService,
         );
         const response = await command.run(object, id);
         this.processResponse(response);
       });
-
-    if (isArchivedEnabled) {
-      command.description("Restores an object from the trash or archive.");
-    } else {
-      command.description("Restores an object from the trash.");
-    }
-
-    return command;
   }
 
   private shareCommand(commandName: string, deprecated: boolean): Command {
@@ -460,6 +442,8 @@ export class VaultProgram extends BaseProgram {
         const command = new ShareCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
+          this.serviceContainer.collectionService,
+          this.serviceContainer.organizationService,
         );
         const response = await command.run(id, organizationId, encodedJson);
         this.processResponse(response);
@@ -494,7 +478,6 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.encryptService,
           this.serviceContainer.organizationUserApiService,
           this.serviceContainer.accountService,
-          this.serviceContainer.configService,
           this.serviceContainer.i18nService,
         );
         const response = await command.run(object, id, cmd);
@@ -509,6 +492,15 @@ export class VaultProgram extends BaseProgram {
       .description("Import vault data from a file.")
       .option("--formats", "List formats")
       .option("--organizationid <organizationid>", "ID of the organization to import to.")
+      .option("--keyfile <keyfile>", "Path to a key file used to unlock a KeePass (kdbx) database.")
+      .option(
+        "--passwordenv <passwordenv>",
+        "Environment variable storing the import file password.",
+      )
+      .option(
+        "--passwordfile <passwordfile>",
+        "Path to a file containing the import file password as its first line.",
+      )
       .on("--help", () => {
         writeLn("\n Examples:");
         writeLn("");
@@ -526,6 +518,8 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationService,
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
+          this.serviceContainer.logService,
+          this.serviceContainer.i18nService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);

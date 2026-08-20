@@ -2,20 +2,28 @@
 <div class="tw-mt-4 tw-flex tw-flex-col">
   <div class="tw-flex tw-justify-between tw-mb-4">
     <h2 bitTypography="h2">{{ "criticalApplications" | i18n }}</h2>
-    <button
-      bitButton
-      buttonType="primary"
-      type="button"
-      [disabled]="!enableRequestPasswordChange"
-      (click)="requestPasswordChange()"
+    <div
+      [bitPopoverAnchorFor]="helpMembersCoachmark.popover()"
+      [popoverOpen]="helpMembersOpen()"
+      [position]="'left-center'"
+      [spotlight]="true"
     >
-      <i class="bwi bwi-envelope tw-mr-2"></i>
-      {{
-        enableRequestPasswordChange
-          ? ("requestPasswordChange" | i18n)
-          : ("noCriticalAppsAtRisk" | i18n)
-      }}
-    </button>
+      <button
+        bitButton
+        buttonType="primary"
+        type="button"
+        [disabled]="!enableRequestPasswordChange"
+        (click)="requestPasswordChange()"
+        startIcon="bwi-envelope"
+      >
+        {{
+          enableRequestPasswordChange
+            ? ("requestPasswordChange" | i18n)
+            : ("noCriticalAppsAtRisk" | i18n)
+        }}
+      </button>
+    </div>
+    <dirt-ai-coachmark #helpMembersCoachmark stepId="helpMembers"></dirt-ai-coachmark>
   </div>
   <div class="tw-flex tw-gap-6">
     <div

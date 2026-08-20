@@ -1,27 +1,31 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { Component, OnInit } from "@angular/core";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { ChangeDetectionStrategy, Component, OnInit, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { reports, ReportType } from "../reports";
 import { ReportEntry, ReportVariant } from "../shared";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "app-reports-home",
   templateUrl: "reports-home.component.html",
   standalone: false,
 })
 export class ReportsHomeComponent implements OnInit {
-  reports: ReportEntry[];
+  readonly reports = signal<ReportEntry[]>([]);
 
   constructor(
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -33,7 +37,11 @@ export class ReportsHomeComponent implements OnInit {
       ? ReportVariant.Enabled
       : ReportVariant.RequiresPremium;
 
-    this.reports = [
+    const passkeyReportEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PasskeyLoginReport,
+    );
+
+    const reportEntries: ReportEntry[] = [
       {
         ...reports[ReportType.ExposedPasswords],
         variant: reportRequiresPremium,
@@ -59,5 +67,14 @@ export class ReportsHomeComponent implements OnInit {
         variant: ReportVariant.Enabled,
       },
     ];
+
+    if (passkeyReportEnabled) {
+      reportEntries.push({
+        ...reports[ReportType.PasskeyLogin],
+        variant: reportRequiresPremium,
+      });
+    }
+
+    this.reports.set(reportEntries);
   }
 }

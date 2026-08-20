@@ -50,7 +50,7 @@ export class MykiCsvImporter extends BaseImporter implements Importer {
     results.forEach((value) => {
       const cipher = this.initLoginCipher();
       cipher.name = this.getValueOrDefault(value.nickname, "--");
-      cipher.notes = this.getValueOrDefault(value.additionalInfo);
+      cipher.notes = this.getValueOrDefault(value.additionalInfo, "").trimEnd();
 
       if (value.url !== undefined) {
         // Accounts
@@ -132,7 +132,7 @@ export class MykiCsvImporter extends BaseImporter implements Importer {
         cipher.secureNote = new SecureNoteView();
         cipher.type = CipherType.SecureNote;
         cipher.secureNote.type = SecureNoteType.Generic;
-        cipher.notes = this.getValueOrDefault(value.content);
+        cipher.notes = this.getValueOrDefault(value.content, "").trimEnd();
 
         this.importUnmappedFields(cipher, value, _mappedUserNoteColumns);
       } else {

@@ -10,15 +10,20 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { PasswordTokenRequest } from "@bitwarden/common/auth/models/request/identity-token/password-token.request";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { IdentityDeviceVerificationResponse } from "@bitwarden/common/auth/models/response/identity-device-verification.response";
+import { IdentitySsoRequiredResponse } from "@bitwarden/common/auth/models/response/identity-sso-required.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
-import { HashPurpose } from "@bitwarden/common/platform/enums";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import {
+  PasswordPreloginData,
+  PasswordPreloginService,
+} from "@bitwarden/common/auth/password-prelogin";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 
-import { LoginStrategyServiceAbstraction } from "../abstractions";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
 import { CacheData } from "../services/login-strategies/login-strategy.state";
 
@@ -29,10 +34,10 @@ export class PasswordLoginStrategyData implements LoginStrategyData {
 
   /** User's entered email obtained pre-login. Always present in MP login. */
   userEnteredEmail: string;
-  /** The local version of the user's master key hash */
-  localMasterKeyHash: string;
   /** The user's master key */
   masterKey: MasterKey;
+  /** The user's master password */
+  masterPassword: string;
   /**
    * Tracks if the user needs to update their password due to
    * a password that does not meet an organization's master password policy.
@@ -53,8 +58,6 @@ export class PasswordLoginStrategy extends LoginStrategy {
   email$: Observable<string>;
   /** The master key hash used for authentication */
   serverMasterKeyHash$: Observable<string>;
-  /** The local master key hash we store client side */
-  localMasterKeyHash$: Observable<string | null>;
 
   protected cache: BehaviorSubject<PasswordLoginStrategyData>;
 
@@ -62,7 +65,9 @@ export class PasswordLoginStrategy extends LoginStrategy {
     data: PasswordLoginStrategyData,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
-    private loginStrategyService: LoginStrategyServiceAbstraction,
+    private passwordPreloginService: PasswordPreloginService,
+    private unlockService: UnlockService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -72,26 +77,26 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.serverMasterKeyHash$ = this.cache.pipe(
       map((state) => state.tokenRequest.masterPasswordHash),
     );
-    this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
   override async logIn(credentials: PasswordLoginCredentials): Promise<AuthResult> {
-    const { email, masterPassword, twoFactor } = credentials;
+    const { email, masterPassword, twoFactor, preFetchedPreloginData } = credentials;
 
     const data = new PasswordLoginStrategyData();
-    data.masterKey = await this.loginStrategyService.makePasswordPreLoginMasterKey(
+    data.masterKey = await this.makePasswordPreloginMasterKey(
       masterPassword,
       email,
+      preFetchedPreloginData,
     );
+    this.passwordPreloginService.clearCache();
+    data.masterPassword = masterPassword;
     data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    data.localMasterKeyHash = await this.keyService.hashMasterKey(
+    const serverMasterKeyHash = await this.legacyCompatKeyService.hashMasterKey(
       masterPassword,
       data.masterKey,
-      HashPurpose.LocalAuthorization,
     );
-    const serverMasterKeyHash = await this.keyService.hashMasterKey(masterPassword, data.masterKey);
 
     data.tokenRequest = new PasswordTokenRequest(
       email,
@@ -115,61 +120,58 @@ export class PasswordLoginStrategy extends LoginStrategy {
     return result;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
-    const { masterKey, localMasterKeyHash } = this.cache.value;
-    await this.masterPasswordService.setMasterKey(masterKey, userId);
-    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
-  }
+  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {}
 
-  protected override async setUserKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    // If migration is required, we won't have a user key to set yet.
-    if (this.encryptionKeyMigrationRequired(response)) {
-      return;
-    }
-
-    if (response.key) {
-      await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, userId);
-    }
-
-    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
-    if (masterKey) {
-      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(
-        masterKey,
-        userId,
-      );
-      await this.keyService.setUserKey(userKey, userId);
-    }
-  }
-
-  protected override async setPrivateKey(
-    response: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    await this.keyService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
-      userId,
-    );
+  protected override async unlock(response: IdentityTokenResponse, userId: UserId): Promise<void> {
+    await this.unlockService.unlockWithMasterPassword(userId, this.cache.value.masterPassword);
   }
 
   protected override encryptionKeyMigrationRequired(response: IdentityTokenResponse): boolean {
     return !response.key;
   }
 
+  private async makePasswordPreloginMasterKey(
+    masterPassword: string,
+    email: string,
+    preFetchedPreloginData?: PasswordPreloginData,
+  ): Promise<MasterKey> {
+    // if we have prefetched prelogin data, use it
+    if (preFetchedPreloginData) {
+      return this.legacyCompatKeyService.makeMasterKey(
+        masterPassword,
+        email,
+        preFetchedPreloginData.kdfConfig,
+      );
+    }
+
+    // No prefetched data — fetch now. PasswordPreloginData.fromResponse validates the KDF config.
+    const preloginData = await firstValueFrom(this.passwordPreloginService.getPreloginData$(email));
+
+    if (!preloginData) {
+      throw new Error("KDF config is required");
+    }
+
+    return this.legacyCompatKeyService.makeMasterKey(masterPassword, email, preloginData.kdfConfig);
+  }
+
   private async evaluateMasterPasswordIfRequired(
     identityResponse:
       | IdentityTokenResponse
       | IdentityTwoFactorResponse
-      | IdentityDeviceVerificationResponse,
+      | IdentityDeviceVerificationResponse
+      | IdentitySsoRequiredResponse,
     credentials: PasswordLoginCredentials,
     authResult: AuthResult,
   ): Promise<void> {
     // TODO: PM-21084 - investigate if we should be sending down masterPasswordPolicy on the
     // IdentityDeviceVerificationResponse like we do for the IdentityTwoFactorResponse
     // If the response is a device verification response, we don't need to evaluate the password
-    if (identityResponse instanceof IdentityDeviceVerificationResponse) {
+    // If SSO is required, we also do not evaluate the password here, since the user needs to first
+    // authenticate with their SSO IdP Provider
+    if (
+      identityResponse instanceof IdentityDeviceVerificationResponse ||
+      identityResponse instanceof IdentitySsoRequiredResponse
+    ) {
       return;
     }
 
@@ -251,6 +253,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     this.cache.next(data);
 
     const [authResult] = await this.startLogIn();
+    authResult.masterPassword = this.cache.value["masterPassword"] ?? null;
     return authResult;
   }
 

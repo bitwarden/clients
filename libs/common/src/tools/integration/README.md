@@ -1,3 +1,5 @@
+# Tools Vendor Integration
+
 This module defines interfaces and helpers for creating vendor integration sites.
 
 ## RPC
@@ -36,11 +38,7 @@ type ImporterConfiguration = IntegrationConfiguration & {
   importer: {
     fileless: false | { selector: string };
     formats: ContentType[];
-    crep:
-      | false
-      | {
-          /* credential exchange protocol configuration */
-        };
+    crep: false | {/* credential exchange protocol configuration */};
     // ...
   };
 };

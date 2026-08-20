@@ -68,7 +68,7 @@ export class Fido2AuthenticatorError extends Error {
 }
 
 export interface PublicKeyCredentialDescriptor {
-  id: ArrayBuffer;
+  id: Uint8Array<ArrayBuffer>;
   transports?: ("ble" | "hybrid" | "internal" | "nfc" | "usb")[];
   type: "public-key";
 }
@@ -89,7 +89,7 @@ export interface Fido2AuthenticatorMakeCredentialsParams {
   };
   /** The user account’s PublicKeyCredentialUserEntity, containing the user handle given by the Relying Party. */
   userEntity: {
-    id: BufferSource;
+    id: Uint8Array<ArrayBuffer>;
     name?: string;
     displayName?: string;
     icon?: string;
@@ -120,10 +120,10 @@ export interface Fido2AuthenticatorMakeCredentialsParams {
 }
 
 export interface Fido2AuthenticatorMakeCredentialResult {
-  credentialId: BufferSource;
-  attestationObject: BufferSource;
-  authData: BufferSource;
-  publicKey: BufferSource;
+  credentialId: Uint8Array<ArrayBuffer>;
+  attestationObject: Uint8Array<ArrayBuffer>;
+  authData: Uint8Array<ArrayBuffer>;
+  publicKey: Uint8Array<ArrayBuffer>;
   publicKeyAlgorithm: number;
 }
 
@@ -138,7 +138,7 @@ export interface Fido2AuthenticatorGetAssertionParams {
   rpId: string;
   /** The hash of the serialized client data, provided by the client. */
   hash: BufferSource;
-  allowCredentialDescriptorList: PublicKeyCredentialDescriptor[];
+  allowCredentialDescriptorList?: PublicKeyCredentialDescriptor[];
   /** The effective user verification requirement for assertion, a Boolean value provided by the client. */
   requireUserVerification: boolean;
   /** The constant Boolean value true. It is included here as a pseudo-parameter to simplify applying this abstract authenticator model to implementations that may wish to make a test of user presence optional although WebAuthn does not. */
@@ -153,9 +153,9 @@ export interface Fido2AuthenticatorGetAssertionParams {
 
 export interface Fido2AuthenticatorGetAssertionResult {
   selectedCredential: {
-    id: ArrayBuffer;
-    userHandle?: ArrayBuffer;
+    id: Uint8Array<ArrayBuffer>;
+    userHandle?: Uint8Array<ArrayBuffer>;
   };
-  authenticatorData: ArrayBuffer;
-  signature: ArrayBuffer;
+  authenticatorData: Uint8Array<ArrayBuffer>;
+  signature: Uint8Array<ArrayBuffer>;
 }

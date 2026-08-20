@@ -1,12 +1,11 @@
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { isCryptoError } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
-import { HashPurpose } from "../../../platform/enums";
 import { UserKey } from "../../../types/key";
 import { MasterPasswordUnlockService } from "../abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "../abstractions/master-password.service.abstraction";
@@ -15,7 +14,7 @@ import { MasterPasswordUnlockData } from "../types/master-password.types";
 export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockService {
   constructor(
     private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private readonly keyService: KeyService,
+    private readonly legacyCompatKeyService: LegacyCompatKeyService,
     private readonly logService: LogService,
   ) {}
 
@@ -93,7 +92,7 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
     masterPasswordUnlockData: MasterPasswordUnlockData,
     userId: UserId,
   ): Promise<void> {
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       masterPassword,
       masterPasswordUnlockData.salt,
       masterPasswordUnlockData.kdf,
@@ -103,13 +102,6 @@ export class DefaultMasterPasswordUnlockService implements MasterPasswordUnlockS
       throw new Error("Master key could not be created to set legacy master password state.");
     }
 
-    const localKeyHash = await this.keyService.hashMasterKey(
-      masterPassword,
-      masterKey,
-      HashPurpose.LocalAuthorization,
-    );
-
-    await this.masterPasswordService.setMasterKeyHash(localKeyHash, userId);
     await this.masterPasswordService.setMasterKey(masterKey, userId);
   }
 }

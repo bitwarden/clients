@@ -1,10 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy } from "@angular/core";
-import { Observable, map, Subject } from "rxjs";
+import { Observable, Subject, map } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { SelfHostedEnvConfigDialogComponent } from "@bitwarden/auth/angular";
+import { AvailableRegionsService } from "@bitwarden/common/platform/abstractions/available-regions.service";
 import {
   EnvironmentService,
   Region,
@@ -13,6 +11,7 @@ import {
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DialogService,
+  IconModule,
   LinkModule,
   MenuModule,
   ToastService,
@@ -20,27 +19,32 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { SelfHostedEnvConfigDialogComponent } from "../self-hosted-env-config-dialog";
+
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "environment-selector",
   templateUrl: "environment-selector.component.html",
   standalone: true,
-  imports: [CommonModule, I18nPipe, MenuModule, LinkModule, TypographyModule],
+  imports: [CommonModule, I18nPipe, IconModule, LinkModule, MenuModule, TypographyModule],
 })
 export class EnvironmentSelectorComponent implements OnDestroy {
   protected ServerEnvironmentType = Region;
-  protected availableRegions = this.environmentService.availableRegions();
+  protected availableRegions$: Observable<RegionConfig[]> =
+    this.availableRegionsService.availableRegions$;
   protected selectedRegion$: Observable<RegionConfig | undefined> =
-    this.environmentService.environment$.pipe(
-      map((e) => e.getRegion()),
-      map((r) => this.availableRegions.find((ar) => ar.key === r)),
+    this.environmentService.globalEnvironment$.pipe(
+      map((env) =>
+        this.environmentService.availableRegions().find((ar) => ar.key === env.getRegion()),
+      ),
     );
 
   private destroy$ = new Subject<void>();
 
   constructor(
     public environmentService: EnvironmentService,
+    private availableRegionsService: AvailableRegionsService,
     private dialogService: DialogService,
     private toastService: ToastService,
     private i18nService: I18nService,

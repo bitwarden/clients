@@ -1,14 +1,38 @@
-import { Meta, StoryObj } from "@storybook/angular";
+import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
+
+import { I18nMockService } from "../utils";
 
 import { ColorPasswordComponent } from "./color-password.component";
 
-const examplePassword = "Wq$Jk😀7jlI  DX#rS5Sdi!z ";
+const examplePassword = "Wq$Jk😀7jlI  DX#rS5Sdi!z0O ";
 
 export default {
   title: "Component Library/Color Password",
   component: ColorPasswordComponent,
+  decorators: [
+    applicationConfig({
+      providers: [
+        {
+          provide: PlatformUtilsService,
+          useValue: {
+            // eslint-disable-next-line
+            copyToClipboard: (text: string) => console.log(`${text} copied to clipboard`),
+          },
+        },
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              passwordAnnounceSpace: "space",
+            }),
+        },
+      ],
+    }),
+  ],
   args: {
     password: examplePassword,
     showCount: false,

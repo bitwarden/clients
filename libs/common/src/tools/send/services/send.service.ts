@@ -2,21 +2,25 @@
 // @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncArrayBuffer,
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
-import { KeyGenerationService } from "../../../key-management/crypto";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
-import { SendType } from "../enums/send-type";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendFile } from "../models/domain/send-file";
@@ -24,6 +28,7 @@ import { SendText } from "../models/domain/send-text";
 import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
+import { SendType } from "../types/send-type";
 
 import { SendStateProvider } from "./send-state.provider.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
@@ -51,6 +56,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
+    private configService: ConfigService,
   ) {}
 
   async encrypt(
@@ -81,18 +87,26 @@ export class SendService implements InternalSendServiceAbstraction {
     }
 
     const hasEmails = (model.emails?.length ?? 0) > 0;
+
     if (hasEmails) {
-      send.emails = model.emails.join(",");
+      send.emails = model.emails
+        .map((e) => e.trim())
+        .join(",")
+        .toLocaleLowerCase();
       send.password = null;
-    } else if (password != null) {
-      // Note: Despite being called key, the passwordKey is not used for encryption.
-      // It is used as a static proof that the client knows the password, and has the encryption key.
-      const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
-        password,
-        model.key,
-        new PBKDF2KdfConfig(SEND_KDF_ITERATIONS),
-      );
-      send.password = passwordKey.keyB64;
+    } else {
+      send.emails = null;
+
+      if (password != null) {
+        // Note: Despite being called key, the passwordKey is not used for encryption.
+        // It is used as a static proof that the client knows the password, and has the encryption key.
+        const passwordKey = await this.keyGenerationService.deriveKeyFromPassword(
+          password,
+          model.key,
+          new PBKDF2KdfConfig(SEND_KDF_ITERATIONS),
+        );
+        send.password = passwordKey.keyB64;
+      }
     }
     const userId = (await firstValueFrom(this.accountService.activeAccount$)).id;
     if (userKey == null) {
@@ -100,10 +114,14 @@ export class SendService implements InternalSendServiceAbstraction {
     }
     // Key is not a SymmetricCryptoKey, but key material used to derive the cryptoKey
     send.key = await this.encryptService.encryptBytes(model.key, userKey);
-    // FIXME: model.name can be null. encryptString should not be called with null values.
-    send.name = await this.encryptService.encryptString(model.name, model.cryptoKey);
-    // FIXME: model.notes can be null. encryptString should not be called with null values.
-    send.notes = await this.encryptService.encryptString(model.notes, model.cryptoKey);
+    send.name =
+      model.name != null
+        ? await this.encryptService.encryptString(model.name, model.cryptoKey)
+        : null;
+    send.notes =
+      model.notes != null
+        ? await this.encryptService.encryptString(model.notes, model.cryptoKey)
+        : null;
     if (send.type === SendType.Text) {
       send.text = new SendText();
       // FIXME: model.text.text can be null. encryptString should not be called with null values.
@@ -124,8 +142,18 @@ export class SendService implements InternalSendServiceAbstraction {
         } else {
           fileData = await this.parseFile(send, file, model.cryptoKey, userId);
         }
+      } else if (model.file.fileName) {
+        // When editing an existing File Send and using the SDK (`pm-30110-sdk-sends-api` feature flag is on)
+        // the `file.fileName` field is required for the edit to succeed (this is enforced both by the SDK and
+        // by `send-sdk-api.service` even though the server doesn't perform any edits with the field).
+        send.file.fileName = await this.encryptService.encryptString(
+          model.file.fileName,
+          model.cryptoKey,
+        );
       }
     }
+
+    send.authType = model.authType;
 
     return [send, fileData];
   }

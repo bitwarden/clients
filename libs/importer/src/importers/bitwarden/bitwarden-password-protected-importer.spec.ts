@@ -2,19 +2,24 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { emptyGuid, OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey, UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { KdfType, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KdfType, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { emptyAccountEncrypted } from "../spec-data/bitwarden-json/account-encrypted.json";
-import { emptyUnencryptedExport } from "../spec-data/bitwarden-json/unencrypted.json";
+import {
+  emptyUnencryptedExport,
+  unencryptedExportWithCipherKey,
+} from "../spec-data/bitwarden-json/unencrypted.json";
 
+import { BitwardenEncryptedJsonImporter } from "./bitwarden-encrypted-json-importer";
 import { BitwardenJsonImporter } from "./bitwarden-json-importer";
 import { BitwardenPasswordProtectedImporter } from "./bitwarden-password-protected-importer";
 
@@ -24,7 +29,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
   let encryptService: MockProxy<EncryptService>;
   let i18nService: MockProxy<I18nService>;
   let cipherService: MockProxy<CipherService>;
-  let pinService: MockProxy<PinServiceAbstraction>;
+  let keyGenerationService: MockProxy<KeyGenerationService>;
   let accountService: MockProxy<AccountService>;
   const password = Utils.newGuid();
   const promptForPassword_callback = async () => {
@@ -36,14 +41,15 @@ describe("BitwardenPasswordProtectedImporter", () => {
     encryptService = mock<EncryptService>();
     i18nService = mock<I18nService>();
     cipherService = mock<CipherService>();
-    pinService = mock<PinServiceAbstraction>();
+    keyGenerationService = mock<KeyGenerationService>();
     accountService = mock<AccountService>();
 
     accountService.activeAccount$ = of({
       id: emptyGuid as UserId,
-      email: "test@example.com",
-      emailVerified: true,
-      name: "Test User",
+      ...mockAccountInfoWith({
+        email: "test@example.com",
+        name: "Test User",
+      }),
     });
 
     const mockOrgId = emptyGuid as OrganizationId;
@@ -71,7 +77,7 @@ describe("BitwardenPasswordProtectedImporter", () => {
       encryptService,
       i18nService,
       cipherService,
-      pinService,
+      keyGenerationService,
       accountService,
       promptForPassword_callback,
     );
@@ -86,34 +92,45 @@ describe("BitwardenPasswordProtectedImporter", () => {
       expect((await importer.parse(emptyUnencryptedExport)).success).toEqual(true);
       expect(BitwardenJsonImporter.prototype.parse).toHaveBeenCalledWith(emptyUnencryptedExport);
     });
+
+    it("drops the per-cipher key so key-bearing exports import successfully", async () => {
+      const result = await importer.parse(unencryptedExportWithCipherKey);
+
+      expect(result.success).toEqual(true);
+      expect(result.ciphers).toHaveLength(1);
+      expect(result.ciphers[0].key).toBeNull();
+    });
   });
 
   describe("Account encrypted", () => {
     beforeAll(() => {
-      jest.spyOn(BitwardenJsonImporter.prototype, "parse");
+      jest.spyOn(BitwardenEncryptedJsonImporter.prototype, "parse");
     });
 
     beforeEach(() => {
       accountService.activeAccount$ = of({
         id: emptyGuid as UserId,
-        email: "test@example.com",
-        emailVerified: true,
-        name: "Test User",
+        ...mockAccountInfoWith({
+          email: "test@example.com",
+          name: "Test User",
+        }),
       });
       importer = new BitwardenPasswordProtectedImporter(
         keyService,
         encryptService,
         i18nService,
         cipherService,
-        pinService,
+        keyGenerationService,
         accountService,
         promptForPassword_callback,
       );
     });
 
-    it("Should call BitwardenJsonImporter", async () => {
-      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(true);
-      expect(BitwardenJsonImporter.prototype.parse).toHaveBeenCalledWith(emptyAccountEncrypted);
+    it("Should call BitwardenEncryptedJsonImporter", async () => {
+      expect((await importer.parse(emptyAccountEncrypted)).success).toEqual(false);
+      expect(BitwardenEncryptedJsonImporter.prototype.parse).toHaveBeenCalledWith(
+        emptyAccountEncrypted,
+      );
     });
   });
 

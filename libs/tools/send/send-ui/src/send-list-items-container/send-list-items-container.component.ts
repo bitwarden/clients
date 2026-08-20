@@ -10,18 +10,21 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
+import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import {
   BadgeModule,
   ButtonModule,
   DialogService,
   IconButtonModule,
+  IconComponent,
   ItemModule,
   SectionComponent,
   SectionHeaderComponent,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 
@@ -39,12 +42,15 @@ import {
     JslibModule,
     SectionHeaderComponent,
     RouterLink,
+    IconComponent,
+    TooltipDirective,
   ],
   selector: "app-send-list-items-container",
   templateUrl: "send-list-items-container.component.html",
 })
 export class SendListItemsContainerComponent {
   sendType = SendType;
+  authType = AuthType;
   /**
    * The list of sends to display.
    */

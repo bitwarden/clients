@@ -24,6 +24,7 @@ import {
 } from "@bitwarden/assets/svg";
 import {
   LoginStrategyServiceAbstraction,
+  LoginStrategySessionTimeoutService,
   UserDecryptionOptionsServiceAbstraction,
   TrustedDeviceUserDecryptionOption,
   UserDecryptionOptions,
@@ -55,6 +56,7 @@ import {
   DialogService,
   FormFieldModule,
   ToastService,
+  IconModule,
 } from "@bitwarden/components";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./child-components/two-factor-auth-authenticator/two-factor-auth-authenticator.component";
@@ -88,6 +90,7 @@ import {
     AsyncActionsModule,
     CheckboxModule,
     ButtonModule,
+    IconModule,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthDuoComponent,
@@ -104,8 +107,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("continueButton", { read: ElementRef, static: false }) continueButton:
-    | ElementRef
-    | undefined = undefined;
+    ElementRef | undefined = undefined;
 
   loading = true;
 
@@ -174,6 +176,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     private twoFactorAuthComponentCacheService: TwoFactorAuthComponentCacheService,
     private authService: AuthService,
     private keyConnectorService: KeyConnectorService,
+    private loginStrategySessionTimeoutService: LoginStrategySessionTimeoutService,
   ) {}
 
   async ngOnInit() {
@@ -265,15 +268,11 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
   }
 
   private listenForAuthnSessionTimeout() {
-    this.loginStrategyService.authenticationSessionTimeout$
+    this.loginStrategySessionTimeoutService.loginSessionTimeout$
       .pipe(takeUntilDestroyed(this.destroyRef))
       // TODO: Fix this!
       // eslint-disable-next-line rxjs/no-async-subscribe
-      .subscribe(async (expired) => {
-        if (!expired) {
-          return;
-        }
-
+      .subscribe(async () => {
         try {
           await this.router.navigate([this.authenticationSessionTimeoutRoute]);
         } catch (err) {
@@ -450,7 +449,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
     }
 
     // User is fully logged in so handle any post login logic before executing navigation
-    await this.loginSuccessHandlerService.run(authResult.userId);
+    await this.loginSuccessHandlerService.run(authResult.userId, authResult.masterPassword);
 
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
@@ -487,7 +486,7 @@ export class TwoFactorAuthComponent implements OnInit, OnDestroy {
       !userDecryptionOpts.hasMasterPassword && userDecryptionOpts.keyConnectorOption === undefined;
 
     // New users without a master password must set a master password before advancing.
-    if (requireSetPassword || authResult.resetMasterPassword) {
+    if (requireSetPassword) {
       // Change implies going no password -> password in this case
       return await this.handleChangePasswordRequired(this.orgSsoIdentifier);
     }

@@ -8,7 +8,7 @@ import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
-import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { mockAccountServiceWith, mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -79,17 +79,21 @@ describe("DefaultLockService", () => {
     );
 
     it("locks the active account last", async () => {
-      await accountService.addAccount(mockUser2, {
-        name: "name2",
-        email: "email2@example.com",
-        emailVerified: false,
-      });
+      await accountService.addAccount(
+        mockUser2,
+        mockAccountInfoWith({
+          name: "name2",
+          email: "email2@example.com",
+        }),
+      );
 
-      await accountService.addAccount(mockUser3, {
-        name: "name3",
-        email: "name3@example.com",
-        emailVerified: false,
-      });
+      await accountService.addAccount(
+        mockUser3,
+        mockAccountInfoWith({
+          name: "name3",
+          email: "name3@example.com",
+        }),
+      );
 
       const lockSpy = jest.spyOn(sut, "lock").mockResolvedValue(undefined);
 

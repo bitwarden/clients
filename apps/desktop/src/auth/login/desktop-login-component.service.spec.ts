@@ -6,7 +6,6 @@ import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import {
   Environment,
   EnvironmentService,
@@ -16,6 +15,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ToastService } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
 
@@ -127,7 +128,7 @@ describe("DesktopLoginComponentService", () => {
 
         passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
         passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-        jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+        jest.spyOn(Utils, "fromArrayToUrlB64").mockReturnValue(codeChallenge);
 
         await service.redirectToSsoLogin(email);
 
@@ -136,8 +137,60 @@ describe("DesktopLoginComponentService", () => {
             codeChallenge,
             state,
             email,
+            undefined,
           );
         } else {
+          expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
+          expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+          expect(platformUtilsService.launchUri).toHaveBeenCalled();
+        }
+      });
+    });
+  });
+
+  describe("redirectToSsoLoginWithOrganizationSsoIdentifier", () => {
+    // Array of all permutations of isAppImage and isDev
+    const permutations = [
+      [true, false], // Case 1: isAppImage true
+      [false, true], // Case 2: isDev true
+      [true, true], // Case 3: all true
+      [false, false], // Case 4: all false
+    ];
+
+    permutations.forEach(([isAppImage, isDev]) => {
+      it("calls redirectToSso with orgSsoIdentifier", async () => {
+        (global as any).ipc.platform.isAppImage = isAppImage;
+        (global as any).ipc.platform.isDev = isDev;
+
+        const email = "test@bitwarden.com";
+        const state = "testState";
+        const codeVerifier = "testCodeVerifier";
+        const codeChallenge = "testCodeChallenge";
+        const orgSsoIdentifier = "orgSsoId";
+
+        passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+        passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+        jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+
+        await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
+
+        if (isAppImage || isDev) {
+          expect(ipc.platform.localhostCallbackService.openSsoPrompt).toHaveBeenCalledWith(
+            codeChallenge,
+            state,
+            email,
+            orgSsoIdentifier,
+          );
+        } else {
+          expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            expect.any(String),
+            email,
+            orgSsoIdentifier,
+          );
           expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(state);
           expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
           expect(platformUtilsService.launchUri).toHaveBeenCalled();

@@ -2,7 +2,9 @@
 // @ts-strict-ignore
 import { Observable, map, concatMap, share, ReplaySubject, timer, combineLatest, of } from "rxjs";
 
-import { EncString } from "../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import {
   SingleUserState,
   StateProvider,
@@ -25,9 +27,13 @@ const ONE_MINUTE = 1000 * 60;
  *
  *  DO NOT USE THIS for synchronized data.
  */
-export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
-  implements SingleUserState<Outer>
-{
+export class SecretState<
+  Outer,
+  Id,
+  Plaintext extends object,
+  Disclosed,
+  Secret,
+> implements SingleUserState<Outer> {
   // The constructor is private to avoid creating a circular dependency when
   // wiring the derived and secret states together.
   private constructor(
@@ -147,10 +153,10 @@ export class SecretState<Outer, Id, Plaintext extends object, Disclosed, Secret>
 
     // convert the object to a list format so that all encrypt and decrypt
     // operations are self-similar
-    const desconstructed = this.key.deconstruct(data);
+    const deconstructed = this.key.deconstruct(data);
 
     // encrypt each value individually
-    const classifyTasks = desconstructed.map(async (item) => this.classifyItem(encryptor, item));
+    const classifyTasks = deconstructed.map(async (item) => this.classifyItem(encryptor, item));
     const classified = await Promise.all(classifyTasks);
 
     return classified;

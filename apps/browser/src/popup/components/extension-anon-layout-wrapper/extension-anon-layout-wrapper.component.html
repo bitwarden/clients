@@ -6,7 +6,7 @@
     [pageTitle]="''"
   >
     <div class="tw-w-32">
-      <bit-icon *ngIf="showLogo" [icon]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-icon>
+      <bit-svg *ngIf="showLogo" [content]="logo" [ariaLabel]="'appLogoLabel' | i18n"></bit-svg>
     </div>
 
     <ng-container slot="end">
@@ -24,9 +24,20 @@
     [maxWidth]="maxWidth"
     [hideFooter]="hideFooter"
     [hideCardWrapper]="hideCardWrapper"
+    [hidePageIcon]="hidePageIcon"
+    [contentVerticalPadding]="contentVerticalPadding"
+    [footerVerticalPadding]="footerVerticalPadding"
+    [heroTextAlignment]="heroTextAlignment"
+    [secondaryContentLocation]="secondaryContentLocation"
   >
     <router-outlet></router-outlet>
-    <router-outlet slot="secondary" name="secondary"></router-outlet>
+    <!-- The shared layout exposes two distinct slot selectors. We pick which one -->
+    <!-- to project into based on the route-level secondaryContentLocation flag. -->
+    @if (secondaryContentLocation === "footer") {
+      <router-outlet slot="footer-secondary" name="secondary"></router-outlet>
+    } @else {
+      <router-outlet slot="secondary" name="secondary"></router-outlet>
+    }
     <router-outlet slot="environment-selector" name="environment-selector"></router-outlet>
   </auth-anon-layout>
 </popup-page>

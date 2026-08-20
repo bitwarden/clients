@@ -8,6 +8,7 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use dirs;
 use hex::decode;
+use itertools::Itertools;
 use rusqlite::{params, Connection};
 
 mod platform;
@@ -51,36 +52,107 @@ pub enum LoginImportResult {
 }
 
 pub trait InstalledBrowserRetriever {
-    fn get_installed_browsers() -> Result<Vec<String>>;
+    fn get_installed_browsers(mas_build: bool) -> Vec<String>;
 }
 
 pub struct DefaultInstalledBrowserRetriever {}
 
 impl InstalledBrowserRetriever for DefaultInstalledBrowserRetriever {
-    fn get_installed_browsers() -> Result<Vec<String>> {
-        let mut browsers = Vec::with_capacity(SUPPORTED_BROWSER_MAP.len());
-
-        for (browser, config) in SUPPORTED_BROWSER_MAP.iter() {
-            let data_dir = get_browser_data_dir(config)?;
-            if data_dir.exists() {
-                browsers.push((*browser).to_string());
-            }
+    fn get_installed_browsers(mas_build: bool) -> Vec<String> {
+        // Show all browsers for MAS builds, user will grant access when selected
+        if mas_build {
+            return SUPPORTED_BROWSER_MAP
+                .keys()
+                .map(|browser| (*browser).to_string())
+                .collect();
         }
-
-        Ok(browsers)
+        // When not in sandbox, check file system directly
+        SUPPORTED_BROWSER_MAP
+            .iter()
+            .filter_map(|(browser, config)| {
+                get_and_validate_data_dir(config)
+                    .ok()
+                    .filter(|data_dir| data_dir.exists())
+                    .map(|_| (*browser).to_string())
+            })
+            .collect()
     }
 }
 
-pub fn get_available_profiles(browser_name: &String) -> Result<Vec<ProfileInfo>> {
+#[allow(unused_variables, clippy::unused_async)]
+pub async fn get_available_profiles(
+    browser_name: &str,
+    mas_build: bool,
+) -> Result<Vec<ProfileInfo>> {
+    // MAS builds resolve the data dir from the security-scoped bookmark — `dirs::home_dir()`
+    // returns the sandbox container path under the App Sandbox, not the user's real $HOME.
+    #[cfg(target_os = "macos")]
+    if mas_build {
+        let access = platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?;
+        let read_result = load_local_state(access.path()).map(|s| get_profile_info(&s));
+        access.close().await?;
+        return read_result;
+    }
+
     let (_, local_state) = load_local_state_for_browser(browser_name)?;
     Ok(get_profile_info(&local_state))
 }
 
+/// Pre-translated picker dialog strings supplied by the renderer (which has the
+/// i18n service). The native side concatenates these with the resolved browser
+/// data path it computes via `getpwuid`.
+#[cfg(target_os = "macos")]
+pub struct PickerStrings {
+    pub message: String,
+    pub expected_location_label: String,
+    pub prompt: String,
+}
+
+/// Request access to browser directory (MAS builds only)
+/// This shows the permission dialog and creates a security-scoped bookmark
+#[cfg(target_os = "macos")]
+pub async fn request_browser_access(
+    browser_name: &str,
+    picker_strings: PickerStrings,
+    mas_build: bool,
+) -> Result<()> {
+    if mas_build {
+        platform::sandbox::ScopedBrowserAccess::request_only(browser_name, &picker_strings).await?;
+    }
+    Ok(())
+}
+
+#[allow(unused_variables)]
 pub async fn import_logins(
-    browser_name: &String,
-    profile_id: &String,
+    browser_name: &str,
+    profile_id: &str,
+    mas_build: bool,
 ) -> Result<Vec<LoginImportResult>> {
+    // MAS builds resolve the data dir from the security-scoped bookmark — `dirs::home_dir()`
+    // returns the sandbox container path under the App Sandbox, not the user's real $HOME.
+    // `ScopedBrowserAccess::close()` is awaited on the success path so the security scope
+    // is released before the function returns; `Drop` is a defensive backstop on the error path.
+    #[cfg(target_os = "macos")]
+    let access = if mas_build {
+        Some(platform::sandbox::ScopedBrowserAccess::resume(browser_name).await?)
+    } else {
+        None
+    };
+
+    #[cfg(target_os = "macos")]
+    let (data_dir, local_state) = match access.as_ref() {
+        Some(a) => {
+            let data_dir = a.path().to_path_buf();
+            let local_state = load_local_state(&data_dir)?;
+            (data_dir, local_state)
+        }
+        None => load_local_state_for_browser(browser_name)?,
+    };
+
+    #[cfg(not(target_os = "macos"))]
     let (data_dir, local_state) = load_local_state_for_browser(browser_name)?;
+
+    validate_profile_id(&local_state, profile_id)?;
 
     let mut crypto_service = platform::get_crypto_service(browser_name, &local_state)
         .map_err(|e| anyhow!("Failed to get crypto service: {}", e))?;
@@ -99,10 +171,15 @@ pub async fn import_logins(
     // doesn't fail for a missing file, only when something goes really wrong.
     let all_logins = local_logins
         .into_iter()
-        .chain(account_logins.into_iter())
+        .chain(account_logins)
         .collect::<Vec<_>>();
 
     let results = decrypt_logins(all_logins, &mut crypto_service).await;
+
+    #[cfg(target_os = "macos")]
+    if let Some(a) = access {
+        a.close().await?;
+    }
 
     Ok(results)
 }
@@ -114,7 +191,11 @@ pub async fn import_logins(
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct BrowserConfig {
     pub name: &'static str,
-    pub data_dir: &'static str,
+    pub data_dir: &'static [&'static str],
+    /// macOS application bundle identifier; used by sandbox builds to detect installation
+    /// without filesystem access. `None` on platforms where bundle IDs do not apply.
+    #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+    pub bundle_id: Option<&'static str>,
 }
 
 pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
@@ -126,11 +207,19 @@ pub(crate) static SUPPORTED_BROWSER_MAP: LazyLock<
         .collect::<std::collections::HashMap<_, _>>()
 });
 
-fn get_browser_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
-    let dir = dirs::home_dir()
-        .ok_or_else(|| anyhow!("Home directory not found"))?
-        .join(config.data_dir);
-    Ok(dir)
+fn get_and_validate_data_dir(config: &BrowserConfig) -> Result<PathBuf> {
+    for data_dir in config.data_dir.iter() {
+        let dir = dirs::home_dir()
+            .ok_or_else(|| anyhow!("Home directory not found"))?
+            .join(data_dir);
+        if dir.exists() {
+            return Ok(dir);
+        }
+    }
+    Err(anyhow!(
+        "Browser user data directory '{:?}' not found",
+        config.data_dir
+    ))
 }
 
 //
@@ -169,18 +258,12 @@ struct OsCrypt {
     app_bound_encrypted_key: Option<String>,
 }
 
-fn load_local_state_for_browser(browser_name: &String) -> Result<(PathBuf, LocalState)> {
+fn load_local_state_for_browser(browser_name: &str) -> Result<(PathBuf, LocalState)> {
     let config = SUPPORTED_BROWSER_MAP
-        .get(browser_name.as_str())
+        .get(browser_name)
         .ok_or_else(|| anyhow!("Unsupported browser: {}", browser_name))?;
 
-    let data_dir = get_browser_data_dir(config)?;
-    if !data_dir.exists() {
-        return Err(anyhow!(
-            "Browser user data directory '{}' not found",
-            data_dir.display()
-        ));
-    }
+    let data_dir = get_and_validate_data_dir(config)?;
 
     let local_state = load_local_state(&data_dir)?;
 
@@ -210,7 +293,22 @@ fn get_profile_info(local_state: &LocalState) -> Vec<ProfileInfo> {
             account_name: info.gaia_id.clone(),
             account_email: info.user_name.clone(),
         })
+        // info_cache is a HashMap with random iteration order, sort for a stable UI
+        .sorted_by(|a, b| {
+            a.name
+                .to_lowercase()
+                .cmp(&b.name.to_lowercase())
+                .then_with(|| a.folder.cmp(&b.folder))
+        })
         .collect()
+}
+
+fn validate_profile_id(local_state: &LocalState, profile_id: &str) -> Result<()> {
+    if local_state.profile.info_cache.contains_key(profile_id) {
+        Ok(())
+    } else {
+        Err(anyhow!("Unknown browser profile: {}", profile_id))
+    }
 }
 
 struct EncryptedLogin {
@@ -220,11 +318,7 @@ struct EncryptedLogin {
     encrypted_note: Vec<u8>,
 }
 
-fn get_logins(
-    browser_dir: &Path,
-    profile_id: &String,
-    filename: &str,
-) -> Result<Vec<EncryptedLogin>> {
+fn get_logins(browser_dir: &Path, profile_id: &str, filename: &str) -> Result<Vec<EncryptedLogin>> {
     let login_data_path = browser_dir.join(profile_id).join(filename);
 
     // Sometimes database files are not present, so nothing to import
@@ -461,5 +555,50 @@ mod tests {
         assert_eq!(p3.name, "N3");
         assert_eq!(p3.account_name.as_deref(), Some("A3"));
         assert_eq!(p3.account_email, None);
+    }
+
+    #[test]
+    fn test_get_profile_info_sorted_by_name_then_folder() {
+        let local_state = make_local_state(vec![
+            ("Profile 2", "banana", None, None),
+            ("Profile 10", "Apple", None, None),
+            ("Profile 3", "apple", None, None),
+            ("Profile 1", "Cherry", None, None),
+        ]);
+        let infos = get_profile_info(&local_state);
+        let order = infos
+            .iter()
+            .map(|p| (p.name.as_str(), p.folder.as_str()))
+            .collect::<Vec<_>>();
+        assert_eq!(
+            order,
+            vec![
+                ("Apple", "Profile 10"),
+                ("apple", "Profile 3"),
+                ("banana", "Profile 2"),
+                ("Cherry", "Profile 1"),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_validate_profile_id_accepts_known_profile() {
+        let local_state = make_local_state(vec![
+            ("Default", "User 1", None, None),
+            ("Profile 1", "User 2", None, None),
+        ]);
+        assert!(validate_profile_id(&local_state, "Default").is_ok());
+        assert!(validate_profile_id(&local_state, "Profile 1").is_ok());
+    }
+
+    #[test]
+    fn test_validate_profile_id_rejects_unknown_and_traversal() {
+        let local_state = make_local_state(vec![("Default", "User 1", None, None)]);
+        for profile_id in ["Profile 99", "..", "../../x", "/abs", "", "default"] {
+            assert!(
+                validate_profile_id(&local_state, profile_id).is_err(),
+                "expected rejection for {profile_id:?}"
+            );
+        }
     }
 }

@@ -8,9 +8,9 @@ export class SsoUrlService {
    * @param webAppUrl The URL of the web app
    * @param clientType The client type that is initiating SSO, which will drive how the response is handled
    * @param redirectUri The redirect URI or callback that will receive the SSO code after authentication
-   * @param state A state value that will be peristed through the SSO flow
+   * @param state A state value that will be persisted through the SSO flow
    * @param codeChallenge A challenge value that will be used to verify the SSO code after authentication
-   * @param email The optional email adddress of the user initiating SSO, which will be used to look up the org SSO identifier
+   * @param email The optional email address of the user initiating SSO, which will be used to look up the org SSO identifier
    * @param orgSsoIdentifier The optional SSO identifier of the org that is initiating SSO
    * @returns The URL for redirecting users to the web app SSO component
    */

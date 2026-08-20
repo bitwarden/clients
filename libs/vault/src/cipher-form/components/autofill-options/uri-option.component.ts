@@ -1,13 +1,13 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { DragDropModule } from "@angular/cdk/drag-drop";
-import { NgForOf, NgIf } from "@angular/common";
 import {
   Component,
   ElementRef,
   EventEmitter,
   forwardRef,
   Input,
+  input,
   Output,
   ViewChild,
 } from "@angular/core";
@@ -34,6 +34,8 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 
+import { DESKTOP_APP_URI_PREFIX } from "../../../models/desktop-app-uri.constants";
+
 import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -41,6 +43,10 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
 @Component({
   selector: "vault-autofill-uri-option",
   templateUrl: "./uri-option.component.html",
+  host: {
+    class:
+      "tw-flex tw-flex-col tw-p-3 -tw-mx-3 tw-gap-4 tw-bg-background tw-text-main tw-rounded-lg first:-tw-mt-3 last-of-type:tw-mb-0",
+  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -55,8 +61,6 @@ import { AdvancedUriOptionDialogComponent } from "./advanced-uri-option-dialog.c
     IconButtonModule,
     JslibModule,
     SelectModule,
-    NgForOf,
-    NgIf,
   ],
 })
 export class UriOptionComponent implements ControlValueAccessor {
@@ -136,6 +140,13 @@ export class UriOptionComponent implements ControlValueAccessor {
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input({ required: true }) index: number;
 
+  /**
+   * When true, URIs prefixed with the desktop app scheme will display the "App (URI)" label
+   * instead of "Website (URI)". Should only be true when the WindowsDesktopAutotypeGA feature
+   * flag is enabled.
+   */
+  readonly showAppLabel = input(false);
+
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output()
@@ -159,15 +170,27 @@ export class UriOptionComponent implements ControlValueAccessor {
   }
 
   protected get uriLabel() {
+    const isAppUri =
+      this.showAppLabel() &&
+      (this.uriForm.controls.uri.value?.startsWith(DESKTOP_APP_URI_PREFIX) ?? false);
+
+    if (isAppUri) {
+      return this.index === 0
+        ? this.i18nService.t("appUri")
+        : this.i18nService.t("appUriCount", this.index + 1);
+    }
+
     return this.index === 0
       ? this.i18nService.t("websiteUri")
       : this.i18nService.t("websiteUriCount", this.index + 1);
   }
 
   protected get toggleTitle() {
-    return this.showMatchDetection
-      ? this.i18nService.t("hideMatchDetection", this.uriForm.value.uri)
-      : this.i18nService.t("showMatchDetection", this.uriForm.value.uri);
+    return this.i18nService.t(
+      this.showMatchDetection
+        ? "hideMatchDetectionNoPlaceholder"
+        : "showMatchDetectionNoPlaceholder",
+    );
   }
 
   // NG_VALUE_ACCESSOR implementation

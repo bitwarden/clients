@@ -1,29 +1,27 @@
-import { CommonModule } from "@angular/common";
+import { NgTemplateOutlet } from "@angular/common";
 import {
   booleanAttribute,
   Component,
-  EventEmitter,
-  Optional,
-  Output,
-  SkipSelf,
+  inject,
   input,
   model,
   contentChildren,
+  ChangeDetectionStrategy,
   computed,
+  ElementRef,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterLinkActive } from "@angular/router";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
+import { IconTileComponent } from "../icon-tile";
 
 import { NavBaseComponent } from "./nav-base.component";
 import { NavGroupAbstraction, NavItemComponent } from "./nav-item.component";
 import { SideNavService } from "./side-nav.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-nav-group",
   templateUrl: "./nav-group.component.html",
@@ -31,33 +29,42 @@ import { SideNavService } from "./side-nav.service";
     { provide: NavBaseComponent, useExisting: NavGroupComponent },
     { provide: NavGroupAbstraction, useExisting: NavGroupComponent },
   ],
-  imports: [CommonModule, NavItemComponent, IconButtonModule, I18nPipe],
+  imports: [NgTemplateOutlet, NavItemComponent, IconButtonModule, IconComponent, I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavGroupComponent extends NavBaseComponent {
+  protected readonly sideNavService = inject(SideNavService);
+  private readonly parentNavGroup = inject(NavGroupComponent, { optional: true, skipSelf: true });
+  private readonly el = inject(ElementRef);
+
   // Query direct children for hideIfEmpty functionality
   readonly nestedNavComponents = contentChildren(NavBaseComponent, { descendants: false });
 
-  readonly sideNavOpen = toSignal(this.sideNavService.open$);
+  /**
+   * A consumer-projected leading tile (e.g. a `bit-icon-tile`) forwarded into the composed nav
+   * item's `start` slot. Detected here because re-projected content is invisible to the nav item's
+   * own content query.
+   */
+  private readonly startSlotTiles = contentChildren(IconTileComponent, { descendants: false });
+  protected readonly hasStartSlotTile = computed(() => this.startSlotTiles().length > 0);
+
+  protected readonly sideNavOpen = this.sideNavService.open;
 
   readonly sideNavAndGroupOpen = computed(() => {
     return this.open() && this.sideNavOpen();
   });
 
-  /** When the side nav is open, the parent nav item should not show active styles when open. */
-  readonly parentHideActiveStyles = computed(() => {
-    return this.hideActiveStyles() || this.sideNavAndGroupOpen();
-  });
-
   /**
-   * Determines the appropriate icon for the toggle button based on variant and open state.
-   * - Tree variant: Always uses 'bwi-up-solid'
-   * - Default variant: Uses 'bwi-angle-up' when open, 'bwi-angle-down' when closed
+   * The collapse toggle sits at the far left (slot=start) for v1 groups at any depth and for v2
+   * nested groups. Only v2 top-level groups place it on the right (slot=end).
    */
-  readonly toggleButtonIcon = computed(() => {
-    if (this.variant() === "tree") {
-      return "bwi-up-solid";
-    }
-    return this.open() ? "bwi-angle-up" : "bwi-angle-down";
+  protected readonly toggleInStartSlot = computed(
+    () => this.sideNavService.version() === "default" || this.treeDepth() > 0,
+  );
+
+  /** When the side nav is open, the parent nav item should not show active styles when open. */
+  protected readonly parentHideActiveStyles = computed(() => {
+    return this.hideActiveStyles() || this.sideNavAndGroupOpen();
   });
 
   /**
@@ -80,7 +87,7 @@ export class NavGroupComponent extends NavBaseComponent {
   /**
    * UID for `[attr.aria-controls]`
    */
-  protected contentId = Math.random().toString(36).substring(2);
+  protected readonly contentId = Math.random().toString(36).substring(2);
 
   /**
    * Is `true` if the expanded content is visible
@@ -92,15 +99,13 @@ export class NavGroupComponent extends NavBaseComponent {
    */
   readonly hideIfEmpty = input(false, { transform: booleanAttribute });
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
-  @Output()
-  openChange = new EventEmitter<boolean>();
+  /** Forces active styles to be shown, regardless of the `routerLinkActiveOptions` */
+  readonly forceActiveStyles = input(false, { transform: booleanAttribute });
 
-  constructor(
-    protected sideNavService: SideNavService,
-    @Optional() @SkipSelf() private parentNavGroup: NavGroupComponent,
-  ) {
+  /** Does not toggle the expanded state on click */
+  readonly disableToggleOnClick = input(false, { transform: booleanAttribute });
+
+  constructor() {
     super();
 
     // Set tree depth based on parent's depth
@@ -112,9 +117,8 @@ export class NavGroupComponent extends NavBaseComponent {
 
   setOpen(isOpen: boolean) {
     this.open.set(isOpen);
-    this.openChange.emit(this.open());
-    if (this.open()) {
-      this.parentNavGroup?.setOpen(this.open());
+    if (this.open() && this.parentNavGroup) {
+      this.parentNavGroup.setOpen(this.open());
     }
   }
 
@@ -124,12 +128,12 @@ export class NavGroupComponent extends NavBaseComponent {
   }
 
   protected handleMainContentClicked() {
-    if (!this.sideNavService.open) {
+    if (!this.sideNavService.open()) {
       if (!this.route()) {
-        this.sideNavService.setOpen();
+        this.sideNavService.open.set(true);
       }
       this.open.set(true);
-    } else {
+    } else if (!this.disableToggleOnClick()) {
       this.toggle();
     }
     this.mainContentClicked.emit();

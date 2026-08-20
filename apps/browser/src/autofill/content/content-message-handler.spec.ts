@@ -3,6 +3,7 @@ import { mock } from "jest-mock-extended";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 
 import { postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
+import { EventSecurity } from "../utils/event-security";
 
 describe("ContentMessageHandler", () => {
   const sendMessageSpy = jest.spyOn(chrome.runtime, "sendMessage");
@@ -19,6 +20,7 @@ describe("ContentMessageHandler", () => {
   );
 
   beforeEach(() => {
+    jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
     // FIXME: Remove when updating file. Eslint update
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require("./content-message-handler");

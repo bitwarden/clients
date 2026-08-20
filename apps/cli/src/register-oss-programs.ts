@@ -1,3 +1,4 @@
+import { ReportProgram } from "./dirt/report.program";
 import { Program } from "./program";
 import { ServiceContainer } from "./service-container/service-container";
 import { SendProgram } from "./tools/send/send.program";
@@ -18,5 +19,8 @@ export async function registerOssPrograms(serviceContainer: ServiceContainer) {
   await vaultProgram.register();
 
   const sendProgram = new SendProgram(serviceContainer);
-  sendProgram.register();
+  await sendProgram.register();
+
+  const reportProgram = new ReportProgram(serviceContainer);
+  await reportProgram.register();
 }

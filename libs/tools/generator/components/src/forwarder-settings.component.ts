@@ -8,21 +8,31 @@ import {
   Output,
   SimpleChanges,
 } from "@angular/core";
-import { FormBuilder } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, ReplaySubject, skip, Subject, switchAll, takeUntil, withLatestFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { VendorId } from "@bitwarden/common/tools/extension";
+import {
+  FormFieldModule,
+  AriaDisableDirective,
+  TooltipDirective,
+  BitIconButtonComponent,
+  CheckboxModule,
+} from "@bitwarden/components";
 import {
   CredentialGeneratorService,
   ForwarderOptions,
   GeneratorMetadata,
 } from "@bitwarden/generator-core";
+import { I18nPipe } from "@bitwarden/ui-common";
 
 const Controls = Object.freeze({
   domain: "domain",
   token: "token",
   baseUrl: "baseUrl",
+  prefix: "prefix",
 });
 
 /** Options group for forwarder integrations */
@@ -31,7 +41,16 @@ const Controls = Object.freeze({
 @Component({
   selector: "tools-forwarder-settings",
   templateUrl: "forwarder-settings.component.html",
-  standalone: false,
+  imports: [
+    ReactiveFormsModule,
+    FormFieldModule,
+    AriaDisableDirective,
+    TooltipDirective,
+    BitIconButtonComponent,
+    CheckboxModule,
+    JslibModule,
+    I18nPipe,
+  ],
 })
 export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy {
   /** Instantiates the component
@@ -74,6 +93,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     [Controls.domain]: [""],
     [Controls.token]: [""],
     [Controls.baseUrl]: [""],
+    [Controls.prefix]: [false],
   });
 
   private vendor = new ReplaySubject<VendorId>(1);
@@ -89,6 +109,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
         this.displayDomain = forwarder.capabilities.fields.includes("domain");
         this.displayToken = forwarder.capabilities.fields.includes("token");
         this.displayBaseUrl = forwarder.capabilities.fields.includes("baseUrl");
+        this.displayPrefix = forwarder.capabilities.fields.includes("prefix");
 
         forwarder$.next(forwarder);
       });
@@ -100,7 +121,9 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     // bind settings to the reactive form
     settings$.pipe(switchAll(), takeUntil(this.destroyed$)).subscribe((settings) => {
       // skips reactive event emissions to break a subscription cycle
-      this.settings.patchValue(settings as any, { emitEvent: false });
+      // convert prefix sentinel string to boolean for the checkbox control
+      const patchValues = { ...(settings as any), prefix: (settings as any).prefix === "website" };
+      this.settings.patchValue(patchValues, { emitEvent: false });
     });
 
     // enable requested forwarder inputs
@@ -128,7 +151,9 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
     this.saveSettings
       .pipe(withLatestFrom(this.settings.valueChanges, settings$), takeUntil(this.destroyed$))
       .subscribe(([, value, settings]) => {
-        settings.next(value as ForwarderOptions);
+        // convert prefix boolean back to sentinel string for the settings store
+        const saveValues = { ...value, prefix: (value as any).prefix ? "website" : "" };
+        settings.next(saveValues as ForwarderOptions);
       });
   }
 
@@ -151,6 +176,7 @@ export class ForwarderSettingsComponent implements OnInit, OnChanges, OnDestroy 
   protected displayDomain: boolean = false;
   protected displayToken: boolean = false;
   protected displayBaseUrl: boolean = false;
+  protected displayPrefix: boolean = false;
 
   private readonly refresh$ = new Subject<void>();
 

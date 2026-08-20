@@ -14,40 +14,64 @@ void runSync(void* context, NSDictionary *params) {
 
   // Map credentials to ASPasswordCredential objects
   NSMutableArray *mappedCredentials = [NSMutableArray arrayWithCapacity:credentials.count];
+  
   for (NSDictionary *credential in credentials) {
-    NSString *type = credential[@"type"];
-
-    if ([type isEqualToString:@"password"]) {
-      NSString *cipherId = credential[@"cipherId"];
-      NSString *uri = credential[@"uri"];
-      NSString *username = credential[@"username"];
-
-      ASCredentialServiceIdentifier *serviceId = [[ASCredentialServiceIdentifier alloc]
-        initWithIdentifier:uri type:ASCredentialServiceIdentifierTypeURL];
-      ASPasswordCredentialIdentity *credential = [[ASPasswordCredentialIdentity alloc]
-        initWithServiceIdentifier:serviceId user:username recordIdentifier:cipherId];
-
-      [mappedCredentials addObject:credential];
-    }
-
-    if (@available(macos 14, *)) {
-      if ([type isEqualToString:@"fido2"]) {
+    @try {
+      NSString *type = credential[@"type"];
+      
+      if ([type isEqualToString:@"password"]) {
         NSString *cipherId = credential[@"cipherId"];
-        NSString *rpId = credential[@"rpId"];
-        NSString *userName = credential[@"userName"];
-        NSData *credentialId = decodeBase64URL(credential[@"credentialId"]);
-        NSData *userHandle = decodeBase64URL(credential[@"userHandle"]);
+        NSString *uri = credential[@"uri"];
+        NSString *username = credential[@"username"];
+        
+        // Skip credentials with null username since MacOS crashes if we send credentials with empty usernames
+        if ([username isKindOfClass:[NSNull class]] || username.length == 0) {
+            NSLog(@"Skipping credential, username is empty: %@", credential);
+          continue;
+        }
 
-        Class passkeyCredentialIdentityClass = NSClassFromString(@"ASPasskeyCredentialIdentity");
-        id credential = [[passkeyCredentialIdentityClass alloc]
-          initWithRelyingPartyIdentifier:rpId
-          userName:userName
-          credentialID:credentialId
-          userHandle:userHandle
-          recordIdentifier:cipherId];
+        ASCredentialServiceIdentifier *serviceId = [[ASCredentialServiceIdentifier alloc]
+          initWithIdentifier:uri type:ASCredentialServiceIdentifierTypeURL];
+        ASPasswordCredentialIdentity *passwordIdentity = [[ASPasswordCredentialIdentity alloc]
+          initWithServiceIdentifier:serviceId user:username recordIdentifier:cipherId];
 
-        [mappedCredentials addObject:credential];
+        [mappedCredentials addObject:passwordIdentity];
+      } 
+      else if (@available(macos 14, *)) {
+        // Fido2CredentialView uses `userName` (camelCase) while Login uses `username`.
+        // This is intentional. Fido2 fields are flattened from the FIDO2 spec's nested structure
+        // (user.name -> userName, rp.id -> rpId) to maintain a clear distinction between these fields.
+        if ([type isEqualToString:@"fido2"]) {
+          NSString *cipherId = credential[@"cipherId"];
+          NSString *rpId = credential[@"rpId"];
+          NSString *userName = credential[@"userName"];
+
+          // Skip credentials with null username since MacOS crashes if we send credentials with empty usernames
+          if ([userName isKindOfClass:[NSNull class]] || userName.length == 0) {
+            NSLog(@"Skipping credential, username is empty: %@", credential);
+            continue;
+          }
+          
+          NSData *credentialId = decodeBase64URL(credential[@"credentialId"]);
+          NSData *userHandle = decodeBase64URL(credential[@"userHandle"]);
+          
+          Class passkeyCredentialIdentityClass = NSClassFromString(@"ASPasskeyCredentialIdentity");
+          id passkeyIdentity = [[passkeyCredentialIdentityClass alloc]
+            initWithRelyingPartyIdentifier:rpId
+            userName:userName
+            credentialID:credentialId
+            userHandle:userHandle
+            recordIdentifier:cipherId];
+
+          [mappedCredentials addObject:passkeyIdentity];
+        }
       }
+    } @catch (NSException *exception) {
+      // Silently skip any credential that causes an exception
+      // to make sure we don't fail the entire sync
+      // There is likely some invalid data in the credential, and not something the user should/could be asked to correct.
+      NSLog(@"ERROR: Exception processing credential: %@ - %@", exception.name, exception.reason);
+      continue;
     }
   }
 

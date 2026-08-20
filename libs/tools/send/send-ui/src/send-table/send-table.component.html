@@ -1,0 +1,116 @@
+<div class="tw-@container/send-table">
+  <bit-table [dataSource]="dataSource()">
+    <ng-container header>
+      <tr>
+        <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
+        <th bitCell bitSortable="deletionDate" class="@lg/send-table:tw-table-cell tw-hidden">
+          {{ "deletionDate" | i18n }}
+        </th>
+        <th bitCell>{{ "options" | i18n }}</th>
+      </tr>
+    </ng-container>
+    <ng-template body let-rows$>
+      <tr bitRow *ngFor="let s of rows$ | async">
+        <td bitCell (click)="onEditSend(s)" class="tw-cursor-pointer">
+          <div class="tw-flex tw-gap-2 tw-items-center">
+            <span aria-hidden="true">
+              @if (s.type == sendType.File) {
+                <bit-icon name="bwi-file" class="bwi-lg tw-text-muted" />
+              }
+              @if (s.type == sendType.Text) {
+                <bit-icon name="bwi-file-text" class="bwi-lg tw-text-muted" />
+              }
+            </span>
+            <button type="button" bitLink>
+              {{ s.name }}
+              <!-- Since the icons are not focusable, we append their screen reader messages to the Send name -->
+              @if (s.authType !== authType.None) {
+                <span class="tw-sr-only"
+                  >,
+                  {{
+                    (s.authType === authType.Email ? "emailProtected" : "passwordProtected") | i18n
+                  }}</span
+                >
+              }
+              @if (s.disabled) {
+                <span class="tw-sr-only">, {{ "sendNotCompliantWithYourOrgsPolicy" | i18n }}</span>
+              }
+              @if (s.expired) {
+                <span class="tw-sr-only">, {{ "expired" | i18n }}</span>
+              }
+              @if (s.maxAccessCountReached) {
+                <span class="tw-sr-only">, {{ "maxAccessCountReached" | i18n }}</span>
+              }
+              @if (s.pendingDelete) {
+                <span class="tw-sr-only">, {{ "pendingDeletion" | i18n }}</span>
+              }
+            </button>
+            @if (s.authType !== authType.None) {
+              <bit-icon
+                name="bwi-lock"
+                appStopProp
+                [bitTooltip]="
+                  (s.authType === authType.Email ? 'emailProtected' : 'passwordProtected') | i18n
+                "
+              />
+            }
+            @if (s.disabled) {
+              <bit-icon
+                name="bwi-exclamation-triangle"
+                appStopProp
+                [bitTooltip]="'sendNotCompliantWithYourOrgsPolicy' | i18n"
+              />
+            }
+            @if (s.expired) {
+              <bit-icon name="bwi-clock" appStopProp [bitTooltip]="'expired' | i18n" />
+            }
+            @if (s.maxAccessCountReached) {
+              <bit-icon
+                name="bwi-exclamation-triangle"
+                appStopProp
+                [bitTooltip]="'maxAccessCountReached' | i18n"
+              />
+            }
+            @if (s.pendingDelete) {
+              <bit-icon name="bwi-trash" appStopProp [bitTooltip]="'pendingDeletion' | i18n" />
+            }
+          </div>
+        </td>
+        <td
+          bitCell
+          (click)="onEditSend(s)"
+          class="tw-text-muted tw-cursor-pointer @lg/send-table:tw-table-cell tw-hidden"
+        >
+          <small bitTypography="body2" appStopProp>
+            {{ s.deletionDate | date: "medium" }}
+          </small>
+        </td>
+        <td bitCell class="tw-w-0 tw-text-right">
+          <button
+            type="button"
+            size="small"
+            [bitMenuTriggerFor]="sendOptions"
+            bitIconButton="bwi-ellipsis-v"
+            label="{{ 'options' | i18n }}"
+          ></button>
+          <bit-menu #sendOptions>
+            <button type="button" bitMenuItem (click)="onCopy(s)">
+              <bit-icon name="bwi-clone" fixedWidth />
+              {{ "copySendLink" | i18n }}
+            </button>
+            @if (s.password && !disableSend()) {
+              <button type="button" bitMenuItem (click)="onRemovePassword(s)">
+                <bit-icon name="bwi-close" fixedWidth />
+                {{ "removePassword" | i18n }}
+              </button>
+            }
+            <button type="button" bitMenuItem variant="danger" (click)="onDelete(s)">
+              <bit-icon fixedWidth name="bwi-trash" slot="start"></bit-icon>
+              {{ "delete" | i18n }}
+            </button>
+          </bit-menu>
+        </td>
+      </tr>
+    </ng-template>
+  </bit-table>
+</div>

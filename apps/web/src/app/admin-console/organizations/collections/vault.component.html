@@ -1,7 +1,7 @@
 @let organization = organization$ | async;
 @let selectedCollection = selectedCollection$ | async;
 @let filter = filter$ | async;
-@let refreshing = refreshingSubject$ | async;
+@let refreshing = isRefreshing$ | async;
 @let loading = loading$ | async;
 
 @if (organization) {
@@ -22,33 +22,40 @@
       [organization]="organization"
       [collection]="selectedCollection"
       [searchText]="currentSearchText$ | async"
-      (onAddCipher)="addCipher($event)"
-      (onAddCollection)="addCollection()"
-      (onEditCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
-      (onDeleteCollection)="deleteCollection(selectedCollection?.node)"
+      (addCipher)="addCipher($event)"
+      (addCollection)="addCollection()"
+      (editCollection)="editCollection(selectedCollection?.node, $event.tab, $event.readonly)"
+      (deleteCollection)="deleteCollection(selectedCollection?.node)"
       (searchTextChanged)="filterSearchText($event)"
+      (openAddItemDialogEvent)="openAddItemDialog()"
     ></app-org-vault-header>
   }
 
-  <div class="tw-flex tw-flex-row">
+  <div class="tw-flex tw-flex-row tw-flex-1 -tw-mx-2.5">
     @let hideVaultFilters = hideVaultFilter$ | async;
     @if (!hideVaultFilters) {
-      <div class="tw-w-1/4 tw-mr-5">
+      <div class="tw-basis-1/4 tw-max-w-1/4 tw-px-2.5">
         <app-organization-vault-filter
           [organization]="organization"
-          [activeFilter]="activeFilter"
+          [activeFilter]="activeFilter()"
           [searchText]="currentSearchText$ | async"
-          (searchTextChanged)="filterSearchText($event)"
+          [ciphers$]="allCiphers$"
+          (searchTextChange)="filterSearchText($event)"
         ></app-organization-vault-filter>
       </div>
     }
 
-    <div [class]="hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4'">
-      @if (showAddAccessToggle && activeFilter.selectedCollectionNode) {
+    <div
+      [class]="
+        (hideVaultFilters ? 'tw-w-full' : 'tw-w-3/4') + ' tw-flex tw-flex-col tw-min-h-0 tw-px-2.5'
+      "
+    >
+      @if (showAddAccessToggle() && activeFilter().selectedCollectionNode) {
         <bit-toggle-group
-          [selected]="addAccessStatus$ | async"
+          class="tw-self-start"
+          [selected]="collectionService.addAccessStatus$ | async"
           (selectedChange)="addAccessToggle($event)"
-          [attr.aria-label]="'addAccessFilter' | i18n"
+          [label]="'addAccessFilter' | i18n"
         >
           <bit-toggle [value]="0">
             {{ "all" | i18n }}
@@ -60,7 +67,7 @@
         </bit-toggle-group>
       }
 
-      @if (activeFilter.isDeleted) {
+      @if (activeFilter().isDeleted) {
         <bit-callout type="warning">
           {{ trashCleanupWarning }}
         </bit-callout>
@@ -68,6 +75,7 @@
 
       @if (filter) {
         <app-vault-items
+          class="tw-flex-1 tw-min-h-0"
           #vaultItems
           [ciphers]="ciphers$ | async"
           [collections]="collections$ | async"
@@ -92,8 +100,8 @@
           [showBulkEditCollectionAccess]="true"
           [showBulkAddToCollections]="true"
           [viewingOrgVault]="true"
-          [addAccessStatus]="addAccessStatus$ | async"
-          [addAccessToggle]="showAddAccessToggle"
+          [addAccessStatus]="collectionService.addAccessStatus$ | async"
+          [addAccessToggle]="showAddAccessToggle()"
           [activeCollection]="selectedCollection?.node"
         >
         </app-vault-items>
@@ -115,10 +123,15 @@
                 slot="button"
                 bitButton
                 (click)="addCipher()"
-                buttonType="primary"
+                [buttonType]="btnTextAddCreateFeatureFlag() ? 'secondary' : 'primary'"
                 type="button"
+                [startIcon]="btnTextAddCreateFeatureFlag() ? null : 'bwi-plus'"
+                [disabled]="organization && !organization.enabled"
+                [bitTooltip]="
+                  organization && !organization.enabled ? ('organizationIsSuspended' | i18n) : ''
+                "
               >
-                <i aria-hidden="true" class="bwi bwi-plus"></i> {{ "newItem" | i18n }}
+                {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
               </button>
             }
           </bit-no-items>
@@ -145,4 +158,8 @@
       }
     </div>
   </div>
+}
+
+@if (vaultBatchBarFeatureFlag()) {
+  <bit-vault-batch-action />
 }

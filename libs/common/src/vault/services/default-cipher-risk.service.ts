@@ -1,7 +1,5 @@
 import { firstValueFrom, switchMap } from "rxjs";
 
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   CipherLoginDetails,
   CipherRiskOptions,
@@ -13,8 +11,20 @@ import {
 import { SdkService, asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { UserId, CipherId } from "../../types/guid";
 import { CipherRiskService as CipherRiskServiceAbstraction } from "../abstractions/cipher-risk.service";
+import { CipherService } from "../abstractions/cipher.service";
 import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
+import { filterOutNullish } from "../utils/observable-utilities";
+
+/** True for ciphers the risk service evaluates: non-deleted Logins with a non-empty password. */
+export function isRiskableLoginCipher(cipher: CipherView): boolean {
+  return (
+    cipher.type === CipherType.Login &&
+    cipher.login?.password != null &&
+    cipher.login.password !== "" &&
+    !cipher.isDeleted
+  );
+}
 
 export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
   constructor(
@@ -71,7 +81,6 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
       passwordMap,
       checkExposed,
     });
-
     return results[0];
   }
 
@@ -98,21 +107,13 @@ export class DefaultCipherRiskService implements CipherRiskServiceAbstraction {
    * Only includes Login ciphers with non-empty passwords.
    */
   private mapToLoginDetails(ciphers: CipherView[]): CipherLoginDetails[] {
-    return ciphers
-      .filter((cipher) => {
-        return (
-          cipher.type === CipherType.Login &&
-          cipher.login?.password != null &&
-          cipher.login.password !== ""
-        );
-      })
-      .map(
-        (cipher) =>
-          ({
-            id: asUuid<SdkCipherId>(cipher.id),
-            password: cipher.login.password!,
-            username: cipher.login.username,
-          }) satisfies CipherLoginDetails,
-      );
+    return ciphers.filter(isRiskableLoginCipher).map(
+      (cipher) =>
+        ({
+          id: asUuid<SdkCipherId>(cipher.id),
+          password: cipher.login.password!,
+          username: cipher.login.username,
+        }) satisfies CipherLoginDetails,
+    );
   }
 }

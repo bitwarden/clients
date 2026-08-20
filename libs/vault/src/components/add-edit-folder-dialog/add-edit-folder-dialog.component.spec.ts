@@ -1,10 +1,12 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
-import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -29,7 +31,7 @@ describe("AddEditFolderDialogComponent", () => {
   const save = jest.fn().mockResolvedValue(null);
   const deleteFolder = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
-  const getUserKey = jest.fn().mockResolvedValue("");
+  const userKey$ = jest.fn().mockReturnValue(of(""));
   const error = jest.fn();
   const close = jest.fn();
   const showToast = jest.fn();
@@ -47,11 +49,7 @@ describe("AddEditFolderDialogComponent", () => {
     showToast.mockClear();
 
     const userId = "" as UserId;
-    const accountInfo: AccountInfo = {
-      email: "",
-      emailVerified: true,
-      name: undefined,
-    };
+    const accountInfo = mockAccountInfoWith();
 
     await TestBed.configureTestingModule({
       imports: [AddEditFolderDialogComponent, NoopAnimationsModule],
@@ -66,13 +64,14 @@ describe("AddEditFolderDialogComponent", () => {
         {
           provide: KeyService,
           useValue: {
-            getUserKey,
+            userKey$,
           },
         },
         { provide: LogService, useValue: { error } },
         { provide: ToastService, useValue: { showToast } },
         { provide: DIALOG_DATA, useValue: dialogData },
         { provide: DialogRef, useValue: dialogRef },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     })
       .overrideProvider(DialogService, { useValue: { openSimpleDialog } })
@@ -104,7 +103,7 @@ describe("AddEditFolderDialogComponent", () => {
       const newFolder = new FolderView();
       newFolder.name = "New Folder";
 
-      expect(encrypt).toHaveBeenCalledWith(newFolder, "");
+      expect(encrypt).toHaveBeenCalledWith(expect.objectContaining({ name: "New Folder" }), "");
       expect(save).toHaveBeenCalled();
     });
 

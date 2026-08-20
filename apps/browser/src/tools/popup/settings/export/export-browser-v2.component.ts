@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -33,10 +33,15 @@ import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page
 export class ExportBrowserV2Component {
   protected disabled = false;
   protected loading = false;
+  protected readonly skippedAttachmentCount = signal(0);
 
   constructor(private router: Router) {}
 
   protected async onSuccessfulExport(organizationId: string): Promise<void> {
+    // Skip redirect when attachments were skipped so the user can see the warning callout
+    if (this.skippedAttachmentCount() > 0) {
+      return;
+    }
     await this.router.navigate(["/tabs/settings"]);
   }
 }

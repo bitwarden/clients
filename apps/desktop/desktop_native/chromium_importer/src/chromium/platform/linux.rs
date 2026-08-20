@@ -18,24 +18,31 @@ use crate::{
 pub(crate) const SUPPORTED_BROWSERS: &[BrowserConfig] = &[
     BrowserConfig {
         name: "Chrome",
-        data_dir: ".config/google-chrome",
+        data_dir: &[".config/google-chrome", "snap/chromium/common/chromium"],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Chromium",
-        data_dir: "snap/chromium/common/chromium",
+        data_dir: &["snap/chromium/common/chromium"],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Brave",
-        data_dir: "snap/brave/current/.config/BraveSoftware/Brave-Browser",
+        data_dir: &[
+            "snap/brave/current/.config/BraveSoftware/Brave-Browser",
+            ".config/BraveSoftware/Brave-Browser",
+        ],
+        bundle_id: None,
     },
     BrowserConfig {
         name: "Opera",
-        data_dir: "snap/opera/current/.config/opera",
+        data_dir: &["snap/opera/current/.config/opera", ".config/opera"],
+        bundle_id: None,
     },
 ];
 
 pub(crate) fn get_crypto_service(
-    browser_name: &String,
+    browser_name: &str,
     _local_state: &LocalState,
 ) -> Result<Box<dyn CryptoService>> {
     let config = KEYRING_CONFIG

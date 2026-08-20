@@ -12,7 +12,10 @@ export function mockPorts() {
   (chrome.runtime.connect as jest.Mock).mockImplementation((portInfo) => {
     const port = mockDeep<chrome.runtime.Port>();
     port.name = portInfo.name;
-    port.sender = { url: chrome.runtime.getURL("") };
+    port.sender = {
+      url: chrome.runtime.getURL(""),
+      origin: chrome.runtime.getURL(""),
+    };
 
     // convert to internal port
     delete (port as any).tab;

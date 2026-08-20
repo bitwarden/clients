@@ -1,10 +1,17 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-import { Component, DestroyRef, inject, OnInit, ChangeDetectionStrategy } from "@angular/core";
+// FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
+/* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import {
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  ChangeDetectionStrategy,
+  computed,
+} from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
+import { catchError, debounceTime, EMPTY, from, map, switchMap, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -14,6 +21,7 @@ import {
 } from "@bitwarden/bit-common/dirt/reports/risk-insights";
 import { createNewSummaryData } from "@bitwarden/bit-common/dirt/reports/risk-insights/helpers";
 import { OrganizationReportSummary } from "@bitwarden/bit-common/dirt/reports/risk-insights/models/report-models";
+import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
@@ -23,12 +31,15 @@ import {
   TableDataSource,
   ToastService,
   TypographyModule,
+  PopoverModule,
 } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { RiskInsightsTabType } from "../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../onboarding/access-intelligence-coachmark.service";
 import {
   ApplicationTableDataSource,
   AppTableRowScrollableComponent,
@@ -48,12 +59,14 @@ import { AccessIntelligenceSecurityTasksService } from "../shared/security-tasks
     SharedModule,
     AppTableRowScrollableComponent,
     TypographyModule,
+    PopoverModule,
+    AccessIntelligenceCoachmarkComponent,
   ],
 })
 export class CriticalApplicationsComponent implements OnInit {
   private destroyRef = inject(DestroyRef);
   protected enableRequestPasswordChange = false;
-  protected organizationId: OrganizationId;
+  protected organizationId: OrganizationId = "" as OrganizationId;
   noItemsIcon = Security;
 
   protected dataSource = new TableDataSource<ApplicationTableDataSource>();
@@ -61,6 +74,10 @@ export class CriticalApplicationsComponent implements OnInit {
 
   protected selectedIds: Set<number> = new Set<number>();
   protected searchControl = new FormControl("", { nonNullable: true });
+
+  protected readonly helpMembersOpen = computed(
+    () => this.coachmarkService.activeStepId() === "helpMembers",
+  );
 
   constructor(
     protected activatedRoute: ActivatedRoute,
@@ -71,6 +88,7 @@ export class CriticalApplicationsComponent implements OnInit {
     protected router: Router,
     private securityTasksService: AccessIntelligenceSecurityTasksService,
     protected toastService: ToastService,
+    protected coachmarkService: AccessIntelligenceCoachmarkService,
   ) {
     this.searchControl.valueChanges
       .pipe(debounceTime(200), takeUntilDestroyed())
@@ -132,7 +150,7 @@ export class CriticalApplicationsComponent implements OnInit {
 
   removeCriticalApplication = async (hostname: string) => {
     this.dataService
-      .removeCriticalApplication(hostname)
+      .removeCriticalApplications(new Set<string>([hostname]))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -151,35 +169,43 @@ export class CriticalApplicationsComponent implements OnInit {
       });
   };
 
-  async requestPasswordChange() {
+  requestPasswordChange(): void {
     this.dataService.criticalApplicationAtRiskCipherIds$
       .pipe(
         takeUntilDestroyed(this.destroyRef), // Satisfy eslint rule
         take(1), // Handle unsubscribe for one off operation
-        switchMap((cipherIds) => {
-          return from(
+        switchMap((cipherIds) =>
+          from(
             this.securityTasksService.requestPasswordChangeForCriticalApplications(
               this.organizationId,
               cipherIds,
             ),
-          );
-        }),
-      )
-      .subscribe({
-        next: () => {
-          this.toastService.showToast({
-            message: this.i18nService.t("notifiedMembers"),
-            variant: "success",
-            title: this.i18nService.t("success"),
-          });
-        },
-        error: () => {
+          ),
+        ),
+        catchError((error: unknown) => {
+          if (error instanceof ErrorResponse && error.statusCode === 404) {
+            this.toastService.showToast({
+              message: this.i18nService.t("mustBeOrganizationOwnerAdmin"),
+              variant: "error",
+              title: this.i18nService.t("error"),
+            });
+            return EMPTY;
+          }
+
           this.toastService.showToast({
             message: this.i18nService.t("unexpectedError"),
             variant: "error",
             title: this.i18nService.t("error"),
           });
-        },
+          return EMPTY;
+        }),
+      )
+      .subscribe(() => {
+        this.toastService.showToast({
+          message: this.i18nService.t("notifiedMembers"),
+          variant: "success",
+          title: this.i18nService.t("success"),
+        });
       });
   }
 

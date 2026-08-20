@@ -7,6 +7,7 @@ import {
   AUTOFILL_CARD_ID,
   AUTOFILL_ID,
   AUTOFILL_IDENTITY_ID,
+  AUTOFILL_TRIAGE_ID,
   COPY_IDENTIFIER_ID,
   COPY_PASSWORD_ID,
   COPY_USERNAME_ID,
@@ -16,8 +17,10 @@ import {
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
@@ -27,7 +30,17 @@ import {
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 
+import { devFlagEnabled } from "../../platform/flags";
+import { webmapperContextMenuItems, WEBMAPPER_ROOT_ID } from "../webmapper/menu";
+
 import { MainContextMenuHandler } from "./main-context-menu-handler";
+
+jest.mock("../../platform/flags", () => ({
+  ...jest.requireActual("../../platform/flags"),
+  devFlagEnabled: jest.fn(),
+}));
+
+const mockDevFlagEnabled = devFlagEnabled as jest.Mock;
 
 /**
  * Used in place of Set method `symmetricDifference`, which is only available to node version 22.0.0 or greater:
@@ -73,6 +86,7 @@ describe("context-menu", () => {
   let logService: MockProxy<LogService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
   let accountService: MockProxy<AccountService>;
+  let configService: MockProxy<ConfigService>;
   let restricted$: BehaviorSubject<RestrictedCipherType[]>;
   let restrictedItemTypesService: RestrictedItemTypesService;
 
@@ -91,6 +105,7 @@ describe("context-menu", () => {
     logService = mock();
     billingAccountProfileStateService = mock();
     accountService = mock();
+    configService = mock();
     restricted$ = new BehaviorSubject<RestrictedCipherType[]>([]);
     restrictedItemTypesService = {
       restricted$,
@@ -107,6 +122,10 @@ describe("context-menu", () => {
       return props.id;
     });
 
+    // Flags disabled by default so existing menu item counts are unchanged
+    configService.getFeatureFlag.mockResolvedValue(false);
+    mockDevFlagEnabled.mockReturnValue(false);
+
     i18nService.t.mockImplementation((key) => key);
     sut = new MainContextMenuHandler(
       tokenService,
@@ -116,6 +135,7 @@ describe("context-menu", () => {
       billingAccountProfileStateService,
       accountService,
       restrictedItemTypesService,
+      configService,
     );
 
     jest.spyOn(MainContextMenuHandler, "remove");
@@ -123,9 +143,10 @@ describe("context-menu", () => {
     autofillSettingsService.enableContextMenu$ = of(true);
     accountService.activeAccount$ = of({
       id: "userId" as UserId,
-      email: "",
-      emailVerified: false,
-      name: undefined,
+      ...mockAccountInfoWith({
+        email: "",
+        name: undefined,
+      }),
     });
   });
 
@@ -175,6 +196,42 @@ describe("context-menu", () => {
       const createdMenu = await sut.init();
       expect(createdMenu).toBeTruthy();
       expect(createSpy).toHaveBeenCalledTimes(9);
+    });
+
+    it("adds triage separator and menu item when the fillAssistDevTools dev flag is enabled", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockDevFlagEnabled.mockImplementation((flag) => flag === "fillAssistDevTools");
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      // 10 base items + 1 separator + 1 triage item + the webmapper tree (also
+      // gated on fillAssistDevTools).
+      expect(createSpy).toHaveBeenCalledTimes(12 + webmapperContextMenuItems().length);
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: AUTOFILL_TRIAGE_ID }),
+        expect.any(Function),
+      );
+      expect(createSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ id: WEBMAPPER_ROOT_ID }),
+        expect.any(Function),
+      );
+    });
+
+    it("does not add triage or webmapper items when the fillAssistDevTools dev flag is disabled", async () => {
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(of(false));
+      mockDevFlagEnabled.mockReturnValue(false);
+
+      const createdMenu = await sut.init();
+      expect(createdMenu).toBeTruthy();
+      expect(createSpy).toHaveBeenCalledTimes(10);
+      expect(createSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ id: AUTOFILL_TRIAGE_ID }),
+        expect.any(Function),
+      );
+      expect(createSpy).not.toHaveBeenCalledWith(
+        expect.objectContaining({ id: WEBMAPPER_ROOT_ID }),
+        expect.any(Function),
+      );
     });
   });
 

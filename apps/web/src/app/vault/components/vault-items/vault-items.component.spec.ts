@@ -1,8 +1,9 @@
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { TestBed } from "@angular/core/testing";
-import { of } from "rxjs";
+import { of, Subject } from "rxjs";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -10,12 +11,18 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import {
+  RoutedVaultFilterService,
+  RoutedVaultFilterModel,
+  VaultCopyButtonsService,
+  VaultItem,
+} from "@bitwarden/vault";
 
-import { VaultItem } from "./vault-item";
 import { VaultItemsComponent } from "./vault-items.component";
 
 describe("VaultItemsComponent", () => {
   let component: VaultItemsComponent<CipherViewLike>;
+  let filterSelect: Subject<RoutedVaultFilterModel>;
 
   const cipher1: Partial<CipherView> = {
     id: "cipher-1",
@@ -30,6 +37,8 @@ describe("VaultItemsComponent", () => {
   };
 
   beforeEach(async () => {
+    filterSelect = new Subject<RoutedVaultFilterModel>();
+
     await TestBed.configureTestingModule({
       declarations: [VaultItemsComponent],
       imports: [ScrollingModule, TableModule, I18nPipe, MenuModule],
@@ -54,11 +63,149 @@ describe("VaultItemsComponent", () => {
             t: (key: string) => key,
           },
         },
+        {
+          provide: RoutedVaultFilterService,
+          useValue: {
+            filter$: filterSelect,
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
+        },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: {
+            showQuickCopyActions$: of(false),
+          },
+        },
       ],
     });
 
     const fixture = TestBed.createComponent(VaultItemsComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("optionsColumnWidthClass", () => {
+    it("reserves room for the quick copy icons when they are shown", () => {
+      expect(component["optionsColumnWidthClass"](true, true)).toBe("tw-w-48");
+    });
+
+    it("reserves room for the combined copy and launch actions", () => {
+      expect(component["optionsColumnWidthClass"](true, false)).toBe("tw-w-32");
+    });
+
+    it("only fits the options menu when there are no copy or launch actions", () => {
+      expect(component["optionsColumnWidthClass"](false, false)).toBe("tw-w-12");
+    });
+  });
+
+  describe("bulkArchiveAllowed", () => {
+    it("returns false when no items are selected", () => {
+      component.userCanArchive = true;
+      component["selection"].clear();
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns false when userCanArchive is false", () => {
+      component.userCanArchive = false;
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { cipher: cipher2 as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns false when selecting only collections (no ciphers)", () => {
+      component.userCanArchive = true;
+      const collection1 = { id: "col-1", name: "Collection 1" } as CollectionView;
+
+      const items: VaultItem<CipherView>[] = [{ collection: collection1 }];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns true when selecting archivable ciphers alongside collections", () => {
+      component.userCanArchive = true;
+      const collection1 = { id: "col-1", name: "Collection 1" } as CollectionView;
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { collection: collection1 },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(true);
+    });
+
+    it("returns true when selecting unarchived ciphers without organization", () => {
+      component.userCanArchive = true;
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { cipher: cipher2 as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(true);
+    });
+
+    it("returns true when selecting org ciphers that are not archived", () => {
+      component.userCanArchive = true;
+
+      const personalCipher: Partial<CipherView> = {
+        ...cipher1,
+        organizationId: undefined,
+      };
+
+      const orgCipher: Partial<CipherView> = {
+        ...cipher2,
+        organizationId: "org-1",
+      };
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: personalCipher as CipherView },
+        { cipher: orgCipher as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(true);
+    });
+
+    it("returns false when any selected cipher is already archived", () => {
+      component.userCanArchive = true;
+
+      const unarchivedCipher: Partial<CipherView> = {
+        ...cipher1,
+        archivedDate: undefined,
+      };
+
+      const archivedCipher: Partial<CipherView> = {
+        ...cipher2,
+        archivedDate: new Date("2024-01-01"),
+      };
+
+      const items: VaultItem<CipherView>[] = [
+        { cipher: unarchivedCipher as CipherView },
+        { cipher: archivedCipher as CipherView },
+      ];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
   });
 
   describe("bulkUnarchiveAllowed", () => {
@@ -102,7 +249,7 @@ describe("VaultItemsComponent", () => {
       expect(component.bulkUnarchiveAllowed).toBe(true);
     });
 
-    it("returns false when any selected cipher has an organizationId", () => {
+    it("returns true when any selected cipher has an organizationId", () => {
       const archivedCipher1: Partial<CipherView> = {
         ...cipher1,
         archivedDate: new Date("2024-01-01"),
@@ -122,7 +269,7 @@ describe("VaultItemsComponent", () => {
 
       component["selection"].select(...items);
 
-      expect(component.bulkUnarchiveAllowed).toBe(false);
+      expect(component.bulkUnarchiveAllowed).toBe(true);
     });
 
     it("returns false when any selected cipher is not archived", () => {
@@ -134,6 +281,36 @@ describe("VaultItemsComponent", () => {
       component["selection"].select(...items);
 
       expect(component.bulkUnarchiveAllowed).toBe(false);
+    });
+  });
+
+  describe("selection identity", () => {
+    it("keeps checkmarks after ciphers input is re-set with new object references", () => {
+      const mockCipher = cipher1 as CipherView;
+      component.ciphers = [mockCipher];
+      component["selection"].select(component.dataSource.data[0]);
+
+      component.ciphers = [mockCipher];
+
+      expect(component["selection"].isSelected(component.dataSource.data[0])).toBe(true);
+    });
+  });
+
+  describe("filter change handling", () => {
+    it("clears selection when routed filter changes", () => {
+      const items: VaultItem<CipherView>[] = [
+        { cipher: cipher1 as CipherView },
+        { cipher: cipher2 as CipherView },
+      ];
+
+      component["selection"].select(...items);
+      expect(component["selection"].selected.length).toBeGreaterThan(0);
+
+      filterSelect.next({
+        folderId: "folderId",
+      });
+
+      expect(component["selection"].selected.length).toBe(0);
     });
   });
 });

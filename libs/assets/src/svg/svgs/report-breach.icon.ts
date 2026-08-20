@@ -1,6 +1,6 @@
-import { svgIcon } from "../icon-service";
+import { svg } from "../svg";
 
-export const ReportBreach = svgIcon`
+export const ReportBreach = svg`
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="11.6 3.33 56.67 73.33">
     <path class="tw-fill-illustration-bg-secondary" d="M60 10a1.6 1.6 0 0 1 1.6 1.6v63.467a1.6 1.6 0 0 1-1.6 1.6H13.2a1.6 1.6 0 0 1-1.6-1.6V11.6a1.6 1.6 0 0 1 1.6-1.6H60Z"/>
     <path class="tw-fill-illustration-outline" fill-rule="evenodd" d="M60 75.067V11.6H13.2v63.467H60ZM61.6 11.6A1.6 1.6 0 0 0 60 10H13.2a1.6 1.6 0 0 0-1.6 1.6v63.467a1.6 1.6 0 0 0 1.6 1.6H60a1.6 1.6 0 0 0 1.6-1.6V11.6Z" clip-rule="evenodd"/>

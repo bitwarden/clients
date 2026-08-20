@@ -1,5 +1,12 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { FormBuilder, FormControl, Validators } from "@angular/forms";
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  OnDestroy,
+  OnInit,
+} from "@angular/core";
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from "@angular/forms";
 import {
   BehaviorSubject,
   concatMap,
@@ -10,52 +17,81 @@ import {
 } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import {
+  MaximumSessionTimeoutPolicyData,
+  SessionTimeoutAction,
+  SessionTimeoutType,
+} from "@bitwarden/common/key-management/session-timeout";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService } from "@bitwarden/components";
 import {
-  BasePolicyEditDefinition,
+  CalloutComponent,
+  DialogService,
+  FormControlModule,
+  FormFieldModule,
+  SelectModule,
+  SwitchComponent,
+} from "@bitwarden/components";
+import { I18nPipe } from "@bitwarden/ui-common";
+import {
   BasePolicyEditComponent,
+  BasePolicyEditDefinition,
+  PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
 
 import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-confirmation-never.component";
-
-export type SessionTimeoutAction = null | "lock" | "logOut";
-export type SessionTimeoutType =
-  | null
-  | "never"
-  | "onAppRestart"
-  | "onSystemLock"
-  | "immediately"
-  | "custom";
 
 export class SessionTimeoutPolicy extends BasePolicyEditDefinition {
   name = "sessionTimeoutPolicyTitle";
   description = "sessionTimeoutPolicyDescription";
   type = PolicyType.MaximumVaultTimeout;
+  category = PolicyCategory.Authentication;
+  priority = 70;
   component = SessionTimeoutPolicyComponent;
+  showDescription = false;
 }
 
 const DEFAULT_HOURS = 8;
 const DEFAULT_MINUTES = 0;
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  selector: "session-timeout-policy-edit",
   templateUrl: "session-timeout.component.html",
-  imports: [SharedModule],
+  imports: [
+    CalloutComponent,
+    FormControlModule,
+    FormFieldModule,
+    ReactiveFormsModule,
+    SelectModule,
+    SwitchComponent,
+    I18nPipe,
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SessionTimeoutPolicyComponent
   extends BasePolicyEditComponent
   implements OnInit, OnDestroy
 {
-  private destroy$ = new Subject<void>();
-  private lastConfirmedType$ = new BehaviorSubject<SessionTimeoutType>(null);
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly i18nService = inject(I18nService);
+  private readonly dialogService = inject(DialogService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  actionOptions: { name: string; value: SessionTimeoutAction }[];
-  typeOptions: { name: string; value: SessionTimeoutType }[];
-  data = this.formBuilder.group({
+  readonly actionOptions: { name: string; value: SessionTimeoutAction }[] = [
+    { name: this.i18nService.t("userPreference"), value: null },
+    { name: this.i18nService.t("lock"), value: VaultTimeoutAction.Lock },
+    { name: this.i18nService.t("logOut"), value: VaultTimeoutAction.LogOut },
+  ];
+
+  readonly typeOptions: { name: string; value: SessionTimeoutType }[] = [
+    { name: this.i18nService.t("immediately"), value: "immediately" },
+    { name: this.i18nService.t("custom"), value: "custom" },
+    { name: this.i18nService.t("onSystemLock"), value: "onSystemLock" },
+    { name: this.i18nService.t("onAppRestart"), value: "onAppRestart" },
+    { name: this.i18nService.t("never"), value: "never" },
+  ];
+
+  readonly data = this.formBuilder.group({
     type: new FormControl<SessionTimeoutType>(null, [Validators.required]),
     hours: new FormControl<number>(
       {
@@ -74,25 +110,8 @@ export class SessionTimeoutPolicyComponent
     action: new FormControl<SessionTimeoutAction>(null),
   });
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private i18nService: I18nService,
-    private dialogService: DialogService,
-  ) {
-    super();
-    this.actionOptions = [
-      { name: i18nService.t("userPreference"), value: null },
-      { name: i18nService.t("lock"), value: VaultTimeoutAction.Lock },
-      { name: i18nService.t("logOut"), value: VaultTimeoutAction.LogOut },
-    ];
-    this.typeOptions = [
-      { name: i18nService.t("immediately"), value: "immediately" },
-      { name: i18nService.t("custom"), value: "custom" },
-      { name: i18nService.t("onSystemLock"), value: "onSystemLock" },
-      { name: i18nService.t("onAppRestart"), value: "onAppRestart" },
-      { name: i18nService.t("never"), value: "never" },
-    ];
-  }
+  private readonly destroy$ = new Subject<void>();
+  private readonly lastConfirmedType$ = new BehaviorSubject<SessionTimeoutType>(null);
 
   ngOnInit() {
     super.ngOnInit();
@@ -108,8 +127,10 @@ export class SessionTimeoutPolicyComponent
           if (confirmed) {
             this.updateFormControls(newType);
             this.lastConfirmedType$.next(newType);
+            this.cdr.markForCheck();
           } else {
             typeControl.setValue(lastConfirmedType, { emitEvent: false });
+            this.cdr.markForCheck();
           }
         }),
         takeUntil(this.destroy$),
@@ -123,12 +144,10 @@ export class SessionTimeoutPolicyComponent
   }
 
   protected override loadData() {
-    const minutes: number | null = this.policyResponse?.data?.minutes ?? null;
-    const action: SessionTimeoutAction =
-      this.policyResponse?.data?.action ?? (null satisfies SessionTimeoutAction);
+    const minutes: number | null = this.policyData?.minutes ?? null;
+    const action: SessionTimeoutAction = this.policyData?.action ?? null;
     // For backward compatibility, the "type" field might not exist, hence we initialize it based on the presence of "minutes"
-    const type: SessionTimeoutType =
-      this.policyResponse?.data?.type ?? ((minutes ? "custom" : null) satisfies SessionTimeoutType);
+    const type: SessionTimeoutType = this.policyData?.type ?? (minutes ? "custom" : null);
 
     this.updateFormControls(type);
     this.data.patchValue({
@@ -165,7 +184,11 @@ export class SessionTimeoutPolicyComponent
       type,
       minutes,
       action: this.data.value.action,
-    };
+    } satisfies MaximumSessionTimeoutPolicyData;
+  }
+
+  private get policyData(): MaximumSessionTimeoutPolicyData | null {
+    return this.policyResponse()?.data ?? null;
   }
 
   private async confirmTypeChange(newType: SessionTimeoutType): Promise<boolean> {

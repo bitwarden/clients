@@ -6,9 +6,12 @@ const path = require("path");
 const { flipFuses, FuseVersion, FuseV1Options } = require("@electron/fuses");
 const builder = require("electron-builder");
 const fse = require("fs-extra");
-
 exports.default = run;
 
+/**
+ *
+ * @param {builder.AfterPackContext} context
+ */
 async function run(context) {
   console.log("## After pack");
   // console.log(context);
@@ -34,18 +37,15 @@ async function run(context) {
 
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
-    const is_mas_dev = context.targets.some((e) => e.name === "mas-dev");
 
     let id;
 
     // Only use the Bitwarden Identities on CI
     if (process.env.GITHUB_ACTIONS === "true") {
       if (is_mas) {
-        id = is_mas_dev
-          ? "588E3F1724AE018EBA762E42279DAE85B313E3ED"
-          : "3rd Party Mac Developer Application: Bitwarden Inc";
+        id = "3rd Party Mac Developer Application: Bitwarden Inc";
       } else {
-        id = "Developer ID Application: 8bit Solutions LLC";
+        id = "Developer ID Application: Bitwarden Inc";
       }
       // Locally, use the first valid code signing identity, unless CSC_NAME is set
     } else if (process.env.CSC_NAME) {
@@ -67,13 +67,13 @@ async function run(context) {
     const proxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy");
     const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
 
-    const packageId = "com.bitwarden.desktop";
+    const packageId = context.packager.appInfo.id;
 
     if (is_mas) {
       const entitlementsName = "entitlements.desktop_proxy.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
 
       const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
@@ -84,7 +84,7 @@ async function run(context) {
         inheritEntitlementsName,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${inheritEntitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
       );
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
@@ -92,10 +92,10 @@ async function run(context) {
       const entitlementsName = "entitlements.mac.inherit.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${proxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements ${entitlementsPath} ${inheritProxyPath}`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
       );
     }
   }
@@ -151,7 +151,7 @@ async function addElectronFuses(context) {
   const IS_LINUX = platform === "linux";
   const executableName = IS_LINUX
     ? context.packager.appInfo.productFilename.toLowerCase().replace("-dev", "").replace(" ", "-")
-    : context.packager.appInfo.productFilename; // .toLowerCase() to accomodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
+    : context.packager.appInfo.productFilename; // .toLowerCase() to accommodate Linux file named `name` but productFileName is `Name` -- Replaces '-dev' because on Linux the executable name is `name` even for the DEV builds
 
   const electronBinaryPath = path.join(context.appOutDir, `${executableName}${ext}`);
 
@@ -184,5 +184,8 @@ async function addElectronFuses(context) {
     // This can be done by defining a custom app:// protocol and loading the bundle from there,
     // but then any requests to the server will be blocked by CORS policy
     [FuseV1Options.GrantFileProtocolExtraPrivileges]: true,
+
+    // Enables V8 signal handlers to trap Out of Bounds memory access from WebAssembly
+    [FuseV1Options.WasmTrapHandlers]: true,
   });
 }

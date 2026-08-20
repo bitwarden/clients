@@ -11,7 +11,7 @@ import { CipherType } from "../enums/cipher-type";
 import { CipherView } from "../models/view/cipher.view";
 import { LoginView } from "../models/view/login.view";
 
-import { DefaultCipherRiskService } from "./default-cipher-risk.service";
+import { DefaultCipherRiskService, isRiskableLoginCipher } from "./default-cipher-risk.service";
 
 describe("DefaultCipherRiskService", () => {
   let cipherRiskService: DefaultCipherRiskService;
@@ -31,6 +31,40 @@ describe("DefaultCipherRiskService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("isRiskableLoginCipher", () => {
+    const buildLogin = (password: string | undefined): CipherView => {
+      const cipher = new CipherView();
+      cipher.type = CipherType.Login;
+      cipher.login = new LoginView();
+      cipher.login.password = password;
+      return cipher;
+    };
+
+    it("returns true for a non-deleted Login with a non-empty password", () => {
+      expect(isRiskableLoginCipher(buildLogin("password1"))).toBe(true);
+    });
+
+    it("returns false for non-Login ciphers", () => {
+      const card = new CipherView();
+      card.type = CipherType.Card;
+      expect(isRiskableLoginCipher(card)).toBe(false);
+    });
+
+    it("returns false for a Login with no password", () => {
+      expect(isRiskableLoginCipher(buildLogin(undefined))).toBe(false);
+    });
+
+    it("returns false for a Login with an empty password", () => {
+      expect(isRiskableLoginCipher(buildLogin(""))).toBe(false);
+    });
+
+    it("returns false for a deleted Login", () => {
+      const deleted = buildLogin("password1");
+      deleted.deletedDate = new Date();
+      expect(isRiskableLoginCipher(deleted)).toBe(false);
+    });
   });
 
   describe("computeRiskForCiphers", () => {
@@ -250,6 +284,38 @@ describe("DefaultCipherRiskService", () => {
         expect.any(Object),
       );
     });
+
+    it("should filter out deleted Login ciphers", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+      mockCipherRiskClient.compute_risk.mockResolvedValue([]);
+
+      const activeCipher = new CipherView();
+      activeCipher.id = mockCipherId1;
+      activeCipher.type = CipherType.Login;
+      activeCipher.login = new LoginView();
+      activeCipher.login.password = "password1";
+      activeCipher.deletedDate = undefined;
+
+      const deletedCipher = new CipherView();
+      deletedCipher.id = mockCipherId2;
+      deletedCipher.type = CipherType.Login;
+      deletedCipher.login = new LoginView();
+      deletedCipher.login.password = "password2";
+      deletedCipher.deletedDate = new Date();
+
+      await cipherRiskService.computeRiskForCiphers([activeCipher, deletedCipher], mockUserId);
+
+      expect(mockCipherRiskClient.compute_risk).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
+            id: expect.anything(),
+            password: "password1",
+          }),
+        ],
+        expect.any(Object),
+      );
+    });
   });
 
   describe("buildPasswordReuseMap", () => {
@@ -281,6 +347,41 @@ describe("DefaultCipherRiskService", () => {
       expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
         expect.objectContaining({ password: "password1" }),
         expect.objectContaining({ password: "password2" }),
+      ]);
+      expect(result).toEqual(mockReuseMap);
+    });
+
+    it("should exclude deleted ciphers when building password reuse map", async () => {
+      const mockClient = sdkService.simulate.userLogin(mockUserId);
+      const mockCipherRiskClient = mockClient.vault.mockDeep().cipher_risk.mockDeep();
+
+      const mockReuseMap = {
+        password1: 1,
+      };
+
+      mockCipherRiskClient.password_reuse_map.mockReturnValue(mockReuseMap);
+
+      const activeCipher = new CipherView();
+      activeCipher.id = mockCipherId1;
+      activeCipher.type = CipherType.Login;
+      activeCipher.login = new LoginView();
+      activeCipher.login.password = "password1";
+      activeCipher.deletedDate = undefined;
+
+      const deletedCipherWithSamePassword = new CipherView();
+      deletedCipherWithSamePassword.id = mockCipherId2;
+      deletedCipherWithSamePassword.type = CipherType.Login;
+      deletedCipherWithSamePassword.login = new LoginView();
+      deletedCipherWithSamePassword.login.password = "password1";
+      deletedCipherWithSamePassword.deletedDate = new Date();
+
+      const result = await cipherRiskService.buildPasswordReuseMap(
+        [activeCipher, deletedCipherWithSamePassword],
+        mockUserId,
+      );
+
+      expect(mockCipherRiskClient.password_reuse_map).toHaveBeenCalledWith([
+        expect.objectContaining({ password: "password1" }),
       ]);
       expect(result).toEqual(mockReuseMap);
     });

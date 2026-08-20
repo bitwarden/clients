@@ -1,11 +1,12 @@
-import { UserKey } from "@bitwarden/common/types/key";
-import { EncryptionContext } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { UserId, OrganizationId } from "../../types/guid";
+import { UserKey } from "../../types/key";
 import { Cipher } from "../models/domain/cipher";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
+
+import { EncryptionContext } from "./cipher.service";
 
 /**
  * Service responsible for encrypting and decrypting ciphers.
@@ -19,6 +20,16 @@ export abstract class CipherEncryptionService {
    * @returns A promise that resolves to the encryption context, or undefined if encryption fails
    */
   abstract encrypt(model: CipherView, userId: UserId): Promise<EncryptionContext | undefined>;
+
+  /**
+   * Encrypts multiple ciphers using the SDK for the given userId.
+   *
+   * @param models The cipher views to encrypt
+   * @param userId The user ID to initialize the SDK client with
+   *
+   * @returns A promise that resolves to an array of encryption contexts
+   */
+  abstract encryptMany(models: CipherView[], userId: UserId): Promise<EncryptionContext[]>;
 
   /**
    * Move the cipher to the specified organization by re-encrypting its keys with the organization's key.
@@ -67,7 +78,10 @@ export abstract class CipherEncryptionService {
    *
    * @returns A promise that resolves to an array of decrypted cipher views
    */
-  abstract decryptManyLegacy(ciphers: Cipher[], userId: UserId): Promise<CipherView[]>;
+  abstract decryptManyLegacy(
+    ciphers: Cipher[],
+    userId: UserId,
+  ): Promise<[CipherView[], CipherView[]]>;
   /**
    * Decrypts many ciphers using the SDK for the given userId, and returns a list of
    * failures.

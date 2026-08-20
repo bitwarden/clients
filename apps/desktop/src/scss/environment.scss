@@ -1,4 +1,8 @@
-﻿html.os_macos {
+﻿:root {
+  --header-height: 0px;
+}
+
+html.os_macos {
   .vault .header-search {
     -webkit-app-region: drag;
 
@@ -11,6 +15,10 @@
   .vault > .groupings > .content > .inner-content {
     padding-top: 0;
   }
+
+  --header-height: 40px;
+
+  --bit-sidenav-extra-top-padding: var(--header-height);
 }
 
 .environment-selector-btn {

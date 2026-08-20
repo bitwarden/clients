@@ -6,7 +6,6 @@ import { DefaultLoginComponentService } from "@bitwarden/auth/angular";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import {
   Environment,
   EnvironmentService,
@@ -14,6 +13,8 @@ import {
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { BrowserPlatformUtilsService } from "../../../platform/services/platform-utils/browser-platform-utils.service";
 import { ExtensionAnonLayoutWrapperDataService } from "../../../popup/components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
@@ -92,10 +93,44 @@ describe("ExtensionLoginComponentService", () => {
 
       passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
       passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
-      jest.spyOn(Utils, "fromBufferToUrlB64").mockReturnValue(codeChallenge);
+      jest
+        .spyOn(Utils as { fromArrayToUrlB64: (arr: Uint8Array) => string }, "fromArrayToUrlB64")
+        .mockReturnValue(codeChallenge);
 
       await service.redirectToSsoLogin(email);
 
+      expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
+      expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
+      expect(platformUtilsService.launchUri).toHaveBeenCalled();
+    });
+  });
+
+  describe("redirectToSsoLoginWithOrganizationSsoIdentifier", () => {
+    it("launches SSO browser window with correct Url", async () => {
+      const email = "test@bitwarden.com";
+      const state = "testState";
+      const expectedState = "testState:clientId=browser";
+      const codeVerifier = "testCodeVerifier";
+      const codeChallenge = "testCodeChallenge";
+      const orgSsoIdentifier = "org-sso-identifier";
+
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(state);
+      passwordGenerationService.generatePassword.mockResolvedValueOnce(codeVerifier);
+      jest
+        .spyOn(Utils as { fromArrayToUrlB64: (arr: Uint8Array) => string }, "fromArrayToUrlB64")
+        .mockReturnValue(codeChallenge);
+
+      await service.redirectToSsoLoginWithOrganizationSsoIdentifier(email, orgSsoIdentifier);
+
+      expect(ssoUrlService.buildSsoUrl).toHaveBeenCalledWith(
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        expect.any(String),
+        email,
+        orgSsoIdentifier,
+      );
       expect(ssoLoginService.setSsoState).toHaveBeenCalledWith(expectedState);
       expect(ssoLoginService.setCodeVerifier).toHaveBeenCalledWith(codeVerifier);
       expect(platformUtilsService.launchUri).toHaveBeenCalled();

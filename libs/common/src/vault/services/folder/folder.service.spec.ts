@@ -4,16 +4,15 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { CipherService } from "../../abstractions/cipher.service";
@@ -114,7 +113,7 @@ describe("Folder Service", () => {
 
     encryptService.encryptString.mockResolvedValue(new EncString("ENC"));
 
-    const result = await folderService.encrypt(model, null);
+    const result = await folderService.encrypt(model, null as unknown as SymmetricCryptoKey);
 
     expect(result).toEqual({
       id: "2",
@@ -122,6 +121,7 @@ describe("Folder Service", () => {
         encryptedString: "ENC",
         encryptionType: 0,
       },
+      revisionDate: expect.any(Date),
     });
   });
 
@@ -132,7 +132,7 @@ describe("Folder Service", () => {
       expect(result).toEqual({
         id: "1",
         name: makeEncString("ENC_STRING_" + 1),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       });
     });
 
@@ -150,12 +150,12 @@ describe("Folder Service", () => {
       {
         id: "1",
         name: makeEncString("ENC_STRING_" + 1),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       },
       {
         id: "2",
         name: makeEncString("ENC_STRING_" + 2),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -167,7 +167,7 @@ describe("Folder Service", () => {
       {
         id: "4",
         name: makeEncString("ENC_STRING_" + 4),
-        revisionDate: null,
+        revisionDate: expect.any(Date),
       },
     ]);
   });
@@ -180,9 +180,9 @@ describe("Folder Service", () => {
 
   describe("clearDecryptedFolderState", () => {
     it("null userId", async () => {
-      await expect(folderService.clearDecryptedFolderState(null)).rejects.toThrow(
-        "User ID is required.",
-      );
+      await expect(
+        folderService.clearDecryptedFolderState(null as unknown as UserId),
+      ).rejects.toThrow("User ID is required.");
     });
 
     it("userId provided", async () => {
@@ -203,7 +203,7 @@ describe("Folder Service", () => {
 
     const folderViews = await firstValueFrom(folderService.folderViews$(mockUserId));
     expect(folderViews.length).toBe(1);
-    expect(folderViews[0].id).toBeNull(); // Should be the "No Folder" folder
+    expect(folderViews[0].id).toEqual(""); // Should be the "No Folder" folder
   });
 
   describe("getRotatedData", () => {
@@ -222,17 +222,27 @@ describe("Folder Service", () => {
       expect(result[0]).toMatchObject({ id: "1", name: "Re-encrypted Folder" });
     });
 
+    it("filters out 'No Folder' entries with null/empty id", async () => {
+      const result = await folderService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      // folderViews$ includes the "No Folder" entry (with empty id) appended by decryptFolders,
+      // but getRotatedData should filter it out
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("1");
+      expect(result.find((f) => f.id === "" || f.id == null)).toBeUndefined();
+    });
+
     it("throws if the new user key is null", async () => {
-      await expect(folderService.getRotatedData(originalUserKey, null, mockUserId)).rejects.toThrow(
-        "New user key is required for rotation.",
-      );
+      await expect(
+        folderService.getRotatedData(originalUserKey, null as unknown as UserKey, mockUserId),
+      ).rejects.toThrow("New user key is required for rotation.");
     });
   });
 
   function folderData(id: string) {
     const data = new FolderData({} as any);
     data.id = id;
-    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString;
+    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString!;
 
     return data;
   }

@@ -13,18 +13,19 @@ describe("buildCipherIcon", () => {
       },
     } as any as CipherView;
 
-    it.each([true, false])("handles android app URIs for showFavicon setting %s", (showFavicon) => {
-      setUri("androidapp://test.example");
+    // @TODO Uncomment once we have Android and iOS icons https://bitwarden.atlassian.net/browse/PM-29028
+    // it.each([true, false])("handles android app URIs for showFavicon setting %s", (showFavicon) => {
+    //   setUri("androidapp://test.example");
 
-      const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
+    //   const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
 
-      expect(iconDetails).toEqual({
-        icon: "bwi-android",
-        image: null,
-        fallbackImage: "",
-        imageEnabled: showFavicon,
-      });
-    });
+    //   expect(iconDetails).toEqual({
+    //     icon: "bwi-android",
+    //     image: null,
+    //     fallbackImage: "",
+    //     imageEnabled: showFavicon,
+    //   });
+    // });
 
     it("does not mark as an android app if the protocol is not androidapp", () => {
       // This weird URI points to test.androidapp with a default port and path of /.example
@@ -40,18 +41,18 @@ describe("buildCipherIcon", () => {
       });
     });
 
-    it.each([true, false])("handles ios app URIs for showFavicon setting %s", (showFavicon) => {
-      setUri("iosapp://test.example");
+    // @TODO Uncomment once we have Android and iOS icons https://bitwarden.atlassian.net/browse/PM-29028
+    // it.each([true, false])("handles ios app URIs for showFavicon setting %s", (showFavicon) => {
+    //   setUri("iosapp://test.example");
 
-      const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
-
-      expect(iconDetails).toEqual({
-        icon: "bwi-apple",
-        image: null,
-        fallbackImage: "",
-        imageEnabled: showFavicon,
-      });
-    });
+    //   const iconDetails = buildCipherIcon(iconServerUrl, cipher, showFavicon);
+    //   expect(iconDetails).toEqual({
+    //     icon: "bwi-apple",
+    //     image: null,
+    //     fallbackImage: "",
+    //     imageEnabled: showFavicon,
+    //   });
+    // });
 
     it("does not mark as an ios app if the protocol is not iosapp", () => {
       // This weird URI points to test.iosapp with a default port and path of /.example
@@ -134,8 +135,155 @@ describe("buildCipherIcon", () => {
       });
     });
 
+    it("returns bwi-lock icon when newItemTypes is true and there is no uri", () => {
+      setUri(null as any as string);
+
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-lock",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-lock icon with favicon resolved when newItemTypes is true", () => {
+      setUri("https://test.example");
+
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-lock",
+        image: "https://icons.example/test.example/icon.png",
+        fallbackImage: "images/bwi-globe.png",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-globe icon when newItemTypes is false", () => {
+      setUri(null as any as string);
+
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-globe",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
     function setUri(uri: string) {
       (cipher.login as { uri: string }).uri = uri;
     }
+  });
+
+  describe("Identity cipher", () => {
+    const cipher = {
+      type: CipherType.Identity,
+    } as any as CipherView;
+
+    it("returns bwi-id-card icon when newItemTypes is false", () => {
+      expect(buildCipherIcon(iconServerUrl, cipher, true, false)).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-user icon when newItemTypes is true", () => {
+      expect(buildCipherIcon(iconServerUrl, cipher, true, true)).toEqual({
+        icon: "bwi-user",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+  });
+
+  describe("BankAccount cipher", () => {
+    const cipher = {
+      type: CipherType.BankAccount,
+    } as any as CipherView;
+
+    it("returns bwi-bank icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-bank",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-bank icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-bank",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
+  });
+
+  describe("Passport cipher", () => {
+    const cipher = {
+      type: CipherType.Passport,
+    } as any as CipherView;
+
+    it("returns bwi-passport icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-passport",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-passport icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-passport",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
+  });
+
+  describe("DriversLicense cipher", () => {
+    const cipher = {
+      type: CipherType.DriversLicense,
+    } as any as CipherView;
+
+    it("returns bwi-id-card icon", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, true);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: true,
+      });
+    });
+
+    it("returns bwi-id-card icon when showFavicon is false", () => {
+      const iconDetails = buildCipherIcon(iconServerUrl, cipher, false);
+
+      expect(iconDetails).toEqual({
+        icon: "bwi-id-card",
+        image: null,
+        fallbackImage: "",
+        imageEnabled: false,
+      });
+    });
   });
 });

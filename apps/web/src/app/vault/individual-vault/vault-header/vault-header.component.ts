@@ -1,20 +1,28 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  EventEmitter,
+  inject,
+  Input,
+  Output,
+  output,
+} from "@angular/core";
 import { Router } from "@angular/router";
 import { firstValueFrom, switchMap } from "rxjs";
 
+import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   Unassigned,
   CollectionView,
-  CollectionAdminService,
   CollectionTypes,
-} from "@bitwarden/admin-console/common";
-import { JslibModule } from "@bitwarden/angular/jslib.module";
+} from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -23,17 +31,23 @@ import {
   DialogService,
   MenuModule,
   SimpleDialogOptions,
+  IconModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  All,
+  RoutedVaultFilterModel,
+  Vfo1I18nPipe,
+  Vfo1TerminologyService,
+  Vfo1IconPipe,
+} from "@bitwarden/vault";
 
 import { CollectionDialogTabType } from "../../../admin-console/organizations/shared/components/collection-dialog";
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
+import { CoachmarkComponent, CoachmarkService } from "../../components/coachmark";
 import { PipesModule } from "../pipes/pipes.module";
-import {
-  All,
-  RoutedVaultFilterModel,
-} from "../vault-filter/shared/models/routed-vault-filter.model";
 
 @Component({
   selector: "app-vault-header",
@@ -47,14 +61,27 @@ import {
     PipesModule,
     JslibModule,
     NewCipherMenuComponent,
+    CoachmarkComponent,
+    IconModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VaultHeaderComponent {
-  protected Unassigned = Unassigned;
-  protected All = All;
-  protected CollectionDialogTabType = CollectionDialogTabType;
-  protected CipherType = CipherType;
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  protected readonly Unassigned = Unassigned;
+  protected readonly All = All;
+  protected readonly CollectionDialogTabType = CollectionDialogTabType;
+  protected readonly CipherType = CipherType;
+
+  protected readonly coachmarkService = inject(CoachmarkService);
+
+  /** Computed signal for add item coachmark open state */
+  protected readonly addItemCoachmarkOpen = computed(
+    () => this.coachmarkService.activeStepId() === "addItem",
+  );
 
   /**
    * Boolean to determine the loading state of the header.
@@ -109,13 +136,15 @@ export class VaultHeaderComponent {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onDeleteCollection = new EventEmitter<void>();
 
+  /** Emits an event when the add item dialog should be opened */
+  readonly onOpenAddItemDialog = output<void>();
+
   constructor(
-    private i18nService: I18nService,
-    private collectionAdminService: CollectionAdminService,
-    private dialogService: DialogService,
-    private router: Router,
-    private configService: ConfigService,
-    private accountService: AccountService,
+    private readonly i18nService: I18nService,
+    private readonly collectionAdminService: CollectionAdminService,
+    private readonly dialogService: DialogService,
+    private readonly router: Router,
+    private readonly accountService: AccountService,
   ) {}
 
   /**
@@ -137,6 +166,23 @@ export class VaultHeaderComponent {
   protected get activeOrganization() {
     const organizationId = this.activeOrganizationId;
     return this.organizations?.find((org) => org.id === organizationId);
+  }
+
+  /**
+   * Query params for the organization breadcrumb. Mirrors the param-swap logic
+   * in {@link RoutedVaultFilterService.createRoute}: with the VFO1 flag enabled
+   * the organization is stored as `vaultId`, otherwise as `organizationId`. The
+   * opposite key is nulled so `queryParamsHandling="merge"` cannot leave a stale
+   * param behind.
+   */
+  protected get organizationBreadcrumbQueryParams() {
+    const organizationId = this.activeOrganizationId ?? null;
+    return {
+      ...(this.vfo1TerminologyService.enabled()
+        ? { vaultId: organizationId, organizationId: null }
+        : { organizationId, vaultId: null }),
+      collectionId: this.All,
+    };
   }
 
   protected get showBreadcrumbs() {
@@ -174,7 +220,7 @@ export class VaultHeaderComponent {
 
   protected get icon() {
     if (!this.filter?.collectionId || this.filter.collectionId === All) {
-      return "";
+      return "" as BitwardenIcon;
     }
     return this.collection?.node.type === CollectionTypes.DefaultUserCollection
       ? "bwi-user"
@@ -232,12 +278,30 @@ export class VaultHeaderComponent {
     return this.collection.node.canDelete(organization);
   }
 
+  get canCreateCipher(): boolean {
+    const activeOrganization = this.activeOrganization;
+    if (activeOrganization && !activeOrganization.enabled) {
+      return false;
+    }
+    return !activeOrganization?.isProviderUser || activeOrganization?.isMember;
+  }
+
+  /** Whether the "New" button should be disabled because the active organization is suspended. */
+  get isOrganizationSuspended(): boolean {
+    const activeOrganization = this.activeOrganization;
+    return !!activeOrganization && !activeOrganization.enabled;
+  }
+
   deleteCollection() {
     this.onDeleteCollection.emit();
   }
 
   protected addCipher(cipherType?: CipherType) {
     this.onAddCipher.emit(cipherType);
+  }
+
+  protected openAddItemDialog(): void {
+    this.onOpenAddItemDialog.emit();
   }
 
   async addFolder(): Promise<void> {
@@ -271,9 +335,13 @@ export class VaultHeaderComponent {
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
       content: this.i18nService.t(
-        organization.canEditSubscription
-          ? "freeOrgMaxCollectionReachedManageBilling"
-          : "freeOrgMaxCollectionReachedNoManageBilling",
+        this.vfo1TerminologyService.enabled()
+          ? organization.canEditSubscription
+            ? "freeOrgMaxSharedFolderReachedManageBilling"
+            : "freeOrgMaxSharedFolderReachedNoManageBilling"
+          : organization.canEditSubscription
+            ? "freeOrgMaxCollectionReachedManageBilling"
+            : "freeOrgMaxCollectionReachedNoManageBilling",
         organization.maxCollections,
       ),
       type: "primary",

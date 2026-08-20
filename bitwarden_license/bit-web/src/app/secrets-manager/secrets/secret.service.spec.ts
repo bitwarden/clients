@@ -3,13 +3,17 @@ import { BehaviorSubject } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CsprngArray,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { SecretAccessPoliciesView } from "../models/view/access-policies/secret-access-policies.view";
 import { SecretView } from "../models/view/secret.view";
@@ -37,9 +41,11 @@ describe("SecretService", () => {
   let accountService: MockProxy<AccountService> = mock<AccountService>();
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>({
     id: "testId" as UserId,
-    email: "test@example.com",
-    emailVerified: true,
-    name: "Test User",
+    ...mockAccountInfoWith({
+      email: "test@example.com",
+      name: "Test User",
+      emailVerified: true,
+    }),
   });
 
   beforeEach(() => {
@@ -127,6 +133,7 @@ const secretView: SecretView = {
     {
       id: "502d93ae-a084-490a-8a64-b187015eb69c",
       name: "project-name",
+      decryptionError: false,
     },
   ],
   read: true,
@@ -153,6 +160,7 @@ const expectedSecretView: SecretView = {
     {
       id: "502d93ae-a084-490a-8a64-b187015eb69c",
       name: mockUnencryptedData,
+      decryptionError: false,
     },
   ],
   read: true,

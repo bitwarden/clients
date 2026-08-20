@@ -1,3 +1,7 @@
+/// SDK/WASM code relies on TextEncoder/TextDecoder being available globally
+import { TextEncoder, TextDecoder } from "util";
+Object.assign(global, { TextDecoder, TextEncoder });
+
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, ReplaySubject, firstValueFrom } from "rxjs";
 
@@ -25,7 +29,11 @@ import { deepFreeze } from "@bitwarden/common/tools/util";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BitwardenClient } from "@bitwarden/sdk-internal";
 
-import { FakeAccountService, FakeStateProvider } from "../../../../../common/spec";
+import {
+  FakeAccountService,
+  FakeStateProvider,
+  mockAccountInfoWith,
+} from "../../../../../common/spec";
 import { Algorithm, AlgorithmsByType, CredentialAlgorithm, Type, Types } from "../metadata";
 import catchall from "../metadata/email/catchall";
 import plusAddress from "../metadata/email/plus-address";
@@ -40,9 +48,10 @@ import { GeneratorMetadataProvider } from "./generator-metadata-provider";
 const SomeUser = "some user" as UserId;
 const SomeAccount = {
   id: SomeUser,
-  email: "someone@example.com",
-  emailVerified: true,
-  name: "Someone",
+  ...mockAccountInfoWith({
+    email: "someone@example.com",
+    name: "Someone",
+  }),
 };
 const SomeAccount$ = new BehaviorSubject<Account>(SomeAccount);
 

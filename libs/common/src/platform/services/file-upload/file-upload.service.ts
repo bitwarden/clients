@@ -1,14 +1,17 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, EncString } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { ConfigService } from "../../abstractions/config/config.service";
 import {
   FileUploadApiMethods,
   FileUploadService as FileUploadServiceAbstraction,
+  UploadOptions,
 } from "../../abstractions/file-upload/file-upload.service";
 import { LogService } from "../../abstractions/log.service";
 import { FileUploadType } from "../../enums";
-import { EncArrayBuffer } from "../../models/domain/enc-array-buffer";
 
 import { AzureFileUploadService } from "./azure-file-upload.service";
 import { BitwardenFileUploadService } from "./bitwarden-file-upload.service";
@@ -20,8 +23,9 @@ export class FileUploadService implements FileUploadServiceAbstraction {
   constructor(
     protected logService: LogService,
     apiService: ApiService,
+    configService: ConfigService,
   ) {
-    this.azureFileUploadService = new AzureFileUploadService(logService, apiService);
+    this.azureFileUploadService = new AzureFileUploadService(logService, apiService, configService);
     this.bitwardenFileUploadService = new BitwardenFileUploadService();
   }
 
@@ -30,6 +34,7 @@ export class FileUploadService implements FileUploadServiceAbstraction {
     fileName: EncString,
     encryptedFileData: EncArrayBuffer,
     fileUploadMethods: FileUploadApiMethods,
+    options?: UploadOptions,
   ) {
     try {
       switch (uploadData.fileUploadType) {
@@ -45,6 +50,7 @@ export class FileUploadService implements FileUploadServiceAbstraction {
             uploadData.url,
             encryptedFileData,
             fileUploadMethods.renewFileUploadUrl,
+            options,
           );
           break;
         }

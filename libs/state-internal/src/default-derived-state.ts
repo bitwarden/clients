@@ -5,9 +5,11 @@ import { DeriveDefinition, DerivedState, DerivedStateDependencies } from "@bitwa
 /**
  * Default derived state
  */
-export class DefaultDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>
-  implements DerivedState<TTo>
-{
+export class DefaultDerivedState<
+  TFrom,
+  TTo,
+  TDeps extends DerivedStateDependencies,
+> implements DerivedState<TTo> {
   private readonly storageKey: string;
   private forcedValueSubject = new Subject<TTo>();
 

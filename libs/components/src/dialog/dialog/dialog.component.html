@@ -1,16 +1,17 @@
 @let isDrawer = dialogRef?.isDrawer;
+<!-- Storybook/Angular bugs out without this nullcheck. See the Access Selector Dialog story when removed. -->
+@let widthClass = width() ?? "";
 <section
   class="tw-flex tw-w-full tw-flex-col tw-self-center tw-overflow-hidden tw-border tw-border-solid tw-border-secondary-100 tw-bg-background tw-text-main"
   [ngClass]="[
-    width,
-    isDrawer ? 'tw-h-screen tw-border-t-0' : 'tw-rounded-t-xl md:tw-rounded-xl tw-shadow-lg',
+    widthClass,
+    isDrawer ? 'tw-h-full tw-border-t-0' : 'tw-rounded-t-xl md:tw-rounded-xl tw-shadow-lg',
   ]"
   cdkTrapFocus
-  cdkTrapFocusAutoCapture
 >
   @let showHeaderBorder = bodyHasScrolledFrom().top;
   <header
-    class="tw-flex tw-justify-between tw-items-center tw-gap-4 tw-border-0 tw-border-b tw-border-solid tw-py-3 tw-ps-6 tw-pe-4"
+    class="tw-flex tw-justify-between tw-items-center tw-gap-2 tw-border-0 tw-border-b tw-border-solid tw-py-3 tw-ps-6 tw-pe-4"
     [ngClass]="{
       'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
       'tw-px-6 tw-py-4 has-[[biticonbutton]]:tw-pe-4': isDrawer,
@@ -18,13 +19,23 @@
       'tw-border-transparent': !showHeaderBorder,
     }"
   >
+    @if (isStacked()) {
+      <button
+        type="button"
+        bitIconButton="bwi-angle-left"
+        buttonType="primaryGhost"
+        size="default"
+        bitDialogClose
+        [label]="'back' | i18n"
+      ></button>
+    }
     <h2
       bitDialogTitleContainer
       bitTypography="h3"
       noMargin
-      class="tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
-      cdkFocusInitial
+      class="tw-flex-1 tw-text-main tw-mb-0 tw-line-clamp-2 tw-text-ellipsis tw-break-words focus-visible:tw-outline-none"
       tabindex="-1"
+      #dialogHeader
     >
       {{ title() }}
       @if (subtitle(); as subtitleText) {
@@ -34,16 +45,21 @@
       }
       <ng-content select="[bitDialogTitle]"></ng-content>
     </h2>
-    @if (!this.dialogRef?.disableClose) {
-      <button
-        type="button"
-        bitIconButton="bwi-close"
-        buttonType="main"
-        size="default"
-        bitDialogClose
-        [label]="'close' | i18n"
-      ></button>
-    }
+
+    <div class="tw-flex tw-items-center tw-justify-center">
+      <ng-content select="[bitDialogHeaderEnd]"></ng-content>
+
+      @if (!this.dialogRef?.disableClose) {
+        <button
+          type="button"
+          bitIconButton="bwi-close"
+          buttonType="primaryGhost"
+          size="default"
+          (click)="closeDialog()"
+          [label]="'close' | i18n"
+        ></button>
+      }
+    </div>
   </header>
 
   <div
@@ -56,40 +72,44 @@
   >
     @if (loading()) {
       <div class="tw-absolute tw-flex tw-size-full tw-items-center tw-justify-center">
-        <bit-spinner></bit-spinner>
+        <bit-spinner />
       </div>
     }
     <div
       cdkScrollable
+      class="tw-py-2 tw-ps-6 tw-pe-6"
       [ngClass]="{
-        'tw-py-2 tw-ps-6 tw-pe-6': !disablePadding(),
+        'tw-pb-4': !hasFooter(),
         'tw-overflow-y-auto': !loading(),
         'tw-invisible tw-overflow-y-hidden': loading(),
         'tw-py-4': background() === 'alt',
       }"
+      tabindex="0"
     >
       <ng-content select="[bitDialogContent]"></ng-content>
       <div #scrollBottom></div>
     </div>
   </div>
-  @let isScrollable = isScrollable$ | async;
-  @let showFooterBorder =
-    (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
-  <div
-    class="tw-border-0 tw-border-t tw-border-solid"
-    [ngClass]="{
-      'tw-border-transparent': !showFooterBorder,
-      'tw-border-secondary-100': showFooterBorder,
-    }"
-    data-chromatic="ignore"
-  ></div>
-  <footer
-    class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-bg-background tw-py-5 tw-ps-6 tw-pe-4"
-    [ngClass]="{
-      'tw-px-6 tw-py-4': isDrawer,
-      'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
-    }"
-  >
-    <ng-content select="[bitDialogFooter]"></ng-content>
-  </footer>
+  @if (hasFooter()) {
+    @let isScrollable = isScrollable$ | async;
+    @let showFooterBorder =
+      (!bodyHasScrolledFrom().top && isScrollable) || bodyHasScrolledFrom().bottom;
+    <div
+      class="tw-border-0 tw-border-t tw-border-solid"
+      [ngClass]="{
+        'tw-border-transparent': !showFooterBorder,
+        'tw-border-secondary-100': showFooterBorder,
+      }"
+      data-chromatic="ignore"
+    ></div>
+    <footer
+      class="tw-flex tw-flex-row tw-items-center tw-gap-2 tw-bg-background tw-py-5 tw-ps-6 tw-pe-4"
+      [ngClass]="{
+        'tw-px-6 tw-py-4': isDrawer,
+        'tw-p-4 has-[[biticonbutton]]:tw-pe-2': !isDrawer,
+      }"
+    >
+      <ng-content select="[bitDialogFooter]"></ng-content>
+    </footer>
+  }
 </section>

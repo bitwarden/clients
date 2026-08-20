@@ -1,13 +1,13 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { Decryptable, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Cipher as SdkCipher } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { assertNonNullish } from "../../../auth/utils";
 import { asUuid, uuidAsString } from "../../../platform/abstractions/sdk/sdk.service";
-import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
 import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import {
   CipherRepromptType,
@@ -24,10 +24,13 @@ import { FieldView } from "../view/field.view";
 import { PasswordHistoryView } from "../view/password-history.view";
 
 import { Attachment } from "./attachment";
+import { BankAccount } from "./bank-account";
 import { Card } from "./card";
+import { DriversLicense } from "./drivers-license";
 import { Field } from "./field";
 import { Identity } from "./identity";
 import { Login } from "./login";
+import { Passport } from "./passport";
 import { Password } from "./password";
 import { SecureNote } from "./secure-note";
 import { SshKey } from "./ssh-key";
@@ -38,7 +41,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   id: string = "";
   organizationId?: string;
   folderId?: string;
-  name: EncString = new EncString("");
+  name?: EncString;
   notes?: EncString;
   type: CipherType = CipherType.Login;
   favorite: boolean = false;
@@ -53,6 +56,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   card?: Card;
   secureNote?: SecureNote;
   sshKey?: SshKey;
+  bankAccount?: BankAccount;
+  driversLicense?: DriversLicense;
+  passport?: Passport;
   attachments?: Attachment[];
   fields?: Field[];
   passwordHistory?: Password[];
@@ -62,6 +68,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   archivedDate?: Date;
   reprompt: CipherRepromptType = CipherRepromptType.None;
   key?: EncString;
+  data?: string;
 
   constructor(obj?: CipherData, localData?: LocalData) {
     super();
@@ -73,7 +80,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.id = obj.id;
     this.organizationId = obj.organizationId;
     this.folderId = obj.folderId;
-    this.name = new EncString(obj.name);
+    this.name = conditionalEncString(obj.name);
     this.notes = conditionalEncString(obj.notes);
     this.type = obj.type;
     this.favorite = obj.favorite;
@@ -89,22 +96,32 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     this.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
     this.reprompt = obj.reprompt;
     this.key = conditionalEncString(obj.key);
+    this.data = obj.data;
 
     switch (this.type) {
       case CipherType.Login:
-        this.login = new Login(obj.login);
+        this.login = obj.login && new Login(obj.login);
         break;
       case CipherType.SecureNote:
-        this.secureNote = new SecureNote(obj.secureNote);
+        this.secureNote = obj.secureNote && new SecureNote(obj.secureNote);
         break;
       case CipherType.Card:
-        this.card = new Card(obj.card);
+        this.card = obj.card && new Card(obj.card);
         break;
       case CipherType.Identity:
-        this.identity = new Identity(obj.identity);
+        this.identity = obj.identity && new Identity(obj.identity);
         break;
       case CipherType.SshKey:
-        this.sshKey = new SshKey(obj.sshKey);
+        this.sshKey = obj.sshKey && new SshKey(obj.sshKey);
+        break;
+      case CipherType.BankAccount:
+        this.bankAccount = obj.bankAccount && new BankAccount(obj.bankAccount);
+        break;
+      case CipherType.DriversLicense:
+        this.driversLicense = obj.driversLicense && new DriversLicense(obj.driversLicense);
+        break;
+      case CipherType.Passport:
+        this.passport = obj.passport && new Passport(obj.passport);
         break;
       default:
         break;
@@ -123,19 +140,27 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
   }
 
-  // We are passing the organizationId into the EncString.decrypt() method here, but because the encKey will always be
-  // present and so the organizationId will not be used.
-  // We will refactor the EncString.decrypt() in https://bitwarden.atlassian.net/browse/PM-3762 to remove the dependency on the organizationId.
-  async decrypt(encKey: SymmetricCryptoKey): Promise<CipherView> {
+  /**
+   * @deprecated WARNING: This API may fail to decrypt ciphers if they are using blob encryption.
+   * If you are using this, please migrate off of it immediately! This function will be removed
+   * in a near release.
+   */
+  async decrypt(userKeyOrOrgKey: SymmetricCryptoKey): Promise<CipherView> {
+    assertNonNullish(userKeyOrOrgKey, "userKeyOrOrgKey", "Cipher decryption");
+
     const model = new CipherView(this);
     let bypassValidation = true;
 
+    // By default, the user/organization key is used for decryption
+    let cipherDecryptionKey = userKeyOrOrgKey;
+
+    // If there is a cipher key present, unwrap it and use it for decryption
     if (this.key != null) {
       const encryptService = Utils.getContainerService().getEncryptService();
 
       try {
-        const cipherKey = await encryptService.unwrapSymmetricKey(this.key, encKey);
-        encKey = cipherKey;
+        const cipherKey = await encryptService.unwrapSymmetricKey(this.key, userKeyOrOrgKey);
+        cipherDecryptionKey = cipherKey;
         bypassValidation = false;
       } catch {
         model.name = "[error: cannot decrypt]";
@@ -144,22 +169,15 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       }
     }
 
-    await this.decryptObj<Cipher, CipherView>(
-      this,
-      model,
-      ["name", "notes"],
-      this.organizationId ?? null,
-      encKey,
-    );
+    await this.decryptObj<Cipher, CipherView>(this, model, ["name", "notes"], cipherDecryptionKey);
 
     switch (this.type) {
       case CipherType.Login:
         if (this.login != null) {
           model.login = await this.login.decrypt(
-            this.organizationId,
             bypassValidation,
+            cipherDecryptionKey,
             `Cipher Id: ${this.id}`,
-            encKey,
           );
         }
         break;
@@ -170,28 +188,43 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
       case CipherType.Card:
         if (this.card != null) {
-          model.card = await this.card.decrypt(
-            this.organizationId,
-            `Cipher Id: ${this.id}`,
-            encKey,
-          );
+          model.card = await this.card.decrypt(cipherDecryptionKey, `Cipher Id: ${this.id}`);
         }
         break;
       case CipherType.Identity:
         if (this.identity != null) {
           model.identity = await this.identity.decrypt(
-            this.organizationId,
+            cipherDecryptionKey,
             `Cipher Id: ${this.id}`,
-            encKey,
           );
         }
         break;
       case CipherType.SshKey:
         if (this.sshKey != null) {
-          model.sshKey = await this.sshKey.decrypt(
-            this.organizationId,
+          model.sshKey = await this.sshKey.decrypt(cipherDecryptionKey, `Cipher Id: ${this.id}`);
+        }
+        break;
+      case CipherType.BankAccount:
+        if (this.bankAccount != null) {
+          model.bankAccount = await this.bankAccount.decrypt(
+            cipherDecryptionKey,
             `Cipher Id: ${this.id}`,
-            encKey,
+          );
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          model.driversLicense = await this.driversLicense.decrypt(
+            cipherDecryptionKey,
+            `Cipher Id: ${this.id}`,
+          );
+        }
+        break;
+      case CipherType.Passport:
+        if (this.passport != null) {
+          model.passport = await this.passport.decrypt(
+            cipherDecryptionKey,
+            `Cipher Id: ${this.id}`,
           );
         }
         break;
@@ -203,9 +236,8 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       const attachments: AttachmentView[] = [];
       for (const attachment of this.attachments) {
         const decryptedAttachment = await attachment.decrypt(
-          this.organizationId,
+          cipherDecryptionKey,
           `Cipher Id: ${this.id}`,
-          encKey,
         );
         attachments.push(decryptedAttachment);
       }
@@ -215,7 +247,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.fields != null && this.fields.length > 0) {
       const fields: FieldView[] = [];
       for (const field of this.fields) {
-        const decryptedField = await field.decrypt(this.organizationId, encKey);
+        const decryptedField = await field.decrypt(cipherDecryptionKey);
         fields.push(decryptedField);
       }
       model.fields = fields;
@@ -224,7 +256,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.passwordHistory != null && this.passwordHistory.length > 0) {
       const passwordHistory: PasswordHistoryView[] = [];
       for (const ph of this.passwordHistory) {
-        const decryptedPh = await ph.decrypt(this.organizationId, encKey);
+        const decryptedPh = await ph.decrypt(cipherDecryptionKey);
         passwordHistory.push(decryptedPh);
       }
       model.passwordHistory = passwordHistory;
@@ -256,6 +288,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
 
     if (this.key != null && this.key.encryptedString != null) {
       c.key = this.key.encryptedString;
+    }
+
+    if (this.data != null) {
+      c.data = this.data;
     }
 
     if (this.permissions != null) {
@@ -293,6 +329,21 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       case CipherType.SshKey:
         if (this.sshKey != null) {
           c.sshKey = this.sshKey.toSshKeyData();
+        }
+        break;
+      case CipherType.BankAccount:
+        if (this.bankAccount != null) {
+          c.bankAccount = this.bankAccount.toBankAccountData();
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          c.driversLicense = this.driversLicense.toDriversLicenseData();
+        }
+        break;
+      case CipherType.Passport:
+        if (this.passport != null) {
+          c.passport = this.passport.toPassportData();
         }
         break;
       default:
@@ -338,9 +389,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     domain.revisionDate = new Date(obj.revisionDate);
     domain.deletedDate = obj.deletedDate != null ? new Date(obj.deletedDate) : undefined;
     domain.archivedDate = obj.archivedDate != null ? new Date(obj.archivedDate) : undefined;
-    domain.name = EncString.fromJSON(obj.name);
+    domain.name = encStringFrom(obj.name);
     domain.notes = encStringFrom(obj.notes);
     domain.key = encStringFrom(obj.key);
+    domain.data = obj.data;
     domain.attachments = obj.attachments
       ?.map((a: any) => Attachment.fromJSON(a))
       .filter((a): a is Attachment => a != null);
@@ -377,6 +429,21 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           domain.sshKey = SshKey.fromJSON(obj.sshKey);
         }
         break;
+      case CipherType.BankAccount:
+        if (obj.bankAccount != null) {
+          domain.bankAccount = BankAccount.fromJSON(obj.bankAccount);
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (obj.driversLicense != null) {
+          domain.driversLicense = DriversLicense.fromJSON(obj.driversLicense);
+        }
+        break;
+      case CipherType.Passport:
+        if (obj.passport != null) {
+          domain.passport = Passport.fromJSON(obj.passport);
+        }
+        break;
       default:
         break;
     }
@@ -396,7 +463,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       folderId: this.folderId ? asUuid(this.folderId) : undefined,
       collectionIds: this.collectionIds ? this.collectionIds.map(asUuid) : ([] as any),
       key: this.key?.toSdk(),
-      name: this.name.toSdk(),
+      name: this.name?.toSdk(),
       notes: this.notes?.toSdk(),
       type: this.type,
       favorite: this.favorite,
@@ -424,7 +491,10 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       card: undefined,
       secureNote: undefined,
       sshKey: undefined,
-      data: undefined,
+      bankAccount: undefined,
+      driversLicense: undefined,
+      passport: undefined,
+      data: this.data,
     };
 
     switch (this.type) {
@@ -453,6 +523,21 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
           sdkCipher.sshKey = this.sshKey.toSdkSshKey();
         }
         break;
+      case CipherType.BankAccount:
+        if (this.bankAccount != null) {
+          sdkCipher.bankAccount = this.bankAccount.toSdkBankAccount();
+        }
+        break;
+      case CipherType.DriversLicense:
+        if (this.driversLicense != null) {
+          sdkCipher.driversLicense = this.driversLicense.toSdkDriversLicense();
+        }
+        break;
+      case CipherType.Passport:
+        if (this.passport != null) {
+          sdkCipher.passport = this.passport.toSdkPassport();
+        }
+        break;
       default:
         break;
     }
@@ -478,7 +563,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.folderId = sdkCipher.folderId ? uuidAsString(sdkCipher.folderId) : undefined;
     cipher.collectionIds = sdkCipher.collectionIds ? sdkCipher.collectionIds.map(uuidAsString) : [];
     cipher.key = encStringFrom(sdkCipher.key);
-    cipher.name = EncString.fromJSON(sdkCipher.name);
+    cipher.name = encStringFrom(sdkCipher.name);
     cipher.notes = encStringFrom(sdkCipher.notes);
     cipher.type = sdkCipher.type;
     cipher.favorite = sdkCipher.favorite;
@@ -501,6 +586,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.deletedDate = sdkCipher.deletedDate ? new Date(sdkCipher.deletedDate) : undefined;
     cipher.archivedDate = sdkCipher.archivedDate ? new Date(sdkCipher.archivedDate) : undefined;
     cipher.reprompt = sdkCipher.reprompt;
+    cipher.data = sdkCipher.data;
 
     // Cipher type specific properties
     cipher.login = Login.fromSdkLogin(sdkCipher.login);
@@ -508,6 +594,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     cipher.card = Card.fromSdkCard(sdkCipher.card);
     cipher.identity = Identity.fromSdkIdentity(sdkCipher.identity);
     cipher.sshKey = SshKey.fromSdkSshKey(sdkCipher.sshKey);
+    cipher.bankAccount = BankAccount.fromSdkBankAccount(sdkCipher.bankAccount);
+    cipher.driversLicense = DriversLicense.fromSdkDriversLicense(sdkCipher.driversLicense);
+    cipher.passport = Passport.fromSdkPassport(sdkCipher.passport);
 
     return cipher;
   }

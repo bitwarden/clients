@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString, EncString } from "@bitwarden/legacy-crypto";
 import {
   Field as SdkField,
   FieldType,
@@ -6,8 +8,7 @@ import {
   IdentityLinkedIdType,
 } from "@bitwarden/sdk-internal";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
-import { EncryptedString, EncString } from "../../../key-management/crypto/models/enc-string";
+import { mockContainerService, mockEnc, mockFromJson } from "../../../../spec";
 import { CardLinkedId, IdentityLinkedId, LoginLinkedId } from "../../enums";
 import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";
@@ -22,6 +23,7 @@ describe("Field", () => {
       value: "encValue",
       linkedId: null,
     };
+    mockContainerService();
   });
 
   it("Convert from empty", () => {

@@ -1,0 +1,42 @@
+@if (!enterOtp()) {
+  <bit-form-field>
+    <bit-label>{{ "email" | i18n }}</bit-label>
+    <input bitInput type="text" [formControl]="email" required appInputVerbatim appAutofocus />
+  </bit-form-field>
+  <div class="tw-flex">
+    <button
+      bitButton
+      bitFormButton
+      type="submit"
+      buttonType="primary"
+      [loading]="loading()"
+      [disabled]="!validateEmail()"
+      [block]="true"
+    >
+      <span>{{ "sendCode" | i18n }} </span>
+    </button>
+  </div>
+} @else {
+  <bit-form-field>
+    <bit-label>{{ "verificationCode" | i18n }}</bit-label>
+    <input bitInput type="text" [formControl]="otp" appInputVerbatim appAutofocus />
+    <bit-hint>
+      {{ "didNotReceiveCodeContactSenderOr" | i18n
+      }}<a bitLink type="button" (click)="onResendCode()">{{ "resendCode" | i18n | lowercase }}</a>
+    </bit-hint>
+  </bit-form-field>
+  <button
+    bitButton
+    bitFormButton
+    type="submit"
+    buttonType="primary"
+    [loading]="loading()"
+    [block]="true"
+    class="tw-mb-3"
+  >
+    <span>{{ "viewSend" | i18n }} </span>
+  </button>
+  <button bitButton type="button" buttonType="secondary" [block]="true" (click)="onBackClick()">
+    <span>{{ "back" | i18n }}</span>
+  </button>
+}

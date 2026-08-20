@@ -7,7 +7,7 @@ import { BehaviorSubject, from, of } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { LockService, LogoutService } from "@bitwarden/auth/common";
 
-import { FakeAccountService, mockAccountServiceWith } from "../../../../spec";
+import { FakeAccountService, mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -54,6 +54,7 @@ describe("VaultTimeoutService", () => {
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockReturnValue(
       vaultTimeoutActionSubject,
     );
+    vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
 
     availableVaultTimeoutActionsSubject = new BehaviorSubject<VaultTimeoutAction[]>([]);
 
@@ -84,7 +85,7 @@ describe("VaultTimeoutService", () => {
     >,
     globalSetups?: {
       userId?: string;
-      isViewOpen?: boolean;
+      isViewFocused?: boolean;
     },
   ) => {
     // Both are available by default and the specific test can change this per test
@@ -109,19 +110,19 @@ describe("VaultTimeoutService", () => {
     if (globalSetups?.userId) {
       accountService.activeAccountSubject.next({
         id: globalSetups.userId as UserId,
-        email: null,
-        emailVerified: false,
-        name: null,
+        ...mockAccountInfoWith({
+          email: null,
+          name: null,
+        }),
       });
     }
     accountService.accounts$ = of(
       Object.entries(accounts).reduce(
         (agg, [id]) => {
-          agg[id] = {
+          agg[id] = mockAccountInfoWith({
             email: "",
-            emailVerified: true,
             name: "",
-          };
+          });
           return agg;
         },
         {} as Record<string, AccountInfo>,
@@ -137,7 +138,7 @@ describe("VaultTimeoutService", () => {
       ),
     );
 
-    platformUtilsService.isPopupOpen.mockResolvedValue(globalSetups?.isViewOpen ?? false);
+    platformUtilsService.isAnyViewFocused.mockResolvedValue(globalSetups?.isViewFocused ?? false);
 
     vaultTimeoutSettingsService.getVaultTimeoutActionByUserId$.mockImplementation((userId) => {
       return new BehaviorSubject<VaultTimeoutAction>(accounts[userId]?.timeoutAction);
@@ -152,6 +153,8 @@ describe("VaultTimeoutService", () => {
         ],
       );
     });
+
+    vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
   };
 
   const expectUserToHaveLocked = (userId: string) => {
@@ -171,7 +174,7 @@ describe("VaultTimeoutService", () => {
     it.each([AuthenticationStatus.Locked, AuthenticationStatus.LoggedOut])(
       "should not try to log out or lock any user that has authStatus === %s.",
       async (authStatus) => {
-        platformUtilsService.isPopupOpen.mockResolvedValue(false);
+        platformUtilsService.isAnyViewFocused.mockResolvedValue(false);
         setupAccounts({
           1: {
             authStatus: authStatus,
@@ -241,7 +244,7 @@ describe("VaultTimeoutService", () => {
           },
         },
         {
-          isViewOpen: false,
+          isViewFocused: false,
         },
       );
 
@@ -285,7 +288,7 @@ describe("VaultTimeoutService", () => {
             availableTimeoutActions: [VaultTimeoutAction.LogOut],
           },
         },
-        { userId: "2", isViewOpen: false }, // Treat user 2 as the active user
+        { userId: "2", isViewFocused: false }, // Treat user 2 as the active user
       );
 
       await vaultTimeoutService.checkVaultTimeout();
@@ -308,7 +311,7 @@ describe("VaultTimeoutService", () => {
             vaultTimeout: 1, // Vault timeout of 1 minute
           },
         },
-        { userId: "2", isViewOpen: true },
+        { userId: "2", isViewFocused: true },
       );
 
       await vaultTimeoutService.checkVaultTimeout();
@@ -326,12 +329,61 @@ describe("VaultTimeoutService", () => {
             vaultTimeout: 1, // Vault timeout of 1 minute
           },
         },
-        { userId: "1", isViewOpen: true }, // They are the currently active user
+        { userId: "1", isViewFocused: true }, // They are the currently active user
       );
 
       await vaultTimeoutService.checkVaultTimeout();
 
       expectNoAction("1");
+    });
+
+    it("should not run timeout actions for a user while vault timeout is suppressed", async () => {
+      setupAccounts(
+        {
+          1: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+          2: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+        },
+        { isViewFocused: false },
+      );
+
+      vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockImplementation((userId) =>
+        Promise.resolve(userId === "1"),
+      );
+
+      await vaultTimeoutService.checkVaultTimeout();
+
+      expectNoAction("1");
+      expectUserToHaveLocked("2");
+    });
+
+    it("should run timeout action when suppression has expired", async () => {
+      setupAccounts(
+        {
+          1: {
+            authStatus: AuthenticationStatus.Unlocked,
+            isAuthenticated: true,
+            lastActive: new Date().getTime() - 120 * 1000, // Last active 2 minutes ago
+            vaultTimeout: 1, // Vault timeout of 1 minute
+          },
+        },
+        { isViewFocused: false },
+      );
+
+      vaultTimeoutSettingsService.isVaultTimeoutSuppressed.mockResolvedValue(false);
+
+      await vaultTimeoutService.checkVaultTimeout();
+
+      expectUserToHaveLocked("1");
     });
   });
 });

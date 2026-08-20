@@ -1,6 +1,7 @@
-import { mockEnc } from "../../../../spec";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
-import { EncryptionType } from "../../../platform/enums";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptionType, EncString } from "@bitwarden/legacy-crypto";
+
+import { makeSymmetricCryptoKey, mockContainerService, mockEnc } from "../../../../spec";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 
 import { Fido2Credential } from "./fido2-credential";
@@ -103,7 +104,10 @@ describe("Fido2Credential", () => {
       credential.discoverable = mockEnc("true");
       credential.creationDate = mockDate;
 
-      const credentialView = await credential.decrypt(null);
+      mockContainerService();
+
+      const cipherKey = makeSymmetricCryptoKey(64);
+      const credentialView = await credential.decrypt(cipherKey);
 
       expect(credentialView).toEqual({
         credentialId: "credentialId",

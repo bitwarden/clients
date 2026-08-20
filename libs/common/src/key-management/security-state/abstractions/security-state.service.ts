@@ -1,8 +1,9 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { SignedSecurityState } from "@bitwarden/legacy-crypto";
 
-import { SignedSecurityState } from "../../types";
+import { UserId } from "../../../types/guid";
 
 export abstract class SecurityStateService {
   /**
@@ -11,11 +12,4 @@ export abstract class SecurityStateService {
    * must be used. This security state is validated on initialization of the SDK.
    */
   abstract accountSecurityState$(userId: UserId): Observable<SignedSecurityState | null>;
-  /**
-   * Sets the security state for the provided user.
-   */
-  abstract setAccountSecurityState(
-    accountSecurityState: SignedSecurityState,
-    userId: UserId,
-  ): Promise<void>;
 }

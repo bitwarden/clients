@@ -2,9 +2,16 @@
 // @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  EncString,
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
+import { KeyConnectorUnlockData } from "@bitwarden/unlock";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
 import { BaseResponse } from "../../../models/response/base.response";
 
 import { MasterPasswordPolicyResponse } from "./master-password-policy.response";
@@ -18,15 +25,26 @@ export class IdentityTokenResponse extends BaseResponse {
   tokenType: string;
 
   // Decryption Information
-  resetMasterPassword: boolean;
-  privateKey: string; // userKeyEncryptedPrivateKey
-  key?: EncString; // masterKeyEncryptedUserKey
+
+  /**
+   * privateKey is actually userKeyEncryptedPrivateKey
+   * @deprecated Use {@link accountKeysResponseModel} instead
+   */
+  privateKey: string;
+
+  // TODO: https://bitwarden.atlassian.net/browse/PM-30124 - Rename to just accountKeys
+  accountKeysResponseModel: PrivateKeysResponseModel | null = null;
+
+  /**
+   * key is actually masterKeyEncryptedUserKey
+   * @deprecated Use {@link userDecryptionOptions.masterPasswordUnlock.masterKeyWrappedUserKey} instead
+   */
+  key?: EncString;
   twoFactorToken: string;
   kdfConfig: KdfConfig;
   forcePasswordReset: boolean;
   masterPasswordPolicy: MasterPasswordPolicyResponse;
   apiUseKeyConnector: boolean;
-  keyConnectorUrl: string;
 
   userDecryptionOptions?: UserDecryptionOptionsResponse;
 
@@ -53,24 +71,37 @@ export class IdentityTokenResponse extends BaseResponse {
       this.refreshToken = refreshToken;
     }
 
-    this.resetMasterPassword = this.getResponseProperty("ResetMasterPassword");
     this.privateKey = this.getResponseProperty("PrivateKey");
+    if (this.getResponseProperty("AccountKeys") != null) {
+      this.accountKeysResponseModel = new PrivateKeysResponseModel(
+        this.getResponseProperty("AccountKeys"),
+      );
+    }
     const key = this.getResponseProperty("Key");
     if (key) {
       this.key = new EncString(key);
     }
     this.twoFactorToken = this.getResponseProperty("TwoFactorToken");
+
     const kdf = this.getResponseProperty("Kdf");
     const kdfIterations = this.getResponseProperty("KdfIterations");
     const kdfMemory = this.getResponseProperty("KdfMemory");
     const kdfParallelism = this.getResponseProperty("KdfParallelism");
-    this.kdfConfig =
-      kdf == KdfType.PBKDF2_SHA256
-        ? new PBKDF2KdfConfig(kdfIterations)
-        : new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+
+    switch (kdf) {
+      case KdfType.PBKDF2_SHA256:
+        this.kdfConfig = new PBKDF2KdfConfig(kdfIterations);
+        break;
+      case KdfType.Argon2id:
+        this.kdfConfig = new Argon2KdfConfig(kdfIterations, kdfMemory, kdfParallelism);
+        break;
+      default:
+        throw new Error("kdf is required on IdentityTokenResponse");
+    }
+
     this.forcePasswordReset = this.getResponseProperty("ForcePasswordReset");
     this.apiUseKeyConnector = this.getResponseProperty("ApiUseKeyConnector");
-    this.keyConnectorUrl = this.getResponseProperty("KeyConnectorUrl");
+
     this.masterPasswordPolicy = new MasterPasswordPolicyResponse(
       this.getResponseProperty("MasterPasswordPolicy"),
     );
@@ -83,5 +114,29 @@ export class IdentityTokenResponse extends BaseResponse {
 
   hasMasterKeyEncryptedUserKey(): boolean {
     return Boolean(this.key);
+  }
+
+  canUnlockWithKeyConnector(): boolean {
+    // A key connector option may be present if the user has not yet enrolled into key-connector, but is supposed
+    // to enroll, just after key-connector has been enabled for the organization. Thus, we need to check that the
+    // master password is also not present. Upon migration, the master-password will be removed from the user.
+    //
+    // Ideally, the server would track key connector enrollment, and deliver a status indicating whether the user
+    // is enrolled fully, or needs migration, but this is currently not present.
+    return (
+      this.userDecryptionOptions?.keyConnectorOption != null &&
+      this.userDecryptionOptions.hasMasterPassword == false
+    );
+  }
+
+  intoKeyConnectorUnlockData(): KeyConnectorUnlockData {
+    if (!this.canUnlockWithKeyConnector()) {
+      throw new Error("Identity token response cannot be used for key connector unlock");
+    }
+
+    return {
+      url: this.userDecryptionOptions!.keyConnectorOption.keyConnectorUrl,
+      keyConnectorKeyWrappedUserKey: this.key.toSdk(),
+    };
   }
 }

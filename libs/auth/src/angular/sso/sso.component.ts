@@ -23,7 +23,6 @@ import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
 import { ClientType, HttpStatusCode } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
@@ -42,10 +41,13 @@ import {
   CheckboxModule,
   FormFieldModule,
   IconButtonModule,
+  IconModule,
   LinkModule,
   ToastService,
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { SsoClientType, SsoComponentService } from "./sso-component.service";
 
@@ -73,6 +75,7 @@ interface QueryParams {
     CommonModule,
     FormFieldModule,
     IconButtonModule,
+    IconModule,
     LinkModule,
     JslibModule,
     ReactiveFormsModule,
@@ -121,7 +124,8 @@ export class SsoComponent implements OnInit {
     private loginSuccessHandlerService: LoginSuccessHandlerService,
     private keyConnectorService: KeyConnectorService,
   ) {
-    environmentService.environment$.pipe(takeUntilDestroyed()).subscribe((env) => {
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    environmentService.globalEnvironment$.pipe(takeUntilDestroyed()).subscribe((env) => {
       this.redirectUri = env.getWebVaultUrl() + "/sso-connector.html";
     });
 
@@ -357,7 +361,7 @@ export class SsoComponent implements OnInit {
     if (codeChallenge == null) {
       const codeVerifier = await this.passwordGenerationService.generatePassword(passwordOptions);
       const codeVerifierHash = await this.cryptoFunctionService.hash(codeVerifier, "sha256");
-      codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
+      codeChallenge = Utils.fromArrayToUrlB64(codeVerifierHash)!;
       await this.ssoLoginService.setCodeVerifier(codeVerifier);
     }
 
@@ -375,11 +379,12 @@ export class SsoComponent implements OnInit {
     state += `_identifier=${this.identifier}`;
 
     // Save the pre-SSO state.
-    // We need to do this here as even if it was generated on the intiating client (e.g. browser, desktop),
+    // We need to do this here as even if it was generated on the initiating client (e.g. browser, desktop),
     // we need it on the web client to verify after the user authenticates with the identity provider and is redirected back.
     await this.ssoLoginService.setSsoState(state);
 
-    const env = await firstValueFrom(this.environmentService.environment$);
+    // Use the global environment because the user-scoped environment is not set until authentication is complete.
+    const env = await firstValueFrom(this.environmentService.globalEnvironment$);
 
     let authorizeUrl =
       env.getIdentityUrl() +
@@ -437,7 +442,7 @@ export class SsoComponent implements OnInit {
 
       // Everything after the 2FA check is considered a successful login
       // Just have to figure out where to send the user
-      await this.loginSuccessHandlerService.run(authResult.userId);
+      await this.loginSuccessHandlerService.run(authResult.userId, null);
 
       // Save off the OrgSsoIdentifier for use in the TDE flows (or elsewhere)
       // - TDE login decryption options component
@@ -478,7 +483,7 @@ export class SsoComponent implements OnInit {
         !userDecryptionOpts.hasMasterPassword &&
         userDecryptionOpts.keyConnectorOption === undefined;
 
-      if (requireSetPassword || authResult.resetMasterPassword) {
+      if (requireSetPassword) {
         // Change implies going no password -> password in this case
         return await this.handleChangePasswordRequired(orgSsoIdentifier);
       }

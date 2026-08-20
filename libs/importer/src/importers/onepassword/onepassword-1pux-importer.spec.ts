@@ -2,7 +2,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
+import * as sdkInternal from "@bitwarden/sdk-internal";
 
+import { ImportRecordErrorReason } from "../../models";
 import { APICredentialsData } from "../spec-data/onepassword-1pux/api-credentials";
 import { BankAccountData } from "../spec-data/onepassword-1pux/bank-account";
 import { CreditCardData } from "../spec-data/onepassword-1pux/credit-card";
@@ -25,10 +27,13 @@ import { SanitizedExport } from "../spec-data/onepassword-1pux/sanitized-export"
 import { SecureNoteData } from "../spec-data/onepassword-1pux/secure-note";
 import { ServerData } from "../spec-data/onepassword-1pux/server";
 import { SoftwareLicenseData } from "../spec-data/onepassword-1pux/software-license";
+import { SSH_KeyData } from "../spec-data/onepassword-1pux/ssh-key";
 import { SSNData } from "../spec-data/onepassword-1pux/ssn";
 import { WirelessRouterData } from "../spec-data/onepassword-1pux/wireless-router";
 
 import { OnePassword1PuxImporter } from "./onepassword-1pux-importer";
+
+jest.mock("@bitwarden/sdk-internal");
 
 function validateCustomField(fields: FieldView[], fieldName: string, expectedValue: any) {
   expect(fields).toBeDefined();
@@ -50,6 +55,14 @@ function validateDuplicateCustomField(
 }
 
 describe("1Password 1Pux Importer", () => {
+  beforeEach(() => {
+    // The whole SDK module is auto-mocked, so give the SshKeyImportError type guard a realistic
+    // implementation that mirrors the SDK's (an Error named "SshKeyImportError").
+    jest
+      .spyOn(sdkInternal, "isSshKeyImportError")
+      .mockImplementation((e) => e instanceof Error && e.name === "SshKeyImportError");
+  });
+
   const OnePuxExampleFileJson = JSON.stringify(OnePuxExampleFile);
   const LoginDataJson = JSON.stringify(LoginData);
   const CreditCardDataJson = JSON.stringify(CreditCardData);
@@ -57,14 +70,36 @@ describe("1Password 1Pux Importer", () => {
   const SecureNoteDataJson = JSON.stringify(SecureNoteData);
   const SanitizedExportJson = JSON.stringify(SanitizedExport);
 
-  it("should not import items with state 'archived'", async () => {
+  // Fixes #20694: items tagged "state: archived" in 1pux exports were being
+  // silently dropped, contradicting the help-center docs that state every 1pux
+  // entry is imported. They now land in Bitwarden with the archive flag set.
+  it("should import items with state 'archived' as archived ciphers", async () => {
     const importer = new OnePassword1PuxImporter();
-    const archivedLoginData = LoginData;
+    // Deep clone to avoid mutating the shared LoginData fixture across tests.
+    const archivedLoginData = JSON.parse(JSON.stringify(LoginData));
     archivedLoginData["accounts"][0]["vaults"][0]["items"][0]["state"] = "archived";
     const archivedDataJson = JSON.stringify(archivedLoginData);
+
     const result = await importer.parse(archivedDataJson);
+
     expect(result != null).toBe(true);
-    expect(result.ciphers.length).toBe(0);
+    expect(result.ciphers.length).toBe(1);
+    const cipher = result.ciphers[0];
+    expect(cipher.archivedDate).toBeDefined();
+    expect(cipher.archivedDate).toBeInstanceOf(Date);
+    expect(cipher.isArchived).toBe(true);
+  });
+
+  it("should leave active items unarchived (regression guard)", async () => {
+    const importer = new OnePassword1PuxImporter();
+    // Sanity check: the default LoginData fixture has state=active and must
+    // still import without an archive flag after the #20694 fix.
+    const result = await importer.parse(LoginDataJson);
+
+    expect(result != null).toBe(true);
+    expect(result.ciphers.length).toBeGreaterThan(0);
+    expect(result.ciphers[0].archivedDate).toBeUndefined();
+    expect(result.ciphers[0].isArchived).toBe(false);
   });
 
   it("should parse login data", async () => {
@@ -667,6 +702,146 @@ describe("1Password 1Pux Importer", () => {
     validateCustomField(cipher.fields, "medication", "Insuline");
     validateCustomField(cipher.fields, "dosage", "1");
     validateCustomField(cipher.fields, "medication notes", "multiple times a day");
+  });
+
+  it("should parse category 114 - SSH Key", async () => {
+    // Mock the SDK import_ssh_key function to return converted OpenSSH format
+    const mockConvertedKey = {
+      privateKey:
+        "-----BEGIN OPENSSH PRIVATE KEY-----\nb3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW\nQyNTUxOQAAACCWsp3FFVVCMGZ23hscRkDPfGzKZ8z1V/ZB9nzbdDFRswAAAJh8F3bYfBd2\n2AAAAAtzc2gtZWQyNTUxOQAAACCWsp3FFVVCMGZ23hscRkDPfGzKZ8z1V/ZB9nzbdDFRsw\nAAAEA59QYE22f+VFHhiyH1Vfqiwz7xLEt1zCuk8M8Ng5LpKpayncUVVUKwZ3beGxxGQM98\nbMpnzPVX9kH2fNt0MVGzAAAAE3Rlc3RAZXhhbXBsZS5jb20BAgMEBQ==\n-----END OPENSSH PRIVATE KEY-----\n",
+      publicKey: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJayncUVVUKwZ3beGxxGQM98bMpnzPVX9kH2fNt0MVGz",
+      fingerprint: "SHA256:/9qSxXuic8kaVBhwv3c8PuetiEpaOgIp7xHNCbcSuN8",
+    } as sdkInternal.SshKeyView;
+
+    jest.spyOn(sdkInternal, "import_ssh_key").mockReturnValue(mockConvertedKey);
+
+    const importer = new OnePassword1PuxImporter();
+    const jsonString = JSON.stringify(SSH_KeyData);
+    const result = await importer.parse(jsonString);
+    expect(result != null).toBe(true);
+    const cipher = result.ciphers.shift();
+    expect(cipher.type).toEqual(CipherType.SshKey);
+    expect(cipher.name).toEqual("Some SSH Key");
+    expect(cipher.notes).toEqual("SSH Key Note");
+
+    // Verify that import_ssh_key was called with the PKCS#8 key from 1Password
+    expect(sdkInternal.import_ssh_key).toHaveBeenCalledWith(
+      "-----BEGIN PRIVATE KEY-----\nMFECAQEwBQYDK2VwBCIEIDn1BgTbZ/5UUeGLIfVV+qLBOvEsS3XMK6Twzw2Dkukq\ngSEAlrKdxRVVQrBndt4bHEZAz3xsymfM9Vf2QfZ823QxUbM=\n-----END PRIVATE KEY-----\n",
+    );
+
+    // Verify the key was converted to OpenSSH format
+    expect(cipher.sshKey.privateKey).toEqual(mockConvertedKey.privateKey);
+    expect(cipher.sshKey.publicKey).toEqual(mockConvertedKey.publicKey);
+    expect(cipher.sshKey.keyFingerprint).toEqual(mockConvertedKey.fingerprint);
+  });
+
+  it("skips an SSH key the SDK cannot parse and reports it, without aborting the import", async () => {
+    // The SDK throws a flat SshKeyImportError (e.g. a non-RFC-compliant DER encoding).
+    const parseError: Error & { variant?: string } = new Error("Failed to parse key");
+    parseError.name = "SshKeyImportError";
+    parseError.variant = "Parsing";
+    jest.spyOn(sdkInternal, "import_ssh_key").mockImplementation(() => {
+      throw parseError;
+    });
+
+    const importer = new OnePassword1PuxImporter();
+    const result = await importer.parse(JSON.stringify(SSH_KeyData));
+
+    // The import still succeeds instead of throwing.
+    expect(result.success).toBe(true);
+    // The unparseable SSH key is skipped rather than added as a broken cipher.
+    expect(result.ciphers.some((c) => c.type === CipherType.SshKey)).toBe(false);
+    // ...and reported as problematic
+    expect(result.errors.length).toBe(1);
+    // Identified by the item's non-sensitive UID, not its (encrypted) name.
+    expect(result.errors[0].id).toEqual("kf7wevmfiqmbgyao42plvgrasy");
+    expect(result.errors[0].reason).toEqual(ImportRecordErrorReason.SshKeyParseFailed);
+  });
+
+  it("skips ANY item that fails to parse and still imports the rest", async () => {
+    // A corrupt item (missing `details`) throws during processing; a normal login must still import.
+    const data = {
+      accounts: [
+        {
+          vaults: [
+            {
+              items: [
+                {
+                  uuid: "broken-login-uuid",
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Broken Login" },
+                },
+                {
+                  categoryUuid: "001",
+                  favIndex: 0,
+                  state: "active",
+                  overview: { title: "Good Login" },
+                  details: {
+                    loginFields: [{ designation: "username", value: "bob" }],
+                    passwordHistory: [] as unknown[],
+                    sections: [] as unknown[],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const importer = new OnePassword1PuxImporter();
+    const result = await importer.parse(JSON.stringify(data));
+
+    expect(result.success).toBe(true);
+    // The good item imported; the broken one was skipped and reported with a generic reason.
+    expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].name).toEqual("Good Login");
+    expect(result.errors.length).toBe(1);
+    // Reported by UID, not the (sensitive) item title.
+    expect(result.errors[0].id).toEqual("broken-login-uuid");
+    expect(result.errors[0].reason).toEqual(ImportRecordErrorReason.Error);
+  });
+
+  it("does not misattribute a skipped SSH key's folder to another item", async () => {
+    const parseError: Error & { variant?: string } = new Error("Failed to parse key");
+    parseError.name = "SshKeyImportError";
+    parseError.variant = "Parsing";
+    jest.spyOn(sdkInternal, "import_ssh_key").mockImplementation(() => {
+      throw parseError;
+    });
+
+    // A tagged SSH key (which records a folder relationship) that fails to parse, followed by a
+    // normal login. The login must NOT inherit the skipped key's "Work" folder.
+    const exportData = JSON.parse(JSON.stringify(SSH_KeyData));
+    exportData.accounts[0].vaults[0].items[0].overview.tags = ["Work"];
+    exportData.accounts[0].vaults[0].items.push({
+      uuid: "loginitem",
+      favIndex: 0,
+      createdAt: 1724868152,
+      updatedAt: 1724868152,
+      state: "active",
+      categoryUuid: "001",
+      details: {
+        loginFields: [
+          { designation: "username", value: "alice", name: "username", fieldType: "T" },
+        ],
+        notesPlain: "",
+        sections: [],
+        passwordHistory: [],
+      },
+      overview: { title: "My Login", url: "" },
+    });
+
+    const importer = new OnePassword1PuxImporter();
+    const result = await importer.parse(JSON.stringify(exportData));
+
+    // The SSH key is skipped; only the login imports.
+    expect(result.ciphers.length).toBe(1);
+    expect(result.ciphers[0].name).toEqual("My Login");
+    // The skipped key's folder relationship must not remain — otherwise it would point at the login.
+    expect(result.folderRelationships).toEqual([]);
   });
 
   it("should create folders", async () => {

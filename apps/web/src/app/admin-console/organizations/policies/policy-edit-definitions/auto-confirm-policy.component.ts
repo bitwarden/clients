@@ -1,59 +1,202 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  OnInit,
+  DestroyRef,
+  inject,
   Signal,
   TemplateRef,
   viewChild,
 } from "@angular/core";
-import { BehaviorSubject, map, Observable } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormControl } from "@angular/forms";
+import { Router } from "@angular/router";
+import { combineLatest, firstValueFrom, map, Observable, of, startWith, switchMap } from "rxjs";
 
 import { AutoConfirmSvg } from "@bitwarden/assets/svg";
+import { AutomaticUserConfirmationService } from "@bitwarden/auto-confirm";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { SwitchComponent } from "@bitwarden/components";
 
 import { SharedModule } from "../../../../shared";
-import { AutoConfirmPolicyDialogComponent } from "../auto-confirm-edit-policy-dialog.component";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
+import { PolicyCategory } from "../pipes/policy-category";
+import {
+  MultiStepPolicyEditDialogComponent,
+  PolicyStep,
+  PolicyStepResult,
+} from "../policy-edit-dialogs";
 
 export class AutoConfirmPolicy extends BasePolicyEditDefinition {
-  name = "autoConfirm";
+  name = "automaticUserConfirmation";
   description = "autoConfirmDescription";
-  type = PolicyType.AutoConfirm;
+  type = PolicyType.AutomaticUserConfirmation;
+  category = PolicyCategory.VaultManagement;
+  priority = 90;
   component = AutoConfirmPolicyEditComponent;
   showDescription = false;
-  editDialogComponent = AutoConfirmPolicyDialogComponent;
+  editDialogComponent = MultiStepPolicyEditDialogComponent;
 
-  override display$(organization: Organization, configService: ConfigService): Observable<boolean> {
-    return configService
-      .getFeatureFlag$(FeatureFlag.AutoConfirm)
-      .pipe(map((enabled) => enabled && organization.useAutomaticUserConfirmation));
+  constructor(readonly firstTimeDialog: boolean = false) {
+    super();
+  }
+
+  override display$(organization: Organization): Observable<boolean> {
+    return of(organization.useAutomaticUserConfirmation);
   }
 }
 
 @Component({
   selector: "auto-confirm-policy-edit",
   templateUrl: "auto-confirm-policy.component.html",
-  imports: [SharedModule],
+  imports: [SharedModule, SwitchComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent implements OnInit {
-  protected readonly autoConfirmSvg = AutoConfirmSvg;
-  private readonly policyForm: Signal<TemplateRef<any> | undefined> = viewChild("step0");
-  private readonly extensionButton: Signal<TemplateRef<any> | undefined> = viewChild("step1");
+export class AutoConfirmPolicyEditComponent extends BasePolicyEditComponent {
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected step: number = 0;
-  protected steps = [this.policyForm, this.extensionButton];
-
-  protected singleOrgEnabled$: BehaviorSubject<boolean> = new BehaviorSubject(false);
-
-  setSingleOrgEnabled(enabled: boolean) {
-    this.singleOrgEnabled$.next(enabled);
+  constructor(
+    private readonly policyService: PolicyService,
+    private readonly autoConfirmService: AutomaticUserConfirmationService,
+    private readonly router: Router,
+  ) {
+    super();
   }
 
-  setStep(step: number) {
-    this.step = step;
+  protected readonly autoConfirmSvg = AutoConfirmSvg;
+
+  protected get autoConfirmPolicy(): AutoConfirmPolicy | undefined {
+    return this.policy() as AutoConfirmPolicy | undefined;
+  }
+
+  /**
+   * Gates the enable switch: an admin must accept the security risk before they can turn the
+   * policy on. Defaults to accepted when editing an already-enabled policy, since the risk was
+   * necessarily accepted the first time it was turned on.
+   */
+  readonly riskAccepted = new FormControl(false, { nonNullable: true });
+
+  private readonly step0Title: Signal<TemplateRef<unknown>> = viewChild.required("step0Title");
+  private readonly step0Content: Signal<TemplateRef<unknown>> = viewChild.required("step0Content");
+  private readonly step0Footer: Signal<TemplateRef<unknown>> = viewChild.required("step0Footer");
+
+  protected readonly step1Title: Signal<TemplateRef<unknown>> = viewChild.required("step1Title");
+  protected readonly step1Content: Signal<TemplateRef<unknown>> =
+    viewChild.required("step1Content");
+  protected readonly step1Footer: Signal<TemplateRef<unknown>> = viewChild.required("step1Footer");
+
+  protected readonly autoConfirmEnabled$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      map(
+        (policies) =>
+          policies.find((p) => p.type === PolicyType.AutomaticUserConfirmation)?.enabled ?? false,
+      ),
+    );
+
+  protected readonly singleOrgEnabled$: Observable<boolean> =
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.policyService.policies$(userId)),
+      map((policies) => policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false),
+    );
+
+  protected readonly managePoliciesOnly$: Observable<boolean> = this.organization$.pipe(
+    map((organization) => (!organization?.isAdmin && organization?.canManagePolicies) ?? false),
+  );
+
+  protected readonly saveDisabled$ = combineLatest([
+    this.autoConfirmEnabled$,
+    this.enabled.valueChanges.pipe(startWith(this.enabled.value)),
+  ]).pipe(map(([policyEnabled, value]) => !policyEnabled && !value));
+
+  override readonly policySteps: PolicyStep[] = [
+    {
+      titleContent: this.step0Title,
+      bodyContent: this.step0Content,
+      footerContent: this.step0Footer,
+      disableSave: this.saveDisabled$,
+      sideEffect: () => this.savePolicy(),
+    },
+    {
+      titleContent: this.step1Title,
+      bodyContent: this.step1Content,
+      footerContent: this.step1Footer,
+      sideEffect: () => this.navigateToExtensionPromptStep(),
+    },
+  ];
+
+  override ngOnInit(): void {
+    super.ngOnInit();
+
+    this.riskAccepted.setValue(this.enabled.value ?? false);
+
+    this.riskAccepted.valueChanges
+      .pipe(startWith(this.riskAccepted.value), takeUntilDestroyed(this.destroyRef))
+      .subscribe((accepted) => {
+        if (accepted) {
+          this.enabled.enable({ emitEvent: false });
+        } else {
+          this.enabled.disable({ emitEvent: false });
+          this.enabled.setValue(false);
+        }
+      });
+  }
+
+  protected override async savePolicy(): Promise<PolicyStepResult | void> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
+    const organization = await firstValueFrom(this.organization$);
+    const managePoliciesOnly = (!organization?.isAdmin && organization?.canManagePolicies) ?? false;
+
+    const policies = await firstValueFrom(this.policyService.policies$(userId));
+    const singleOrgAlreadyEnabled =
+      policies.find((p) => p.type === PolicyType.SingleOrg)?.enabled ?? false;
+    const enabledSingleOrgDuringAction = !singleOrgAlreadyEnabled;
+
+    // AutoConfirm requires SingleOrg; enable it as a prerequisite if not already on.
+    if (enabledSingleOrgDuringAction) {
+      await this.policyApiService.putPolicy(this.organizationId() ?? "", PolicyType.SingleOrg, {
+        policy: { enabled: true, data: null },
+        metadata: null,
+      });
+    }
+
+    try {
+      const request = await this.buildRequest();
+      await this.policyApiService.putPolicy(
+        this.organizationId() ?? "",
+        PolicyType.AutomaticUserConfirmation,
+        request,
+      );
+    } catch (error) {
+      // Roll back the SingleOrg enablement if AutoConfirm save fails.
+      if (enabledSingleOrgDuringAction) {
+        await this.policyApiService.putPolicy(this.organizationId() ?? "", PolicyType.SingleOrg, {
+          policy: { enabled: false, data: null },
+          metadata: null,
+        });
+      }
+      throw error;
+    }
+
+    // Dismiss the first-time setup dialog prompt now that the admin has configured the policy.
+    const currentState = await firstValueFrom(this.autoConfirmService.configuration$(userId));
+    await this.autoConfirmService.upsert(userId, { ...currentState, showSetupDialog: false });
+
+    // Close immediately when disabling (no extension step needed) or when the user only has
+    // manage-policies permission and cannot configure the client-side extension setting.
+    if (!this.enabled.value || managePoliciesOnly) {
+      return { closeDialog: true };
+    }
+  }
+
+  protected async navigateToExtensionPromptStep(): Promise<void> {
+    await this.router.navigate(["/browser-extension-prompt"], {
+      queryParams: { url: "AutoConfirm" },
+    });
   }
 }

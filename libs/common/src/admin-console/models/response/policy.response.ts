@@ -9,6 +9,7 @@ export class PolicyResponse extends BaseResponse {
   data: any;
   enabled: boolean;
   canToggleState: boolean;
+  revisionDate: string;
 
   constructor(response: any) {
     super(response);
@@ -18,5 +19,6 @@ export class PolicyResponse extends BaseResponse {
     this.data = this.getResponseProperty("Data");
     this.enabled = this.getResponseProperty("Enabled");
     this.canToggleState = this.getResponseProperty("CanToggleState") ?? true;
+    this.revisionDate = this.getResponseProperty("RevisionDate");
   }
 }

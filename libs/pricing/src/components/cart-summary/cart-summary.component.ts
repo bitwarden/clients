@@ -1,81 +1,227 @@
-import { CurrencyPipe } from "@angular/common";
-import { Component, computed, input, signal } from "@angular/core";
+import { CurrencyPipe, NgTemplateOutlet } from "@angular/common";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  TemplateRef,
+} from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 
-import { TypographyModule, IconButtonModule } from "@bitwarden/components";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-export type LineItem = {
-  quantity: number;
-  name: string;
-  cost: number;
-  cadence: "month" | "year";
-};
+import { Cart, CartItem } from "../../types/cart";
+import { Discount, getAmount, getLabel } from "../../types/discount";
+import { DiscountBadgeComponent } from "../discount-badge/discount-badge.component";
 
 /**
  * A reusable UI-only component that displays a cart summary with line items.
  * This component has no external dependencies and performs minimal logic -
  * it only displays data and allows expanding/collapsing of line items.
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "billing-cart-summary",
   templateUrl: "./cart-summary.component.html",
-  imports: [TypographyModule, IconButtonModule, CurrencyPipe, I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    TypographyModule,
+    IconButtonModule,
+    CurrencyPipe,
+    I18nPipe,
+    NgTemplateOutlet,
+    DiscountBadgeComponent,
+  ],
 })
 export class CartSummaryComponent {
+  private readonly i18nService = inject(I18nService);
+
   // Required inputs
-  readonly passwordManager = input.required<LineItem>();
-  readonly additionalStorage = input<LineItem>();
-  readonly secretsManager = input<{ seats: LineItem; additionalServiceAccounts?: LineItem }>();
-  readonly estimatedTax = input.required<number>();
+  readonly cart = input.required<Cart>();
+
+  // Optional inputs
+  readonly header = input<TemplateRef<{ total: number }>>();
+
+  // Hide pricing term (e.g., "/ month" or "/ year") if true
+  readonly hidePricingTerm = input<boolean>(false);
+
+  // Show discount badge chips next to the header total; use in checkout flows only
+  readonly showDiscountBadges = input<boolean>(false);
 
   // UI state
   readonly isExpanded = signal(true);
 
   /**
-   * Calculates total for password manager line item
+   * Calculates total for Password Manager seats
    */
-  readonly passwordManagerTotal = computed<number>(() => {
-    return this.passwordManager().quantity * this.passwordManager().cost;
+  readonly passwordManagerSeatsTotal = computed<number>(() => {
+    const {
+      passwordManager: { seats },
+    } = this.cart();
+    return seats.quantity * seats.cost;
   });
 
   /**
-   * Calculates total for additional storage line item if present
+   * Calculates the discount amount for the Password Manager seats item.
+   * Currently, only PM seats support item-level discounts (PM-33349).
+   * If other cart items gain discount support, add corresponding signals and update total().
+   */
+  readonly passwordManagerSeatsDiscountAmount = computed<number>(() => {
+    const {
+      passwordManager: { seats },
+    } = this.cart();
+    return this.getItemDiscountAmount(seats);
+  });
+
+  /**
+   * Gets the discount label for the Password Manager seats item
+   */
+  readonly passwordManagerSeatsDiscountLabel = computed<string>(() => {
+    const {
+      passwordManager: { seats },
+    } = this.cart();
+    if (!seats.discount) {
+      return "";
+    }
+    return getLabel(this.i18nService, seats.discount);
+  });
+
+  /**
+   * Calculates total for additional storage
    */
   readonly additionalStorageTotal = computed<number>(() => {
-    const storage = this.additionalStorage();
-    return storage ? storage.quantity * storage.cost : 0;
+    const {
+      passwordManager: { additionalStorage },
+    } = this.cart();
+    if (!additionalStorage) {
+      return 0;
+    }
+    return additionalStorage.quantity * additionalStorage.cost;
   });
 
   /**
-   * Calculates total for secrets manager seats if present
+   * Calculates total for Secrets Manager seats
    */
   readonly secretsManagerSeatsTotal = computed<number>(() => {
-    const sm = this.secretsManager();
-    return sm?.seats ? sm.seats.quantity * sm.seats.cost : 0;
+    const { secretsManager } = this.cart();
+    if (!secretsManager) {
+      return 0;
+    }
+    return secretsManager.seats.quantity * secretsManager.seats.cost;
   });
 
   /**
    * Calculates total for secrets manager service accounts if present
    */
   readonly additionalServiceAccountsTotal = computed<number>(() => {
-    const sm = this.secretsManager();
-    return sm?.additionalServiceAccounts
-      ? sm.additionalServiceAccounts.quantity * sm.additionalServiceAccounts.cost
-      : 0;
+    const { secretsManager } = this.cart();
+    if (!secretsManager || !secretsManager.additionalServiceAccounts) {
+      return 0;
+    }
+    return (
+      secretsManager.additionalServiceAccounts.quantity *
+      secretsManager.additionalServiceAccounts.cost
+    );
+  });
+
+  readonly estimatedTax = computed<number>(() => this.cart().estimatedTax);
+
+  readonly term = computed<string>(() => {
+    const { cadence } = this.cart();
+    switch (cadence) {
+      case "annually":
+        return this.i18nService.t("year");
+      case "monthly":
+        return this.i18nService.t("month");
+    }
   });
 
   /**
-   * Calculates the total of all line items
+   * Calculates the subtotal before discount and tax
    */
-  readonly total = computed<number>(() => this.getTotalCost());
+  readonly subtotal = computed<number>(
+    () =>
+      this.passwordManagerSeatsTotal() +
+      this.additionalStorageTotal() +
+      this.secretsManagerSeatsTotal() +
+      this.additionalServiceAccountsTotal(),
+  );
+
+  /**
+   * Maps a list of discounts to labeled line items, applying each discount to the running
+   * subtotal after the previous discount was subtracted. For example, two 10% discounts on
+   * a $100 subtotal yield $10 off (subtotal → $90), then $9 off (subtotal → $81).
+   */
+  private calculateDiscountLineItems(
+    discounts: Discount[],
+    subtotal: number,
+  ): Array<{ label: string; amount: number }> {
+    let runningSubtotal = subtotal;
+    return discounts.map((discount) => {
+      const amount = getAmount(discount, runningSubtotal);
+      runningSubtotal -= amount;
+      return { label: getLabel(this.i18nService, discount), amount };
+    });
+  }
+
+  /**
+   * Computes each discount as a labeled line item with its individual amount
+   */
+  readonly discountLineItems = computed<Array<{ label: string; amount: number }>>(() => {
+    const { discounts } = this.cart();
+    if (!discounts?.length) {
+      return [];
+    }
+    return this.calculateDiscountLineItems(discounts, this.subtotal());
+  });
+
+  /**
+   * Calculates the total discount amount across all discounts
+   */
+  readonly discountAmount = computed<number>(() =>
+    this.discountLineItems().reduce((sum, item) => sum + item.amount, 0),
+  );
+
+  /**
+   * Calculates the credit amount from the cart credit
+   */
+  readonly creditAmount = computed<number>(() => {
+    const { credit } = this.cart();
+    if (!credit) {
+      return 0;
+    }
+    return credit.value;
+  });
+
+  /**
+   * Calculates the total of all line items including discount and tax
+   */
+  readonly total = computed<number>(
+    () =>
+      this.subtotal() -
+      this.discountAmount() -
+      this.passwordManagerSeatsDiscountAmount() -
+      this.creditAmount() +
+      this.estimatedTax(),
+  );
 
   /**
    * Observable of computed total value
    */
   readonly total$ = toObservable(this.total);
+
+  /**
+   * Translates a key with optional parameters
+   */
+  translateWithParams(key: string, params?: Array<string | number>): string {
+    if (!params || params.length === 0) {
+      return this.i18nService.t(key);
+    }
+    return this.i18nService.t(key, ...params);
+  }
 
   /**
    * Toggles the expanded/collapsed state of the cart items
@@ -84,17 +230,10 @@ export class CartSummaryComponent {
     this.isExpanded.update((value: boolean) => !value);
   }
 
-  /**
-   * Gets the total cost of all line items in the cart
-   * @returns The total cost as a number
-   */
-  private getTotalCost(): number {
-    return (
-      this.passwordManagerTotal() +
-      this.additionalStorageTotal() +
-      this.secretsManagerSeatsTotal() +
-      this.additionalServiceAccountsTotal() +
-      this.estimatedTax()
-    );
+  private getItemDiscountAmount(item: CartItem): number {
+    if (!item.discount) {
+      return 0;
+    }
+    return getAmount(item.discount, item.quantity * item.cost);
   }
 }

@@ -132,7 +132,7 @@ describe("MoveDesktopSettings", () => {
       },
     },
     {
-      it: "does not move non-existant values",
+      it: "does not move non-existent values",
       preMigration: {
         global_account_accounts: {
           user1: {},

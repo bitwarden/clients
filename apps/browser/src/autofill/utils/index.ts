@@ -1,7 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
+import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
+import type { SubFrameOffsetWindowMessageData } from "../services/abstractions/autofill-overlay-content.service";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 /**
@@ -144,11 +146,14 @@ export function setElementStyles(
   }
 
   for (const styleProperty in styles) {
-    element.style.setProperty(
-      styleProperty.replace(/([a-z])([A-Z])/g, "$1-$2"), // Convert camelCase to kebab-case
-      styles[styleProperty],
-      priority ? "important" : undefined,
-    );
+    const styleValue = styles[styleProperty];
+    if (styleValue !== undefined) {
+      element.style.setProperty(
+        styleProperty.replace(/([a-z])([A-Z])/g, "$1-$2"), // Convert camelCase to kebab-case
+        styleValue,
+        priority ? "important" : undefined,
+      );
+    }
   }
 }
 
@@ -175,12 +180,13 @@ export function setupExtensionDisconnectAction(callback: (port: chrome.runtime.P
  * @param windowContext - The global window context
  */
 export function setupAutofillInitDisconnectAction(windowContext: Window) {
-  if (!windowContext.bitwardenAutofillInit) {
+  const bitwardenAutofillInit = windowContext.bitwardenAutofillInit;
+  if (!bitwardenAutofillInit) {
     return;
   }
 
   const onDisconnectCallback = () => {
-    windowContext.bitwardenAutofillInit.destroy();
+    bitwardenAutofillInit.destroy();
     delete windowContext.bitwardenAutofillInit;
   };
   setupExtensionDisconnectAction(onDisconnectCallback);
@@ -296,38 +302,19 @@ export function nodeIsElement(node: Node): node is Element {
   return node?.nodeType === Node.ELEMENT_NODE;
 }
 
-/**
- * Identifies whether a node is an input element.
- *
- * @param node - The node to check.
- */
-export function nodeIsInputElement(node: Node): node is HTMLInputElement {
-  return nodeIsElement(node) && elementIsInputElement(node);
+export function elementIsTypeSubmitElement(element: Element): element is HTMLElement {
+  return getPropertyOrAttribute(element as HTMLElement, "type") === "submit";
 }
 
-/**
- * Identifies whether a node is a form element.
- *
- * @param node - The node to check.
- */
-export function nodeIsFormElement(node: Node): node is HTMLFormElement {
-  return nodeIsElement(node) && elementIsFormElement(node);
-}
-
-export function nodeIsTypeSubmitElement(node: Node): node is HTMLElement {
-  return nodeIsElement(node) && getPropertyOrAttribute(node as HTMLElement, "type") === "submit";
-}
-
-export function nodeIsButtonElement(node: Node): node is HTMLButtonElement {
+export function elementIsButtonElement(element: Element): element is HTMLButtonElement {
   return (
-    nodeIsElement(node) &&
-    (elementIsInstanceOf<HTMLButtonElement>(node, "button") ||
-      getPropertyOrAttribute(node as HTMLElement, "type") === "button")
+    elementIsInstanceOf<HTMLButtonElement>(element, "button") ||
+    getPropertyOrAttribute(element as HTMLElement, "type") === "button"
   );
 }
 
-export function nodeIsAnchorElement(node: Node): node is HTMLAnchorElement {
-  return nodeIsElement(node) && elementIsInstanceOf<HTMLAnchorElement>(node, "a");
+export function elementIsAnchorElement(element: Element): element is HTMLAnchorElement {
+  return elementIsInstanceOf<HTMLAnchorElement>(element, "a");
 }
 
 /**
@@ -350,6 +337,29 @@ export function getAttributeBoolean(
 }
 
 /**
+ * Checks if a form field element is currently readonly or disabled.
+ *
+ * @param formFieldElement - The form field element to evaluate.
+ * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
+ */
+export function isReadonlyOrDisabledFormFieldElement(
+  formFieldElement: FormFieldElement,
+  autofillFieldData?: AutofillFieldReadonlyDisabledState,
+): boolean {
+  const readOnlyByProperty =
+    (elementIsInputElement(formFieldElement) || elementIsTextAreaElement(formFieldElement)) &&
+    formFieldElement.readOnly;
+
+  return (
+    getAttributeBoolean(formFieldElement, AUTOFILL_ATTRIBUTES.DISABLED) ||
+    readOnlyByProperty ||
+    getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
+    autofillFieldData?.readonly === true ||
+    autofillFieldData?.disabled === true
+  );
+}
+
+/**
  * Get the value of a property or attribute from a FormFieldElement.
  *
  * @param element
@@ -357,7 +367,7 @@ export function getAttributeBoolean(
  */
 export function getPropertyOrAttribute(element: HTMLElement, attributeName: string): string | null {
   if (attributeName in element) {
-    return (element as FormElementWithAttribute)[attributeName];
+    return (element as FormElementWithAttribute)[attributeName] ?? null;
   }
 
   return element.getAttribute(attributeName);
@@ -366,17 +376,21 @@ export function getPropertyOrAttribute(element: HTMLElement, attributeName: stri
 /**
  * Throttles a callback function to run at most once every `limit` milliseconds.
  *
- * @param callback - The callback function to throttle.
+ * @param callback - The callback function to throttle (must return void).
  * @param limit - The time in milliseconds to throttle the callback.
  */
-export function throttle(callback: (_args: any) => any, limit: number) {
+export function throttle<TypeContext, Args extends unknown[]>(
+  callback: (this: TypeContext, ...args: Args) => void,
+  limit: number,
+): (this: TypeContext, ...args: Args) => void {
   let waitingDelay = false;
-  return function (...args: unknown[]) {
-    if (!waitingDelay) {
-      callback.apply(this, args);
-      waitingDelay = true;
-      globalThis.setTimeout(() => (waitingDelay = false), limit);
+  return function (this: TypeContext, ...args: Args) {
+    if (waitingDelay) {
+      return;
     }
+    callback.apply(this, args);
+    waitingDelay = true;
+    globalThis.setTimeout(() => (waitingDelay = false), limit);
   };
 }
 
@@ -387,9 +401,14 @@ export function throttle(callback: (_args: any) => any, limit: number) {
  * @param delay - The time in milliseconds to debounce the callback.
  * @param immediate - Determines whether the callback should run immediately.
  */
-export function debounce(callback: (_args: any) => any, delay: number, immediate?: boolean) {
-  let timeout: NodeJS.Timeout;
-  return function (...args: unknown[]) {
+export function debounce<FunctionType extends (...args: unknown[]) => unknown>(
+  callback: FunctionType,
+  delay: number,
+  immediate?: boolean,
+): (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) => void {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+
+  return function (this: ThisParameterType<FunctionType>, ...args: Parameters<FunctionType>) {
     const callImmediately = !!immediate && !timeout;
 
     if (timeout) {
@@ -406,46 +425,6 @@ export function debounce(callback: (_args: any) => any, delay: number, immediate
       callback.apply(this, args);
     }
   };
-}
-
-/**
- * Gathers and normalizes keywords from a potential submit button element. Used
- * to verify if the element submits a login or change password form.
- *
- * @param element - The element to gather keywords from.
- */
-export function getSubmitButtonKeywordsSet(element: HTMLElement): Set<string> {
-  const keywords = [
-    element.textContent,
-    element.getAttribute("type"),
-    element.getAttribute("value"),
-    element.getAttribute("aria-label"),
-    element.getAttribute("aria-labelledby"),
-    element.getAttribute("aria-describedby"),
-    element.getAttribute("title"),
-    element.getAttribute("id"),
-    element.getAttribute("name"),
-    element.getAttribute("class"),
-  ];
-
-  const keywordsSet = new Set<string>();
-  for (let i = 0; i < keywords.length; i++) {
-    if (typeof keywords[i] === "string") {
-      // Iterate over all keywords metadata and split them by non-letter characters.
-      // This ensures we check against individual words and not the entire string.
-      keywords[i]
-        .toLowerCase()
-        .replace(/[-\s]/g, "")
-        .split(/[^\p{L}]+/gu)
-        .forEach((keyword) => {
-          if (keyword) {
-            keywordsSet.add(keyword);
-          }
-        });
-    }
-  }
-
-  return keywordsSet;
 }
 
 /**
@@ -585,4 +564,39 @@ export function areKeyValuesNull<T extends Record<string, any>>(
   const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
 
   return keysToCheck.every((key) => obj[key] == null);
+}
+
+/**
+ * Validates the shape of `subFrameData` and rejects any payload that carries a
+ * `url`. This is the *receive*-side counterpart to the *send*-side
+ * `SubFrameOffsetWindowMessageData` type: that type stops our own code from
+ * constructing a leaky payload at compile time, but any frame can post arbitrary
+ * data, so inbound messages must be validated at runtime before they are trusted.
+ *
+ * @param value - The untrusted `data` property of the window message event.
+ */
+export function isSubFramePositioningMessageData(
+  value: unknown,
+): value is { subFrameData: SubFrameOffsetWindowMessageData } {
+  if (typeof value !== "object" || value === null || !("subFrameData" in value)) {
+    return false;
+  }
+
+  const { subFrameData } = value as { subFrameData: unknown };
+  if (typeof subFrameData !== "object" || subFrameData === null || "url" in subFrameData) {
+    return false;
+  }
+
+  // Number.isFinite (not `typeof === "number"`) so NaN/Infinity are rejected: a
+  // non-finite subFrameDepth would defeat the MAX_SUB_FRAME_DEPTH relay guard.
+  const candidate = subFrameData as Record<string, unknown>;
+  return (
+    Number.isFinite(candidate.top) &&
+    Number.isFinite(candidate.left) &&
+    Number.isFinite(candidate.subFrameDepth) &&
+    (candidate.frameId === undefined || Number.isFinite(candidate.frameId)) &&
+    (candidate.parentFrameIds === undefined ||
+      (Array.isArray(candidate.parentFrameIds) &&
+        candidate.parentFrameIds.every((id) => Number.isFinite(id))))
+  );
 }

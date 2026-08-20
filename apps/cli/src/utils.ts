@@ -5,8 +5,9 @@ import * as path from "path";
 
 import * as inquirer from "inquirer";
 import * as JSZip from "jszip";
+import { firstValueFrom, Observable, of, timeout } from "rxjs";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -27,21 +28,34 @@ export class CliUtils {
   }
 
   static readFile(input: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      let p: string = null;
-      if (input != null && input !== "") {
-        const osInput = path.join(input);
-        if (osInput.indexOf(path.sep) === -1) {
-          p = path.join(process.cwd(), osInput);
-        } else {
-          p = osInput;
-        }
-      } else {
-        reject("You must specify a file path.");
+    return CliUtils.readFileBuffer(input).then((data) => data.toString("utf8"));
+  }
+
+  static readBinaryFile(input: string): Promise<Uint8Array> {
+    return CliUtils.readFileBuffer(input).then((data) => new Uint8Array(data));
+  }
+
+  private static resolveFilePath(input: string): string {
+    if (input == null || input === "") {
+      throw new Error("You must specify a file path.");
+    }
+    const osInput = path.join(input);
+    return osInput.indexOf(path.sep) === -1 ? path.join(process.cwd(), osInput) : osInput;
+  }
+
+  private static readFileBuffer(input: string): Promise<Buffer> {
+    return new Promise<Buffer>((resolve, reject) => {
+      let p: string;
+      try {
+        p = CliUtils.resolveFilePath(input);
+      } catch (e) {
+        reject(e instanceof Error ? e.message : e);
+        return;
       }
-      fs.readFile(p, "utf8", (err, data) => {
+      fs.readFile(p, (err, data) => {
         if (err != null) {
           reject(err.message);
+          return;
         }
         resolve(data);
       });
@@ -218,6 +232,7 @@ export class CliUtils {
     password: string,
     options: { passwordFile?: string; passwordEnv?: string },
     logService?: LogService,
+    promptMessage = "Master password:",
   ): Promise<string | Response> {
     if (Utils.isNullOrEmpty(password)) {
       if (options?.passwordFile) {
@@ -238,7 +253,7 @@ export class CliUtils {
         })({
           type: "password",
           name: "password",
-          message: "Master password:",
+          message: promptMessage,
         });
 
         password = answer.password;
@@ -251,8 +266,14 @@ export class CliUtils {
     return password;
   }
 
-  static convertBooleanOption(optionValue: any) {
-    return optionValue || optionValue === "" ? true : false;
+  static convertBooleanOption(optionValue: any): boolean {
+    if (typeof optionValue === "boolean") {
+      return optionValue;
+    }
+    if (typeof optionValue === "string") {
+      return optionValue === "" || optionValue.toLowerCase() === "true";
+    }
+    return false;
   }
 
   static convertNumberOption(optionValue: any, defaultValue: number) {
@@ -270,4 +291,16 @@ export class CliUtils {
   static convertStringOption(optionValue: any, defaultValue: string) {
     return optionValue != null ? String(optionValue) : defaultValue;
   }
+}
+
+/**
+ * Like `firstValueFrom`, but returns `null` instead of throwing if the observable
+ * doesn't emit within `timeoutMs` milliseconds. Useful for waiting on hot observables
+ * that may lag behind state writes.
+ */
+export async function firstValueFromOrNull<T>(
+  observable: Observable<T>,
+  timeoutMs = 5000,
+): Promise<T | null> {
+  return firstValueFrom(observable.pipe(timeout({ first: timeoutMs, with: () => of(null) })));
 }

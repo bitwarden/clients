@@ -136,7 +136,7 @@ KAŽDÝ BY MĚL MÍT K DISPOZICI NÁSTROJE, KTERÉ MU UMOŽNÍ ZŮSTAT V BEZPEČ
 Využívejte Bitwarden zdarma bez reklam a prodeje dat. Bitwarden věří, že každý by měl mít možnost zůstat v bezpečí online. Prémiové plány nabízejí přístup k pokročilým funkcím.
 
 POSILTE SVÉ TÝMY POMOCÍ BITWARDEN
-Plány pro týmy a podniky jsou vybaveny profesionálními podnikovými funkcemi. Mezi příklady patří integrace SSO, selfhosting, integrace adresářů a poskytování SCIM, globální zásady, přístup k API, protokoly událostí a další.
+Plány pro týmy a podniky jsou vybaveny profesionálními podnikovými funkcemi. Mezi příklady patří integrace SSO, vlastní server, integrace adresářů a poskytování SCIM, globální zásady, přístup k API, protokoly událostí a další.
 
 Použijte Bitwarden k zabezpečení svých zaměstnanců a sdílení citlivých informací s kolegy.
 
@@ -144,7 +144,7 @@ Použijte Bitwarden k zabezpečení svých zaměstnanců a sdílení citlivých 
 Další důvody, proč si vybrat Bitwarden:
 
 Šifrování na světové úrovni
-Hesla jsou chráněna pokročilým end-to-end šifrováním (AES-256 bitů, solený hashing a PBKDF2 SHA-256), takže Vaše data zůstanou v bezpečí a soukromí.
+Hesla jsou chráněna pokročilým end-to-end šifrováním (AES-256 bitů, salted hashing a PBKDF2 SHA-256), takže Vaše data zůstanou v bezpečí a soukromí.
 
 Audity třetích stran
 Společnost Bitwarden pravidelně provádí komplexní bezpečnostní audity třetích stran s významnými bezpečnostními firmami. Tyto každoroční audity zahrnují posouzení zdrojového kódu a penetrační testy napříč IP adresami, servery a webovými aplikacemi společnosti Bitwarden.

@@ -125,6 +125,64 @@ describe("OverlayNotificationsContentService", () => {
       ).toBe("translateX(0)");
     });
 
+    it("skips the slide in animation when showAnimations is false", async () => {
+      sendMockExtensionMessage({
+        command: "openNotificationBar",
+        data: {
+          type: NotificationType.ChangePassword,
+          typeData: mock<NotificationTypeData>({
+            launchTimestamp: Date.now(),
+            showAnimations: false,
+          }),
+        },
+      });
+      await flushPromises();
+
+      expect(
+        overlayNotificationsContentService["notificationBarIframeElement"]?.style.transform,
+      ).toBe("translateX(0)");
+      expect(
+        overlayNotificationsContentService["notificationBarIframeElement"]?.style.transition,
+      ).toBe("none");
+    });
+
+    it("sets iframe opacity to 1 immediately when showAnimations is false", async () => {
+      sendMockExtensionMessage({
+        command: "openNotificationBar",
+        data: {
+          type: NotificationType.ChangePassword,
+          typeData: mock<NotificationTypeData>({
+            showAnimations: false,
+          }),
+        },
+      });
+      await flushPromises();
+
+      expect(
+        overlayNotificationsContentService["notificationBarIframeElement"]?.style.opacity,
+      ).toBe("1");
+    });
+
+    it("removes transition styles from the container when showAnimations is false", async () => {
+      sendMockExtensionMessage({
+        command: "openNotificationBar",
+        data: {
+          type: NotificationType.ChangePassword,
+          typeData: mock<NotificationTypeData>({
+            showAnimations: false,
+          }),
+        },
+      });
+      await flushPromises();
+
+      expect(overlayNotificationsContentService["notificationBarElement"]?.style.transition).toBe(
+        "",
+      );
+      expect(
+        overlayNotificationsContentService["notificationBarElement"]?.style.transitionDelay,
+      ).toBe("");
+    });
+
     it("sends an initialization message to the notification bar iframe", async () => {
       const addEventListenerSpy = jest.spyOn(globalThis, "addEventListener");
 
@@ -157,6 +215,36 @@ describe("OverlayNotificationsContentService", () => {
           initData: expect.any(Object),
           parentOrigin: expect.any(String),
         },
+        overlayNotificationsContentService["extensionOrigin"],
+      );
+    });
+
+    it("re-initializes an already open notification bar with fresh init data", async () => {
+      const openChangeNotificationBar = (cipherId: string) =>
+        sendMockExtensionMessage({
+          command: "openNotificationBar",
+          data: {
+            type: NotificationType.ChangePassword,
+            typeData: mock<NotificationTypeData>(),
+            params: { cipherId },
+          },
+        });
+
+      openChangeNotificationBar("site-a-cipher");
+      await flushPromises();
+
+      postMessageSpy.mockClear();
+
+      openChangeNotificationBar("site-b-cipher");
+      await flushPromises();
+
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          command: "initNotificationBar",
+          initData: expect.objectContaining({
+            params: expect.objectContaining({ cipherId: "site-b-cipher" }),
+          }),
+        }),
         overlayNotificationsContentService["extensionOrigin"],
       );
     });
@@ -200,6 +288,19 @@ describe("OverlayNotificationsContentService", () => {
       jest.advanceTimersByTime(150);
 
       expect(utils.sendExtensionMessage).toHaveBeenCalledWith("bgRemoveTabFromNotificationQueue");
+    });
+
+    it("closes the notification bar immediately when showAnimations is false even if fadeOutNotification is true", async () => {
+      overlayNotificationsContentService["showAnimations"] = false;
+      jest.spyOn(globalThis, "setTimeout");
+
+      sendMockExtensionMessage({
+        command: "closeNotificationBar",
+        data: { fadeOutNotification: true },
+      });
+
+      expect(globalThis.setTimeout).not.toHaveBeenCalled();
+      expect(overlayNotificationsContentService["notificationBarIframeElement"]).toBeNull();
     });
 
     it("closes the notification bar without a fadeout", () => {

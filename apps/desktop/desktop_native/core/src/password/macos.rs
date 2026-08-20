@@ -1,3 +1,5 @@
+//! macOS Keychain password operations.
+
 use anyhow::Result;
 use security_framework::passwords::{
     delete_generic_password, get_generic_password, set_generic_password,
@@ -5,6 +7,7 @@ use security_framework::passwords::{
 
 use crate::password::PASSWORD_NOT_FOUND;
 
+/// Retrieves a password from the macOS Keychain.
 #[allow(clippy::unused_async)]
 pub async fn get_password(service: &str, account: &str) -> Result<String> {
     let password = get_generic_password(service, account).map_err(convert_error)?;
@@ -12,18 +15,21 @@ pub async fn get_password(service: &str, account: &str) -> Result<String> {
     Ok(result)
 }
 
+/// Stores a password in the macOS Keychain.
 #[allow(clippy::unused_async)]
 pub async fn set_password(service: &str, account: &str, password: &str) -> Result<()> {
     set_generic_password(service, account, password.as_bytes())?;
     Ok(())
 }
 
+/// Deletes a password from the macOS Keychain.
 #[allow(clippy::unused_async)]
 pub async fn delete_password(service: &str, account: &str) -> Result<()> {
     delete_generic_password(service, account).map_err(convert_error)?;
     Ok(())
 }
 
+/// Checks if Keychain access is available.
 #[allow(clippy::unused_async)]
 pub async fn is_available() -> Result<bool> {
     Ok(true)

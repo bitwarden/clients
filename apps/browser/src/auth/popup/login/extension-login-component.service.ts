@@ -6,10 +6,11 @@ import { firstValueFrom } from "rxjs";
 import { DefaultLoginComponentService, LoginComponentService } from "@bitwarden/auth/angular";
 import { SsoUrlService } from "@bitwarden/auth/common";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { ExtensionAnonLayoutWrapperDataService } from "../../../popup/components/extension-anon-layout-wrapper/extension-anon-layout-wrapper-data.service";
 
@@ -47,6 +48,7 @@ export class ExtensionLoginComponentService
     email: string,
     state: string,
     codeChallenge: string,
+    orgSsoIdentifier?: string,
   ): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
     const webVaultUrl = env.getWebVaultUrl();
@@ -60,6 +62,7 @@ export class ExtensionLoginComponentService
       state,
       codeChallenge,
       email,
+      orgSsoIdentifier,
     );
 
     this.platformUtilsService.launchUri(webAppSsoUrl);

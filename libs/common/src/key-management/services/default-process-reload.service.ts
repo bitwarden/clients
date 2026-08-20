@@ -56,10 +56,10 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
       return;
     }
 
-    // If there is an active user, check if they have a pinKeyEncryptedUserKeyEphemeral. If so, prevent process reload upon lock.
+    // If there is an active user, check if they have an ephemeral PIN. If so, prevent process reload upon lock.
     const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (userId != null) {
-      if ((await this.pinService.getPinLockType(userId)) === "EPHEMERAL") {
+      if ((await this.pinService.getPinLockType(userId)) === "AfterFirstUnlock") {
         this.logService.info(
           "[Process Reload Service] Ephemeral pin active, preventing process reload",
         );

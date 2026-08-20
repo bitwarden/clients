@@ -5,16 +5,17 @@ import {
   DisableSendPolicy,
   MasterPasswordPolicy,
   OrganizationDataOwnershipPolicy,
+  OrganizationUserNotificationPolicy,
   PasswordGeneratorPolicy,
   RemoveUnlockWithPinPolicy,
   RequireSsoPolicy,
   ResetPasswordPolicy,
   RestrictedItemTypesPolicy,
+  SendControlsPolicy,
   SendOptionsPolicy,
   SingleOrgPolicy,
   TwoFactorAuthenticationPolicy,
   UriMatchDefaultPolicy,
-  vNextOrganizationDataOwnershipPolicy,
 } from "./policy-edit-definitions";
 
 /**
@@ -30,11 +31,12 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
   new SingleOrgPolicy(),
   new RequireSsoPolicy(),
   new OrganizationDataOwnershipPolicy(),
-  new vNextOrganizationDataOwnershipPolicy(),
   new DisableSendPolicy(),
   new SendOptionsPolicy(),
+  new SendControlsPolicy(),
   new RestrictedItemTypesPolicy(),
   new DesktopAutotypeDefaultSettingPolicy(),
   new UriMatchDefaultPolicy(),
   new AutoConfirmPolicy(),
+  new OrganizationUserNotificationPolicy(),
 ];

@@ -1,0 +1,111 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./icon-tile.stories";
+
+<Meta of={stories} />
+
+```ts
+import { IconTileComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Variants
+
+Icon tiles come in two groups of color variants:
+
+- **Decorative color families** — the categorical color palette, each available in a `subtle` or
+  `bold` emphasis.
+- **Semantic variants** — backward-compatible aliases (`primary`, `success`, etc.). The overlapping
+  ones render identically to a `subtle` decorative color.
+
+<Canvas of={stories.AllVariants} />
+
+### Decorative color families
+
+The decorative families (`brand`, `teal`, `green`, `orange`, `red`, `purple`, `gray`) are the single
+source of truth for the categorical palette. Each family responds to the `emphasis` input:
+
+- **`subtle`** (default) — softer background for lower-emphasis indicators.
+- **`bold`** — saturated background for higher-emphasis indicators.
+
+### Semantic variants
+
+The original semantic variants remain fully usable. They **ignore the `emphasis` input** and always
+render the subtle styling. The overlapping variants map directly onto a decorative color family, so
+`variant="primary"` and `variant="brand"` (subtle) render identically — prefer whichever name best
+communicates intent at the call site.
+
+| Semantic variant | Renders as         | Use for                                                      |
+| ---------------- | ------------------ | ------------------------------------------------------------ |
+| `primary`        | `brand` (subtle)   | Brand-colored indicators and primary visual elements.        |
+| `success`        | `green` (subtle)   | Successful operations, positive status, or completed states. |
+| `danger`         | `red` (subtle)     | Errors, destructive actions, or critical warnings.           |
+| `warning`        | `orange` (subtle)  | Caution states, alerts, or situations requiring attention.   |
+| `dark`           | — (unique styling) | High-contrast indicators on light backgrounds.               |
+
+Note that `dark` has no decorative equivalent and keeps its own dedicated styling.
+
+## Custom color
+
+Provide a hex value to the `color` input to render an icon tile in an arbitrary color — typically to
+match a user's avatar color. When `color` is set it **overrides `variant` and `emphasis`**:
+
+- **Fill** matches the provided color.
+- **Foreground** (the icon) is chosen automatically for contrast — dark on light colors, white on
+  dark colors — using the same contrast calculation as the avatar component.
+- **Border** is derived from the color, adjusted ±15% lightness: darkened when the foreground is
+  dark, lightened when the foreground is white.
+
+<Canvas of={stories.CustomColor} />
+
+```html
+<bit-icon-tile icon="bwi-star" color="#f8e71c" />
+```
+
+## Sizes
+
+Icon tiles are available in 5 sizes to accommodate different layout contexts and visual hierarchies:
+
+- **xs** (16px) - Compact indicators for dense layouts or inline text
+- **sm** (24px) - Small indicators for list items or compact cards
+- **base** (36px) - Default size for most use cases
+- **lg** (48px) - Larger indicators for prominent features or cards
+- **xl** (64px) - Extra large for hero sections or feature highlights
+
+<Canvas of={stories.AllSizes} />
+
+## Accessibility
+
+Icon tiles are presentational elements and do not require interactive accessibility features.
+However, when an icon tile conveys semantic meaning (such as status or category), provide an
+`ariaLabel` to ensure screen reader users receive the same information.
+
+### When to use ariaLabel
+
+- Status indicators (success, error, warning states)
+- Category or type representations
+- Any icon tile that conveys information not otherwise available in text
+
+### When ariaLabel is not needed
+
+- Purely decorative icon tiles
+- Icon tiles adjacent to descriptive text that provides the same information
+- Icon tiles used only for visual styling or spacing
+
+### Example
+
+```html
+<!-- Semantic icon tile with aria-label -->
+<bit-icon-tile icon="bwi-check-circle" variant="success" ariaLabel="Payment successful" />
+
+<!-- Decorative icon tile without aria-label -->
+<bit-icon-tile icon="bwi-star" variant="primary" />
+```
+
+When `ariaLabel` is provided, the component automatically sets `role="img"` and ensures the inner
+icon element has `aria-hidden="true"` to prevent duplicate announcements.

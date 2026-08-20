@@ -1,11 +1,12 @@
 import { Observable } from "rxjs";
 
-import { OtherDeviceKeysUpdateRequest } from "@bitwarden/common/auth/models/request/update-devices-trust.request";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import { DeviceResponse } from "../../../auth/abstractions/devices/responses/device.response";
+import { OtherDeviceKeysUpdateRequest } from "../../../auth/models/request/update-devices-trust.request";
 import { UserId } from "../../../types/guid";
 import { DeviceKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 
 export abstract class DeviceTrustServiceAbstraction {
   /**
@@ -39,6 +40,7 @@ export abstract class DeviceTrustServiceAbstraction {
 
   /** Retrieves the device key if it exists from state or secure storage if supported for the active user. */
   abstract getDeviceKey(userId: UserId): Promise<DeviceKey | null>;
+  abstract setDeviceKey(userId: UserId, deviceKey: DeviceKey | null): Promise<void>;
   abstract decryptUserKeyWithDeviceKey(
     userId: UserId,
     encryptedDevicePrivateKey: EncString,

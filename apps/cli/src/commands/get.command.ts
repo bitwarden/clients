@@ -1,28 +1,34 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as path from "path";
+
 import { filter, firstValueFrom, map, switchMap } from "rxjs";
 
-import { CollectionService, CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { EventType } from "@bitwarden/common/enums";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
+import { EventCollectionService, EventType } from "@bitwarden/common/dirt/event-logs";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { BankAccountExport } from "@bitwarden/common/models/export/bank-account.export";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
+import { DriversLicenseExport } from "@bitwarden/common/models/export/drivers-license.export";
 import { FieldExport } from "@bitwarden/common/models/export/field.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { IdentityExport } from "@bitwarden/common/models/export/identity.export";
 import { LoginUriExport } from "@bitwarden/common/models/export/login-uri.export";
 import { LoginExport } from "@bitwarden/common/models/export/login.export";
+import { PassportExport } from "@bitwarden/common/models/export/passport.export";
 import { SecureNoteExport } from "@bitwarden/common/models/export/secure-note.export";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
@@ -34,6 +40,8 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 
 import { OrganizationCollectionRequest } from "../admin-console/models/request/organization-collection.request";
 import { CollectionResponse } from "../admin-console/models/response/collection.response";
@@ -58,6 +66,7 @@ export class GetCommand extends DownloadCommand {
     private totpService: TotpService,
     private auditService: AuditService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     encryptService: EncryptService,
     private searchService: SearchService,
     protected apiService: ApiService,
@@ -66,6 +75,7 @@ export class GetCommand extends DownloadCommand {
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
     private cliRestrictedItemTypesService: CliRestrictedItemTypesService,
+    private configService: ConfigService,
   ) {
     super(encryptService, apiService);
   }
@@ -120,6 +130,7 @@ export class GetCommand extends DownloadCommand {
       }
     } else if (id.trim() !== "") {
       let ciphers = await this.cipherService.getAllDecrypted(userId);
+      ciphers = ciphers.filter((c) => !c.isDeleted && !c.isArchived);
       ciphers = this.searchService.searchCiphersBasic(ciphers, id);
       if (ciphers.length > 1) {
         return ciphers;
@@ -408,7 +419,7 @@ export class GetCommand extends DownloadCommand {
 
     return await this.saveAttachmentToFile(
       url,
-      attachments[0].fileName,
+      path.basename(attachments[0].fileName ?? `BitwardenAttachment-${Date.now()}`),
       decryptBufferFn,
       options.output,
     );
@@ -417,10 +428,11 @@ export class GetCommand extends DownloadCommand {
   private async getFolder(id: string) {
     let decFolder: FolderView = null;
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     if (Utils.isGuid(id)) {
       const folder = await this.folderService.getFromState(id, activeUserId);
       if (folder != null) {
-        decFolder = await folder.decrypt();
+        decFolder = await folder.decrypt(userKey);
       }
     } else if (id.trim() !== "") {
       let folders = await this.folderService.getAllDecryptedFromState(activeUserId);
@@ -577,6 +589,36 @@ export class GetCommand extends DownloadCommand {
       case "item.securenote":
         template = SecureNoteExport.template();
         break;
+      case "item.bankaccount": {
+        const newItemTypesEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+        );
+        if (!newItemTypesEnabled) {
+          return Response.badRequest("Bank account item type is not available.");
+        }
+        template = BankAccountExport.template();
+        break;
+      }
+      case "item.driverslicense": {
+        const newItemTypesEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+        );
+        if (!newItemTypesEnabled) {
+          return Response.badRequest("Driver's license item type is not available.");
+        }
+        template = DriversLicenseExport.template();
+        break;
+      }
+      case "item.passport": {
+        const newItemTypesEnabled = await firstValueFrom(
+          this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
+        );
+        if (!newItemTypesEnabled) {
+          return Response.badRequest("Passport item type is not available.");
+        }
+        template = PassportExport.template();
+        break;
+      }
       case "folder":
         template = FolderExport.template();
         break;
@@ -611,12 +653,12 @@ export class GetCommand extends DownloadCommand {
       if (publicKey == null) {
         return Response.error("No public key available for the active user.");
       }
-      fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+      fingerprint = await this.legacyCompatKeyService.getFingerprint(activeUserId, publicKey);
     } else if (Utils.isGuid(id)) {
       try {
         const response = await this.apiService.getUserPublicKey(id);
         const pubKey = Utils.fromB64ToArray(response.publicKey);
-        fingerprint = await this.keyService.getFingerprint(id, pubKey);
+        fingerprint = await this.legacyCompatKeyService.getFingerprint(id, pubKey);
       } catch {
         // empty - handled by the null check below
       }

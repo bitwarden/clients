@@ -50,7 +50,7 @@ module.exports.buildConfig = function buildConfig(params) {
 
   console.log(`Building ${params.configName} Desktop App`);
 
-  const envConfig = configurator.load(NODE_ENV);
+  const envConfig = configurator.load(NODE_ENV, process.env.CHANNEL);
   configurator.log(envConfig);
 
   const commonConfig = {
@@ -90,7 +90,10 @@ module.exports.buildConfig = function buildConfig(params) {
       rules: [
         {
           test: /\.tsx?$/,
-          use: "ts-loader",
+          use: {
+            loader: "ts-loader",
+            options: { configFile: params.main.tsConfig },
+          },
           exclude: /node_modules\/(?!(@bitwarden)\/).*/,
         },
         {
@@ -148,7 +151,10 @@ module.exports.buildConfig = function buildConfig(params) {
       rules: [
         {
           test: /\.tsx?$/,
-          use: "ts-loader",
+          use: {
+            loader: "ts-loader",
+            options: { configFile: params.preload.tsConfig },
+          },
           exclude: /node_modules\/(?!(@bitwarden)\/).*/,
         },
       ],
@@ -209,6 +215,7 @@ module.exports.buildConfig = function buildConfig(params) {
       rules: [
         {
           test: /\.[cm]?js$/,
+          exclude: /\.wasm\.js$/,
           use: [
             {
               loader: "babel-loader",
@@ -296,7 +303,7 @@ module.exports.buildConfig = function buildConfig(params) {
     },
     plugins: [
       new AngularWebpackPlugin({
-        tsConfigPath: params.renderer.tsConfig,
+        tsconfig: params.renderer.tsConfig,
         entryModule: params.renderer.entryModule,
         sourceMap: true,
       }),

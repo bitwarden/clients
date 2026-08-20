@@ -1,10 +1,10 @@
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { Field as SdkField } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import Domain from "../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import {
   FieldType,
   LinkedIdType,
@@ -33,14 +33,8 @@ export class Field extends Domain {
     this.value = conditionalEncString(obj.value);
   }
 
-  decrypt(orgId: string | undefined, encKey?: SymmetricCryptoKey): Promise<FieldView> {
-    return this.decryptObj<Field, FieldView>(
-      this,
-      new FieldView(this),
-      ["name", "value"],
-      orgId ?? null,
-      encKey,
-    );
+  decrypt(encKey: SymmetricCryptoKey): Promise<FieldView> {
+    return this.decryptObj<Field, FieldView>(this, new FieldView(this), ["name", "value"], encKey);
   }
 
   toFieldData(): FieldData {

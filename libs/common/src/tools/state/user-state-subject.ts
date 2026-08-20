@@ -29,8 +29,10 @@ import {
   switchMap,
 } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+
 import { Account } from "../../auth/abstractions/account.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
 import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
 import { SemanticLogger } from "../log";
@@ -79,11 +81,11 @@ const DEFAULT_FRAME_SIZE = 32;
  * @template Dependencies use-specific dependencies provided by the user.
  */
 export class UserStateSubject<
-    State extends object,
-    Secret = State,
-    Disclosed = Record<string, never>,
-    Dependencies = null,
-  >
+  State extends object,
+  Secret = State,
+  Disclosed = Record<string, never>,
+  Dependencies = null,
+>
   extends Observable<State>
   implements SubjectLike<State>
 {

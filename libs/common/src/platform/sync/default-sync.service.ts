@@ -4,27 +4,24 @@ import { firstValueFrom, map } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  CollectionData,
-  CollectionDetailsResponse,
-  CollectionService,
-} from "@bitwarden/admin-console/common";
+import { CollectionService } from "@bitwarden/admin-console/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
 
-// FIXME: remove `src` and fix import
+// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { UserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common/abstractions";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
+import { CollectionData, CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
@@ -37,9 +34,11 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
+import { withPasswordManagerSdk } from "../../key-management/utils";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -54,7 +53,9 @@ import { CipherData } from "../../vault/models/data/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
+import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
+import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -85,6 +86,7 @@ export class DefaultSyncService extends CoreSyncService {
     collectionService: CollectionService,
     messageSender: MessageSender,
     private policyService: InternalPolicyService,
+    private newPolicyService: InternalNewPolicyService,
     sendService: InternalSendService,
     logService: LogService,
     private keyConnectorService: KeyConnectorService,
@@ -92,15 +94,15 @@ export class DefaultSyncService extends CoreSyncService {
     folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
     sendApiService: SendApiService,
-    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private avatarService: AvatarService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: UserId) => Promise<void>,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
-    private securityStateService: SecurityStateService,
-    private kdfConfigService: KdfConfigService,
+    private configService: ConfigService,
+    private sdkService: SdkService,
   ) {
     super(
       tokenService,
@@ -176,7 +178,14 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
-      await this.syncUserDecryption(response.profile.id, response.userDecryption);
+      // The crypto sync handler *MUST* be the first sync handler to run. It reserves
+      // the option to reject a sync, should the data be inconsitent. In this case, it will throw.
+      await this.runCryptoSyncHandler(
+        response.profile.id,
+        response.profile,
+        response.userDecryption,
+      );
+
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -184,6 +193,7 @@ export class DefaultSyncService extends CoreSyncService {
       await this.syncSends(response.sends, response.profile.id);
       await this.syncSettings(response.domains, response.profile.id);
       await this.syncPolicies(response.policies, response.profile.id);
+      await this.syncNewPolicies(response.policiesNew, response.policies, response.profile.id);
 
       await this.setLastSync(now, userId);
       return this.syncCompleted(true, userId);
@@ -232,31 +242,11 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    // Users with no master password will not have a key.
+    // This is for key-connector users
     if (response?.key) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
     }
 
-    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
-    if (response.accountKeys != null) {
-      await this.keyService.setPrivateKey(
-        response.accountKeys.publicKeyEncryptionKeyPair.wrappedPrivateKey,
-        response.id,
-      );
-      if (response.accountKeys.signatureKeyPair !== null) {
-        // User is V2 user
-        await this.keyService.setUserSigningKey(
-          response.accountKeys.signatureKeyPair.wrappedSigningKey,
-          response.id,
-        );
-        await this.securityStateService.setAccountSecurityState(
-          response.accountKeys.securityState.securityState,
-          response.id,
-        );
-      }
-    } else {
-      await this.keyService.setPrivateKey(response.privateKey, response.id);
-    }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
@@ -267,7 +257,14 @@ export class DefaultSyncService extends CoreSyncService {
     await this.avatarService.setSyncAvatarColor(response.id, response.avatarColor);
     await this.tokenService.setSecurityStamp(response.securityStamp, response.id);
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
+    await this.accountService.setAccountCreationDate(response.id, new Date(response.creationDate));
     await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
+
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM30806_SelfServiceChangeEmailCommand)
+    ) {
+      await this.accountService.setAccountEmail(response.id, response.email);
+    }
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,
@@ -341,7 +338,8 @@ export class DefaultSyncService extends CoreSyncService {
 
   private async syncProfileOrganizations(response: ProfileResponse, userId: UserId) {
     const organizations: { [id: string]: OrganizationData } = {};
-    response.organizations.forEach((o) => {
+    const source = response.organizationsNew ?? response.organizations ?? [];
+    source.forEach((o) => {
       organizations[o.id] = new OrganizationData(o, {
         isMember: true,
         isProviderUser: false,
@@ -379,6 +377,7 @@ export class DefaultSyncService extends CoreSyncService {
   }
 
   private async syncCiphers(response: CipherResponse[], userId: UserId) {
+    await this.cipherService.clear(userId);
     const ciphers: { [id: string]: CipherData } = {};
     response.forEach((c) => {
       ciphers[c.id] = new CipherData(c);
@@ -421,21 +420,41 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.policyService.replace(policies, userId);
   }
 
-  private async syncUserDecryption(
+  private async syncNewPolicies(
+    response: PolicyResponse[] | undefined,
+    fallback: PolicyResponse[] | undefined,
     userId: UserId,
-    userDecryption: UserDecryptionResponse | undefined,
   ) {
-    if (userDecryption == null) {
+    // Fall back to `policies` when `policiesNew` is absent or empty (e.g. the server
+    // feature flag is off) so the new service is always seeded with data.
+    const source = response != null && response.length > 0 ? response : fallback;
+    if (source == null || source.length === 0) {
       return;
     }
-    if (userDecryption.masterPasswordUnlock != null) {
-      const masterPasswordUnlockData =
-        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
-      await this.masterPasswordService.setMasterPasswordUnlockData(
-        masterPasswordUnlockData,
-        userId,
-      );
-      await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
-    }
+    const policies: { [id: string]: PolicyData } = {};
+    source.forEach((p) => {
+      policies[p.id] = new PolicyData(p);
+    });
+    return await this.newPolicyService.replace(policies, userId);
+  }
+
+  /**
+   * Runs the SDK's crypto sync handler.
+   *
+   * Hands the handler the crypto parts of the sync response and lets it decide what to do
+   * with each. Failures propagate: the handler reserves the option to reject a sync when the data
+   * is inconsistent, in which case no further sync handlers run.
+   */
+  private async runCryptoSyncHandler(
+    userId: UserId,
+    profile: ProfileResponse,
+    userDecryption: UserDecryptionResponse | undefined,
+  ) {
+    await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+      sdk.crypto_sync_handler().on_sync({
+        userDecryption: userDecryption?.toSdk(),
+        accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
+      }),
+    );
   }
 }

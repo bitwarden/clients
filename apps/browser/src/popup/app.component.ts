@@ -14,16 +14,11 @@ import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
 import {
   catchError,
   concatMap,
-  distinctUntilChanged,
   filter,
   firstValueFrom,
   map,
   of,
-  pairwise,
-  startWith,
   Subject,
-  switchMap,
-  take,
   takeUntil,
   tap,
 } from "rxjs";
@@ -36,19 +31,21 @@ import {
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
-import { BrowserApi } from "@bitwarden/browser/platform/browser/browser-api";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestAnsweringServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
+import { AuthRequestAnsweringService } from "@bitwarden/common/auth/abstractions/auth-request-answering/auth-request-answering.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
@@ -83,7 +80,8 @@ export class AppComponent implements OnInit, OnDestroy {
   private lastActivity: Date;
   private activeUserId: UserId;
   private routerAnimations = false;
-  private processingPendingAuth = false;
+  private processingPendingAuthRequests = false;
+  private shouldRerunAuthRequestProcessing = false;
 
   private destroy$ = new Subject<void>();
 
@@ -112,18 +110,20 @@ export class AppComponent implements OnInit, OnDestroy {
     private deviceTrustToastService: DeviceTrustToastService,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private keyService: KeyService,
-    private readonly destoryRef: DestroyRef,
+    private readonly destroyRef: DestroyRef,
     private readonly documentLangSetter: DocumentLangSetter,
     private popupSizeService: PopupSizeService,
     private logService: LogService,
     private authRequestService: AuthRequestServiceAbstraction,
     private pendingAuthRequestsState: PendingAuthRequestsStateService,
-    private authRequestAnsweringService: AuthRequestAnsweringServiceAbstraction,
+    private authRequestAnsweringService: AuthRequestAnsweringService,
+    private premiumCheckoutPendingService: PremiumCheckoutPendingService,
+    private syncService: SyncService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
     const langSubscription = this.documentLangSetter.start();
-    this.destoryRef.onDestroy(() => langSubscription.unsubscribe());
+    this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
 
   async ngOnInit() {
@@ -136,22 +136,10 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = account?.id;
     });
 
-    // Trigger processing auth requests when the active user is in an unlocked state. Runs once when
-    // the popup is open.
-    this.accountService.activeAccount$
-      .pipe(
-        map((a) => a?.id), // Extract active userId
-        distinctUntilChanged(), // Only when userId actually changes
-        filter((userId) => userId != null), // Require a valid userId
-        switchMap((userId) => this.authService.authStatusFor$(userId).pipe(take(1))), // Get current auth status once for new user
-        filter((status) => status === AuthenticationStatus.Unlocked), // Only when the new user is Unlocked
-        tap(() => {
-          // Trigger processing when switching users while popup is open
-          void this.authRequestAnsweringService.processPendingAuthRequests();
-        }),
-        takeUntil(this.destroy$),
-      )
-      .subscribe();
+    await this.syncIfReturningFromCheckout();
+    window.addEventListener("focus", this.onWindowFocus);
+
+    this.authRequestAnsweringService.setupUnlockListenersForProcessingAuthRequests(this.destroy$);
 
     this.authService.activeAccountStatus$
       .pipe(
@@ -162,23 +150,6 @@ export class AppComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    // When the popup is already open and the active account transitions to Unlocked,
-    // process any pending auth requests for the active user. The above subscription does not handle
-    // this case.
-    this.authService.activeAccountStatus$
-      .pipe(
-        startWith(null as unknown as AuthenticationStatus), // Seed previous value to handle initial emission
-        pairwise(), // Compare previous and current statuses
-        filter(
-          ([prev, curr]) =>
-            prev !== AuthenticationStatus.Unlocked && curr === AuthenticationStatus.Unlocked, // Fire on transitions into Unlocked (incl. initial)
-        ),
-        takeUntil(this.destroy$),
-      )
-      .subscribe(() => {
-        void this.authRequestAnsweringService.processPendingAuthRequests();
-      });
 
     this.ngZone.runOutsideAngular(() => {
       window.onmousedown = () => this.recordActivity();
@@ -192,7 +163,7 @@ export class AppComponent implements OnInit, OnDestroy {
       .pipe(
         tap(async (msg: any) => {
           if (msg.command === "doneLoggingOut") {
-            // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completeted logout?
+            // TODO: PM-8544 - why do we call logout in the popup after receiving the doneLoggingOut message? Hasn't this already completed logout?
             this.authService.logOut(async () => {
               if (msg.logoutReason) {
                 await this.displayLogoutReason(msg.logoutReason);
@@ -234,38 +205,31 @@ export class AppComponent implements OnInit, OnDestroy {
 
             await this.router.navigate(["lock"]);
           } else if (msg.command === "openLoginApproval") {
-            if (this.processingPendingAuth) {
+            if (this.processingPendingAuthRequests) {
+              // If an "openLoginApproval" message is received while we are currently processing other
+              // auth requests, then set a flag so we remember to process that new auth request
+              this.shouldRerunAuthRequestProcessing = true;
               return;
             }
-            this.processingPendingAuth = true;
-            try {
-              // Always query server for all pending requests and open a dialog for each
-              const pendingList = await firstValueFrom(
-                this.authRequestService.getPendingAuthRequests$(),
-              );
-              if (Array.isArray(pendingList) && pendingList.length > 0) {
-                const respondedIds = new Set<string>();
-                for (const req of pendingList) {
-                  if (req?.id == null) {
-                    continue;
-                  }
-                  const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
-                    notificationId: req.id,
-                  });
 
-                  const result = await firstValueFrom(dialogRef.closed);
+            /**
+             * This do/while loop allows us to:
+             * - a) call processPendingAuthRequests() once on "openLoginApproval"
+             * - b) remember to re-call processPendingAuthRequests() if another "openLoginApproval" was
+             *      received while we were processing the original auth requests
+             */
+            do {
+              this.shouldRerunAuthRequestProcessing = false;
 
-                  if (result !== undefined && typeof result === "boolean") {
-                    respondedIds.add(req.id);
-                    if (respondedIds.size === pendingList.length && this.activeUserId != null) {
-                      await this.pendingAuthRequestsState.clear(this.activeUserId);
-                    }
-                  }
-                }
+              try {
+                await this.processPendingAuthRequests();
+              } catch (error) {
+                this.logService.error(`Error processing pending auth requests: ${error}`);
+                this.shouldRerunAuthRequestProcessing = false; // Reset flag to prevent infinite loop on persistent errors
               }
-            } finally {
-              this.processingPendingAuth = false;
-            }
+              // If an "openLoginApproval" message was received while processPendingAuthRequests() was running, then
+              // shouldRerunAuthRequestProcessing will have been set to true
+            } while (this.shouldRerunAuthRequestProcessing);
           } else if (msg.command === "showDialog") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -291,13 +255,14 @@ export class AppComponent implements OnInit, OnDestroy {
                 window.location.reload();
               }, 2000);
             } else {
-              // Close browser action popup before extension reload to prevent zombie popup with invalidated context.
-              // This issue occurs in Chromium-based browsers (Chrome, Vivaldi, etc.) where chrome.runtime.reload()
-              // invalidates extension contexts before popup can close naturally
-              if (BrowserPopupUtils.inPopup(window)) {
-                BrowserApi.closePopup(window);
-              }
+              // On Chromium-based browsers (Chrome, Vivaldi, etc.), `chrome.runtime.reload()` invalidates extension contexts before the view can close naturally.
+              // Popouts also need closing because they survive the runtime reload and strand the user on broken states.
+              await BrowserPopupUtils.closeCurrentPopupOrPopout(window);
             }
+          } else if (msg.command === "reloadExtension") {
+            // The background reloads the extension after this message. Close this popup/popout
+            // first so the runtime reload doesn't strand it with an invalidated context.
+            await BrowserPopupUtils.closeCurrentPopupOrPopout(window);
           } else if (msg.command === "reloadPopup") {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -338,8 +303,27 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener("focus", this.onWindowFocus);
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private readonly onWindowFocus = (): void => {
+    void this.syncIfReturningFromCheckout();
+  };
+
+  private async syncIfReturningFromCheckout(): Promise<void> {
+    try {
+      const userId = await firstValueFrom(getOptionalUserId(this.accountService.activeAccount$));
+      if (userId == null) {
+        return;
+      }
+      if (await this.premiumCheckoutPendingService.consumeCheckoutPending(userId)) {
+        await this.syncService.fullSync(true);
+      }
+    } catch (e) {
+      this.logService.error("Failed to sync after returning from premium checkout", e);
+    }
   }
 
   getRouteElevation(outlet: RouterOutlet) {
@@ -402,5 +386,40 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     this.toastService.showToast(toastOptions);
+  }
+
+  private async processPendingAuthRequests() {
+    this.processingPendingAuthRequests = true;
+
+    try {
+      // Always query server for all pending requests and open a dialog for each
+      const pendingList = await firstValueFrom(this.authRequestService.getPendingAuthRequests$());
+
+      if (Array.isArray(pendingList) && pendingList.length > 0) {
+        const respondedIds = new Set<string>();
+
+        for (const req of pendingList) {
+          if (req?.id == null) {
+            continue;
+          }
+
+          const dialogRef = LoginApprovalDialogComponent.open(this.dialogService, {
+            notificationId: req.id,
+          });
+
+          const result = await firstValueFrom(dialogRef.closed);
+
+          if (result !== undefined && typeof result === "boolean") {
+            respondedIds.add(req.id);
+
+            if (respondedIds.size === pendingList.length && this.activeUserId != null) {
+              await this.pendingAuthRequestsState.clear(this.activeUserId);
+            }
+          }
+        }
+      }
+    } finally {
+      this.processingPendingAuthRequests = false;
+    }
   }
 }

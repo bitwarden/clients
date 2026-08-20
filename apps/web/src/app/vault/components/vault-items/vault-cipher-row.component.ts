@@ -2,27 +2,41 @@
 // @ts-strict-ignore
 import {
   Component,
+  computed,
   EventEmitter,
   HostListener,
+  inject,
   Input,
   OnInit,
   Output,
   ViewChild,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { firstValueFrom, Observable } from "rxjs";
 
-import { CollectionView } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
+import { VaultCopyButtonsService, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
+  CollectionPermission,
   convertToPermission,
   getPermissionList,
+  permissionLabelId,
 } from "./../../../admin-console/organizations/shared/components/access-selector/access-selector.models";
 import { VaultItemEvent } from "./vault-item-event";
 import { RowHeightClass } from "./vault-items.component";
@@ -33,8 +47,26 @@ import { RowHeightClass } from "./vault-items.component";
   selector: "tr[appVaultCipherRow]",
   templateUrl: "vault-cipher-row.component.html",
   standalone: false,
+  host: { class: "tw-group/cipher-row" },
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit {
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
+
+  private readonly quickCopyIconFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
+  private readonly quickCopyActionsSetting = toSignal(
+    this.vaultCopyButtonsService.showQuickCopyActions$,
+    { initialValue: false },
+  );
+
+  protected readonly showQuickCopyActions = computed(
+    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
+  );
+
   protected RowHeightClass = RowHeightClass;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
@@ -102,7 +134,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @Input() userCanArchive: boolean;
   /**
-   * Enforge Org Data Ownership Policy Status
+   * Enforce Org Data Ownership Policy Status
    */
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
@@ -121,16 +153,30 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected CipherType = CipherType;
   private permissionList = getPermissionList();
+  // Ordered highest to lowest priority; compared against `CollectionPermission` values (not
+  // label ids) so the priority is unaffected by which terminology (VFO1 or legacy) is displayed.
   private permissionPriority = [
-    "manageCollection",
-    "editItems",
-    "editItemsHidePass",
-    "viewItems",
-    "viewItemsHidePass",
+    CollectionPermission.Manage,
+    CollectionPermission.Edit,
+    CollectionPermission.EditExceptPass,
+    CollectionPermission.View,
+    CollectionPermission.ViewExceptPass,
   ];
   protected organization?: Organization;
 
-  constructor(private i18nService: I18nService) {}
+  protected showCopyAndLaunchActions$: Observable<boolean>;
+
+  constructor(
+    private i18nService: I18nService,
+    private accountService: AccountService,
+    private cipherService: CipherService,
+    private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
+  ) {
+    this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
+    );
+  }
 
   /**
    * Lifecycle hook for component initialization.
@@ -141,18 +187,26 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     }
   }
 
+  // Archive button will not show in Admin Console
   protected get showArchiveButton() {
+    if (this.viewingOrgVault) {
+      return false;
+    }
+
     return (
-      this.userCanArchive &&
-      !CipherViewLikeUtils.isArchived(this.cipher) &&
-      !CipherViewLikeUtils.isDeleted(this.cipher) &&
-      !this.cipher.organizationId
+      !CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
     );
   }
 
   // If item is archived always show unarchive button, even if user is not premium
   protected get showUnArchiveButton() {
-    return CipherViewLikeUtils.isArchived(this.cipher);
+    if (this.viewingOrgVault) {
+      return false;
+    }
+
+    return (
+      CipherViewLikeUtils.isArchived(this.cipher) && !CipherViewLikeUtils.isDeleted(this.cipher)
+    );
   }
 
   protected get clickAction() {
@@ -182,7 +236,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   // Do not show attachments button if:
   // item is archived AND user is not premium user
   protected get showAttachments() {
-    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+    if ((CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) || this.isDeleted) {
       return false;
     }
     return this.canEditCipher || this.hasAttachments;
@@ -197,7 +251,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get subtitle() {
-    return CipherViewLikeUtils.subtitle(this.cipher);
+    return CipherViewLikeUtils.subtitle(this.cipher, this.i18nService);
   }
 
   protected get isDeleted() {
@@ -208,11 +262,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     return CipherViewLikeUtils.decryptionFailure(this.cipher);
   }
 
-  // Do Not show Assign to Collections option if item is archived
   protected get showAssignToCollections() {
-    if (CipherViewLikeUtils.isArchived(this.cipher)) {
-      return false;
-    }
     return (
       this.organizations?.length &&
       this.canAssignCollections &&
@@ -245,17 +295,42 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  protected get hasPasswordToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "password");
-  }
+  protected get permissionTooltip(): string | undefined {
+    if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
+      return undefined;
+    }
 
-  protected get hasUsernameToCopy() {
-    return CipherViewLikeUtils.hasCopyableValue(this.cipher, "username");
+    const filteredCollections = this.collections.filter((collection) => {
+      if (collection.assigned) {
+        return this.cipher.collectionIds.find((id) => collection.id === id);
+      }
+    });
+
+    if (filteredCollections.length <= 1) {
+      return undefined;
+    }
+
+    return filteredCollections
+      .map((collection) => {
+        const permission = this.permissionList.find(
+          (p) => p.perm === convertToPermission(collection),
+        );
+        const label = this.i18nService.t(
+          permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
+        );
+        return `${collection.name}: ${label}`;
+      })
+      .join("\n");
   }
 
   protected get permissionText() {
     if (!this.cipher.organizationId || this.cipher.collectionIds.length === 0) {
-      return this.i18nService.t("manageCollection");
+      const managePermission = this.permissionList.find(
+        (p) => p.perm === CollectionPermission.Manage,
+      );
+      return this.i18nService.t(
+        permissionLabelId(managePermission, this.vfo1TerminologyService.enabled()),
+      );
     }
 
     const filteredCollections = this.collections.filter((collection) => {
@@ -269,19 +344,21 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     });
 
     if (filteredCollections?.length === 1) {
+      const permission = this.permissionList.find(
+        (p) => p.perm === convertToPermission(filteredCollections[0]),
+      );
       return this.i18nService.t(
-        this.permissionList.find((p) => p.perm === convertToPermission(filteredCollections[0]))
-          ?.labelId,
+        permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
       );
     }
 
     if (filteredCollections?.length > 1) {
-      const labels = filteredCollections.map((collection) => {
-        return this.permissionList.find((p) => p.perm === convertToPermission(collection))?.labelId;
-      });
-
-      const highestPerm = this.permissionPriority.find((perm) => labels.includes(perm));
-      return this.i18nService.t(highestPerm);
+      const perms = filteredCollections.map((collection) => convertToPermission(collection));
+      const highestPerm = this.permissionPriority.find((perm) => perms.includes(perm));
+      const permission = this.permissionList.find((p) => p.perm === highestPerm);
+      return this.i18nService.t(
+        permissionLabelId(permission, this.vfo1TerminologyService.enabled()),
+      );
     }
 
     return this.i18nService.t("noAccess");
@@ -311,6 +388,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   }
 
   protected get isIdentityCipher() {
+    if (CipherViewLikeUtils.isArchived(this.cipher) && !this.userCanArchive) {
+      return false;
+    }
     return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Identity && !this.isDeleted;
   }
 
@@ -324,10 +404,26 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
+  protected get isBankAccountCipher(): boolean {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.BankAccount && !this.isDeleted
+    );
+  }
+
+  protected get isPassportCipher(): boolean {
+    return CipherViewLikeUtils.getType(this.cipher) === this.CipherType.Passport && !this.isDeleted;
+  }
+
   protected get isSecureNoteCipher() {
     return (
       CipherViewLikeUtils.getType(this.cipher) === this.CipherType.SecureNote &&
       !(this.isDeleted && this.canRestoreCipher)
+    );
+  }
+
+  protected get isDriversLicenseCipher(): boolean {
+    return (
+      CipherViewLikeUtils.getType(this.cipher) === this.CipherType.DriversLicense && !this.isDeleted
     );
   }
 
@@ -337,12 +433,41 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     );
   }
 
-  protected get showMenuDivider() {
+  protected get hasBankAccountOptions(): boolean {
+    return (
+      this.isBankAccountCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "accountNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "routingNumber") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "pin") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "iban"))
+    );
+  }
+
+  protected get hasPassportOptions(): boolean {
+    return (
+      this.isPassportCipher && CipherViewLikeUtils.hasCopyableValue(this.cipher, "passportNumber")
+    );
+  }
+
+  protected get hasVisibleDriversLicenseOptions(): boolean {
+    return (
+      this.isDriversLicenseCipher &&
+      (CipherViewLikeUtils.hasCopyableValue(this.cipher, "firstName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "middleName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "lastName") ||
+        CipherViewLikeUtils.hasCopyableValue(this.cipher, "licenseNumber"))
+    );
+  }
+
+  protected get showMenuDivider(): boolean {
     return (
       this.hasVisibleLoginOptions ||
       this.hasVisibleCardOptions ||
       this.hasVisibleIdentityOptions ||
-      this.hasVisibleSecureNoteOptions
+      this.hasVisibleSecureNoteOptions ||
+      this.hasBankAccountOptions ||
+      this.hasVisibleDriversLicenseOptions ||
+      this.hasPassportOptions
     );
   }
 
@@ -378,12 +503,30 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
   }
 
+  async openUri(selectedUri: string) {
+    const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    await this.cipherService.updateLastLaunchedDate(this.cipher.id as CipherId, activeUserId);
+    this.platformUtilsService.launchUri(selectedUri);
+  }
+
   protected get showCheckbox() {
     if (!this.viewingOrgVault || !this.organization) {
       return true; // Always show checkbox in individual vault or for non-org items
     }
 
     return this.organization.canEditAllCiphers || (this.cipher.edit && this.cipher.viewPassword);
+  }
+
+  protected get showFavorite() {
+    if (
+      (!this.viewingOrgVault &&
+        CipherViewLikeUtils.isArchived(this.cipher) &&
+        !this.userCanArchive) ||
+      CipherViewLikeUtils.isDeleted(this.cipher)
+    ) {
+      return false;
+    }
+    return true;
   }
 
   protected toggleFavorite() {

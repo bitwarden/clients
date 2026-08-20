@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import {
   BehaviorSubject,
   EmptyError,
@@ -59,15 +57,15 @@ export class SessionClosedError extends Error {
 
 export type BrowserFido2Message = { sessionId: string } & (
   | /**
-   * This message is used by popouts to announce that they are ready
-   * to receive messages.
-   **/ {
+     * This message is used by popouts to announce that they are ready
+     * to receive messages.
+     **/ {
       type: typeof BrowserFido2MessageTypes.ConnectResponse;
     }
-  /**
-   * This message is used to announce the creation of a new session.
-   * It is used by popouts to know when to close.
-   **/
+    /**
+     * This message is used to announce the creation of a new session.
+     * It is used by popouts to know when to close.
+     **/
   | {
       type: typeof BrowserFido2MessageTypes.NewSessionCreatedRequest;
     }
@@ -79,7 +77,7 @@ export type BrowserFido2Message = { sessionId: string } & (
     }
   | {
       type: typeof BrowserFido2MessageTypes.PickCredentialResponse;
-      cipherId?: string;
+      cipherId: string;
       userVerified: boolean;
     }
   | {
@@ -120,9 +118,7 @@ export type BrowserFido2ParentWindowReference = chrome.tabs.Tab;
  * Browser implementation of the {@link Fido2UserInterfaceService}.
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
-export class BrowserFido2UserInterfaceService
-  implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference>
-{
+export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction<BrowserFido2ParentWindowReference> {
   constructor(private authService: AuthService) {}
 
   async newSession(
@@ -366,6 +362,9 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         ),
       ),
     );
+
+    // Defensive measure in case an existing notification appeared before the passkey popout
+    await BrowserApi.tabSendMessageData(this.tab, "closeNotificationBar");
 
     const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,

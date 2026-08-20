@@ -1,17 +1,18 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
-import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationCreateRequest } from "../../admin-console/models/request/organization-create.request";
 import { ListResponse } from "../../models/response/list.response";
 import { OrganizationId } from "../../types/guid";
 import { BillingApiServiceAbstraction } from "../abstractions";
+import { PremiumCheckoutSessionRequest } from "../models/request/premium-checkout-session.request";
 import { SubscriptionCancellationRequest } from "../models/request/subscription-cancellation.request";
 import { InvoicesResponse } from "../models/response/invoices.response";
 import { OrganizationBillingMetadataResponse } from "../models/response/organization-billing-metadata.response";
 import { PlanResponse } from "../models/response/plan.response";
+import { PremiumCheckoutSessionResponse } from "../models/response/premium-checkout-session.response";
+import { PremiumPlanResponse } from "../models/response/premium-plan.response";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export class BillingApiService implements BillingApiServiceAbstraction {
@@ -34,21 +35,20 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return this.apiService.send("POST", "/accounts/cancel", request, true, false);
   }
 
-  async getOrganizationBillingMetadata(
-    organizationId: OrganizationId,
-  ): Promise<OrganizationBillingMetadataResponse> {
-    const r = await this.apiService.send(
-      "GET",
-      "/organizations/" + organizationId + "/billing/metadata",
-      null,
+  async createPremiumCheckoutSession(
+    request: PremiumCheckoutSessionRequest,
+  ): Promise<PremiumCheckoutSessionResponse> {
+    const response = await this.apiService.send(
+      "POST",
+      "/account/billing/vnext/premium/checkout",
+      request,
       true,
       true,
     );
-
-    return new OrganizationBillingMetadataResponse(r);
+    return new PremiumCheckoutSessionResponse(response);
   }
 
-  async getOrganizationBillingMetadataVNext(
+  async getOrganizationBillingMetadata(
     organizationId: OrganizationId,
   ): Promise<OrganizationBillingMetadataResponse> {
     const r = await this.apiService.send(
@@ -62,7 +62,7 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return new OrganizationBillingMetadataResponse(r);
   }
 
-  async getOrganizationBillingMetadataVNextSelfHost(
+  async getOrganizationBillingMetadataSelfHost(
     organizationId: OrganizationId,
   ): Promise<OrganizationBillingMetadataResponse> {
     const r = await this.apiService.send(

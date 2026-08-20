@@ -4,17 +4,23 @@ import { Injectable } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { DialogService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac,
+  DuckDuckGoEncstring,
+  EncryptedString,
+  EncryptionType,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { VerifyNativeMessagingDialogComponent } from "../app/components/verify-native-messaging-dialog.component";
 import { DesktopAutofillSettingsService } from "../autofill/services/desktop-autofill-settings.service";
@@ -113,14 +119,15 @@ export class DuckDuckGoMessageHandlerService {
         return;
       }
 
-      const secret = await this.cryptoFunctionService.randomBytes(64);
-      this.duckduckgoSharedSecret = new SymmetricCryptoKey(secret);
-      const sharedKeyB64 = new SymmetricCryptoKey(secret).keyB64;
+      await SdkLoadService.Ready;
+      const secret = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+      this.duckduckgoSharedSecret = secret;
+      const sharedKeyB64 = secret.keyB64;
 
       await this.stateService.setDuckDuckGoSharedKey(sharedKeyB64);
 
       const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
-        secret,
+        secret.toEncoded(),
         remotePublicKey,
         HashAlgorithmForAsymmetricEncryption,
       );
@@ -192,7 +199,7 @@ export class DuckDuckGoMessageHandlerService {
 
     try {
       const decryptedResult = await this.decryptDuckDuckGoEncString(
-        message.encryptedCommand as EncString,
+        message.encryptedCommand.encryptedString as DuckDuckGoEncstring,
         this.duckduckgoSharedSecret,
       );
       return JSON.parse(decryptedResult);
@@ -248,50 +255,18 @@ export class DuckDuckGoMessageHandlerService {
    * This function also trims null characters that are a result of the null-padding from the end of the message.
    */
   private async decryptDuckDuckGoEncString(
-    encString: EncString,
+    encString: DuckDuckGoEncstring,
     key: SymmetricCryptoKey,
   ): Promise<string> {
-    const fastParams = this.cryptoFunctionService.aesDecryptFastParameters(
-      encString.data,
-      encString.iv,
-      encString.mac,
-      key,
-    );
-
-    const computedMac = await this.cryptoFunctionService.hmacFast(
-      fastParams.macData,
-      fastParams.macKey,
-      "sha256",
-    );
-    const macsEqual = await this.cryptoFunctionService.compareFast(fastParams.mac, computedMac);
-    if (!macsEqual) {
-      return null;
-    }
-    const decryptedPaddedString = await this.cryptoFunctionService.aesDecryptFast({
-      mode: "cbc",
-      parameters: fastParams,
-    });
-    return this.trimNullCharsFromMessage(decryptedPaddedString);
-  }
-
-  // DuckDuckGo does not use PKCS7 padding, but instead leaves the values as null,
-  // so null characters need to be trimmed from the end of the message for the last
-  // CBC-block.
-  private trimNullCharsFromMessage(message: string): string {
-    const charNull = 0;
-    const charRightCurlyBrace = 125;
-    const charRightBracket = 93;
-
-    for (let i = message.length - 1; i >= 0; i--) {
-      if (message.charCodeAt(i) === charNull) {
-        message = message.substring(0, message.length - 1);
-      } else if (
-        message.charCodeAt(i) === charRightCurlyBrace ||
-        message.charCodeAt(i) === charRightBracket
-      ) {
-        break;
+    const keyInner = key.inner();
+    switch (keyInner.type) {
+      case EncryptionType.AesCbc256_HmacSha256_B64: {
+        const decryptedBytes = DANGEROUS_aesDecryptDuckDuckGoNoPaddingAes256CbcHmac(
+          encString,
+          keyInner,
+        );
+        return Utils.fromArrayToUtf8(decryptedBytes);
       }
     }
-    return message;
   }
 }

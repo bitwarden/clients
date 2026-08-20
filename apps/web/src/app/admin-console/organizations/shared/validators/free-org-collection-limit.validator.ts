@@ -1,7 +1,7 @@
 import { AbstractControl, AsyncValidatorFn, FormControl, ValidationErrors } from "@angular/forms";
 import { combineLatest, map, Observable, of } from "rxjs";
 
-import { Collection } from "@bitwarden/admin-console/common";
+import { Collection } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { getById } from "@bitwarden/common/platform/misc";
@@ -10,6 +10,7 @@ export function freeOrgCollectionLimitValidator(
   organizations$: Observable<Organization[]>,
   collections$: Observable<Collection[]>,
   i18nService: I18nService,
+  vfo1Enabled = false,
 ): AsyncValidatorFn {
   return (control: AbstractControl): Observable<ValidationErrors | null> => {
     if (!(control instanceof FormControl)) {
@@ -35,7 +36,11 @@ export function freeOrgCollectionLimitValidator(
 
         if (hasReachedLimit) {
           return {
-            cannotCreateCollections: { message: i18nService.t("cannotCreateCollection") },
+            cannotCreateCollections: {
+              message: i18nService.t(
+                vfo1Enabled ? "cannotCreateSharedFolder" : "cannotCreateCollection",
+              ),
+            },
           };
         }
 

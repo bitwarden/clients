@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { FormPurposeCategories } from "@bitwarden/common/autofill/constants";
+
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import { createAutofillFieldMock, createAutofillFormMock } from "../spec/autofill-mocks";
@@ -10,6 +12,7 @@ import {
   FormFieldElement,
   FormElementWithAttribute,
 } from "../types";
+import * as autofillUtils from "../utils";
 
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
@@ -22,6 +25,8 @@ jest.mock("../utils", () => {
   return {
     ...utils,
     debounce: jest.fn((fn) => fn),
+    // Call-through spy so scheduling tests can assert on it without changing behavior.
+    requestIdleCallbackPolyfill: jest.fn((cb, opts) => utils.requestIdleCallbackPolyfill(cb, opts)),
   };
 });
 
@@ -58,7 +63,7 @@ describe("CollectAutofillContentService", () => {
       domQueryService,
       autofillOverlayContentService,
     );
-    window.IntersectionObserver = jest.fn(() => mockIntersectionObserver);
+    window.IntersectionObserver = jest.fn(() => mockIntersectionObserver) as any;
   });
 
   afterEach(() => {
@@ -75,17 +80,12 @@ describe("CollectAutofillContentService", () => {
   describe("getPageDetails", () => {
     beforeEach(() => {
       jest
-        .spyOn(collectAutofillContentService as any, "setupMutationObserver")
-        .mockImplementationOnce(() => {
-          collectAutofillContentService["mutationObserver"] = mock<MutationObserver>();
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: unknown) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({ result: null });
+          }
         });
-    });
-
-    it("sets up the mutation observer the first time getPageDetails is called", async () => {
-      await collectAutofillContentService.getPageDetails();
-      await collectAutofillContentService.getPageDetails();
-
-      expect(collectAutofillContentService["setupMutationObserver"]).toHaveBeenCalledTimes(1);
     });
 
     it("returns an object with empty forms and fields if no fields were found on a previous iteration", async () => {
@@ -132,6 +132,8 @@ describe("CollectAutofillContentService", () => {
         htmlName: formName,
         htmlID: formId,
         htmlMethod: formMethod,
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       const fieldElement = document.getElementById(
         usernameFieldId,
@@ -158,7 +160,7 @@ describe("CollectAutofillContentService", () => {
         type: "text",
         value: "",
         checked: false,
-        autoCompleteType: "",
+        autoCompleteType: null,
         disabled: false,
         readonly: false,
         selectInfo: null,
@@ -220,6 +222,8 @@ describe("CollectAutofillContentService", () => {
         htmlName: formName,
         htmlID: formId,
         htmlMethod: formMethod,
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       const fieldElement = document.getElementById(
         usernameFieldId,
@@ -317,10 +321,11 @@ describe("CollectAutofillContentService", () => {
           __form__0: {
             opid: "__form__0",
             htmlAction: formAction,
-            htmlClass: null,
+            htmlClass: "",
             htmlName: formName,
             htmlID: formId,
             htmlMethod: formMethod,
+            htmlAncestorHeadings: [],
           },
         },
         fields: [
@@ -346,12 +351,13 @@ describe("CollectAutofillContentService", () => {
             type: "text",
             value: "",
             checked: false,
-            autoCompleteType: "",
+            autoCompleteType: null,
             disabled: false,
             readonly: false,
             selectInfo: null,
             form: "__form__0",
             "aria-hidden": false,
+            "aria-describedby": null,
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
@@ -379,12 +385,13 @@ describe("CollectAutofillContentService", () => {
             type: "password",
             value: "",
             checked: false,
-            autoCompleteType: "",
+            autoCompleteType: null,
             disabled: false,
             readonly: false,
             selectInfo: null,
             form: "__form__0",
             "aria-hidden": false,
+            "aria-describedby": null,
             "aria-disabled": false,
             "aria-haspopup": false,
             "data-stripe": null,
@@ -395,7 +402,7 @@ describe("CollectAutofillContentService", () => {
       });
     });
 
-    it("sets the noFieldsFond property to true if the page has no forms or fields", async function () {
+    it("sets the noFieldsFound property to true if the page has no forms or fields", async function () {
       document.body.innerHTML = "";
       collectAutofillContentService["noFieldsFound"] = false;
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFormsData");
@@ -406,6 +413,321 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["buildAutofillFormsData"]).toHaveBeenCalled();
       expect(collectAutofillContentService["buildAutofillFieldsData"]).toHaveBeenCalled();
       expect(collectAutofillContentService["noFieldsFound"]).toBe(true);
+    });
+  });
+
+  describe("applyExternalTargetedFields", () => {
+    it("registers matched elements in both autofillFieldElements and autofillFieldsByOpid", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+      const targetedFields = [{ selector: "#username", fieldType: "username" }];
+
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      const element = document.getElementById("username") as ElementWithOpId<FormFieldElement>;
+      expect(collectAutofillContentService["autofillFieldElements"].has(element)).toBe(true);
+      expect(
+        collectAutofillContentService["autofillFieldsByOpid"].has("targeted_field_0_username"),
+      ).toBe(true);
+    });
+
+    it("sends a collectPageDetailsResponse message after registering fields", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+      const targetedFields = [{ selector: "#username", fieldType: "username" }];
+
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      expect(chrome.runtime.sendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          command: "collectPageDetailsResponse",
+          sender: "autofillInit",
+          details: expect.objectContaining({
+            fields: expect.arrayContaining([expect.any(Object)]),
+          }),
+        }),
+        expect.any(Function),
+      );
+    });
+
+    it("does not send a collectPageDetailsResponse when no selectors match", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+      const targetedFields = [{ selector: "#nonexistent", fieldType: "username" }];
+
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: "collectPageDetailsResponse" }),
+        expect.any(Function),
+      );
+    });
+  });
+
+  describe("getTargetedPageDetails cached-field fallback", () => {
+    beforeEach(() => {
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [
+                {
+                  fields: {
+                    username: ["iframe#nonexistent >>> #username"],
+                  },
+                },
+              ],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+    });
+
+    it("returns empty page details when no local fields match and autofillFieldElements is empty", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields).toHaveLength(0);
+    });
+
+    it("returns cached page details from applyExternalTargetedFields when no local fields match", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+
+      const targetedFields = [{ selector: "#username", fieldType: "username" }];
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [{ fields: { username: ["iframe#nonexistent >>> #username"] } }],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields).toHaveLength(1);
+      expect(pageDetails.fields[0].opid).toBe("targeted_field_0_username");
+    });
+  });
+
+  describe("getTargetedPageDetails category threading", () => {
+    it("carries the source form category onto locally-resolved targeted fields", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [
+                {
+                  category: FormPurposeCategories.AccountLogin,
+                  fields: { email: ["#username"] },
+                },
+              ],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+
+      const pageDetails = await collectAutofillContentService.getPageDetails();
+
+      expect(pageDetails.fields).toHaveLength(1);
+      expect(pageDetails.fields[0].fieldQualifier).toBe("email");
+      expect(pageDetails.fields[0].formCategory).toBe(FormPurposeCategories.AccountLogin);
+    });
+  });
+
+  describe("getTargetedPageDetails iframe routing", () => {
+    const mockTargetingRules = (selector: string) =>
+      jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [{ fields: { username: [selector] } }],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+
+    it("routes via routeTargetedFieldsToFrame using iframe.src when contentDocument is null (cross-origin)", async () => {
+      document.body.innerHTML = `<iframe id="cross-iframe"></iframe>`;
+      const iframe = document.getElementById("cross-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://other.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = mockTargetingRules("iframe#cross-iframe >>> #username");
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeSrc: "https://other.example.com/login",
+          iframeTargetedFields: expect.arrayContaining([
+            expect.objectContaining({ fieldType: "username" }),
+          ]),
+        }),
+      );
+    });
+
+    it("does not route when iframe.src is empty (srcdoc / about:blank fail-soft)", async () => {
+      document.body.innerHTML = `<iframe id="srcdoc-iframe"></iframe>`;
+      const iframe = document.getElementById("srcdoc-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", { value: "", configurable: true });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = mockTargetingRules("iframe#srcdoc-iframe >>> #username");
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).not.toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.anything(),
+      );
+    });
+
+    it("prefers contentDocument.location.href over iframe.src when both are available", async () => {
+      document.body.innerHTML = `<iframe id="same-iframe"></iframe>`;
+      const iframe = document.getElementById("same-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://stale.example.com/page",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", {
+        value: { location: { href: "https://current.example.com/page" } },
+        configurable: true,
+      });
+
+      const sendMessageSpy = mockTargetingRules("iframe#same-iframe >>> #username");
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeSrc: "https://current.example.com/page",
+        }),
+      );
+    });
+
+    it("includes the source form category in the routed iframe payload", async () => {
+      document.body.innerHTML = `<iframe id="login-form-container"></iframe>`;
+      const iframe = document.getElementById("login-form-container") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://other.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = jest
+        .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+        .mockImplementation((command: string) => {
+          if (command === "getUrlAutofillTargetingRules") {
+            return Promise.resolve({
+              result: [
+                {
+                  category: FormPurposeCategories.AccountLogin,
+                  fields: { username: ["iframe#login-form-container >>> #username"] },
+                },
+              ],
+            });
+          }
+          return Promise.resolve(undefined);
+        });
+
+      await collectAutofillContentService.getPageDetails();
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeTargetedFields: expect.arrayContaining([
+            expect.objectContaining({
+              fieldType: "username",
+              formCategory: FormPurposeCategories.AccountLogin,
+            }),
+          ]),
+        }),
+      );
+    });
+  });
+
+  describe("applyExternalTargetedFields recursion", () => {
+    it("re-routes via routeTargetedFieldsToFrame when received selector itself crosses another iframe", async () => {
+      document.body.innerHTML = `<iframe id="inner-iframe"></iframe>`;
+      const iframe = document.getElementById("inner-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://leaf.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const sendMessageSpy = jest.spyOn(
+        collectAutofillContentService as any,
+        "sendExtensionMessage",
+      );
+
+      const targetedFields = [
+        { selector: "iframe#inner-iframe >>> #username", fieldType: "username" },
+      ];
+
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      expect(sendMessageSpy).toHaveBeenCalledWith(
+        "routeTargetedFieldsToFrame",
+        expect.objectContaining({
+          iframeSrc: "https://leaf.example.com/login",
+          iframeTargetedFields: expect.arrayContaining([
+            expect.objectContaining({ fieldType: "username" }),
+          ]),
+        }),
+      );
+    });
+
+    it("retains the routed form category on a locally-resolved field", async () => {
+      document.body.innerHTML = `<input type="text" id="username" />`;
+
+      await collectAutofillContentService.applyExternalTargetedFields([
+        {
+          selector: "#username",
+          fieldType: "username",
+          formCategory: FormPurposeCategories.AccountLogin,
+        },
+      ]);
+
+      const fields = Array.from(
+        (
+          collectAutofillContentService as any
+        ).autofillFieldElements.values() as Iterable<AutofillField>,
+      );
+      expect(fields).toHaveLength(1);
+      expect(fields[0].formCategory).toBe(FormPurposeCategories.AccountLogin);
+    });
+
+    it("does not send collectPageDetailsResponse when all selectors route onward and no fields are cached", async () => {
+      document.body.innerHTML = `<iframe id="inner-iframe"></iframe>`;
+      const iframe = document.getElementById("inner-iframe") as HTMLIFrameElement;
+      Object.defineProperty(iframe, "src", {
+        value: "https://leaf.example.com/login",
+        configurable: true,
+      });
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const targetedFields = [
+        { selector: "iframe#inner-iframe >>> #username", fieldType: "username" },
+      ];
+
+      await collectAutofillContentService.applyExternalTargetedFields(targetedFields);
+
+      expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith(
+        expect.objectContaining({ command: "collectPageDetailsResponse" }),
+        expect.any(Function),
+      );
     });
   });
 
@@ -498,6 +820,8 @@ describe("CollectAutofillContentService", () => {
         htmlName: formName,
         htmlID: formId,
         htmlMethod: formMethod,
+        htmlClass: "",
+        htmlAncestorHeadings: [],
       };
       collectAutofillContentService["_autofillFormElements"] = new Map([
         [formElement, existingAutofillForm],
@@ -545,20 +869,150 @@ describe("CollectAutofillContentService", () => {
         __form__0: {
           opid: "__form__0",
           htmlAction: formAction1,
-          htmlClass: null,
+          htmlClass: "",
           htmlName: formName1,
           htmlID: formId1,
           htmlMethod: formMethod1,
+          htmlAncestorHeadings: [],
         },
         __form__1: {
           opid: "__form__1",
           htmlAction: formAction2,
-          htmlClass: null,
+          htmlClass: "",
           htmlName: formName2,
           htmlID: formId2,
           htmlMethod: formMethod2,
+          htmlAncestorHeadings: [],
         },
       });
+    });
+  });
+
+  describe("getAncestorHeadings", () => {
+    it("returns an empty array when the form has no parent element", () => {
+      const orphanForm = document.createElement("form");
+
+      const result = collectAutofillContentService["getAncestorHeadings"](orphanForm);
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns an empty array when no semantic-section ancestor encloses the form", () => {
+      document.body.innerHTML = `
+        <div><div><form id="f"><input type="email" /></form></div></div>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual([]);
+    });
+
+    it("captures a single heading inside the form's nearest semantic-section ancestor (raw casing preserved)", () => {
+      document.body.innerHTML = `
+        <section>
+          <h2>Subscribe to our newsletter</h2>
+          <form id="f"><input type="email" /></form>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Subscribe to our newsletter"]);
+    });
+
+    it("captures a heading nested several wrapper ancestors above the form when a semantic section encloses both", () => {
+      document.body.innerHTML = `
+        <section>
+          <div>
+            <div>
+              <header>
+                <div>
+                  <h3>
+                    <span>Subscribe to our newsletter</span>
+                  </h3>
+                </div>
+              </header>
+              <div>
+                <div>
+                  <form id="f"><input type="email" /></form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toContain("Subscribe to our newsletter");
+    });
+
+    it("does not include headings that belong to a different sibling form within the same scope", () => {
+      document.body.innerHTML = `
+        <section>
+          <h2>Other form heading</h2>
+          <form id="other"><h3>Inside other form</h3><input type="text" /></form>
+          <form id="target"><input type="email" /></form>
+        </section>
+      `;
+      const formElement = document.getElementById("target") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Other form heading"]);
+    });
+
+    it("returns each heading as its own entry so keyword scans cannot match across boundaries", () => {
+      document.body.innerHTML = `
+        <section>
+          <h2>Newsletter</h2>
+          <h3>Sign-up</h3>
+          <form id="f"><input type="email" /></form>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Newsletter", "Sign-up"]);
+    });
+
+    it("scopes to the nearest semantic-section ancestor and excludes headings outside it", () => {
+      document.body.innerHTML = `
+        <h1>Page Title (outside the section)</h1>
+        <section>
+          <h2>Section Heading</h2>
+          <div><div><form id="f"><input type="email" /></form></div></div>
+        </section>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Section Heading"]);
+    });
+
+    it("orders headings by depth of common ancestor with the form, closest first", () => {
+      document.body.innerHTML = `
+        <article>
+          <h1>Article Heading</h1>
+          <div>
+            <h2>Container Heading</h2>
+            <div>
+              <h3>Form Heading</h3>
+              <form id="f"><input type="email" /></form>
+            </div>
+          </div>
+        </article>
+      `;
+      const formElement = document.getElementById("f") as HTMLFormElement;
+
+      const result = collectAutofillContentService["getAncestorHeadings"](formElement);
+
+      expect(result).toEqual(["Form Heading", "Container Heading", "Article Heading"]);
     });
   });
 
@@ -585,10 +1039,11 @@ describe("CollectAutofillContentService", () => {
       expect(autofillFieldsPromise).toBeInstanceOf(Promise);
       expect(autofillFieldsData).toStrictEqual([
         {
+          "aria-describedby": null,
           "aria-disabled": false,
           "aria-haspopup": false,
           "aria-hidden": false,
-          autoCompleteType: "",
+          autoCompleteType: null,
           checked: false,
           "data-stripe": null,
           disabled: false,
@@ -618,10 +1073,11 @@ describe("CollectAutofillContentService", () => {
           dataSetValues: "",
         },
         {
+          "aria-describedby": null,
           "aria-disabled": false,
           "aria-haspopup": false,
           "aria-hidden": false,
-          autoCompleteType: "",
+          autoCompleteType: null,
           checked: false,
           "data-stripe": null,
           disabled: false,
@@ -1090,6 +1546,7 @@ describe("CollectAutofillContentService", () => {
       );
 
       expect(autofillFieldItem).toEqual({
+        "aria-describedby": null,
         "aria-disabled": false,
         "aria-haspopup": false,
         "aria-hidden": false,
@@ -1176,6 +1633,7 @@ describe("CollectAutofillContentService", () => {
       );
 
       expect(autofillFieldItem).toEqual({
+        "aria-describedby": null,
         "aria-disabled": false,
         "aria-haspopup": false,
         "aria-hidden": false,
@@ -1503,6 +1961,34 @@ describe("CollectAutofillContentService", () => {
 
       expect(labelTag).toEqual("Username");
     });
+
+    it("does not collect text from a sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Enter Country Code <select><option>US</option></select></div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <input type="text" name="username" id="username-id">
+          <div>Helper text</div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("Helper text");
+    });
   });
 
   describe("createAutofillFieldLeftLabel", () => {
@@ -1519,6 +2005,53 @@ describe("CollectAutofillContentService", () => {
       const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
 
       expect(labelTag).toEqual("Text ContentUsername");
+    });
+
+    it("does not collect text from a direct sibling that contains a form field", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not collect text from a parent sibling that contains a form field", () => {
+      // Exercises the parent-walk code path: the input has no direct previous
+      // siblings, so the traversal walks up to the parent and checks its previous
+      // sibling — which should be blocked because it contains a form field.
+      document.body.innerHTML = `
+        <div>
+          <div>Enter Country Code <select><option>US</option></select></div>
+          <div>
+            <input type="text" name="username" id="username-id">
+          </div>
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
+
+    it("does not stop traversal at a sibling div that has no form field descendant", () => {
+      document.body.innerHTML = `
+        <div>
+          <div>Helpful label</div>
+          <input type="text" name="username" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldLeftLabel"](element);
+
+      expect(labelTag).toEqual("Helpful label");
     });
   });
 
@@ -1650,6 +2183,42 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService["createAutofillFieldTopLabel"](targetTableCellInput);
 
       expect(targetTableCellLabel).toEqual(null);
+    });
+  });
+
+  describe("containsChildField", () => {
+    it("returns true when the element contains an input descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Enter Country Code</span><input type="text" />`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a select descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<select><option>US</option></select>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns true when the element contains a textarea descendant", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<textarea></textarea>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(true);
+    });
+
+    it("returns false when the element contains no form field descendants", () => {
+      const div = document.createElement("div");
+      div.innerHTML = `<span>Helper text</span>`;
+
+      expect(collectAutofillContentService["containsChildField"](div)).toBe(false);
+    });
+
+    it("returns false when the node is a text node", () => {
+      const textNode = document.createTextNode("Enter Country Code");
+
+      expect(collectAutofillContentService["containsChildField"](textNode)).toBe(false);
     });
   });
 
@@ -2069,14 +2638,61 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("setupMutationObserver", () => {
-    it("sets up a mutation observer and observes the document element", () => {
-      jest.spyOn(MutationObserver.prototype, "observe");
+  describe("startMonitoring / stopMonitoring", () => {
+    it("observes the document element on start", () => {
+      const observeSpy = jest.spyOn(collectAutofillContentService["mutationObserver"], "observe");
 
-      collectAutofillContentService["setupMutationObserver"]();
+      collectAutofillContentService.startMonitoring();
 
-      expect(collectAutofillContentService["mutationObserver"]).toBeInstanceOf(MutationObserver);
-      expect(collectAutofillContentService["mutationObserver"].observe).toBeCalled();
+      expect(observeSpy).toHaveBeenCalledWith(document.documentElement, expect.any(Object));
+    });
+
+    it("is idempotent on repeated start calls", () => {
+      const observeSpy = jest.spyOn(collectAutofillContentService["mutationObserver"], "observe");
+
+      collectAutofillContentService.startMonitoring();
+      collectAutofillContentService.startMonitoring();
+
+      expect(observeSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it("disconnects observers and clears caches on stop", () => {
+      const mutationDisconnect = jest.spyOn(
+        collectAutofillContentService["mutationObserver"],
+        "disconnect",
+      );
+      const intersectionDisconnect = jest.spyOn(
+        collectAutofillContentService["intersectionObserver"],
+        "disconnect",
+      );
+
+      collectAutofillContentService.startMonitoring();
+      collectAutofillContentService["_autofillFormElements"].set(
+        document.createElement("form") as any,
+        {} as any,
+      );
+      collectAutofillContentService.stopMonitoring();
+
+      expect(mutationDisconnect).toHaveBeenCalled();
+      expect(intersectionDisconnect).toHaveBeenCalled();
+      expect(collectAutofillContentService["_autofillFormElements"].size).toBe(0);
+    });
+
+    it("is idempotent across repeated stop calls", () => {
+      const mutationObserve = jest.spyOn(
+        collectAutofillContentService["mutationObserver"],
+        "observe",
+      );
+
+      collectAutofillContentService.startMonitoring();
+      collectAutofillContentService.stopMonitoring();
+      collectAutofillContentService.stopMonitoring();
+      // A successful restart after repeated stops proves the start
+      // guard cleared; behavior check rather than touching the private
+      // `isMonitoring` flag directly.
+      collectAutofillContentService.startMonitoring();
+
+      expect(mutationObserve).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -2107,20 +2723,14 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
       collectAutofillContentService["currentLocationHref"] = window.location.href;
-      jest.spyOn(collectAutofillContentService as any, "isAutofillElementNodeMutated");
+      jest.spyOn(collectAutofillContentService as any, "requirePageDetailsUpdate");
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
       await waitForAllMutationsToComplete();
 
       expect(collectAutofillContentService["domRecentlyMutated"]).toEqual(true);
       expect(collectAutofillContentService["noFieldsFound"]).toEqual(false);
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).toBeCalledWith(
-        removedNodes,
-        true,
-      );
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).toBeCalledWith(
-        addedNodes,
-      );
+      expect(collectAutofillContentService["requirePageDetailsUpdate"]).toHaveBeenCalled();
     });
 
     it("removes cached autofill elements that are nested within a removed node", async () => {
@@ -2132,14 +2742,19 @@ describe("CollectAutofillContentService", () => {
       document.body.appendChild(form);
       const removedNodes = document.querySelectorAll("form");
       const autofillForm: AutofillForm = createAutofillFormMock({});
-      const autofillField: AutofillField = createAutofillFieldMock({});
+      const autofillField: AutofillField = createAutofillFieldMock({ opid: "field-opid" });
       collectAutofillContentService["_autofillFormElements"] = new Map([[form, autofillForm]]);
       collectAutofillContentService["autofillFieldElements"] = new Map([
         [usernameInput, autofillField],
       ]);
+      collectAutofillContentService["autofillFieldsByOpid"] = new Map<string, FormFieldElement>([
+        ["field-opid", usernameInput],
+      ]);
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
       collectAutofillContentService["currentLocationHref"] = window.location.href;
+      // The purge sweeps via !isConnected, so the form actually has to leave the document.
+      document.body.removeChild(form);
 
       collectAutofillContentService["handleMutationObserverMutation"]([
         {
@@ -2158,6 +2773,7 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["_autofillFormElements"].size).toEqual(0);
       expect(collectAutofillContentService["autofillFieldElements"].size).toEqual(0);
+      expect(collectAutofillContentService["autofillFieldsByOpid"].size).toEqual(0);
     });
 
     it("will handle updating the autofill element if any attribute mutations are encountered", async () => {
@@ -2175,16 +2791,19 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
       collectAutofillContentService["currentLocationHref"] = window.location.href;
-      jest.spyOn(collectAutofillContentService as any, "isAutofillElementNodeMutated");
-      jest.spyOn(collectAutofillContentService as any, "handleAutofillElementAttributeMutation");
+      jest.spyOn(collectAutofillContentService as any, "requirePageDetailsUpdate");
+      jest.spyOn(collectAutofillContentService as any, "applyAttributeMutation");
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
       await waitForAllMutationsToComplete();
 
       expect(collectAutofillContentService["domRecentlyMutated"]).toEqual(false);
       expect(collectAutofillContentService["noFieldsFound"]).toEqual(true);
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toBeCalled();
-      expect(collectAutofillContentService["handleAutofillElementAttributeMutation"]).toBeCalled();
+      expect(collectAutofillContentService["requirePageDetailsUpdate"]).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["applyAttributeMutation"]).toHaveBeenCalledWith(
+        document.body,
+        "value",
+      );
     });
 
     it("will handle window location mutations", () => {
@@ -2201,20 +2820,16 @@ describe("CollectAutofillContentService", () => {
       };
       collectAutofillContentService["currentLocationHref"] = "https://someotherurl.com";
       jest.spyOn(collectAutofillContentService as any, "handleWindowLocationMutation");
-      jest.spyOn(collectAutofillContentService as any, "isAutofillElementNodeMutated");
-      jest.spyOn(collectAutofillContentService as any, "handleAutofillElementAttributeMutation");
+      jest.spyOn(collectAutofillContentService as any, "applyAttributeMutation");
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
-      expect(collectAutofillContentService["handleWindowLocationMutation"]).toBeCalled();
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toBeCalled();
-      expect(
-        collectAutofillContentService["handleAutofillElementAttributeMutation"],
-      ).not.toBeCalled();
+      expect(collectAutofillContentService["handleWindowLocationMutation"]).toHaveBeenCalled();
+      expect(collectAutofillContentService["applyAttributeMutation"]).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["pendingAttributeMutations"].size).toBe(0);
     });
 
-    it("will setup the overlay listeners on mutated elements", async () => {
-      jest.useFakeTimers();
+    it("schedules a full page-details rebuild for childList mutations", async () => {
       const form = document.createElement("form");
       document.body.appendChild(form);
       const addedNodes = document.querySelectorAll("form");
@@ -2233,87 +2848,360 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
       collectAutofillContentService["currentLocationHref"] = window.location.href;
-      jest.spyOn(collectAutofillContentService as any, "setupOverlayListenersOnMutatedElements");
+      jest.spyOn(collectAutofillContentService as any, "requirePageDetailsUpdate");
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+      await waitForAllMutationsToComplete();
+
+      expect(collectAutofillContentService["requirePageDetailsUpdate"]).toHaveBeenCalled();
+    });
+
+    it("skips new-shadow-root detection on attribute-only batches", () => {
+      jest.useFakeTimers();
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      const noteAddedNodesSpy = jest.spyOn(
+        collectAutofillContentService["shadowTracker"],
+        "noteAddedNodes",
+      );
+      const attributeMutation: MutationRecord = {
+        type: "attributes",
+        addedNodes: document.querySelectorAll("nothing"),
+        attributeName: "value",
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nothing"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([attributeMutation]);
+
+      expect(noteAddedNodesSpy).not.toHaveBeenCalled();
+      jest.useRealTimers();
+    });
+
+    it("triggers debounced page details update when mutations occur in shadow roots", () => {
+      jest.useFakeTimers();
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+      jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(collectAutofillContentService["debouncedRequirePageDetailsUpdate"]).toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    it("does not trigger debounced update when mutations are not in shadow roots", () => {
+      jest.useFakeTimers();
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      jest.spyOn(collectAutofillContentService as any, "debouncedRequirePageDetailsUpdate");
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(domQueryService.checkMutationsInShadowRoots).toHaveBeenCalledWith([mutationRecord]);
+      expect(
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"],
+      ).not.toHaveBeenCalled();
+
+      jest.useRealTimers();
+    });
+
+    it("hands batches that added nodes to the shadow host tracker", () => {
+      jest.useFakeTimers();
+      const div = document.createElement("div");
+      document.body.appendChild(div);
+
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: document.querySelectorAll("div"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: document.body,
+      };
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
+      const noteAddedNodesSpy = jest.spyOn(
+        collectAutofillContentService["shadowTracker"],
+        "noteAddedNodes",
+      );
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+
+      expect(noteAddedNodesSpy).toHaveBeenCalledWith([mutationRecord]);
+
+      jest.useRealTimers();
+    });
+
+    it("debounces multiple rapid shadow root mutations with real timers", (done) => {
+      jest.useRealTimers();
+
+      // Use real debounce for this test
+      const actualUtils = jest.requireActual("../utils");
+      const realDebounce = actualUtils.debounce;
+
+      const shadowHost = document.createElement("div");
+      const shadowRoot = shadowHost.attachShadow({ mode: "open" });
+      document.body.appendChild(shadowHost);
+
+      const mutationRecord: MutationRecord = {
+        type: "attributes",
+        addedNodes: document.querySelectorAll("nonexistent"),
+        attributeName: "value",
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nonexistent"),
+        target: shadowRoot,
+      };
+
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(true);
+
+      // Track actual calls to requirePageDetailsUpdate
+      let callCount = 0;
+      const originalRequirePageDetailsUpdate =
+        collectAutofillContentService["requirePageDetailsUpdate"];
+      collectAutofillContentService["requirePageDetailsUpdate"] = () => {
+        callCount++;
+        originalRequirePageDetailsUpdate.call(collectAutofillContentService);
+      };
+
+      // Temporarily override with real debounce
+      const originalDebounced = collectAutofillContentService["debouncedRequirePageDetailsUpdate"];
+      collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = realDebounce(() => {
+        collectAutofillContentService["requirePageDetailsUpdate"]();
+      }, 300);
+
+      // Trigger 5 rapid mutations
+      for (let i = 0; i < 5; i++) {
+        collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
+      }
+
+      // Should only call requirePageDetailsUpdate once after debounce
+      setTimeout(() => {
+        expect(callCount).toBe(1);
+
+        // Restore original
+        collectAutofillContentService["debouncedRequirePageDetailsUpdate"] = originalDebounced;
+        collectAutofillContentService["requirePageDetailsUpdate"] =
+          originalRequirePageDetailsUpdate;
+        document.body.removeChild(shadowHost);
+        done();
+      }, 350);
+    });
+
+    describe("late hydration wiring", () => {
+      beforeEach(() => {
+        jest.useFakeTimers();
+        collectAutofillContentService["currentLocationHref"] = window.location.href;
+        domQueryService["knownShadowRoots"].clear();
+        domQueryService["pageContainsShadowDom"] = false;
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
+      });
+
+      it("feeds the collection walk's unresolved hosts to the tracker", async () => {
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: unknown) =>
+            Promise.resolve(
+              command === "getUrlAutofillTargetingRules" ? { result: null } : undefined,
+            ),
+          );
+        const reconcileSpy = jest.spyOn(
+          collectAutofillContentService["shadowTracker"],
+          "reconcileFromScan",
+        );
+
+        const pageDetailsPromise = collectAutofillContentService.getPageDetails();
+        await jest.advanceTimersByTimeAsync(200);
+        await pageDetailsPromise;
+
+        expect(reconcileSpy).toHaveBeenCalledWith(expect.any(Set));
+      });
+
+      it("enrolls pre-existing un-hydrated hosts during collection and recovers without any mutations", async () => {
+        customElements.define("preexisting-login", class extends HTMLElement {});
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: unknown) =>
+            Promise.resolve(
+              command === "getUrlAutofillTargetingRules" ? { result: null } : undefined,
+            ),
+          );
+        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
+        const host = document.createElement("preexisting-login");
+        document.body.appendChild(host);
+
+        // No mutation events: the host predates observer attachment (the SPA
+        // rendered before the first collection ran).
+        const pageDetailsPromise = collectAutofillContentService.getPageDetails();
+        await jest.advanceTimersByTimeAsync(200);
+        await pageDetailsPromise;
+
+        expect(
+          collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].has(host),
+        ).toBe(true);
+
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+        // Cover the next backoff retry regardless of rounds consumed so far.
+        await jest.advanceTimersByTimeAsync(2000);
+
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
+        expect(collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].size).toBe(
+          0,
+        );
+
+        document.body.removeChild(host);
+      });
+
+      it("resets the tracker when monitoring stops", () => {
+        const resetSpy = jest.spyOn(collectAutofillContentService["shadowTracker"], "reset");
+
+        collectAutofillContentService.startMonitoring();
+        collectAutofillContentService.stopMonitoring();
+
+        expect(resetSpy).toHaveBeenCalled();
+      });
+
+      it("resets the tracker on navigation", () => {
+        const resetSpy = jest.spyOn(collectAutofillContentService["shadowTracker"], "reset");
+
+        collectAutofillContentService["handleWindowLocationMutation"]();
+
+        expect(resetSpy).toHaveBeenCalled();
+      });
+
+      it("bypasses a cached empty result on explicit collection", () => {
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = true;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(domQueryService.refreshShadowDomStateForUserRequest).toHaveBeenCalled();
+        expect(collectAutofillContentService["noFieldsFound"]).toBe(false);
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      });
+
+      it("serves the populated cache on explicit collection without an O(document) shadow scan", () => {
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
+        // The refresh must not run when a populated cache will be served — otherwise every
+        // explicit collection on a shadow-free page pays a querySelectorAll("*") scan for a
+        // latch that goes unused that round (the fill path lands here).
+        expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
+      });
+
+      it("keeps serving the populated cache when only hosts are awaiting definition", () => {
+        // Steady state on framework pages: every unregistered component selector (<app-root>,
+        // <mat-form-field>, …) parks in hostsAwaitingDefinition permanently. That must NOT force
+        // the O(document) refresh (or discard the field cache) on the fill path — real late
+        // hydration is picked up when a parked host flips :defined and is promoted into the
+        // awaiting-shadow-root pool, which is the arm that still gates.
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["shadowTracker"]["hostsAwaitingDefinition"].set(
+          document.createElement("app-root"),
+          Date.now() + 60000,
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
+      });
+
+      it("forces a fresh query on explicit collection while shadow hosts are unresolved", () => {
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].set(
+          document.createElement("pending-host"),
+          3,
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      });
+    });
+  });
+
+  describe("requirePageDetailsUpdate", () => {
+    it("sets the dirty flags but does not schedule a rebuild on its own", () => {
+      collectAutofillContentService["domRecentlyMutated"] = false;
+      collectAutofillContentService["noFieldsFound"] = true;
+      jest.spyOn(collectAutofillContentService as any, "updateAutofillElementsAfterMutation");
+
+      collectAutofillContentService["requirePageDetailsUpdate"]();
+
+      expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      expect(collectAutofillContentService["noFieldsFound"]).toBe(false);
+      expect(
+        collectAutofillContentService["updateAutofillElementsAfterMutation"],
+      ).not.toHaveBeenCalled();
+    });
+
+    it("debounced wrapper schedules a rebuild after flipping flags", () => {
+      jest.useFakeTimers();
+      collectAutofillContentService["domRecentlyMutated"] = false;
+      jest.spyOn(collectAutofillContentService as any, "updateAutofillElementsAfterMutation");
+
+      collectAutofillContentService["debouncedRequirePageDetailsUpdate"]();
       jest.runAllTimers();
 
-      expect(collectAutofillContentService["setupOverlayListenersOnMutatedElements"]).toBeCalled();
-    });
-  });
-
-  describe("setupOverlayListenersOnMutatedElements", () => {
-    it("skips building the autofill field item if the node is not a form field element", () => {
-      const divElement = document.createElement("div");
-      const nodes = [divElement];
-      jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldItem");
-
-      collectAutofillContentService["setupOverlayListenersOnMutatedElements"](nodes);
-
-      expect(collectAutofillContentService["buildAutofillFieldItem"]).not.toBeCalled();
-    });
-
-    it("skips building the autofill field item if the node is already a field element", () => {
-      const inputElement = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
-      inputElement.setAttribute("type", "password");
-      const nodes = [inputElement];
-      collectAutofillContentService["autofillFieldElements"].set(inputElement, {
-        opid: "1234",
-      } as AutofillField);
-      jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldItem");
-
-      collectAutofillContentService["setupOverlayListenersOnMutatedElements"](nodes);
-
-      expect(collectAutofillContentService["buildAutofillFieldItem"]).not.toBeCalled();
-    });
-  });
-
-  describe("deleteCachedAutofillElement", () => {
-    it("removes the autofill form element from the map of elements", () => {
-      const formElement = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
-      const autofillForm: AutofillForm = {
-        opid: "1234",
-        htmlName: "formEl",
-        htmlID: "formEl-id",
-        htmlAction: "https://example.com",
-        htmlMethod: "POST",
-      };
-      collectAutofillContentService["_autofillFormElements"] = new Map([
-        [formElement, autofillForm],
-      ]);
-
-      collectAutofillContentService["deleteCachedAutofillElement"](formElement);
-
-      expect(collectAutofillContentService["_autofillFormElements"].size).toEqual(0);
-    });
-
-    it("removes the autofill field element form the map of elements", () => {
-      const fieldElement = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
-      const autofillField: AutofillField = {
-        elementNumber: 0,
-        htmlClass: "",
-        tabindex: "",
-        title: "",
-        viewable: false,
-        opid: "1234",
-        htmlName: "username",
-        htmlID: "username-id",
-        htmlType: "text",
-        htmlAutocomplete: "username",
-        htmlAutofocus: false,
-        htmlDisabled: false,
-        htmlMaxLength: 999,
-        htmlReadonly: false,
-        htmlRequired: false,
-        htmlValue: "jsmith",
-      };
-      collectAutofillContentService["autofillFieldElements"] = new Map([
-        [fieldElement, autofillField],
-      ]);
-
-      collectAutofillContentService["deleteCachedAutofillElement"](fieldElement);
-
-      expect(collectAutofillContentService["autofillFieldElements"].size).toEqual(0);
+      expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      expect(
+        collectAutofillContentService["updateAutofillElementsAfterMutation"],
+      ).toHaveBeenCalled();
+      jest.useRealTimers();
     });
   });
 
@@ -2329,112 +3217,119 @@ describe("CollectAutofillContentService", () => {
       expect(collectAutofillContentService["currentLocationHref"]).toEqual(window.location.href);
       expect(collectAutofillContentService["domRecentlyMutated"]).toEqual(true);
       expect(collectAutofillContentService["noFieldsFound"]).toEqual(false);
-      expect(collectAutofillContentService["updateAutofillElementsAfterMutation"]).toBeCalled();
+      expect(
+        collectAutofillContentService["updateAutofillElementsAfterMutation"],
+      ).toHaveBeenCalled();
       expect(collectAutofillContentService["_autofillFormElements"].size).toEqual(0);
       expect(collectAutofillContentService["autofillFieldElements"].size).toEqual(0);
     });
+
+    it("resets the cached targeting rules so the new URL re-fetches against the current gate state", () => {
+      collectAutofillContentService["pageTargetingRules"] = [
+        { category: "accountLogin", fields: { username: ["input#email"] } } as any,
+      ];
+
+      collectAutofillContentService["handleWindowLocationMutation"]();
+
+      expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
+    });
   });
 
-  describe("handleAutofillElementAttributeMutation", () => {
-    it("returns early if the target node is not an HTMLElement instance", () => {
-      const mutationRecord: MutationRecord = {
-        type: "attributes",
-        addedNodes: null,
-        attributeName: "value",
-        attributeNamespace: null,
-        nextSibling: null,
-        oldValue: null,
-        previousSibling: null,
-        removedNodes: null,
-        target: document.createTextNode("Hello, world!"),
-      };
-      jest.spyOn(collectAutofillContentService as any, "isAutofillElementNodeMutated");
+  describe("clearCachedTargetingRules", () => {
+    it("resets the cached targeting rules", () => {
+      collectAutofillContentService["pageTargetingRules"] = [
+        { category: "accountLogin", fields: { username: ["input#email"] } } as any,
+      ];
 
-      collectAutofillContentService["handleAutofillElementAttributeMutation"](mutationRecord);
+      collectAutofillContentService.clearCachedTargetingRules();
 
-      expect(collectAutofillContentService["isAutofillElementNodeMutated"]).not.toBeCalled();
+      expect(collectAutofillContentService["pageTargetingRules"]).toBeUndefined();
     });
+  });
 
-    it("will update the autofill form element data if the target node can be found in the autofillFormElements map", () => {
-      const targetNode = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
-      targetNode.setAttribute("name", "username");
-      targetNode.setAttribute("value", "jsmith");
-      const autofillForm: AutofillForm = {
-        opid: "1234",
-        htmlName: "formEl",
-        htmlID: "formEl-id",
-        htmlAction: "https://example.com",
-        htmlMethod: "POST",
-      };
-      const mutationRecord: MutationRecord = {
-        type: "attributes",
-        addedNodes: null,
-        attributeName: "id",
-        attributeNamespace: null,
-        nextSibling: null,
-        oldValue: null,
-        previousSibling: null,
-        removedNodes: null,
-        target: targetNode,
-      };
+  describe("applyAttributeMutation", () => {
+    it("returns early if the target element is detached from the document", () => {
+      const formElement = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
+      const autofillForm = createAutofillFormMock({});
       collectAutofillContentService["_autofillFormElements"] = new Map([
-        [targetNode, autofillForm],
+        [formElement, autofillForm],
       ]);
       jest.spyOn(collectAutofillContentService as any, "updateAutofillFormElementData");
 
-      collectAutofillContentService["handleAutofillElementAttributeMutation"](mutationRecord);
+      collectAutofillContentService["applyAttributeMutation"](formElement, "id");
 
-      expect(collectAutofillContentService["updateAutofillFormElementData"]).toBeCalledWith(
-        mutationRecord.attributeName,
-        mutationRecord.target,
+      expect(collectAutofillContentService["updateAutofillFormElementData"]).not.toHaveBeenCalled();
+    });
+
+    it("updates form element data when the target is in the autofillFormElements map", () => {
+      const formElement = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
+      document.body.appendChild(formElement);
+      const autofillForm = createAutofillFormMock({});
+      collectAutofillContentService["_autofillFormElements"] = new Map([
+        [formElement, autofillForm],
+      ]);
+      jest.spyOn(collectAutofillContentService as any, "updateAutofillFormElementData");
+
+      collectAutofillContentService["applyAttributeMutation"](formElement, "id");
+
+      expect(collectAutofillContentService["updateAutofillFormElementData"]).toHaveBeenCalledWith(
+        "id",
+        formElement,
         autofillForm,
       );
     });
 
-    it("will update the autofill field element data if the target node can be found in the autofillFieldElements map", () => {
-      const targetNode = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
-      targetNode.setAttribute("name", "username");
-      targetNode.setAttribute("value", "jsmith");
-      const autofillField: AutofillField = {
-        elementNumber: 0,
-        htmlClass: "",
-        tabindex: "",
-        title: "",
-        viewable: false,
-        opid: "1234",
-        htmlName: "username",
-        htmlID: "username-id",
-        htmlType: "text",
-        htmlAutocomplete: "username",
-        htmlAutofocus: false,
-        htmlDisabled: false,
-        htmlMaxLength: 999,
-        htmlReadonly: false,
-        htmlRequired: false,
-        htmlValue: "jsmith",
-      };
-      const mutationRecord: MutationRecord = {
-        type: "attributes",
-        addedNodes: null,
-        attributeName: "id",
-        attributeNamespace: null,
-        nextSibling: null,
-        oldValue: null,
-        previousSibling: null,
-        removedNodes: null,
-        target: targetNode,
-      };
+    it("updates field element data when the target is in the autofillFieldElements map", () => {
+      const fieldElement = document.createElement("input") as ElementWithOpId<HTMLInputElement>;
+      document.body.appendChild(fieldElement);
+      const autofillField = createAutofillFieldMock({});
       collectAutofillContentService["autofillFieldElements"] = new Map([
-        [targetNode, autofillField],
+        [fieldElement, autofillField],
       ]);
       jest.spyOn(collectAutofillContentService as any, "updateAutofillFieldElementData");
 
-      collectAutofillContentService["handleAutofillElementAttributeMutation"](mutationRecord);
+      collectAutofillContentService["applyAttributeMutation"](fieldElement, "id");
 
-      expect(collectAutofillContentService["updateAutofillFieldElementData"]).toBeCalledWith(
-        mutationRecord.attributeName,
-        mutationRecord.target,
+      expect(collectAutofillContentService["updateAutofillFieldElementData"]).toHaveBeenCalledWith(
+        "id",
+        fieldElement,
         autofillField,
+      );
+    });
+  });
+
+  describe("purgeDetachedFieldMetadata", () => {
+    it("removes form/field/opid entries whose elements are no longer connected", () => {
+      const attachedForm = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
+      const attachedField = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(attachedForm);
+      document.body.appendChild(attachedField);
+      const detachedForm = document.createElement("form") as ElementWithOpId<HTMLFormElement>;
+      const detachedField = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      const attachedAutofillField = createAutofillFieldMock({ opid: "attached" });
+      const detachedAutofillField = createAutofillFieldMock({ opid: "detached" });
+      collectAutofillContentService["_autofillFormElements"] = new Map([
+        [attachedForm, createAutofillFormMock({})],
+        [detachedForm, createAutofillFormMock({})],
+      ]);
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [attachedField, attachedAutofillField],
+        [detachedField, detachedAutofillField],
+      ]);
+      collectAutofillContentService["autofillFieldsByOpid"] = new Map<string, FormFieldElement>([
+        ["attached", attachedField],
+        ["detached", detachedField],
+      ]);
+
+      collectAutofillContentService["purgeDetachedFieldMetadata"]();
+
+      expect(collectAutofillContentService["_autofillFormElements"].size).toBe(1);
+      expect(collectAutofillContentService["_autofillFormElements"].has(attachedForm)).toBe(true);
+      expect(collectAutofillContentService["autofillFieldElements"].size).toBe(1);
+      expect(collectAutofillContentService["autofillFieldElements"].has(attachedField)).toBe(true);
+      expect(collectAutofillContentService["autofillFieldsByOpid"].size).toBe(1);
+      expect(collectAutofillContentService["autofillFieldsByOpid"].get("attached")).toBe(
+        attachedField,
       );
     });
   });
@@ -2447,6 +3342,8 @@ describe("CollectAutofillContentService", () => {
       htmlID: "formEl-id",
       htmlAction: "https://example.com",
       htmlMethod: "POST",
+      htmlClass: "",
+      htmlAncestorHeadings: [],
     };
     const updatedAttributes = ["action", "name", "id", "method"];
 
@@ -2466,7 +3363,7 @@ describe("CollectAutofillContentService", () => {
           autofillForm,
         );
 
-        expect(collectAutofillContentService["_autofillFormElements"].set).toBeCalledWith(
+        expect(collectAutofillContentService["_autofillFormElements"].set).toHaveBeenCalledWith(
           formElement,
           autofillForm,
         );
@@ -2482,7 +3379,7 @@ describe("CollectAutofillContentService", () => {
         autofillForm,
       );
 
-      expect(collectAutofillContentService["_autofillFormElements"].set).not.toBeCalled();
+      expect(collectAutofillContentService["_autofillFormElements"].set).not.toHaveBeenCalled();
     });
   });
 
@@ -2504,12 +3401,12 @@ describe("CollectAutofillContentService", () => {
       "id",
       "type",
       "autocomplete",
-      "class",
+      // Note: "class" is intentionally excluded from the mutation observer attribute filter
+      // to avoid callback storms on dynamic pages. htmlClass is refreshed on the next full
+      // page-detail collection instead.
       "tabindex",
       "title",
-      "value",
       "rel",
-      "tagname",
       "checked",
       "disabled",
       "readonly",
@@ -2537,7 +3434,7 @@ describe("CollectAutofillContentService", () => {
           autofillField,
         );
 
-        expect(collectAutofillContentService["autofillFieldElements"].set).toBeCalledWith(
+        expect(collectAutofillContentService["autofillFieldElements"].set).toHaveBeenCalledWith(
           fieldElement,
           autofillField,
         );
@@ -2553,7 +3450,7 @@ describe("CollectAutofillContentService", () => {
         autofillField,
       );
 
-      expect(collectAutofillContentService["autofillFieldElements"].set).not.toBeCalled();
+      expect(collectAutofillContentService["autofillFieldElements"].set).not.toHaveBeenCalled();
     });
   });
 
@@ -2608,7 +3505,6 @@ describe("CollectAutofillContentService", () => {
         { target: formFieldElement, isIntersecting: true },
       ] as unknown as IntersectionObserverEntry[];
       isElementViewableSpy.mockReturnValueOnce(true);
-      collectAutofillContentService["intersectionObserver"] = mockIntersectionObserver;
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
@@ -2618,13 +3514,13 @@ describe("CollectAutofillContentService", () => {
 
     it("sets up the inline menu listeners on a viewable field", async () => {
       const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
       const autofillField = mock<AutofillField>();
       const entries = [
         { target: formFieldElement, isIntersecting: true },
       ] as unknown as IntersectionObserverEntry[];
       isElementViewableSpy.mockReturnValueOnce(true);
       collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
-      collectAutofillContentService["intersectionObserver"] = mockIntersectionObserver;
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);
 
@@ -2637,16 +3533,613 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
-  describe("destroy", () => {
+  describe("setupOverlayOnField", () => {
+    it("executes immediately on first call then debounces subsequent rapid calls", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+      jest.useFakeTimers();
+
+      // First call executes immediately
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(1);
+
+      // Subsequent rapid calls are debounced
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(1);
+
+      // After debounce delay, the next call executes immediately again
+      jest.advanceTimersByTime(150);
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledTimes(2);
+
+      jest.useRealTimers();
+    });
+
+    it("does not call setupOverlayListeners if the element is not in DOM", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      // Note: not appending to document.body
+      const autofillField = mock<AutofillField>();
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it("does not call setupOverlayListeners if the element is not in cache", () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(formFieldElement);
+      const autofillField = mock<AutofillField>();
+      // Note: not adding to autofillFieldElements cache
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupOverlayListeners",
+      );
+
+      collectAutofillContentService["setupOverlayOnField"](formFieldElement, autofillField);
+
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("stopMonitoring (deferred work cleanup)", () => {
     it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
-      collectAutofillContentService["updateAfterMutationIdleCallback"] = setTimeout(jest.fn, 100);
+      collectAutofillContentService.startMonitoring();
+      const callbackId = setTimeout(jest.fn, 100);
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = callbackId;
 
-      collectAutofillContentService.destroy();
+      collectAutofillContentService.stopMonitoring();
 
-      expect(clearTimeout).toHaveBeenCalledWith(
-        collectAutofillContentService["updateAfterMutationIdleCallback"],
+      expect(clearTimeout).toHaveBeenCalledWith(callbackId);
+    });
+
+    it("clears all pending overlay setup timeouts", () => {
+      const formFieldElement1 = document.createElement(
+        "input",
+      ) as ElementWithOpId<FormFieldElement>;
+      const formFieldElement2 = document.createElement(
+        "input",
+      ) as ElementWithOpId<FormFieldElement>;
+      const clearTimeoutSpy = jest.spyOn(window, "clearTimeout");
+      collectAutofillContentService.startMonitoring();
+      collectAutofillContentService["pendingOverlaySetup"].set(
+        formFieldElement1,
+        setTimeout(jest.fn, 100),
       );
+      collectAutofillContentService["pendingOverlaySetup"].set(
+        formFieldElement2,
+        setTimeout(jest.fn, 100),
+      );
+
+      collectAutofillContentService.stopMonitoring();
+
+      expect(clearTimeoutSpy).toHaveBeenCalledTimes(2);
+      expect(collectAutofillContentService["pendingOverlaySetup"].size).toBe(0);
+    });
+  });
+
+  describe("processMutations", () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.runOnlyPendingTimers();
+      jest.useRealTimers();
+    });
+
+    it("swaps the pending structures so reentrant mutations land in fresh ones", () => {
+      const target = document.createElement("input");
+      document.body.appendChild(target);
+      collectAutofillContentService["pendingAttributeMutations"] = new Map([
+        [target, new Set(["value"])],
+      ]);
+      collectAutofillContentService["pendingChildListUpdate"] = true;
+      const originalMap = collectAutofillContentService["pendingAttributeMutations"];
+
+      collectAutofillContentService["processMutations"]();
+
+      expect(collectAutofillContentService["pendingAttributeMutations"]).not.toBe(originalMap);
+      expect(collectAutofillContentService["pendingAttributeMutations"].size).toBe(0);
+      expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
+    });
+
+    it("invokes the field and shadow-root purges each drain", () => {
+      collectAutofillContentService["pendingChildListUpdate"] = true;
+      jest.spyOn(collectAutofillContentService as any, "purgeDetachedFieldMetadata");
+      jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
+
+      collectAutofillContentService["processMutations"]();
+      jest.runAllTimers();
+
+      expect(collectAutofillContentService["purgeDetachedFieldMetadata"]).toHaveBeenCalled();
+      expect(domQueryService.purgeDetachedShadowRoots).toHaveBeenCalled();
+    });
+
+    it("purges detached metadata but schedules no work when nothing is pending", () => {
+      collectAutofillContentService["pendingAttributeMutations"] = new Map();
+      collectAutofillContentService["pendingTopLayerTargets"] = new Set();
+      collectAutofillContentService["pendingChildListUpdate"] = false;
+      jest.spyOn(collectAutofillContentService as any, "requirePageDetailsUpdate");
+      jest.spyOn(collectAutofillContentService as any, "applyAttributeMutation");
+      jest.spyOn(collectAutofillContentService as any, "purgeDetachedFieldMetadata");
+      jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
+
+      collectAutofillContentService["processMutations"]();
+      jest.runAllTimers();
+
+      expect(collectAutofillContentService["requirePageDetailsUpdate"]).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["applyAttributeMutation"]).not.toHaveBeenCalled();
+      expect(collectAutofillContentService["purgeDetachedFieldMetadata"]).toHaveBeenCalled();
+      expect(domQueryService.purgeDetachedShadowRoots).toHaveBeenCalled();
+    });
+
+    it("reentrant attribute mutations during drain land in the next cycle", () => {
+      const target = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(target);
+      const reentryTarget = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.appendChild(reentryTarget);
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [target, createAutofillFieldMock({})],
+        [reentryTarget, createAutofillFieldMock({})],
+      ]);
+      collectAutofillContentService["pendingAttributeMutations"] = new Map([
+        [target, new Set(["value"])],
+      ]);
+      jest
+        .spyOn(collectAutofillContentService as any, "applyAttributeMutation")
+        .mockImplementationOnce(() => {
+          // Simulate reentry: a fresh enqueue arrives mid-drain.
+          collectAutofillContentService["pendingAttributeMutations"].set(
+            reentryTarget,
+            new Set(["id"]),
+          );
+        });
+
+      collectAutofillContentService["processMutations"]();
+      jest.runAllTimers();
+
+      // Reentrant entry sits in the fresh map and waits for the next drain.
+      expect(collectAutofillContentService["pendingAttributeMutations"].has(reentryTarget)).toBe(
+        true,
+      );
+      expect(collectAutofillContentService["pendingAttributeMutations"].has(target)).toBe(false);
+    });
+  });
+
+  describe("attribute mutation coalescing", () => {
+    it("collapses repeated (target, attr) pairs into a single Set entry", () => {
+      const target = document.createElement("input");
+      document.body.appendChild(target);
+      const mutation = (attrName: string): MutationRecord => ({
+        type: "attributes",
+        addedNodes: null,
+        attributeName: attrName,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target,
+      });
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+
+      collectAutofillContentService["handleMutationObserverMutation"]([
+        mutation("value"),
+        mutation("value"),
+        mutation("id"),
+      ]);
+
+      const pending = collectAutofillContentService["pendingAttributeMutations"];
+      expect(pending.size).toBe(1);
+      expect(Array.from(pending.get(target)!).sort()).toEqual(["id", "value"]);
+    });
+  });
+
+  describe("mutation-loop branch handling", () => {
+    beforeEach(() => {
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+    });
+
+    it("skips an attribute mutation whose attributeName is null", () => {
+      const target = document.createElement("input");
+      document.body.appendChild(target);
+      const mutation: MutationRecord = {
+        type: "attributes",
+        addedNodes: null,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingAttributeMutations"].has(target)).toBe(false);
+    });
+
+    it("ignores a mutation whose type is neither attributes nor childList", () => {
+      const characterData: MutationRecord = {
+        type: "characterData",
+        addedNodes: null,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: null,
+        target: document.createTextNode("text"),
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([characterData]);
+
+      expect(collectAutofillContentService["pendingAttributeMutations"].size).toBe(0);
+      expect(collectAutofillContentService["pendingTopLayerTargets"].size).toBe(0);
+    });
+
+    it("tracks an added top-layer candidate (<dialog>) as a pending target", () => {
+      const container = document.createElement("div");
+      const dialog = document.createElement("dialog");
+      container.appendChild(dialog);
+      document.body.appendChild(container);
+      const mutation: MutationRecord = {
+        type: "childList",
+        addedNodes: container.childNodes,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: document.querySelectorAll("nothing-matches-this-selector"),
+        target: document.body,
+      };
+
+      collectAutofillContentService["handleMutationObserverMutation"]([mutation]);
+
+      expect(collectAutofillContentService["pendingTopLayerTargets"].has(dialog)).toBe(true);
+    });
+  });
+
+  describe("childList gate is wired into mutation handling", () => {
+    const childListMutationFor = (...added: Node[]): MutationRecord => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      added.forEach((n) => container.appendChild(n));
+      return {
+        type: "childList",
+        addedNodes: container.childNodes,
+        removedNodes: document.querySelectorAll("nothing-matches-this-selector"),
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        target: document.body,
+      };
+    };
+
+    beforeEach(() => {
+      collectAutofillContentService["currentLocationHref"] = window.location.href;
+      collectAutofillContentService["pendingChildListUpdate"] = false;
+    });
+
+    it("does not flip pendingChildListUpdate for a cosmetic childList mutation", () => {
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(false);
+    });
+
+    it("flips pendingChildListUpdate when the childList mutation contains a form field", () => {
+      const input = Object.assign(document.createElement("input"), { type: "text" });
+      const relevant = childListMutationFor(input);
+
+      collectAutofillContentService["handleMutationObserverMutation"]([relevant]);
+
+      expect(collectAutofillContentService["pendingChildListUpdate"]).toBe(true);
+    });
+
+    it("does not schedule a drain for a cosmetic-only batch (no idle-callback tax)", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(idle).not.toHaveBeenCalled();
+    });
+
+    it("schedules a drain when the batch contributes a relevant field", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const input = Object.assign(document.createElement("input"), { type: "text" });
+      const relevant = childListMutationFor(input);
+
+      collectAutofillContentService["handleMutationObserverMutation"]([relevant]);
+
+      expect(idle).toHaveBeenCalledWith(
+        collectAutofillContentService["processMutations"],
+        expect.objectContaining({ timeout: 500 }),
+      );
+    });
+
+    it("still purges detached nodes on a cosmetic wake that schedules no drain", () => {
+      const idle = jest.mocked(autofillUtils.requestIdleCallbackPolyfill);
+      idle.mockClear();
+      const fieldPurge = jest.spyOn(
+        collectAutofillContentService as any,
+        "purgeDetachedFieldMetadata",
+      );
+      const shadowPurge = jest.spyOn(domQueryService, "purgeDetachedShadowRoots");
+      const cosmetic = childListMutationFor(document.createElement("div"));
+
+      collectAutofillContentService["handleMutationObserverMutation"]([cosmetic]);
+
+      expect(idle).not.toHaveBeenCalled();
+      expect(fieldPurge).toHaveBeenCalled();
+      expect(shadowPurge).toHaveBeenCalled();
+    });
+  });
+
+  describe("mutationAddsOrRemovesFormField (relevance gate)", () => {
+    // Containers we append to body for real NodeList construction; torn down after each test.
+    const createdContainers: HTMLElement[] = [];
+
+    const makeContainer = (): HTMLElement => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      createdContainers.push(container);
+      return container;
+    };
+
+    const buildMutation = (
+      addedNodes: NodeList,
+      removedNodes: NodeList = document.querySelectorAll("nothing-matches-this-selector"),
+    ): MutationRecord => ({
+      type: "childList",
+      addedNodes,
+      removedNodes,
+      attributeName: null,
+      attributeNamespace: null,
+      nextSibling: null,
+      oldValue: null,
+      previousSibling: null,
+      target: document.body,
+    });
+
+    afterEach(() => {
+      while (createdContainers.length) {
+        const container = createdContainers.pop()!;
+        if (container.parentNode) {
+          container.parentNode.removeChild(container);
+        }
+      }
+    });
+
+    const expectGate = (mutation: MutationRecord, admit: boolean) =>
+      expect(collectAutofillContentService["mutationAddsOrRemovesFormField"](mutation)).toBe(admit);
+
+    const mutationForChild = (child: Node): MutationRecord => {
+      const container = makeContainer();
+      container.appendChild(child);
+      return buildMutation(container.childNodes);
+    };
+
+    const mutationForInput = (configure: (input: HTMLInputElement) => void): MutationRecord => {
+      const input = document.createElement("input");
+      configure(input);
+      return mutationForChild(input);
+    };
+
+    describe("admits via formFieldQueryString match on the node itself", () => {
+      it("admits <select>", () =>
+        expectGate(mutationForChild(document.createElement("select")), true));
+      it("admits <textarea>", () =>
+        expectGate(mutationForChild(document.createElement("textarea")), true));
+
+      it("admits <span data-bwautofill>", () => {
+        const span = document.createElement("span");
+        span.setAttribute("data-bwautofill", "");
+        expectGate(mutationForChild(span), true);
+      });
+
+      it("admits a type-less <input> (no type attribute satisfies every :not([type=X]) clause)", () => {
+        const input = document.createElement("input");
+        expect(input.getAttribute("type")).toBeNull();
+        expectGate(mutationForChild(input), true);
+      });
+
+      it.each(["text", "email", "password", "number", "tel"])('admits <input type="%s">', (type) =>
+        expectGate(
+          mutationForInput((i) => (i.type = type)),
+          true,
+        ),
+      );
+    });
+
+    describe("rejects bare elements with no autofill descendants", () => {
+      it("rejects <div>", () => expectGate(mutationForChild(document.createElement("div")), false));
+      it("rejects <p>", () => expectGate(mutationForChild(document.createElement("p")), false));
+      it("rejects <span> without data-bwautofill", () =>
+        expectGate(mutationForChild(document.createElement("span")), false));
+
+      // Consolidation deliberately drops the FORM-tag fast-path: empty forms have no fields,
+      // and any later child-append mutation trips the gate via the descendant query.
+      it("rejects an empty <form>", () =>
+        expectGate(mutationForChild(document.createElement("form")), false));
+    });
+
+    describe("rejects inputs whose type is in ignoredInputTypes", () => {
+      // Structural — never autofill targets.
+      it.each(["hidden", "submit", "reset", "button", "image", "file"])(
+        'rejects <input type="%s">',
+        (type) =>
+          expectGate(
+            mutationForInput((i) => (i.type = type)),
+            false,
+          ),
+      );
+
+      // Format-restricted text types. Consolidation widened these from admit to reject:
+      // the gate now uses the same exclusion set as collection, so the rebuild it used to
+      // schedule for these would have produced zero new fields anyway.
+      it.each(["search", "url", "date", "time", "datetime-local", "week", "color", "range"])(
+        'rejects <input type="%s">',
+        (type) =>
+          expectGate(
+            mutationForInput((i) => (i.type = type)),
+            false,
+          ),
+      );
+    });
+
+    describe("rejects nodes carrying data-bwignore", () => {
+      // Consolidating onto formFieldQueryString means data-bwignore-marked elements no longer
+      // trip the gate. Safe because they'd be filtered out during collection anyway.
+      it('rejects <input type="text" data-bwignore>', () =>
+        expectGate(
+          mutationForInput((i) => {
+            i.type = "text";
+            i.setAttribute("data-bwignore", "");
+          }),
+          false,
+        ));
+
+      it("rejects <select data-bwignore>", () => {
+        const select = document.createElement("select");
+        select.setAttribute("data-bwignore", "");
+        expectGate(mutationForChild(select), false);
+      });
+
+      it("rejects <textarea data-bwignore>", () => {
+        const textarea = document.createElement("textarea");
+        textarea.setAttribute("data-bwignore", "");
+        expectGate(mutationForChild(textarea), false);
+      });
+
+      it("rejects a <div> wrapping only a data-bwignore field (descendant inherits exclusion)", () => {
+        const wrapper = document.createElement("div");
+        const input = document.createElement("input");
+        input.type = "text";
+        input.setAttribute("data-bwignore", "");
+        wrapper.appendChild(input);
+        expectGate(mutationForChild(wrapper), false);
+      });
+    });
+
+    describe("admits via descendant match", () => {
+      it("admits a <div> wrapping a text input", () => {
+        const wrapper = document.createElement("div");
+        const input = document.createElement("input");
+        input.type = "text";
+        wrapper.appendChild(input);
+        expectGate(mutationForChild(wrapper), true);
+      });
+
+      it("admits a <div> containing both a hidden and a text input (text input matches)", () => {
+        const wrapper = document.createElement("div");
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        const text = document.createElement("input");
+        text.type = "text";
+        wrapper.append(hidden, text);
+        expectGate(mutationForChild(wrapper), true);
+      });
+
+      it("admits a <div> wrapping a <span data-bwautofill>", () => {
+        const wrapper = document.createElement("div");
+        const span = document.createElement("span");
+        span.setAttribute("data-bwautofill", "");
+        wrapper.appendChild(span);
+        expectGate(mutationForChild(wrapper), true);
+      });
+
+      it("admits a <form> containing a text input (via descendant, not the FORM tag itself)", () => {
+        const form = document.createElement("form");
+        const input = document.createElement("input");
+        input.type = "text";
+        form.appendChild(input);
+        expectGate(mutationForChild(form), true);
+      });
+
+      it("rejects a <form> whose only descendant is an excluded input", () => {
+        const form = document.createElement("form");
+        const hidden = document.createElement("input");
+        hidden.type = "hidden";
+        form.appendChild(hidden);
+        expectGate(mutationForChild(form), false);
+      });
+    });
+
+    describe("processes removedNodes identically to addedNodes", () => {
+      const emptyNodeList = (): NodeList =>
+        document.querySelectorAll("nothing-matches-this-selector");
+
+      it("admits when a text input appears only in removedNodes", () => {
+        const container = makeContainer();
+        const input = document.createElement("input");
+        input.type = "text";
+        container.appendChild(input);
+        expectGate(buildMutation(emptyNodeList(), container.childNodes), true);
+      });
+
+      it("rejects when only an empty <form> appears in removedNodes", () => {
+        const container = makeContainer();
+        container.appendChild(document.createElement("form"));
+        expectGate(buildMutation(emptyNodeList(), container.childNodes), false);
+      });
+    });
+  });
+
+  describe("nodeListContainsFormField", () => {
+    it("skips non-element nodes (text, comment) and returns false when no element is relevant", () => {
+      const container = document.createElement("div");
+      container.append(
+        document.createTextNode("hello"),
+        document.createComment("a comment"),
+        document.createElement("p"),
+      );
+      document.body.appendChild(container);
+
+      expect(collectAutofillContentService["nodeListContainsFormField"](container.childNodes)).toBe(
+        false,
+      );
+      document.body.removeChild(container);
+    });
+
+    it("returns false for an empty NodeList", () => {
+      const empty = document.querySelectorAll("nothing-matches-this-selector");
+      expect(collectAutofillContentService["nodeListContainsFormField"](empty)).toBe(false);
+    });
+
+    it("short-circuits on the first relevant node and returns true", () => {
+      const container = document.createElement("div");
+      const irrelevant = document.createElement("p");
+      const input = document.createElement("input");
+      input.type = "text";
+      container.append(irrelevant, input);
+      document.body.appendChild(container);
+
+      expect(collectAutofillContentService["nodeListContainsFormField"](container.childNodes)).toBe(
+        true,
+      );
+      document.body.removeChild(container);
     });
   });
 });

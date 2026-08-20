@@ -11,11 +11,11 @@ import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/d
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DIALOG_DATA, ToastService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 
-import { LoginApprovalDialogComponentServiceAbstraction } from "./login-approval-dialog-component.service.abstraction";
 import { LoginApprovalDialogComponent } from "./login-approval-dialog.component";
 
 describe("LoginApprovalDialogComponent", () => {
@@ -48,10 +48,11 @@ describe("LoginApprovalDialogComponent", () => {
     validationService = mock<ValidationService>();
 
     accountService.activeAccount$ = of({
-      email: testEmail,
       id: "test-user-id" as UserId,
-      emailVerified: true,
-      name: null,
+      ...mockAccountInfoWith({
+        email: testEmail,
+        name: null,
+      }),
     });
 
     await TestBed.configureTestingModule({
@@ -67,10 +68,6 @@ describe("LoginApprovalDialogComponent", () => {
         { provide: LogService, useValue: logService },
         { provide: ToastService, useValue: toastService },
         { provide: ValidationService, useValue: validationService },
-        {
-          provide: LoginApprovalDialogComponentServiceAbstraction,
-          useValue: mock<LoginApprovalDialogComponentServiceAbstraction>(),
-        },
       ],
     }).compileComponents();
 
@@ -107,20 +104,94 @@ describe("LoginApprovalDialogComponent", () => {
     });
   });
 
-  describe("denyLogin", () => {
-    it("denies auth request and shows info toast", async () => {
-      const response = { requestApproved: false } as AuthRequestResponse;
-      apiService.getAuthRequest.mockResolvedValue(response);
-      authRequestService.approveOrDenyAuthRequest.mockResolvedValue(response);
+  describe("retrieveAuthRequestAndRespond", () => {
+    const verifiedAuthRequestResponse = {
+      id: "test-request-id",
+      publicKey: testPublicKey,
+      creationDate: new Date().toISOString(),
+      requestApproved: undefined,
+      responseDate: undefined,
+    } as AuthRequestResponse;
+
+    const refetchedAuthRequestResponse = {
+      ...verifiedAuthRequestResponse,
+      publicKey: "refetched-public-key",
+    } as AuthRequestResponse;
+
+    beforeEach(async () => {
+      // Fetch #1 (fingerprint-verified) happens in ngOnInit.
+      apiService.getAuthRequest.mockResolvedValueOnce(verifiedAuthRequestResponse);
+      authRequestService.getFingerprintPhrase.mockResolvedValue("test-phrase");
+      await component.ngOnInit();
+
+      // Fetch #2 (validity check inside retrieveAuthRequestAndRespond)
+      apiService.getAuthRequest.mockResolvedValueOnce(refetchedAuthRequestResponse);
+    });
+
+    it("denyLogin encapsulates using the original fingerprint-verified request, not the re-fetched one", async () => {
+      authRequestService.approveOrDenyAuthRequest.mockResolvedValue(verifiedAuthRequestResponse);
       i18nService.t.mockReturnValue("denied message");
 
       await component.denyLogin();
 
-      expect(authRequestService.approveOrDenyAuthRequest).toHaveBeenCalledWith(false, response);
+      expect(authRequestService.approveOrDenyAuthRequest).toHaveBeenCalledWith(
+        false,
+        verifiedAuthRequestResponse,
+      );
+      expect(authRequestService.approveOrDenyAuthRequest).not.toHaveBeenCalledWith(
+        false,
+        expect.objectContaining({ publicKey: "refetched-public-key" }),
+      );
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "info",
         message: "denied message",
       });
+    });
+
+    it("approveLogin encapsulates using the original fingerprint-verified request, not the re-fetched one", async () => {
+      authRequestService.approveOrDenyAuthRequest.mockResolvedValue(verifiedAuthRequestResponse);
+
+      await component.approveLogin();
+
+      expect(authRequestService.approveOrDenyAuthRequest).toHaveBeenCalledWith(
+        true,
+        verifiedAuthRequestResponse,
+      );
+      expect(authRequestService.approveOrDenyAuthRequest).not.toHaveBeenCalledWith(
+        true,
+        expect.objectContaining({ publicKey: "refetched-public-key" }),
+      );
+    });
+
+    it("shows info toast and does not answer when the re-fetched request is already answered", async () => {
+      apiService.getAuthRequest.mockReset();
+      apiService.getAuthRequest.mockResolvedValueOnce(verifiedAuthRequestResponse);
+      authRequestService.getFingerprintPhrase.mockResolvedValue("test-phrase");
+      await component.ngOnInit();
+      apiService.getAuthRequest.mockResolvedValueOnce({
+        ...refetchedAuthRequestResponse,
+        requestApproved: true,
+      } as AuthRequestResponse);
+      i18nService.t.mockReturnValue("no longer valid");
+
+      await component.denyLogin();
+
+      expect(authRequestService.approveOrDenyAuthRequest).not.toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "info",
+        message: "no longer valid",
+      });
+    });
+
+    it("logs an error and does not fetch or answer if authRequestResponse was never populated", async () => {
+      component.authRequestResponse = undefined;
+      apiService.getAuthRequest.mockReset();
+
+      await component.denyLogin();
+
+      expect(apiService.getAuthRequest).not.toHaveBeenCalled();
+      expect(authRequestService.approveOrDenyAuthRequest).not.toHaveBeenCalled();
+      expect(logService.error).toHaveBeenCalled();
     });
   });
 });

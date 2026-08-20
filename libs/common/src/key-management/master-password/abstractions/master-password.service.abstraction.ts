@@ -1,12 +1,12 @@
-import { Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfig } from "@bitwarden/key-management";
+import { EncString, KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { assertNonNullish } from "../../../auth/utils";
 import { UserId } from "../../../types/guid";
 import { MasterKey, UserKey } from "../../../types/key";
-import { EncString } from "../../crypto/models/enc-string";
 import {
   MasterPasswordAuthenticationData,
   MasterPasswordSalt,
@@ -22,9 +22,25 @@ export abstract class MasterPasswordServiceAbstraction {
   abstract forceSetPasswordReason$: (userId: UserId) => Observable<ForceSetPasswordReason>;
   /**
    * An observable that emits the master password salt for the user.
+   *
+   * Operates in two modes behind the `PM31088_MasterPasswordServiceEmitSalt` feature flag:
+   * - **Read:** When the user has a master password, returns the salt from
+   *   `MasterPasswordUnlockData` in state.
+   * - **Originate:** When the user does not yet have a master password (e.g., TDE
+   *   offboarding, JIT provisioning), derives a salt from the user's email via
+   *   `emailToSalt()`. This is a transitional mechanism — PM-32059 (Stage 3) will
+   *   replace email-derived salt with a KM-originated value.
+   *
+   * When the flag is OFF, salt is always derived from the user's email (legacy behavior).
+   *
+   * Auth flows SHOULD use `saltForUser$` rather than calling `emailToSalt()` directly,
+   * to keep salt resolution inside this bottleneck.
+   *
    * @param userId The user ID.
    * @throws If the user ID is missing.
    * @throws If the user ID is provided, but the user is not found.
+   * @throws If the flag is ON, the user has a master password, but `MasterPasswordUnlockData`
+   *   is missing from state (hydration failure).
    */
   abstract saltForUser$: (userId: UserId) => Observable<MasterPasswordSalt>;
   /**
@@ -39,13 +55,6 @@ export abstract class MasterPasswordServiceAbstraction {
    * @throws If the user ID is missing.
    */
   abstract masterKey$: (userId: UserId) => Observable<MasterKey>;
-  /**
-   * An observable that emits the master key hash for the user.
-   * @deprecated Interacting with the master-key directly is deprecated. Please use {@link makeMasterPasswordAuthenticationData}.
-   * @param userId The user ID.
-   * @throws If the user ID is missing.
-   */
-  abstract masterKeyHash$: (userId: UserId) => Observable<string>;
   /**
    * Returns the master key encrypted user key for the user.
    * @param userId The user ID.
@@ -106,6 +115,30 @@ export abstract class MasterPasswordServiceAbstraction {
     password: string,
     masterPasswordUnlockData: MasterPasswordUnlockData,
   ) => Promise<UserKey>;
+
+  /**
+   * Returns whether the user has a master password set.
+   * @param userId The user ID.
+   * @throws If the user ID is missing.
+   */
+  abstract userHasMasterPassword(userId: UserId): Promise<boolean>;
+
+  /**
+   * Derives a master key from the provided password and master password unlock data,
+   * then sets it to state for the specified user. This is a temporary backwards compatibility function
+   * to support existing code that relies on direct master key access.
+   * Note: This will be removed in https://bitwarden.atlassian.net/browse/PM-30676
+   *
+   * @param password The master password.
+   * @param masterPasswordUnlockData The master password unlock data containing the KDF settings and salt.
+   * @param userId The user ID.
+   * @throws If the password, master password unlock data, or user ID is missing.
+   */
+  abstract setLegacyMasterKeyFromUnlockData(
+    password: string,
+    masterPasswordUnlockData: MasterPasswordUnlockData,
+    userId: UserId,
+  ): Promise<void>;
 }
 
 export abstract class InternalMasterPasswordServiceAbstraction extends MasterPasswordServiceAbstraction {
@@ -118,30 +151,6 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
    * @throws If the user ID or master key is missing.
    */
   abstract setMasterKey: (masterKey: MasterKey, userId: UserId) => Promise<void>;
-  /**
-   * Clear the master key for the user.
-   * @deprecated Interacting with the master-key directly is deprecated.
-   * @param userId The user ID.
-   * @throws If the user ID is missing.
-   */
-  abstract clearMasterKey: (userId: UserId) => Promise<void>;
-  /**
-   * Set the master key hash for the user.
-   * Note: Use {@link clearMasterKeyHash} to clear the master key hash.
-   * @deprecated Interacting with the master-key directly is deprecated.
-   * @param masterKeyHash The master key hash.
-   * @param userId The user ID.
-   * @throws If the user ID or master key hash is missing.
-   */
-  abstract setMasterKeyHash: (masterKeyHash: string, userId: UserId) => Promise<void>;
-  /**
-   * Clear the master key hash for the user.
-   * @deprecated Interacting with the master-key directly is deprecated.
-   * @param userId The user ID.
-   * @throws If the user ID is missing.
-   */
-  abstract clearMasterKeyHash: (userId: UserId) => Promise<void>;
-
   /**
    * Set the master key encrypted user key for the user.
    * @param encryptedKey The master key encrypted user key.
@@ -173,10 +182,40 @@ export abstract class InternalMasterPasswordServiceAbstraction extends MasterPas
   ): Promise<void>;
 
   /**
+   * Clears the master password unlock data for the user.
+   * @param userId The user ID.
+   * @throws Error If the user ID is missing.
+   */
+  abstract clearMasterPasswordUnlockData(userId: UserId): Promise<void>;
+
+  /**
    * An observable that emits the master password unlock data for the target user.
    * @param userId The user ID.
    * @throws If the user ID is null or undefined.
    * @returns An observable that emits the master password unlock data or null if not found.
    */
   abstract masterPasswordUnlockData$(userId: UserId): Observable<MasterPasswordUnlockData | null>;
+}
+
+/**
+ * Keeps the legacy locally-cached master key and master-key-wrapped user key in sync with the
+ * persisted master-password unlock data, so that master-key based unlock verification etc. keeps
+ * working after the SDK re-derives them (e.g. on a KDF change). The SDK has already written the new
+ * unlock data to state, so we read it back to derive the master key.
+ *
+ * TODO: Drop this helper and all of its callers once key connector runs via the SDK, at which point
+ * ownership of this state moves into the SDK and it no longer needs to be mirrored client-side.
+ */
+export async function syncLegacyMasterKeyState(
+  userId: UserId,
+  masterPassword: string,
+  masterPasswordService: InternalMasterPasswordServiceAbstraction,
+): Promise<void> {
+  const unlockData = await firstValueFrom(masterPasswordService.masterPasswordUnlockData$(userId));
+  assertNonNullish(unlockData, "unlockData");
+  await masterPasswordService.setLegacyMasterKeyFromUnlockData(masterPassword, unlockData, userId);
+  await masterPasswordService.setMasterKeyEncryptedUserKey(
+    new EncString(unlockData.masterKeyWrappedUserKey),
+    userId,
+  );
 }

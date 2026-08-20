@@ -1,14 +1,6 @@
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
-export type AutofillKeywordsMap = WeakMap<
-  AutofillField,
-  {
-    keywordsSet: Set<string>;
-    stringValue: string;
-  }
->;
-
 export type SubmitButtonKeywordsMap = WeakMap<HTMLElement, string>;
 
 export interface InlineMenuFieldQualificationService {
@@ -21,6 +13,7 @@ export interface InlineMenuFieldQualificationService {
   isFieldForCreditCardForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForAccountCreationForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForIdentityForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
+  isFieldForSshKeyForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean;
   isFieldForCardholderName(field: AutofillField): boolean;
   isFieldForCardNumber(field: AutofillField): boolean;
   isFieldForCardExpirationDate(field: AutofillField): boolean;
@@ -46,4 +39,5 @@ export interface InlineMenuFieldQualificationService {
   isElementLoginSubmitButton(element: Element): boolean;
   isElementChangePasswordSubmitButton(element: Element): boolean;
   isTotpField(field: AutofillField): boolean;
+  hasCurrentPasswordAutocomplete(field: AutofillField): boolean;
 }

@@ -42,7 +42,7 @@ export class AccessTokenCreateDialogComponent implements OnInit {
 
   async ngOnInit() {
     if (!this.data.serviceAccountView) {
-      this.dialogRef.close();
+      await this.dialogRef.close();
       throw new Error(
         `The access token create dialog was not called with the appropriate operation values.`,
       );
@@ -68,7 +68,7 @@ export class AccessTokenCreateDialogComponent implements OnInit {
       accessToken,
       accessTokenView.expireAt,
     );
-    this.dialogRef.close();
+    await this.dialogRef.close();
   };
 
   private openAccessTokenDialog(

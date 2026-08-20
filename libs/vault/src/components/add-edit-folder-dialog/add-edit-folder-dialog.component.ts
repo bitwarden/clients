@@ -8,12 +8,14 @@ import {
   OnInit,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { firstValueFrom, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -64,6 +66,11 @@ export type AddEditFolderDialogData = {
   ],
 })
 export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
+  private readonly configService = inject(ConfigService);
+  protected readonly btnTextAddCreateFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
+    { initialValue: false },
+  );
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(BitSubmitDirective) private bitSubmit?: BitSubmitDirective;
@@ -127,7 +134,7 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
 
     try {
       const activeUserId = await firstValueFrom(this.activeUserId$);
-      const userKey = await this.keyService.getUserKey(activeUserId!);
+      const userKey = (await firstValueFrom(this.keyService.userKey$(activeUserId!)))!;
       const folder = await this.folderService.encrypt(this.folder, userKey);
       await this.folderApiService.save(folder, activeUserId!);
 
@@ -170,9 +177,22 @@ export class AddEditFolderDialogComponent implements AfterViewInit, OnInit {
     this.close(AddEditFolderDialogResult.Deleted);
   };
 
+  //when unwinding this feature flag, move to a ternary in the .html file
+  get title() {
+    if (this.variant === "add") {
+      if (this.btnTextAddCreateFeatureFlag()) {
+        return "addFolder";
+      } else {
+        return "newFolder";
+      }
+    } else {
+      return "editFolder";
+    }
+  }
+
   /** Close the dialog */
   private close(result: AddEditFolderDialogResult) {
-    this.dialogRef.close(result);
+    void this.dialogRef.close(result);
   }
 
   static open(dialogService: DialogService, data?: AddEditFolderDialogData) {

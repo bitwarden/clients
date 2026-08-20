@@ -1,10 +1,11 @@
 <bit-dialog #dialog dialogSize="large">
-  <span bitDialogTitle>{{ "exportVault" | i18n }}</span>
+  <span bitDialogTitle>{{ "exportNoun" | i18n }}</span>
   <ng-container bitDialogContent>
     <tools-export
       (formLoading)="this.loading = $event"
       (formDisabled)="this.disabled = $event"
       (onSuccessfulExport)="this.onSuccessfulExport($event)"
+      (skippedAttachmentCountChange)="this.skippedAttachmentCount.set($event)"
     ></tools-export>
   </ng-container>
   <ng-container bitDialogFooter>
@@ -17,7 +18,7 @@
       bitFormButton
       buttonType="primary"
     >
-      {{ "exportVault" | i18n }}
+      {{ "exportVerb" | i18n }}
     </button>
     <button type="button" bitButton bitFormButton buttonType="secondary" bitDialogClose>
       {{ "cancel" | i18n }}

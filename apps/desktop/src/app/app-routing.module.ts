@@ -14,7 +14,6 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -40,19 +39,25 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
-import { LockComponent, ConfirmKeyConnectorDomainComponent } from "@bitwarden/key-management-ui";
+import {
+  LockComponent,
+  ConfirmKeyConnectorDomainComponent,
+  RemovePasswordComponent,
+} from "@bitwarden/key-management-ui";
+import { vaultFilterLegacyRedirectGuard } from "@bitwarden/vault";
 
+import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
-import { RemovePasswordComponent } from "../key-management/key-connector/remove-password.component";
-import { VaultV2Component } from "../vault/app/vault/vault-v2.component";
+import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guard";
+import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
+import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
+import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
-import { Fido2PlaceholderComponent } from "./components/fido2placeholder.component";
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
 import { SendComponent } from "./tools/send/send.component";
-import { SendV2Component } from "./tools/send-v2/send-v2.component";
 
 /**
  * Data properties acceptable for use in route objects in the desktop
@@ -78,6 +83,11 @@ const routes: Routes = [
         path: "",
         component: AuthenticationTimeoutComponent,
       },
+      {
+        path: "",
+        component: AccountSwitcherV2Component,
+        outlet: "header-actions",
+      },
     ],
     data: {
       pageIcon: TwoFactorTimeoutIcon,
@@ -90,7 +100,14 @@ const routes: Routes = [
     path: AuthRoute.NewDeviceVerification,
     component: AnonLayoutWrapperComponent,
     canActivate: [unauthGuardFn(), activeAuthGuard()],
-    children: [{ path: "", component: NewDeviceVerificationComponent }],
+    children: [
+      { path: "", component: NewDeviceVerificationComponent },
+      {
+        path: "",
+        component: AccountSwitcherV2Component,
+        outlet: "header-actions",
+      },
+    ],
     data: {
       pageIcon: TwoFactorAuthEmailIcon,
       pageTitle: {
@@ -102,30 +119,16 @@ const routes: Routes = [
     } satisfies RouteDataProperties & AnonLayoutWrapperData,
   },
   {
-    path: "vault",
-    component: VaultV2Component,
-    canActivate: [
-      authGuard,
-      canAccessFeature(FeatureFlag.DesktopUiMigrationMilestone1, false, "new-vault", false),
-    ],
+    path: "fido2-assertion",
+    component: Fido2VaultComponent,
   },
   {
-    path: "send",
-    component: SendComponent,
-    canActivate: [authGuard],
+    path: "fido2-creation",
+    component: Fido2CreateComponent,
   },
   {
-    path: "remove-password",
-    component: RemovePasswordComponent,
-    canActivate: [authGuard],
-  },
-  {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
-  },
-  {
-    path: "passkeys",
-    component: Fido2PlaceholderComponent,
+    path: "fido2-excluded",
+    component: Fido2ExcludedCiphersComponent,
   },
   {
     path: "",
@@ -153,6 +156,11 @@ const routes: Routes = [
               loginRoute: `/${AuthRoute.Login}`,
             } satisfies RegistrationStartSecondaryComponentData,
           },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
         ],
       },
       {
@@ -166,6 +174,11 @@ const routes: Routes = [
             path: "",
             component: RegistrationFinishComponent,
           },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
         ],
       },
       {
@@ -173,7 +186,7 @@ const routes: Routes = [
         canActivate: [maxAccountsGuardFn()],
         data: {
           pageTitle: {
-            key: "logInToBitwarden",
+            key: "loginPageEmailEntryScreenTitle",
           },
           pageIcon: VaultIcon,
         },
@@ -185,6 +198,11 @@ const routes: Routes = [
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
           },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
         ],
       },
       {
@@ -193,7 +211,14 @@ const routes: Routes = [
         data: {
           pageIcon: DevicesIcon,
         },
-        children: [{ path: "", component: LoginDecryptionOptionsComponent }],
+        children: [
+          { path: "", component: LoginDecryptionOptionsComponent },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
       },
       {
         path: AuthRoute.Sso,
@@ -212,6 +237,11 @@ const routes: Routes = [
             path: "",
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
           },
         ],
       },
@@ -233,6 +263,11 @@ const routes: Routes = [
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
           },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
         ],
       },
       {
@@ -246,7 +281,14 @@ const routes: Routes = [
             key: "adminApprovalRequestSentToAdmins",
           },
         } satisfies AnonLayoutWrapperData,
-        children: [{ path: "", component: LoginViaAuthRequestComponent }],
+        children: [
+          { path: "", component: LoginViaAuthRequestComponent },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
       },
       {
         path: AuthRoute.PasswordHint,
@@ -267,11 +309,16 @@ const routes: Routes = [
             component: EnvironmentSelectorComponent,
             outlet: "environment-selector",
           },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
         ],
       },
       {
         path: "lock",
-        canActivate: [lockGuard()],
+        canActivate: [lockGuard(), reactiveUnlockVaultGuard],
         data: {
           pageIcon: LockIcon,
           pageTitle: {
@@ -284,6 +331,11 @@ const routes: Routes = [
             path: "",
             component: LockComponent,
           },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
         ],
       },
       {
@@ -293,6 +345,11 @@ const routes: Routes = [
           {
             path: "",
             component: TwoFactorAuthComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
           },
         ],
         data: {
@@ -306,30 +363,81 @@ const routes: Routes = [
       {
         path: AuthRoute.SetInitialPassword,
         canActivate: [authGuard],
-        component: SetInitialPasswordComponent,
         data: {
           maxWidth: "lg",
           pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: SetInitialPasswordComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
       },
       {
         path: AuthRoute.ChangePassword,
-        component: ChangePasswordComponent,
         canActivate: [authGuard],
         data: {
           pageIcon: LockIcon,
         } satisfies AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ChangePasswordComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
+      },
+      {
+        path: "remove-password",
+        canActivate: [authGuard],
+        data: {
+          pageTitle: {
+            key: "verifyYourOrganization",
+          },
+          pageIcon: LockIcon,
+        } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: RemovePasswordComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
       },
       {
         path: "confirm-key-connector-domain",
-        component: ConfirmKeyConnectorDomainComponent,
         canActivate: [],
         data: {
           pageTitle: {
-            key: "confirmKeyConnectorDomain",
+            key: "verifyYourOrganization",
           },
           pageIcon: DomainIcon,
         } satisfies RouteDataProperties & AnonLayoutWrapperData,
+        children: [
+          {
+            path: "",
+            component: ConfirmKeyConnectorDomainComponent,
+          },
+          {
+            path: "",
+            component: AccountSwitcherV2Component,
+            outlet: "header-actions",
+          },
+        ],
       },
     ],
   },
@@ -339,12 +447,16 @@ const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
-        path: "new-vault",
+        path: "vault",
         component: VaultComponent,
+        canActivate: [vaultFilterLegacyRedirectGuard],
+        data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {
-        path: "new-sends",
-        component: SendV2Component,
+        path: "send",
+        component: SendComponent,
+        data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
+        canDeactivate: [unsavedSendEditsGuard],
       },
     ],
   },

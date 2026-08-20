@@ -1,11 +1,12 @@
 {
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "extraMetadata": {
     "name": "bitwarden-beta"
   },
   "productName": "Bitwarden Beta",
   "appId": "com.bitwarden.desktop.beta",
   "buildDependenciesFromSource": true,
-  "copyright": "Copyright © 2015-2025 Bitwarden Inc.",
+  "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "directories": {
     "buildResources": "resources",
     "output": "dist",
@@ -13,33 +14,136 @@
   },
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
-  "asarUnpack": ["**/*.node"],
+  "beforePack": "scripts/before-pack.js",
   "files": [
-    "**/*",
-    "!**/node_modules/@bitwarden/desktop-napi/**/*",
-    "**/node_modules/@bitwarden/desktop-napi/index.js",
-    "**/node_modules/@bitwarden/desktop-napi/desktop_napi.${platform}-${arch}*.node"
+    "!node_modules/@bitwarden/desktop-napi/scripts",
+    "!node_modules/@bitwarden/desktop-napi/src",
+    "!node_modules/@bitwarden/desktop-napi/Cargo.toml",
+    "!node_modules/@bitwarden/desktop-napi/build.rs",
+    "!node_modules/@bitwarden/desktop-napi/package.json"
   ],
-  "electronVersion": "36.8.1",
+  "electronVersion": "41.7.2",
   "generateUpdatesFilesForAllChannels": true,
   "publish": {
     "provider": "generic",
     "url": "https://artifacts.bitwarden.com/desktop"
   },
+  "mac": {
+    "electronUpdaterCompatibility": ">=0.0.1",
+    "category": "public.app-category.productivity",
+    "darkModeSupport": true,
+    "gatekeeperAssess": false,
+    "hardenedRuntime": true,
+    "entitlements": "resources/entitlements.mac.plist",
+    "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
+    "extendInfo": {
+      "ITSAppUsesNonExemptEncryption": false,
+      "CFBundleLocalizations": [
+        "en",
+        "cs",
+        "da",
+        "de",
+        "es",
+        "et",
+        "fi",
+        "fr",
+        "hr",
+        "hu",
+        "id",
+        "it",
+        "ja",
+        "nb",
+        "nl",
+        "pl",
+        "pt-BR",
+        "pt-PT",
+        "ro",
+        "ru",
+        "sk",
+        "sv",
+        "tr",
+        "uk",
+        "vi",
+        "zh-Hans",
+        "zh-Hant"
+      ],
+      "CFBundleDevelopmentRegion": "en"
+    },
+    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
+    "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
+    "extraFiles": [
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy"
+      },
+      {
+        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}",
+        "to": "MacOS/desktop_proxy.inherit"
+      }
+    ],
+    "signIgnore": [
+      "MacOS/desktop_proxy",
+      "MacOS/desktop_proxy.inherit",
+      "Contents/Plugins/autofill-extension.appex",
+      "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
+    ],
+    "target": ["dmg", "zip"],
+    "artifactName": "Bitwarden-${version}-${arch}-mac.${ext}"
+  },
+  "dmg": {
+    "icon": "dmg.icns",
+    "background": "resources/background.png",
+    "sign": false,
+    "contents": [
+      {
+        "x": 150,
+        "y": 185,
+        "type": "file"
+      },
+      {
+        "x": 390,
+        "y": 180,
+        "type": "link",
+        "path": "/Applications"
+      }
+    ],
+    "window": {
+      "width": 540,
+      "height": 380
+    },
+    "artifactName": "Bitwarden-${version}-${arch}.${ext}"
+  },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
     "target": ["portable", "nsis-web", "appx"],
+    "signExts": [".dll", ".node"],
     "signtoolOptions": {
-      "sign": "./sign.js"
+      "sign": "./sign.js",
+      "publisherName": "Bitwarden Inc."
     },
     "extraFiles": [
       {
-        "from": "desktop_native/dist/desktop_proxy.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/desktop_proxy.win32-${arch}.exe",
         "to": "desktop_proxy.exe"
       },
       {
-        "from": "desktop_native/dist/bitwarden_chromium_import_helper.${platform}-${arch}.exe",
+        "from": "desktop_native/dist/bitwarden_chromium_import_helper.win32-${arch}.exe",
         "to": "bitwarden_chromium_import_helper.exe"
+      },
+      {
+        "from": "desktop_native/dist/windows_plugin_authenticator.win32-${arch}.exe",
+        "to": "bitwarden_plugin_authenticator.exe"
+      }
+    ],
+    "extraResources": [
+      {
+        "from": "resources/windows_plugin_authenticator_config.beta.json",
+        "to": "plugin_authenticator_config.json"
+      },
+      {
+        "from": "resources/windows_plugin_authenticator_logo.beta.svg",
+        "to": "plugin_authenticator_logo.svg"
       }
     ]
   },

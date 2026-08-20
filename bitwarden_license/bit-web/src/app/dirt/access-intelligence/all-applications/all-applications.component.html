@@ -1,5 +1,5 @@
 @if ((dataService.reportStatus$ | async) == ReportStatusEnum.Loading) {
-  <dirt-risk-insights-loading></dirt-risk-insights-loading>
+  <dirt-report-loading></dirt-report-loading>
 } @else {
   @let drawerDetails = dataService.drawerDetails$ | async;
   <div class="tw-mt-4 tw-flex tw-flex-col">
@@ -98,8 +98,8 @@
         [disabled]="!selectedUrls().size"
         [loading]="markingAsCritical()"
         (click)="markAppsAsCritical()"
+        [startIcon]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"
       >
-        <i class="bwi tw-mr-2" [ngClass]="selectedUrls().size ? 'bwi-star-f' : 'bwi-star'"></i>
         {{ "markAppAsCritical" | i18n }}
       </button>
     </div>

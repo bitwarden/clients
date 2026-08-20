@@ -11,6 +11,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { singleOrganizationPolicyApplies$ } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -19,28 +20,30 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
-
-import { VaultFilterService } from "../services/abstractions/vault-filter.service";
 import {
+  VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilterList,
   VaultFilterSection,
   VaultFilterType,
-} from "../shared/models/vault-filter-section.type";
-import { VaultFilter } from "../shared/models/vault-filter.model";
-import {
+  VaultFilter,
   CipherStatus,
   CipherTypeFilter,
   CollectionFilter,
   FolderFilter,
   OrganizationFilter,
-} from "../shared/models/vault-filter.type";
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
+import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
@@ -75,45 +78,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   protected organizationWarningsService = inject(OrganizationWarningsService);
-
-  allTypeFilters: CipherTypeFilter[] = [
-    {
-      id: "favorites",
-      name: this.i18nService.t("favorites"),
-      type: "favorites",
-      icon: "bwi-star",
-    },
-    {
-      id: "login",
-      name: this.i18nService.t("typeLogin"),
-      type: CipherType.Login,
-      icon: "bwi-globe",
-    },
-    {
-      id: "card",
-      name: this.i18nService.t("typeCard"),
-      type: CipherType.Card,
-      icon: "bwi-credit-card",
-    },
-    {
-      id: "identity",
-      name: this.i18nService.t("typeIdentity"),
-      type: CipherType.Identity,
-      icon: "bwi-id-card",
-    },
-    {
-      id: "note",
-      name: this.i18nService.t("note"),
-      type: CipherType.SecureNote,
-      icon: "bwi-sticky-note",
-    },
-    {
-      id: "sshKey",
-      name: this.i18nService.t("typeSshKey"),
-      type: CipherType.SshKey,
-      icon: "bwi-key",
-    },
-  ];
+  private vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -140,11 +105,20 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.activeFilter.cipherType === CipherType.SshKey) {
       return "searchSshKey";
     }
+    if (this.activeFilter.cipherType === CipherType.BankAccount) {
+      return "searchBankAccount";
+    }
+    if (this.activeFilter.cipherType === CipherType.Passport) {
+      return "searchPassport";
+    }
+    if (this.activeFilter.cipherType === CipherType.DriversLicense) {
+      return "searchDriversLicense";
+    }
     if (this.activeFilter.selectedFolderNode?.node) {
-      return "searchFolder";
+      return this.vfo1TerminologyService.enabled() ? "searchMyFolder" : "searchFolder";
     }
     if (this.activeFilter.selectedCollectionNode?.node) {
-      return "searchCollection";
+      return this.vfo1TerminologyService.enabled() ? "searchSharedFolder" : "searchCollection";
     }
     if (this.activeFilter.organizationId === "MyVault") {
       return "searchMyVault";
@@ -170,6 +144,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     protected restrictedItemTypesService: RestrictedItemTypesService,
     protected cipherService: CipherService,
     protected cipherArchiveService: CipherArchiveService,
+    private premiumUpgradePromptService: PremiumUpgradePromptService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -189,6 +164,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         switchMap((userId) =>
           merge(
             this.policyService.policiesByType$(PolicyType.SingleOrg, userId).pipe(getFirstPolicy),
+            this.policyService
+              .policiesByType$(PolicyType.AutomaticUserConfirmation, userId)
+              .pipe(getFirstPolicy),
             this.policyService
               .policiesByType$(PolicyType.OrganizationDataOwnership, userId)
               .pipe(getFirstPolicy),
@@ -252,15 +230,14 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   };
 
   async buildAllFilters(): Promise<VaultFilterList> {
-    const hasArchiveFlag = await firstValueFrom(this.cipherArchiveService.hasArchiveFlagEnabled$());
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
-    if (hasArchiveFlag) {
-      builderFilter.archiveFilter = await this.addArchiveFilter();
-    }
+    builderFilter.archiveFilter = await this.addArchiveFilter(userId);
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
   }
@@ -269,9 +246,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const singleOrgPolicy = await firstValueFrom(
       this.accountService.activeAccount$.pipe(
         getUserId,
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId),
-        ),
+        switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
       ),
     );
 
@@ -285,7 +260,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     );
 
     const addAction = !singleOrgPolicy
-      ? { text: "newOrganization", route: "/create-organization" }
+      ? {
+          text: this.vfo1TerminologyService.enabled() ? "newVault" : "newOrganization",
+          route: "/create-organization",
+        }
       : undefined;
 
     const orgFilterSection: VaultFilterSection = {
@@ -307,15 +285,20 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     excludeTypes: CipherStatus[] = [],
     organizationId?: string,
   ): Promise<VaultFilterSection> {
-    const allFilter: CipherTypeFilter = { id: "AllItems", name: "allItems", type: "all", icon: "" };
+    const allFilter: CipherTypeFilter = {
+      id: "AllItems",
+      name: "allItems",
+      type: "all",
+    };
 
     const userId = await firstValueFrom(this.activeUserId$);
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
       this.cipherService.cipherListViews$(userId),
+      this.vaultFilterService.cipherTypeFilters$,
     ]).pipe(
-      map(([restrictedTypes, ciphers]) => {
+      map(([restrictedTypes, ciphers, cipherTypeFilters]) => {
         const restrictedForUser = restrictedTypes
           .filter((r) => {
             // - All orgs restrict the type
@@ -325,26 +308,23 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
             // - Admin console: user has no ciphers of that type in the selected org
             // - Individual vault view: user has no ciphers of that type in any allowed org
             return !ciphers?.some((c) => {
-              if (c.deletedDate || c.type !== r.cipherType) {
+              if (c.deletedDate || CipherViewLikeUtils.getType(c) !== r.cipherType) {
                 return false;
               }
               // If the cipher doesn't belong to an org it is automatically restricted
               if (!c.organizationId) {
                 return false;
               }
-              if (organizationId) {
-                return (
-                  c.organizationId === organizationId &&
-                  r.allowViewOrgIds.includes(c.organizationId)
-                );
+              if (organizationId && c.organizationId !== organizationId) {
+                return false;
               }
-              return r.allowViewOrgIds.includes(c.organizationId);
+              return r.allowViewOrgIds.includes(uuidAsString(c.organizationId));
             });
           })
           .map((r) => r.cipherType);
 
         const toExclude = [...excludeTypes, ...restrictedForUser];
-        return this.allTypeFilters.filter((f) => !toExclude.includes(f.type));
+        return cipherTypeFilters.filter((f) => !toExclude.includes(f.type));
       }),
       switchMap((allowed) => this.vaultFilterService.buildTypeTree(allFilter, allowed)),
       distinctUntilChanged(),
@@ -371,7 +351,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       },
       action: this.applyFolderFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
       edit: {
-        filterName: this.i18nService.t("folder"),
+        filterName: this.i18nService.t(
+          this.vfo1TerminologyService.enabled() ? "myFolder" : "folder",
+        ),
         action: this.editFolder as (filter: VaultFilterType) => void,
       },
     };
@@ -419,7 +401,18 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return trashFilterSection;
   }
 
-  protected async addArchiveFilter(): Promise<VaultFilterSection> {
+  protected async addArchiveFilter(userId: UserId): Promise<VaultFilterSection> {
+    const [hasArchivedCiphers, userHasPremium] = await firstValueFrom(
+      combineLatest([
+        this.cipherArchiveService
+          .archivedCiphers$(userId)
+          .pipe(map((archivedCiphers) => archivedCiphers.length > 0)),
+        this.cipherArchiveService.userHasPremium$(userId),
+      ]),
+    );
+
+    const promptForPremiumOnFilter = !userHasPremium && !hasArchivedCiphers;
+
     const archiveFilterSection: VaultFilterSection = {
       data$: this.vaultFilterService.buildTypeTree(
         {
@@ -442,6 +435,12 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         isSelectable: true,
       },
       action: this.applyTypeFilter as (filterNode: TreeNode<VaultFilterType>) => Promise<void>,
+      premiumOptions: {
+        showBadgeForNonPremium: true,
+        blockFilterAction: promptForPremiumOnFilter
+          ? async () => await this.premiumUpgradePromptService.promptForPremium()
+          : undefined,
+      },
     };
     return archiveFilterSection;
   }

@@ -9,5 +9,5 @@
 
     "../../bitwarden_license/bit-web/src/main.ts"
   ],
-  "include": ["../../apps/web/src/connectors/*.ts"]
+  "include": ["../../apps/web/src/connectors/*.ts", "../../apps/web/src/connectors/platform/*.ts"]
 }

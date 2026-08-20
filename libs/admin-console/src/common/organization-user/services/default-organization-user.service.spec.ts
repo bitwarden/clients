@@ -1,23 +1,30 @@
 import { TestBed } from "@angular/core/testing";
 import { of } from "rxjs";
 
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
+import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ListResponse } from "@bitwarden/common/models/response/list.response";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+import { OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CsprngArray,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+
 import {
   OrganizationUserConfirmRequest,
   OrganizationUserBulkConfirmRequest,
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
-} from "@bitwarden/admin-console/common";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
-import { OrganizationId } from "@bitwarden/common/types/guid";
-import { OrgKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+  OrganizationUserUpdateRequest,
+} from "../..";
 
 import { DefaultOrganizationUserService } from "./default-organization-user.service";
 
@@ -61,6 +68,9 @@ describe("DefaultOrganizationUserService", () => {
     organizationUserApiService = {
       postOrganizationUserConfirm: jest.fn(),
       postOrganizationUserBulkConfirm: jest.fn(),
+      restoreOrganizationUser: jest.fn(),
+      restoreManyOrganizationUsers: jest.fn(),
+      putOrganizationUser: jest.fn(),
     } as any;
 
     accountService = {
@@ -173,5 +183,198 @@ describe("DefaultOrganizationUserService", () => {
         error: done,
       });
     });
+  });
+
+  describe("buildRestoreUserRequest", () => {
+    beforeEach(() => {
+      setupCommonMocks();
+    });
+
+    it("should build a restore request with encrypted collection name", (done) => {
+      service.buildRestoreUserRequest(mockOrganization).subscribe({
+        next: (request) => {
+          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(encryptService.encryptString).toHaveBeenCalledWith(
+            mockDefaultCollectionName,
+            mockOrgKey,
+          );
+          expect(request).toEqual({
+            defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+          });
+          done();
+        },
+        error: done,
+      });
+    });
+  });
+
+  describe("restoreUser", () => {
+    beforeEach(() => {
+      setupCommonMocks();
+      organizationUserApiService.restoreOrganizationUser.mockReturnValue(Promise.resolve());
+    });
+
+    it("should restore a user successfully", (done) => {
+      service.restoreUser(mockOrganization, mockUserId).subscribe({
+        next: () => {
+          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(encryptService.encryptString).toHaveBeenCalledWith(
+            mockDefaultCollectionName,
+            mockOrgKey,
+          );
+          expect(organizationUserApiService.restoreOrganizationUser).toHaveBeenCalledWith(
+            mockOrganization.id,
+            mockUserId,
+            {
+              defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+            },
+          );
+          done();
+        },
+        error: done,
+      });
+    });
+  });
+
+  describe("bulkRestoreUsers", () => {
+    const mockUserIds = ["user-1", "user-2"];
+
+    const mockBulkResponse = {
+      data: [
+        { id: "user-1", error: null } as OrganizationUserBulkResponse,
+        { id: "user-2", error: null } as OrganizationUserBulkResponse,
+      ],
+    } as ListResponse<OrganizationUserBulkResponse>;
+
+    beforeEach(() => {
+      setupCommonMocks();
+      organizationUserApiService.restoreManyOrganizationUsers.mockReturnValue(
+        Promise.resolve(mockBulkResponse),
+      );
+    });
+
+    it("should bulk restore users successfully", (done) => {
+      service.bulkRestoreUsers(mockOrganization, mockUserIds).subscribe({
+        next: (response) => {
+          expect(i18nService.t).toHaveBeenCalledWith("myItems");
+          expect(encryptService.encryptString).toHaveBeenCalledWith(
+            mockDefaultCollectionName,
+            mockOrgKey,
+          );
+          expect(organizationUserApiService.restoreManyOrganizationUsers).toHaveBeenCalledWith(
+            mockOrganization.id,
+            expect.objectContaining({
+              ids: mockUserIds,
+              defaultUserCollectionName: mockEncryptedCollectionName.encryptedString,
+            }),
+          );
+          expect(response).toEqual(mockBulkResponse);
+          done();
+        },
+        error: done,
+      });
+    });
+  });
+
+  describe("updateUser", () => {
+    const mockPermissions = new PermissionsApi();
+
+    beforeEach(() => {
+      organizationUserApiService.putOrganizationUser.mockReturnValue(Promise.resolve());
+    });
+
+    it.each([OrganizationUserType.Owner, OrganizationUserType.Admin])(
+      "should call putOrganizationUser without encrypting a collection name for exempt type %s",
+      (userType, done: jest.DoneCallback) => {
+        const request = new OrganizationUserUpdateRequest({
+          type: userType,
+          permissions: mockPermissions,
+        });
+
+        const org = new Organization();
+        org.id = mockOrganization.id;
+        org.useMyItems = true;
+        org.usePolicies = true;
+
+        service.updateUser(org, mockUserId, request).subscribe({
+          next: () => {
+            expect(encryptService.encryptString).not.toHaveBeenCalled();
+            expect(request.defaultUserCollectionName).toBeUndefined();
+            expect(organizationUserApiService.putOrganizationUser).toHaveBeenCalledWith(
+              org.id,
+              mockUserId,
+              request,
+            );
+            done();
+          },
+          error: done,
+        });
+      },
+    );
+
+    it.each([OrganizationUserType.User, OrganizationUserType.Custom])(
+      "should encrypt the default collection name and include it in the request for non-exempt type %s when useMyItems and usePolicies are enabled",
+      (userType, done: jest.DoneCallback) => {
+        setupCommonMocks();
+        const request = new OrganizationUserUpdateRequest({
+          type: userType,
+          permissions: mockPermissions,
+        });
+
+        const org = new Organization();
+        org.id = mockOrganization.id;
+        org.useMyItems = true;
+        org.usePolicies = true;
+
+        service.updateUser(org, mockUserId, request).subscribe({
+          next: () => {
+            expect(i18nService.t).toHaveBeenCalledWith("myItems");
+            expect(encryptService.encryptString).toHaveBeenCalledWith(
+              mockDefaultCollectionName,
+              mockOrgKey,
+            );
+            expect(request.defaultUserCollectionName).toBe(
+              mockEncryptedCollectionName.encryptedString,
+            );
+            expect(organizationUserApiService.putOrganizationUser).toHaveBeenCalledWith(
+              org.id,
+              mockUserId,
+              request,
+            );
+            done();
+          },
+          error: done,
+        });
+      },
+    );
+
+    it.each([OrganizationUserType.User, OrganizationUserType.Custom])(
+      "should not encrypt the default collection name for non-exempt type %s when useMyItems or usePolicies is disabled",
+      (userType, done: jest.DoneCallback) => {
+        const request = new OrganizationUserUpdateRequest({
+          type: userType,
+          permissions: mockPermissions,
+        });
+
+        const org = new Organization();
+        org.id = mockOrganization.id;
+        org.useMyItems = false;
+        org.usePolicies = true;
+
+        service.updateUser(org, mockUserId, request).subscribe({
+          next: () => {
+            expect(encryptService.encryptString).not.toHaveBeenCalled();
+            expect(request.defaultUserCollectionName).toBeUndefined();
+            expect(organizationUserApiService.putOrganizationUser).toHaveBeenCalledWith(
+              org.id,
+              mockUserId,
+              request,
+            );
+            done();
+          },
+          error: done,
+        });
+      },
+    );
   });
 });

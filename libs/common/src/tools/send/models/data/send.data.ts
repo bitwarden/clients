@@ -1,6 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { SendType } from "../../enums/send-type";
+import { AuthType } from "../../types/auth-type";
+import { SendType } from "../../types/send-type";
 import { SendResponse } from "../response/send.response";
 
 import { SendFileData } from "./send-file.data";
@@ -24,6 +25,7 @@ export class SendData {
   emails: string;
   disabled: boolean;
   hideEmail: boolean;
+  authType: AuthType;
 
   constructor(response?: SendResponse) {
     if (response == null) {
@@ -33,6 +35,7 @@ export class SendData {
     this.id = response.id;
     this.accessId = response.accessId;
     this.type = response.type;
+    this.authType = response.authType;
     this.name = response.name;
     this.notes = response.notes;
     this.key = response.key;
@@ -45,6 +48,7 @@ export class SendData {
     this.emails = response.emails;
     this.disabled = response.disable;
     this.hideEmail = response.hideEmail;
+    this.authType = response.authType;
 
     switch (this.type) {
       case SendType.Text:

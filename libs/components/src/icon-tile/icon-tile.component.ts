@@ -1,48 +1,69 @@
-import { NgClass } from "@angular/common";
-import { Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
+import {
+  DecorativeColors,
+  DecorativeEmphasis,
+  DecorativeVariant,
+  decorativeColors,
+} from "../shared/decorative-colors";
 import { BitwardenIcon } from "../shared/icon";
 
-export type IconTileVariant = "primary" | "success" | "warning" | "danger" | "muted";
+type SemanticVariant = "primary" | "success" | "danger" | "warning" | "dark";
 
-export type IconTileSize = "small" | "default" | "large";
+export type IconTileVariant = SemanticVariant | DecorativeVariant;
 
-export type IconTileShape = "square" | "circle";
+export type IconTileEmphasis = DecorativeEmphasis;
 
-const variantStyles: Record<IconTileVariant, string[]> = {
-  primary: ["tw-bg-primary-100", "tw-text-primary-700"],
-  success: ["tw-bg-success-100", "tw-text-success-700"],
-  warning: ["tw-bg-warning-100", "tw-text-warning-700"],
-  danger: ["tw-bg-danger-100", "tw-text-danger-700"],
-  muted: ["tw-bg-secondary-100", "tw-text-secondary-700"],
+export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
+
+// Semantic variants that render identically to a decorative family, always at subtle emphasis.
+const decorativeAliases: Partial<Record<IconTileVariant, DecorativeVariant>> = {
+  primary: "brand",
+  success: "green",
+  danger: "red",
+  warning: "orange",
+};
+
+// Semantic variants with no decorative equivalent; unaffected by emphasis.
+const uniqueVariantColors: Partial<Record<IconTileVariant, DecorativeColors>> = {
+  dark: {
+    background: "var(--color-bg-contrast)",
+    border: "var(--color-border-strong)",
+    text: "var(--color-fg-contrast)",
+  },
 };
 
 const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> = {
-  small: {
-    container: ["tw-w-6", "tw-h-6"],
-    icon: ["tw-text-sm"],
+  xs: {
+    container: ["tw-size-4"],
+    icon: ["tw-text-[.625rem]", "tw-leading-[0]"],
   },
-  default: {
-    container: ["tw-w-8", "tw-h-8"],
-    icon: ["tw-text-base"],
+  sm: {
+    container: ["tw-size-6"],
+    icon: ["tw-text-base", "tw-leading-[0]"],
   },
-  large: {
-    container: ["tw-w-10", "tw-h-10"],
-    icon: ["tw-text-lg"],
+  base: {
+    container: ["tw-size-8"],
+    icon: ["tw-text-xl"],
+  },
+  lg: {
+    container: ["tw-size-12"],
+    icon: ["tw-text-[1.75rem]"],
+  },
+  xl: {
+    container: ["tw-size-16"],
+    icon: ["tw-text-4xl"],
   },
 };
 
-const shapeStyles: Record<IconTileShape, Record<IconTileSize, string[]>> = {
-  square: {
-    small: ["tw-rounded"],
-    default: ["tw-rounded-md"],
-    large: ["tw-rounded-lg"],
-  },
-  circle: {
-    small: ["tw-rounded-full"],
-    default: ["tw-rounded-full"],
-    large: ["tw-rounded-full"],
-  },
+const borderRadius: Record<IconTileSize, string[]> = {
+  xs: ["tw-rounded"],
+  sm: ["tw-rounded"],
+  base: ["tw-rounded-lg"],
+  lg: ["tw-rounded-lg"],
+  xl: ["tw-rounded-xl"],
 };
 
 /**
@@ -56,12 +77,10 @@ const shapeStyles: Record<IconTileShape, Record<IconTileSize, string[]>> = {
  * - Create visual hierarchy in lists or cards
  * - Show app or service icons in a consistent format
  */
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-icon-tile",
   templateUrl: "icon-tile.component.html",
-  imports: [NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class IconTileComponent {
   /**
@@ -75,33 +94,70 @@ export class IconTileComponent {
   readonly variant = input<IconTileVariant>("primary");
 
   /**
-   * The size of the icon tile
+   * Optional custom hex color (e.g. `#175ddc`) — typically used to match a user's avatar color.
+   * When set, it takes precedence over `variant`/`emphasis`: the fill matches the color, the
+   * foreground (icon) color is chosen for contrast, and the border is the color adjusted ±15%
+   * lightness.
    */
-  readonly size = input<IconTileSize>("default");
+  readonly color = input<string>();
 
   /**
-   * The shape of the icon tile
+   * Emphasis level for the decorative color families (`brand`, `teal`, `green`, `orange`, `red`,
+   * `purple`, `gray`). Ignored by the semantic variants, which render the same regardless.
    */
-  readonly shape = input<IconTileShape>("square");
+  readonly emphasis = input<IconTileEmphasis>("subtle");
+
+  /**
+   * The size of the icon tile
+   */
+  readonly size = input<IconTileSize>("base");
 
   /**
    * Optional aria-label for accessibility when the icon has semantic meaning
    */
   readonly ariaLabel = input<string>();
 
-  protected readonly containerClasses = computed(() => {
+  /** The background, border, and foreground colors applied to the tile as inline styles. */
+  protected readonly colorStyles = computed<DecorativeColors>(() => {
+    const custom = this.color()?.trim();
+    if (custom) {
+      // "black" or "white" — svgTextFill omits `!important` so the value is valid in a style binding.
+      const text = Utils.pickTextColorBasedOnBgColor(custom, 135, true);
+      // Dark foreground -> darken the border 15%; white foreground -> lighten the border 15%.
+      const borderLightness = text === "black" ? "calc(l - 15)" : "calc(l + 15)";
+      return {
+        background: custom,
+        border: `hsl(from ${custom} h s ${borderLightness})`,
+        text,
+      };
+    }
+
     const variant = this.variant();
+    const unique = uniqueVariantColors[variant];
+    if (unique) {
+      return unique;
+    }
+
+    const alias = decorativeAliases[variant];
+    if (alias) {
+      // Semantic variants ignore emphasis — always render the subtle triple.
+      return decorativeColors(alias, "subtle");
+    }
+
+    return decorativeColors(variant as DecorativeVariant, this.emphasis());
+  });
+
+  protected readonly containerClasses = computed(() => {
     const size = this.size();
-    const shape = this.shape();
 
     return [
       "tw-inline-flex",
       "tw-items-center",
       "tw-justify-center",
       "tw-flex-shrink-0",
-      ...variantStyles[variant],
+      "tw-border",
       ...sizeStyles[size].container,
-      ...shapeStyles[shape][size],
+      ...borderRadius[size],
     ];
   });
 

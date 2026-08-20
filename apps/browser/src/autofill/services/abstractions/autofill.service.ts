@@ -17,6 +17,27 @@ export interface PageDetail {
   details: AutofillPageDetails;
 }
 
+/**
+ * The outcome of an autofill attempt.
+ *
+ * @example
+ * const result = await autofillService.doAutoFill(options);
+ * if (result.didAutofill && result.totp != null) {
+ *   copyToClipboard(result.totp);
+ * }
+ */
+export type AutoFillResult =
+  | {
+      /** Whether a fill script was dispatched to at least one frame. */
+      didAutofill: false;
+    }
+  | {
+      /** Whether a fill script was dispatched to at least one frame. */
+      didAutofill: true;
+      /** The TOTP code to copy after a successful login fill; absent when the fill produced no TOTP. */
+      totp?: string;
+    };
+
 export interface AutoFillOptions {
   cipher: CipherView;
   pageDetails: PageDetail[];
@@ -34,12 +55,21 @@ export interface AutoFillOptions {
   inlineMenuFillType?: InlineMenuFillType;
 }
 
-export interface FormData {
+interface FormDataBase {
   form: AutofillForm;
   password: AutofillField;
-  username: AutofillField;
   passwords: AutofillField[];
 }
+
+export interface FormDataWithUsername extends FormDataBase {
+  username: AutofillField;
+}
+
+export interface FormDataPasswordOnly extends FormDataBase {
+  username: null;
+}
+
+export type FormData = FormDataWithUsername | FormDataPasswordOnly;
 
 export interface GenerateFillScriptOptions {
   skipUsernameOnlyFill: boolean;
@@ -48,6 +78,11 @@ export interface GenerateFillScriptOptions {
   allowTotpAutofill: boolean;
   autoSubmitLogin: boolean;
   cipher: CipherView;
+  /**
+   * Whether the account is entitled to TOTP for this cipher. Gates filling the value only,
+   * `allowTotpAutofill` gates whether TOTP fields are identified.
+   */
+  canAccessTotp: boolean;
   tabUrl: string;
   defaultUriMatch: UriMatchStrategySetting;
   focusedFieldOpid?: string;
@@ -58,7 +93,6 @@ export type CollectPageDetailsResponseMessage = {
   tab: chrome.tabs.Tab;
   details: AutofillPageDetails;
   sender?: string;
-  webExtSender: chrome.runtime.MessageSender;
 };
 
 export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
@@ -67,8 +101,10 @@ export const COLLECT_PAGE_DETAILS_RESPONSE_COMMAND =
   );
 
 export abstract class AutofillService {
+  enableInlineMenuAnimation$!: Observable<boolean>;
+  enableNotificationAnimation$!: Observable<boolean>;
   /** Non-null asserted. */
-  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
+  collectPageDetailsFromTab$!: (tab: chrome.tabs.Tab, frameId?: number) => Observable<PageDetail[]>;
   /** Non-null asserted. */
   loadAutofillScriptsOnInstall!: () => Promise<void>;
   /** Non-null asserted. */
@@ -82,20 +118,20 @@ export abstract class AutofillService {
   /** Non-null asserted. */
   getFormsWithPasswordFields!: (pageDetails: AutofillPageDetails) => FormData[];
   /** Non-null asserted. */
-  doAutoFill!: (options: AutoFillOptions) => Promise<string | null>;
+  doAutoFill!: (options: AutoFillOptions) => Promise<AutoFillResult>;
   /** Non-null asserted. */
   doAutoFillOnTab!: (
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
     fromCommand: boolean,
     autoSubmitLogin?: boolean,
-  ) => Promise<string | null>;
+  ) => Promise<AutoFillResult>;
   /** Non-null asserted. */
   doAutoFillActiveTab!: (
     pageDetails: PageDetail[],
     fromCommand: boolean,
     cipherType?: CipherType,
-  ) => Promise<string | null>;
+  ) => Promise<AutoFillResult>;
   /** Non-null asserted. */
   setAutoFillOnPageLoadOrgPolicy!: () => Promise<void>;
   /** Non-null asserted. */

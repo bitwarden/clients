@@ -1,10 +1,8 @@
 import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CipherType as SdkCipherType,
   UriMatchType,
@@ -14,12 +12,15 @@ import {
   EncString as SdkEncString,
 } from "@bitwarden/sdk-internal";
 
-import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import {
+  makeStaticByteArray,
+  mockContainerService,
+  mockEnc,
+  mockFromJson,
+} from "../../../../spec/utils";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
-import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
+import { MockProxy } from "../../../platform/spec/mock-deep";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../abstractions/cipher.service";
 import { FieldType, LoginLinkedId, SecureNoteType } from "../../enums";
@@ -39,7 +40,16 @@ import { IdentityView } from "../../models/view/identity.view";
 import { LoginView } from "../../models/view/login.view";
 import { CipherPermissionsApi } from "../api/cipher-permissions.api";
 
+const mockSymmetricKey = new SymmetricCryptoKey(makeStaticByteArray(64));
+
 describe("Cipher DTO", () => {
+  let encryptService: MockProxy<EncryptService>;
+
+  beforeEach(() => {
+    const containerService = mockContainerService();
+    encryptService = containerService.encryptService;
+  });
+
   it("Convert from empty CipherData", () => {
     const data = new CipherData();
     const cipher = new Cipher(data);
@@ -95,13 +105,12 @@ describe("Cipher DTO", () => {
     login.decrypt.mockResolvedValue(loginView);
     cipher.login = login;
 
-    const keyService = mock<KeyService>();
-    const encryptService = mock<EncryptService>();
     const cipherService = mock<CipherService>();
 
     encryptService.unwrapSymmetricKey.mockRejectedValue(new Error("Failed to unwrap key"));
-
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    cipherService.getKeyForCipherKeyDecryption.mockResolvedValue(
+      new SymmetricCryptoKey(makeStaticByteArray(64)),
+    );
 
     const cipherView = await cipher.decrypt(
       await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
@@ -317,19 +326,11 @@ describe("Cipher DTO", () => {
       login.decrypt.mockResolvedValue(loginView);
       cipher.login = login;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -445,19 +446,11 @@ describe("Cipher DTO", () => {
       cipher.permissions = new CipherPermissionsApi();
       cipher.archivedDate = undefined;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -591,19 +584,11 @@ describe("Cipher DTO", () => {
       card.decrypt.mockResolvedValue(cardView);
       cipher.card = card;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -761,19 +746,11 @@ describe("Cipher DTO", () => {
       identity.decrypt.mockResolvedValue(identityView);
       cipher.identity = identity;
 
-      const keyService = mock<KeyService>();
-      const encryptService = mock<EncryptService>();
-      const cipherService = mock<CipherService>();
-
       encryptService.unwrapSymmetricKey.mockResolvedValue(
         new SymmetricCryptoKey(makeStaticByteArray(64)),
       );
 
-      (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
-
-      const cipherView = await cipher.decrypt(
-        await cipherService.getKeyForCipherKeyDecryption(cipher, mockUserId),
-      );
+      const cipherView = await cipher.decrypt(mockSymmetricKey);
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -1085,6 +1062,9 @@ describe("Cipher DTO", () => {
           fido2Credentials: undefined,
         },
         identity: undefined,
+        bankAccount: undefined,
+        passport: undefined,
+        driversLicense: undefined,
         card: undefined,
         secureNote: undefined,
         sshKey: undefined,
@@ -1220,6 +1200,154 @@ describe("Cipher DTO", () => {
       const cipher = Cipher.fromSdkCipher(sdkCipher);
 
       expect(cipher).toEqual(expectedCipher);
+    });
+  });
+
+  describe("blob-encrypted ciphers (data field)", () => {
+    const blobPayload = "BLOB_BASE64_CBOR_PAYLOAD";
+
+    it("preserves data when constructing a Cipher from CipherData", () => {
+      const cipherData = new CipherData();
+      cipherData.id = "id";
+      cipherData.type = CipherType.Login;
+      cipherData.name = "EncryptedString";
+      cipherData.creationDate = "2022-01-01T12:00:00.000Z";
+      cipherData.revisionDate = "2022-01-31T12:00:00.000Z";
+      cipherData.data = blobPayload;
+
+      const cipher = new Cipher(cipherData);
+
+      expect(cipher.data).toEqual(blobPayload);
+    });
+
+    it("preserves data through toCipherData round-trip", () => {
+      const cipher = new Cipher();
+      cipher.id = "id";
+      cipher.type = CipherType.Login;
+      cipher.name = new EncString("EncryptedString");
+      cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
+      cipher.revisionDate = new Date("2022-01-31T12:00:00.000Z");
+      cipher.data = blobPayload;
+
+      const result = cipher.toCipherData();
+
+      expect(result.data).toEqual(blobPayload);
+    });
+
+    it("forwards data to the SDK cipher in toSdkCipher", () => {
+      const cipher = new Cipher();
+      cipher.id = "2afb03fd-0d8e-4c08-a316-18b2f0efa618";
+      cipher.type = CipherType.Login;
+      cipher.name = new EncString("EncryptedString");
+      cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
+      cipher.revisionDate = new Date("2022-01-31T12:00:00.000Z");
+      cipher.data = blobPayload;
+
+      const sdkCipher = cipher.toSdkCipher();
+
+      expect(sdkCipher.data).toEqual(blobPayload);
+    });
+
+    it("reads data from the SDK cipher in fromSdkCipher", () => {
+      const sdkCipher = {
+        id: "id" as any,
+        collectionIds: [],
+        name: "EncryptedString" as SdkEncString,
+        type: SdkCipherType.Login,
+        favorite: false,
+        reprompt: SdkCipherRepromptType.None,
+        organizationUseTotp: false,
+        edit: false,
+        viewPassword: true,
+        creationDate: "2022-01-01T12:00:00.000Z",
+        revisionDate: "2022-01-31T12:00:00.000Z",
+        data: blobPayload,
+      } as unknown as SdkCipher;
+
+      const cipher = Cipher.fromSdkCipher(sdkCipher);
+
+      expect(cipher?.data).toEqual(blobPayload);
+    });
+
+    it("survives a full round-trip: SdkCipher -> Cipher -> CipherData -> Cipher -> SdkCipher", () => {
+      const sdkCipher = {
+        id: "2afb03fd-0d8e-4c08-a316-18b2f0efa618" as any,
+        collectionIds: [],
+        name: "EncryptedString" as SdkEncString,
+        type: SdkCipherType.Login,
+        favorite: false,
+        reprompt: SdkCipherRepromptType.None,
+        organizationUseTotp: false,
+        edit: false,
+        viewPassword: true,
+        creationDate: "2022-01-01T12:00:00.000Z",
+        revisionDate: "2022-01-31T12:00:00.000Z",
+        data: blobPayload,
+      } as unknown as SdkCipher;
+
+      const cipherData = Cipher.fromSdkCipher(sdkCipher)!.toCipherData();
+      const finalSdkCipher = new Cipher(cipherData).toSdkCipher();
+
+      expect(cipherData.data).toEqual(blobPayload);
+      expect(finalSdkCipher.data).toEqual(blobPayload);
+    });
+
+    it("does not construct per-type domain field when CipherData omits it (blob cipher)", () => {
+      const cipherData = new CipherData();
+      cipherData.id = "id";
+      cipherData.type = CipherType.Login;
+      cipherData.name = "EncryptedString";
+      cipherData.creationDate = "2022-01-01T12:00:00.000Z";
+      cipherData.revisionDate = "2022-01-31T12:00:00.000Z";
+      cipherData.data = blobPayload;
+      // login intentionally omitted — blob carries the per-type content
+
+      const cipher = new Cipher(cipherData);
+
+      expect(cipher.login).toBeUndefined();
+    });
+
+    it("does not construct per-type data field when CipherResponse omits it (blob cipher)", () => {
+      const response = {
+        id: "id",
+        type: CipherType.Login,
+        name: "EncryptedString",
+        creationDate: "2022-01-01T12:00:00.000Z",
+        revisionDate: "2022-01-31T12:00:00.000Z",
+        data: blobPayload,
+        // login intentionally omitted
+      } as unknown as import("../../models/response/cipher.response").CipherResponse;
+
+      const cipherData = new CipherData(response);
+
+      expect(cipherData.login).toBeUndefined();
+      expect(cipherData.data).toEqual(blobPayload);
+    });
+
+    it("still populates attachments for a blob cipher", () => {
+      const cipherData = new CipherData();
+      cipherData.id = "id";
+      cipherData.type = CipherType.Login;
+      cipherData.name = "EncryptedString";
+      cipherData.creationDate = "2022-01-01T12:00:00.000Z";
+      cipherData.revisionDate = "2022-01-31T12:00:00.000Z";
+      cipherData.data = blobPayload;
+      cipherData.attachments = [
+        {
+          id: "a1",
+          url: "url",
+          size: "1100",
+          sizeName: "1.1 KB",
+          fileName: "file",
+          key: "EncKey",
+        },
+      ];
+
+      const cipher = new Cipher(cipherData);
+
+      expect(cipher.login).toBeUndefined();
+      expect(cipher.attachments).toHaveLength(1);
+      expect(cipher.attachments?.[0].id).toEqual("a1");
     });
   });
 });
