@@ -4,7 +4,7 @@ import { RouterModule, Routes } from "@angular/router";
 import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { featureFlaggedRoute } from "@bitwarden/angular/platform/utils/feature-flagged-route";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { vaultScopeGuard } from "@bitwarden/vault";
+import { vaultFilterLegacyRedirectGuard, vaultScopeGuard } from "@bitwarden/vault";
 
 import { VaultNextComponent } from "./vault-next.component";
 import { VaultComponent } from "./vault.component";
@@ -16,6 +16,7 @@ const routes: Routes = [
     featureFlag: FeatureFlag.VFO1Foundation,
     routeOptions: {
       path: "",
+      canActivate: [vaultFilterLegacyRedirectGuard],
       data: { titleId: "vaults" },
     },
   }),

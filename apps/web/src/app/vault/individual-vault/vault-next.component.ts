@@ -51,9 +51,8 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  * Every side-nav destination renders this one component, scoped by the `:vaultId` route segment —
  * see `VaultScope`.
  *
- * Not yet wired: the typed filter adapter that syncs the table's chips to the URL, the redirect
- * that rewrites legacy filter query params, and the `?itemId=&action=` deep link that opens an
- * item on load. The archive's "premium subscription ended" callout has nowhere to surface yet.
+ * Not yet wired: the `?itemId=&action=` deep link that opens an item on load. The archive's
+ * "premium subscription ended" callout has nowhere to surface yet.
  */
 @Component({
   selector: "app-vault-next",
