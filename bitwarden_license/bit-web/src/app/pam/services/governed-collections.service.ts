@@ -8,24 +8,28 @@ import type { AccessRuleView } from "../abstractions/access-rule";
 import { AccessRuleSdkService } from "../abstractions/access-rule-sdk.service";
 
 /**
- * How long a cached per-org read is served before a new consumer triggers a fresh one.
- * Collection rows live under a virtual scroller with no template cache, so badge subscriptions
- * churn on every scroll pass — the TTL absorbs that churn with one read, while still bounding
- * how stale the badge and callout can be after rules change. Expiry is checked lazily on
- * access (no timers), so already-mounted rows keep their value and the next mount re-reads.
+ * How long a cached per-org read is served before a new consumer triggers a fresh one. Bounds how
+ * stale the callout can be after rules change, while collapsing repeated opens of the collection
+ * dialog into one read. Expiry is checked lazily on access (no timers), so an already-open callout
+ * keeps its value and the next open re-reads.
  */
 const CACHE_TTL_MS = 30_000;
 
 type CacheEntry = { fetchedAt: number; rules$: Observable<readonly AccessRuleView[]> };
 
 /**
- * One shared, cached `listAccessRules` read per organization — the source both the
- * collection-row badge and the collection-dialog callout derive from (via
- * `rulesGoverningCollection`), so a vault list of N collections issues one read, not N,
- * and "governed" cannot mean two different things on two surfaces.
+ * One shared, cached `listAccessRules` read per organization, backing the collection-dialog
+ * callout via `rulesGoverningCollection`.
  *
- * Informational consumers only, so a failed read resolves to no rules (badge and callout
- * simply don't render) rather than erroring the host surfaces.
+ * The vault-row "Privileged" badge used to derive from this too, but now reads the collection's
+ * own server-derived `hasEnabledAccessRule`. The callout still needs the rules themselves because
+ * it *names* the governing rules and summarises what they enforce — a boolean cannot say that.
+ * Both surfaces nonetheless agree on what "governed" means: the server computes the flag as
+ * "associated with a rule that is enabled", which is exactly what `rulesGoverningCollection`
+ * filters for.
+ *
+ * An informational consumer only, so a failed read resolves to no rules (the callout simply
+ * doesn't render) rather than erroring the host surface.
  */
 @Injectable()
 export class GovernedCollectionsService {

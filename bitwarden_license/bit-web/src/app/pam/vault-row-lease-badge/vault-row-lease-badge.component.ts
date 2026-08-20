@@ -4,7 +4,6 @@ import { catchError, combineLatest, from, map, Observable, of, switchMap } from 
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -13,16 +12,14 @@ import {
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
-import { rulesGoverningCollection } from "../collection-access-rule-callout/access-rule-summary";
-import { GovernedCollectionsService } from "../services/governed-collections.service";
 
 /**
- * The collection fields the badge reads, structurally — the host passes its own
+ * The collection field the badge reads, structurally — the host passes its own
  * `CollectionView`/`CollectionAdminView`, which this component must not import to stay
- * decoupled from the admin-console models. Both are optional because the vault list also
- * renders pseudo-collections ("Unassigned") with no id or organization.
+ * decoupled from the admin-console models. Optional because the vault list also renders
+ * pseudo-collections ("Unassigned"), which carry no server state at all.
  */
-type BadgeCollection = { id?: string; organizationId?: OrganizationId };
+type BadgeCollection = { hasEnabledAccessRule?: boolean };
 
 /**
  * Binds `VAULT_ROW_LEASE_BADGE` for one row in the vault list — cipher or collection.
@@ -37,10 +34,12 @@ type BadgeCollection = { id?: string; organizationId?: OrganizationId };
  * behavior that needs live polling lives in the cipher-view banner / gated-cipher reloader,
  * not here). The active-lease countdown ticks locally inside the shared badge once fetched.
  *
- * A collection row shows the resting "Privileged" pill when the collection is governed by
- * an enabled access rule — the same claim the collection-dialog callout makes, derived from
- * the same cached per-org `listAccessRules` read ({@link GovernedCollectionsService},
- * readable by any org member) through the same {@link rulesGoverningCollection} predicate.
+ * A collection row shows the resting "Privileged" pill straight off the collection's
+ * `hasEnabledAccessRule`, which the server derives on the collection read paths. No fetch: the
+ * flag arrives with the collection itself, so the badge costs nothing per row, cannot go stale
+ * against the list it is rendered beside, and works for viewers who cannot read the
+ * organization's access rules — notably provider users, whom `MemberRequirement` excludes from
+ * the access-rules endpoint by design.
  */
 @Component({
   selector: "app-pam-vault-row-lease-badge",
@@ -54,7 +53,6 @@ export class VaultRowLeaseBadgeComponent {
 
   private readonly configService = inject(ConfigService);
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
-  private readonly governedCollections = inject(GovernedCollectionsService);
 
   private readonly state$: Observable<AccessBadgeState | null> = combineLatest([
     toObservable(this.cipher),
@@ -89,16 +87,9 @@ export class VaultRowLeaseBadgeComponent {
     );
   }
 
-  private collectionState$({ id, organizationId }: BadgeCollection) {
-    if (id == null || organizationId == null) {
-      return of(null);
-    }
-    return this.governedCollections
-      .rules$(organizationId)
-      .pipe(
-        map((rules): AccessBadgeState | null =>
-          rulesGoverningCollection(rules, id).length > 0 ? { kind: "privileged" } : null,
-        ),
-      );
+  private collectionState$({
+    hasEnabledAccessRule,
+  }: BadgeCollection): Observable<AccessBadgeState | null> {
+    return of(hasEnabledAccessRule === true ? { kind: "privileged" } : null);
   }
 }
