@@ -37,9 +37,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   collection is the active filter, carrying the sidebar lock's sentence verbatim.
   Both it and the sidebar lock decide "governed" through `services/gated-collection.ts`,
   which wraps the same `GovernedCollectionsService` / `rulesGoverningCollection` pair the
-  collection-row badge and the collection dialog use, and narrows to the collection's own
-  PAM-enabled organization before reading at all. Add a fifth surface by calling that
-  helper, not by re-deriving the check.
+  collection dialog uses, and narrows to the collection's own PAM-enabled organization
+  before reading at all. Add a fifth surface by calling that helper, not by re-deriving
+  the check.
 - `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
   vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
   the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
