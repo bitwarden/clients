@@ -24,6 +24,7 @@ import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  AutofocusDirective,
   BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
@@ -50,6 +51,7 @@ import {
   AccessRuleView,
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
+  ACCESS_RULE_NAME_MAX_LENGTH,
   accessRuleDeleteConfirmOptions,
   accessRuleErrorMessageKey,
   accessRuleToFormValue,
@@ -78,8 +80,6 @@ import {
   IpAllowlistEditorComponent,
 } from "./ip-allowlist/ip-allowlist-editor.component";
 
-const NAME_MAX_LENGTH = 256;
-
 /**
  * Routed page for creating or editing a PAM access rule. Edit mode is entered via the
  * `accessRuleId` route param and fetches the rule with {@link AccessRuleSdkService.getAccessRule}
@@ -95,6 +95,7 @@ const NAME_MAX_LENGTH = 256;
     CommonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
+    AutofocusDirective,
     BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
@@ -133,9 +134,12 @@ export class AccessRuleEditComponent {
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
     AccessRuleId | undefined;
-  /** In create mode, the id of a rule to seed the form from (the row menu's "Duplicate"). */
-  private readonly duplicateFromId = this.route.snapshot.queryParams.duplicateFrom as
-    AccessRuleId | undefined;
+  /**
+   * Set by the list's "Make a copy": the rule was just created from another one and its name
+   * still carries the "(copy)" suffix, so the admin's first act is almost certainly to rename it.
+   * Drives the name field's autofocus-and-select; presence is the signal, the value is not read.
+   */
+  protected readonly renaming = this.route.snapshot.queryParams.renaming != null;
 
   protected readonly editing = this.accessRuleId != null;
   protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
@@ -197,7 +201,7 @@ export class AccessRuleEditComponent {
   );
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
-    name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
+    name: ["", [Validators.required, Validators.maxLength(ACCESS_RULE_NAME_MAX_LENGTH)]],
     description: [""],
     collections: [[] as SelectItemView[], [Validators.required]],
     defaultLeaseDurationSeconds: [
@@ -264,15 +268,13 @@ export class AccessRuleEditComponent {
 
   private async initialize(): Promise<void> {
     try {
-      const rule = this.editing ? await this.loadRule() : null;
-      if (this.editing && rule == null) {
-        return; // loadRule already toasted + navigated away
-      }
-      if (rule != null) {
+      if (this.editing) {
+        const rule = await this.loadRule();
+        if (rule == null) {
+          return; // loadRule already toasted + navigated away
+        }
         this.existing.set(rule);
         this.applyRule(rule);
-      } else if (this.duplicateFromId != null) {
-        await this.applyDuplicateSource(this.duplicateFromId);
       } else {
         this.applyTemplate();
       }
@@ -304,34 +306,6 @@ export class AccessRuleEditComponent {
     this.formGroup.patchValue(accessRuleToFormValue(rule));
     // Seed the CIDR rows separately: a FormArray can't be resized via patchValue.
     this.setIpAllowlistCidrs(rule.conditions?.find(isIpAllowlist)?.cidrs ?? []);
-  }
-
-  /**
-   * Seed the create form from an existing rule (the list's "Duplicate" action). Everything
-   * copies over — including condition kinds this client doesn't model, via the same
-   * {@link applyRule} stash the edit path uses — except:
-   *
-   * - the name, suffixed so the copy doesn't trip the server's name-uniqueness check;
-   * - the collections, deliberately left empty: a collection can only be governed by one
-   *   rule, so the source's collections would be rejected on save. `existing` stays null,
-   *   so submitting creates a new rule (and `loadCollections(null)` preselects nothing).
-   *
-   * If the source can't be fetched (deleted from another tab, revoked access), toast and
-   * fall back to a blank create form rather than abandoning the page.
-   */
-  private async applyDuplicateSource(sourceId: AccessRuleId): Promise<void> {
-    try {
-      const source = await this.pamApi.getAccessRule(this.organizationId, sourceId);
-      this.applyRule(source);
-      this.formGroup.controls.name.setValue(
-        this.i18nService.t("pamAccessRuleDuplicateName", source.name),
-      );
-    } catch (e) {
-      const message = isAccessRuleNotFound(e)
-        ? this.i18nService.t("pamAccessRuleNotFound")
-        : this.i18nService.t(accessRuleErrorMessageKey(e));
-      this.toastService.showToast({ variant: "error", message });
-    }
   }
 
   private applyTemplate(): void {

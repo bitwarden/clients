@@ -379,60 +379,6 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     expect(pamApi.createAccessRule).not.toHaveBeenCalled();
   });
 
-  it("prefills from the source rule when duplicating, but not its collections", async () => {
-    await setup({ queryParams: { duplicateFrom: "rule-1" } }, {
-      id: "rule-1",
-      name: "Production access",
-      description: "prod",
-      collections: ["col-1", "col-3"],
-      conditions: [{ kind: "human_approval" }, { kind: "time_of_day", tz: "UTC" } as any],
-    } as unknown as AccessRuleView);
-
-    expect(pamApi.getAccessRule).toHaveBeenCalledWith("org-1", "rule-1");
-    // The i18n fake echoes the key; the real message is "$NAME$ (copy)".
-    expect(controls().name.value).toBe("pamAccessRuleDuplicateName");
-    expect(controls().description.value).toBe("prod");
-    expect(controls().humanApprovalEnabled.value).toBe(true);
-    // A collection can only carry one rule, so the source's collections would be
-    // rejected on save; the duplicate starts with none selected.
-    expect(controls().collections.value).toEqual([]);
-
-    // Saving the duplicate creates a new rule (carrying the unmodelled condition), never updates the source.
-    controls().name.setValue("Production access copy");
-    controls().collections.setValue([
-      { id: "col-2", listName: "Design", labelName: "Design", icon: "bwi-collection-shared" },
-    ] satisfies SelectItemView[]);
-    await component["submit"]();
-
-    expect(pamApi.updateAccessRule).not.toHaveBeenCalled();
-    expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
-    const [, request] = pamApi.createAccessRule.mock.calls[0];
-    expect(request.conditions).toEqual(
-      expect.arrayContaining([{ kind: "time_of_day", tz: "UTC" }]),
-    );
-  });
-
-  it("toasts and falls back to a blank create form when the duplicate source can't load", async () => {
-    await setup({ queryParams: { duplicateFrom: "gone" } }, new Error("boom"));
-
-    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error", message: "unexpectedError" }),
-    );
-    expect(controls().name.value).toBe("");
-    // Unlike a failed edit-mode load, the user stays on the (now blank) create page.
-    expect(navigate).not.toHaveBeenCalled();
-  });
-
-  it("names the missing rule when the duplicate source is gone", async () => {
-    await setup({ queryParams: { duplicateFrom: "gone" } }, accessRuleError("NotFound", ""));
-
-    expect(TestBed.inject(ToastService).showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
-    );
-    expect(controls().name.value).toBe("");
-    expect(navigate).not.toHaveBeenCalled();
-  });
-
   it("applies a starter template from the query param", async () => {
     await setup({ queryParams: { template: "approval-required" } });
 
@@ -645,6 +591,25 @@ describe("AccessRuleEditComponent — form states", () => {
   };
 
   const callout = () => fixture.nativeElement.querySelector("bit-callout") as HTMLElement | null;
+
+  describe("renaming a fresh copy", () => {
+    const nameInput = () =>
+      fixture.nativeElement.querySelector("#access-rule-edit_input_name") as HTMLInputElement;
+
+    it("selects the prefilled name so typing replaces it", async () => {
+      await render({ params: { accessRuleId: "rule-1" }, queryParams: { renaming: "true" } });
+
+      expect(document.activeElement).toBe(nameInput());
+      expect(nameInput().selectionStart).toBe(0);
+      expect(nameInput().selectionEnd).toBe("Existing rule".length);
+    });
+
+    it("leaves focus alone on an ordinary edit", async () => {
+      await render({ params: { accessRuleId: "rule-1" } });
+
+      expect(document.activeElement).not.toBe(nameInput());
+    });
+  });
 
   describe("save error", () => {
     it("renders an inline callout instead of a toast when the save fails", async () => {
