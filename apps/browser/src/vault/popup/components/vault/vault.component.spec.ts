@@ -499,7 +499,7 @@ describe("VaultComponent", () => {
     allFilters$.next({});
     tick();
 
-    const initialCalls = scrollSvc.start.mock.calls.length;
+    const initialCalls = (scrollSvc.start as jest.Mock).mock.calls.length;
     expect(initialCalls).toBeGreaterThan(0);
 
     // A later host takes over, as the table's viewport does once it renders.
@@ -508,7 +508,7 @@ describe("VaultComponent", () => {
     tick();
 
     expect(scrollSvc.start).toHaveBeenCalledWith(viewport);
-    expect(scrollSvc.start.mock.calls.length).toBeGreaterThan(initialCalls);
+    expect((scrollSvc.start as jest.Mock).mock.calls.length).toBeGreaterThan(initialCalls);
 
     flush();
   }));
