@@ -2,15 +2,18 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { getAvatarDefaultColor } from "@bitwarden/components";
 import { newGuid } from "@bitwarden/guid";
 
@@ -42,24 +45,28 @@ describe("DefaultVaultNavService", () => {
   let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
   let avatarService: MockProxy<AvatarService>;
+  let collectionService: MockProxy<CollectionService>;
   let i18nService: MockProxy<I18nService>;
 
   let activeAccount$: BehaviorSubject<Account | null>;
   let memberOrgs$: BehaviorSubject<Organization[]>;
   let dataOwnership$: BehaviorSubject<boolean>;
   let avatarColor$: BehaviorSubject<string | null>;
+  let defaultCollection$: BehaviorSubject<CollectionView | undefined>;
 
   beforeEach(() => {
     accountService = mock<AccountService>();
     organizationService = mock<OrganizationService>();
     policyService = mock<PolicyService>();
     avatarService = mock<AvatarService>();
+    collectionService = mock<CollectionService>();
     i18nService = mock<I18nService>();
 
     activeAccount$ = new BehaviorSubject<Account | null>(mockAccount);
     memberOrgs$ = new BehaviorSubject<Organization[]>([]);
     dataOwnership$ = new BehaviorSubject<boolean>(false);
     avatarColor$ = new BehaviorSubject<string | null>(null);
+    defaultCollection$ = new BehaviorSubject<CollectionView | undefined>(undefined);
 
     accountService.activeAccount$ = activeAccount$;
     organizationService.memberOrganizations$.mockReturnValue(memberOrgs$);
@@ -67,6 +74,7 @@ describe("DefaultVaultNavService", () => {
       .calledWith(PolicyType.OrganizationDataOwnership, userId)
       .mockReturnValue(dataOwnership$);
     avatarService.getUserAvatarColor$.mockReturnValue(avatarColor$);
+    collectionService.defaultUserCollection$.mockReturnValue(defaultCollection$);
     i18nService.t.mockImplementation((key: string) => key);
 
     TestBed.configureTestingModule({
@@ -76,6 +84,7 @@ describe("DefaultVaultNavService", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
         { provide: AvatarService, useValue: avatarService },
+        { provide: CollectionService, useValue: collectionService },
         { provide: I18nService, useValue: i18nService },
       ],
     });
@@ -134,6 +143,23 @@ describe("DefaultVaultNavService", () => {
       expect(vm.organizationDataOwnership).toBe(true);
       expect(vm.vaults).toHaveLength(1);
       expect(vm.vaults[0].id).toBe(org.id);
+    });
+
+    it("sets the org's default user collection as its My items under data ownership", async () => {
+      const org = makeOrg("Policy Org", ProductTierType.Enterprise);
+      memberOrgs$.next([org]);
+      dataOwnership$.next(true);
+      const collection = new CollectionView({
+        id: "col-1" as CollectionId,
+        organizationId: org.id,
+        name: "My items",
+      });
+      defaultCollection$.next(collection);
+
+      const vm = await firstValueFrom(service.viewModel$);
+
+      expect(collectionService.defaultUserCollection$).toHaveBeenCalledWith(userId, org.id);
+      expect(vm.vaults[0].defaultUserCollectionId).toBe("col-1");
     });
 
     it("keeps the personal item when OrganizationDataOwnership applies with no member organizations", async () => {

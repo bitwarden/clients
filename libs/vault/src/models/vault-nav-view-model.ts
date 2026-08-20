@@ -1,3 +1,4 @@
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { AvatarColor, BitwardenIcon } from "@bitwarden/components";
 
 export const VaultNavItemType = Object.freeze({
@@ -21,6 +22,8 @@ export interface VaultNavItemViewModel {
   color: VaultNavColor;
   icon: BitwardenIcon;
   type: VaultNavItemType;
+  /** The org's default user collection ("My items"); set only on org items under data ownership. */
+  defaultUserCollectionId?: CollectionId;
 }
 
 export interface VaultsNavViewModel {

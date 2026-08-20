@@ -745,6 +745,11 @@ const routes: Routes = [
             data: { titleId: "domainRules" } satisfies RouteDataProperties,
           },
           {
+            path: "add-plan",
+            component: CreateOrganizationComponent,
+            data: { titleId: "addPlan" } satisfies RouteDataProperties,
+          },
+          {
             path: "subscription",
             loadChildren: () =>
               import("./billing/individual/individual-billing.module").then(

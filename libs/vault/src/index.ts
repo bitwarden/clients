@@ -75,6 +75,7 @@ export * from "./services/routed-vault-filter-bridge.service";
 export * from "./services/bulk-delete.service";
 export { VaultNavService } from "./services/vault-nav.service";
 export { DefaultVaultNavService } from "./services/default-vault-nav.service";
+export { VaultNavSectionComponent } from "./components/vault-nav-section/vault-nav-section.component";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,
