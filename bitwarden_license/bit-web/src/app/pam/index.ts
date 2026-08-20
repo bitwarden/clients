@@ -50,9 +50,11 @@ export {
 } from "./helpers/access-rule-request";
 export type { AccessRuleFormPatch, AccessRuleFormValue } from "./helpers/access-rule-request";
 export { resolveCollectionNames } from "./helpers/collection-names";
-export { accessRuleDeleteConfirmOptions } from "./helpers/access-rule-delete-confirm";
+export { accessRuleDeleteConfirmParams } from "./helpers/access-rule-delete-confirm";
 export { accessRuleDeactivateConfirmOptions } from "./helpers/access-rule-deactivate-confirm";
 export { rulesChangingEnabled } from "./helpers/rules-changing-enabled";
+export { PamConfirmDialogComponent } from "./confirm-dialog/pam-confirm-dialog.component";
+export type { PamConfirmDialogParams } from "./confirm-dialog/pam-confirm-dialog.component";
 export { approvalMethodLabelKeys } from "./helpers/approval-method";
 export {
   AccessRuleStatusFilter,

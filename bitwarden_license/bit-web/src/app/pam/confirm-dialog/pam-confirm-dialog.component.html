@@ -1,0 +1,28 @@
+<bit-simple-dialog>
+  <i bitDialogIcon class="tw-text-3xl" [class]="iconClasses" aria-hidden="true"></i>
+
+  <span bitDialogTitle>{{ title }}</span>
+
+  <div bitDialogContent>{{ content }}</div>
+
+  <ng-container bitDialogFooter>
+    <button
+      type="button"
+      bitButton
+      [buttonType]="params.acceptButtonType"
+      id="pam-confirm-dialog_button_accept"
+      (click)="dialogRef.close(true)"
+    >
+      {{ acceptButtonText }}
+    </button>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      id="pam-confirm-dialog_button_cancel"
+      (click)="dialogRef.close(false)"
+    >
+      {{ cancelButtonText }}
+    </button>
+  </ng-container>
+</bit-simple-dialog>

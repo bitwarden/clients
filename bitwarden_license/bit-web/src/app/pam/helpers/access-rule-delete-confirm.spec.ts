@@ -1,8 +1,8 @@
-import { accessRuleDeleteConfirmOptions } from "./access-rule-delete-confirm";
+import { accessRuleDeleteConfirmParams } from "./access-rule-delete-confirm";
 
-describe("accessRuleDeleteConfirmOptions", () => {
-  it("asks the warning question with the rule name as the only placeholder", () => {
-    expect(accessRuleDeleteConfirmOptions("Prod database")).toEqual({
+describe("accessRuleDeleteConfirmParams", () => {
+  it("asks the delete question with the rule name as the only placeholder", () => {
+    expect(accessRuleDeleteConfirmParams("Prod database")).toEqual({
       title: { key: "pamAccessRuleDeleteConfirmTitle" },
       content: {
         key: "pamAccessRuleDeleteConfirmContent",
@@ -10,7 +10,9 @@ describe("accessRuleDeleteConfirmOptions", () => {
       },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
-      type: "warning",
+      icon: "bwi-clear",
+      iconClass: "tw-text-danger",
+      acceptButtonType: "primary",
     });
   });
 });

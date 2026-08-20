@@ -38,7 +38,8 @@ import {
   AccessRuleView,
   AccessRuleStatusFilter,
   accessRuleDeactivateConfirmOptions,
-  accessRuleDeleteConfirmOptions,
+  accessRuleDeleteConfirmParams,
+  PamConfirmDialogComponent,
   accessRuleErrorMessageKey,
   accessRuleMatchesFilter,
   resolveCollectionNames,
@@ -250,8 +251,9 @@ export class AccessRulesComponent {
   };
 
   protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog(
-      accessRuleDeleteConfirmOptions(rule.name),
+    const confirmed = await PamConfirmDialogComponent.open(
+      this.dialogService,
+      accessRuleDeleteConfirmParams(rule.name),
     );
     if (!confirmed) {
       return;
