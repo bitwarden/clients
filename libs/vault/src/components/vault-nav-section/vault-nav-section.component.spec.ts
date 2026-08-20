@@ -16,6 +16,7 @@ import {
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { MY_VAULT } from "../vault-items-table/vault-items-table.component";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
 
@@ -152,7 +153,7 @@ describe("VaultNavSectionComponent", () => {
     it("routes to the personal vault using the my-vault segment when the lone vault is clicked", () => {
       clickNavItem(fixture.nativeElement, "My vault");
 
-      expect(router.navigate).toHaveBeenCalledWith(["/vault", "my-vault"]);
+      expect(router.navigate).toHaveBeenCalledWith(["/vault", MY_VAULT]);
     });
   });
 

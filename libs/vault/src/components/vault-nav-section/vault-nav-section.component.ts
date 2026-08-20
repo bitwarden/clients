@@ -13,6 +13,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { MY_VAULT } from "../vault-items-table/vault-items-table.component";
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
@@ -35,7 +36,7 @@ export class VaultNavSectionComponent {
   }
 
   protected async selectVault(vault: VaultNavItemViewModel) {
-    const segment = vault.type === VaultNavItemType.Personal ? "my-vault" : vault.id;
+    const segment = vault.type === VaultNavItemType.Personal ? MY_VAULT : vault.id;
     await this.router.navigate(["/vault", segment]);
   }
 
