@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router, RouterModule } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -17,7 +17,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { ARCHIVE_ROUTE, TRASH_ROUTE, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -87,7 +87,6 @@ Object.defineProperty(window, "matchMedia", {
 
 describe("UserLayoutComponent", () => {
   let fixture: ComponentFixture<UserLayoutComponent>;
-  let router: Router;
 
   const flag$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(emptyViewModel);
@@ -147,17 +146,7 @@ describe("UserLayoutComponent", () => {
     Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
 
     await TestBed.configureTestingModule({
-      imports: [
-        UserLayoutComponent,
-        // Real routes so `archiveActive` can be exercised by navigating rather than by stubbing
-        // the router state it reads.
-        RouterModule.forRoot([
-          { path: "vault", children: [] },
-          { path: "vault/archive", children: [] },
-          { path: "vault/trash", children: [] },
-        ]),
-        NavigationModule,
-      ],
+      imports: [UserLayoutComponent, RouterModule.forRoot([]), NavigationModule],
       providers: [
         { provide: I18nService, useValue: i18nService },
         { provide: ConfigService, useValue: configService },
@@ -191,9 +180,6 @@ describe("UserLayoutComponent", () => {
         },
       })
       .compileComponents();
-
-    router = TestBed.inject(Router);
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     // Nav items only render their text when the side nav is expanded.
     TestBed.inject(SideNavService).open.set(true);
@@ -236,14 +222,6 @@ describe("UserLayoutComponent", () => {
       );
     });
 
-    it("links Trash to the trash vault scope", () => {
-      const trash = fixture.debugElement
-        .queryAll(By.css("bit-nav-item"))
-        .find((el) => el.componentInstance.text() === "trash");
-
-      expect(trash.componentInstance.route()).toEqual(["/vault", TRASH_ROUTE]);
-    });
-
     it("renders Export as the last Settings child", () => {
       const children = childText(expandGroup("settings"));
 
@@ -256,65 +234,6 @@ describe("UserLayoutComponent", () => {
       expect(children).toContain("addPlan");
       expect(children.indexOf("emergencyAccess")).toBeLessThan(children.indexOf("addPlan"));
       expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("exportNoun"));
-    });
-
-    describe("Archive upgrade path", () => {
-      const clickArchive = () => {
-        const archive = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
-          (el) => (el as HTMLElement).textContent?.includes("archiveNoun"),
-        ) as HTMLElement;
-        archive.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
-      };
-
-      it("prompts to upgrade when a user who cannot archive has nothing archived", () => {
-        canArchive$.next(false);
-        fixture.detectChanges();
-
-        clickArchive();
-
-        expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
-        expect(router.navigate).not.toHaveBeenCalled();
-      });
-
-      it("still navigates to the archive when a user who cannot archive has archived items", () => {
-        canArchive$.next(false);
-        archivedCiphers$.next([{}]);
-        fixture.detectChanges();
-
-        clickArchive();
-
-        expect(router.navigate).toHaveBeenCalledWith(["/vault", ARCHIVE_ROUTE]);
-        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
-      });
-
-      it("highlights Archive only while the archive is the current page", async () => {
-        const archive = () =>
-          fixture.debugElement
-            .queryAll(By.css("bit-nav-item"))
-            .find((el) => el.componentInstance.text() === "archiveNoun");
-
-        expect(archive().componentInstance.forceActiveStyles()).toBe(false);
-
-        // `navigate` is stubbed for the assertions above, so drive the real router directly.
-        await router.navigateByUrl(`/vault/${ARCHIVE_ROUTE}`);
-        fixture.detectChanges();
-
-        expect(archive().componentInstance.forceActiveStyles()).toBe(true);
-
-        await router.navigateByUrl(`/vault/${TRASH_ROUTE}`);
-        fixture.detectChanges();
-
-        expect(archive().componentInstance.forceActiveStyles()).toBe(false);
-      });
-
-      it("badges Archive for a non-premium user", () => {
-        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
-
-        canArchive$.next(false);
-        fixture.detectChanges();
-
-        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).not.toBeNull();
-      });
     });
   });
 });
