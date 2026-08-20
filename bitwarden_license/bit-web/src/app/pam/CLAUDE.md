@@ -31,6 +31,10 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   dialog, the privilege check, and the route guard.
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
   states off `cipher_access_state()`, with an inline request form.
+- `vault-filter-gated-collection/` — the lock glyph beside a governed collection in the
+  vault's Filters sidebar. Reads the same `GovernedCollectionsService` /
+  `rulesGoverningCollection` pair as the collection-row badge and the collection dialog,
+  and narrows to the collection's own PAM-enabled organization before reading at all.
 - `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
   access-state pill, and the two hosts that render it: a vault row, and the open item's
   name row. The hosts differ only in how they refresh — the item-details one re-reads on
@@ -132,8 +136,11 @@ PAM reaches non-commercial code only through injection tokens, each injected
 binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER`, `ITEM_DETAILS_STATE_BADGE`
 (all `libs/vault`),
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
-collection rows show the "Privileged" pill via the shared per-org
-`GovernedCollectionsService` lookup), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
+collection rows show the "Privileged" pill straight off the collection's server-derived
+`hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
+governed collection in the vault's Filters sidebar, off the shared per-org
+`GovernedCollectionsService` lookup, which names the rules a boolean cannot),
+`COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry; all `apps/web`).
 Add a seam rather than importing PAM from OSS code.
 
