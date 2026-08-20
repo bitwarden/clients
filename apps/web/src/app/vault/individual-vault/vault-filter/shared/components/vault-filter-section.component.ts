@@ -11,7 +11,7 @@ import {
   Type,
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, Observable, of } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -26,6 +26,10 @@ import {
 } from "@bitwarden/vault";
 
 import { CoachmarkService } from "../../../../components/coachmark";
+import {
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "../../../vault-controlled-access-filter.token";
 
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./vault-filter-gated-collection-indicator.token";
 
@@ -53,6 +57,17 @@ export class VaultFilterSectionComponent {
   protected readonly gatedCollectionIndicator: Type<unknown> | null = inject(
     VAULT_FILTER_GATED_COLLECTION_INDICATOR,
     { optional: true },
+  );
+
+  private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
+    VAULT_CONTROLLED_ACCESS_FILTER,
+    { optional: true },
+  );
+
+  private readonly offeredControlledAccessIds = toSignal(
+    this.controlledAccessFilter?.options$.pipe(map((options) => options.map(({ id }) => id))) ??
+      of<string[]>([]),
+    { initialValue: [] as string[] },
   );
 
   /** Computed signal for collections coachmark open state */
@@ -107,12 +122,22 @@ export class VaultFilterSectionComponent {
       filterNode?.node.id === "AllCollections" &&
       (isCollectionSelected || collectionId === "AllCollections");
 
+    // A `controlledAccess` id the host no longer offers — a stale bookmark, a hand-edited param,
+    // or the last organization with the feature leaving view — draws no row and narrows nothing,
+    // so the vault is back to its unfiltered state and "All items" has to carry the selection.
+    const strandedControlledAccess =
+      filterNode?.node.id === "AllItems" &&
+      cipherTypeId == null &&
+      controlledAccessId != null &&
+      !this.offeredControlledAccessIds().includes(controlledAccessId);
+
     return (
       organizationId === filterNode?.node.id ||
       cipherTypeId === filterNode?.node.id ||
       folderId === filterNode?.node.id ||
       controlledAccessId === filterNode?.node.id ||
-      collectionStatus
+      collectionStatus ||
+      strandedControlledAccess
     );
   }
 
