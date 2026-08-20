@@ -29,12 +29,19 @@ import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-cr
 import { SharedModule } from "../../../shared";
 
 import { SendAccessFileComponent } from "./send-access-file.component";
+import { SendAccessItemComponent } from "./send-access-item.component";
 import { SendAccessTextComponent } from "./send-access-text.component";
 
 @Component({
   selector: "app-send-view",
   templateUrl: "send-view.component.html",
-  imports: [SendAccessFileComponent, SendAccessTextComponent, SharedModule, SpinnerComponent],
+  imports: [
+    SendAccessFileComponent,
+    SendAccessItemComponent,
+    SendAccessTextComponent,
+    SharedModule,
+    SpinnerComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendViewComponent implements OnInit {
@@ -114,11 +121,22 @@ export class SendViewComponent implements OnInit {
       this.loading.set(false);
     }
 
+    const decSendAfterLoad = this.send();
+    if (decSendAfterLoad?.type === SendType.Item) {
+      this.layoutWrapperDataService.setAnonLayoutWrapperData({
+        pageTitle: { key: "viewItem" },
+      });
+    }
+
     const creatorIdentifier = this.creatorIdentifier();
     if (creatorIdentifier != null) {
+      const subtitleKey =
+        decSendAfterLoad?.type === SendType.Item
+          ? "sendAccessItemSubtitle"
+          : "sendAccessCreatorIdentifier";
       this.layoutWrapperDataService.setAnonLayoutWrapperData({
         pageSubtitle: {
-          key: "sendAccessCreatorIdentifier",
+          key: subtitleKey,
           placeholders: [creatorIdentifier],
         },
       });

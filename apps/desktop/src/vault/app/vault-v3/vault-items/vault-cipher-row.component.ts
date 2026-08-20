@@ -89,6 +89,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
+  protected readonly showShareViaLinkOption = input<boolean>(false);
   protected readonly showBatchBar = input<boolean>(false);
   protected readonly selected = input<boolean>(false);
   protected readonly checkboxChange = output<void>();
@@ -173,6 +174,14 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return true;
   });
 
+  protected readonly showShareViaLink = computed(() => {
+    return (
+      this.showShareViaLinkOption() &&
+      !this.isDeleted() &&
+      !CipherViewLikeUtils.isArchived(this.cipher())
+    );
+  });
+
   // Do Not show Assign to Collections option if item is archived
   protected readonly showAssignToCollections = computed(() => {
     if (CipherViewLikeUtils.isArchived(this.cipher())) {
@@ -237,6 +246,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher()] });
+  }
+
+  protected shareViaLink() {
+    this.onEvent.emit({ type: "shareViaLink", item: this.cipher() });
   }
 
   protected toggleFavorite() {

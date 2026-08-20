@@ -19,7 +19,7 @@ import {
   ValidatorFn,
   Validators,
 } from "@angular/forms";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
@@ -103,7 +103,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     whoCanAccess: WhoCanAccessType.Any,
     allowedDomains: null,
     disableHideEmail: false,
-    allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
+    allowedSendTypes: [[SendType.Text, SendType.File, SendType.Item], [Validators.required]],
     deletionHours: null,
   });
   readonly enableSendControl = new FormControl<boolean>(false);
@@ -115,22 +115,39 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
 
   protected readonly sendFeatureAllowed = computed(() => !this.dataFormValue()?.disableSend);
 
-  protected readonly allSendTypeOptions = signal<(SelectItemView & { value: SendType })[]>([
-    {
-      id: SendType.Text.toString(),
-      icon: "bwi-file-text",
-      listName: this.i18nService.t("sendTypeText"),
-      labelName: this.i18nService.t("sendTypeText"),
-      value: SendType.Text,
-    },
-    {
-      id: SendType.File.toString(),
-      icon: "bwi-file",
-      listName: this.i18nService.t("sendTypeFile"),
-      labelName: this.i18nService.t("sendTypeFile"),
-      value: SendType.File,
-    },
-  ]).asReadonly();
+  private readonly allSendTypeOptions$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
+    .pipe(
+      map((isEnabled) => {
+        const options: (SelectItemView & { value: SendType })[] = [
+          {
+            id: SendType.Text.toString(),
+            icon: "bwi-file-text",
+            listName: this.i18nService.t("sendTypeText"),
+            labelName: this.i18nService.t("sendTypeText"),
+            value: SendType.Text,
+          },
+          {
+            id: SendType.File.toString(),
+            icon: "bwi-file",
+            listName: this.i18nService.t("sendTypeFile"),
+            labelName: this.i18nService.t("sendTypeFile"),
+            value: SendType.File,
+          },
+        ];
+        if (isEnabled) {
+          options.push({
+            id: SendType.Item.toString(),
+            icon: "bwi-lock",
+            listName: this.i18nService.t("vaultItems"),
+            labelName: this.i18nService.t("vaultItems"),
+            value: SendType.Item,
+          });
+        }
+        return options;
+      }),
+    );
+  protected readonly allSendTypeOptions = toSignal(this.allSendTypeOptions$, { initialValue: [] });
 
   protected readonly sendAccessOptions: Option<WhoCanAccessType>[] = [
     { label: this.i18nService.t("any"), value: WhoCanAccessType.Any },
@@ -162,6 +179,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     private readonly formBuilder: UntypedFormBuilder,
     private readonly orgDomainApiService: OrgDomainApiServiceAbstraction,
     private readonly i18nService: I18nService,
+    private readonly configService: ConfigService,
   ) {
     super();
     this.deletionHoursOptions = [
@@ -232,7 +250,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     const policyResponseData =
       (this.policyResponse()?.data as SendControlsPolicyData) ?? new SendControlsPolicyData();
     if (policyResponseData.allowedSendTypes == null) {
-      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File];
+      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File, SendType.Item];
     }
     if (policyResponseData.whoCanAccess == null) {
       policyResponseData.whoCanAccess = WhoCanAccessType.Any;

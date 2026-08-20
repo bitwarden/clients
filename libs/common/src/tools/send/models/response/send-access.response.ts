@@ -3,6 +3,7 @@
 import { BaseResponse } from "../../../../models/response/base.response";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
+import { SendItemApi } from "../api/send-item.api";
 import { SendTextApi } from "../api/send-text.api";
 
 export class SendAccessResponse extends BaseResponse {
@@ -11,6 +12,7 @@ export class SendAccessResponse extends BaseResponse {
   name: string;
   file: SendFileApi;
   text: SendTextApi;
+  data: SendItemApi;
   expirationDate: Date;
   creatorIdentifier: string;
 
@@ -28,6 +30,11 @@ export class SendAccessResponse extends BaseResponse {
     const file = this.getResponseProperty("File");
     if (file != null) {
       this.file = new SendFileApi(file);
+    }
+
+    const data = this.getResponseProperty("Data");
+    if (data != null) {
+      this.data = new SendItemApi(data);
     }
 
     this.expirationDate = this.getResponseProperty("ExpirationDate");

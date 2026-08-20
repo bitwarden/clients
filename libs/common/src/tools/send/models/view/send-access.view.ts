@@ -5,6 +5,7 @@ import { SendType } from "../../types/send-type";
 import { SendAccess } from "../domain/send-access";
 
 import { SendFileView } from "./send-file.view";
+import { SendItemView } from "./send-item.view";
 import { SendTextView } from "./send-text.view";
 
 export class SendAccessView implements View {
@@ -13,6 +14,7 @@ export class SendAccessView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
+  data = new SendItemView();
   expirationDate: Date = null;
   creatorIdentifier: string = null;
 

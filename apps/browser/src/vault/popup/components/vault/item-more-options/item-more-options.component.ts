@@ -12,6 +12,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -138,6 +140,10 @@ export class ItemMoreOptionsComponent {
     switchMap((cipher) => this.cipherAuthorizationService.canDeleteCipher$(cipher)),
   );
 
+  protected readonly showShareViaLink$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
+    .pipe(map((ffEnabled) => ffEnabled && this.cipher.type !== CipherType.SshKey));
+
   constructor(
     private cipherService: CipherService,
     private passwordRepromptService: PasswordRepromptService,
@@ -153,6 +159,7 @@ export class ItemMoreOptionsComponent {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private domainSettingsService: DomainSettingsService,
+    private configService: ConfigService,
   ) {}
 
   get canEdit() {
@@ -314,6 +321,16 @@ export class ItemMoreOptionsComponent {
         cipherId: this.cipher.id,
         type: CipherViewLikeUtils.getType(this.cipher).toString(),
       } as AddEditQueryParams,
+    });
+  }
+
+  async shareViaLink() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/share-item"], {
+      queryParams: { cipherId: this.cipher.id },
     });
   }
 

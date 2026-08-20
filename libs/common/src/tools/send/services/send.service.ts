@@ -16,14 +16,15 @@ import {
 } from "@bitwarden/legacy-crypto";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { CipherEncryptionService } from "../../../vault/abstractions/cipher-encryption.service";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendFile } from "../models/domain/send-file";
+import { SendItem } from "../models/domain/send-item";
 import { SendText } from "../models/domain/send-text";
 import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
@@ -56,7 +57,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateProvider: SendStateProvider,
     private encryptService: EncryptService,
-    private configService: ConfigService,
+    private cipherEncryptionService: CipherEncryptionService,
   ) {}
 
   async encrypt(
@@ -151,6 +152,15 @@ export class SendService implements InternalSendServiceAbstraction {
           model.cryptoKey,
         );
       }
+    } else if (send.type === SendType.Item) {
+      // Since we're encrypting the cipher under the Send's key, not the cipher's, we need to use this method
+      const encryptionContext = await this.cipherEncryptionService.encryptCipherForRotation(
+        model.data.data,
+        userId,
+        model.cryptoKey as any,
+      );
+      send.data = new SendItem();
+      send.data.data = encryptionContext.cipher;
     }
 
     send.authType = model.authType;
@@ -208,6 +218,9 @@ export class SendService implements InternalSendServiceAbstraction {
                 return true;
               }
               return oldSend[key].getTime() === newSend[key].getTime();
+            case "data":
+              // Item Sends should never be updated, so they never will be changed
+              return true;
             default:
               // For other properties, compare directly
               return oldSend[key as keyof Send] === newSend[key as keyof Send];

@@ -13,6 +13,7 @@ import {
   UriMatchStrategy,
   UriMatchStrategySetting,
 } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -115,6 +116,10 @@ describe("ItemMoreOptionsComponent", () => {
         {
           provide: VaultPopupItemsService,
           useValue: mock<VaultPopupItemsService>({}),
+        },
+        {
+          provide: ConfigService,
+          useValue: { getFeatureFlag$: () => of(false) },
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

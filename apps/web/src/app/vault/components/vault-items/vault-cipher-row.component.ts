@@ -12,7 +12,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -165,6 +165,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
   protected organization?: Organization;
 
   protected showCopyAndLaunchActions$: Observable<boolean>;
+  protected showShareViaLink$: Observable<boolean>;
 
   constructor(
     private i18nService: I18nService,
@@ -176,6 +177,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
     );
+    this.showShareViaLink$ = this.configService
+      .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
+      .pipe(map((ffEnabled) => ffEnabled && this.cipher.type !== CipherType.SshKey));
   }
 
   /**
@@ -501,6 +505,10 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
 
   protected assignToCollections() {
     this.onEvent.emit({ type: "assignToCollections", items: [this.cipher] });
+  }
+
+  protected shareViaLink() {
+    this.onEvent.emit({ type: "shareViaLink", item: this.cipher });
   }
 
   async openUri(selectedUri: string) {

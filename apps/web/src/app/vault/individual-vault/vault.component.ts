@@ -125,6 +125,7 @@ import {
   BULK_DELETE_DIALOG,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
+  ShareItemDrawerComponent,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
@@ -729,6 +730,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
         case "editCipher":
           await this.editCipher(event.item);
           break;
+        case "shareViaLink":
+          await this.shareViaLink(event.item);
+          break;
       }
     } finally {
       this.processingEvent = false;
@@ -1084,6 +1088,17 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     };
 
     await this.openVaultItemDialog("form", cipherFormConfig);
+  }
+
+  async shareViaLink(cipher: CipherViewLike) {
+    const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
+    const cipherView = await firstValueFrom(
+      this.cipherService.cipherView$(activeUserId, cipher.id as CipherId),
+    );
+    if (!cipherView) {
+      return;
+    }
+    await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher: cipherView } });
   }
 
   async editCipher(cipher: CipherView | CipherListView, cloneMode?: boolean) {
