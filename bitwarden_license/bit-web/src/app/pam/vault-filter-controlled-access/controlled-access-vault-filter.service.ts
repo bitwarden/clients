@@ -27,23 +27,50 @@ import {
 } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
 
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
-import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 
 /**
- * The id of the "Privileged" child, as it appears in the vault's URL. Stable: it is written into
- * links users bookmark and share, so it is not derived from the copy.
+ * The ids of the group's children, as they appear in the vault's URL. Stable: they are written
+ * into links users bookmark and share, so they are not derived from the copy.
  */
 export const PRIVILEGED_FILTER_ID = "privileged";
+export const MY_REQUESTS_FILTER_ID = "my-requests";
+
+type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name"> & {
+  readonly nameKey: string;
+  readonly matches: (kind: AccessBadgeState["kind"]) => boolean;
+};
+
+const MY_REQUESTS_KINDS: ReadonlySet<AccessBadgeState["kind"]> = new Set([
+  "pending",
+  "ready",
+  "active",
+]);
+
+const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
+  {
+    id: PRIVILEGED_FILTER_ID,
+    nameKey: "pamAccessBadgePrivileged",
+    icon: "bwi-key",
+    matches: (kind) => kind === "privileged",
+  },
+  {
+    id: MY_REQUESTS_FILTER_ID,
+    nameKey: "pamTabMyRequests",
+    icon: "bwi-clock",
+    matches: (kind) => MY_REQUESTS_KINDS.has(kind),
+  },
+];
 
 /**
  * Binds `VAULT_CONTROLLED_ACCESS_FILTER`: the vault sidebar's "Controlled access" group and the
  * narrowing its children apply to the item list. Encapsulates every PAM dependency so the vault
  * stays PAM-free.
  *
- * The group's children partition {@link AccessBadgeState}. Only "Privileged" — the resting state
- * of a gated item nobody has requested — ships here; "My requests" (`pending`/`ready`/`active`)
- * follows, and "Unavailable" cannot be built at all because `cipherAccessBadgeState` never
- * produces that kind (see `access-badge-state.ts`).
+ * The group's children partition {@link AccessBadgeState}: "Privileged" is the resting state of a
+ * gated item nobody has requested, and "My requests" covers the three states a request of this
+ * user's own passes through (`pending`/`ready`/`active`). "Unavailable" cannot be built at all
+ * because `cipherAccessBadgeState` never produces that kind (see `access-badge-state.ts`).
  *
  * Narrowing costs one `getCipherAccessState` call per gated row, the same read the row's own
  * badge makes, and is issued only for rows that are gated AND belong to an organization carrying
@@ -76,29 +103,31 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
   ]).pipe(
     map(([enabled, pamOrganizationIds]) =>
       enabled && pamOrganizationIds.size > 0
-        ? [
-            {
-              id: PRIVILEGED_FILTER_ID,
-              name: this.i18nService.t("pamAccessBadgePrivileged"),
-              icon: "bwi-key" as const,
-            },
-          ]
+        ? CONTROLLED_ACCESS_FILTERS.map(({ id, nameKey, icon }) => ({
+            id,
+            name: this.i18nService.t(nameKey),
+            icon,
+          }))
         : [],
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]): Observable<C[]> {
+    const definition = CONTROLLED_ACCESS_FILTERS.find((candidate) => candidate.id === optionId);
     return this.options$.pipe(
       switchMap((options) =>
-        options.some((option) => option.id === optionId)
-          ? this.narrowToPrivileged$(ciphers)
+        definition != null && options.some((option) => option.id === optionId)
+          ? this.narrowTo$(definition, ciphers)
           : of(ciphers),
       ),
     );
   }
 
-  private narrowToPrivileged$<C extends CipherViewLike>(ciphers: C[]): Observable<C[]> {
+  private narrowTo$<C extends CipherViewLike>(
+    definition: ControlledAccessFilterDefinition,
+    ciphers: C[],
+  ): Observable<C[]> {
     return this.pamOrganizationIds$.pipe(
       switchMap((pamOrganizationIds) => {
         const candidates = ciphers.filter(
@@ -111,17 +140,23 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
         if (candidates.length === 0) {
           return of([] as C[]);
         }
-        return forkJoin(candidates.map((cipher) => this.privileged$(cipher))).pipe(
-          map((privileged) => candidates.filter((_, index) => privileged[index])),
+        return forkJoin(candidates.map((cipher) => this.matches$(definition, cipher))).pipe(
+          map((matched) => candidates.filter((_, index) => matched[index])),
         );
       }),
     );
   }
 
-  private privileged$(cipher: CipherViewLike): Observable<boolean> {
+  private matches$(
+    definition: ControlledAccessFilterDefinition,
+    cipher: CipherViewLike,
+  ): Observable<boolean> {
     return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
-      map((state) => cipherAccessBadgeState(state)?.kind === "privileged"),
-      // A failed read is not evidence that the row is privileged, and listing it anyway would
+      map((state) => {
+        const kind = cipherAccessBadgeState(state)?.kind;
+        return kind != null && definition.matches(kind);
+      }),
+      // A failed read is not evidence of any particular state, and listing the row anyway would
       // make the filter overstate what it is showing.
       catchError(() => of(false)),
     );
