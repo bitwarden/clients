@@ -185,6 +185,39 @@ describe("CollectionView SDK mapping", () => {
       expect(result.assigned).toBe(true);
     });
 
+    describe("hasEnabledAccessRule preservation (privileged-access badge)", () => {
+      it("copies hasEnabledAccessRule from the source collection", () => {
+        const result = CollectionView.fromSdkCollectionView(
+          makeSdkCollectionView(),
+          makeCollection({ hasEnabledAccessRule: true }),
+        );
+
+        expect(result.hasEnabledAccessRule).toBe(true);
+      });
+
+      it("leaves hasEnabledAccessRule false for an ungoverned collection", () => {
+        const result = CollectionView.fromSdkCollectionView(
+          makeSdkCollectionView(),
+          makeCollection(),
+        );
+
+        expect(result.hasEnabledAccessRule).toBe(false);
+      });
+
+      /**
+       * The SDK's `Collection` and `CollectionView` are `#[serde(deny_unknown_fields)]`, so an extra
+       * key on either object thrown across the wasm boundary fails at runtime, not compile time.
+       * These pin that the flag rides alongside the SDK rather than through it.
+       */
+      it("does not send hasEnabledAccessRule across the wasm boundary", () => {
+        const collection = makeCollection({ hasEnabledAccessRule: true });
+        const view = CollectionView.fromSdkCollectionView(makeSdkCollectionView(), collection);
+
+        expect(collection.toSdkCollection()).not.toHaveProperty("hasEnabledAccessRule");
+        expect(view.toSdkCollectionView()).not.toHaveProperty("hasEnabledAccessRule");
+      });
+    });
+
     describe("defaultUserCollectionEmail preservation (canEditName security invariant)", () => {
       it("copies defaultUserCollectionEmail from the source collection, not the SDK view", () => {
         const email = "offboarded-user@example.com";
