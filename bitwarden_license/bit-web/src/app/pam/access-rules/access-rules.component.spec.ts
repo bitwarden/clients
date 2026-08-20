@@ -57,15 +57,21 @@ type ProviderOverride = { provide: unknown; useValue: unknown };
 
 type SetupOptions = {
   overrides?: ProviderOverride[];
-  /** Resolves to the user's answer for every confirmation the test triggers. */
+  /** Resolves to the user's answer for every `openSimpleDialog` confirmation the test triggers. */
   openSimpleDialog?: jest.Mock;
+  /** The same answer for confirmations authored as their own dialog component, e.g. delete. */
+  openDialog?: jest.Mock;
 };
 
 // The component's own template pulls in the full table/toolbar stack; replace it so these
 // tests exercise the component logic, not the rendering of child widgets.
 const setup = async (
   rules: AccessRuleView[],
-  { overrides = [], openSimpleDialog = jest.fn().mockResolvedValue(true) }: SetupOptions = {},
+  {
+    overrides = [],
+    openSimpleDialog = jest.fn().mockResolvedValue(true),
+    openDialog = jest.fn().mockReturnValue({ closed: of(true) }),
+  }: SetupOptions = {},
 ): Promise<ComponentFixture<AccessRulesComponent>> => {
   TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
 
@@ -88,7 +94,7 @@ const setup = async (
 
   // Overridden rather than provided: the component's imported modules bring their own
   // `DialogService` into the standalone injector, which shadows a TestBed provider.
-  TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog } });
+  TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog, open: openDialog } });
 
   const fixture = TestBed.createComponent(AccessRulesComponent);
   // Cycle change detection + microtasks so the org-driven reload resolves.
@@ -102,6 +108,7 @@ const setup = async (
 /** The mocks every mutation test asserts against, rebuilt per fixture. */
 let showToast: jest.Mock;
 let openSimpleDialog: jest.Mock;
+let openDialog: jest.Mock;
 let updateAccessRule: jest.Mock;
 let deleteAccessRule: jest.Mock;
 let createAccessRule: jest.Mock;
@@ -118,6 +125,7 @@ const setupMutations = async (
 ): Promise<ComponentFixture<AccessRulesComponent>> => {
   showToast = jest.fn();
   openSimpleDialog = jest.fn().mockResolvedValue(confirmed);
+  openDialog = jest.fn().mockReturnValue({ closed: of(confirmed) });
   updateAccessRule = jest.fn().mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
   deleteAccessRule = jest.fn().mockResolvedValue(undefined);
   // Echoes back the name it was asked for, so a test can assert on the created rule without
@@ -141,6 +149,7 @@ const setupMutations = async (
       ...overrides,
     ],
     openSimpleDialog,
+    openDialog,
   });
 };
 

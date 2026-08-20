@@ -10,7 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
-import { AccessRuleSdkService, AccessRuleView } from "../..";
+import { AccessRuleSdkService, AccessRuleView, PamConfirmDialogComponent } from "../..";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -25,7 +25,10 @@ const i18nFake: Pick<I18nService, "t" | "translate"> = {
 // treating every non-empty row as valid keeps seeded IP-allowlist forms submittable.
 const cidrValidationStub: CidrValidationService = { isValid: () => true };
 
-const declinedDialogStub = { openSimpleDialog: () => Promise.resolve(false) };
+const declinedDialogStub = {
+  openSimpleDialog: () => Promise.resolve(false),
+  open: () => ({ closed: of(false) }),
+};
 
 /** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
 const accessRuleError = (variant: string, message: string) =>
@@ -226,7 +229,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     deleteAccessRule: jest.Mock;
   };
   let showToast: jest.Mock;
-  let dialog: { openSimpleDialog: jest.Mock };
+  let dialog: { openSimpleDialog: jest.Mock; open: jest.Mock };
 
   // The org's collections, as returned by the admin-console service.
   const ORG_COLLECTIONS = [
@@ -246,7 +249,10 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
     };
     showToast = jest.fn();
-    dialog = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+    dialog = {
+      openSimpleDialog: jest.fn().mockResolvedValue(true),
+      open: jest.fn().mockReturnValue({ closed: of(true) }),
+    };
 
     TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
     TestBed.configureTestingModule({
@@ -412,9 +418,12 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
 
     await component["remove"]();
 
-    expect(dialog.openSimpleDialog).toHaveBeenCalledWith(
+    expect(dialog.open).toHaveBeenCalledWith(
+      PamConfirmDialogComponent,
       expect.objectContaining({
-        content: { key: "pamAccessRuleDeleteConfirmContent", placeholders: ["Existing rule"] },
+        data: expect.objectContaining({
+          content: { key: "pamAccessRuleDeleteConfirmContent", placeholders: ["Existing rule"] },
+        }),
       }),
     );
     expect(pamApi.deleteAccessRule).toHaveBeenCalledWith("org-1", "rule-1");
@@ -431,7 +440,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       collections: [],
       conditions: [],
     } as unknown as AccessRuleView);
-    dialog.openSimpleDialog.mockResolvedValue(false);
+    dialog.open.mockReturnValue({ closed: of(false) });
 
     await component["remove"]();
 
@@ -444,7 +453,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
 
     await component["remove"]();
 
-    expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
+    expect(dialog.open).not.toHaveBeenCalled();
     expect(pamApi.deleteAccessRule).not.toHaveBeenCalled();
   });
 
@@ -520,7 +529,7 @@ describe("AccessRuleEditComponent — form states", () => {
   let component: AccessRuleEditComponent;
   let navigate: jest.SpyInstance;
   let showToast: jest.Mock;
-  let dialog: { openSimpleDialog: jest.Mock };
+  let dialog: { openSimpleDialog: jest.Mock; open: jest.Mock };
   let pamApi: {
     getAccessRule: jest.Mock;
     createAccessRule: jest.Mock;
@@ -543,7 +552,10 @@ describe("AccessRuleEditComponent — form states", () => {
       deleteAccessRule: jest.fn().mockResolvedValue(undefined),
     };
     showToast = jest.fn();
-    dialog = { openSimpleDialog: jest.fn().mockResolvedValue(true) };
+    dialog = {
+      openSimpleDialog: jest.fn().mockResolvedValue(true),
+      open: jest.fn().mockReturnValue({ closed: of(true) }),
+    };
 
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
@@ -904,7 +916,8 @@ describe("AccessRuleEditComponent — form states", () => {
       expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
       await expect(component.confirmDiscard()).resolves.toBe(true);
       // Only the delete confirmation itself; no discard prompt on the way out.
-      expect(dialog.openSimpleDialog).toHaveBeenCalledTimes(1);
+      expect(dialog.open).toHaveBeenCalledTimes(1);
+      expect(dialog.openSimpleDialog).not.toHaveBeenCalled();
     });
 
     it("does not ask a second time for the navigation Cancel already confirmed", async () => {

@@ -52,7 +52,8 @@ import {
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
   ACCESS_RULE_NAME_MAX_LENGTH,
-  accessRuleDeleteConfirmOptions,
+  accessRuleDeleteConfirmParams,
+  PamConfirmDialogComponent,
   accessRuleErrorMessageKey,
   accessRuleToFormValue,
   AccessRuleSdkService,
@@ -509,8 +510,9 @@ export class AccessRuleEditComponent {
       return;
     }
 
-    const confirmed = await this.dialogService.openSimpleDialog(
-      accessRuleDeleteConfirmOptions(existing.name),
+    const confirmed = await PamConfirmDialogComponent.open(
+      this.dialogService,
+      accessRuleDeleteConfirmParams(existing.name),
     );
     if (!confirmed) {
       return;
