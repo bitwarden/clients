@@ -61,7 +61,8 @@ import {
  * side so an unprovided token stays inert: `CIPHER_VIEW_BANNER` (the requester's
  * leasing entry point on an open cipher) and `VAULT_ROW_LEASE_BADGE` (the per-row
  * access-state pill, on cipher AND collection rows — collection rows show the
- * "Privileged" pill backed by the shared `GovernedCollectionsService` lookup),
+ * "Privileged" pill straight off the collection's server-derived
+ * `hasEnabledAccessRule`),
  * both component classes, plus `GATED_CIPHER_RELOADER` (the
  * observable that reveals a gated cipher in place once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
@@ -116,8 +117,9 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_ROW_LEASE_BADGE,
       useValue: VaultRowLeaseBadgeComponent,
     }),
-    // Root-level (not per-badge) so every collection-row badge AND the collection-dialog
-    // callout share one cached per-org rules read.
+    // Root-level so repeated opens of the collection dialog share one cached per-org rules read.
+    // The vault-row badge no longer reads it — the collection carries `hasEnabledAccessRule` — but
+    // the callout still does, because it names the governing rules rather than just counting them.
     safeProvider({
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,
