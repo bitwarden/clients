@@ -27,12 +27,7 @@ import {
 } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import {
-  RoutedVaultFilterItemType,
-  VaultNavItemType,
-  VaultNavItemViewModel,
-  VaultNavSectionComponent,
-} from "@bitwarden/vault";
+import { RoutedVaultFilterItemType, VaultNavSectionComponent } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -135,15 +130,6 @@ export class UserLayoutComponent implements OnInit {
       queryParams: { folderId: null, sharedFolderId: null, collectionId: null, ...queryParams },
       queryParamsHandling: "merge",
     });
-  }
-
-  protected async selectAllItems() {
-    await this.router.navigate(["/vault"]);
-  }
-
-  protected async selectVault(vault: VaultNavItemViewModel) {
-    const segment = vault.type === VaultNavItemType.Personal ? "my-vault" : vault.id;
-    await this.router.navigate(["/vault", segment]);
   }
 
   protected async selectItemType(type: RoutedVaultFilterItemType) {

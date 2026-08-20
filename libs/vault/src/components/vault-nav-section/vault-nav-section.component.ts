@@ -1,6 +1,7 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { Router } from "@angular/router";
 
 import {
   defaultAvatarColors,
@@ -10,13 +11,12 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { VaultNavItemViewModel } from "../../models/vault-nav-view-model";
+import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
 
 /**
  * Renders the Password Manager side-nav Vaults section from the shared {@link VaultNavService}
- * view-model. Selection is client-specific — web routes, desktop opens dialogs — so the host wires
- * these outputs to its own navigation rather than the component navigating itself.
+ * view-model, navigating to the vault the user picks.
  */
 @Component({
   selector: "vault-nav-section",
@@ -26,11 +26,18 @@ import { VaultNavService } from "../../services/vault-nav.service";
 })
 export class VaultNavSectionComponent {
   private readonly vaultNavService = inject(VaultNavService);
+  private readonly router = inject(Router);
 
   protected readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
 
-  readonly allItemsSelected = output<void>();
-  readonly vaultSelected = output<VaultNavItemViewModel>();
+  protected async selectAllItems() {
+    await this.router.navigate(["/vault"]);
+  }
+
+  protected async selectVault(vault: VaultNavItemViewModel) {
+    const segment = vault.type === VaultNavItemType.Personal ? "my-vault" : vault.id;
+    await this.router.navigate(["/vault", segment]);
+  }
 
   protected vaultTileColor(vault: VaultNavItemViewModel): string {
     return isAvatarColor(vault.color) ? defaultAvatarColors[vault.color] : vault.color;

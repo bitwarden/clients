@@ -3,10 +3,7 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
 
     @if (vfo1Enabled()) {
-      <vault-nav-section
-        (allItemsSelected)="selectAllItems()"
-        (vaultSelected)="selectVault($event)"
-      />
+      <vault-nav-section />
 
       <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item icon="bwi-file-text" [text]="'reports' | i18n" route="reports"></bit-nav-item>
