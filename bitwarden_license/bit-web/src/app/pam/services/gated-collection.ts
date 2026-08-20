@@ -23,11 +23,13 @@ import { GovernedCollectionsService } from "./governed-collections.service";
 export type GatedCollection = { id?: string; organizationId?: OrganizationId };
 
 /**
- * Whether an enabled access rule governs the given collection — the single claim behind the
- * sidebar lock, the vault banner and the collection-dialog callout, so those surfaces cannot
- * drift. Must be called from an injection context. The collection-row badge makes the same claim
- * but reads the collection's own `hasEnabledAccessRule` instead: it needs only the boolean, while
- * these three name the governing rules.
+ * Whether an enabled access rule governs the given collection: the single claim behind the
+ * sidebar lock and the vault banner, so those two surfaces cannot drift. Must be called from an
+ * injection context. The collection-dialog callout asks the same underlying question, but reads
+ * directly from `GovernedCollectionsService` / `rulesGoverningCollection` rather than going
+ * through this helper. The collection-row badge makes a different claim, reading the collection's
+ * own `hasEnabledAccessRule` instead: it needs only the boolean, while this helper and the callout
+ * name the governing rules.
  *
  * The rules read is issued only for a collection whose own organization has Privileged Access:
  * a member can select a collection in any organization, and asking for the access rules of an
