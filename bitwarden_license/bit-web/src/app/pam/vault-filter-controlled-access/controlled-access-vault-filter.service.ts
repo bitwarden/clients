@@ -45,7 +45,7 @@ const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
   {
     id: MY_REQUESTS_FILTER_ID,
     nameKey: "pamTabMyRequests",
-    icon: "bwi-key",
+    icon: "bwi-lock-encrypted",
     kinds: ["pending", "ready", "active"],
   },
   {
