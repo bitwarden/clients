@@ -24,15 +24,14 @@ import { SendSdkApiService } from "./send-sdk-api.service";
  * `pm-30110-sdk-sends-api` feature flag.
  *
  * Methods whose return type is a wire-encrypted shape the SDK cannot produce (`getSend`,
- * `getSends`, `putSendRemovePassword`) always route to legacy. Mutations and access-side
- * methods are flag-controlled; the SDK service refetches the encrypted form via legacy
- * after mutations to keep `InternalSendService` coherent.
+ * `getSends`, `putSendRemovePassword`) always route to legacy. Mutations are flag-controlled;
+ * the SDK service refetches the encrypted form via legacy after mutations to keep
+ * `InternalSendService` coherent.
  *
- * A "cross-instance Send" is a Send hosted on a different Bitwarden server than the
- * client is signed in to — typically the CLI receiving a self-hosted or EU-cloud Send
- * link. Callers signal this by passing `apiUrl`, which is forwarded to whichever service
- * the flag selects: legacy passes it per-request, and the SDK service builds a one-off
- * client against it (the shared SDK client is pinned to the configured environment).
+ * A "cross-instance Send" is a Send hosted on a different Bitwarden server than the client is
+ * signed in to — typically the CLI receiving a self-hosted or EU-cloud Send link. Callers signal
+ * this by passing `apiUrl`; those calls always route to legacy regardless of the flag, since the
+ * SDK client only targets its own configured environment.
  */
 export class SendApiServiceSelector implements SendApiServiceAbstraction {
   private readonly service$: Observable<SendApiServiceAbstraction>;
@@ -112,12 +111,15 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
   }
 
   /**
-   * Accesses a send. `apiUrl` (cross-instance receive, e.g. the CLI opening a self-hosted Send
-   * link while signed in to a different server) is forwarded to whichever service the flag
-   * selects; both honour it.
+   * Accesses a send. Routes to legacy whenever `apiUrl` is supplied (cross-instance
+   * receive, e.g. the CLI opening a self-hosted Send link while signed in to a
+   * different server) because the SDK client targets only its configured environment.
    */
   async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
-    return (await this.getService()).postSendAccess(accessToken, apiUrl);
+    if (apiUrl != null) {
+      return this.sendApiService.postSendAccess(accessToken, apiUrl);
+    }
+    return (await this.getService()).postSendAccess(accessToken);
   }
 
   /**
@@ -145,12 +147,15 @@ export class SendApiServiceSelector implements SendApiServiceAbstraction {
     return (await this.getService()).deleteSend(id);
   }
 
-  /** See {@link postSendAccess} — `apiUrl` is forwarded to the selected service. */
+  /** See {@link postSendAccess} — cross-instance callers (those passing `apiUrl`) route to legacy. */
   async getSendFileDownloadData(
     send: SendAccessView,
     accessToken: SendAccessToken,
     apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
-    return (await this.getService()).getSendFileDownloadData(send, accessToken, apiUrl);
+    if (apiUrl != null) {
+      return this.sendApiService.getSendFileDownloadData(send, accessToken, apiUrl);
+    }
+    return (await this.getService()).getSendFileDownloadData(send, accessToken);
   }
 }

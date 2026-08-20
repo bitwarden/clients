@@ -234,13 +234,16 @@ describe("SendApiServiceSelector", () => {
   describe("postSendAccess", () => {
     const accessToken: SendAccessToken = { token: "tok" } as SendAccessToken;
 
-    it("forwards a cross-instance apiUrl to the SDK when the flag is on", async () => {
+    // `apiUrl` is not a reliable cross-instance signal at the call site (see PR #22321 review
+    // discussion), so these always route to legacy regardless of the flag — matching the SDK
+    // client's inability to target anything but its own configured environment.
+    it("routes a cross-instance apiUrl to legacy even when the flag is on", async () => {
       const selector = buildSelector(true);
 
       await selector.postSendAccess(accessToken, "https://other.example");
 
-      expect(sdk.postSendAccess).toHaveBeenCalledWith(accessToken, "https://other.example");
-      expect(legacy.postSendAccess).not.toHaveBeenCalled();
+      expect(legacy.postSendAccess).toHaveBeenCalledWith(accessToken, "https://other.example");
+      expect(sdk.postSendAccess).not.toHaveBeenCalled();
     });
 
     it("routes to SDK without apiUrl when the flag is on", async () => {
@@ -248,11 +251,11 @@ describe("SendApiServiceSelector", () => {
 
       await selector.postSendAccess(accessToken);
 
-      expect(sdk.postSendAccess).toHaveBeenCalledWith(accessToken, undefined);
+      expect(sdk.postSendAccess).toHaveBeenCalledWith(accessToken);
       expect(legacy.postSendAccess).not.toHaveBeenCalled();
     });
 
-    it("forwards a cross-instance apiUrl to legacy when the flag is off", async () => {
+    it("routes a cross-instance apiUrl to legacy when the flag is off", async () => {
       const selector = buildSelector(false);
 
       await selector.postSendAccess(accessToken, "https://other.example");
@@ -266,7 +269,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.postSendAccess(accessToken);
 
-      expect(legacy.postSendAccess).toHaveBeenCalledWith(accessToken, undefined);
+      expect(legacy.postSendAccess).toHaveBeenCalledWith(accessToken);
       expect(sdk.postSendAccess).not.toHaveBeenCalled();
     });
   });
@@ -275,17 +278,17 @@ describe("SendApiServiceSelector", () => {
     const accessView = mock<SendAccessView>();
     const accessToken: SendAccessToken = { token: "tok" } as SendAccessToken;
 
-    it("forwards a cross-instance apiUrl to the SDK when the flag is on", async () => {
+    it("routes a cross-instance apiUrl to legacy even when the flag is on", async () => {
       const selector = buildSelector(true);
 
       await selector.getSendFileDownloadData(accessView, accessToken, "https://other.example");
 
-      expect(sdk.getSendFileDownloadData).toHaveBeenCalledWith(
+      expect(legacy.getSendFileDownloadData).toHaveBeenCalledWith(
         accessView,
         accessToken,
         "https://other.example",
       );
-      expect(legacy.getSendFileDownloadData).not.toHaveBeenCalled();
+      expect(sdk.getSendFileDownloadData).not.toHaveBeenCalled();
     });
 
     it("routes to SDK without apiUrl when the flag is on", async () => {
@@ -293,11 +296,11 @@ describe("SendApiServiceSelector", () => {
 
       await selector.getSendFileDownloadData(accessView, accessToken);
 
-      expect(sdk.getSendFileDownloadData).toHaveBeenCalledWith(accessView, accessToken, undefined);
+      expect(sdk.getSendFileDownloadData).toHaveBeenCalledWith(accessView, accessToken);
       expect(legacy.getSendFileDownloadData).not.toHaveBeenCalled();
     });
 
-    it("forwards a cross-instance apiUrl to legacy when the flag is off", async () => {
+    it("routes a cross-instance apiUrl to legacy when the flag is off", async () => {
       const selector = buildSelector(false);
 
       await selector.getSendFileDownloadData(accessView, accessToken, "https://other.example");
@@ -315,11 +318,7 @@ describe("SendApiServiceSelector", () => {
 
       await selector.getSendFileDownloadData(accessView, accessToken);
 
-      expect(legacy.getSendFileDownloadData).toHaveBeenCalledWith(
-        accessView,
-        accessToken,
-        undefined,
-      );
+      expect(legacy.getSendFileDownloadData).toHaveBeenCalledWith(accessView, accessToken);
       expect(sdk.getSendFileDownloadData).not.toHaveBeenCalled();
     });
   });
