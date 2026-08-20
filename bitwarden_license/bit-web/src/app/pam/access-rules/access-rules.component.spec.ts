@@ -29,6 +29,11 @@ const RAW_SERVER_PAYLOAD =
   ".ValidateCollectionsAsync(Guid organizationId) in /Users/build/server/bitwarden_license/src/" +
   'Services/Pam/Services/AccessRuleWriteValidator.cs:line 87"}';
 
+/** The same envelope for the name-uniqueness rejection, which the copy flow retries against. */
+const NAME_TAKEN_PAYLOAD =
+  'error in response: status code 400 Bad Request: {"object":"error","message":"A rule with ' +
+  'that name already exists.","validationErrors":null}';
+
 function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
   return {
     id,
@@ -99,6 +104,7 @@ let showToast: jest.Mock;
 let openSimpleDialog: jest.Mock;
 let updateAccessRule: jest.Mock;
 let deleteAccessRule: jest.Mock;
+let createAccessRule: jest.Mock;
 
 /**
  * A fixture wired for mutations: SDK writes and toasts spy-able, and every confirmation
@@ -108,11 +114,17 @@ let deleteAccessRule: jest.Mock;
 const setupMutations = async (
   rules: AccessRuleView[],
   confirmed = true,
+  overrides: ProviderOverride[] = [],
 ): Promise<ComponentFixture<AccessRulesComponent>> => {
   showToast = jest.fn();
   openSimpleDialog = jest.fn().mockResolvedValue(confirmed);
   updateAccessRule = jest.fn().mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
   deleteAccessRule = jest.fn().mockResolvedValue(undefined);
+  // Echoes back the name it was asked for, so a test can assert on the created rule without
+  // restating it.
+  createAccessRule = jest
+    .fn()
+    .mockImplementation((_orgId, request) => Promise.resolve(rule("rule-copy", request.name)));
 
   return await setup(rules, {
     overrides: [
@@ -120,11 +132,13 @@ const setupMutations = async (
         provide: AccessRuleSdkService,
         useValue: {
           listAccessRules: jest.fn().mockResolvedValue(rules),
+          createAccessRule,
           updateAccessRule,
           deleteAccessRule,
         },
       },
       { provide: ToastService, useValue: { showToast } },
+      ...overrides,
     ],
     openSimpleDialog,
   });
@@ -183,15 +197,147 @@ describe("AccessRulesComponent — create/edit navigation", () => {
 
     expect(navigate).toHaveBeenCalledWith(["rule-1"], { relativeTo: route });
   });
+});
 
-  it("navigates to the create page seeded from the rule being duplicated", async () => {
-    const fixture = await setupNavigation([rule("rule-1", "VPN")]);
+describe("AccessRulesComponent — make a copy", () => {
+  let navigate: jest.SpyInstance;
+  let route: ActivatedRoute;
 
-    await fixture.componentInstance["duplicate"](rule("rule-1", "VPN"));
+  /**
+   * Renders the two copy-name templates rather than echoing their keys, so the name the
+   * component asks `copyRuleName` for is legible in the assertions.
+   */
+  const COPY_NAME_TEMPLATES: Record<string, (name: string, count?: number) => string> = {
+    pamAccessRuleDuplicateName: (name) => `${name} (copy)`,
+    pamAccessRuleDuplicateNameNumbered: (name, count) => `${name} (copy ${count})`,
+  };
+  const i18nRendering: Pick<I18nService, "t" | "translate"> = {
+    t: (id: string, p1?: string | number, p2?: string | number) =>
+      COPY_NAME_TEMPLATES[id]?.(String(p1), Number(p2)) ?? id,
+    translate: (id: string) => id,
+  };
 
-    expect(navigate).toHaveBeenCalledWith(["new"], {
+  const SOURCE = rule("rule-1", "VPN");
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  const setupCopy = async (
+    rules: AccessRuleView[] = [SOURCE],
+  ): Promise<ComponentFixture<AccessRulesComponent>> => {
+    const fixture = await setupMutations(rules, true, [
+      { provide: I18nService, useValue: i18nRendering },
+    ]);
+    route = TestBed.inject(ActivatedRoute);
+    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    return fixture;
+  };
+
+  it("creates the copy straight away, with no confirmation", async () => {
+    const fixture = await setupCopy();
+
+    await fixture.componentInstance["makeCopy"](SOURCE);
+
+    expect(openSimpleDialog).not.toHaveBeenCalled();
+    expect(createAccessRule).toHaveBeenCalledWith(
+      "org-1",
+      expect.objectContaining({ name: "VPN (copy)" }),
+    );
+  });
+
+  it("gives the copy no collections and the source's enabled state", async () => {
+    const governed = {
+      ...rule("rule-1", "VPN", false),
+      collections: ["collection-1"],
+    } as unknown as AccessRuleView;
+    const fixture = await setupCopy([governed]);
+
+    await fixture.componentInstance["makeCopy"](governed);
+
+    expect(createAccessRule).toHaveBeenCalledWith(
+      "org-1",
+      expect.objectContaining({ collections: [], enabled: false }),
+    );
+  });
+
+  it("numbers the name past the copies already in the table", async () => {
+    const fixture = await setupCopy([SOURCE, rule("rule-2", "VPN (copy)")]);
+
+    await fixture.componentInstance["makeCopy"](SOURCE);
+
+    expect(createAccessRule).toHaveBeenCalledWith(
+      "org-1",
+      expect.objectContaining({ name: "VPN (copy 2)" }),
+    );
+  });
+
+  it("opens the created copy for renaming", async () => {
+    const fixture = await setupCopy();
+
+    await fixture.componentInstance["makeCopy"](SOURCE);
+
+    expect(navigate).toHaveBeenCalledWith(["rule-copy"], {
       relativeTo: route,
-      queryParams: { duplicateFrom: "rule-1" },
+      queryParams: { renaming: true },
+    });
+  });
+
+  it("reports the copy, since backing out of the form will not undo it", async () => {
+    const fixture = await setupCopy();
+
+    await fixture.componentInstance["makeCopy"](SOURCE);
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "success",
+      message: "pamAccessRuleCopyCreated",
+    });
+  });
+
+  it("refreshes the list and retries once when the chosen name was already taken", async () => {
+    const fixture = await setupCopy();
+    // Swapped in after the initial load, so the retry's refresh is the first read that sees the
+    // copy another admin made in the meantime.
+    fixture.componentInstance["accessRules"]["pamApi"].listAccessRules = jest
+      .fn()
+      .mockResolvedValue([SOURCE, rule("rule-9", "VPN (copy)")]);
+    createAccessRule.mockRejectedValueOnce(accessRuleError("Api", NAME_TAKEN_PAYLOAD));
+
+    await fixture.componentInstance["makeCopy"](SOURCE);
+
+    expect(createAccessRule).toHaveBeenNthCalledWith(
+      1,
+      "org-1",
+      expect.objectContaining({ name: "VPN (copy)" }),
+    );
+    expect(createAccessRule).toHaveBeenNthCalledWith(
+      2,
+      "org-1",
+      expect.objectContaining({ name: "VPN (copy 2)" }),
+    );
+    expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+  });
+
+  it("does not announce the copy when a failed navigation follows the create", async () => {
+    const fixture = await setupCopy();
+    navigate.mockRejectedValue(new Error("guard blew up"));
+
+    await expect(fixture.componentInstance["makeCopy"](SOURCE)).rejects.toThrow("guard blew up");
+
+    // The rule exists, so the one thing that must not happen is an error toast claiming otherwise.
+    expect(showToast).not.toHaveBeenCalledWith(expect.objectContaining({ variant: "error" }));
+  });
+
+  it("stays on the table and toasts the mapped failure when the create is rejected", async () => {
+    const fixture = await setupCopy();
+    createAccessRule.mockRejectedValue(accessRuleError("Api", RAW_SERVER_PAYLOAD));
+
+    await fixture.componentInstance["makeCopy"](SOURCE);
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "error",
+      message: "pamAccessRuleErrorCollectionsGoverned",
     });
   });
 });
