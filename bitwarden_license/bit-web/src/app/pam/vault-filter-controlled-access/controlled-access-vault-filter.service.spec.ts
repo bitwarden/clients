@@ -60,7 +60,7 @@ describe("ControlledAccessVaultFilterService", () => {
   describe("options$", () => {
     it("offers Privileged and My requests while Unavailable stays deferred", async () => {
       expect(await firstValueFrom(service.options$)).toEqual([
-        { id: MY_REQUESTS_FILTER_ID, name: "pamTabMyRequests", icon: "bwi-key" },
+        { id: MY_REQUESTS_FILTER_ID, name: "pamTabMyRequests", icon: "bwi-lock-encrypted" },
         { id: PRIVILEGED_FILTER_ID, name: "pamAccessBadgePrivileged", icon: "bwi-key" },
       ]);
     });
