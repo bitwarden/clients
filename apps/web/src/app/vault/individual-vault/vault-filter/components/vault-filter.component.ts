@@ -253,13 +253,13 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
+    builderFilter.folderFilter = await this.addFolderFilter();
+    builderFilter.collectionFilter = await this.addCollectionFilter();
     if (this.controlledAccessFilter != null) {
       builderFilter.controlledAccessFilter = this.addControlledAccessFilter(
         this.controlledAccessFilter,
       );
     }
-    builderFilter.folderFilter = await this.addFolderFilter();
-    builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.archiveFilter = await this.addArchiveFilter(userId);
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
@@ -318,9 +318,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
     const data$ = combineLatest([
       this.restrictedItemTypesService.restricted$,
-      // Include PAM-gated ("partial") ciphers so a restricted type present only as gated rows
-      // still surfaces in the web filter, as it does in the list.
-      this.cipherService.cipherListViewsIncludingRestricted$(userId),
+      // Include gated ("partial") ciphers so a type present only as gated rows still surfaces.
+      this.cipherService.cipherListViewsWithPartials$(userId),
       this.vaultFilterService.cipherTypeFilters$,
     ]).pipe(
       map(([restrictedTypes, ciphers, cipherTypeFilters]) => {
@@ -399,7 +398,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return collectionFilterSection;
   }
 
-  /** A head node with no children renders nothing, so an empty `options$` hides the group. */
+  /**
+   * The group renders nothing while the host offers no children, which is also how a user with no
+   * privileged-access organization in view sees no group: `app-filter-section` draws neither the
+   * heading nor the list for a head node with no children.
+   */
   protected addControlledAccessFilter(
     controlledAccessFilter: VaultControlledAccessFilter,
   ): VaultFilterSection {
@@ -407,7 +410,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       map((options) => {
         const headNode = new TreeNode<ControlledAccessFilter>(
           { id: "headControlledAccess", name: "controlledAccess" },
-          null!,
+          null,
         );
         headNode.children = options.map(
           (option) =>
