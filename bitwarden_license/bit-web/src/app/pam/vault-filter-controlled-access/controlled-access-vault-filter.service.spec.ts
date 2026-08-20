@@ -13,6 +13,7 @@ import { AccessRequestSdkService } from "../abstractions/access-request-sdk.serv
 
 import {
   ControlledAccessVaultFilterService,
+  MY_REQUESTS_FILTER_ID,
   PRIVILEGED_FILTER_ID,
 } from "./controlled-access-vault-filter.service";
 
@@ -57,9 +58,10 @@ describe("ControlledAccessVaultFilterService", () => {
   });
 
   describe("options$", () => {
-    it("offers only Privileged while the other two children are deferred", async () => {
+    it("offers Privileged and My requests while Unavailable stays deferred", async () => {
       expect(await firstValueFrom(service.options$)).toEqual([
         { id: PRIVILEGED_FILTER_ID, name: "pamAccessBadgePrivileged", icon: "bwi-key" },
+        { id: MY_REQUESTS_FILTER_ID, name: "pamTabMyRequests", icon: "bwi-clock" },
       ]);
     });
 
@@ -132,9 +134,40 @@ describe("ControlledAccessVaultFilterService", () => {
     it("leaves the list untouched for an id from a milestone that has not shipped", async () => {
       const ciphers = [cipher("cipher-1", PAM_ORG, true)];
 
-      const result = await firstValueFrom(service.narrow$("myRequests", ciphers));
+      const result = await firstValueFrom(service.narrow$("unavailable", ciphers));
 
       expect(result).toBe(ciphers);
+    });
+
+    it.each([["pending"], ["ready"]])(
+      "keeps a gated row the SDK reports as %s under My requests",
+      async (badgeState) => {
+        const requested = cipher("cipher-1", PAM_ORG, true);
+        accessRequestSdkService.getCipherAccessState.mockResolvedValue(accessState(badgeState));
+
+        const result = await firstValueFrom(service.narrow$(MY_REQUESTS_FILTER_ID, [requested]));
+
+        expect(result).toEqual([requested]);
+      },
+    );
+
+    it("keeps a gated row holding an active lease under My requests", async () => {
+      const active = cipher("cipher-1", PAM_ORG, true);
+      accessRequestSdkService.getCipherAccessState.mockResolvedValue(
+        accessState({ active: { expiresAt: "2026-08-20T12:00:00.000Z" } }),
+      );
+
+      const result = await firstValueFrom(service.narrow$(MY_REQUESTS_FILTER_ID, [active]));
+
+      expect(result).toEqual([active]);
+    });
+
+    it("drops a row that is merely privileged from My requests", async () => {
+      const result = await firstValueFrom(
+        service.narrow$(MY_REQUESTS_FILTER_ID, [cipher("cipher-1", PAM_ORG, true)]),
+      );
+
+      expect(result).toEqual([]);
     });
   });
 });
