@@ -6,12 +6,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import {
-  BitSvg,
-  ReportExposedPasswords,
-  UnlockedIcon,
-  NoCredentialsIcon,
-} from "@bitwarden/assets/svg";
+import { BitSvg, ReportExposedPasswords, LockIcon, NoCredentialsIcon } from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import {
   RiskCategory,
@@ -111,7 +106,7 @@ const categories = [
     titleKey: "weakPasswordsTitle",
     descriptionKey: "weakPasswordsDescription",
     emptyKey: "weakPasswordsEmpty",
-    icon: UnlockedIcon,
+    icon: LockIcon,
   },
   {
     category: RiskCategory.Reused,
