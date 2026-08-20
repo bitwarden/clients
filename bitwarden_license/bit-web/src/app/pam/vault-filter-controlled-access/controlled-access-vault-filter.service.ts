@@ -43,16 +43,16 @@ type ControlledAccessFilterDefinition = Omit<ControlledAccessFilterOption, "name
 
 const CONTROLLED_ACCESS_FILTERS: readonly ControlledAccessFilterDefinition[] = [
   {
+    id: MY_REQUESTS_FILTER_ID,
+    nameKey: "pamTabMyRequests",
+    icon: "bwi-key",
+    kinds: ["pending", "ready", "active"],
+  },
+  {
     id: PRIVILEGED_FILTER_ID,
     nameKey: "pamAccessBadgePrivileged",
     icon: "bwi-key",
     kinds: ["privileged"],
-  },
-  {
-    id: MY_REQUESTS_FILTER_ID,
-    nameKey: "pamTabMyRequests",
-    icon: "bwi-clock",
-    kinds: ["pending", "ready", "active"],
   },
 ];
 
