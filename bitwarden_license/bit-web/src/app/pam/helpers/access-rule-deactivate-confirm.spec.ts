@@ -11,6 +11,8 @@ describe("accessRuleDeactivateConfirmOptions", () => {
     });
   });
 
+  // "1 rules will stop applying" is not a sentence, so one rule takes the singular copy from
+  // whichever surface asked — the row menu (no argument) and the bulk bar (a count of 1) agree.
   it("asks the singular question for a count of one", () => {
     expect(accessRuleDeactivateConfirmOptions(1)).toEqual(accessRuleDeactivateConfirmOptions());
   });
