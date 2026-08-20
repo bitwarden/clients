@@ -1,5 +1,15 @@
 import { inject, Injectable } from "@angular/core";
-import { catchError, combineLatest, forkJoin, from, map, Observable, of, switchMap } from "rxjs";
+import {
+  catchError,
+  combineLatest,
+  forkJoin,
+  from,
+  map,
+  Observable,
+  of,
+  shareReplay,
+  switchMap,
+} from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -57,6 +67,7 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
       map(
         (organizations) => new Set<string>(organizations.filter((o) => o.usePam).map((o) => o.id)),
       ),
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
   readonly options$: Observable<ControlledAccessFilterOption[]> = combineLatest([
@@ -74,16 +85,16 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
           ]
         : [],
     ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   narrow$<C extends CipherViewLike>(optionId: string, ciphers: C[]): Observable<C[]> {
     return this.options$.pipe(
-      switchMap((options) => {
-        if (!options.some((option) => option.id === optionId)) {
-          return of(ciphers);
-        }
-        return this.narrowToPrivileged$(ciphers);
-      }),
+      switchMap((options) =>
+        options.some((option) => option.id === optionId)
+          ? this.narrowToPrivileged$(ciphers)
+          : of(ciphers),
+      ),
     );
   }
 
