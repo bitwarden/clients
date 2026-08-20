@@ -11,11 +11,13 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import {
   VaultFilterServiceAbstraction as VaultFilterService,
+  VaultFilter,
   VaultFilterSection,
   VaultFilterType,
 } from "@bitwarden/vault";
 
 import { CoachmarkService } from "../../../../components/coachmark";
+import { VAULT_CONTROLLED_ACCESS_FILTER } from "../../../vault-controlled-access-filter.token";
 
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./vault-filter-gated-collection-indicator.token";
 import { VaultFilterSectionComponent } from "./vault-filter-section.component";
@@ -100,5 +102,75 @@ describe("VaultFilterSectionComponent", () => {
     create({ provideIndicator: true, isCollectionFilter: false });
 
     expect(indicator()).toBeNull();
+  });
+});
+
+describe("VaultFilterSectionComponent controlled access selection", () => {
+  const vaultFilterService = mock<VaultFilterService>();
+
+  function create(
+    offeredIds: string[] | null,
+    activeFilter: Partial<VaultFilter> = {},
+  ): VaultFilterSectionComponent {
+    TestBed.resetTestingModule();
+    vaultFilterService.collapsedFilterNodes$ = of(new Set<string>());
+
+    TestBed.configureTestingModule({
+      imports: [CommonModule, JslibModule],
+      declarations: [VaultFilterSectionComponent],
+      schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        { provide: VaultFilterService, useValue: vaultFilterService },
+        { provide: CoachmarkService, useValue: mock<CoachmarkService>() },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" as UserId }) } },
+        { provide: I18nService, useValue: { t: (key: string): string => key } },
+        ...(offeredIds == null
+          ? []
+          : [
+              {
+                provide: VAULT_CONTROLLED_ACCESS_FILTER,
+                useValue: {
+                  options$: of(offeredIds.map((id) => ({ id, name: id, icon: "bwi-key" }))),
+                  narrow$: jest.fn(),
+                },
+              },
+            ]),
+      ],
+    });
+
+    const fixture = TestBed.createComponent(VaultFilterSectionComponent);
+    fixture.componentInstance.activeFilter = activeFilter as VaultFilter;
+    fixture.componentRef.setInput("section", collectionSection());
+    fixture.detectChanges();
+    return fixture.componentInstance;
+  }
+
+  const allItemsNode = new TreeNode<VaultFilterType>(
+    { id: "AllItems", name: "allItems" } as unknown as VaultFilterType,
+    null,
+  );
+
+  it("selects All items when the controlled access id is no longer offered", () => {
+    const component = create([], { controlledAccessId: "privileged" });
+
+    expect(component.isNodeSelected(allItemsNode)).toBe(true);
+  });
+
+  it("selects All items when no host fills the controlled access seam", () => {
+    const component = create(null, { controlledAccessId: "privileged" });
+
+    expect(component.isNodeSelected(allItemsNode)).toBe(true);
+  });
+
+  it("leaves All items unselected while the controlled access id is offered", () => {
+    const component = create(["privileged"], { controlledAccessId: "privileged" });
+
+    expect(component.isNodeSelected(allItemsNode)).toBe(false);
+  });
+
+  it("leaves All items unselected when a cipher type is also in the URL", () => {
+    const component = create([], { cipherTypeId: "login", controlledAccessId: "gone" });
+
+    expect(component.isNodeSelected(allItemsNode)).toBe(false);
   });
 });
