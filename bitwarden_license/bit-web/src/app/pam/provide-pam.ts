@@ -12,6 +12,7 @@ import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-c
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
+import { VAULT_CONTROLLED_ACCESS_FILTER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-controlled-access-filter.token";
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/vault-filter-gated-collection-indicator.token";
 import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
@@ -33,6 +34,7 @@ import { GovernedCollectionsService } from "./services/governed-collections.serv
 import { PamGatedCipherReloader } from "./services/pam-gated-cipher-reloader.service";
 import { DefaultPamNavBadgeService } from "./services/pam-nav-badge.service";
 import { DefaultVaultRowAccessActionsService } from "./services/vault-row-access-actions.service";
+import { ControlledAccessVaultFilterService } from "./vault-filter-controlled-access/controlled-access-vault-filter.service";
 import { GatedCollectionFilterIndicatorComponent } from "./vault-filter-gated-collection/gated-collection-filter-indicator.component";
 import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge/vault-row-lease-badge.component";
 
@@ -70,7 +72,9 @@ import {
  * on a governed collection in the vault's Filters sidebar, backed by the shared
  * `GovernedCollectionsService` lookup) and `VAULT_GATED_COLLECTION_BANNER` (the notice
  * above the item list naming the same restriction while a governed collection is the
- * active filter), all component classes, plus `GATED_CIPHER_RELOADER` (the
+ * active filter), all component classes, and `VAULT_CONTROLLED_ACCESS_FILTER` (the sidebar's
+ * "Controlled access" group and the narrowing its children apply to the item list),
+ * plus `GATED_CIPHER_RELOADER` (the
  * observable that reveals a gated cipher in place once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
  * edit dialog), `PamNavBadgeService` (the nav badge count), and
@@ -131,6 +135,11 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: VAULT_GATED_COLLECTION_BANNER,
       useValue: GatedCollectionBannerComponent,
+    }),
+    safeProvider({
+      provide: VAULT_CONTROLLED_ACCESS_FILTER,
+      useClass: ControlledAccessVaultFilterService,
+      deps: [],
     }),
     // Root-level (not per-consumer) so the sidebar indicator, the gated-collection banner AND
     // repeated opens of the collection dialog share one cached per-org rules read. The vault-row
