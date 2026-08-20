@@ -24,6 +24,7 @@ import {
   take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -501,7 +502,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    const ciphers$ = combineLatest([filteredCiphers$, filter$]).pipe(
+    // filteredCiphers$ already incorporates filter$, so re-combining here would let
+    // the two observables race and double the narrowToControlledAccess SDK calls.
+    const ciphers$ = filteredCiphers$.pipe(
+      withLatestFrom(filter$),
       switchMap(([ciphers, filter]) => this.narrowToControlledAccess(ciphers, filter)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
