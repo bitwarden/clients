@@ -120,7 +120,7 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
  * Activation is not a status of its own: an approved request that minted a lease is recognised by
  * `producedLeaseId`, and the lease's `producedLeaseStatus` drives the label from there.
  *
- `canceled` and `revoked` are distinct lease statuses, so the label reads straight off
+ * `canceled` and `revoked` are distinct lease statuses, so the label reads straight off
  * `producedLeaseStatus`: the requester ending their own lease is "Canceled", an operator ending it
  * out from under them is "Revoked". An `active` produced lease is labelled like a live grant — callers exclude it from History (it
  * belongs in Active leases) but the detail page's top status field can still render it correctly.
