@@ -848,6 +848,31 @@ class MockScrollingPageV2Component {}
 })
 class MockVaultPageV2Component {}
 
+/** A subpage, where the back button sits at the leading edge of the title bar. */
+@Component({
+  selector: "mock-back-page-v2",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `
+    <popup-page>
+      <popup-header slot="header" pageTitle="Item details" showBackButton>
+        <ng-container slot="end">
+          <mock-popout-button-vfo1></mock-popout-button-vfo1>
+          <mock-current-account></mock-current-account>
+        </ng-container>
+      </popup-header>
+      <vault-placeholder></vault-placeholder>
+    </popup-page>
+  `,
+  imports: [
+    PopupPageComponent,
+    PopupHeaderComponent,
+    MockPopoutButtonVFO1Component,
+    MockCurrentAccountComponent,
+    VaultComponent,
+  ],
+})
+class MockBackPageV2Component {}
+
 // Shared so it can be provided at BOTH the module level (page content) and the
 // application level — the responsive filter dialog opened via DialogService roots
 // its injector at the app injector, so it needs I18nService provided there too.
@@ -921,6 +946,7 @@ export default {
         MockSendPageV2Component,
         MockScrollingPageV2Component,
         MockVaultPageV2Component,
+        MockBackPageV2Component,
         NoItemsModule,
         VaultComponent,
         ScrollingModule,
@@ -1339,6 +1365,19 @@ export const HeaderV2TitleSuffix: Story = {
     template: /* HTML */ `
       <extension-container>
         <mock-vault-page-v2></mock-vault-page-v2>
+      </extension-container>
+    `,
+  }),
+};
+
+/** A subpage keeps its title bar, so the back button renders there, beside the title. */
+export const HeaderV2BackButton: Story = {
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+  render: (args) => ({
+    props: args,
+    template: /* HTML */ `
+      <extension-container>
+        <mock-back-page-v2></mock-back-page-v2>
       </extension-container>
     `,
   }),

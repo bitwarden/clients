@@ -14,7 +14,11 @@ import { PopupPageComponent } from "./popup-page.component";
 
 @Component({
   template: `
-    <popup-header [pageTitle]="pageTitle()" [showBackButton]="showBackButton()">
+    <popup-header
+      [pageTitle]="pageTitle()"
+      [showBackButton]="showBackButton()"
+      [hideTitleBar]="hideTitleBar()"
+    >
       <span data-testid="default">Default content</span>
       <span slot="title-start" data-testid="title-start">Icon tile</span>
       <span slot="end" data-testid="end">Pop out</span>
@@ -28,6 +32,7 @@ import { PopupPageComponent } from "./popup-page.component";
 class TestHostComponent {
   readonly pageTitle = signal("Send");
   readonly showBackButton = signal(false);
+  readonly hideTitleBar = signal(false);
 }
 
 /**
@@ -270,6 +275,77 @@ describe("PopupHeaderComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector("button[bitIconButton]")).not.toBeNull();
+    });
+  });
+
+  describe("hideTitleBar", () => {
+    const backButtons = (): HTMLElement[] =>
+      Array.from(fixture.nativeElement.querySelectorAll("button[bitIconButton]"));
+
+    /**
+     * The bar keeps its element so the `end` slot's projected content survives — destroying it
+     * would take that content with it — so "hidden" here means `display: none`, not absent.
+     */
+    const suppressed = () => titleBar().classList.contains("tw-hidden");
+
+    describe("when the flag is on", () => {
+      beforeEach(() => {
+        vfo1Enabled.next(true);
+        fixture.componentInstance.hideTitleBar.set(true);
+        fixture.detectChanges();
+      });
+
+      it("hides the title bar and keeps the app bar", () => {
+        expect(suppressed()).toBe(true);
+        expect(appBar()).not.toBeNull();
+        expect(banners()).toHaveLength(1);
+      });
+
+      it("drops the title bar's padding and border along with it", () => {
+        expect(titleBar().classList.contains("tw-p-3")).toBe(false);
+        expect(titleBar().classList.contains("tw-border-b")).toBe(false);
+      });
+
+      it("renders the back button once, in the app bar", () => {
+        fixture.componentInstance.showBackButton.set(true);
+        fixture.detectChanges();
+
+        expect(backButtons()).toHaveLength(1);
+        expect(appBar().contains(backButtons()[0])).toBe(true);
+      });
+
+      /** The default ghost styling is illegible against the app bar's nav background. */
+      it("styles the back button for the nav background", () => {
+        fixture.componentInstance.showBackButton.set(true);
+        fixture.detectChanges();
+
+        expect(backButtons()[0].classList).toContain("!tw-text-fg-nav");
+      });
+
+      it("renders no back button without showBackButton", () => {
+        expect(backButtons()).toHaveLength(0);
+      });
+
+      it("keeps the end slot in the app bar", () => {
+        expect(appBar().contains(slot("end"))).toBe(true);
+      });
+
+      it("stays hidden through a scroll that would otherwise collapse the bar", async () => {
+        await scrollTo(200);
+
+        expect(suppressed()).toBe(true);
+        expect(titleBar().classList.contains("!tw-max-h-0")).toBe(false);
+      });
+    });
+
+    it("does nothing when the flag is off", () => {
+      fixture.componentInstance.hideTitleBar.set(true);
+      fixture.componentInstance.showBackButton.set(true);
+      fixture.detectChanges();
+
+      expect(suppressed()).toBe(false);
+      expect(titleBar().contains(backButtons()[0])).toBe(true);
+      expect(backButtons()[0].classList).not.toContain("!tw-text-fg-nav");
     });
   });
 });

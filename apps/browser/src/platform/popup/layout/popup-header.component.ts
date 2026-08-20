@@ -17,6 +17,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   AsyncActionsModule,
+  ButtonType,
   FunctionReturningAwaitable,
   IconButtonModule,
   ScrollLayoutService,
@@ -81,6 +82,12 @@ export class PopupHeaderComponent {
   /** Display the back button, which uses Location.back() to go back one page in history */
   readonly showBackButton = input(false, { transform: booleanAttribute });
 
+  /**
+   * Hide the page title bar for pages that title themselves in their own content. The back button
+   * moves into the app bar. VFO1 only — the one-bar header has no bar to fall back to.
+   */
+  readonly hideTitleBar = input(false, { transform: booleanAttribute });
+
   /** Title string that will be inserted as an h1 */
   readonly pageTitle = input.required<string>();
 
@@ -105,8 +112,17 @@ export class PopupHeaderComponent {
    */
   private readonly pageScrolled = computed(() => this.page?.isScrolled() ?? false);
 
+  /** The title bar is gone for the life of the page, so the back button moves to the app bar. */
+  protected readonly titleBarSuppressed = computed(() => this.vfo1Enabled() && this.hideTitleBar());
+
+  /** The app bar sits on the nav background, which only `side-nav` is legible against. */
+  protected readonly backButtonType = computed<ButtonType>(() =>
+    this.titleBarSuppressed() ? "side-nav" : "primaryGhost",
+  );
+
+  /** Collapsed by scroll, unlike `titleBarSuppressed` — the bar is still there and focusable. */
   protected readonly titleBarHidden = computed(
-    () => this.vfo1Enabled() && this.scrollDirection() === "down",
+    () => this.vfo1Enabled() && !this.hideTitleBar() && this.scrollDirection() === "down",
   );
 
   /**
@@ -168,6 +184,12 @@ export class PopupHeaderComponent {
   protected readonly titleBarClasses = computed(() => {
     if (!this.vfo1Enabled()) {
       return "";
+    }
+
+    // `display: none` rather than an `@if`: destroying the bar would take the `end` slot's
+    // projected content with it, since the same `ng-content` serves both bars.
+    if (this.titleBarSuppressed()) {
+      return "tw-hidden";
     }
 
     const classes = [

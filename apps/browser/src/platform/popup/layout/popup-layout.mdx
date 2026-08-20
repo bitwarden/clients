@@ -79,6 +79,12 @@ Basic usage example:
 - `showBackButton`: optional, defaults to `false`
   - Toggles the back button to appear. The back button uses `Location.back()` to navigate back one
     page in history.
+- `hideTitleBar`: optional, defaults to `false`
+  - Hides the page title bar, leaving only the app bar. For a page that titles itself in its own
+    content — an anon layout page, say — where the title bar would otherwise be empty. The back
+    button moves to the leading edge of the app bar, so `showBackButton` keeps working. Has no
+    effect without the `vfo1-foundation` flag: the one-bar header has no second bar to fall back to,
+    and hiding it would take the logo and `end` slot with it.
 - `background`: optional, defaults to `"default"`
   - `"default"` sits on an opaque background with a bottom border.
   - `"alt"` is transparent and borderless, for a page that paints its own background — an

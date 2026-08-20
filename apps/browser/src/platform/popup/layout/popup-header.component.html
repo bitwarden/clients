@@ -8,6 +8,20 @@
   <ng-content select="[slot=end]"></ng-content>
 </ng-template>
 
+<!-- Declared once and rendered into whichever bar is live, same as `endSlot` above. -->
+<ng-template #backButtonSlot>
+  @if (showBackButton()) {
+    <button
+      bitIconButton="bwi-angle-left"
+      type="button"
+      [buttonType]="backButtonType()"
+      [label]="'back' | i18n"
+      [bitAction]="backAction()"
+      size="small"
+    ></button>
+  }
+</ng-template>
+
 <!--
   One `header` around both bars, so the banner landmark covers the whole region. The bars themselves
   are plain containers: the app bar is chrome belonging to the extension, the title bar belongs to the
@@ -23,6 +37,9 @@
         class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-w-full tw-items-center tw-justify-between tw-gap-2 tw-h-9"
       >
         <div class="tw-inline-flex tw-items-center tw-gap-2">
+          @if (titleBarSuppressed()) {
+            <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
+          }
           <bit-svg
             class="tw-block tw-w-28 [&_path]:tw-fill-fg-nav"
             [content]="logo"
@@ -38,14 +55,9 @@
 
   <div data-testid="title-bar" [class]="titleBarClasses()">
     <div class="tw-max-w-screen-sm tw-mx-auto tw-flex tw-justify-between tw-w-full">
-      <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
-        @if (showBackButton()) {
-          <button
-            bitIconButton="bwi-angle-left"
-            type="button"
-            [label]="'back' | i18n"
-            [bitAction]="backAction()"
-          ></button>
+      <div class="tw-inline-flex tw-items-center tw-gap-2">
+        @if (!titleBarSuppressed()) {
+          <ng-container *ngTemplateOutlet="backButtonSlot"></ng-container>
         }
         @if (vfo1Enabled()) {
           <ng-content select="[slot=title-start]"></ng-content>
@@ -67,7 +79,7 @@
           <ng-content></ng-content>
         }
       </div>
-      <div class="tw-inline-flex tw-items-center tw-gap-2 tw-h-9">
+      <div class="tw-inline-flex tw-items-center tw-gap-2">
         @if (vfo1Enabled()) {
           <ng-content select="[slot=title-end]"></ng-content>
         } @else {
