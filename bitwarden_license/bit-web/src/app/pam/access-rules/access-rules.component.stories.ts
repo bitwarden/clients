@@ -114,7 +114,11 @@ export default {
 
 type Story = StoryObj<AccessRulesComponent>;
 
-/** The populated table: a mix of active/inactive rules, conditions, and duration caps. */
+/**
+ * The populated table: a mix of active/inactive rules, conditions, and duration caps. The
+ * header's "Create access rule" button opens a menu offering a blank Custom rule and the
+ * three starter templates.
+ */
 export const Default: Story = {};
 
 /** No rules yet, so the empty state offers the starter templates. */
