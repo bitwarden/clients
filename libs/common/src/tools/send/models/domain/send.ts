@@ -3,6 +3,8 @@
 import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import {
   AuthType as SdkAuthType,
   Send as SdkSend,
@@ -10,7 +12,6 @@ import {
   SendType as SdkSendType,
 } from "@bitwarden/sdk-internal";
 
-import { EncString } from "../../../../key-management/crypto/models/enc-string";
 import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";

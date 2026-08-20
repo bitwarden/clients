@@ -123,3 +123,4 @@ export { ShareItemFormComponent } from "./share-item-form/share-item-form.compon
 export { ShareItemDrawerComponent } from "./share-item-drawer/share-item-drawer.component";
 export * from "./components/totp-countdown/totp-countdown.component";
 export * from "./pipes/credit-card-number.pipe";
+export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
