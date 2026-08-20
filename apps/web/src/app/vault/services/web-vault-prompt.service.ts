@@ -15,7 +15,7 @@ import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
   AutoConfirmPolicy,
-  MultiStepPolicyEditDialogComponent,
+  MultiStepPolicyEditModalComponent,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
 
@@ -69,7 +69,10 @@ export class WebVaultPromptService {
   }
 
   private openAutoConfirmFeatureDialog(organization: Organization) {
-    MultiStepPolicyEditDialogComponent.open(this.dialogService, {
+    // Opened as a modal (not a drawer) - this is a proactive onboarding prompt shown on the
+    // vault page, not a policy being edited from the Admin Console policies page, so it should
+    // remain an attention-grabbing modal rather than a side drawer.
+    MultiStepPolicyEditModalComponent.open(this.dialogService, {
       data: {
         policy: new AutoConfirmPolicy(true),
         organization: organization,
