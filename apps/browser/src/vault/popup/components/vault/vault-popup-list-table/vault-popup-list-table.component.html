@@ -201,7 +201,7 @@
     </bit-cell>
   </bit-column>
 
-  <bit-row-group [match]="isAutofill">
+  <bit-row-group collapsible [match]="isAutofill">
     <div class="tw-flex tw-gap-2 tw-items-center">
       {{ autofillSectionKey() | i18n }}
       @if (showRefresh) {
