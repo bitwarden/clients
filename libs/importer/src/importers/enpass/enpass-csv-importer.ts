@@ -1,4 +1,4 @@
-import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { SecureNoteType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
@@ -69,11 +69,13 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
           const fieldNameLower = this.normalizeFieldName(fieldName);
 
           if (cipher.type === CipherType.Login) {
-            if (
-              (fieldNameLower === "url" || fieldNameLower === "website") &&
-              (cipher.login.uris == null || cipher.login.uris.length === 0)
-            ) {
-              cipher.login.uris = this.makeUriArray(fieldValue);
+            if (fieldNameLower === "url" || fieldNameLower === "website") {
+              // Enpass exports a primary Website plus a sign-in/change-password Website;
+              // both become login URIs so autofill matches either domain
+              const uris = this.makeUriArray(fieldValue);
+              if (uris != null) {
+                cipher.login.uris = (cipher.login.uris ?? []).concat(uris);
+              }
               continue;
             } else if (
               (fieldNameLower === "username" ||
@@ -89,7 +91,10 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
             ) {
               cipher.login.password = fieldValue;
               continue;
-            } else if (fieldNameLower === "totp" && this.isNullOrWhitespace(cipher.login.totp)) {
+            } else if (
+              (fieldNameLower === "totp" || fieldNameLower === "one-time code") &&
+              this.isNullOrWhitespace(cipher.login.totp)
+            ) {
               cipher.login.totp = fieldValue;
               continue;
             }
@@ -121,7 +126,14 @@ export class EnpassCsvImporter extends BaseImporter implements Importer {
             }
           }
 
-          this.processKvp(cipher, fieldName, fieldValue);
+          // '*' marks a sensitive Enpass field; strip it from the display name and mask the value
+          const isSensitiveField = fieldName.startsWith("*");
+          this.processKvp(
+            cipher,
+            isSensitiveField ? fieldName.slice(1).trim() : fieldName,
+            fieldValue,
+            isSensitiveField ? FieldType.Hidden : FieldType.Text,
+          );
         }
       }
 
