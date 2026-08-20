@@ -1,0 +1,22 @@
+{
+  "name": "@bitwarden/bit-pam",
+  "version": "0.0.0",
+  "description": "Privileged Access Management (credential leasing) — commercial contract layer.",
+  "keywords": [
+    "bitwarden"
+  ],
+  "author": "Bitwarden Inc.",
+  "homepage": "https://bitwarden.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitwarden/clients"
+  },
+  "license": "SEE LICENSE IN ../../LICENSE_BITWARDEN.txt",
+  "private": true,
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && tsc",
+    "build:watch": "npm run clean && tsc -watch",
+    "test": "jest"
+  }
+}

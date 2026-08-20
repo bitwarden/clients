@@ -1,0 +1,438 @@
+-- allium: 3
+-- pam-audit.allium
+
+-- Scope: the PAM access-audit log — a queryable, governance-grade trail of
+-- privileged-access activity (who requested access to what, who decided, who
+-- activated it, who ended it), surfaced to org admins.
+--
+-- This is a WRITTEN, APPEND-ONLY store. Each state-changing PAM action writes an
+-- audit event at the moment it happens, through an emit seam
+-- (IAccessAuditEventEmitter) that the PAM commands in pam.allium call. A dedicated
+-- store backs it (server table [dbo].[AccessAuditEvent]). The governance trail is
+-- READ straight from that store — no projection, no joins, no reconstruction from
+-- other entities' state. It sits beside pam.allium deliberately: pam.allium models
+-- the audit-event EMISSION (the LeaseActivationAudited / LeaseSettles events and
+-- the *_at / *_by stamps the commands set); this spec defines the record those
+-- emissions write and the views over it.
+--
+-- Write-ahead (before/after) model: a state-changing action emits a PAIR — an
+-- Attempt BEFORE its point of no return and an Outcome AFTER — distinguished by the
+-- `phase` field. Emission is non-transactional, so a crash between the two leaves an
+-- Attempt with no Outcome (an in-doubt entry) rather than a silently lost event.
+--
+-- Self-contained rows: the actor / requester / cipher / collection / rule display
+-- NAMES are snapshotted into each row at write time (frozen). A later delete or
+-- rename of a referenced entity therefore cannot erase or rewrite what an event
+-- said, and the read touches no other table. Cipher and collection names are
+-- encrypted (captured as-is); IDs are still stored, for correlation.
+--
+-- One hard constraint shapes the design (external, firm):
+--   NOT the generic org event log. The org event feed still records PAM activity
+--   in parallel (a separate, standing requirement), but it cannot BE the audit
+--   trail: it is a fixed four-column feed, entitlement-gated, and not queryable by
+--   collection, requester, approver, verdict or event kind. Its emission — and the
+--   fan-out to it — is out of scope here (deferred).
+--
+-- The written-record principle (the load-bearing idea): the audit is a record
+-- CAPTURED AT THE MOMENT OF THE ACTION and SELF-CONTAINED — every descriptive fact
+-- (kind, actor, subjects, display names, detail) is snapshotted at write time.
+-- Because the record is written rather than reconstructed, repeated actions simply
+-- write an event each time, edits and deletes are their own events carrying the
+-- snapshotted names, and a refused attempt is written like any other (an Outcome of
+-- kind lease_activation_rejected). Each kind in the taxonomy is annotated with what
+-- emits it, or with the gap that defers it.
+--
+-- Scope / still deferred (all firm for this pass):
+--   - Dapper / MSSQL only — no EF / self-host store yet.
+--   - Org event-log fan-out (the parallel four-column feed) — deferred.
+--   - MSSQL Ledger / tamper-evidence — deferred; immutability is a property of the
+--     write-once store today (a nice-to-have hardening, not yet enforced).
+--   - Retention / export beyond the view window — deferred.
+--   - The time-derived kinds (expiry) and the credential-access and
+--     kill-switch / freeze kinds — no action emits them yet; see the taxonomy.
+--
+-- Includes: the audit event record and its taxonomy; what emits each kind; the
+--   org-admin audit view and the per-request timeline; the view window.
+-- Excludes: generic org-event-log emission and fan-out (parallel requirement,
+--   deferred); the deferred event kinds (credential access, expiry sweep,
+--   kill-switch / freeze) — see the taxonomy and Emission notes.
+
+use "./pam.allium" as pam
+
+-- ----------------------------------------------------------------------------
+-- The audit event record (an entity: written once at action time, never mutated)
+-- ----------------------------------------------------------------------------
+
+-- One row in the audit trail: an append-only record written by the emit seam at
+-- the moment a PAM action happens. It is an `entity` (not a `value`) because it has
+-- identity and durable, standalone existence — a stored row backs it. Rows are
+-- written once and never updated (append-only); the taxonomy and the two views are
+-- the only readers.
+--
+-- `kind` carries the outcome (an approval and a denial are distinct kinds), so no
+-- separate verdict field is needed. `phase` places the row in the write-ahead pair:
+-- an Attempt written before the action's point of no return, an Outcome written
+-- after. `actor` is who performed the event — the approver on a decision, the
+-- revoker on a revoke, the requester on a submission or self-end; `requester` is
+-- the owner of the subject request / lease. Together they give governance the
+-- requester-versus-approver distinction. A system-driven event (expiry, an
+-- automatic decision) has a null actor.
+--
+-- The entity references (actor, requester, collection, cipher, request, lease,
+-- rule) are retained for CORRELATION. The *_name fields alongside them are the
+-- DISPLAY NAMES snapshotted at write time, so a later delete or rename cannot
+-- rewrite what the event said; the read never dereferences the entity links.
+entity AccessAuditEvent {
+    kind: AccessAuditEventKind
+    phase: Phase
+    occurred_at: Timestamp
+    organization: pam/Organization
+
+    -- Who performed it; null for a system / automatic event.
+    actor: pam/User?
+    -- The owner of the subject request or lease (the access requester).
+    requester: pam/User?
+
+    -- Subjects (IDs, for correlation), present according to the event's kind.
+    collection: pam/Collection?
+    cipher: pam/Cipher?
+    request: pam/AccessRequest?
+    lease: pam/AccessLease?
+    rule: pam/AccessRule?
+
+    -- Display names snapshotted at write time (frozen; the read joins nothing).
+    -- actor_name / requester_name are plaintext; cipher_name / collection_name are
+    -- encrypted (EncString), captured as-is. Each is present only when its subject
+    -- is. See the cipher-name open question for a known future break.
+    actor_name: String?
+    requester_name: String?
+    cipher_name: String?
+    collection_name: String?
+    rule_name: String?
+
+    -- Whatever free text the source carried: an approver comment, an auto-denial
+    -- reason, or a revoke reason. Null when the source had none.
+    detail: String?
+
+    -- The lease window, for lease-scoped events (activation, extension, end).
+    lease_not_before: Timestamp?
+    lease_not_after: Timestamp?
+
+    -- Derived: a system / automatic event has no human actor. Drives the
+    -- automated-versus-human filter governance asks for.
+    automated: actor = null
+}
+
+-- The write-ahead pair. Every state-changing action writes an `attempt` before its
+-- point of no return and an `outcome` after; a crash between them leaves an attempt
+-- with no matching outcome (an in-doubt entry) rather than a lost event.
+enum Phase { attempt | outcome }
+
+-- ----------------------------------------------------------------------------
+-- Audit event taxonomy + what emits each kind
+-- ----------------------------------------------------------------------------
+
+-- The kinds of audit event, grouped as in the governance design. Each literal
+-- notes what emits it, or why it is deferred:
+--   (EMITTED)     written today by the command that performs the action, as an
+--                 attempt/outcome pair through the emit seam.
+--   (DEFERRED)    no action emits it yet — contributes no events; see the note.
+enum AccessAuditEventKind {
+    -- Access requests --------------------------------------------------------
+    -- (EMITTED) by the submit command; requester + subject captured. An
+    -- auto-approved request also emits request_approved in the same step.
+    request_submitted |
+    -- (EMITTED) by the approve command; actor = approver (null = automatic).
+    request_approved |
+    -- (EMITTED) by the deny command; actor = approver (null = auto-deny),
+    -- detail = approver_comment / auto-deny reason. A managing approver's
+    -- retraction (ApproverRetractsRequest) emits this too — a denial that names the
+    -- approver — distinct from a requester's own cancel below.
+    request_denied |
+    -- (EMITTED) by the requester's cancel command; actor = requester (approver null).
+    request_cancelled |
+    -- (DEFERRED) a pending request no approver decided, lapsing at its decision
+    -- deadline (PendingRequestExpires). Time-derived: no command performs it, so it
+    -- needs a background sweep to emit. None runs yet — contributes no events.
+    request_expired_unanswered |
+    -- (DEFERRED) an approved request whose activation window lapsed unused
+    -- (ApprovedRequestExpiresUnactivated). Time-derived like the above; needs the
+    -- same background sweep to emit. None runs yet — contributes no events.
+    request_expired_unactivated |
+
+    -- Access leases ----------------------------------------------------------
+    -- (EMITTED) by the activation command alongside minting the lease; actor =
+    -- requester; lease window captured in lease_not_before / lease_not_after.
+    lease_activated |
+    -- (EMITTED) by the activation command when a start is refused
+    -- (LeaseActivationRejected); actor = requester, detail = the refusal reason.
+    -- Each refused attempt is written, so the full history is retained (no longer
+    -- a last-only stamp).
+    lease_activation_rejected |
+    -- (EMITTED) by the extension activation; old end = the extension request's
+    -- requested_not_before, new end = requested_not_after.
+    lease_extended |
+    -- (EMITTED) by the revoke path (SettleLease with a revoker). Covers both an
+    -- operator revoke (actor != requester) and a holder self-end (actor =
+    -- requester) — pam.allium models both as `revoked`, distinguished by whether the
+    -- revoker is the requester.
+    lease_revoked |
+    -- (DEFERRED) a lease that lapsed on its own at not_after (SettleLease with no
+    -- revoker, driven by the LeaseExpires timer). Time-derived: needs the background
+    -- sweep to emit. None runs yet — contributes no events.
+    lease_expired |
+
+    -- Credential access ------------------------------------------------------
+    -- (DEFERRED) opening a leased credential; no command emits it yet.
+    credential_accessed |
+    -- (DEFERRED) a blocked read (failed re-check); no command emits it yet.
+    credential_access_denied |
+
+    -- Rule administration ----------------------------------------------------
+    -- (EMITTED) by the create-rule command; rule name snapshotted.
+    rule_created |
+    -- (EMITTED) by the update-rule command; each edit is its own event carrying the
+    -- rule name as it stood at write time (no longer a latest-only projection).
+    rule_updated |
+    -- (EMITTED) by the delete-rule command as the Outcome; the rule name is
+    -- captured before the hard delete, so the row need not survive to name it.
+    -- Scoped org-wide with the other rule kinds.
+    rule_deleted |
+
+    -- System controls --------------------------------------------------------
+    -- (DEFERRED) the org-wide kill switch and leasing freeze; no command emits these
+    -- yet. To be revisited with the system-controls surface.
+    leasing_kill_switch_triggered |
+    leasing_freeze_enabled |
+    leasing_freeze_lifted
+}
+
+-- ----------------------------------------------------------------------------
+-- Emission notes: how the written model handles the awkward cases
+-- ----------------------------------------------------------------------------
+--
+-- A written, self-contained record sidesteps the reconstruction hazards that a
+-- query-time projection had to work around. The cases worth naming:
+--
+--   1. REPEATED actions (a re-activation, repeated rule edits, repeated refusals).
+--      Each occurrence writes its own row at the moment it happens, so nothing is
+--      collapsed. (credential_accessed / credential_access_denied would follow the
+--      same pattern; they are deferred only because no command emits them yet.)
+--
+--   2. EDITS (rule_updated; a lease extension changing the end). The edit is its own
+--      event, capturing the values and the display name as they stood at write time.
+--      No prior row is overwritten — the earlier events remain. (Lease extension
+--      records old end = the extension request's requested_not_before and new end =
+--      requested_not_after, so lease_extended is exact.)
+--
+--   3. DELETES (rule_deleted; a future leasing-freeze lift). The delete is its own
+--      event. The rule is hard-deleted; the rule_deleted Outcome carries the rule
+--      name captured by the delete command before the row is removed, so the emit
+--      needs nothing to survive; see Supporting change A. The delete cannot rewrite
+--      what earlier events said — their rule_name is already snapshotted.
+--
+--   4. REFUSED attempts (lease_activation_rejected). A refused start is emitted like
+--      any other outcome — the request did not transition, but the event is still
+--      written (actor = requester, detail = the reason). The refusal is captured
+--      solely by this written event.
+
+-- ----------------------------------------------------------------------------
+-- Supporting state in pam.allium (landed)
+-- ----------------------------------------------------------------------------
+--
+-- One change in pam.allium supports the emit path, recorded here as the audit log's
+-- prerequisite. It has landed.
+--
+--   A. (IMPLEMENTED) AccessRule hard-delete + command-supplied name (supports
+--      rule_deleted).
+--      - OrgAdminDeletesAccessRule clears the rule's collection links and then
+--        removes the rule (`not exists rule`) — no deleted_at / deleted_by stamp.
+--      - The rule_deleted event's name is supplied by the delete command, captured
+--        before the delete, so the audit no longer needs the row to survive to name
+--        it (scoped org-wide, like the other rule kinds).
+
+-- ----------------------------------------------------------------------------
+-- Config
+-- ----------------------------------------------------------------------------
+
+config {
+    -- How far back the audit view surfaces events. Defaults to the window PAM
+    -- already uses for request/lease history, so the audit view and the governance
+    -- history stay aligned. Retention/export beyond this window is deferred.
+    audit_history_window: Duration = pam/config.history_window
+}
+
+-- ----------------------------------------------------------------------------
+-- Reads (deferred: the queries over the written store)
+-- ----------------------------------------------------------------------------
+
+-- `AccessAuditTrail(viewer, organization, since)`: the stored audit events across
+-- the whole `organization` (the viewer holds the AccessEventLogs permission),
+-- occurring at or after `since` — a direct read of the AccessAuditEvent store, no
+-- projection or joins. Returns Set<AccessAuditEvent>. Deferred because the query is
+-- mechanical read-and-filter detail, not domain behaviour; the record and taxonomy
+-- above are its contract. The (DEFERRED) kinds contribute no rows until a command
+-- or sweep emits them.
+deferred AccessAuditTrail    -- see: server-side read of the AccessAuditEvent store
+
+-- `AccessAuditTimeline(request)`: the stored events for a single AccessRequest,
+-- oldest first — the request-scoped slice of the same store (its submission,
+-- decision, activation, extension, end, and any rejected activation). Returns
+-- Sequence<AccessAuditEvent>. Bounded by the request's own lifecycle, so no
+-- history window applies.
+deferred AccessAuditTimeline    -- see: server-side read of the AccessAuditEvent store
+
+-- ----------------------------------------------------------------------------
+-- Actors
+-- ----------------------------------------------------------------------------
+
+-- Governance audience: anyone who holds the AccessEventLogs permission on the
+-- organization (org owners and admins by default, plus any custom role granted it) —
+-- the same permission that gates the organization event log. A viewer sees the
+-- ENTIRE organization's trail, regardless of which collections they manage: audit
+-- visibility is a permission, not a function of collection management.
+actor GovernanceViewer {
+    identified_by: pam/User
+    within: pam/Organization
+}
+
+-- The audience for one request's timeline: anyone already authorized to see the
+-- request — its requester (via MyAccessRequestsPage), an eligible approver (via
+-- ApproverInbox), or an org admin (via the governance trail). The timeline grants
+-- no new visibility — identity is the request's existing PAM authorization — so it
+-- is captured in prose rather than re-encoded here.
+actor AccessRequestViewer {
+    identified_by: pam/User
+}
+
+-- ----------------------------------------------------------------------------
+-- Surfaces: the org-admin audit view, and the per-request timeline
+-- ----------------------------------------------------------------------------
+
+surface AccessAuditLog {
+    -- The privileged-access audit trail for the whole organization: structured rows
+    -- the viewer can filter — the job the generic event feed cannot do. Surfaced as
+    -- a section of the governance dashboard — the "what happened" companion to the
+    -- dashboard's "what's happening now"; see the related link.
+    facing viewer: GovernanceViewer
+
+    context organization: pam/Organization
+
+    exposes:
+        -- The stored org-wide trail, within the view window.
+        AccessAuditTrail(viewer, organization, now - config.audit_history_window)
+
+    related:
+        -- Co-located with the governance dashboard: the audit trail is the
+        -- "what happened" tab beside the dashboard's live active/pending state.
+        pam/GovernanceDashboard(organization)
+
+    @guarantee ReadOnly
+        -- The audit view never mutates PAM state. It reads the AccessAuditEvent
+        -- store and provides no actions; writes happen only on the emit path, at the
+        -- moment each PAM action occurs.
+
+    @guidance
+        -- Filters governance asks for, applied over the returned events: by
+        -- collection, cipher, requester, approver (the actor on decision kinds),
+        -- event kind, date range, and automated-versus-human (the `automated`
+        -- flag) — plus whether a credential was actually accessed, once the
+        -- deferred credential_accessed kind lands. Drill-downs: from a request to
+        -- its decision timeline (its events ordered by occurred_at), from a cipher
+        -- to everyone who held a lease on it, and from a rule to its change history
+        -- (each edit is its own event). No CSV / auditor export in this pass
+        -- (deferred): the view is read-and-filter only.
+        --
+        -- Scoping (decided): the trail is org-wide, authorized by the AccessEventLogs
+        -- permission — the same gate as the organization event log — not the viewer's
+        -- managed collections. Any holder of that permission sees the whole org.
+        --
+        -- Org suspension: a suspended (disabled) organization drops from the caller's current context, so the
+        -- AccessEventLogs permission check fails there and this trail is empty even for an org admin. Shared with the
+        -- lease governance reads, not specific to audit; see the pam.allium open question on whether governance review
+        -- should survive suspension.
+        --
+        -- Reach: bounded by audit_history_window, the default view window — not a
+        -- retention guarantee. The store keeps rows until retention prunes them;
+        -- none is enforced yet (deferred), so it is effectively full history.
+        --
+        -- In-doubt entries: because emission is non-transactional, an attempt whose
+        -- outcome never landed (a crash in between) remains in the store. Governance
+        -- may surface these as in-doubt rather than treating them as completed
+        -- actions; how they are presented is left to the read.
+        --
+        -- Persistence: the store is the source of truth. Rows are written once on the
+        -- emit path and read back here; the read joins no other table, since every
+        -- descriptive fact is snapshotted on the row.
+}
+
+surface AccessRequestTimeline {
+    -- One request's full story, oldest first: submitted -> decided -> activated ->
+    -- extended -> ended, plus any rejected activation. The "what happened to this
+    -- request?" drill-down — a read of the stored events for this request.
+    facing viewer: AccessRequestViewer
+
+    context request: pam/AccessRequest
+
+    exposes:
+        AccessAuditTimeline(request)
+
+    @guarantee ReadOnly
+        -- A read of the request's stored events; no actions, no new state.
+
+    @guidance
+        -- Reached as a drill-down from ApproverInbox (the history bucket) and
+        -- MyAccessRequestsPage (the requester's own rows); an org admin reaches it
+        -- from the governance trail. Those inbound links are not modelled as
+        -- `related` edges here: they would point pam.allium -> pam-audit, the
+        -- reverse of this module's import, and create a cycle. Visibility is
+        -- inherited from whichever source surface the viewer arrived through — the
+        -- timeline adds none.
+}
+
+-- ----------------------------------------------------------------------------
+-- Open questions
+-- ----------------------------------------------------------------------------
+
+-- RESOLVED — Audience: org-wide, authorized by the AccessEventLogs permission (the
+-- same gate as the organization event log), NOT scoped to the viewer's manageable
+-- collections. Audit visibility is a permission, not a function of collection
+-- management, so any holder sees the entire organization's trail. (This reverses an
+-- earlier decision to scope by manageable collections, which hid rule-administration
+-- events whose rule did not yet govern a managed collection.) See the
+-- GovernanceViewer actor and AccessAuditTrail(viewer, organization, since).
+
+-- RESOLVED — Retention & export: view-window only for this pass. audit_history_window
+-- is the default reach, not a retention SLA, and there is no CSV / auditor export
+-- yet (both deferred). The store keeps rows until retention prunes them; none is
+-- enforced yet — see the AccessAuditLog reach note.
+
+-- RESOLVED — Deleted rules: a rule delete is a hard delete — the rule is gone, so
+-- no active read (gating, GoverningRule, the rules admin list) can find it. Its name
+-- lives on in the audit events already written for it, and the delete command
+-- supplies the name on the rule_deleted event, so no surviving row is needed. See
+-- Supporting change A.
+
+-- KNOWN FUTURE RISK — Cipher-name snapshot: cipher_name is captured at write time
+-- today by reading the cipher's server-side name (a JSON_VALUE over the cipher
+-- Data). Cipher data is moving to a single opaque encrypted blob with no
+-- server-queryable name field; when that lands, this write-time snapshot breaks. The
+-- cipher-name handling must then be revisited — store the cipher id only and resolve
+-- the name client-side, or have the client supply the encrypted name at emit time.
+-- collection_name is not affected (the collection keeps a queryable name).
+
+-- DEFERRED — Org event-log fan-out: the parallel four-column org event feed still
+-- records PAM activity as a separate, standing requirement, but emitting to it (and
+-- fanning audit events out to it) is out of scope this pass.
+
+-- DEFERRED — Tamper-evidence: the store is append-only and write-once, but
+-- immutability is not enforced (no MSSQL Ledger / hash-chaining yet). A hardening to
+-- consider when the audit trail must withstand a privileged insider.
+
+-- DEFERRED — Expiry sweep: the time-derived kinds (request_expired_unanswered,
+-- request_expired_unactivated, lease_expired) have no command to emit them. A
+-- background sweep that emits them when the corresponding timers fire is needed;
+-- until it exists these kinds contribute no rows.
+
+-- DEFERRED — Self-host: the store is Dapper / MSSQL only. No EF implementation, so
+-- self-hosted deployments have no audit store yet.

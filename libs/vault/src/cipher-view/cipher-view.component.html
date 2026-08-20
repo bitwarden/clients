@@ -1,4 +1,17 @@
 @if (!!cipher()) {
+  @if (bannerComponent) {
+    <ng-container
+      *ngComponentOutlet="
+        bannerComponent;
+        inputs: {
+          cipherId: cipher().id,
+          partialData: cipher().partialData,
+          leaseGated: cipher().leaseGated,
+        }
+      "
+    />
+  }
+
   @if (cardIsExpired()) {
     <bit-callout type="info" [title]="'cardExpiredTitle' | i18n">
       {{ "cardExpiredMessage" | i18n }}

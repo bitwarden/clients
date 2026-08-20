@@ -1,0 +1,253 @@
+@if (activeLease()) {
+  <div
+    class="tw-mb-4 tw-rounded-xl tw-border tw-border-solid tw-border-success-600 tw-bg-success-100 tw-px-4 tw-py-2 tw-text-success-700"
+  >
+    <div class="tw-flex tw-items-center tw-justify-between">
+      <span class="tw-text-sm tw-font-medium">{{
+        "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel()
+      }}</span>
+      <span class="tw-flex tw-items-center tw-gap-2">
+        @if (canExtendLease()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            (click)="toggleExtendForm()"
+            id="cipher-lease-banner_button_extend-toggle"
+          >
+            {{ (extendFormExpanded() ? "cancel" : "pamExtendLeaseButton") | i18n }}
+          </button>
+        }
+        <button type="button" bitButton buttonType="danger" size="small" [bitAction]="endLease">
+          {{ "pamEndLeaseButton" | i18n }}
+        </button>
+      </span>
+    </div>
+
+    @if (extendFormExpanded()) {
+      <hr class="tw-my-3 tw-border-t tw-border-success-600" />
+      <form [formGroup]="extendForm" class="tw-flex tw-flex-col tw-gap-4">
+        <bit-form-field>
+          <bit-label>{{ "pamExtendLeaseDuration" | i18n }}</bit-label>
+          <select bitInput formControlName="durationMinutes" data-testid="extend-lease-duration">
+            @for (opt of extendDurationOptions(); track opt.minutes) {
+              <option [value]="opt.minutes">{{ opt.labelKey | i18n }}</option>
+            }
+          </select>
+        </bit-form-field>
+
+        <bit-form-field>
+          <bit-label>{{ "pamExtendLeaseReasonRequired" | i18n }}</bit-label>
+          <input
+            bitInput
+            type="text"
+            formControlName="reason"
+            [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+            data-testid="extend-lease-reason"
+          />
+          <bit-hint>{{ "pamExtendLeaseReasonHint" | i18n }}</bit-hint>
+        </bit-form-field>
+      </form>
+
+      <div class="tw-mt-4 tw-flex tw-justify-end">
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          size="small"
+          [disabled]="submittingExtension()"
+          [loading]="submittingExtension()"
+          (click)="submitExtension()"
+          data-testid="extend-lease-submit"
+          id="cipher-lease-banner_button_extend-submit"
+        >
+          {{ "pamExtendLeaseButton" | i18n }}
+        </button>
+      </div>
+    }
+  </div>
+} @else if (approvedRequest()) {
+  <div
+    class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-success-600 tw-bg-success-100 tw-px-4 tw-py-2 tw-text-success-700"
+  >
+    <span class="tw-text-sm tw-font-medium">{{ "pamApprovedRequestBannerTitle" | i18n }}</span>
+    <div class="tw-flex tw-gap-2">
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        [bitAction]="activateLease"
+        id="cipher-lease-banner_button_start-lease"
+      >
+        {{ "pamStartLeaseButton" | i18n }}
+      </button>
+      <button
+        type="button"
+        bitButton
+        buttonType="secondary"
+        size="small"
+        [bitAction]="cancelAccessRequest"
+        id="cipher-lease-banner_button_cancel-approved-request"
+      >
+        {{ "pendingStateCancelRequest" | i18n }}
+      </button>
+    </div>
+  </div>
+} @else if (pendingRequest()) {
+  <div
+    class="tw-mb-4 tw-flex tw-items-center tw-justify-between tw-rounded-xl tw-border tw-border-solid tw-border-warning-600 tw-bg-warning-100 tw-px-4 tw-py-2 tw-text-warning-700"
+  >
+    <span class="tw-text-sm tw-font-medium">{{ "pamPendingBannerTitle" | i18n }}</span>
+    <button
+      type="button"
+      bitButton
+      buttonType="secondary"
+      size="small"
+      [bitAction]="cancelAccessRequest"
+      id="cipher-lease-banner_button_cancel-request"
+    >
+      {{ "pendingStateCancelRequest" | i18n }}
+    </button>
+  </div>
+} @else if (canRequestAccess()) {
+  <div
+    class="tw-mb-4 tw-rounded-xl tw-border tw-border-solid tw-border-info-600 tw-bg-info-100 tw-px-4 tw-py-2 tw-text-info-700"
+  >
+    <div class="tw-flex tw-items-center tw-justify-between">
+      <span class="tw-text-sm tw-font-medium">{{ "pamRequestAccessBannerTitle" | i18n }}</span>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        size="small"
+        (click)="toggleRequestForm()"
+        id="cipher-lease-banner_button_request-access-toggle"
+      >
+        {{ (requestFormExpanded() ? "cancel" : "pamRequestAccessButton") | i18n }}
+      </button>
+    </div>
+
+    @if (requestFormExpanded()) {
+      <hr class="tw-my-3 tw-border-t tw-border-info-600" />
+
+      @if (loadingRequestForm()) {
+        <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
+      } @else if (requestMode() !== null) {
+        <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
+          @if (requestMode() === AccessApprovalMode.Automatic) {
+            {{ "requestAccessModalAutomaticDescription" | i18n }}
+          } @else {
+            {{ "requestAccessModalHumanDescription" | i18n }}
+          }
+        </p>
+
+        @if (requestMode() === AccessApprovalMode.Automatic) {
+          <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+              <select
+                bitInput
+                id="cipher-lease-banner_select_duration"
+                formControlName="durationMinutes"
+              >
+                @for (opt of durationOptions; track opt.minutes) {
+                  <option [value]="opt.minutes">{{ opt.labelKey | i18n }}</option>
+                }
+              </select>
+            </bit-form-field>
+
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                id="cipher-lease-banner_input_reason"
+                formControlName="reason"
+                [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+              />
+              <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+            </bit-form-field>
+          </form>
+        } @else {
+          <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="date"
+                id="cipher-lease-banner_input_custom-date"
+                formControlName="customDate"
+              />
+            </bit-form-field>
+
+            <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="time"
+                  id="cipher-lease-banner_input_custom-start"
+                  formControlName="customStart"
+                />
+              </bit-form-field>
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="time"
+                  id="cipher-lease-banner_input_custom-end"
+                  formControlName="customEnd"
+                />
+              </bit-form-field>
+            </div>
+
+            @if (customWindowEndBeforeStart) {
+              <p bitTypography="helper" class="tw-text-danger">
+                {{ "requestAccessModalEndBeforeStart" | i18n }}
+              </p>
+            } @else if (customWindowExceedsMax) {
+              <p bitTypography="helper" class="tw-text-danger">
+                {{ "requestAccessModalWindowExceedsMax" | i18n }}
+              </p>
+            }
+
+            <bit-form-field>
+              <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
+              <input
+                bitInput
+                type="text"
+                id="cipher-lease-banner_input_reason"
+                formControlName="reason"
+                [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+              />
+              <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+            </bit-form-field>
+          </form>
+        }
+      }
+
+      @if (requestError(); as err) {
+        <p bitTypography="helper" class="tw-mb-0 tw-mt-3 tw-text-danger">
+          {{ err }}
+        </p>
+      }
+
+      @if (requestMode() !== null) {
+        <div class="tw-mt-4 tw-flex tw-justify-end">
+          <button
+            type="button"
+            bitButton
+            buttonType="primary"
+            size="small"
+            [bitAction]="submitRequest"
+            id="cipher-lease-banner_button_request-access-submit"
+          >
+            {{ "pamRequestAccessButton" | i18n }}
+          </button>
+        </div>
+      }
+    }
+  </div>
+}

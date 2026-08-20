@@ -72,6 +72,7 @@ import {
 } from "../access-selector/access-selector.models";
 import { AccessSelectorModule } from "../access-selector/access-selector.module";
 
+import { COLLECTION_ACCESS_RULE_CALLOUT } from "./collection-access-rule-callout.token";
 import {
   CollectionDialogAction,
   CollectionDialogParams,
@@ -117,6 +118,12 @@ export class CollectionDialogComponent implements OnInit {
     parent: undefined as string | undefined,
     access: [[] as AccessItemValue[]],
     selectedOrg: "" as OrganizationId,
+  });
+
+  // PAM collection access-rule callout. Bound in commercial code via
+  // COLLECTION_ACCESS_RULE_CALLOUT; unprovided (null) in OSS-only builds.
+  protected readonly accessRuleCallout = inject(COLLECTION_ACCESS_RULE_CALLOUT, {
+    optional: true,
   });
 
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
