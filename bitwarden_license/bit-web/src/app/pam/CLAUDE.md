@@ -31,6 +31,13 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   dialog, the privilege check, and the route guard.
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
   states off `cipher_access_state()`, with an inline request form.
+- `vault-filter-gated-collection/` — the lock glyph beside a governed collection in the
+  vault's Filters sidebar. Reads the same `GovernedCollectionsService` /
+  `rulesGoverningCollection` pair as the collection dialog — NOT the collection-row badge,
+  which reads the server-derived `hasEnabledAccessRule` off the collection. The sidebar
+  cannot use that flag: `buildCollectionTree` rebuilds each node through
+  `new CollectionView(...)`, which resets it to `false`. Narrows to the collection's own
+  PAM-enabled organization before reading at all.
 - `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
   vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
   the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
@@ -125,8 +132,12 @@ PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
 binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER` (both `libs/vault`),
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
-collection rows show the "Privileged" pill via the shared per-org
-`GovernedCollectionsService` lookup), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
+collection rows show the "Privileged" pill straight off the collection's server-derived
+`hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
+governed collection in the vault's Filters sidebar, off the shared per-org
+`GovernedCollectionsService` lookup, because `buildCollectionTree` rebuilds sidebar nodes
+through `new CollectionView(...)` and that resets `hasEnabledAccessRule` to `false`),
+`COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry; all `apps/web`).
 Add a seam rather than importing PAM from OSS code.
 
