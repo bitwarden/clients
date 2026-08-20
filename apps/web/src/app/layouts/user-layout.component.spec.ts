@@ -126,7 +126,7 @@ describe("UserLayoutComponent", () => {
   const flag$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(emptyViewModel);
 
-  const hasPremium$ = new BehaviorSubject<boolean>(true);
+  const canArchive$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
 
   const configService = mock<ConfigService>();
@@ -170,13 +170,13 @@ describe("UserLayoutComponent", () => {
 
     jest.clearAllMocks();
 
-    hasPremium$.next(true);
+    canArchive$.next(true);
     archivedCiphers$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
     configService.getFeatureFlag$.mockReturnValue(flag$);
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
-    cipherArchiveService.userHasPremium$.mockReturnValue(hasPremium$);
+    cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
     Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
 
@@ -282,8 +282,8 @@ describe("UserLayoutComponent", () => {
         archive.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
       };
 
-      it("prompts to upgrade when a non-premium user has nothing archived", () => {
-        hasPremium$.next(false);
+      it("prompts to upgrade when a user who cannot archive has nothing archived", () => {
+        canArchive$.next(false);
         fixture.detectChanges();
 
         clickArchive();
@@ -292,8 +292,8 @@ describe("UserLayoutComponent", () => {
         expect(router.navigate).not.toHaveBeenCalled();
       });
 
-      it("still filters to the archive when a non-premium user has archived items", () => {
-        hasPremium$.next(false);
+      it("still filters to the archive when a user who cannot archive has archived items", () => {
+        canArchive$.next(false);
         archivedCiphers$.next([{}]);
         fixture.detectChanges();
 
@@ -314,7 +314,7 @@ describe("UserLayoutComponent", () => {
       it("badges Archive for a non-premium user", () => {
         expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
 
-        hasPremium$.next(false);
+        canArchive$.next(false);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).not.toBeNull();

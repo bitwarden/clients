@@ -78,15 +78,15 @@ export class UserLayoutComponent implements OnInit {
     { initialValue: false },
   );
 
-  private readonly userHasPremium = toSignal(
+  private readonly userCanArchive = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.cipherArchiveService.userHasPremium$(userId)),
+      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
     ),
     { initialValue: true },
   );
 
-  protected readonly showArchivePremiumBadge = computed(() => !this.userHasPremium());
+  protected readonly showArchivePremiumBadge = computed(() => !this.userCanArchive());
 
   protected readonly singleOrgPolicyApplies = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -151,7 +151,7 @@ export class UserLayoutComponent implements OnInit {
   }
 
   protected async selectArchive() {
-    if (!this.userHasPremium()) {
+    if (!this.userCanArchive()) {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const hasArchivedCiphers =
         (await firstValueFrom(this.cipherArchiveService.archivedCiphers$(userId))).length > 0;
