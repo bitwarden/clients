@@ -60,6 +60,20 @@ class TestHostDisabledComponent {
   readonly target = viewChild.required<ElementRef<HTMLInputElement>>("target");
 }
 
+/** Opts into selecting the focused value, for a prefilled name the user types over. */
+// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
+@Component({
+  template: `
+    <input #target value="Prefilled name" appAutofocus appAutofocusSelect />
+    <button type="button" #other>Other</button>
+  `,
+  imports: [AutofocusDirective],
+})
+class TestHostSelectComponent {
+  readonly target = viewChild.required<ElementRef<HTMLInputElement>>("target");
+  readonly other = viewChild.required<ElementRef<HTMLButtonElement>>("other");
+}
+
 /** Stands in for `bit-search`, which routes autofocus to an inner input via `FocusableElement`. */
 @Component({
   selector: "test-focusable",
@@ -202,6 +216,59 @@ describe("AutofocusDirective", () => {
       fixture.detectChanges();
 
       expect(focusSpy).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("when selecting is opted into", () => {
+    it("selects the focused value so typing replaces it", () => {
+      const fixture = TestBed.createComponent(TestHostSelectComponent);
+      fixture.detectChanges();
+
+      const target = fixture.componentInstance.target().nativeElement;
+      expect(document.activeElement).toBe(target);
+      expect(target.selectionStart).toBe(0);
+      expect(target.selectionEnd).toBe("Prefilled name".length);
+    });
+
+    it("does not re-select while it still holds focus", () => {
+      jest.spyOn(document, "hasFocus").mockReturnValue(false);
+      const fixture = TestBed.createComponent(TestHostSelectComponent);
+      fixture.detectChanges();
+
+      const target = fixture.componentInstance.target().nativeElement;
+      const selectSpy = jest.spyOn(target, "select");
+      target.setSelectionRange(5, 5);
+      fixture.detectChanges();
+
+      expect(selectSpy).not.toHaveBeenCalled();
+      expect(target.selectionStart).toBe(5);
+    });
+
+    it("does not re-select when it re-asserts focus after the user moved away", () => {
+      // Focus stays unlatched until the document owns it, so focusing is retried — but by then
+      // the user may have typed, and re-selecting would leave their work one keystroke from
+      // being erased.
+      jest.spyOn(document, "hasFocus").mockReturnValue(false);
+      const fixture = TestBed.createComponent(TestHostSelectComponent);
+      fixture.detectChanges();
+
+      const target = fixture.componentInstance.target().nativeElement;
+      target.value = "Typed by the user";
+      const selectSpy = jest.spyOn(target, "select");
+
+      fixture.componentInstance.other().nativeElement.focus();
+      fixture.detectChanges();
+
+      expect(document.activeElement).toBe(target); // focus was re-asserted
+      expect(selectSpy).not.toHaveBeenCalled();
+    });
+
+    it("leaves the value unselected by default", () => {
+      const fixture = createHost();
+      const target = targetOf(fixture);
+
+      expect(document.activeElement).toBe(target);
+      expect(target.selectionStart).toBe(target.selectionEnd);
     });
   });
 
