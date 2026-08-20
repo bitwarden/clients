@@ -12,6 +12,7 @@ import {
   humanApprover,
   requestedWindowSeconds,
 } from "..";
+import { AccessBadgeState } from "../access-state-badge/access-badge-state";
 
 import { ResolvedNames } from "./access-name-resolver.service";
 
@@ -29,10 +30,14 @@ export type MyAccessRequestRow = {
   /** The collection's display name, or null when it isn't in the caller's local vault. */
   collectionName: string | null;
   status: AccessRequestStatus;
-  /** Precomputed badge variant for the status column — see {@link historyDisplayStatus}. */
-  statusVariant: BadgeVariant;
-  /** Precomputed i18n key for the status column — see {@link historyDisplayStatus}. */
-  statusLabelKey: string;
+  /**
+   * The shared access-state badge for the status column, so this page, the vault row and the
+   * cipher-view modal show one vocabulary. Null for the terminal statuses, which the shared model
+   * has no equivalent for — {@link statusBadge} carries those. See {@link historyDisplayStatus}.
+   */
+  badgeState: AccessBadgeState | null;
+  /** Set exactly when {@link badgeState} is null — see {@link historyDisplayStatus}. */
+  statusBadge: TerminalStatusBadge | null;
   submittedAt: string;
   resolvedAt: string | null;
   leaseNotBefore: string;
@@ -77,22 +82,28 @@ export type MyAccessLeaseRow = {
   extendedUntil: string | null;
 };
 
+/** Colour + copy for a terminal status, which the shared access-state model does not describe. */
+export type TerminalStatusBadge = { readonly labelKey: string; readonly variant: BadgeVariant };
+
+/**
+ * The statuses whose badge is NOT taken from the shared access-state model. `pending` and
+ * `approved` are excluded because both map onto it — `pending` and `ready` respectively — and
+ * routing them here again would fork the vocabulary the three surfaces share.
+ */
+type TerminalRequestStatus = Exclude<AccessRequestStatus, "pending" | "approved">;
+
 /** Time an extension (or sum of extensions) added to a lease, and the resulting end (ms). */
 export type LeaseExtensionSummary = { addedSeconds: number; latestEndMs: number };
 
 /** Map a status to a badge variant. Exported for tests + storybook fidelity. */
-export function statusBadgeVariant(status: AccessRequestStatus): BadgeVariant {
+export function statusBadgeVariant(status: TerminalRequestStatus): BadgeVariant {
   switch (status) {
-    case "approved":
-      return "success";
     case "denied":
       return "danger";
     case "canceled":
       return "subtle";
     case "expired":
       return "warning";
-    case "pending":
-      return "primary";
     case "unknown":
     default:
       return "subtle";
@@ -100,18 +111,14 @@ export function statusBadgeVariant(status: AccessRequestStatus): BadgeVariant {
 }
 
 /** i18n key for a status label. Exported for tests. */
-export function statusLabelKey(status: AccessRequestStatus): string {
+export function statusLabelKey(status: TerminalRequestStatus): string {
   switch (status) {
-    case "approved":
-      return "pamStatusApproved";
     case "denied":
       return "pamStatusDenied";
     case "canceled":
       return "pamStatusCanceled";
     case "expired":
       return "pamStatusExpired";
-    case "pending":
-      return "pamStatusPending";
     case "unknown":
     default:
       return "pamStatusUnknown";
@@ -121,9 +128,13 @@ export function statusLabelKey(status: AccessRequestStatus): string {
 /**
  * Display status + badge for a request.
  *
+ * A pending request and an approved-but-unstarted one both have an equivalent in the shared
+ * access-state model, so they return an {@link AccessBadgeState} and are rendered by
+ * `AccessStateBadgeComponent` — the same recipe the vault row and the cipher-view modal use.
+ * Every other outcome is terminal, has no equivalent in that model, and keeps its own label.
+ *
  * Activation is not a status of its own: an approved request that minted a lease is recognised by
- * `producedLeaseId`, and the lease's `producedLeaseStatus` drives the label from there. An approved
- * request not yet activated keeps the plain "Approved" label.
+ * `producedLeaseId`, and the lease's `producedLeaseStatus` drives the label from there.
  *
  `canceled` and `revoked` are distinct lease statuses, so the label reads straight off
  * `producedLeaseStatus`: the requester ending their own lease is "Cancelled", an operator ending it
@@ -132,25 +143,35 @@ export function statusLabelKey(status: AccessRequestStatus): string {
  */
 export function historyDisplayStatus(
   request: Pick<AccessRequestView, "status" | "producedLeaseId" | "producedLeaseStatus">,
-): Pick<MyAccessRequestRow, "statusLabelKey" | "statusVariant"> {
-  if (request.status === "approved" && request.producedLeaseId != null) {
+): Pick<MyAccessRequestRow, "badgeState" | "statusBadge"> {
+  if (request.status === "approved") {
+    if (request.producedLeaseId == null) {
+      return { badgeState: { kind: "ready" }, statusBadge: null };
+    }
     if (request.producedLeaseStatus === "active") {
-      return { statusLabelKey: "pamStatusActivated", statusVariant: "success" };
+      return terminal("pamStatusActivated", "success");
     }
     if (request.producedLeaseStatus === "canceled") {
-      return { statusLabelKey: "pamStatusEndedByYou", statusVariant: "subtle" };
+      return terminal("pamStatusEndedByYou", "subtle");
     }
     if (request.producedLeaseStatus === "revoked") {
-      return { statusLabelKey: "pamStatusRevoked", statusVariant: "subtle" };
+      return terminal("pamStatusRevoked", "subtle");
     }
     // "expired" (or the SDK's "unknown" default) — the server has no autonomous-expiry push in
     // v1, so a lapsed lease still reads as its last known status; default to Expired here.
-    return { statusLabelKey: "pamStatusExpired", statusVariant: "warning" };
+    return terminal("pamStatusExpired", "warning");
   }
-  return {
-    statusLabelKey: statusLabelKey(request.status),
-    statusVariant: statusBadgeVariant(request.status),
-  };
+  if (request.status === "pending") {
+    return { badgeState: { kind: "pending" }, statusBadge: null };
+  }
+  return terminal(statusLabelKey(request.status), statusBadgeVariant(request.status));
+}
+
+function terminal(
+  labelKey: string,
+  variant: BadgeVariant,
+): Pick<MyAccessRequestRow, "badgeState" | "statusBadge"> {
+  return { badgeState: null, statusBadge: { labelKey, variant } };
 }
 
 /**

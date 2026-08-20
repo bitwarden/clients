@@ -27,8 +27,8 @@ function historyRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow
     cipherName: "Prod database",
     collectionName: "Production",
     status: "denied",
-    statusVariant: "danger",
-    statusLabelKey: "pamStatusDenied",
+    badgeState: null,
+    statusBadge: { labelKey: "pamStatusDenied", variant: "danger" },
     submittedAt: "2026-08-17T11:00:00.000Z",
     resolvedAt: "2026-08-17T11:30:00.000Z",
     leaseNotBefore: "2026-08-17T12:00:00.000Z",
@@ -169,13 +169,14 @@ describe("HistoryTabComponent", () => {
     const activeGrant = historyRow({
       id: "managed-1",
       status: "approved",
-      statusLabelKey: "pamStatusActivated",
+      statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
       producedLeaseId: "lease-1",
     });
     const unstartedApproval = historyRow({
       id: "managed-2",
       status: "approved",
-      statusLabelKey: "pamStatusApproved",
+      badgeState: { kind: "ready" },
+      statusBadge: null,
       producedLeaseId: null,
     });
 
@@ -204,7 +205,7 @@ describe("HistoryTabComponent", () => {
       const revoked = historyRow({
         id: "managed-1",
         status: "approved",
-        statusLabelKey: "pamStatusRevoked",
+        statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
         producedLeaseId: "lease-1",
       });
       managedRows$.next([revoked]);

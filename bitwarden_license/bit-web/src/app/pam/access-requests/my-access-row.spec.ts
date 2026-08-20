@@ -78,8 +78,6 @@ function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
 
 describe("statusLabelKey / statusBadgeVariant", () => {
   it.each([
-    ["pending", "pamStatusPending", "primary"],
-    ["approved", "pamStatusApproved", "success"],
     ["denied", "pamStatusDenied", "danger"],
     ["canceled", "pamStatusCanceled", "subtle"],
     ["expired", "pamStatusExpired", "warning"],
@@ -98,8 +96,8 @@ describe("historyDisplayStatus", () => {
       producedLeaseStatus: "active",
     });
     expect(historyDisplayStatus(r)).toEqual({
-      statusLabelKey: "pamStatusActivated",
-      statusVariant: "success",
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
     });
   });
 
@@ -110,8 +108,8 @@ describe("historyDisplayStatus", () => {
       producedLeaseStatus: "canceled",
     });
     expect(historyDisplayStatus(r)).toEqual({
-      statusLabelKey: "pamStatusEndedByYou",
-      statusVariant: "subtle",
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusEndedByYou", variant: "subtle" },
     });
   });
 
@@ -122,8 +120,8 @@ describe("historyDisplayStatus", () => {
       producedLeaseStatus: "revoked",
     });
     expect(historyDisplayStatus(r)).toEqual({
-      statusLabelKey: "pamStatusRevoked",
-      statusVariant: "subtle",
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
     });
   });
 
@@ -138,8 +136,8 @@ describe("historyDisplayStatus", () => {
       decisions: [decision({ deciderKind: "human", id: "user-1", verdict: "deny" })],
     });
     expect(historyDisplayStatus(r)).toEqual({
-      statusLabelKey: "pamStatusRevoked",
-      statusVariant: "subtle",
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
     });
   });
 
@@ -150,16 +148,32 @@ describe("historyDisplayStatus", () => {
       producedLeaseStatus: "expired",
     });
     expect(historyDisplayStatus(r)).toEqual({
-      statusLabelKey: "pamStatusExpired",
-      statusVariant: "warning",
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusExpired", variant: "warning" },
+    });
+  });
+
+  it("badges a pending request from the shared access-state model", () => {
+    const r = request("req-1", { status: "pending" });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: { kind: "pending" },
+      statusBadge: null,
+    });
+  });
+
+  it("badges an approved request that has not started as ready", () => {
+    const r = request("req-1", { status: "approved", producedLeaseId: undefined });
+    expect(historyDisplayStatus(r)).toEqual({
+      badgeState: { kind: "ready" },
+      statusBadge: null,
     });
   });
 
   it("falls back to the base status mapping for non-activated requests", () => {
     const r = request("req-1", { status: "denied" });
     expect(historyDisplayStatus(r)).toEqual({
-      statusLabelKey: "pamStatusDenied",
-      statusVariant: "danger",
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusDenied", variant: "danger" },
     });
   });
 });
@@ -212,8 +226,8 @@ describe("toRequestRow", () => {
 
     expect(row.cipherName).toBe("Prod DB");
     expect(row.collectionName).toBe("Infra");
-    expect(row.statusLabelKey).toBe("pamStatusPending");
-    expect(row.statusVariant).toBe("primary");
+    expect(row.badgeState).toEqual({ kind: "pending" });
+    expect(row.statusBadge).toBeNull();
     expect(row.id).toBe("req-1");
   });
 
