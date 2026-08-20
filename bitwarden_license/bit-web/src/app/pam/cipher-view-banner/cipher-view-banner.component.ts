@@ -200,13 +200,20 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly activeLeaseEndsAt = computed(() => this.activeLease()?.notAfter ?? null);
 
   /**
-   * The end of the window an approved request was granted. The lease itself is not minted until
-   * activation, so this is the point access cannot run past rather than a countdown that has
-   * started — the same value the Requests table shows for a startable row.
+   * The window an approved request was granted, as the Requests table states it
+   * (`my-requests-tab.component.html:63-68`): "until X" once the window has opened, and the full
+   * `notBefore – notAfter` range while it is still scheduled, since the banner otherwise describes
+   * a grant that cannot be started yet as available now.
    */
-  protected readonly approvedAccessEndsAt = computed(
-    () => this.approvedRequest()?.leaseNotAfter ?? null,
-  );
+  protected readonly approvedAccessWindow = computed(() => {
+    const request = this.approvedRequest();
+    if (request?.leaseNotAfter == null) {
+      return null;
+    }
+    const startsAt = request.leaseNotBefore;
+    const scheduled = startsAt != null && Date.parse(startsAt) > this.nowMs();
+    return { startsAt: scheduled ? startsAt : null, endsAt: request.leaseNotAfter };
+  });
 
   /** Whether the "Request access" entry point has folded out its form. */
   protected readonly requestFormExpanded = signal(false);
