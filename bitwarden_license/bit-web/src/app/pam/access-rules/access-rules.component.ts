@@ -37,10 +37,12 @@ import {
   AccessRuleId,
   AccessRuleView,
   AccessRuleStatusFilter,
+  accessRuleDeactivateConfirmOptions,
   accessRuleDeleteConfirmOptions,
   accessRuleErrorMessageKey,
   accessRuleMatchesFilter,
   resolveCollectionNames,
+  rulesChangingEnabled,
 } from "..";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
@@ -224,6 +226,16 @@ export class AccessRulesComponent {
 
   protected readonly toggleEnabled = async (rule: AccessRuleView): Promise<void> => {
     const nextEnabled = !rule.enabled;
+    // Deactivating is the direction that changes who can get in, so it asks first. Activating
+    // stays one click: it only ever adds gating back.
+    if (!nextEnabled) {
+      const confirmed = await this.dialogService.openSimpleDialog(
+        accessRuleDeactivateConfirmOptions(),
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
     try {
       await this.accessRules.setEnabled(rule, nextEnabled);
       this.toastService.showToast({
@@ -278,8 +290,21 @@ export class AccessRulesComponent {
   };
 
   private async bulkSetEnabled(enabled: boolean): Promise<void> {
+    const selected = this.selectedRules();
+    // Same speedbump as the row menu, over only the rules that will actually move — confirming
+    // the raw selection would overstate it. Nothing to move means no question at all: fall
+    // through to the existing no-op rather than asking about zero rules.
+    const deactivating = enabled ? [] : rulesChangingEnabled(selected, false);
+    if (deactivating.length > 0) {
+      const confirmed = await this.dialogService.openSimpleDialog(
+        accessRuleDeactivateConfirmOptions(deactivating.length),
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
     try {
-      const changed = await this.accessRules.setManyEnabled(this.selectedRules(), enabled);
+      const changed = await this.accessRules.setManyEnabled(selected, enabled);
       this.clearSelection();
       if (changed > 0) {
         this.toastService.showToast({

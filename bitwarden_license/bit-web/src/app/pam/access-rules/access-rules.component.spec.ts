@@ -7,7 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { AccessRuleSdkService, AccessRuleView } from "..";
+import { accessRuleDeactivateConfirmOptions, AccessRuleSdkService, AccessRuleView } from "..";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
@@ -50,11 +50,17 @@ function rule(id: string, name = "Rule", enabled = true): AccessRuleView {
 
 type ProviderOverride = { provide: unknown; useValue: unknown };
 
+type SetupOptions = {
+  overrides?: ProviderOverride[];
+  /** Resolves to the user's answer for every confirmation the test triggers. */
+  openSimpleDialog?: jest.Mock;
+};
+
 // The component's own template pulls in the full table/toolbar stack; replace it so these
 // tests exercise the component logic, not the rendering of child widgets.
 const setup = async (
   rules: AccessRuleView[],
-  overrides: ProviderOverride[] = [],
+  { overrides = [], openSimpleDialog = jest.fn().mockResolvedValue(true) }: SetupOptions = {},
 ): Promise<ComponentFixture<AccessRulesComponent>> => {
   TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
 
@@ -67,7 +73,6 @@ const setup = async (
         provide: AccessRuleSdkService,
         useValue: { listAccessRules: jest.fn().mockResolvedValue(rules) },
       },
-      { provide: DialogService, useValue: {} },
       { provide: ToastService, useValue: { showToast: jest.fn() } },
       { provide: I18nService, useValue: i18nFake },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
@@ -76,12 +81,62 @@ const setup = async (
     ],
   });
 
+  // Overridden rather than provided: the component's imported modules bring their own
+  // `DialogService` into the standalone injector, which shadows a TestBed provider.
+  TestBed.overrideProvider(DialogService, { useValue: { openSimpleDialog } });
+
   const fixture = TestBed.createComponent(AccessRulesComponent);
   // Cycle change detection + microtasks so the org-driven reload resolves.
   for (let i = 0; i < 3; i++) {
     fixture.detectChanges();
     await fixture.whenStable();
   }
+  return fixture;
+};
+
+/** The mocks every mutation test asserts against, rebuilt per fixture. */
+let showToast: jest.Mock;
+let openSimpleDialog: jest.Mock;
+let updateAccessRule: jest.Mock;
+let deleteAccessRule: jest.Mock;
+
+/**
+ * A fixture wired for mutations: SDK writes and toasts spy-able, and every confirmation
+ * answered with `confirmed`. The write mocks resolve by default; a test that needs a failure
+ * re-points them with `mockRejectedValue`.
+ */
+const setupMutations = async (
+  rules: AccessRuleView[],
+  confirmed = true,
+): Promise<ComponentFixture<AccessRulesComponent>> => {
+  showToast = jest.fn();
+  openSimpleDialog = jest.fn().mockResolvedValue(confirmed);
+  updateAccessRule = jest.fn().mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
+  deleteAccessRule = jest.fn().mockResolvedValue(undefined);
+
+  return await setup(rules, {
+    overrides: [
+      {
+        provide: AccessRuleSdkService,
+        useValue: {
+          listAccessRules: jest.fn().mockResolvedValue(rules),
+          updateAccessRule,
+          deleteAccessRule,
+        },
+      },
+      { provide: ToastService, useValue: { showToast } },
+    ],
+    openSimpleDialog,
+  });
+};
+
+/** {@link setupMutations} with the whole list selected, for the bulk-actions bar. */
+const setupBulk = async (
+  rules: AccessRuleView[],
+  confirmed = true,
+): Promise<ComponentFixture<AccessRulesComponent>> => {
+  const fixture = await setupMutations(rules, confirmed);
+  fixture.componentInstance["selection"].select(...rules.map((r) => r.id));
   return fixture;
 };
 
@@ -142,32 +197,13 @@ describe("AccessRulesComponent — create/edit navigation", () => {
 });
 
 describe("AccessRulesComponent — activation toasts", () => {
-  let showToast: jest.Mock;
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  const setupToasts = async (
-    rules: AccessRuleView[],
-  ): Promise<ComponentFixture<AccessRulesComponent>> => {
-    showToast = jest.fn();
-    const updateAccessRule = jest
-      .fn()
-      .mockImplementation((_orgId, id) => Promise.resolve(rule(id)));
-
-    return await setup(rules, [
-      {
-        provide: AccessRuleSdkService,
-        useValue: { listAccessRules: jest.fn().mockResolvedValue(rules), updateAccessRule },
-      },
-      { provide: ToastService, useValue: { showToast } },
-    ]);
-  };
-
   it("reports a deactivation when toggling an active rule off", async () => {
     const active = rule("rule-1", "VPN", true);
-    const fixture = await setupToasts([active]);
+    const fixture = await setupMutations([active]);
 
     await fixture.componentInstance["toggleEnabled"](active);
 
@@ -179,7 +215,7 @@ describe("AccessRulesComponent — activation toasts", () => {
 
   it("reports an activation when toggling an inactive rule on", async () => {
     const inactive = rule("rule-1", "VPN", false);
-    const fixture = await setupToasts([inactive]);
+    const fixture = await setupMutations([inactive]);
 
     await fixture.componentInstance["toggleEnabled"](inactive);
 
@@ -188,63 +224,45 @@ describe("AccessRulesComponent — activation toasts", () => {
       message: "pamAccessRuleActivateSuccess",
     });
   });
+
+  it("confirms before deactivating", async () => {
+    const active = rule("rule-1", "VPN", true);
+    const fixture = await setupMutations([active]);
+
+    await fixture.componentInstance["toggleEnabled"](active);
+
+    expect(openSimpleDialog).toHaveBeenCalledWith(accessRuleDeactivateConfirmOptions());
+  });
+
+  it("leaves the rule active and silent when the deactivate confirm is dismissed", async () => {
+    const active = rule("rule-1", "VPN", true);
+    const fixture = await setupMutations([active], false);
+
+    await fixture.componentInstance["toggleEnabled"](active);
+
+    expect(updateAccessRule).not.toHaveBeenCalled();
+    expect(showToast).not.toHaveBeenCalled();
+  });
+
+  it("does not confirm before activating", async () => {
+    const inactive = rule("rule-1", "VPN", false);
+    const fixture = await setupMutations([inactive]);
+
+    await fixture.componentInstance["toggleEnabled"](inactive);
+
+    expect(openSimpleDialog).not.toHaveBeenCalled();
+    expect(updateAccessRule).toHaveBeenCalled();
+  });
 });
 
 describe("AccessRulesComponent — failed mutations", () => {
-  let showToast: jest.Mock;
-  let deleteAccessRule: jest.Mock;
-  let updateAccessRule: jest.Mock;
-
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  const setup = async (
-    rules: AccessRuleView[],
-  ): Promise<ComponentFixture<AccessRulesComponent>> => {
-    showToast = jest.fn();
-    deleteAccessRule = jest.fn();
-    updateAccessRule = jest.fn();
-
-    TestBed.overrideComponent(AccessRulesComponent, { set: { template: "" } });
-
-    TestBed.configureTestingModule({
-      imports: [AccessRulesComponent],
-      providers: [
-        provideRouter([]),
-        { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
-        {
-          provide: AccessRuleSdkService,
-          useValue: {
-            listAccessRules: jest.fn().mockResolvedValue(rules),
-            deleteAccessRule,
-            updateAccessRule,
-          },
-        },
-        { provide: ToastService, useValue: { showToast } },
-        { provide: I18nService, useValue: i18nFake },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        { provide: CollectionAdminService, useValue: { collectionAdminViews$: () => of([]) } },
-      ],
-    });
-
-    // Overridden rather than provided: the component's imported modules bring their own
-    // `DialogService` into the standalone injector, which shadows a TestBed provider.
-    TestBed.overrideProvider(DialogService, {
-      useValue: { openSimpleDialog: jest.fn().mockResolvedValue(true) },
-    });
-
-    const fixture = TestBed.createComponent(AccessRulesComponent);
-    for (let i = 0; i < 3; i++) {
-      fixture.detectChanges();
-      await fixture.whenStable();
-    }
-    return fixture;
-  };
-
   it("keeps the server's serialized response out of a failed delete's toast", async () => {
     const target = rule("rule-1", "VPN");
-    const fixture = await setup([target]);
+    const fixture = await setupMutations([target]);
     deleteAccessRule.mockRejectedValue(accessRuleError("Api", RAW_SERVER_PAYLOAD));
 
     await fixture.componentInstance["remove"](target);
@@ -257,7 +275,7 @@ describe("AccessRulesComponent — failed mutations", () => {
 
   it("toasts generic copy for a delete rejected with an unrecognised message", async () => {
     const target = rule("rule-1", "VPN");
-    const fixture = await setup([target]);
+    const fixture = await setupMutations([target]);
     deleteAccessRule.mockRejectedValue(
       accessRuleError("Api", "error in response: status code 500: something the UI cannot map"),
     );
@@ -269,7 +287,7 @@ describe("AccessRulesComponent — failed mutations", () => {
 
   it("toasts the rule-is-gone copy when a toggle finds the rule deleted", async () => {
     const target = rule("rule-1", "VPN", true);
-    const fixture = await setup([target]);
+    const fixture = await setupMutations([target]);
     updateAccessRule.mockRejectedValue(accessRuleError("NotFound", ""));
 
     await fixture.componentInstance["toggleEnabled"](target);
@@ -278,5 +296,67 @@ describe("AccessRulesComponent — failed mutations", () => {
       variant: "error",
       message: "pamAccessRuleErrorMissing",
     });
+  });
+});
+
+describe("AccessRulesComponent — bulk deactivate confirmation", () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  it("counts only the selected rules the action will actually change", async () => {
+    const rules = [
+      rule("rule-1", "VPN", true),
+      rule("rule-2", "SSH", true),
+      rule("rule-3", "DB", false),
+    ];
+    const fixture = await setupBulk(rules);
+
+    await fixture.componentInstance["bulkSetEnabled"](false);
+
+    expect(openSimpleDialog).toHaveBeenCalledWith(accessRuleDeactivateConfirmOptions(2));
+  });
+
+  // "1 rules will stop applying" is not a sentence, and the single-rule dialog is the copy
+  // design signed off for deactivating one rule — wherever it is triggered from.
+  it("asks the single-rule question when only one selected rule will change", async () => {
+    const rules = [rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)];
+    const fixture = await setupBulk(rules);
+
+    await fixture.componentInstance["bulkSetEnabled"](false);
+
+    expect(openSimpleDialog).toHaveBeenCalledWith(accessRuleDeactivateConfirmOptions());
+  });
+
+  it("leaves the rules alone when the bulk confirm is dismissed", async () => {
+    const fixture = await setupBulk(
+      [rule("rule-1", "VPN", true), rule("rule-2", "SSH", true)],
+      false,
+    );
+
+    await fixture.componentInstance["bulkSetEnabled"](false);
+
+    expect(updateAccessRule).not.toHaveBeenCalled();
+    expect(showToast).not.toHaveBeenCalled();
+  });
+
+  it("skips the question when every selected rule is already inactive", async () => {
+    const fixture = await setupBulk([rule("rule-1", "VPN", false)]);
+
+    await fixture.componentInstance["bulkSetEnabled"](false);
+
+    expect(openSimpleDialog).not.toHaveBeenCalled();
+    expect(updateAccessRule).not.toHaveBeenCalled();
+  });
+
+  // An inactive rule would short-circuit on the count guard and pass even with the activation
+  // branch deleted, so this starts from an active one that the guard would otherwise catch.
+  it("does not confirm before bulk activating", async () => {
+    const fixture = await setupBulk([rule("rule-1", "VPN", true), rule("rule-2", "SSH", false)]);
+
+    await fixture.componentInstance["bulkSetEnabled"](true);
+
+    expect(openSimpleDialog).not.toHaveBeenCalled();
+    expect(updateAccessRule).toHaveBeenCalled();
   });
 });
