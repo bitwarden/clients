@@ -24,6 +24,7 @@ import {
   take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -146,6 +147,10 @@ import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/b
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
+import {
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "./vault-controlled-access-filter.token";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
 import { VAULT_GATED_COLLECTION_BANNER } from "./vault-gated-collection-banner.token";
@@ -195,6 +200,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
   protected readonly gatedCollectionBanner: Type<unknown> | null = inject(
     VAULT_GATED_COLLECTION_BANNER,
+    { optional: true },
+  );
+
+  private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
+    VAULT_CONTROLLED_ACCESS_FILTER,
     { optional: true },
   );
 
@@ -464,7 +474,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
+    const filteredCiphers$ = combineLatest([
+      allowedCiphers$,
+      filter$,
+      this.currentSearchText$,
+    ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
@@ -485,6 +499,28 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
         return allCiphers.filter(filterFunction) as C[];
       }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    // filteredCiphers$ already incorporates filter$, so re-combining here would let
+    // the two observables race and double the narrowToControlledAccess SDK calls.
+    //
+    // filteredCiphers$ still emits twice per navigation on its own: its combineLatest takes both
+    // filter$ (route.queryParamMap) and currentSearchText$ (route.queryParams), which are the same
+    // subject seen twice, and combineLatest has no glitch avoidance. Deduping matters here and not
+    // for the other consumers because narrowToControlledAccess dispatches one uncached SDK read per
+    // gated row, and switchMap cannot recall them: narrow$ builds its forkJoin array synchronously
+    // on subscribe, so the dropped pass has already issued every read. The narrowing depends on
+    // nothing but the rows and `controlledAccess`, so matching on those two is the whole identity.
+    const ciphers$ = filteredCiphers$.pipe(
+      withLatestFrom(filter$),
+      distinctUntilChanged(
+        ([previousCiphers, previousFilter], [nextCiphers, nextFilter]) =>
+          previousFilter.controlledAccess === nextFilter.controlledAccess &&
+          previousCiphers.length === nextCiphers.length &&
+          previousCiphers.every((cipher, index) => cipher === nextCiphers[index]),
+      ),
+      switchMap(([ciphers, filter]) => this.narrowToControlledAccess(ciphers, filter)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -1691,6 +1727,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
+  }
+
+  private narrowToControlledAccess(ciphers: C[], filter: RoutedVaultFilterModel): Observable<C[]> {
+    if (this.controlledAccessFilter == null || filter.controlledAccess == null) {
+      return of(ciphers);
+    }
+    return this.controlledAccessFilter.narrow$(filter.controlledAccess, ciphers);
   }
 
   private refresh() {
