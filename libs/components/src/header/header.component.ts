@@ -20,10 +20,6 @@ import { HeaderContext } from "./header-context";
  * Clients typically wrap `bit-header` in their own header component (`app-header` in web,
  * `app-desktop-header` in desktop) and project content through it rather than using `bit-header`
  * directly.
- *
- * TODO
- * - secondary text content
- * - layout & header padding / sizes (responsiveness)
  */
 @Component({
   selector: "bit-header",

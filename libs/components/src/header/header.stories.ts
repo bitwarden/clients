@@ -91,6 +91,7 @@ export const KitchenSink: Story = {
           <bit-breadcrumb>Foo</bit-breadcrumb>
           <bit-breadcrumb>Bar</bit-breadcrumb>
         </bit-breadcrumbs>
+        <button slot="title-suffix" buttonType="subtleGhost" bitIconButton="bwi-info-circle" label="A thing"></button>
         <input
           bitInput
           placeholder="Ask Jeeves"
@@ -118,6 +119,8 @@ export const KitchenSinkVfo1: Story = {
           <bit-breadcrumb>Foo</bit-breadcrumb>
           <bit-breadcrumb>Bar</bit-breadcrumb>
         </bit-breadcrumbs>
+        <button slot="title-suffix" buttonType="subtleGhost" bitIconButton="bwi-info-circle" label="A thing"></button>
+        <div slot="subtitle">Very informative subtitle since the title itself was not enough information to understand the page</div>
         <button bitButton>Click Me 🎉</button>
         <button bitButton buttonType="primary">New</button>
         <bit-tab-nav-bar slot="tabs">
@@ -148,6 +151,35 @@ export const WithLongTitle: Story = {
     </bit-header>
   `,
   }),
+};
+
+export const TitleWithSubtitleVfo1: Story = {
+  render: (arg: any) => ({
+    props: arg,
+    template: /*html*/ `
+    <bit-header title="LongTitleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" icon="bwi-bug">
+      <ng-container slot="title-suffix"><i class="bwi bwi-key"></i></ng-container>
+      <div slot="subtitle">Very informative subtitle since the title itself was not enough information to understand the page</div>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
+};
+
+export const BreadcrumbsWithSubtitleVfo1: Story = {
+  render: (arg: any) => ({
+    props: arg,
+    template: /*html*/ `
+    <bit-header title="Fallback Title" icon="bwi-bug">
+        <bit-breadcrumbs slot="breadcrumbs">
+        <bit-breadcrumb route="/bar">Bar</bit-breadcrumb>
+        <bit-breadcrumb route="/foo">Foo</bit-breadcrumb>
+      </bit-breadcrumbs>
+      <div slot="subtitle">Very informative subtitle since the title itself was not enough information to understand the page</div>
+    </bit-header>
+  `,
+  }),
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };
 
 export const WithBreadcrumbs: Story = {

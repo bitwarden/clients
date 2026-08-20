@@ -1,5 +1,9 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
@@ -128,22 +132,34 @@ export class KitchenSinkDialogWithAutofocusComponent {
             </bit-breadcrumb>
           }
         </bit-breadcrumbs>
+        @if (vfo1Enabled()) {
+          <button
+            bitLink
+            [bitPopoverTriggerFor]="myPopover"
+            #triggerRef="popoverTrigger"
+            type="button"
+            aria-label="Popover trigger link"
+          >
+            <bit-icon name="bwi-question-circle" />
+          </button>
+        } @else {
+          <button
+            bitLink
+            [bitPopoverTriggerFor]="myPopover"
+            #triggerRef="popoverTrigger"
+            type="button"
+            aria-label="Popover trigger link"
+            slot="secondary"
+          >
+            <bit-icon name="bwi-question-circle" />
+          </button>
+        }
         <bit-search
           [bitPopoverAnchorFor]="tourStep1"
           [popoverOpen]="tourService.tourStep() === 1"
           [spotlight]="true"
           [position]="'below-center'"
         />
-        <button
-          bitLink
-          [bitPopoverTriggerFor]="myPopover"
-          #triggerRef="popoverTrigger"
-          type="button"
-          aria-label="Popover trigger link"
-          slot="secondary"
-        >
-          <bit-icon name="bwi-question-circle" />
-        </button>
         <bit-avatar text="BW"></bit-avatar>
         <bit-tab-nav-bar slot="tabs">
           <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
@@ -182,6 +198,7 @@ export class KitchenSinkDialogWithAutofocusComponent {
 export class KitchenSinkMainComponent {
   protected readonly dialogService = inject(DialogService);
   protected readonly tourService = inject(KitchenSinkTourService);
+  protected readonly configService = inject(ConfigService);
 
   openDialog() {
     this.dialogService.open(KitchenSinkDialogComponent);
@@ -195,4 +212,10 @@ export class KitchenSinkMainComponent {
     { icon: "bwi-collection-shared", name: "Password Managers", route: "/" },
     { icon: "bwi-collection-shared", name: "Favorites", route: "/" },
   ];
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 }
