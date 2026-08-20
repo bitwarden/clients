@@ -1,17 +1,18 @@
-<app-header></app-header>
+<app-header [title]="title()"></app-header>
 
 <vault-organization-user-notifications></vault-organization-user-notifications>
 <app-vault-banners [organizations]="organizations()"></app-vault-banners>
 
-<app-vault-onboarding [ciphers]="ciphers()"></app-vault-onboarding>
+<app-vault-onboarding [ciphers]="allCiphers()"></app-vault-onboarding>
 
 <vault-items-table
   [ciphers]="ciphers()"
   [loading]="loading()"
   [rowActions]="rowActions()"
   [folders]="folders()"
-  [collections]="collections()"
-  [organizations]="organizations()"
+  [collections]="scopedCollections()"
+  [organizations]="scopedOrganizations()"
+  [organizationId]="scopedOrganizationId()"
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
 >

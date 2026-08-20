@@ -1,5 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { ActivatedRoute, convertToParamMap, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
@@ -9,7 +10,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
@@ -23,6 +24,7 @@ import {
   AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  MY_VAULT_ROUTE,
   VaultCopyButtonsService,
 } from "@bitwarden/vault";
 
@@ -32,6 +34,8 @@ import { VaultNextComponent } from "./vault-next.component";
 
 describe("VaultNextComponent", () => {
   const userId = "user-1" as UserId;
+  const organizationId = "1b2c3d4e-5f60-4a1b-8c2d-3e4f5a6b7c8d" as OrganizationId;
+  const otherOrganizationId = "9a8b7c6d-5e4f-4a3b-8c2d-1e2f3a4b5c6d" as OrganizationId;
 
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
@@ -44,6 +48,7 @@ describe("VaultNextComponent", () => {
   let collections$: BehaviorSubject<CollectionView[]>;
   let organizations$: BehaviorSubject<Organization[]>;
   let showQuickCopyActions$: BehaviorSubject<boolean>;
+  let paramMap$: BehaviorSubject<ParamMap>;
 
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
     const cipher = new CipherView();
@@ -54,6 +59,27 @@ describe("VaultNextComponent", () => {
     cipher.favorite = false;
     cipher.reprompt = CipherRepromptType.None;
     return Object.assign(cipher, overrides);
+  };
+
+  const buildCipherFixture = (id: string, cipherOrganizationId?: OrganizationId) => {
+    const cipher = buildCipher({ id });
+    cipher.organizationId = cipherOrganizationId ?? null;
+    return cipher;
+  };
+
+  const buildCollection = (id: string, collectionOrganizationId: OrganizationId) =>
+    new CollectionView({
+      id: id as CollectionId,
+      organizationId: collectionOrganizationId,
+      name: id,
+    });
+
+  const buildOrganization = (id: OrganizationId, name: string) => ({ id, name }) as Organization;
+
+  /** Navigates the page to a vault scope, as the `:vaultId` route segment would. */
+  const scopeTo = (vaultId?: string) => {
+    paramMap$.next(convertToParamMap(vaultId == null ? {} : { vaultId }));
+    fixture.detectChanges();
   };
 
   const buildFolder = (id: string, name: string) => {
@@ -82,6 +108,7 @@ describe("VaultNextComponent", () => {
     collections$ = new BehaviorSubject<CollectionView[]>([]);
     organizations$ = new BehaviorSubject<Organization[]>([]);
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
+    paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
 
     itemActions = mock<WebVaultItemActionsService>();
 
@@ -126,6 +153,7 @@ describe("VaultNextComponent", () => {
       imports: [VaultNextComponent],
       providers: [
         { provide: AccountService, useValue: accountService },
+        { provide: ActivatedRoute, useValue: { paramMap: paramMap$ } },
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
@@ -191,6 +219,126 @@ describe("VaultNextComponent", () => {
           .ciphers()
           .map((c: CipherView) => c.id),
       ).toEqual(["visible"]);
+    });
+  });
+
+  describe("vault scope", () => {
+    const personal = buildCipherFixture("personal");
+    const inOrg = buildCipherFixture("in-org", organizationId);
+    const inOtherOrg = buildCipherFixture("in-other-org", otherOrganizationId);
+
+    const orgCollection = buildCollection("org-collection", organizationId);
+    const otherOrgCollection = buildCollection("other-org-collection", otherOrganizationId);
+
+    const organization = buildOrganization(organizationId, "Acme corporation");
+    const otherOrganization = buildOrganization(otherOrganizationId, "Smith family");
+
+    const rowIds = () =>
+      component()
+        .ciphers()
+        .map((cipher: CipherView) => cipher.id);
+    const collectionIds = () =>
+      component()
+        .scopedCollections()
+        .map((collection: CollectionView) => collection.id);
+    const organizationIds = () =>
+      component()
+        .scopedOrganizations()
+        .map((organization: Organization) => organization.id);
+
+    beforeEach(() => {
+      ciphers$.next([personal, inOrg, inOtherOrg]);
+      collections$.next([orgCollection, otherOrgCollection]);
+      organizations$.next([organization, otherOrganization]);
+      fixture.detectChanges();
+    });
+
+    describe("with no route segment", () => {
+      it("shows every vault's items, collections, and organizations", () => {
+        expect(rowIds()).toEqual(["personal", "in-org", "in-other-org"]);
+        expect(collectionIds()).toEqual(["org-collection", "other-org-collection"]);
+        expect(organizationIds()).toEqual([organizationId, otherOrganizationId]);
+      });
+
+      it("leaves the search index unscoped and the header on its route title", () => {
+        expect(component().scopedOrganizationId()).toBeUndefined();
+        expect(component().title()).toBeUndefined();
+      });
+    });
+
+    describe("scoped to the personal vault", () => {
+      beforeEach(() => scopeTo(MY_VAULT_ROUTE));
+
+      it("shows only individually owned items", () => {
+        expect(rowIds()).toEqual(["personal"]);
+      });
+
+      it("offers no shared folders or vaults, which the personal vault has none of", () => {
+        expect(collectionIds()).toEqual([]);
+        expect(organizationIds()).toEqual([]);
+        expect(component().scopedOrganizationId()).toBeUndefined();
+      });
+
+      it("titles the header My vault", () => {
+        expect(component().title()).toBe("myVault");
+      });
+    });
+
+    describe("scoped to an organization vault", () => {
+      beforeEach(() => scopeTo(organizationId));
+
+      it("shows only that organization's items", () => {
+        expect(rowIds()).toEqual(["in-org"]);
+      });
+
+      it("narrows the shared folders and vaults to that organization", () => {
+        expect(collectionIds()).toEqual(["org-collection"]);
+        expect(organizationIds()).toEqual([organizationId]);
+      });
+
+      it("scopes the table's search index to that organization", () => {
+        expect(component().scopedOrganizationId()).toBe(organizationId);
+      });
+
+      it("titles the header with the organization name", () => {
+        expect(component().title()).toBe("Acme corporation");
+      });
+    });
+
+    it("falls back to every item when the segment names no vault", () => {
+      scopeTo("acme-corp");
+
+      expect(rowIds()).toEqual(["personal", "in-org", "in-other-org"]);
+    });
+
+    it("re-scopes when the route changes without leaving the page", () => {
+      scopeTo(organizationId);
+      expect(rowIds()).toEqual(["in-org"]);
+
+      scopeTo(MY_VAULT_ROUTE);
+      expect(rowIds()).toEqual(["personal"]);
+    });
+
+    it("keeps the banners and onboarding on the account's full item list", () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      expect(
+        component()
+          .allCiphers()
+          .map((cipher: CipherView) => cipher.id),
+      ).toEqual(["personal", "in-org", "in-other-org"]);
+      expect(component().organizations()).toEqual([organization, otherOrganization]);
+    });
+
+    it("assigns to collections from every vault, not just the scoped one", async () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      await handlers().assignToCollections(personal);
+
+      expect(itemActions.assignToCollections).toHaveBeenCalledWith(personal, [
+        orgCollection,
+        otherOrgCollection,
+      ]);
     });
   });
 
