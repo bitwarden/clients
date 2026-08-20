@@ -7,6 +7,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  Type,
   viewChild,
 } from "@angular/core";
 import { ActivatedRoute, NavigationExtras, Params, Router } from "@angular/router";
@@ -145,6 +146,7 @@ import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-di
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import { VAULT_GATED_COLLECTION_BANNER } from "./vault-gated-collection-banner.token";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -189,6 +191,11 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   private readonly injector = inject(Injector);
+
+  protected readonly gatedCollectionBanner: Type<unknown> | null = inject(
+    VAULT_GATED_COLLECTION_BANNER,
+    { optional: true },
+  );
 
   readonly filterComponent = viewChild(VaultFilterComponent);
   readonly vaultItemsComponent = viewChild(VaultItemsComponent);
