@@ -136,9 +136,13 @@ export class VaultRowLeaseBadgeComponent {
 
   private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {
     // Gating is driven by the SDK's `partial` flag, which only some `CipherViewLike` members
-    // carry — read it through the util rather than off the union. No flag or no id — no badge.
-    if (!CipherViewLikeUtils.isPartial(cipher) || cipher.id == null) {
+    // carry; read it through the util rather than off the union. Not gated is a real answer;
+    // no id means the lookup could not run, which is not.
+    if (!CipherViewLikeUtils.isPartial(cipher)) {
       return of("none");
+    }
+    if (cipher.id == null) {
+      return of(null);
     }
     return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
       map((state): LeaseBadgeCell => cipherAccessBadgeState(state) ?? "none"),
