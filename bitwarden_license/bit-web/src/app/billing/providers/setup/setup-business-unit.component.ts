@@ -6,7 +6,6 @@ import { filter, map, switchMap } from "rxjs/operators";
 import { BitwardenLogo } from "@bitwarden/assets/svg";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { OrganizationBillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-billing-api.service.abstraction";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
@@ -15,7 +14,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { ProviderKey } from "@bitwarden/common/types/key";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { BillingNotificationService } from "@bitwarden/web-vault/app/billing/services/billing-notification.service";
 import { BaseAcceptComponent } from "@bitwarden/web-vault/app/common/base.accept.component";
 
