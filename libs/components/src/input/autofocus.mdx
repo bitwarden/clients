@@ -14,6 +14,17 @@ import { AutofocusDirective } from "@bitwarden/components";
 <Primary />
 <Controls />
 
+## Selecting the value
+
+Add `appAutofocusSelect` alongside `appAutofocus` to select the field's contents as well as focus
+it. Use it only where the prefilled value is a placeholder the user is expected to type over — a
+suggested name for a copied item, say. On a field the user came to append to, selecting means their
+first keystroke silently deletes the value.
+
+```html
+<input bitInput [appAutofocus]="renaming" appAutofocusSelect />
+```
+
 ## Accessibility
 
 The autofocus directive has accessibility implications, because it will steal focus from wherever it
