@@ -79,7 +79,7 @@ describe("GatedCollectionFilterIndicatorComponent", () => {
     create({ id: COLLECTION, organizationId: PAM_ORG });
 
     expect(lock()?.classList).toContain("tw-text-muted");
-    expect(lock()?.classList).toContain("bwi-lock");
+    expect(lock()?.classList).toContain("bwi-lock-encrypted");
   });
 
   it("leaves a collection no enabled rule governs unmarked", () => {
