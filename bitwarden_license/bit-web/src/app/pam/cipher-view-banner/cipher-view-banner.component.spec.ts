@@ -308,6 +308,12 @@ describe("CipherViewBannerComponent", () => {
       return `pamWindowUntil ${formatDate(iso, "short", "en-US")}`;
     }
 
+    // Real time, for the same reason the clock above is pinned rather than faked: the banner's
+    // interval is a real one, so a tick can only be observed by outlasting its second.
+    function waitForTick(): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, 1_100));
+    }
+
     it("pairs the active lease's countdown with the wall-clock time it ends", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ activeLease: leaseView({ notAfter: ENDS_AT }) }),
@@ -352,6 +358,28 @@ describe("CipherViewBannerComponent", () => {
         collapseSpace(
           `${formatDate(STARTS_AT, "short", "en-US")} – ${formatDate(ENDS_AT, "short", "en-US")}`,
         ),
+      );
+    });
+
+    it("switches an approved request to the opened form once its window arrives", async () => {
+      const STARTS_AT = new Date(NOW + 30 * 1000).toISOString();
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          approvedRequest: requestView({ leaseNotBefore: STARTS_AT, leaseNotAfter: ENDS_AT }),
+        }),
+      );
+
+      await create(gatedCipher());
+      expect(query('[data-testid="approved-access-window"]')?.textContent).not.toContain(
+        "pamWindowUntil",
+      );
+
+      jest.spyOn(Date, "now").mockReturnValue(NOW + 31 * 1000);
+      await waitForTick();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
       );
     });
   });
