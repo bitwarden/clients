@@ -39,11 +39,17 @@ import {
   CipherStatus,
   CipherTypeFilter,
   CollectionFilter,
+  ControlledAccessFilter,
   FolderFilter,
   OrganizationFilter,
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
+
+import {
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "../../vault-controlled-access-filter.token";
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
@@ -79,6 +85,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   protected organizationWarningsService = inject(OrganizationWarningsService);
   private vfo1TerminologyService = inject(Vfo1TerminologyService);
+  private controlledAccessFilter: VaultControlledAccessFilter | null = inject(
+    VAULT_CONTROLLED_ACCESS_FILTER,
+    { optional: true },
+  );
 
   get searchPlaceholder() {
     if (this.activeFilter.isFavorites) {
@@ -225,6 +235,14 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     filter.selectedCollectionNode = collectionNode;
   };
 
+  applyControlledAccessFilter = async (
+    controlledAccessNode: TreeNode<ControlledAccessFilter>,
+  ): Promise<void> => {
+    const filter = this.activeFilter;
+    filter.resetFilter();
+    filter.selectedControlledAccessNode = controlledAccessNode;
+  };
+
   editFolder = async (folder: FolderFilter): Promise<void> => {
     this.onEditFolder.emit(folder);
   };
@@ -237,6 +255,11 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     builderFilter.typeFilter = await this.addTypeFilter();
     builderFilter.folderFilter = await this.addFolderFilter();
     builderFilter.collectionFilter = await this.addCollectionFilter();
+    if (this.controlledAccessFilter != null) {
+      builderFilter.controlledAccessFilter = this.addControlledAccessFilter(
+        this.controlledAccessFilter,
+      );
+    }
     builderFilter.archiveFilter = await this.addArchiveFilter(userId);
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
@@ -374,6 +397,43 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       ) => Promise<void>,
     };
     return collectionFilterSection;
+  }
+
+  /**
+   * The group renders nothing while the host offers no children, which is also how a user with no
+   * privileged-access organization in view sees no group: `app-filter-section` draws neither the
+   * heading nor the list for a head node with no children.
+   */
+  protected addControlledAccessFilter(
+    controlledAccessFilter: VaultControlledAccessFilter,
+  ): VaultFilterSection {
+    const data$ = controlledAccessFilter.options$.pipe(
+      map((options) => {
+        const headNode = new TreeNode<ControlledAccessFilter>(
+          { id: "headControlledAccess", name: "controlledAccess" },
+          null,
+        );
+        headNode.children = options.map(
+          (option) =>
+            new TreeNode<ControlledAccessFilter>(
+              { id: option.id, name: option.name, icon: option.icon },
+              headNode,
+            ),
+        );
+        return headNode;
+      }),
+    );
+
+    return {
+      data$,
+      header: {
+        showHeader: true,
+        isSelectable: false,
+      },
+      action: this.applyControlledAccessFilter as (
+        filterNode: TreeNode<VaultFilterType>,
+      ) => Promise<void>,
+    };
   }
 
   protected async addTrashFilter(): Promise<VaultFilterSection> {

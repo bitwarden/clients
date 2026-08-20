@@ -17,6 +17,7 @@ import {
   VaultFilter,
   CipherTypeFilter,
   CollectionFilter,
+  ControlledAccessFilter,
   FolderFilter,
   OrganizationFilter,
 } from "..";
@@ -175,7 +176,9 @@ function createLegacyFilterForEndUser(
     );
   }
 
-  if (filter.type === undefined) {
+  // "All items" is the resting selection, but only when nothing else is: a controlled-access
+  // filter would otherwise leave two rows of the sidebar highlighted at once.
+  if (filter.type === undefined && filter.controlledAccess === undefined) {
     legacyFilter.selectedCipherTypeNode = ServiceUtils.getTreeNodeObject(
       cipherTypeTree,
       "AllItems",
@@ -194,6 +197,15 @@ function createLegacyFilterForEndUser(
     legacyFilter.selectedCipherTypeNode = ServiceUtils.getTreeNodeObject(
       cipherTypeTree,
       filter.type,
+    );
+  }
+
+  // The group's children are supplied by a host outside this library, so there is no tree here to
+  // resolve the id against — the node is rebuilt from the id alone, and only the id is ever read.
+  if (filter.controlledAccess !== undefined) {
+    legacyFilter.selectedControlledAccessNode = new TreeNode<ControlledAccessFilter>(
+      { id: filter.controlledAccess, name: "" },
+      null,
     );
   }
 
