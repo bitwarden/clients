@@ -386,7 +386,7 @@ const buildProviders = (args: StoryArgs) => {
         currentTabIsOnBlocklist$: of(args.currentUriIsBlocked ?? false),
         autofillAllowed$: of(false),
         currentAutofillTab$: of(null),
-        doAutofill: async () => { },
+        doAutofill: async () => {},
       },
     },
     {
@@ -534,7 +534,7 @@ const buildProviders = (args: StoryArgs) => {
       provide: StateProvider,
       useValue: {
         getUserState$: () => of({ hasSeen: false, hasDismissed: false }),
-        getUser: () => ({ update: async () => { } }),
+        getUser: () => ({ update: async () => {} }),
       },
     },
     {
