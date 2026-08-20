@@ -41,6 +41,8 @@ import {
   accessRuleDeleteConfirmOptions,
   accessRuleErrorMessageKey,
   accessRuleMatchesFilter,
+  classifyAccessRuleError,
+  copyRuleName,
   resolveCollectionNames,
   rulesChangingEnabled,
 } from "..";
@@ -214,15 +216,65 @@ export class AccessRulesComponent {
     this.router.navigate([rule.id], { relativeTo: this.route });
 
   /**
-   * Navigate to the create page seeded from an existing rule. The create page copies
-   * everything but the collections (a collection can only carry one rule) and suffixes
-   * the name; nothing is persisted until the user saves.
+   * Copy a rule and open the copy for editing.
+   *
+   * The copy is created straight away, without a confirmation step: it carries no collections
+   * (a collection can only be governed by one rule), so until the admin assigns some there is
+   * nothing for it to govern and nothing to undo. That is also why the edit page is where the
+   * admin lands — the copy is unfinished, and its required collections are the thing to finish.
+   * Backing out of that page leaves the copy in the table rather than discarding it.
    */
-  protected readonly duplicate = (rule: AccessRuleView): Promise<boolean> =>
-    this.router.navigate(["new"], {
-      relativeTo: this.route,
-      queryParams: { duplicateFrom: rule.id },
+  protected readonly makeCopy = async (rule: AccessRuleView): Promise<void> => {
+    let created: AccessRuleView;
+    try {
+      created = await this.createCopy(rule);
+    } catch (e) {
+      this.showError(e);
+      return;
+    }
+
+    // Announced only once the copy is definitely persisted, and outside the try: a failed
+    // navigation must not follow a success toast with an error one about a rule that exists.
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("pamAccessRuleCopyCreated"),
     });
+    // `renaming` tells the edit page to put the cursor in the name field with the suffixed
+    // name selected, so the admin can type over it.
+    await this.router.navigate([created.id], {
+      relativeTo: this.route,
+      queryParams: { renaming: true },
+    });
+  };
+
+  /**
+   * Create the copy, retrying once against a refreshed list if the name turned out to be taken.
+   *
+   * {@link copyRuleName} picks a free name from the rules this page loaded, which another admin
+   * (or another tab) can have moved on from since. Without the refresh that rejection is a dead
+   * end: the admin is on the table with no field to correct, and clicking again recomputes the
+   * same name from the same stale list and fails identically.
+   */
+  private async createCopy(rule: AccessRuleView): Promise<AccessRuleView> {
+    try {
+      return await this.accessRules.copy(rule, this.copyNameFor(rule));
+    } catch (e) {
+      const outcome = classifyAccessRuleError(e);
+      if (outcome.kind !== "mapped" || outcome.messageKey !== "pamAccessRuleErrorNameTaken") {
+        throw e;
+      }
+      await this.accessRules.load(this.organizationId());
+      return await this.accessRules.copy(rule, this.copyNameFor(rule));
+    }
+  }
+
+  private copyNameFor(rule: AccessRuleView): string {
+    return copyRuleName(
+      rule.name,
+      this.rules().map((r) => r.name),
+      (key, name, count) => this.i18nService.t(key, name, count),
+    );
+  }
 
   protected readonly toggleEnabled = async (rule: AccessRuleView): Promise<void> => {
     const nextEnabled = !rule.enabled;

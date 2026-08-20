@@ -11,6 +11,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AccessRuleSdkService,
   AccessRuleView,
+  accessRuleToCopyRequest,
   accessRuleToRequest,
   rulesChangingEnabled,
 } from "..";
@@ -63,6 +64,23 @@ export class AccessRulesService {
   /** The currently-loaded rule with the given id, if any. */
   getRule(id: string): AccessRuleView | undefined {
     return this._rules$.value.find((r) => uuidAsString(r.id) === id);
+  }
+
+  /**
+   * Create a copy of `rule` under `name` and add it to local state, returning the created rule
+   * so the caller can route to it.
+   *
+   * The copy is persisted immediately — the admin never gets a chance to abandon it — so the
+   * name must already be free of collisions; {@link copyRuleName} is what makes it so. The copy
+   * governs no collections; see {@link accessRuleToCopyRequest} for why.
+   */
+  async copy(rule: AccessRuleView, name: string): Promise<AccessRuleView> {
+    const created = await this.pamApi.createAccessRule(
+      this.requireOrganizationId(),
+      accessRuleToCopyRequest(rule, name),
+    );
+    this._rules$.next([...this._rules$.value, created]);
+    return created;
   }
 
   /** Toggle a single rule's enabled flag, patching local state with the result. */
