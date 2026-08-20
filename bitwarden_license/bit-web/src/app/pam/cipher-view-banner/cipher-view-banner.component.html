@@ -1,4 +1,4 @@
-@if (activeLease()) {
+@if (activeLease(); as lease) {
   <bit-callout
     type="success"
     [title]="'pamActiveLeaseBannerTitle' | i18n: leaseRemainingLabel()"
@@ -11,7 +11,7 @@
     -->
     <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
       <span bitTypography="body2" data-testid="active-lease-ends-at">
-        {{ "pamWindowUntil" | i18n: (activeLeaseEndsAt() | date: "short") }}
+        {{ "pamWindowUntil" | i18n: (lease.notAfter | date: "short") }}
       </span>
       <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
         @if (canExtendLease()) {
@@ -39,7 +39,7 @@
       </span>
     </div>
   </bit-callout>
-} @else if (approvedRequest()) {
+} @else if (approvedRequest(); as request) {
   <bit-callout
     type="success"
     [title]="'pamApprovedRequestBannerTitle' | i18n"
@@ -48,15 +48,14 @@
     <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
       <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
         <app-pam-access-state-badge [state]="badge()" />
-        @if (approvedAccessWindow(); as window) {
-          <span bitTypography="body2" data-testid="approved-access-window">
-            @if (window.startsAt) {
-              {{ window.startsAt | date: "short" }} &ndash; {{ window.endsAt | date: "short" }}
-            } @else {
-              {{ "pamWindowUntil" | i18n: (window.endsAt | date: "short") }}
-            }
-          </span>
-        }
+        <span bitTypography="body2" data-testid="approved-access-window">
+          @if (approvedRequestStartsNow()) {
+            {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | date: "short") }}
+          } @else {
+            {{ request.leaseNotBefore | date: "short" }} &ndash;
+            {{ request.leaseNotAfter | date: "short" }}
+          }
+        </span>
       </span>
       <span class="tw-flex tw-items-center tw-gap-2">
         <button
