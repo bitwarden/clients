@@ -8,7 +8,12 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
-import { AccessRuleSdkService, AccessRuleView, accessRuleToRequest } from "..";
+import {
+  AccessRuleSdkService,
+  AccessRuleView,
+  accessRuleToRequest,
+  rulesChangingEnabled,
+} from "..";
 
 /**
  * Page-level data service for the access rules table: owns the org's rule list and
@@ -75,7 +80,7 @@ export class AccessRulesService {
    * Returns the number of rules actually changed (0 when none needed updating).
    */
   async setManyEnabled(rules: AccessRuleView[], enabled: boolean): Promise<number> {
-    const targets = rules.filter((r) => r.enabled !== enabled);
+    const targets = rulesChangingEnabled(rules, enabled);
     if (targets.length === 0) {
       return 0;
     }
