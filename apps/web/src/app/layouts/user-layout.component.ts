@@ -27,12 +27,7 @@ import {
 } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import {
-  RoutedVaultFilterItemType,
-  VaultNavItemType,
-  VaultNavItemViewModel,
-  VaultNavSectionComponent,
-} from "@bitwarden/vault";
+import { RoutedVaultFilterItemType, VaultNavSectionComponent } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -78,15 +73,15 @@ export class UserLayoutComponent implements OnInit {
     { initialValue: false },
   );
 
-  private readonly userHasPremium = toSignal(
+  private readonly userCanArchive = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
-      switchMap((userId) => this.cipherArchiveService.userHasPremium$(userId)),
+      switchMap((userId) => this.cipherArchiveService.userCanArchive$(userId)),
     ),
     { initialValue: true },
   );
 
-  protected readonly showArchivePremiumBadge = computed(() => !this.userHasPremium());
+  protected readonly showArchivePremiumBadge = computed(() => !this.userCanArchive());
 
   protected readonly singleOrgPolicyApplies = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -137,21 +132,12 @@ export class UserLayoutComponent implements OnInit {
     });
   }
 
-  protected async selectAllItems() {
-    await this.router.navigate(["/vault"]);
-  }
-
-  protected async selectVault(vault: VaultNavItemViewModel) {
-    const segment = vault.type === VaultNavItemType.Personal ? "my-vault" : vault.id;
-    await this.router.navigate(["/vault", segment]);
-  }
-
   protected async selectItemType(type: RoutedVaultFilterItemType) {
     await this.navigateToVault({ type });
   }
 
   protected async selectArchive() {
-    if (!this.userHasPremium()) {
+    if (!this.userCanArchive()) {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const hasArchivedCiphers =
         (await firstValueFrom(this.cipherArchiveService.archivedCiphers$(userId))).length > 0;

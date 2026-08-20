@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -15,6 +16,7 @@ import {
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
+import { MY_VAULT } from "../vault-items-table/vault-items-table.component";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
 
@@ -81,11 +83,11 @@ Object.defineProperty(window, "matchMedia", {
 
 describe("VaultNavSectionComponent", () => {
   let fixture: ComponentFixture<VaultNavSectionComponent>;
-  let component: VaultNavSectionComponent;
 
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(personalOnly);
   const vaultNavService = mock<VaultNavService>();
   const i18nService = mock<I18nService>();
+  const router = mock<Router>();
 
   /** Trimmed first-line text of every rendered nav item, group, and section, in document order. */
   const navText = () =>
@@ -127,6 +129,7 @@ describe("VaultNavSectionComponent", () => {
       providers: [
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: I18nService, useValue: i18nService },
+        { provide: Router, useValue: router },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
       ],
     }).compileComponents();
@@ -135,7 +138,6 @@ describe("VaultNavSectionComponent", () => {
     TestBed.inject(SideNavService).open.set(true);
 
     fixture = TestBed.createComponent(VaultNavSectionComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
@@ -148,13 +150,10 @@ describe("VaultNavSectionComponent", () => {
       expect(text).not.toContain("vaults");
     });
 
-    it("emits vaultSelected when the lone vault is clicked", () => {
-      const selected = jest.fn();
-      component.vaultSelected.subscribe(selected);
-
+    it("routes to the personal vault using the my-vault segment when the lone vault is clicked", () => {
       clickNavItem(fixture.nativeElement, "My vault");
 
-      expect(selected).toHaveBeenCalledWith(personalItem);
+      expect(router.navigate).toHaveBeenCalledWith(["/vault", MY_VAULT]);
     });
   });
 
@@ -180,23 +179,17 @@ describe("VaultNavSectionComponent", () => {
       expect(vaultLabels).toEqual(["My vault", "Acme corporation", "Smith family"]);
     });
 
-    it("emits allItemsSelected when All items is clicked", () => {
-      const selected = jest.fn();
-      component.allItemsSelected.subscribe(selected);
-
+    it("routes to the unfiltered vault when All items is clicked", () => {
       clickNavItem(fixture.nativeElement, "allItems");
 
-      expect(selected).toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(["/vault"]);
     });
 
-    it("emits vaultSelected with the vault when its All vault items is clicked", () => {
-      const selected = jest.fn();
-      component.vaultSelected.subscribe(selected);
-
+    it("routes to the organization vault when its All vault items is clicked", () => {
       const group = expandGroup("Acme corporation");
       clickNavItem(group, "allVaultItems");
 
-      expect(selected).toHaveBeenCalledWith(orgA);
+      expect(router.navigate).toHaveBeenCalledWith(["/vault", "org-a"]);
     });
   });
 

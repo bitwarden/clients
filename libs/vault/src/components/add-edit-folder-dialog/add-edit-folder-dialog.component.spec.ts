@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -31,7 +31,7 @@ describe("AddEditFolderDialogComponent", () => {
   const save = jest.fn().mockResolvedValue(null);
   const deleteFolder = jest.fn().mockResolvedValue(null);
   const openSimpleDialog = jest.fn().mockResolvedValue(true);
-  const getUserKey = jest.fn().mockResolvedValue("");
+  const userKey$ = jest.fn().mockReturnValue(of(""));
   const error = jest.fn();
   const close = jest.fn();
   const showToast = jest.fn();
@@ -69,7 +69,7 @@ describe("AddEditFolderDialogComponent", () => {
         {
           provide: KeyService,
           useValue: {
-            getUserKey,
+            userKey$,
           },
         },
         { provide: LogService, useValue: { error } },
