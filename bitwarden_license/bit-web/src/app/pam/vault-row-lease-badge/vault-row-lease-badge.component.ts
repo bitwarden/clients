@@ -7,7 +7,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { OrganizationId } from "@bitwarden/common/types/guid";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -18,12 +18,12 @@ import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 
 /**
- * The collection fields the badge reads, structurally — the host passes its own
+ * The collection field the badge reads, structurally — the host passes its own
  * `CollectionView`/`CollectionAdminView`, which this component must not import to stay
- * decoupled from the admin-console models. Both are optional because the vault list also
- * renders pseudo-collections ("Unassigned"), which carry no server state at all.
+ * decoupled from the admin-console models. Optional because the vault list also renders
+ * pseudo-collections ("Unassigned"), which carry no server state at all.
  */
-type BadgeCollection = { organizationId?: OrganizationId; hasEnabledAccessRule?: boolean };
+type BadgeCollection = { hasEnabledAccessRule?: boolean };
 
 /**
  * What the row's lookup concluded: a badge state, `"none"` for "checked, governed by no rule",
@@ -52,10 +52,17 @@ type LeaseBadgeCell = AccessBadgeState | "none" | null;
  * organization's access rules — notably provider users, whom `MemberRequirement` excludes from
  * the access-rules endpoint by design.
  *
- * A row with no rule draws an em dash rather than an empty cell, so "checked, not governed"
- * is distinguishable from "not loaded yet". The placeholder lives here and not in
+ * A cipher row with no rule draws an em dash — paired with an equivalent screen-reader label,
+ * since the dash itself is decorative — rather than an empty cell, so "checked, not governed" is
+ * distinguishable from "not loaded yet". The placeholder lives here and not in
  * {@link AccessStateBadgeComponent}, which the cipher-view modal and the Requests page also
  * render and where the spec calls for nothing at all.
+ *
+ * A collection row never draws it. `hasEnabledAccessRule` is declared `boolean = false` and read
+ * as `getResponseProperty("HasEnabledAccessRule") || false`, so a server too old to derive the
+ * field is indistinguishable from one reporting no rule — the flag cannot express "I did not
+ * check". Blank is the honest answer there, and it is what this column already means by an empty
+ * cell.
  */
 @Component({
   selector: "app-pam-vault-row-lease-badge",
@@ -71,6 +78,8 @@ export class VaultRowLeaseBadgeComponent {
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
   private readonly accountService = inject(AccountService);
   private readonly organizationService = inject(OrganizationService);
+
+  protected readonly noAccessRuleLabel = inject(I18nService).t("pamNoAccessRule");
 
   /**
    * Ids of the organizations that actually carry Privileged Access. The column itself is
@@ -121,7 +130,7 @@ export class VaultRowLeaseBadgeComponent {
     if (this.cell() !== "none") {
       return false;
     }
-    const organizationId = this.cipher()?.organizationId ?? this.collection()?.organizationId;
+    const organizationId = this.cipher()?.organizationId;
     return organizationId != null && this.pamOrganizationIds().has(String(organizationId));
   });
 
@@ -139,6 +148,6 @@ export class VaultRowLeaseBadgeComponent {
   }
 
   private collectionCell$({ hasEnabledAccessRule }: BadgeCollection): Observable<LeaseBadgeCell> {
-    return of(hasEnabledAccessRule === true ? { kind: "privileged" } : "none");
+    return of(hasEnabledAccessRule === true ? { kind: "privileged" } : null);
   }
 }
