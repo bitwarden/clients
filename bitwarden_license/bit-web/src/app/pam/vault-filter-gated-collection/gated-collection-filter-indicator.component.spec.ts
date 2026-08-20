@@ -18,6 +18,7 @@ function accessRule(enabled: boolean, collections: string[]): AccessRuleView {
 
 const PAM_ORG = "org-1";
 const PLAIN_ORG = "org-2";
+const OTHER_PAM_ORG = "org-3";
 const COLLECTION = "collection-1";
 
 describe("GatedCollectionFilterIndicatorComponent", () => {
@@ -89,10 +90,25 @@ describe("GatedCollectionFilterIndicatorComponent", () => {
     expect(lock()).toBeNull();
   });
 
-  it("leaves a collection of another organization unmarked", () => {
+  it("leaves a collection no rule lists unmarked", () => {
     create({ id: "collection-2", organizationId: PAM_ORG });
 
     expect(lock()).toBeNull();
+  });
+
+  it("leaves a collection unmarked when only another organization's rule governs that id", () => {
+    organizations$.next([
+      { id: PAM_ORG, usePam: true },
+      { id: OTHER_PAM_ORG, usePam: true },
+    ]);
+    governedCollections.rules$.mockImplementation((organizationId) =>
+      of(organizationId === PAM_ORG ? [accessRule(true, [COLLECTION])] : []),
+    );
+
+    create({ id: COLLECTION, organizationId: OTHER_PAM_ORG });
+
+    expect(lock()).toBeNull();
+    expect(governedCollections.rules$).toHaveBeenCalledWith(OTHER_PAM_ORG);
   });
 
   it("does not read rules for an organization without PAM", () => {
