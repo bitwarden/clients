@@ -19,7 +19,6 @@ import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-acce
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   AnonLayoutWrapperDataService,
   SpinnerComponent,
@@ -99,27 +98,6 @@ export class SendViewComponent implements OnInit {
       const sendAccess = new SendAccess(response);
       this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
       const decSend = await sendAccess.decrypt(this.decKey);
-      // TEMPORARY: Inject mock item data until the backend supports item-type Sends.
-      if (decSend.type === SendType.Item) {
-        decSend.item = {
-          name: "Amazon",
-          subtitle: "username@email.com",
-          cipherType: CipherType.Login,
-          fields: [
-            { label: "User name", value: "name@company.com", copyable: true },
-            { label: "Password", value: "supersecretpassword", hidden: true, copyable: true },
-            { label: "Verification code (TOTP)", value: "", totp: true, copyable: true },
-            {
-              label: "Website",
-              value: "www.amazon.com",
-              copyable: true,
-              launchUrl: "https://www.amazon.com",
-            },
-            { label: "Note", value: "Only to be used for events", copyable: true },
-          ],
-        };
-      }
-
       this.send.set(decSend);
     } catch (e) {
       this.send.set(null);

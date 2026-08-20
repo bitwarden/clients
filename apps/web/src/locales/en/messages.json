@@ -17178,6 +17178,10 @@
     "message": "Share link deleted",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
+  "linkSaveFailed": {
+    "message": "Unable to create share link",
+    "description": "Toast message shown after a new share link fails to create"
+  },
   "linkSavedAndCopied": {
     "message": "Link saved and copied to clipboard",
     "description": "Toast message shown after a new share link is created and its URL is copied to the clipboard"
@@ -17213,5 +17217,17 @@
   "expiryThirtyDays": {
     "message": "30 days",
     "description": "Share link expiry duration option: thirty days"
+  },
+  "itemSendTitle": {
+    "message": "Share for vault item $ITEM$",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Test Login"
+      }
+    }
+  },
+  "shareVerb": {
+    "message": "Share"
   }
 }

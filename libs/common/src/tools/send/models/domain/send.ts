@@ -8,7 +8,6 @@ import {
   Send as SdkSend,
   SendId as SdkSendId,
   SendType as SdkSendType,
-  SendEncryptionType,
 } from "@bitwarden/sdk-internal";
 
 import { EncString } from "../../../../key-management/crypto/models/enc-string";
@@ -16,16 +15,15 @@ import { asUuid, uuidAsString } from "../../../../platform/abstractions/sdk/sdk.
 import { Utils } from "../../../../platform/misc/utils";
 import Domain from "../../../../platform/models/domain/domain-base";
 import { UserId } from "../../../../types/guid";
-import { Cipher } from "../../../../vault/models/domain/cipher";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendData } from "../data/send.data";
 import { SendView } from "../view/send.view";
 
 import { SendFile } from "./send-file";
+import { SendItem } from "./send-item";
 import { SendText } from "./send-text";
 
-// SendType.Item (2) has no SDK equivalent yet — cast to allow the partial mapping.
 const SEND_TYPE_TO_SDK = {
   [SendType.Text]: SdkSendType.Text,
   [SendType.File]: SdkSendType.File,
@@ -58,9 +56,7 @@ export class Send extends Domain {
   notes: EncString;
   file: SendFile;
   text: SendText;
-  data: {
-    data?: Cipher;
-  } = {};
+  data: SendItem;
   key: EncString;
   maxAccessCount?: number;
   accessCount: number;
@@ -113,11 +109,7 @@ export class Send extends Domain {
         this.file = new SendFile(obj.file);
         break;
       case SendType.Item:
-        if (obj.data?.data) {
-          this.data = {
-            data: Cipher.fromJSON(JSON.parse(obj.data.data)),
-          };
-        }
+        this.data = new SendItem(obj.data);
         break;
       default:
         break;
@@ -156,12 +148,7 @@ export class Send extends Domain {
         model.text = await this.text.decrypt(model.cryptoKey);
         break;
       case SendType.Item: {
-        if (this.data.data) {
-          const cipherView = await this.data.data.decrypt(model.cryptoKey);
-          model.data = {
-            data: cipherView,
-          };
-        }
+        model.data = await this.data.decrypt(model.cryptoKey);
         break;
       }
       default:
@@ -187,6 +174,7 @@ export class Send extends Domain {
       emails: obj.emails,
       text: SendText.fromJSON(obj.text),
       file: SendFile.fromJSON(obj.file),
+      data: SendItem.fromJSON(obj.data),
       revisionDate,
       expirationDate,
       deletionDate,
@@ -208,9 +196,7 @@ export class Send extends Domain {
       type: SEND_TYPE_TO_SDK[this.type],
       file: this.file ? this.file.toSdk() : undefined,
       text: this.text ? this.text.toSdk() : undefined,
-      data: this.data?.data
-        ? { encryptionVersion: SendEncryptionType.V1, data: this.data.data.toSdkCipher() }
-        : undefined,
+      data: this.data ? this.data.toSdk() : undefined,
       maxAccessCount: this.maxAccessCount ?? undefined,
       accessCount: this.accessCount,
       disabled: this.disabled,
@@ -248,6 +234,7 @@ export class Send extends Domain {
     send.authType = AUTH_TYPE_FROM_SDK[obj.authType];
     send.text = obj.text != null ? SendText.fromSdk(obj.text) : null;
     send.file = obj.file != null ? SendFile.fromSdk(obj.file) : null;
+    send.data = obj.data != null ? SendItem.fromSdk(obj.data) : null;
     return send;
   }
 
@@ -280,6 +267,9 @@ export class Send extends Domain {
         break;
       case SendType.File:
         data.file = this.file?.toSendData();
+        break;
+      case SendType.Item:
+        data.data = this.data?.toSendData();
         break;
       default:
         break;

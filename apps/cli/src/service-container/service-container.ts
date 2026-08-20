@@ -673,7 +673,7 @@ export class ServiceContainer {
       this.keyGenerationService,
       this.sendStateProvider,
       this.encryptService,
-      this.configService,
+      this.cipherEncryptionService,
     );
 
     const legacySendApiService = new SendApiService(

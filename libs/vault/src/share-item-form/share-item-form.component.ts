@@ -22,6 +22,7 @@ import { combineLatest, switchMap } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
@@ -32,6 +33,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import {
   AccordionComponent,
@@ -48,6 +50,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { ShareLinkService } from "../share-link.service";
@@ -83,6 +86,7 @@ export class ShareItemFormComponent implements OnDestroy {
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly toastService = inject(ToastService);
   private readonly shareLinkService = inject(ShareLinkService);
+  private readonly policyService = inject(PolicyService);
 
   /** The cipher to share. Provided by the shell component. */
   readonly cipher = input.required<CipherView>();
@@ -115,22 +119,9 @@ export class ShareItemFormComponent implements OnDestroy {
     }
   });
 
-  protected readonly cipherSubtitle = computed<string | undefined>(() => {
-    const c = this.cipher();
-    if (!c) {
-      return undefined;
-    }
-    switch (c.type) {
-      case CipherType.Login:
-        return c.login?.username || undefined;
-      case CipherType.Card:
-        return c.card?.cardholderName || undefined;
-      case CipherType.Identity:
-        return [c.identity?.firstName, c.identity?.lastName].filter(Boolean).join(" ") || undefined;
-      default:
-        return undefined;
-    }
-  });
+  protected cipherSubtitle(): string | undefined {
+    return CipherViewLikeUtils.subtitle(this.cipher(), this.i18nService);
+  }
 
   protected readonly expiryOptions: ExpiryChoice[] = [
     { label: this.i18nService.t("expiryOneHour"), value: ExpiryOption.OneHour },
@@ -188,6 +179,23 @@ export class ShareItemFormComponent implements OnDestroy {
   private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   constructor() {
+    this.activeUserId$
+      .pipe(
+        // Since item sharing is currently Send-based, we need to comply with any Send Controls policies
+        switchMap((userId) => this.policyService.policiesByType$(PolicyType.SendControls, userId)),
+      )
+      .pipe(takeUntilDestroyed())
+      .subscribe((sendControlsPolicies) => {
+        const policyWithDeletionDate = sendControlsPolicies.find(
+          (scp) => scp.data.deletionHours != undefined,
+        );
+        if (policyWithDeletionDate) {
+          const expiryHoursFormControl = this.form.get("expiryHours");
+          expiryHoursFormControl?.setValue(policyWithDeletionDate.data.deletionHours);
+          expiryHoursFormControl?.disable();
+        }
+      });
+
     const cipher$ = toObservable(this.cipher).pipe(filterOutNullish());
 
     combineLatest([
@@ -239,7 +247,7 @@ export class ShareItemFormComponent implements OnDestroy {
   }
 
   protected async deleteLink(link: ShareLink): Promise<void> {
-    await this.shareLinkService.deleteLink(link.id);
+    await this.shareLinkService.deleteLink(link.sendId);
     this.toastService.showToast({
       variant: "success",
       title: undefined,

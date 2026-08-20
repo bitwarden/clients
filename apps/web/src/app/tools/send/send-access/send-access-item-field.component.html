@@ -1,0 +1,33 @@
+@if (value()) {
+  <bit-form-field>
+    <bit-label [appTextDrag]="value()">{{ label() }}</bit-label>
+    <input
+      readonly
+      bitInput
+      [type]="hideable() && hidden() ? 'password' : 'text'"
+      [value]="value()"
+      aria-readonly="true"
+    />
+    @if (hideable()) {
+      <button
+        bitSuffix
+        type="button"
+        bitIconButton
+        bitPasswordInputToggle
+        [toggled]="!hidden()"
+        (toggledChange)="toggleHidden(!$event)"
+      ></button>
+    }
+    @if (copyable()) {
+      <button
+        bitIconButton="bwi-clone"
+        bitSuffix
+        type="button"
+        [appCopyClick]="value()"
+        showToast
+        [valueLabel]="label() | i18n"
+        [label]="copyButtonLabel() === undefined ? '' : (copyButtonLabel() | i18n)"
+      ></button>
+    }
+  </bit-form-field>
+}

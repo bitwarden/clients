@@ -5,6 +5,7 @@ import { BehaviorSubject, combineLatest, firstValueFrom } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendSdkApiService } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
@@ -18,7 +19,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
  * Represents an active share link created for a vault item.
  */
 export interface ShareLink {
-  id: number;
   cipherId: CipherId;
   sendId: string;
   emails: string[];
@@ -36,12 +36,13 @@ export class ShareLinkService {
   private environmentService = inject(EnvironmentService);
   private accountService = inject(AccountService);
   private sendSdkApiService = inject(SendSdkApiService);
+  private i18nService = inject(I18nService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
-  private readonly links = new BehaviorSubject<ShareLink[]>([]);
+  private links = new BehaviorSubject<ShareLink[]>([]);
 
   /** Observable of all active share links. */
-  readonly links$ = this.links.asObservable();
+  links$ = this.links.asObservable();
 
   constructor() {
     combineLatest([this.cipherId, this.sendService.sendViews$])
@@ -67,7 +68,7 @@ export class ShareLinkService {
     oneTimeShare: boolean,
   ): Promise<string | undefined> {
     const sendView = new SendView();
-    sendView.name = `Share for Cipher ${cipherView.id}`;
+    sendView.name = this.i18nService.t("itemSendTitle", cipherView.name);
     sendView.type = SendType.Item;
     sendView.authType = AuthType.Email;
     sendView.emails = emails;
@@ -75,8 +76,10 @@ export class ShareLinkService {
     if (oneTimeShare) {
       sendView.maxAccessCount = 1;
     }
-    const sharedCipherView = new CipherView();
-    Object.assign(sharedCipherView, cipherView);
+    const sharedCipherView = CipherView.fromJSON(JSON.parse(JSON.stringify(cipherView)));
+    if (!sharedCipherView) {
+      throw new Error(this.i18nService.t("linkSaveFailed"));
+    }
     sharedCipherView.attachments = [];
     if (sharedCipherView.login) {
       sharedCipherView.login.fido2Credentials = [];
@@ -124,7 +127,6 @@ export class ShareLinkService {
       if (send.type === SendType.Item && (send.data?.data?.id as any) === cipherId && send.key) {
         const sendLink = env.getSendUrl() + send.accessId + "/" + Utils.fromArrayToUrlB64(send.key);
         newLinks.push({
-          id: newLinks.length,
           sendId: send.id,
           cipherId: send.data?.data?.id as any,
           emails: send.emails,
@@ -137,9 +139,9 @@ export class ShareLinkService {
     this.links.next(newLinks);
   }
 
-  /** Deletes a share link by id. */
-  async deleteLink(linkId: number): Promise<void> {
-    const link = this.links.getValue().find((l) => l.id === linkId);
+  /** Deletes a share link by Send id. */
+  async deleteLink(sendId: string): Promise<void> {
+    const link = this.links.getValue().find((l) => l.sendId === sendId);
     if (link) {
       await this.sendSdkApiService.deleteSend(link.sendId);
     }

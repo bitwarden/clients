@@ -9,7 +9,8 @@ import {
   IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { ShareItemFormComponent } from "@bitwarden/vault";
+
+import { ShareItemFormComponent } from "../share-item-form/share-item-form.component";
 
 export interface ShareItemDrawerData {
   cipher: CipherView;

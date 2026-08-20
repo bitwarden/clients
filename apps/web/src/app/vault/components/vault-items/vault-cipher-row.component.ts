@@ -12,7 +12,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, Observable } from "rxjs";
+import { firstValueFrom, map, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -177,9 +177,9 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
     );
-    this.showShareViaLink$ = this.configService.getFeatureFlag$(
-      FeatureFlag.PM34203TemporaryItemSharing,
-    );
+    this.showShareViaLink$ = this.configService
+      .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
+      .pipe(map((ffEnabled) => ffEnabled && this.cipher.type !== CipherType.SshKey));
   }
 
   /**

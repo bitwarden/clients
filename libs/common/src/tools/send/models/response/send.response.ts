@@ -4,8 +4,8 @@ import { BaseResponse } from "../../../../models/response/base.response";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { SendFileApi } from "../api/send-file.api";
+import { SendItemApi } from "../api/send-item.api";
 import { SendTextApi } from "../api/send-text.api";
-import { SendItemApi } from "../api/sent-item.api";
 
 export class SendResponse extends BaseResponse {
   id: string;

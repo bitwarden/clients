@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, viewChild } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { mock, MockProxy } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -15,8 +16,9 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+import { PolicyType } from "@bitwarden/sdk-internal";
 
-import { ShareLinkService } from "../share-link.service";
+import { ShareLink, ShareLinkService } from "../share-link.service";
 
 import { ShareItemFormComponent } from "./share-item-form.component";
 
@@ -29,31 +31,24 @@ const mockCipher = Object.assign(new CipherView(), {
   login: { username: "user@example.com", uris: [] },
 });
 
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ShareItemFormComponent],
-  template: `<app-share-item-form [cipher]="cipher"></app-share-item-form>`,
-})
-class TestHostComponent {
-  cipher = mockCipher;
-  readonly shareItemForm = viewChild.required(ShareItemFormComponent);
-}
-
 describe("ShareItemFormComponent", () => {
-  let hostFixture: ComponentFixture<TestHostComponent>;
+  let hostFixture: ComponentFixture<ShareItemFormComponent>;
   let component: ShareItemFormComponent;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let toastService: MockProxy<ToastService>;
-  let shareLinkService: ShareLinkService;
+  let shareLinkService: MockProxy<ShareLinkService>;
   let i18nService: MockProxy<I18nService>;
+  let policyService: MockProxy<PolicyService>;
+  const policies = new BehaviorSubject<Policy[]>([]);
 
   beforeEach(async () => {
     platformUtilsService = mock<PlatformUtilsService>();
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
-    shareLinkService = new ShareLinkService();
+    shareLinkService = mock<ShareLinkService>();
 
     i18nService.t.mockImplementation((key: string) => key);
+    shareLinkService["links$"] = new BehaviorSubject<ShareLink[]>([]);
 
     const collectionService = mock<CollectionService>();
     collectionService.decryptedCollections$.mockReturnValue(of([]));
@@ -61,8 +56,11 @@ describe("ShareItemFormComponent", () => {
     const folderService = mock<FolderService>();
     folderService.folderViews$.mockReturnValue(of([]));
 
+    policyService = mock<PolicyService>();
+    policyService.policiesByType$.mockReturnValue(policies);
+
     await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, TestHostComponent, ShareItemFormComponent],
+      imports: [ReactiveFormsModule, ShareItemFormComponent],
       providers: [
         {
           provide: AccountService,
@@ -82,20 +80,18 @@ describe("ShareItemFormComponent", () => {
         { provide: ShareLinkService, useValue: shareLinkService },
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },
+        { provide: PolicyService, useValue: policyService },
       ],
     }).compileComponents();
 
-    hostFixture = TestBed.createComponent(TestHostComponent);
+    hostFixture = TestBed.createComponent(ShareItemFormComponent);
+    component = hostFixture.componentInstance;
+    hostFixture.componentRef.setInput("cipher", mockCipher);
     hostFixture.detectChanges();
-    component = hostFixture.componentInstance.shareItemForm();
   });
 
   it("should create", () => {
     expect(component).toBeTruthy();
-  });
-
-  it("should start with accordion collapsed", () => {
-    expect(component["accordionExpanded"]()).toBe(false);
   });
 
   it("should not create link when form is invalid", async () => {
@@ -106,6 +102,7 @@ describe("ShareItemFormComponent", () => {
 
   it("should create and copy link when form is valid", async () => {
     component.form.controls.emails.setValue("recipient@example.com");
+    shareLinkService.createShareLink.mockResolvedValue("https://send.bitwarden.com/access-id/key");
 
     await component.createAndCopyLink();
 
@@ -119,13 +116,13 @@ describe("ShareItemFormComponent", () => {
   });
 
   it("should parse comma-delimited emails correctly", async () => {
-    const createSpy = jest.spyOn(shareLinkService, "createShareLink");
     component.form.controls.emails.setValue("a@test.com, b@test.com, c@test.com");
+    shareLinkService.createShareLink.mockResolvedValue("https://send.bitwarden.com/access-id/key");
 
     await component.createAndCopyLink();
 
-    expect(createSpy).toHaveBeenCalledWith(
-      "cipher-123",
+    expect(shareLinkService.createShareLink).toHaveBeenCalledWith(
+      mockCipher,
       ["a@test.com", "b@test.com", "c@test.com"],
       168,
       false,
@@ -134,8 +131,8 @@ describe("ShareItemFormComponent", () => {
 
   it("should copy link to clipboard", async () => {
     const mockLink = {
-      id: "link-1",
       cipherId: "cipher-123" as CipherId,
+      sendId: "send-1",
       emails: ["test@test.com"],
       expiresAt: new Date(),
       oneTimeShare: false,
@@ -156,10 +153,9 @@ describe("ShareItemFormComponent", () => {
   });
 
   it("should delete a link and show toast", async () => {
-    const deleteSpy = jest.spyOn(shareLinkService, "deleteLink");
     const mockLink = {
-      id: "link-1",
       cipherId: "cipher-123" as CipherId,
+      sendId: "send-1",
       emails: ["test@test.com"],
       expiresAt: new Date(),
       oneTimeShare: false,
@@ -168,12 +164,20 @@ describe("ShareItemFormComponent", () => {
 
     await component["deleteLink"](mockLink);
 
-    expect(deleteSpy).toHaveBeenCalledWith("link-1");
+    expect(shareLinkService.deleteLink).toHaveBeenCalledWith("send-1");
     expect(toastService.showToast).toHaveBeenCalledWith(
       expect.objectContaining({
         variant: "success",
         message: "shareLinkDeleted",
       }),
     );
+  });
+
+  it("should set the deletion date field to comply with any Send Controls policies", async () => {
+    policies.next([{ type: PolicyType.SendControls, data: { deletionHours: 72 } } as Policy]);
+    hostFixture.detectChanges();
+    const expiryHoursFormControl = component.form.get("expiryHours");
+    expect(expiryHoursFormControl?.value).toEqual(72);
+    expect(expiryHoursFormControl?.disabled).toEqual(true);
   });
 });

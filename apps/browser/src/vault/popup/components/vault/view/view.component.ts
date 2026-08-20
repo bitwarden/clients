@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, computed, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -140,6 +140,14 @@ export class ViewComponent {
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
+  private readonly temporaryItemSharingEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
+    { initialValue: false },
+  );
+  protected readonly showShareButton = computed(
+    () => this.temporaryItemSharingEnabled() && this.cipher.type !== CipherType.SshKey,
+  );
+
   constructor(
     private passwordRepromptService: PasswordRepromptService,
     private route: ActivatedRoute,
@@ -425,6 +433,16 @@ export class ViewComponent {
       equivalentDomains,
       defaultMatch,
     );
+  }
+
+  async doShare() {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(this.cipher);
+    if (!repromptPassed) {
+      return;
+    }
+    await this.router.navigate(["/share-item"], {
+      queryParams: { cipherId: this.cipher.id },
+    });
   }
 
   /**

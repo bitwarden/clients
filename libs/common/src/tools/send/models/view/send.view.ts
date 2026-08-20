@@ -5,12 +5,12 @@ import { View } from "../../../../models/view/view";
 import { Utils } from "../../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { DeepJsonify } from "../../../../types/deep-jsonify";
-import { CipherView } from "../../../../vault/models/view/cipher.view";
 import { AuthType } from "../../types/auth-type";
 import { SendType } from "../../types/send-type";
 import { Send } from "../domain/send";
 
 import { SendFileView } from "./send-file.view";
+import { SendItemView } from "./send-item.view";
 import { SendTextView } from "./send-text.view";
 
 export class SendView implements View {
@@ -23,9 +23,7 @@ export class SendView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
-  data: {
-    data?: CipherView;
-  } = {};
+  data = new SendItemView();
   maxAccessCount?: number = null;
   accessCount = 0;
   revisionDate: Date = null;
@@ -98,7 +96,7 @@ export class SendView implements View {
       cryptoKey: SymmetricCryptoKey.fromJSON(json.cryptoKey),
       text: SendTextView.fromJSON(json.text),
       file: SendFileView.fromJSON(json.file),
-      data: json.data,
+      data: SendItemView.fromJSON(json.data),
       revisionDate: json.revisionDate == null ? null : new Date(json.revisionDate),
       deletionDate: json.deletionDate == null ? null : new Date(json.deletionDate),
       expirationDate: json.expirationDate == null ? null : new Date(json.expirationDate),

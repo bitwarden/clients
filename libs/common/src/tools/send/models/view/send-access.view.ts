@@ -14,7 +14,7 @@ export class SendAccessView implements View {
   type: SendType = null;
   text = new SendTextView();
   file = new SendFileView();
-  item = new SendItemView();
+  data = new SendItemView();
   expirationDate: Date = null;
   creatorIdentifier: string = null;
 

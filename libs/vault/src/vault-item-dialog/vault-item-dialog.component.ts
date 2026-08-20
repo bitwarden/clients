@@ -1,7 +1,15 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, ElementRef, Inject, OnDestroy, OnInit, viewChild } from "@angular/core";
+import {
+  Component,
+  computed,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  OnInit,
+  viewChild,
+} from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
@@ -60,6 +68,7 @@ import {
 } from "../cipher-view/attachments/attachments-v2.component";
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
+import { ShareItemDrawerComponent } from "../share-item-drawer/share-item-drawer.component";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -317,6 +326,15 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
   private readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
+  );
+
+  private readonly temporaryItemSharingEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
+    { initialValue: false },
+  );
+  protected readonly showShareButton = computed(
+    () =>
+      this.temporaryItemSharingEnabled() && this.cipher && this.cipher.type !== CipherType.SshKey,
   );
 
   constructor(
@@ -664,6 +682,13 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
       });
     }
   };
+
+  protected async openSharePanel() {
+    await this.dialogService.openDrawer(ShareItemDrawerComponent, {
+      data: { cipher: this.cipher },
+    });
+    await this.dialogRef.close();
+  }
 
   private async getDecryptedCipherView(config: CipherFormConfig) {
     if (config.originalCipher == null) {

@@ -8,6 +8,7 @@ import { SendAccessResponse } from "../response/send-access.response";
 import { SendAccessView } from "../view/send-access.view";
 
 import { SendFile } from "./send-file";
+import { SendItem } from "./send-item";
 import { SendText } from "./send-text";
 
 export class SendAccess extends Domain {
@@ -16,6 +17,7 @@ export class SendAccess extends Domain {
   name: EncString;
   file: SendFile;
   text: SendText;
+  data: SendItem;
   expirationDate: Date;
   creatorIdentifier: string;
 
@@ -46,6 +48,9 @@ export class SendAccess extends Domain {
       case SendType.File:
         this.file = new SendFile(obj.file);
         break;
+      case SendType.Item:
+        this.data = new SendItem(obj.data);
+        break;
       default:
         break;
     }
@@ -64,6 +69,8 @@ export class SendAccess extends Domain {
         model.text = await this.text.decrypt(key);
         break;
       case SendType.Item:
+        model.data = await this.data.decrypt(key);
+        break;
       default:
         break;
     }

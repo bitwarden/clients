@@ -2,7 +2,7 @@
 // @ts-strict-ignore
 import { SendEncryptionType } from "@bitwarden/sdk-internal";
 
-import { SendItemApi } from "../api/sent-item.api";
+import { SendItemApi } from "../api/send-item.api";
 
 export class SendItemData {
   encryptionVersion: SendEncryptionType;

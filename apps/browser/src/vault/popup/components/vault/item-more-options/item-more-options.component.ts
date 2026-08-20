@@ -140,9 +140,9 @@ export class ItemMoreOptionsComponent {
     switchMap((cipher) => this.cipherAuthorizationService.canDeleteCipher$(cipher)),
   );
 
-  protected readonly showShareViaLink$ = this.configService.getFeatureFlag$(
-    FeatureFlag.PM34203TemporaryItemSharing,
-  );
+  protected readonly showShareViaLink$ = this.configService
+    .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
+    .pipe(map((ffEnabled) => ffEnabled && this.cipher.type !== CipherType.SshKey));
 
   constructor(
     private cipherService: CipherService,

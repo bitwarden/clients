@@ -120,3 +120,6 @@ export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { ShareLink, ShareLinkService } from "./share-link.service";
 export { ExpiryOption, ExpiryChoice } from "./share-link.types";
 export { ShareItemFormComponent } from "./share-item-form/share-item-form.component";
+export { ShareItemDrawerComponent } from "./share-item-drawer/share-item-drawer.component";
+export * from "./components/totp-countdown/totp-countdown.component";
+export * from "./pipes/credit-card-number.pipe";

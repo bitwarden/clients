@@ -5,6 +5,7 @@
       [subtitle]="cipherSubtitle()"
       [startIcon]="cipherTypeIcon()"
       variant="subtle"
+      [open]="true"
     >
       <span bitTypography="body2" class="tw-mb-2 tw-block tw-font-semibold">{{
         "itemDetails" | i18n
@@ -52,11 +53,11 @@
         </p>
         <bit-form-field>
           <bit-label class="tw-font-normal">{{ "linkExpiresAfter" | i18n }}</bit-label>
-          <select bitInput id="share-item-form_select_expiry" formControlName="expiryHours">
+          <bit-select bitInput id="share-item-form_select_expiry" formControlName="expiryHours">
             @for (option of expiryOptions; track option.value) {
-              <option [ngValue]="option.value">{{ option.label }}</option>
+              <bit-option [value]="option.value" [label]="option.label"></bit-option>
             }
-          </select>
+          </bit-select>
         </bit-form-field>
         <p bitTypography="helper" class="tw-text-fg-body tw-font-normal -tw-mt-2 tw-mb-3">
           {{ "shareLinkExpiryHint" | i18n }}
@@ -78,11 +79,11 @@
 
   @if (activeLinks().length > 0) {
     <bit-section disableMargin class="tw-mt-4 tw-block">
-      <span bitTypography="h6" class="tw-mb-2 tw-block">{{ "activeLinks" | i18n }}</span>
+      <p bitTypography="h6" class="tw-mb-2 tw-block">{{ "activeLinks" | i18n }}</p>
       <div
         class="tw-rounded-xl tw-border tw-border-solid tw-border-secondary-100 tw-shadow tw-bg-background tw-px-4"
       >
-        @for (link of activeLinks(); track link.id; let last = $last) {
+        @for (link of activeLinks(); track link.sendId; let last = $last) {
           <div
             class="tw-flex tw-items-center tw-gap-3 tw-py-2"
             [class.tw-border-b]="!last"
@@ -104,7 +105,7 @@
                 bitIconButton="bwi-clone"
                 buttonType="subtleGhost"
                 size="small"
-                id="share-item-form_button_copy-link-{{ link.id }}"
+                id="share-item-form_button_copy-link-{{ link.sendId }}"
                 label="{{ 'copyLink' | i18n }}"
                 (click)="copyLink(link)"
               ></button>
@@ -113,7 +114,7 @@
                 bitIconButton="bwi-trash"
                 buttonType="subtleGhost"
                 size="small"
-                id="share-item-form_button_delete-link-{{ link.id }}"
+                id="share-item-form_button_delete-link-{{ link.sendId }}"
                 label="{{ 'delete' | i18n }}"
                 (click)="deleteLink(link)"
               ></button>

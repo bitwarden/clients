@@ -397,7 +397,8 @@ const routes: Routes = [
     path: "share-item",
     component: ShareItemComponent,
     canActivate: [authGuard, canAccessFeature(FeatureFlag.PM34203TemporaryItemSharing)],
-    data: { elevation: 3 } satisfies RouteDataProperties,
+    // Above "view-cipher"
+    data: { elevation: 4 } satisfies RouteDataProperties,
   },
   {
     // Hosts the complementary Triage + Webmapper authoring tools; the `view`

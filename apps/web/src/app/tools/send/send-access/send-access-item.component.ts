@@ -1,126 +1,75 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  input,
-  OnDestroy,
-  OnInit,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
-import { ItemField } from "@bitwarden/common/tools/send/models/view/send-item.view";
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { ToastService } from "@bitwarden/components";
+import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { ColorPasswordComponent } from "@bitwarden/components";
+import { BitTotpCountdownComponent, CreditCardNumberPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../shared";
+
+import { SendAccessItemFieldComponent } from "./send-access-item-field.component";
+
+type TotpCodeValues = {
+  totpCode: string;
+  totpCodeFormatted?: string;
+};
 
 @Component({
   selector: "app-send-access-item",
   templateUrl: "send-access-item.component.html",
-  imports: [SharedModule],
+  imports: [
+    SharedModule,
+    ColorPasswordComponent,
+    BitTotpCountdownComponent,
+    SendAccessItemFieldComponent,
+    CreditCardNumberPipe,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SendAccessItemComponent implements OnInit, OnDestroy {
+export class SendAccessItemComponent {
+  readonly FieldType = FieldType;
+
   readonly send = input.required<SendAccessView>();
+  readonly cipher = computed(() => this.send().data.data);
+  readonly hasLogin = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+
+    const { username, password, totp, fido2Credentials } = cipher.login;
+
+    return username || password || totp || fido2Credentials?.length > 0;
+  });
+  readonly passwordRevealed = signal(false);
+
+  // Turning this into a signal introduces a small but noticeable delay in between the
+  // TOTP countdown expiring and the code updating. For now, simply set the object
+  // eslint-disable-next-line @bitwarden/components/enforce-readonly-angular-properties
+  totpCodeCopyObj: TotpCodeValues | undefined;
 
   protected readonly CipherType = CipherType;
 
-  /** Tracks which hidden fields have been toggled visible, keyed by field index. */
-  protected readonly visibleFields = signal<Record<number, boolean>>({});
-
-  /** Current TOTP code (mock). */
-  protected readonly totpCode = signal<string>("954 987");
-
-  /** Seconds remaining until the next TOTP refresh. */
-  protected readonly totpCountdown = signal<number>(30);
-
-  private readonly totpIntervalId = signal<ReturnType<typeof setInterval> | null>(null);
-
   private readonly i18nService = inject(I18nService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
-  private readonly toastService = inject(ToastService);
 
-  ngOnInit(): void {
-    this.totpIntervalId.set(
-      setInterval(() => {
-        const next = this.totpCountdown() - 1;
-        if (next <= 0) {
-          this.totpCode.set(this.generateMockTotp());
-          this.totpCountdown.set(30);
-        } else {
-          this.totpCountdown.set(next);
-        }
-      }, 1000),
-    );
+  protected subtitle(cipher: CipherView): string | undefined {
+    return CipherViewLikeUtils.subtitle(cipher, this.i18nService);
   }
 
-  ngOnDestroy(): void {
-    const intervalId = this.totpIntervalId();
-    if (intervalId !== null) {
-      clearInterval(intervalId);
-    }
+  async pwToggleValue(passwordVisible: boolean) {
+    this.passwordRevealed.set(passwordVisible);
   }
 
-  protected toggleVisibility(index: number): void {
-    this.visibleFields.update((current) => ({
-      ...current,
-      [index]: !current[index],
-    }));
+  setTotpCopyCode(e: TotpCodeValues) {
+    this.totpCodeCopyObj = e;
   }
 
-  protected copyField(field: ItemField): void {
-    const value = field.totp ? this.totpCode() : field.value;
-    this.platformUtilsService.copyToClipboard(value);
-    this.toastService.showToast({
-      variant: "success",
-      title: null,
-      message: this.i18nService.t("valueCopied", field.label),
-    });
-  }
-
-  protected isVisible(index: number, field: ItemField): boolean {
-    if (!field.hidden) {
-      return true;
-    }
-    return !!this.visibleFields()[index];
-  }
-
-  protected displayValue(index: number, field: ItemField): string {
-    if (field.totp) {
-      return this.totpCode();
-    }
-    if (field.hidden && !this.isVisible(index, field)) {
-      return "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022";
-    }
-    return field.value;
-  }
-
-  protected launchUrl(url: string): void {
-    window.open(url, "_blank", "noreferrer,noopener");
-  }
-
-  protected cipherIcon(): string {
-    const send = this.send();
-    switch (send.item.cipherType) {
-      case CipherType.Login:
-        return "bwi-globe";
-      case CipherType.Card:
-        return "bwi-credit-card";
-      case CipherType.Identity:
-        return "bwi-id-card";
-      case CipherType.SecureNote:
-        return "bwi-sticky-note";
-      default:
-        return "bwi-globe";
-    }
-  }
-
-  /** Generate a mock 6-digit TOTP code formatted as "XXX XXX". */
-  private generateMockTotp(): string {
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    return `${code.slice(0, 3)} ${code.slice(3)}`;
+  async openWebsite(selectedUri: string) {
+    this.platformUtilsService.launchUri(selectedUri);
   }
 }
