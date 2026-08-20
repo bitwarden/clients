@@ -66,7 +66,7 @@ describe("AccessRequestCancelService", () => {
 
     expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith(REQUEST_ID);
     expect(toastService.showToast).toHaveBeenCalledWith(
-      expect.objectContaining({ variant: "success", message: "pendingStateCancelSuccess" }),
+      expect.objectContaining({ variant: "success", message: "pamCancelRequestCanceledToast" }),
     );
     expect(announced).toHaveBeenCalledWith(CIPHER_ID);
   });

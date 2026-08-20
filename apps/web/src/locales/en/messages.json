@@ -17613,8 +17613,8 @@
   "pamCancelRequestApprovedConfirm": {
     "message": "This gives up access that has already been approved. You can submit a new request, but it will need to be approved again."
   },
-  "pendingStateCancelSuccess": {
-    "message": "Request cancelled."
+  "pamCancelRequestCanceledToast": {
+    "message": "Request canceled"
   },
   "pendingStateCancelError": {
     "message": "Couldn't cancel the request."
