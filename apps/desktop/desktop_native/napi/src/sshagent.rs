@@ -4,7 +4,7 @@
 //!   operations to Electron.
 
 #[napi]
-pub mod sshagent_v2 {
+pub mod sshagent {
     use std::{sync::Arc, time::Duration};
 
     use async_trait::async_trait;

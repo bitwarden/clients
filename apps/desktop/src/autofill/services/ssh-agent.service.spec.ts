@@ -74,7 +74,6 @@ describe("SshAgentService", () => {
           replace: mockReplace,
           stop: mockStop,
           signRequestResponse: jest.fn().mockResolvedValue(undefined),
-          lock: jest.fn().mockResolvedValue(undefined),
         },
       },
       platform: { focusWindow: jest.fn() },
@@ -105,7 +104,6 @@ describe("SshAgentService", () => {
       sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
     };
     const mockAccountService = { activeAccount$: accountSubject.asObservable() };
-    const mockConfigService = { getFeatureFlag: jest.fn().mockResolvedValue(true) };
 
     service = new SshAgentService(
       mockCipherService as any,
@@ -117,7 +115,6 @@ describe("SshAgentService", () => {
       mockI18nService as any,
       mockDesktopSettingsService as any,
       mockAccountService as any,
-      mockConfigService as any,
     );
 
     await service.init();
@@ -135,7 +132,7 @@ describe("SshAgentService", () => {
     authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
     await flush();
 
-    expect(mockInit).toHaveBeenCalledWith(true);
+    expect(mockInit).toHaveBeenCalled();
     expect(mockReplace).toHaveBeenCalledWith([
       { name: "My Key", privateKey: "pem", cipherId: "c1" },
     ]);
@@ -184,7 +181,7 @@ describe("SshAgentService", () => {
     cipherViewsSubject.next([makeSshCipher("c1", "Key", "pem")]);
     await flush();
 
-    expect(mockInit).toHaveBeenCalledWith(true);
+    expect(mockInit).toHaveBeenCalled();
     expect(mockReplace).toHaveBeenCalled();
   });
 
@@ -529,6 +526,8 @@ describe("SshAgentService – sign request authorization", () => {
   let accountSubject: BehaviorSubject<{ id: UserId } | null>;
   let mockSignRequestResponse: jest.Mock;
   let mockDialogOpen: jest.Mock;
+  let mockFocusWindow: jest.Mock;
+  let mockShowToast: jest.Mock;
 
   beforeEach(async () => {
     signRequestSubject = new Subject();
@@ -537,6 +536,8 @@ describe("SshAgentService – sign request authorization", () => {
     accountSubject = new BehaviorSubject<{ id: UserId } | null>({ id: "user-1" as UserId });
     mockSignRequestResponse = jest.fn().mockResolvedValue(undefined);
     mockDialogOpen = jest.fn().mockReturnValue({ closed: of(true) });
+    mockFocusWindow = jest.fn();
+    mockShowToast = jest.fn();
 
     (global as any).ipc = {
       autofill: {
@@ -547,10 +548,9 @@ describe("SshAgentService – sign request authorization", () => {
           stop: jest.fn().mockResolvedValue(undefined),
           signRequestResponse: mockSignRequestResponse,
           listRequestResponse: jest.fn().mockResolvedValue(undefined),
-          lock: jest.fn().mockResolvedValue(undefined),
         },
       },
-      platform: { focusWindow: jest.fn() },
+      platform: { focusWindow: mockFocusWindow },
     };
 
     service = new SshAgentService(
@@ -565,14 +565,13 @@ describe("SshAgentService – sign request authorization", () => {
         activeAccountStatus$: authStatusSubject.asObservable(),
         authStatusFor$: jest.fn().mockReturnValue(authStatusSubject.asObservable()),
       } as any,
-      { showToast: jest.fn() } as any,
+      { showToast: mockShowToast } as any,
       { t: jest.fn().mockReturnValue("") } as any,
       {
         sshAgentEnabled$: of(true),
         sshAgentPromptBehavior$: promptBehaviorSubject.asObservable(),
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
-      { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
     );
 
     await service.init();
@@ -590,7 +589,6 @@ describe("SshAgentService – sign request authorization", () => {
       processName: "test-app",
       namespace: "",
       isAgentForwarding,
-      isListRequest: false,
       hostFingerprint,
     });
   }
@@ -701,7 +699,7 @@ describe("SshAgentService – sign request authorization", () => {
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
-  it("RememberUntilLock: forwarded without host fingerprint always prompts (v1 path)", async () => {
+  it("RememberUntilLock: forwarded without host fingerprint always prompts", async () => {
     promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
 
     // First forwarded request with no fingerprint — prompts
@@ -735,6 +733,27 @@ describe("SshAgentService – sign request authorization", () => {
 
     // Same cipher must prompt again under the new account
     sendSignRequest(false);
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("when the vault is locked, waits for unlock before prompting for approval", async () => {
+    // The agent keeps keys across lock, so it can serve a sign request with no list callback and
+    // therefore no prior unlock prompt. Decrypting here would yield no cipher to name in the dialog.
+    authStatusSubject.next(AuthenticationStatus.Locked);
+    await flush();
+
+    sendSignRequest();
+    await flush();
+
+    expect(mockFocusWindow).toHaveBeenCalled();
+    expect(mockShowToast).toHaveBeenCalledWith(expect.objectContaining({ variant: "info" }));
+    expect(mockDialogOpen).not.toHaveBeenCalled();
+    expect(mockSignRequestResponse).not.toHaveBeenCalled();
+
+    authStatusSubject.next(AuthenticationStatus.Unlocked);
     await flush();
 
     expect(mockDialogOpen).toHaveBeenCalledTimes(1);
@@ -796,7 +815,6 @@ describe("SshAgentService – list keys request", () => {
           stop: jest.fn().mockResolvedValue(undefined),
           signRequestResponse: jest.fn().mockResolvedValue(undefined),
           listRequestResponse: mockListRequestResponse,
-          lock: jest.fn().mockResolvedValue(undefined),
         },
       },
       platform: { focusWindow: mockFocusWindow },
@@ -829,7 +847,6 @@ describe("SshAgentService – list keys request", () => {
         sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
       } as any,
       { activeAccount$: accountSubject.asObservable() } as any,
-      { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
     );
 
     await service.init();
@@ -982,7 +999,6 @@ describe("SshAgentService – concurrent sign requests", () => {
         sshAgentPromptBehavior$: of(SshAgentPromptType.Never),
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
-      { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
     );
 
     await service.init();
@@ -1012,7 +1028,6 @@ describe("SshAgentService – concurrent sign requests", () => {
       processName: "",
       namespace: "",
       isAgentForwarding: false,
-      isListRequest: false,
     });
     signRequestSubject.next({
       cipherId: "c1",
@@ -1020,7 +1035,6 @@ describe("SshAgentService – concurrent sign requests", () => {
       processName: "",
       namespace: "",
       isAgentForwarding: false,
-      isListRequest: false,
     });
     await flush();
 
@@ -1088,7 +1102,6 @@ describe("SshAgentService – concurrent list keys requests", () => {
         sshAgentPromptBehavior$: of(SshAgentPromptType.Always),
       } as any,
       { activeAccount$: of({ id: "user-1" as UserId }) } as any,
-      { getFeatureFlag: jest.fn().mockResolvedValue(true) } as any,
     );
 
     await service.init();

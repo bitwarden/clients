@@ -407,7 +407,7 @@ export declare namespace processisolations {
   export function isolateProcess(): Promise<void>
 }
 
-export declare namespace sshagent_v2 {
+export declare namespace sshagent {
   /** Wrapper for Electron to be able to interface with the agent directly. */
   export class SshAgentState {
     /**
