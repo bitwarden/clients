@@ -253,13 +253,13 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const builderFilter = {} as VaultFilterList;
     builderFilter.organizationFilter = await this.addOrganizationFilter();
     builderFilter.typeFilter = await this.addTypeFilter();
-    builderFilter.folderFilter = await this.addFolderFilter();
-    builderFilter.collectionFilter = await this.addCollectionFilter();
     if (this.controlledAccessFilter != null) {
       builderFilter.controlledAccessFilter = this.addControlledAccessFilter(
         this.controlledAccessFilter,
       );
     }
+    builderFilter.folderFilter = await this.addFolderFilter();
+    builderFilter.collectionFilter = await this.addCollectionFilter();
     builderFilter.archiveFilter = await this.addArchiveFilter(userId);
     builderFilter.trashFilter = await this.addTrashFilter();
     return builderFilter;
