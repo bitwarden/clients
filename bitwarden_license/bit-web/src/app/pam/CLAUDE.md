@@ -37,18 +37,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   collection is the active filter, carrying the sidebar lock's sentence verbatim.
   Both it and the sidebar lock decide "governed" through `services/gated-collection.ts`,
   which wraps the same `GovernedCollectionsService` / `rulesGoverningCollection` pair the
-  collection-row badge and the collection dialog use, and narrows to the collection's own
-  PAM-enabled organization before reading at all. Add a fifth surface by calling that
-  helper, not by re-deriving the check.
-- `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
-  access-state pill, and the two hosts that render it: a vault row, and the open item's
-  name row. The hosts differ only in how they refresh — the item-details one re-reads on
-  `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
-  once so a list of gated rows does not carry a subscription each. The item-details host
-  also drops the `active` state, because the banner heading under it already runs that
-  countdown on its own timer. Which badge to show is
-  NOT decided here: the SDK ranks the three states into
-  `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
+  collection dialog uses, and narrows to the collection's own PAM-enabled organization
+  before reading at all. Add a fifth surface by calling that helper, not by re-deriving
+  the check.
+- `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
+  vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
+  the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
   only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
 - `collection-access-rule-callout/` — names the rules governing a collection, inside the
@@ -138,8 +132,7 @@ several subjects describing different moments.
 
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
-binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER`, `ITEM_DETAILS_STATE_BADGE`
-(all `libs/vault`),
+binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER` (both `libs/vault`),
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
@@ -156,15 +149,6 @@ Add a seam rather than importing PAM from OSS code.
 `pam-routing.module.ts` (admin console) guards every route with
 `canAccessFeature(FeatureFlag.Pam)`; `access-rules` additionally requires
 `organizationPermissionsGuard((org) => org.canManageAccessRules)`.
-
-**Authoring a rule and deciding a request against it are separate authorities — do not
-collapse them into one check.** `canManageAccessRules` (Admin/Owner) gates the rules admin
-UI and nothing else; the approver surfaces gate on Manage over a collection
-(`hasApprovalPrivileges` / `ApprovalPrivilegeService`), mirroring the server's `ApproverCollectionAccessQuery`, which is
-what actually authorizes the inbox read and the decision. Reusing the rules permission as a
-proxy for "is an approver" locks every non-admin collection manager out of an inbox the
-server would have served them.
-
 `access-requests/access-requests-routing.module.ts` (user-scoped) additionally guards the
 `approvals` tab with `canViewApprovalsGuard`, which redirects a non-approver to
 `my-requests` rather than blocking. Mounting these modules and calling `providePam()` from
