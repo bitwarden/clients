@@ -177,6 +177,7 @@ Write-Host "Building Appx manifest"
 $translationMap = @{
     'arch' = $arch
     'applicationId' = $builderConfig.appx.applicationId
+    'backgroundColor' = $builderConfig.appx.backgroundColor
     'displayName' = $productName
     'executable' = "app\${productName}.exe"
     'identityName' = $builderConfig.appx.identityName
@@ -191,12 +192,9 @@ $translationMap.Keys | ForEach-Object {
 }
 
 # Manual Fixups for Beta
-# electron-builder can't template these variables, so we substitute known values with the ones we want:
+# The manifest carries the stable COM class ID, which electron-builder has no macro for,
+# so swap in the beta one. scripts/appx-manifest-created-beta.js does the same for CI builds.
 if ($Beta) {
-    # Update color
-    $manifest = $manifest.Replace("#175DDC", "#FDC700")
-
-    # Update COM ID
     $PluginStableConfig = Get-Content $srcDir/resources/windows_plugin_authenticator_config.json | ConvertFrom-Json
     $PluginBetaConfig = Get-Content $srcDir/resources/windows_plugin_authenticator_config.beta.json | ConvertFrom-Json
     $manifest = $manifest.Replace($PluginStableConfig.clsid, $PluginBetaConfig.clsid)

@@ -18,7 +18,11 @@ async function run(context) {
   const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
   const isMasDevBuild =
     context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
-  const copyAutofillExtension = ["darwin"].includes(context.electronPlatformName) || isMasDevBuild;
+  // Only the beta channel ships the autofill extension. Bundling it into a build whose
+  // app cannot serve it registers a credential provider that fails at runtime, so the
+  // channel is checked here rather than relying on whether the .appex happens to be built.
+  const isBetaBuild = context.packager.appInfo.id.endsWith(".beta");
+  const copyAutofillExtension = (macBuild && isBetaBuild) || isMasDevBuild;
 
   let shouldResign = false;
 
@@ -27,12 +31,24 @@ async function run(context) {
     console.log("### Copying autofill extension");
     const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
     if (!fse.existsSync(extensionPath)) {
+      if (isBetaBuild) {
+        throw new Error(
+          `Autofill extension not found at ${extensionPath}. Beta builds must ship it — ` +
+            `run build:macos-extension:mac before packing.`,
+        );
+      }
       console.log("### Autofill extension not found - skipping");
     } else {
       if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
         fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
       }
       fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
+      // The outer bundle's seal records nested code by cdhash, so an .appex copied in
+      // after signing leaves it invalid ("a sealed resource is missing or invalid") and
+      // notarization below rejects it. electron-builder signs mas targets again after
+      // this hook returns, so only darwin builds have to re-seal here — re-signing a
+      // mas build would be the redundant work removed in #18334.
+      shouldResign = macBuild;
     }
   }
 

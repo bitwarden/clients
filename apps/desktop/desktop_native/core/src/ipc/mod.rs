@@ -52,8 +52,43 @@ fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDe
         .new_framed(inner)
 }
 
+/// The App Group shared between the desktop app and the macOS autofill extension.
+#[cfg(target_os = "macos")]
+const AUTOFILL_APP_GROUP: &str = "LTZ2PFU5D6.com.bitwarden.desktop";
+
+/// The path to a socket inside the shared App Group container.
+///
+/// `user_home` must be the user's home directory, not a sandbox container.
+#[cfg(target_os = "macos")]
+fn app_group_path(user_home: &std::path::Path, name: &str) -> std::path::PathBuf {
+    let dir = user_home
+        .join("Library/Group Containers")
+        .join(AUTOFILL_APP_GROUP);
+
+    // The directory might not exist, so create it
+    let _ = std::fs::create_dir_all(&dir);
+    dir.join(format!("s.{name}"))
+}
+
 /// The main path to the IPC socket.
 pub fn path(name: &str) -> std::path::PathBuf {
+    resolve_path(name, false)
+}
+
+/// The path to the macOS autofill IPC socket.
+///
+/// The autofill extension is sandboxed, so the App Group container is the only place it
+/// can reach a socket. Outside the App Store build the desktop app is not sandboxed, so
+/// it has to be pointed at the group container explicitly instead of falling back to its
+/// own cache directory — otherwise the two ends of the socket never meet.
+pub fn autofill_path(name: &str) -> std::path::PathBuf {
+    resolve_path(name, true)
+}
+
+fn resolve_path(name: &str, use_app_group: bool) -> std::path::PathBuf {
+    #[cfg(not(target_os = "macos"))]
+    let _ = use_app_group;
+
     #[cfg(target_os = "windows")]
     {
         // Use a unique IPC pipe //./pipe/xxxxxxxxxxxxxxxxx.s.bw per user (s for socket).
@@ -88,11 +123,14 @@ pub fn path(name: &str) -> std::path::PathBuf {
                 home.pop();
             }
 
-            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop");
+            return app_group_path(&home, name);
+        }
 
-            // The tmp directory might not exist, so create it
-            let _ = std::fs::create_dir_all(&tmp);
-            return tmp.join(format!("s.{name}"));
+        // Unsandboxed, so `home` is already the user's home directory. The autofill
+        // socket still has to live in the group container to be reachable by the
+        // extension.
+        if use_app_group {
+            return app_group_path(&home, name);
         }
     }
 
@@ -105,6 +143,21 @@ pub fn path(name: &str) -> std::path::PathBuf {
         // The cache directory might not exist, so create it
         let _ = std::fs::create_dir_all(&path_dir);
         path_dir.join(format!("s.{name}"))
+    }
+}
+
+/// Paths to the macOS autofill IPC socket, including alternative paths.
+///
+/// See [`autofill_path`] for why the autofill socket does not share [`path`].
+pub fn autofill_all_paths(name: &str) -> Vec<std::path::PathBuf> {
+    #[cfg(target_os = "macos")]
+    {
+        vec![autofill_path(name)]
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    {
+        all_paths(name)
     }
 }
 

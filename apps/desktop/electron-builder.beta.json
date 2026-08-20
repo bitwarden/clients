@@ -15,6 +15,7 @@
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
   "beforePack": "scripts/before-pack.js",
+  "appxManifestCreated": "scripts/appx-manifest-created-beta.js",
   "files": [
     "!node_modules/@bitwarden/desktop-napi/scripts",
     "!node_modules/@bitwarden/desktop-napi/src",
@@ -34,7 +35,7 @@
     "darkModeSupport": true,
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
-    "entitlements": "resources/entitlements.mac.plist",
+    "entitlements": "resources/entitlements.mac.autofill-enabled.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
       "ITSAppUsesNonExemptEncryption": false,
@@ -85,7 +86,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
+      "Contents/PlugIns/autofill-extension.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
     "target": ["dmg", "zip"],
@@ -161,7 +162,8 @@
   },
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
-    "backgroundColor": "#175DDC",
+    "backgroundColor": "#FDC700",
+    "customManifestPath": "./custom-appx-manifest.xml",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
