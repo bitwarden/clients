@@ -68,19 +68,18 @@ export class GatedCollectionFilterIndicatorComponent {
     this.pamOrganizationIds$,
   ]).pipe(
     switchMap(([collection, enabled, pamOrganizationIds]) => {
-      const collectionId = collection?.id;
-      const organizationId = collection?.organizationId;
+      const { id, organizationId } = collection ?? {};
       if (
         !enabled ||
-        collectionId == null ||
+        id == null ||
         organizationId == null ||
-        !pamOrganizationIds.has(String(organizationId))
+        !pamOrganizationIds.has(organizationId)
       ) {
         return of(false);
       }
       return this.governedCollections
         .rules$(organizationId)
-        .pipe(map((rules) => rulesGoverningCollection(rules, collectionId).length > 0));
+        .pipe(map((rules) => rulesGoverningCollection(rules, id).length > 0));
     }),
   );
 
