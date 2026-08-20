@@ -33,6 +33,13 @@ import { AccessRefreshService, AccessRequestSdkService } from "..";
  * route is needed, and the poc's `GET /leases/ciphers/{id}/cipher` (deprecated and scheduled for
  * removal) has no successor here.
  *
+ * THIS IS THE MODULE'S LAST RAW-HTTP CALL, and it is on its way out. The SDK now has
+ * `pam().leases().leased_cipher(cipherId)`, which makes the same standard call, applies the same
+ * "still restricted means no access" rule, and returns a decrypted view without writing to the
+ * cipher repository. Swap {@link fetchLeased} onto it once a published `sdk-internal` carries it,
+ * and this class stops depending on `ApiService` altogether — restoring "every PAM call goes
+ * through the SDK" without an exception (see this module's CLAUDE.md).
+ *
  * The result is NEVER written into the local cipher cache. The cache stays partial for the lifetime
  * of the lease, so closing and reopening the item re-reads it and a lapsed lease cannot leave
  * decryptable secrets behind in local state.
