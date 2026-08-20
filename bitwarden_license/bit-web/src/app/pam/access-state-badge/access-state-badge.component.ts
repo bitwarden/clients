@@ -1,12 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { EMPTY, switchMap } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
@@ -14,6 +8,7 @@ import { BadgeComponent, BadgeVariant } from "@bitwarden/components";
 import { formatRemaining } from "../date/format-remaining";
 
 import { AccessBadgeState } from "./access-badge-state";
+import { AccessBadgeTickerService } from "./access-badge-ticker.service";
 
 /** At or below this remaining time an active lease escalates to the danger "Ending soon" badge. */
 const ENDING_SOON_THRESHOLD_MS = 5 * 60 * 1000;
@@ -46,9 +41,19 @@ export class AccessStateBadgeComponent {
   readonly state = input.required<AccessBadgeState | null>();
 
   private readonly i18nService = inject(I18nService);
+  private readonly ticker = inject(AccessBadgeTickerService);
 
-  /** Ticks once a second while an active-lease countdown is showing so the label stays live. */
-  private readonly now = signal(Date.now());
+  /**
+   * Ticks once a second while an active-lease countdown is showing so the label stays live.
+   * Only an active badge observes the shared ticker, so a table of resting badges leaves the one
+   * timer torn down rather than each row owning its own.
+   */
+  private readonly now = toSignal(
+    toObservable(computed(() => this.state()?.kind === "active")).pipe(
+      switchMap((active) => (active ? this.ticker.ticks$ : EMPTY)),
+    ),
+    { initialValue: Date.now() },
+  );
 
   protected readonly recipe = computed<BadgeRecipe | null>(() => {
     const state = this.state();
@@ -81,16 +86,6 @@ export class AccessStateBadgeComponent {
 
     return this.staticRecipe(state.kind);
   });
-
-  constructor() {
-    effect((onCleanup) => {
-      if (this.state()?.kind !== "active") {
-        return;
-      }
-      const id = setInterval(() => this.now.set(Date.now()), 1000);
-      onCleanup(() => clearInterval(id));
-    });
-  }
 
   private staticRecipe(kind: Exclude<AccessBadgeState["kind"], "active">): BadgeRecipe {
     switch (kind) {
