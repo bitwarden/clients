@@ -54,7 +54,6 @@ napi = "=3.8.5"
 napi-build = "=2.3.1"
 napi-derive = "=3.5.4"
 oo7 = "=0.5.0"
-pin-project = "=1.1.10"
 rand = "=0.9.3"
 # rand_core 0.10 (a distinct major from `rand` 0.9) provides the `Rng` trait needed to draw bytes
 # from `bitwarden_random::rng()`, whose RNG type is built on the 0.10 rand-core traits.
@@ -77,7 +76,6 @@ tracing-subscriber = { version = "=0.3.22", features = [
     "env-filter",
     "tracing-log",
 ] }
-typenum = "=1.19.0"
 uniffi = "=0.28.3"
 widestring = "=1.2.0"
 windows = "=0.62.2"

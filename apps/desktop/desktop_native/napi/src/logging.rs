@@ -5,7 +5,7 @@ pub mod logging {
     //!
     //! # Example
     //!
-    //! [Elec] 14:34:03.517 › [NAPI] [INFO] desktop_core::ssh_agent::platform_ssh_agent: Starting
+    //! [Elec] 14:34:03.517 › [NAPI] [INFO] ssh_agent::server::listener::unix: Starting
     //! SSH Agent server {socket=/Users/foo/.bitwarden-ssh-agent.sock}
 
     use std::{fmt::Write, sync::OnceLock};
@@ -79,7 +79,7 @@ pub mod logging {
             let mut buffer = String::new();
 
             // create the preamble text that precedes the message and vars. e.g.:
-            //     [INFO] desktop_core::ssh_agent::platform_ssh_agent:
+            //     [INFO] ssh_agent::server::listener::unix:
             let level = event.metadata().level().as_str();
             let module_path = event.metadata().module_path().unwrap_or_default();
 
