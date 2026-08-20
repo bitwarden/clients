@@ -291,6 +291,12 @@ describe("CipherViewBannerComponent", () => {
       jest.restoreAllMocks();
     });
 
+    // Both sides go through this: `formatDate` separates the meridiem with a narrow no-break space,
+    // which the template's own whitespace collapse would otherwise leave only on one side.
+    function collapseSpace(value: string | null | undefined): string {
+      return (value ?? "").replace(/\s+/g, " ").trim();
+    }
+
     function until(iso: string): string {
       return `pamWindowUntil ${formatDate(iso, "short", "en-US")}`;
     }
@@ -308,15 +314,37 @@ describe("CipherViewBannerComponent", () => {
       );
     });
 
-    it("shows the end of the granted window on an approved request", async () => {
+    it("shows the end of the granted window on an approved request already inside its window", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
-        accessState({ approvedRequest: requestView({ leaseNotAfter: ENDS_AT }) }),
+        accessState({
+          approvedRequest: requestView({
+            leaseNotBefore: "2026-01-01T14:00:00.000Z",
+            leaseNotAfter: ENDS_AT,
+          }),
+        }),
       );
 
       await create(gatedCipher());
 
-      expect(query('[data-testid="approved-access-ends-at"]')?.textContent?.trim()).toBe(
+      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
         until(ENDS_AT),
+      );
+    });
+
+    it("shows the whole range for an approved request whose window has not opened yet", async () => {
+      const STARTS_AT = "2026-01-02T09:00:00.000Z";
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          approvedRequest: requestView({ leaseNotBefore: STARTS_AT, leaseNotAfter: ENDS_AT }),
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(collapseSpace(query('[data-testid="approved-access-window"]')?.textContent)).toBe(
+        collapseSpace(
+          `${formatDate(STARTS_AT, "short", "en-US")} – ${formatDate(ENDS_AT, "short", "en-US")}`,
+        ),
       );
     });
 
@@ -328,7 +356,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
-      expect(query('[data-testid="approved-access-ends-at"]')).toBeNull();
+      expect(query('[data-testid="approved-access-window"]')).toBeNull();
     });
   });
 

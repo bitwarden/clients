@@ -48,9 +48,13 @@
     <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
       <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
         <app-pam-access-state-badge [state]="badge()" />
-        @if (approvedAccessEndsAt(); as endsAt) {
-          <span bitTypography="body2" data-testid="approved-access-ends-at">
-            {{ "pamWindowUntil" | i18n: (endsAt | date: "short") }}
+        @if (approvedAccessWindow(); as window) {
+          <span bitTypography="body2" data-testid="approved-access-window">
+            @if (window.startsAt) {
+              {{ window.startsAt | date: "short" }} &ndash; {{ window.endsAt | date: "short" }}
+            } @else {
+              {{ "pamWindowUntil" | i18n: (window.endsAt | date: "short") }}
+            }
           </span>
         }
       </span>
