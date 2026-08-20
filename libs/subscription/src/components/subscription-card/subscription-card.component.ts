@@ -274,9 +274,7 @@ export class SubscriptionCardComponent {
       subscription.status === SubscriptionStatuses.Trialing ||
       subscription.status === SubscriptionStatuses.Active
     ) {
-      // Only BitwardenSubscription carries nextCharge; SubscriptionPreview does not (its
-      // billing-period boundary lives on InvoicePreview.nextPaymentAttempt).
-      return "nextCharge" in subscription ? subscription.nextCharge : undefined;
+      return subscription.nextCharge;
     }
   });
 
