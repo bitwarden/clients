@@ -3,7 +3,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, inject, OnInit, Signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { Params, Router, RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
@@ -27,7 +27,7 @@ import {
 } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { RoutedVaultFilterItemType, VaultNavSectionComponent } from "@bitwarden/vault";
+import { vaultScopeCommands, VaultNavSectionComponent, VaultScopeType } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -121,21 +121,12 @@ export class UserLayoutComponent implements OnInit {
     this.subscriptionRoute$ = this.premiumSubscriptionRoutingService.getSubscriptionRoute$();
   }
 
+  protected readonly trashRoute = vaultScopeCommands({ type: VaultScopeType.Trash });
+
   /**
-   * `bit-nav-item` has no query-param input, so vault filters are applied through the router
-   * rather than a `route` binding.
+   * Stays a click handler rather than a `route` binding: a user without premium and without
+   * anything archived is offered an upgrade instead of an empty archive.
    */
-  private async navigateToVault(queryParams: Params) {
-    await this.router.navigate(["/vault"], {
-      queryParams: { folderId: null, sharedFolderId: null, collectionId: null, ...queryParams },
-      queryParamsHandling: "merge",
-    });
-  }
-
-  protected async selectItemType(type: RoutedVaultFilterItemType) {
-    await this.navigateToVault({ type });
-  }
-
   protected async selectArchive() {
     if (!this.userCanArchive()) {
       const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
@@ -146,7 +137,7 @@ export class UserLayoutComponent implements OnInit {
         return;
       }
     }
-    await this.selectItemType("archive");
+    await this.router.navigate(vaultScopeCommands({ type: VaultScopeType.Archive }));
   }
 
   protected async promptForPremium() {

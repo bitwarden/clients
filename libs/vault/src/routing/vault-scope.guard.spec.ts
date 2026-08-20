@@ -14,7 +14,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
-import { MY_VAULT_ROUTE } from "../models/vault-scope";
+import { ARCHIVE_ROUTE, MY_VAULT_ROUTE, TRASH_ROUTE } from "../models/vault-scope";
 
 import { vaultScopeGuard } from "./vault-scope.guard";
 
@@ -62,6 +62,12 @@ describe("vaultScopeGuard", () => {
     await expect(runGuard(MY_VAULT_ROUTE)).resolves.toBe(true);
   });
 
+  it("allows trash and the archive, which need no membership check", async () => {
+    await expect(runGuard(TRASH_ROUTE)).resolves.toBe(true);
+    await expect(runGuard(ARCHIVE_ROUTE)).resolves.toBe(true);
+    expect(organizationService.organizations$).not.toHaveBeenCalled();
+  });
+
   it("allows an organization the user is a member of", async () => {
     await expect(runGuard(organizationId)).resolves.toBe(true);
   });
@@ -71,7 +77,7 @@ describe("vaultScopeGuard", () => {
     expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
   });
 
-  it("redirects to All items for a segment that names no vault", async () => {
+  it("redirects to All items for a segment that names no destination", async () => {
     await expect(runGuard("acme-corp")).resolves.toBe(allItemsUrlTree);
     expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
   });

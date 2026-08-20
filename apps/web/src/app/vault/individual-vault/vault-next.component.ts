@@ -12,10 +12,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import {
-  CipherViewLike,
-  CipherViewLikeUtils,
-} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
+import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
 import { ButtonModule, DialogService } from "@bitwarden/components";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
@@ -51,11 +48,12 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  * The web individual vault built on the shared {@link VaultItemsTableComponent}, which owns its own
  * search, filter chips, and sorting — so this page has no filter sidebar.
  *
- * Not yet wired: the typed filter adapter that syncs the
- * table's chips to the URL, the redirect that rewrites legacy filter query params, and the
- * `?itemId=&action=` deep link that opens an item on load. Until the chips are wired there is no
- * route to trash or the archive from this page, so both are excluded from the list — which also
- * means the archive's "premium subscription ended" callout has nowhere to surface yet.
+ * Every side-nav destination renders this one component, scoped by the `:vaultId` route segment —
+ * see `VaultScope`.
+ *
+ * Not yet wired: the typed filter adapter that syncs the table's chips to the URL, the redirect
+ * that rewrites legacy filter query params, and the `?itemId=&action=` deep link that opens an
+ * item on load. The archive's "premium subscription ended" callout has nowhere to surface yet.
  */
 @Component({
   selector: "app-vault-next",
@@ -108,6 +106,11 @@ export class VaultNextComponent {
     () => parseVaultScope(this.vaultIdParam()) ?? ALL_ITEMS_SCOPE,
   );
 
+  /**
+   * Every item the user can see, in every state. Which of trashed, archived, and active items a
+   * page shows is the scope's call — see {@link cipherInScope} — so this narrows by nothing but
+   * the restricted item types, which no scope may show.
+   */
   private readonly allCiphers$ = this.userId$.pipe(
     switchMap((userId) =>
       combineLatest([
@@ -118,10 +121,7 @@ export class VaultNextComponent {
     ),
     map(([ciphers, restricted]) =>
       ciphers.filter(
-        (cipher) =>
-          !CipherViewLikeUtils.isDeleted(cipher) &&
-          !CipherViewLikeUtils.isArchived(cipher) &&
-          !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
+        (cipher) => !this.restrictedItemTypesService.isCipherRestricted(cipher, restricted),
       ),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
@@ -130,14 +130,18 @@ export class VaultNextComponent {
   /** `undefined` until the ciphers stream first emits, which is what drives {@link loading}. */
   private readonly loadedCiphers = toSignal(this.allCiphers$);
 
-  /**
-   * Every item the user can see. The banners and onboarding speak to the account as a whole, so
-   * they read this rather than the scoped rows — an empty My vault should not make an account that
-   * has organization items look brand new.
-   */
-  protected readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
+  private readonly allCiphers = computed<CipherViewLike[]>(() => this.loadedCiphers() ?? []);
 
-  /** The rows for the table: {@link allCiphers} narrowed to the scoped vault. */
+  /**
+   * Every item in the account's active vaults. The banners and onboarding speak to the account as
+   * a whole rather than to the page, so they read this instead of the scoped rows — an empty My
+   * vault should not make an account that has organization items look brand new.
+   */
+  protected readonly activeCiphers = computed<CipherViewLike[]>(() =>
+    this.allCiphers().filter((cipher) => cipherInScope(cipher, ALL_ITEMS_SCOPE)),
+  );
+
+  /** The rows for the table: {@link allCiphers} narrowed to the scope. */
   protected readonly ciphers = computed<CipherViewLike[]>(() => {
     const scope = this.vaultScope();
     return this.allCiphers().filter((cipher) => cipherInScope(cipher, scope));
@@ -205,6 +209,10 @@ export class VaultNextComponent {
         return this.i18nService.t("myVault");
       case VaultScopeType.Organization:
         return this.scopedOrganizations()[0]?.name;
+      case VaultScopeType.Trash:
+        return this.i18nService.t("trash");
+      case VaultScopeType.Archive:
+        return this.i18nService.t("archiveNoun");
       default:
         return undefined;
     }

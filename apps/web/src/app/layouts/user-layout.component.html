@@ -36,11 +36,7 @@
             ></button>
           }
         </bit-nav-item>
-        <bit-nav-item
-          icon="bwi-trash"
-          [text]="'trash' | i18n"
-          (mainContentClicked)="selectItemType('trash')"
-        ></bit-nav-item>
+        <bit-nav-item icon="bwi-trash" [text]="'trash' | i18n" [route]="trashRoute"></bit-nav-item>
         <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
           <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>

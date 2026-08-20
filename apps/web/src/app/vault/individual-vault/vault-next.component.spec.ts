@@ -24,7 +24,9 @@ import {
   AddItemDialogResult,
   CipherRowMenuHandlers,
   CipherRowMenuService,
+  ARCHIVE_ROUTE,
   MY_VAULT_ROUTE,
+  TRASH_ROUTE,
   VaultCopyButtonsService,
 } from "@bitwarden/vault";
 
@@ -220,12 +222,32 @@ describe("VaultNextComponent", () => {
           .map((c: CipherView) => c.id),
       ).toEqual(["visible"]);
     });
+
+    it("excludes restricted items from every scope, trash and archive included", () => {
+      const restricted = buildCipher({ id: "restricted", deletedDate: new Date() });
+
+      restrictedItemTypesService.isCipherRestricted.mockReturnValue(true);
+
+      ciphers$.next([restricted]);
+      paramMap$.next(convertToParamMap({ vaultId: TRASH_ROUTE }));
+      fixture.detectChanges();
+
+      expect(component().ciphers()).toEqual([]);
+    });
   });
 
   describe("vault scope", () => {
     const personal = buildCipherFixture("personal");
     const inOrg = buildCipherFixture("in-org", organizationId);
     const inOtherOrg = buildCipherFixture("in-other-org", otherOrganizationId);
+    const trashedPersonal = buildCipher({ id: "trashed-personal", deletedDate: new Date() });
+    const trashedInOrg = Object.assign(buildCipherFixture("trashed-in-org", organizationId), {
+      deletedDate: new Date(),
+    });
+    const archivedPersonal = buildCipher({ id: "archived-personal", archivedDate: new Date() });
+    const archivedInOrg = Object.assign(buildCipherFixture("archived-in-org", organizationId), {
+      archivedDate: new Date(),
+    });
 
     const orgCollection = buildCollection("org-collection", organizationId);
     const otherOrgCollection = buildCollection("other-org-collection", otherOrganizationId);
@@ -247,14 +269,22 @@ describe("VaultNextComponent", () => {
         .map((organization: Organization) => organization.id);
 
     beforeEach(() => {
-      ciphers$.next([personal, inOrg, inOtherOrg]);
+      ciphers$.next([
+        personal,
+        inOrg,
+        inOtherOrg,
+        trashedPersonal,
+        trashedInOrg,
+        archivedPersonal,
+        archivedInOrg,
+      ]);
       collections$.next([orgCollection, otherOrgCollection]);
       organizations$.next([organization, otherOrganization]);
       fixture.detectChanges();
     });
 
     describe("with no route segment", () => {
-      it("shows every vault's items, collections, and organizations", () => {
+      it("shows every vault's active items, collections, and organizations", () => {
         expect(rowIds()).toEqual(["personal", "in-org", "in-other-org"]);
         expect(collectionIds()).toEqual(["org-collection", "other-org-collection"]);
         expect(organizationIds()).toEqual([organizationId, otherOrganizationId]);
@@ -284,6 +314,41 @@ describe("VaultNextComponent", () => {
       });
     });
 
+    describe("scoped to trash", () => {
+      beforeEach(() => scopeTo(TRASH_ROUTE));
+
+      it("shows trashed items from every vault", () => {
+        expect(rowIds()).toEqual(["trashed-personal", "trashed-in-org"]);
+      });
+
+      it("keeps the shared folders and vaults of every vault, the way All items does", () => {
+        expect(collectionIds()).toEqual(["org-collection", "other-org-collection"]);
+        expect(organizationIds()).toEqual([organizationId, otherOrganizationId]);
+        expect(component().scopedOrganizationId()).toBeUndefined();
+      });
+
+      it("titles the header Trash", () => {
+        expect(component().title()).toBe("trash");
+      });
+    });
+
+    describe("scoped to the archive", () => {
+      beforeEach(() => scopeTo(ARCHIVE_ROUTE));
+
+      it("shows archived items from every vault", () => {
+        expect(rowIds()).toEqual(["archived-personal", "archived-in-org"]);
+      });
+
+      it("keeps the shared folders and vaults of every vault, the way All items does", () => {
+        expect(collectionIds()).toEqual(["org-collection", "other-org-collection"]);
+        expect(organizationIds()).toEqual([organizationId, otherOrganizationId]);
+      });
+
+      it("titles the header Archive", () => {
+        expect(component().title()).toBe("archiveNoun");
+      });
+    });
+
     describe("scoped to an organization vault", () => {
       beforeEach(() => scopeTo(organizationId));
 
@@ -305,7 +370,7 @@ describe("VaultNextComponent", () => {
       });
     });
 
-    it("falls back to every item when the segment names no vault", () => {
+    it("falls back to every active item when the segment names no destination", () => {
       scopeTo("acme-corp");
 
       expect(rowIds()).toEqual(["personal", "in-org", "in-other-org"]);
@@ -317,14 +382,17 @@ describe("VaultNextComponent", () => {
 
       scopeTo(MY_VAULT_ROUTE);
       expect(rowIds()).toEqual(["personal"]);
+
+      scopeTo(TRASH_ROUTE);
+      expect(rowIds()).toEqual(["trashed-personal", "trashed-in-org"]);
     });
 
-    it("keeps the banners and onboarding on the account's full item list", () => {
+    it("keeps the banners and onboarding on the account's active items across every vault", () => {
       scopeTo(MY_VAULT_ROUTE);
 
       expect(
         component()
-          .allCiphers()
+          .activeCiphers()
           .map((cipher: CipherView) => cipher.id),
       ).toEqual(["personal", "in-org", "in-other-org"]);
       expect(component().organizations()).toEqual([organization, otherOrganization]);

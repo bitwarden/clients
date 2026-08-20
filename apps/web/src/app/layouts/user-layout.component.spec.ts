@@ -17,7 +17,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
+import { ARCHIVE_ROUTE, TRASH_ROUTE, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -226,6 +226,14 @@ describe("UserLayoutComponent", () => {
       );
     });
 
+    it("links Trash to the trash vault scope", () => {
+      const trash = fixture.debugElement
+        .queryAll(By.css("bit-nav-item"))
+        .find((el) => el.componentInstance.text() === "trash");
+
+      expect(trash.componentInstance.route()).toEqual(["/vault", TRASH_ROUTE]);
+    });
+
     it("renders Export as the last Settings child", () => {
       const children = childText(expandGroup("settings"));
 
@@ -258,22 +266,14 @@ describe("UserLayoutComponent", () => {
         expect(router.navigate).not.toHaveBeenCalled();
       });
 
-      it("still filters to the archive when a user who cannot archive has archived items", () => {
+      it("still navigates to the archive when a user who cannot archive has archived items", () => {
         canArchive$.next(false);
         archivedCiphers$.next([{}]);
         fixture.detectChanges();
 
         clickArchive();
 
-        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: {
-            folderId: null,
-            sharedFolderId: null,
-            collectionId: null,
-            type: "archive",
-          },
-          queryParamsHandling: "merge",
-        });
+        expect(router.navigate).toHaveBeenCalledWith(["/vault", ARCHIVE_ROUTE]);
         expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
       });
 
