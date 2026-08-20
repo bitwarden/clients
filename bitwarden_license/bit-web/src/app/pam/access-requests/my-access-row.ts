@@ -95,33 +95,18 @@ type TerminalRequestStatus = Exclude<AccessRequestStatus, "pending" | "approved"
 /** Time an extension (or sum of extensions) added to a lease, and the resulting end (ms). */
 export type LeaseExtensionSummary = { addedSeconds: number; latestEndMs: number };
 
-/** Map a status to a badge variant. Exported for tests + storybook fidelity. */
-export function statusBadgeVariant(status: TerminalRequestStatus): BadgeVariant {
+/** Map a terminal status to its badge. Exported for tests + storybook fidelity. */
+export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStatusBadge {
   switch (status) {
     case "denied":
-      return "danger";
+      return { labelKey: "pamStatusDenied", variant: "danger" };
     case "canceled":
-      return "subtle";
+      return { labelKey: "pamStatusCanceled", variant: "subtle" };
     case "expired":
-      return "warning";
+      return { labelKey: "pamStatusExpired", variant: "warning" };
     case "unknown":
     default:
-      return "subtle";
-  }
-}
-
-/** i18n key for a status label. Exported for tests. */
-export function statusLabelKey(status: TerminalRequestStatus): string {
-  switch (status) {
-    case "denied":
-      return "pamStatusDenied";
-    case "canceled":
-      return "pamStatusCanceled";
-    case "expired":
-      return "pamStatusExpired";
-    case "unknown":
-    default:
-      return "pamStatusUnknown";
+      return { labelKey: "pamStatusUnknown", variant: "subtle" };
   }
 }
 
@@ -164,7 +149,7 @@ export function historyDisplayStatus(
   if (request.status === "pending") {
     return { badgeState: { kind: "pending" }, statusBadge: null };
   }
-  return terminal(statusLabelKey(request.status), statusBadgeVariant(request.status));
+  return { badgeState: null, statusBadge: terminalStatusBadge(request.status) };
 }
 
 function terminal(
