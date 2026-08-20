@@ -139,7 +139,7 @@ describe("ControlledAccessVaultFilterService", () => {
       expect(result).toBe(ciphers);
     });
 
-    it.each([["pending"], ["ready"]])(
+    it.each(["pending", "ready"])(
       "keeps a gated row the SDK reports as %s under My requests",
       async (badgeState) => {
         const requested = cipher("cipher-1", PAM_ORG, true);
