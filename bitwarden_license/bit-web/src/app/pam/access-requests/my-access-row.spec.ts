@@ -99,7 +99,7 @@ describe("historyDisplayStatus", () => {
     });
   });
 
-  it("labels a canceled lease as Canceled (pamStatusCanceled)", () => {
+  it("labels a canceled lease as Canceled", () => {
     const r = request("req-1", {
       status: "approved",
       producedLeaseId: "lease-1",
