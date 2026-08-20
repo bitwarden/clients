@@ -11,7 +11,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
-  AsyncActionsModule,
   BadgeModule,
   BulkActionComponent,
   BulkActionsBarComponent,
@@ -29,6 +28,7 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -47,7 +47,7 @@ import { RelativeTimePipe } from "../date/relative-time.pipe";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
-import { AccessRuleTemplateKey } from "./access-rule-templates";
+import { ACCESS_RULE_TEMPLATES, AccessRuleTemplateKey } from "./access-rule-templates";
 import { AccessRulesEmptyStateComponent } from "./access-rules-empty-state/access-rules-empty-state.component";
 import { ApprovalMethodPipe } from "./approval-method.pipe";
 
@@ -60,7 +60,6 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     ReactiveFormsModule,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
-    AsyncActionsModule,
     BadgeModule,
     BulkActionComponent,
     BulkActionsBarComponent,
@@ -74,6 +73,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     MenuModule,
     SearchModule,
     TableModule,
+    TypographyModule,
     I18nPipe,
     RelativeTimePipe,
     DurationLongPipe,
@@ -95,6 +95,9 @@ export class AccessRulesComponent {
   protected readonly rules = toSignal(this.accessRules.rules$, {
     initialValue: [] as AccessRuleView[],
   });
+
+  /** Starter templates offered by the header's create menu, next to the blank "Custom" option. */
+  protected readonly templates = ACCESS_RULE_TEMPLATES;
 
   protected readonly dataSource = new TableDataSource<AccessRuleView>();
   /**
