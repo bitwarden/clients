@@ -17,6 +17,7 @@ import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.s
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
 import { VAULT_ROW_LEASE_BADGE } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-lease-badge.token";
 import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/app/vault/individual-vault/vault-filter/shared/components/vault-filter-gated-collection-indicator.token";
+import { VAULT_GATED_COLLECTION_BANNER } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
@@ -24,6 +25,7 @@ import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
+import { GatedCollectionBannerComponent } from "./gated-collection-banner/gated-collection-banner.component";
 import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
@@ -70,11 +72,13 @@ import {
  * leasing entry point on an open cipher), `ITEM_DETAILS_STATE_BADGE` (the access-state
  * pill on the open item's name row), `VAULT_ROW_LEASE_BADGE` (the same pill per row,
  * on cipher AND collection rows — collection rows show the "Privileged" pill straight
- * off the collection's server-derived `hasEnabledAccessRule`) and
+ * off the collection's server-derived `hasEnabledAccessRule`),
  * `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a governed collection in
- * the vault's Filters sidebar, backed by the shared `GovernedCollectionsService` lookup),
- * all four component classes, plus `GATED_CIPHER_RELOADER` (the observable that reveals
- * a gated cipher in place once a lease covers it),
+ * the vault's Filters sidebar, backed by the shared `GovernedCollectionsService` lookup)
+ * and `VAULT_GATED_COLLECTION_BANNER` (the notice above the item list naming the same
+ * restriction while a governed collection is the active filter), all five component
+ * classes, plus `GATED_CIPHER_RELOADER` (the observable that reveals a gated cipher in
+ * place once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
  * edit dialog), `PamNavBadgeService` (the nav badge count), and
  * `VaultRowAccessActionsService` (withdrawing a gated row's outstanding access
@@ -138,13 +142,18 @@ export function providePam(): SafeProvider[] {
       provide: VAULT_FILTER_GATED_COLLECTION_INDICATOR,
       useValue: GatedCollectionFilterIndicatorComponent,
     }),
-    // Root-level (not per-consumer) so the sidebar indicator AND repeated opens of the collection
-    // dialog share one cached per-org rules read. The vault-row badge no longer reads it — the
-    // collection carries `hasEnabledAccessRule` — but the sidebar's nodes do not: `buildCollectionTree`
-    // rebuilds each one through `new CollectionView(...)`, whose constructor copies only
-    // id/organizationId/name and whose field initializer resets that flag to `false`, so the indicator
-    // derives "governed" from the rules instead. The callout reads them because it names the governing
-    // rules rather than just counting them.
+    safeProvider({
+      provide: VAULT_GATED_COLLECTION_BANNER,
+      useValue: GatedCollectionBannerComponent,
+    }),
+    // Root-level (not per-consumer) so the sidebar indicator, the gated-collection banner AND
+    // repeated opens of the collection dialog share one cached per-org rules read. The vault-row
+    // badge no longer reads it — the collection carries `hasEnabledAccessRule` — but none of these
+    // three can take that shortcut. The sidebar's nodes carry a silently false flag:
+    // `buildCollectionTree` rebuilds each one through `new CollectionView(...)`, whose constructor
+    // copies only id/organizationId/name and whose field initializer resets the flag to `false`.
+    // The banner is handed ids alone, never a collection. And the callout needs the rules
+    // themselves, because it names the governing rules rather than just counting them.
     safeProvider({
       provide: GovernedCollectionsService,
       useClass: GovernedCollectionsService,
