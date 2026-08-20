@@ -27,10 +27,10 @@ export type PamConfirmDialogParams = {
 /**
  * A yes/no confirmation that resolves to a boolean, matching `openSimpleDialog`'s contract.
  *
- * It exists because `openSimpleDialog` derives the glyph, the glyph's colour AND the accept
- * button's variant from a single `type` field, so a red glyph above a blue accept button is
- * inexpressible through it. Authoring `<bit-simple-dialog>` directly hands those three back to
- * the caller as separate params.
+ * It exists because `openSimpleDialog` lets you override the glyph but derives the glyph's
+ * colour AND the accept button's variant from a single `type` field, so a red glyph above a
+ * blue accept button is inexpressible through it. Authoring `<bit-simple-dialog>` directly
+ * hands those three back to the caller as separate params.
  */
 @Component({
   selector: "pam-confirm-dialog",
