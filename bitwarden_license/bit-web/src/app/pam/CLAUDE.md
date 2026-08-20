@@ -38,6 +38,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
 - `collection-access-rule-callout/` — names the rules governing a collection, inside the
   collection edit dialog.
+- `confirm-dialog/` — `PamConfirmDialogComponent`, a boolean confirm authored as
+  `<bit-simple-dialog>`. Reach for it only when `dialogService.openSimpleDialog` cannot
+  express the design: that helper lets you override the glyph but derives the glyph's
+  COLOUR and the accept button's variant from one `type` field, so a red glyph over a
+  blue accept button — what the delete-rule design asks for — is unreachable through it.
+  Everything else stays on `openSimpleDialog`.
 - `services/` — the SDK-backed implementations of the `abstractions/` contracts.
 - `testing/` — builders shared across specs (`decision-builders.ts`).
 
