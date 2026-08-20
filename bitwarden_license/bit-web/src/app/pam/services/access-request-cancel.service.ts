@@ -39,14 +39,13 @@ export class AccessRequestCancelService {
       if (request == null) {
         return;
       }
+      const contentKey =
+        state.pendingRequest != null
+          ? "pamCancelRequestPendingConfirm"
+          : "pamCancelRequestApprovedConfirm";
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "pamCancelRequestTitle" },
-        content: {
-          key:
-            state.pendingRequest != null
-              ? "pamCancelRequestPendingConfirm"
-              : "pamCancelRequestApprovedConfirm",
-        },
+        content: { key: contentKey },
         acceptButtonText: { key: "pendingStateCancelRequest" },
         cancelButtonText: { key: "pamKeepRequest" },
         type: "warning",
