@@ -159,11 +159,11 @@ describe("historyDisplayStatus", () => {
     });
   });
 
-  it("badges an approved request that has not started as ready", () => {
+  it("badges an approved request that has not started as approved, not ready to use", () => {
     const r = request("req-1", { status: "approved", producedLeaseId: undefined });
     expect(historyDisplayStatus(r)).toEqual({
-      badgeState: { kind: "ready" },
-      statusBadge: null,
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
     });
   });
 

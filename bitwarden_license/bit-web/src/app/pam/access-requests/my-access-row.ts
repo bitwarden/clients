@@ -32,8 +32,8 @@ export type MyAccessRequestRow = {
   status: AccessRequestStatus;
   /**
    * The shared access-state badge for the status column, so this page, the vault row and the
-   * cipher-view modal show one vocabulary. Null for the terminal statuses, which the shared model
-   * has no equivalent for — {@link statusBadge} carries those. See {@link historyDisplayStatus}.
+   * cipher-view modal show one vocabulary. Null for every outcome the shared model cannot state
+   * from this row alone — {@link statusBadge} carries those. See {@link historyDisplayStatus}.
    */
   badgeState: AccessBadgeState | null;
   /** Set exactly when {@link badgeState} is null — see {@link historyDisplayStatus}. */
@@ -86,9 +86,9 @@ export type MyAccessLeaseRow = {
 export type TerminalStatusBadge = { readonly labelKey: string; readonly variant: BadgeVariant };
 
 /**
- * The statuses whose badge is NOT taken from the shared access-state model. `pending` and
- * `approved` are excluded because both map onto it — `pending` and `ready` respectively — and
- * routing them here again would fork the vocabulary the three surfaces share.
+ * The statuses whose badge is a plain function of the status. `pending` is excluded because it
+ * maps onto the shared access-state model, and `approved` because its badge also depends on the
+ * lease the request did or did not mint.
  */
 type TerminalRequestStatus = Exclude<AccessRequestStatus, "pending" | "approved">;
 
@@ -113,10 +113,9 @@ export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStat
 /**
  * Display status + badge for a request.
  *
- * A pending request and an approved-but-unstarted one both have an equivalent in the shared
- * access-state model, so they return an {@link AccessBadgeState} and are rendered by
- * `AccessStateBadgeComponent` — the same recipe the vault row and the cipher-view modal use.
- * Every other outcome is terminal, has no equivalent in that model, and keeps its own label.
+ * A pending request has an equivalent in the shared access-state model, so it returns an
+ * {@link AccessBadgeState} and is rendered by `AccessStateBadgeComponent` — the same recipe the
+ * vault row and the cipher-view modal use. Every other outcome keeps its own label.
  *
  * Activation is not a status of its own: an approved request that minted a lease is recognised by
  * `producedLeaseId`, and the lease's `producedLeaseStatus` drives the label from there.
@@ -131,7 +130,12 @@ export function historyDisplayStatus(
 ): Pick<MyAccessRequestRow, "badgeState" | "statusBadge"> {
   if (request.status === "approved") {
     if (request.producedLeaseId == null) {
-      return { badgeState: { kind: "ready" }, statusBadge: null };
+      // Deliberately NOT the shared model's "Ready to use". That state is caller-scoped and this
+      // row model also feeds the approver surfaces (ApproverInboxService.historyRows$, and
+      // /pam/requests/:id reached from the approvals inbox), where the viewer holds no lease. It
+      // would also claim availability before `leaseNotBefore` and after `leaseNotAfter`, neither
+      // of which this branch can see. "Approved" is true from either side, at any time.
+      return terminal("pamStatusApproved", "success");
     }
     if (request.producedLeaseStatus === "active") {
       return terminal("pamStatusActivated", "success");

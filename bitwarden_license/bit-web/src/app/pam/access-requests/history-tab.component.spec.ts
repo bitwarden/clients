@@ -175,8 +175,8 @@ describe("HistoryTabComponent", () => {
     const unstartedApproval = historyRow({
       id: "managed-2",
       status: "approved",
-      badgeState: { kind: "ready" },
-      statusBadge: null,
+      badgeState: null,
+      statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
       producedLeaseId: null,
     });
 
