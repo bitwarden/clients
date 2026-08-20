@@ -27,9 +27,15 @@ export type GatedCollection = { id?: string; organizationId?: OrganizationId };
  * sidebar lock and the vault banner, so those two surfaces cannot drift. Must be called from an
  * injection context. The collection-dialog callout asks the same underlying question, but reads
  * directly from `GovernedCollectionsService` / `rulesGoverningCollection` rather than going
- * through this helper. The collection-row badge makes a different claim, reading the collection's
- * own `hasEnabledAccessRule` instead: it needs only the boolean, while this helper and the callout
- * name the governing rules.
+ * through this helper, because it names the governing rules rather than just counting them.
+ *
+ * The collection-row badge answers the same question from the collection's own server-derived
+ * `hasEnabledAccessRule`. Neither caller of this helper can take that shortcut, and the reason is
+ * invisible at both call sites: the sidebar's nodes carry a silently FALSE flag rather than an
+ * absent one, because `buildCollectionTree` rebuilds each one through `new CollectionView(...)`,
+ * whose constructor copies only id/organizationId/name while the field initializer resets
+ * `hasEnabledAccessRule` to `false`; and the banner is handed ids alone, never a collection. A
+ * "simplification" that reads the flag here would compile, pass a naive test, and never gate.
  *
  * The rules read is issued only for a collection whose own organization has Privileged Access:
  * a member can select a collection in any organization, and asking for the access rules of an
