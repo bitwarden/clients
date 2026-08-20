@@ -26,18 +26,11 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 type BadgeCollection = { organizationId?: OrganizationId; hasEnabledAccessRule?: boolean };
 
 /**
- * What the Controlled access cell shows for one row. The `none` case is distinct from `hidden`:
- * it means the row was checked and is governed by no rule, which the cell draws as an em dash.
- * `hidden` means there is nothing to say — the feature is off, the row belongs to no
- * PAM-enabled organization, or the lookup failed — and leaves the cell blank.
+ * What the row's lookup concluded: a badge state, `"none"` for "checked, governed by no rule",
+ * or `null` for "nothing to say" — the feature is off, there is no row to check, or the lookup
+ * failed. Only `"none"` can draw the em dash, and only a failed lookup must not.
  */
-type LeaseBadgeCell =
-  | { readonly kind: "badge"; readonly state: AccessBadgeState }
-  | { readonly kind: "none" }
-  | { readonly kind: "hidden" };
-
-const NONE: LeaseBadgeCell = { kind: "none" };
-const HIDDEN: LeaseBadgeCell = { kind: "hidden" };
+type LeaseBadgeCell = AccessBadgeState | "none" | null;
 
 /**
  * Binds `VAULT_ROW_LEASE_BADGE` for one row in the vault list — cipher or collection.
@@ -85,70 +78,67 @@ export class VaultRowLeaseBadgeComponent {
    * placeholder has to be narrowed to the row's own organization here, or a row from an
    * organization that cannot have access rules would claim it was checked against them.
    */
-  private readonly pamOrganizationIds$ = this.accountService.activeAccount$.pipe(
-    getOptionalUserId,
-    switchMap((userId) =>
-      userId == null ? of([]) : this.organizationService.organizations$(userId),
+  private readonly pamOrganizationIds = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getOptionalUserId,
+      switchMap((userId) =>
+        userId == null ? of([]) : this.organizationService.organizations$(userId),
+      ),
+      map(
+        (organizations) => new Set<string>(organizations.filter((o) => o.usePam).map((o) => o.id)),
+      ),
     ),
-    map((organizations) => new Set(organizations.filter((o) => o.usePam).map((o) => o.id))),
+    { initialValue: new Set<string>() },
   );
 
   private readonly cell$: Observable<LeaseBadgeCell> = combineLatest([
     toObservable(this.cipher),
     toObservable(this.collection),
     this.configService.getFeatureFlag$(FeatureFlag.Pam),
-    this.pamOrganizationIds$,
   ]).pipe(
-    switchMap(([cipher, collection, enabled, pamOrganizationIds]) => {
+    switchMap(([cipher, collection, enabled]) => {
       if (!enabled) {
-        return of(HIDDEN);
+        return of(null);
       }
       if (cipher != null) {
-        return this.cipherCell$(cipher, pamOrganizationIds);
+        return this.cipherCell$(cipher);
       }
       if (collection != null) {
-        return this.collectionCell$(collection, pamOrganizationIds);
+        return this.collectionCell$(collection);
       }
-      return of(HIDDEN);
+      return of(null);
     }),
   );
 
-  private readonly cell = toSignal(this.cell$, { initialValue: HIDDEN });
+  private readonly cell = toSignal(this.cell$, { initialValue: null });
 
   protected readonly badge = computed<AccessBadgeState | null>(() => {
     const cell = this.cell();
-    return cell.kind === "badge" ? cell.state : null;
+    return cell === "none" ? null : cell;
   });
 
-  protected readonly showNoAccessRule = computed(() => this.cell().kind === "none");
+  protected readonly showNoAccessRule = computed(() => {
+    if (this.cell() !== "none") {
+      return false;
+    }
+    const organizationId = this.cipher()?.organizationId ?? this.collection()?.organizationId;
+    return organizationId != null && this.pamOrganizationIds().has(String(organizationId));
+  });
 
-  private cipherCell$(
-    cipher: CipherViewLike,
-    pamOrganizationIds: ReadonlySet<string>,
-  ): Observable<LeaseBadgeCell> {
-    const placeholder = pamOrganizationIds.has(cipher.organizationId ?? "") ? NONE : HIDDEN;
+  private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {
     // Gating is driven by the SDK's `partial` flag, which only some `CipherViewLike` members
     // carry — read it through the util rather than off the union. No flag or no id — no badge.
     if (!CipherViewLikeUtils.isPartial(cipher) || cipher.id == null) {
-      return of(placeholder);
+      return of("none");
     }
     return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
-      map((state): LeaseBadgeCell => {
-        const badge = cipherAccessBadgeState(state);
-        return badge == null ? placeholder : { kind: "badge", state: badge };
-      }),
+      map((state): LeaseBadgeCell => cipherAccessBadgeState(state) ?? "none"),
       // A failed read is not evidence of anything, so it must not draw the placeholder.
-      catchError(() => of(HIDDEN)),
+      catchError(() => of(null)),
     );
   }
 
-  private collectionCell$(
-    { organizationId, hasEnabledAccessRule }: BadgeCollection,
-    pamOrganizationIds: ReadonlySet<string>,
-  ): Observable<LeaseBadgeCell> {
-    if (hasEnabledAccessRule === true) {
-      return of({ kind: "badge", state: { kind: "privileged" } });
-    }
-    return of(pamOrganizationIds.has(organizationId ?? "") ? NONE : HIDDEN);
+  private collectionCell$({ hasEnabledAccessRule }: BadgeCollection): Observable<LeaseBadgeCell> {
+    return of(hasEnabledAccessRule === true ? { kind: "privileged" } : "none");
   }
 }
