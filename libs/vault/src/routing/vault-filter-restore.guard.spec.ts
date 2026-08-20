@@ -1,15 +1,13 @@
 import { TestBed } from "@angular/core/testing";
 import {
   ActivatedRouteSnapshot,
-  Navigation,
   Params,
-  Router,
   RouterStateSnapshot,
   UrlTree,
   convertToParamMap,
   createUrlTreeFromSnapshot,
 } from "@angular/router";
-import { mock, MockProxy } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
 
 import { OrganizationId } from "@bitwarden/common/types/guid";
 
@@ -25,7 +23,6 @@ jest.mock("@angular/router", () => ({
 const ORG_ID = "8f9a1b2c-3d4e-4f50-a1b2-c3d4e5f60718" as OrganizationId;
 
 describe("vaultFilterRestoreGuard", () => {
-  let router: MockProxy<Router>;
   let paramsFor: jest.Mock;
 
   const route = mock<ActivatedRouteSnapshot>();
@@ -52,17 +49,11 @@ describe("vaultFilterRestoreGuard", () => {
   }
 
   beforeEach(() => {
-    router = mock<Router>();
-    router.getCurrentNavigation.mockReturnValue({ trigger: "imperative" } as Navigation);
-
     paramsFor = jest.fn().mockResolvedValue({});
     jest.mocked(createUrlTreeFromSnapshot).mockReturnValue(mockUrlTree);
 
     TestBed.configureTestingModule({
-      providers: [
-        { provide: Router, useValue: router },
-        { provide: VaultFilterMemoryService, useValue: { paramsFor } },
-      ],
+      providers: [{ provide: VaultFilterMemoryService, useValue: { paramsFor } }],
     });
   });
 
@@ -121,14 +112,6 @@ describe("vaultFilterRestoreGuard", () => {
   });
 
   it("passes through when nothing has been remembered for the scope", async () => {
-    await expect(runGuard(makeState({}))).resolves.toBe(true);
-    expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
-  });
-
-  it("passes through on back and forward so the history entry is left alone", async () => {
-    paramsFor.mockResolvedValue({ "vault.type": "1" });
-    router.getCurrentNavigation.mockReturnValue({ trigger: "popstate" } as Navigation);
-
     await expect(runGuard(makeState({}))).resolves.toBe(true);
     expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
   });

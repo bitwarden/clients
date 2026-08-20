@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { CanActivateFn, Router, createUrlTreeFromSnapshot } from "@angular/router";
+import { CanActivateFn, createUrlTreeFromSnapshot } from "@angular/router";
 
 import { VaultFilterMemoryService } from "./vault-filter-memory.service";
 import { hasFilterParams, vaultScopeOf } from "./vault-scope";
@@ -20,17 +20,13 @@ import { hasFilterParams, vaultScopeOf } from "./vault-scope";
  *
  * A user clears the memory by clearing the filters: the bare URL that leaves behind is recorded
  * like any other, after which there is nothing here to restore.
+ *
+ * Back and forward are treated like any other arrival — a filter-less history entry is filled in
+ * from the memory the same way a bookmark is. Angular replaces rather than pushes when a guard
+ * redirects a browser-triggered navigation, so the history stack keeps its shape.
  */
 export const vaultFilterRestoreGuard: CanActivateFn = async (route, state) => {
-  const router = inject(Router);
   const filterMemory = inject(VaultFilterMemoryService);
-
-  // Read before the first await, while this navigation is still the current one. Back and forward
-  // have to land on the URL held in the history stack — rewriting it here would put the entry the
-  // user just left back in front of them.
-  if (router.getCurrentNavigation()?.trigger === "popstate") {
-    return true;
-  }
 
   const scope = vaultScopeOf(state);
   if (scope == null) {

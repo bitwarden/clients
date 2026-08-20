@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NavigationEnd, NavigationStart, Params, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { NavigationEnd, Params, Router } from "@angular/router";
+import { filter, firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
@@ -52,22 +52,13 @@ export class VaultFilterMemoryService {
    */
   private pending: Promise<unknown> = Promise.resolve();
 
-  /**
-   * How the navigation now ending was triggered. Tracked from `NavigationStart` because the
-   * router has already cleared `getCurrentNavigation()` by the time `NavigationEnd` fires.
-   * Navigations are serial, so one field is enough — a cancelled navigation's replacement
-   * announces its own start before it ends.
-   */
-  private trigger: string = "imperative";
-
   constructor() {
-    this.router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
-      if (event instanceof NavigationStart) {
-        this.trigger = event.navigationTrigger ?? "imperative";
-      } else if (event instanceof NavigationEnd) {
-        this.record();
-      }
-    });
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.record());
   }
 
   /** The remembered filter params for a scope, or `{}` if it hasn't been visited. */
@@ -86,13 +77,6 @@ export class VaultFilterMemoryService {
   }
 
   private record(): void {
-    // Back and forward retrace URLs that were already recorded when the user first visited them,
-    // so there's nothing to learn from them — and a history entry holding a bare vault URL would
-    // erase the scope's memory on the way past.
-    if (this.trigger === "popstate") {
-      return;
-    }
-
     const state = this.router.routerState.snapshot;
     const scope = vaultScopeOf(state);
     if (scope == null) {

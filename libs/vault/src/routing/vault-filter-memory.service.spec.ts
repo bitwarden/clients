@@ -1,18 +1,14 @@
+import { Location } from "@angular/common";
+import { provideLocationMocks } from "@angular/common/testing";
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
-import {
-  NavigationEnd,
-  NavigationStart,
-  provideRouter,
-  Router,
-  RouterEvent,
-} from "@angular/router";
+import { NavigationEnd, provideRouter, Router } from "@angular/router";
 import {
   FakeAccountService,
   mockAccountServiceWith,
 } from "@bitwarden/common/../spec/fake-account-service";
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
-import { Subject } from "rxjs";
+import { filter, firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -34,6 +30,7 @@ describe("VaultFilterMemoryService", () => {
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
   let router: Router;
+  let location: Location;
 
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId);
@@ -43,6 +40,7 @@ describe("VaultFilterMemoryService", () => {
       providers: [
         { provide: StateProvider, useValue: stateProvider },
         { provide: AccountService, useValue: accountService },
+        provideLocationMocks(),
         provideRouter([
           { path: "vault", component: BlankComponent, data: inScope },
           { path: "vault/:vaultId", component: BlankComponent, data: inScope },
@@ -51,6 +49,10 @@ describe("VaultFilterMemoryService", () => {
       ],
     });
     router = TestBed.inject(Router);
+    location = TestBed.inject(Location);
+    // Without it the router ignores `location.back()`, since nothing bootstrapped the app to wire
+    // the browser's history events up to a router navigation.
+    router.setUpLocationChangeListener();
   });
 
   /** Constructs the service, so it's listening before the test navigates. */
@@ -150,44 +152,21 @@ describe("VaultFilterMemoryService", () => {
     await expect(service.paramsFor(MY_VAULT_SCOPE)).resolves.toEqual({ "vault.type": "3" });
   });
 
-  // Back and forward retrace URLs that were recorded when the user first visited them, so there's
-  // nothing to learn. It matters because a history entry can hold a bare vault URL — recording that
-  // on the way past would erase the scope's memory without the user clearing anything.
-  describe("back and forward", () => {
-    /**
-     * Replays how the router announces a history navigation. `SpyLocation.back()` updates the
-     * mock's own URL without driving a navigation through the router in TestBed, so the trigger
-     * this service reads — `NavigationStart.navigationTrigger` — has to be stated directly.
-     */
-    function simulatePopstate(url: string): void {
-      const events = router.events as unknown as Subject<RouterEvent>;
-      events.next(new NavigationStart(99, url, "popstate"));
-      events.next(new NavigationEnd(99, url, url));
-    }
+  // Recording doesn't ask how the user got here. The entry the user lands on is the URL they're
+  // looking at, so recording it keeps the memory and the screen from disagreeing.
+  it("records a navigation the user reached with back", async () => {
+    const service = createService();
 
-    it("does not record a navigation the user reached with back or forward", async () => {
-      const service = createService();
+    await router.navigateByUrl("/vault?vault.type=1");
+    await router.navigateByUrl("/vault?vault.type=2");
 
-      await router.navigateByUrl("/vault?vault.type=1");
-      await service.paramsFor(ALL_ITEMS_SCOPE);
-      const writesBefore = writeCount();
+    const navigated = firstValueFrom(
+      router.events.pipe(filter((event) => event instanceof NavigationEnd)),
+    );
+    location.back();
+    await navigated;
 
-      simulatePopstate("/vault");
-      await service.paramsFor(ALL_ITEMS_SCOPE);
-
-      expect(writeCount()).toBe(writesBefore);
-    });
-
-    it("records again once the user navigates imperatively", async () => {
-      const service = createService();
-
-      await router.navigateByUrl("/vault?vault.type=1");
-      simulatePopstate("/vault");
-
-      await router.navigateByUrl("/vault?vault.type=2");
-
-      await expect(service.paramsFor(ALL_ITEMS_SCOPE)).resolves.toEqual({ "vault.type": "2" });
-    });
+    await expect(service.paramsFor(ALL_ITEMS_SCOPE)).resolves.toEqual({ "vault.type": "1" });
   });
 
   describe("persistence", () => {

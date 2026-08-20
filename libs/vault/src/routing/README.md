@@ -72,9 +72,10 @@ chip change, the memory keeps up without the table knowing it exists. The servic
 namespace later isn't persisted by accident. `vault.search` is left out (free text the user typed),
 as is pagination.
 
-Navigations the user reached with back or forward are skipped: they retrace URLs that were already
-recorded on the way in, and a history entry holding a bare vault URL would otherwise erase the
-scope's memory on the way past.
+Every vault URL the user lands on is recorded, however they got there — back and forward included.
+The entry they land on is the URL they're looking at, so recording it keeps the memory and the
+screen from disagreeing. The cost is that going back to an older entry of the same scope, which
+holds the filters that entry was left with, rewinds the memory to those.
 
 **Restoring** happens in [`vault-filter-restore.guard.ts`](./vault-filter-restore.guard.ts), on the
 route rather than at each link. A filter-less vault URL is redirected to the same route carrying the
@@ -98,14 +99,15 @@ The read is awaited. The memory lives on disk, so on the first vault navigation 
 hasn't been loaded yet — and a bookmark or the post-unlock landing is exactly the arrival this guard
 exists for. Reading it synchronously would no-op on the cases that matter most.
 
-The guard stands down in two cases:
+The guard stands down when **the URL states its own filters** — checked with `hasFilterParams()`,
+which is deliberately broader than `rememberableParams()`. A link carrying only `vault.search` states
+a filter the memory doesn't record, and layering a remembered type onto it would show something the
+link didn't ask for.
 
-- **The URL states its own filters.** Checked with `hasFilterParams()`, which is deliberately broader
-  than `rememberableParams()` — a link carrying only `vault.search` states a filter the memory
-  doesn't record, and layering a remembered type onto it would show something the link didn't ask
-  for.
-- **The navigation is a `popstate`.** Back and forward have to land on the URL held in the history
-  stack; rewriting it would put the entry the user just left back in front of them.
+That is the only precedence rule, and it covers back and forward too: a history entry carrying
+filters keeps them, and a filter-less one is filled in from the memory the same way a bookmark is.
+Angular replaces rather than pushes when a guard redirects a browser-triggered navigation, so
+filling one in doesn't disturb the history stack.
 
 ### Clearing
 
