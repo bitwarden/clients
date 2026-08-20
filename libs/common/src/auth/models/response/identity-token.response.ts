@@ -2,10 +2,15 @@
 // @ts-strict-ignore
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import {
+  Argon2KdfConfig,
+  EncString,
+  KdfConfig,
+  KdfType,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 import { KeyConnectorUnlockData } from "@bitwarden/unlock";
 
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { PrivateKeysResponseModel } from "../../../key-management/keys/response/private-keys.response";
 import { BaseResponse } from "../../../models/response/base.response";
 

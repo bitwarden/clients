@@ -21,7 +21,9 @@ import {
 import { firstValueFromOrThrow } from "@bitwarden/common/key-management/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig } from "@bitwarden/legacy-crypto";
 
 import {
   ChangePasswordService,

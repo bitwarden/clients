@@ -9,7 +9,6 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
 import { WebAuthnLoginAssertionResponseRequest } from "@bitwarden/common/auth/services/webauthn-login/request/webauthn-login-assertion-response.request";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { RotateableKeySet } from "@bitwarden/common/key-management/keys/models/rotateable-key-set";
 import { RotateableKeySetService } from "@bitwarden/common/key-management/keys/services/abstractions/rotateable-key-set.service";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -18,6 +17,8 @@ import { makeEncString, makeSymmetricCryptoKey } from "@bitwarden/common/spec";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
 import { newGuid } from "@bitwarden/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
 
 import { WebauthnLoginCredentialPrfStatus } from "../../enums/webauthn-login-credential-prf-status.enum";
