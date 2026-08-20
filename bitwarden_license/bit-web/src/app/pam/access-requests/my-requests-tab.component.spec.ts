@@ -123,7 +123,7 @@ describe("MyRequestsTabComponent", () => {
 
       create();
 
-      expect(fixture.componentInstance["leaseBadgeState"](lease)).toEqual({
+      expect(fixture.componentInstance["leaseBadgeState"](lease.id)).toEqual({
         kind: "active",
         expiresAt: new Date(LEASE_END),
       });

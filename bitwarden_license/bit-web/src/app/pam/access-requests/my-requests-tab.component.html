@@ -247,7 +247,7 @@
               {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
             </td>
             <td bitCell>
-              <app-pam-access-state-badge [state]="leaseBadgeState(lease)" />
+              <app-pam-access-state-badge [state]="leaseBadgeState(lease.id)" />
             </td>
             <td bitCell>
               <button
