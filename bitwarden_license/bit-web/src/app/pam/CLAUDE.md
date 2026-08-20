@@ -45,9 +45,10 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   re-deriving the check.
 - `vault-filter-controlled-access/` — the vault sidebar's "Controlled access" group and the
   narrowing its children apply to the item list. Its children partition
-  `AccessBadgeState.kind`: "Privileged" ships, "My requests" (`pending`/`ready`/`active`)
-  follows, and "Unavailable" cannot be built at all while `cipherAccessBadgeState()` never
-  produces that kind.
+  `AccessBadgeState.kind`: "Privileged" and "My requests" (`pending`/`ready`/`active`) ship,
+  and "Unavailable" cannot be built at all while `cipherAccessBadgeState()` never produces
+  that kind. Add a child by appending to `CONTROLLED_ACCESS_FILTERS`, not by branching in
+  `narrow$`.
 - `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
   vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
   the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
