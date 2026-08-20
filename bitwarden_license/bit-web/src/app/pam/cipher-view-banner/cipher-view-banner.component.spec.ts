@@ -591,7 +591,7 @@ describe("CipherViewBannerComponent", () => {
       expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("request-3");
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "pendingStateCancelSuccess",
+        message: "pamCancelRequestCanceledToast",
       });
     });
 

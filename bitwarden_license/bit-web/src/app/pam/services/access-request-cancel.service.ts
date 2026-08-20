@@ -56,7 +56,7 @@ export class AccessRequestCancelService {
       await this.accessRequestSdkService.cancelAccessRequest(request.id);
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pendingStateCancelSuccess"),
+        message: this.i18nService.t("pamCancelRequestCanceledToast"),
       });
     } catch (e) {
       this.logService.error(e);
