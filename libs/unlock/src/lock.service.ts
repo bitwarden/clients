@@ -1,41 +1,49 @@
 import { combineLatest, filter, firstValueFrom, map, timeout } from "rxjs";
 
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
-import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/key-management/vault-timeout";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { BiometricsService, KeyService } from "@bitwarden/key-management";
 import { LogService } from "@bitwarden/logging";
 import { StateEventRunnerService } from "@bitwarden/state";
 
-import { LogoutService } from "../../abstractions";
+import { LockSource } from "./lock-source.enum";
 
 export abstract class LockService {
   /**
    * Locks all accounts.
+   * @param source What caused the lock
    */
-  abstract lockAll(): Promise<void>;
+  abstract lockAll(source: LockSource): Promise<void>;
   /**
    * Performs lock for a user.
    * @param userId The user id to lock
+   * @param source What caused the lock
    */
-  abstract lock(userId: UserId): Promise<void>;
+  abstract lock(userId: UserId, source: LockSource): Promise<void>;
 
-  abstract runPlatformOnLockActions(userId: UserId): Promise<void>;
-  abstract registerOnLockAction(action: (userId: UserId) => Promise<void>): void;
+  abstract runPlatformOnLockActions(userId: UserId, source: LockSource): Promise<void>;
+  /**
+   * Registers an action to be run when a user is locked through this service.
+   *
+   * @param action Callback invoked after a lock with the user id and what caused the lock.
+   */
+  abstract registerOnLockAction(
+    action: (userId: UserId, source: LockSource) => Promise<void>,
+  ): void;
 }
 
 export class DefaultLockService implements LockService {
-  private onLockActions: Array<(userId: UserId) => Promise<void>> = [];
+  private onLockActions: Array<(userId: UserId, source: LockSource) => Promise<void>> = [];
 
   constructor(
     private readonly accountService: AccountService,
@@ -43,9 +51,7 @@ export class DefaultLockService implements LockService {
     private readonly vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private readonly logoutService: LogoutService,
     private readonly messagingService: MessagingService,
-    private readonly searchService: SearchService,
     private readonly folderService: FolderService,
-    private readonly masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly stateEventRunnerService: StateEventRunnerService,
     private readonly cipherService: CipherService,
     private readonly authService: AuthService,
@@ -55,11 +61,11 @@ export class DefaultLockService implements LockService {
     private readonly keyService: KeyService,
   ) {}
 
-  registerOnLockAction(action: (userId: UserId) => Promise<void>): void {
+  registerOnLockAction(action: (userId: UserId, source: LockSource) => Promise<void>): void {
     this.onLockActions.push(action);
   }
 
-  async lockAll() {
+  async lockAll(source: LockSource) {
     const accounts = await firstValueFrom(
       combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
         map(([activeAccount, accounts]) => {
@@ -78,18 +84,18 @@ export class DefaultLockService implements LockService {
     );
 
     for (const otherAccount of accounts.otherAccounts) {
-      await this.lock(otherAccount);
+      await this.lock(otherAccount, source);
     }
 
     // Do the active account last in case we ever try to route the user on lock
     // that way this whole operation will be complete before that routing
     // could take place.
     if (accounts.activeAccount != null) {
-      await this.lock(accounts.activeAccount);
+      await this.lock(accounts.activeAccount, source);
     }
   }
 
-  async lock(userId: UserId): Promise<void> {
+  async lock(userId: UserId, source: LockSource): Promise<void> {
     assertNonNullish(userId, "userId", "LockService");
 
     this.logService.info(`[LockService] Locking user ${userId}`);
@@ -113,7 +119,7 @@ export class DefaultLockService implements LockService {
     await this.wipeDecryptedState(userId);
     await this.waitForLockedStatus(userId);
     await this.systemService.clearPendingClipboard();
-    await this.runPlatformOnLockActions(userId);
+    await this.runPlatformOnLockActions(userId, source);
 
     this.logService.info(`[LockService] Locked user ${userId}`);
 
@@ -156,9 +162,9 @@ export class DefaultLockService implements LockService {
     );
   }
 
-  async runPlatformOnLockActions(userId: UserId): Promise<void> {
+  async runPlatformOnLockActions(userId: UserId, source: LockSource): Promise<void> {
     for (const action of this.onLockActions) {
-      await action(userId);
+      await action(userId, source);
     }
     // No platform specific actions to run for this platform.
     return;
