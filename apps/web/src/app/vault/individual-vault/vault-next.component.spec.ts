@@ -28,6 +28,10 @@ import {
   MY_VAULT_ROUTE,
   TRASH_ROUTE,
   VaultCopyButtonsService,
+  VaultNavItemType,
+  VaultNavItemViewModel,
+  VaultNavService,
+  VaultsNavViewModel,
 } from "@bitwarden/vault";
 
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
@@ -51,6 +55,7 @@ describe("VaultNextComponent", () => {
   let organizations$: BehaviorSubject<Organization[]>;
   let showQuickCopyActions$: BehaviorSubject<boolean>;
   let paramMap$: BehaviorSubject<ParamMap>;
+  let vaultNav$: BehaviorSubject<VaultsNavViewModel>;
 
   const buildCipher = (overrides: Partial<CipherView> = {}) => {
     const cipher = new CipherView();
@@ -77,6 +82,22 @@ describe("VaultNextComponent", () => {
     });
 
   const buildOrganization = (id: OrganizationId, name: string) => ({ id, name }) as Organization;
+
+  const personalNavItem: VaultNavItemViewModel = {
+    id: userId,
+    label: "myVault",
+    color: "purple",
+    icon: "bwi-user",
+    type: VaultNavItemType.Personal,
+  };
+
+  const buildOrgNavItem = (id: OrganizationId, label: string): VaultNavItemViewModel => ({
+    id,
+    label,
+    color: "purple",
+    icon: "bwi-business",
+    type: VaultNavItemType.Organization,
+  });
 
   /** Navigates the page to a vault scope, as the `:vaultId` route segment would. */
   const scopeTo = (vaultId?: string) => {
@@ -111,6 +132,15 @@ describe("VaultNextComponent", () => {
     organizations$ = new BehaviorSubject<Organization[]>([]);
     showQuickCopyActions$ = new BehaviorSubject<boolean>(false);
     paramMap$ = new BehaviorSubject<ParamMap>(convertToParamMap({}));
+    // The multi-vault shape, matching the organizations most of this suite sets up.
+    vaultNav$ = new BehaviorSubject<VaultsNavViewModel>({
+      vaults: [
+        personalNavItem,
+        buildOrgNavItem(organizationId, "Acme corporation"),
+        buildOrgNavItem(otherOrganizationId, "Other organization"),
+      ],
+      organizationDataOwnership: false,
+    });
 
     itemActions = mock<WebVaultItemActionsService>();
 
@@ -165,6 +195,7 @@ describe("VaultNextComponent", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
+        { provide: VaultNavService, useValue: { viewModel$: vaultNav$ } },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -298,6 +329,36 @@ describe("VaultNextComponent", () => {
       it("offers Import and New item", () => {
         expect(component().showItemCreation()).toBe(true);
         expect(creationActions().every((el) => el != null)).toBe(true);
+      });
+
+      describe("for an account whose only vault is personal", () => {
+        beforeEach(() => {
+          vaultNav$.next({ vaults: [personalNavItem], organizationDataOwnership: false });
+          fixture.detectChanges();
+        });
+
+        // The nav links such an account's one entry here, so the two are the same destination and
+        // anything branching on the scope type has to see them as one.
+        it("resolves to the personal vault scope", () => {
+          expect(component().vaultScope()).toEqual({ type: "myVault" });
+          expect(component().title()).toBe("myVault");
+        });
+      });
+
+      // The account has one vault, but the nav gives it no unscoped entry to name.
+      describe("for an account narrowed to one organization by data ownership", () => {
+        beforeEach(() => {
+          vaultNav$.next({
+            vaults: [buildOrgNavItem(organizationId, "Acme corporation")],
+            organizationDataOwnership: true,
+          });
+          fixture.detectChanges();
+        });
+
+        it("stays on All items, with the header on its route title", () => {
+          expect(component().vaultScope()).toEqual({ type: "allItems" });
+          expect(component().title()).toBeUndefined();
+        });
       });
     });
 

@@ -28,12 +28,13 @@ import {
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
   VaultItemsTableRowAction,
+  VaultNavService,
   VaultOrganizationUserNotificationsComponent,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
   organizationInScope,
-  parseVaultScope,
+  resolveVaultScope,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -87,6 +88,7 @@ export class VaultNextComponent {
   private readonly itemActions = inject(WebVaultItemActionsService);
   private readonly organizationService = inject(OrganizationService);
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
+  private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
 
@@ -96,13 +98,15 @@ export class VaultNextComponent {
     this.activatedRoute.paramMap.pipe(map((params) => params.get("vaultId"))),
   );
 
+  private readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
+
   /**
    * The vault the side nav has scoped this page to. `vaultScopeGuard` has already turned away any
    * segment that names no vault, so an unresolvable one here means the guard was bypassed — show
    * everything rather than an empty page.
    */
   protected readonly vaultScope = computed(
-    () => parseVaultScope(this.vaultIdParam()) ?? ALL_ITEMS_SCOPE,
+    () => resolveVaultScope(this.vaultIdParam(), this.vaultNav()) ?? ALL_ITEMS_SCOPE,
   );
 
   /**
@@ -207,8 +211,8 @@ export class VaultNextComponent {
    * Placeholder header title for the scoped vault. Breadcrumbs replace this — see the page layout
    * epic — so it reuses the same strings the side nav labels these vaults with.
    *
-   * `undefined` leaves the route's own `titleId` in place, which covers both All items and the
-   * moment before an organization's name has loaded.
+   * `undefined` leaves the route's own `titleId` in place, which covers All items and the moment
+   * before an organization's name has loaded.
    */
   protected readonly title = computed(() => {
     const scope = this.vaultScope();

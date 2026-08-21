@@ -22,9 +22,14 @@
     }
   </ng-template>
 
-  @if (nav.vaults.length === 1 && !nav.organizationDataOwnership) {
+  @if (personalOnly()) {
     @let loneVault = nav.vaults[0];
-    <bit-nav-item [text]="loneVault.label" [route]="vaultRoute(loneVault)">
+    <!-- A lone vault still routes to /vault; only the label differs. -->
+    <bit-nav-item
+      [text]="loneVault.label"
+      [route]="allItemsRoute"
+      [routerLinkActiveOptions]="allItemsActiveOptions"
+    >
       <bit-icon-tile [icon]="loneVault.icon" [color]="vaultTileColor(loneVault)" size="sm" />
     </bit-nav-item>
   } @else if (nav.organizationDataOwnership) {

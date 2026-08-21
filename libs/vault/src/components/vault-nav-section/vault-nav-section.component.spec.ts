@@ -15,7 +15,6 @@ import {
   VaultNavItemViewModel,
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
-import { MY_VAULT_ROUTE } from "../../models/vault-scope";
 import { VaultNavService } from "../../services/vault-nav.service";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
@@ -150,8 +149,15 @@ describe("VaultNavSectionComponent", () => {
       expect(text).not.toContain("vaults");
     });
 
-    it("links the lone vault to the personal vault route", () => {
-      expect(navItemHref(fixture.nativeElement, "My vault")).toBe(`/vault/${MY_VAULT_ROUTE}`);
+    it("links the lone vault to the unscoped vault, matching it exactly", () => {
+      expect(navItemHref(fixture.nativeElement, "My vault")).toBe("/vault");
+
+      const loneVault = fixture.debugElement
+        .queryAll(By.css("bit-nav-item"))
+        .find((el) => el.componentInstance.text() === "My vault");
+
+      // A subset match would leave it lit on the Trash and Archive routes nested beneath /vault.
+      expect(loneVault.componentInstance.routerLinkActiveOptions().paths).toBe("exact");
     });
   });
 

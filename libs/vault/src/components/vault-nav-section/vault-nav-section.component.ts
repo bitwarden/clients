@@ -13,7 +13,12 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultNavItemType, VaultNavItemViewModel } from "../../models/vault-nav-view-model";
-import { ALL_ITEMS_SCOPE, vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
+import {
+  ALL_ITEMS_SCOPE,
+  isPersonalOnly,
+  vaultScopeCommands,
+  VaultScopeType,
+} from "../../models/vault-scope";
 import { VaultNavService } from "../../services/vault-nav.service";
 
 /**
@@ -34,8 +39,8 @@ export class VaultNavSectionComponent {
   protected readonly allItemsRoute = vaultScopeCommands(ALL_ITEMS_SCOPE);
 
   /**
-   * Every scoped vault route nests under All items' own, so a subset match would leave All items
-   * lit alongside the vault the user picked.
+   * Every scoped vault route nests under the unscoped one, so a subset match would leave the item
+   * pointing at `/vault` lit alongside the destination the user actually picked.
    */
   protected readonly allItemsActiveOptions: IsActiveMatchOptions = {
     paths: "exact",
@@ -62,6 +67,12 @@ export class VaultNavSectionComponent {
         ]) ?? [],
       ),
   );
+
+  /** Whether to render one unscoped entry rather than All items and a list. */
+  protected readonly personalOnly = computed(() => {
+    const nav = this.vaultNav();
+    return nav != null && isPersonalOnly(nav);
+  });
 
   protected vaultRoute(vault: VaultNavItemViewModel): string[] | undefined {
     return this.vaultRoutes().get(vault.id);

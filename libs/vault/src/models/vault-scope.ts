@@ -7,6 +7,8 @@ import {
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { isGuid } from "@bitwarden/guid";
 
+import { VaultsNavViewModel } from "./vault-nav-view-model";
+
 /**
  * The `:vaultId` route segment for the personal vault.
  *
@@ -77,6 +79,35 @@ export function parseVaultScope(segment: string | null | undefined): VaultScope 
   }
 
   return null;
+}
+
+/**
+ * Whether every vault the account can reach is the personal one. Data ownership also leaves one
+ * vault, but that one is an organization's, and personal items may still exist outside it.
+ */
+export function isPersonalOnly(nav: VaultsNavViewModel): boolean {
+  return nav.vaults.length === 1 && !nav.organizationDataOwnership;
+}
+
+/**
+ * {@link parseVaultScope}, with All items resolved to My vault for an {@link isPersonalOnly}
+ * account — the same destination for them, so branching on the scope type gives one answer
+ * whichever of the two URLs they arrived by.
+ *
+ * `nav` is `undefined` until the account's vaults load; All items is the safe answer meanwhile,
+ * since it shows a superset.
+ */
+export function resolveVaultScope(
+  segment: string | null | undefined,
+  nav: VaultsNavViewModel | undefined,
+): VaultScope | null {
+  const scope = parseVaultScope(segment);
+
+  if (scope?.type === VaultScopeType.AllItems && nav != null && isPersonalOnly(nav)) {
+    return { type: VaultScopeType.MyVault };
+  }
+
+  return scope;
 }
 
 /**

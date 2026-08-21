@@ -4,13 +4,20 @@ import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
+  VaultNavItemType,
+  VaultNavItemViewModel,
+  VaultsNavViewModel,
+} from "./vault-nav-view-model";
+import {
   ALL_ITEMS_SCOPE,
   ARCHIVE_ROUTE,
   cipherInScope,
   collectionInScope,
+  isPersonalOnly,
   MY_VAULT_ROUTE,
   organizationInScope,
   parseVaultScope,
+  resolveVaultScope,
   TRASH_ROUTE,
   VaultScope,
   vaultScopeCommands,
@@ -46,6 +53,21 @@ const buildCollection = (collectionOrganizationId: string) => {
 
 const buildOrganization = (id: string) => ({ id }) as Organization;
 
+const buildNavItem = (id: string, type: VaultNavItemType): VaultNavItemViewModel => ({
+  id,
+  label: id,
+  color: "purple",
+  icon: "bwi-user",
+  type,
+});
+
+const buildNav = (
+  vaults: VaultNavItemViewModel[],
+  organizationDataOwnership = false,
+): VaultsNavViewModel => ({ vaults, organizationDataOwnership });
+
+const personalNav = buildNav([buildNavItem("user-1", VaultNavItemType.Personal)]);
+
 describe("parseVaultScope", () => {
   it("reads an absent segment as All items", () => {
     expect(parseVaultScope(undefined)).toEqual(ALL_ITEMS_SCOPE);
@@ -69,6 +91,54 @@ describe("parseVaultScope", () => {
     expect(parseVaultScope("acme-corp")).toBeNull();
     expect(parseVaultScope("myVault")).toBeNull();
     expect(parseVaultScope("")).toBeNull();
+  });
+});
+
+describe("isPersonalOnly", () => {
+  it("is true for an account whose only vault is personal", () => {
+    expect(isPersonalOnly(personalNav)).toBe(true);
+  });
+
+  it("is false once the account has a second vault", () => {
+    const nav = buildNav([
+      buildNavItem("user-1", VaultNavItemType.Personal),
+      buildNavItem(organizationId, VaultNavItemType.Organization),
+    ]);
+
+    expect(isPersonalOnly(nav)).toBe(false);
+  });
+
+  // The lone vault is an organization's, and personal items may still exist outside it.
+  it("is false when data ownership leaves one organization vault", () => {
+    const nav = buildNav([buildNavItem(organizationId, VaultNavItemType.Organization)], true);
+
+    expect(isPersonalOnly(nav)).toBe(false);
+  });
+});
+
+describe("resolveVaultScope", () => {
+  it("resolves All items to the personal vault for a personal-only account", () => {
+    expect(resolveVaultScope(undefined, personalNav)).toEqual(myVaultScope);
+  });
+
+  it("leaves All items alone for an account with more than one vault", () => {
+    const nav = buildNav([
+      buildNavItem("user-1", VaultNavItemType.Personal),
+      buildNavItem(organizationId, VaultNavItemType.Organization),
+    ]);
+
+    expect(resolveVaultScope(undefined, nav)).toEqual(ALL_ITEMS_SCOPE);
+  });
+
+  it("leaves All items alone until the account's vaults load", () => {
+    expect(resolveVaultScope(undefined, undefined)).toEqual(ALL_ITEMS_SCOPE);
+  });
+
+  it("passes every other segment through untouched", () => {
+    expect(resolveVaultScope(TRASH_ROUTE, personalNav)).toEqual(trashScope);
+    expect(resolveVaultScope(ARCHIVE_ROUTE, personalNav)).toEqual(archiveScope);
+    expect(resolveVaultScope(organizationId, personalNav)).toEqual(organizationScope);
+    expect(resolveVaultScope("acme-corp", personalNav)).toBeNull();
   });
 });
 
