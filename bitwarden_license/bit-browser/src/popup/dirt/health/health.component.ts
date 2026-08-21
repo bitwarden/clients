@@ -86,12 +86,19 @@ export class HealthComponent {
     { initialValue: VAULT_HEALTH_REPORT_IDLE },
   );
 
-  /** Set when fetching the ciphers to scan fails, which never reaches the service. */
-  private readonly pipelineFailed = signal(false);
+  /**
+   * The user whose ciphers fetch failed, if any. Scoped to a user so a failure
+   * for one account does not pin the failure view on the next after a switch;
+   * this failure never reaches the service, so it is tracked here rather than in
+   * the per-user state stream.
+   */
+  private readonly pipelineFailedFor = signal<UserId | null>(null);
 
   /** True when the scan did not complete: the service published an error, or the ciphers fetch failed. */
   protected readonly scanFailed = computed(
-    () => this.scanState().status === VaultHealthReportStatus.Error || this.pipelineFailed(),
+    () =>
+      this.scanState().status === VaultHealthReportStatus.Error ||
+      this.pipelineFailedFor() === this.userId(),
   );
 
   /** The completed report, or null while generating or after a failure. */
@@ -165,9 +172,9 @@ export class HealthComponent {
         defer(() => this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)),
       ),
       catchError((error: unknown) => {
-        // A cipherViews$ failure never reaches the service, so surface it here as
-        // a failure and log it.
-        this.pipelineFailed.set(true);
+        // A cipherViews$ failure never reaches the service, so surface it here for
+        // this user and log it.
+        this.pipelineFailedFor.set(userId);
         this.logService.error("Vault health scan pipeline failed", error);
         return EMPTY;
       }),

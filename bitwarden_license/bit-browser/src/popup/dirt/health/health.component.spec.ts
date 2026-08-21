@@ -510,6 +510,36 @@ describe("HealthComponent", () => {
       expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
     });
 
+    it("does not carry a ciphers failure from one account to the next after a switch", async () => {
+      // pipelineFailed is scoped to the user: a ciphers failure for account A must
+      // not pin the failure view on account B once B scans successfully.
+      const nextUserId = Utils.newGuid() as UserId;
+      const nextUserScan$ = new Subject<boolean>();
+      healthAccessService.hasRunHealthScan$.mockImplementation((id) =>
+        id === nextUserId ? nextUserScan$ : hasRunScan$,
+      );
+      hasRunScan$.next(true);
+      cipherService.cipherViews$.mockImplementation((id) =>
+        id === userId
+          ? (throwError(() => new Error("ciphers unavailable")) as never)
+          : of([] as CipherView[]),
+      );
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 5, atRiskCount: 1 }));
+
+      await initComponent();
+      await settle();
+      expect(scanError()).not.toBeNull();
+
+      // Switch to account B and let its scan complete.
+      activeAccount$.next({ id: nextUserId } as Account);
+      await settle();
+      nextUserScan$.next(true);
+      await settle();
+
+      expect(scanError()).toBeNull();
+      expect(overview()).not.toBeNull();
+    });
+
     it("shows the progress view while a rescan runs, even though the service still holds the last report", async () => {
       // The state keeps the previous report across loading so the detail view is
       // not ejected mid-rescan. The tab gates on status, so it shows progress
