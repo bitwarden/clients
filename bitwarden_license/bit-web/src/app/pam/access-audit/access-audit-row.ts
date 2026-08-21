@@ -125,12 +125,12 @@ export function toAuditRow(
   };
 }
 
-/** The active audit-log filter: free-text plus an optional event kind. */
-export type AuditFilter = { text: string; kind: AccessAuditEventKind | null };
+/** The active audit-log filter: free-text plus an optional event-kind label key. */
+export type AuditFilter = { text: string; kindLabelKey: string | null };
 
 /** Whether a row passes the filter. Empty text and a null kind match everything. */
 export function auditRowMatchesFilter(row: AuditRow, filter: AuditFilter): boolean {
-  if (filter.kind != null && row.kind !== filter.kind) {
+  if (filter.kindLabelKey != null && row.kindLabelKey !== filter.kindLabelKey) {
     return false;
   }
   const text = filter.text.trim().toLowerCase();

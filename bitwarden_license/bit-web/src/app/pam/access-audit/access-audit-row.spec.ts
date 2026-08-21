@@ -25,35 +25,38 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
 
 describe("auditRowMatchesFilter", () => {
   it("matches everything when the filter is empty", () => {
-    expect(auditRowMatchesFilter(row(), { text: "", kind: null })).toBe(true);
+    expect(auditRowMatchesFilter(row(), { text: "", kindLabelKey: null })).toBe(true);
   });
 
   it("matches free text against the haystack, case-insensitively", () => {
-    expect(auditRowMatchesFilter(row(), { text: "PROD", kind: null })).toBe(true);
-    expect(auditRowMatchesFilter(row(), { text: "  production ", kind: null })).toBe(true);
-    expect(auditRowMatchesFilter(row(), { text: "staging", kind: null })).toBe(false);
+    expect(auditRowMatchesFilter(row(), { text: "PROD", kindLabelKey: null })).toBe(true);
+    expect(auditRowMatchesFilter(row(), { text: "  production ", kindLabelKey: null })).toBe(true);
+    expect(auditRowMatchesFilter(row(), { text: "staging", kindLabelKey: null })).toBe(false);
   });
 
-  it("filters by event kind", () => {
-    const deleted = row({ kind: AccessAuditEventKind.RuleDeleted });
+  it("filters by event-kind label key", () => {
+    const deleted = row({ kindLabelKey: "pamAuditKindRuleDeleted" });
     expect(
-      auditRowMatchesFilter(deleted, { text: "", kind: AccessAuditEventKind.RuleDeleted }),
+      auditRowMatchesFilter(deleted, { text: "", kindLabelKey: "pamAuditKindRuleDeleted" }),
     ).toBe(true);
     expect(
-      auditRowMatchesFilter(deleted, { text: "", kind: AccessAuditEventKind.RequestSubmitted }),
+      auditRowMatchesFilter(deleted, { text: "", kindLabelKey: "pamAuditKindRequestSubmitted" }),
     ).toBe(false);
   });
 
   it("requires both text and kind to match when both are set", () => {
-    const revoked = row({ kind: AccessAuditEventKind.LeaseRevoked, searchText: "bob server" });
+    const revoked = row({ kindLabelKey: "pamAuditKindLeaseRevoked", searchText: "bob server" });
     expect(
-      auditRowMatchesFilter(revoked, { text: "bob", kind: AccessAuditEventKind.LeaseRevoked }),
+      auditRowMatchesFilter(revoked, { text: "bob", kindLabelKey: "pamAuditKindLeaseRevoked" }),
     ).toBe(true);
     expect(
-      auditRowMatchesFilter(revoked, { text: "bob", kind: AccessAuditEventKind.RequestSubmitted }),
+      auditRowMatchesFilter(revoked, {
+        text: "bob",
+        kindLabelKey: "pamAuditKindRequestSubmitted",
+      }),
     ).toBe(false);
     expect(
-      auditRowMatchesFilter(revoked, { text: "carol", kind: AccessAuditEventKind.LeaseRevoked }),
+      auditRowMatchesFilter(revoked, { text: "carol", kindLabelKey: "pamAuditKindLeaseRevoked" }),
     ).toBe(false);
   });
 });
