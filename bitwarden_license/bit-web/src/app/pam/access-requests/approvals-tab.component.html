@@ -1,10 +1,5 @@
-@if (!canApprove()) {
-  <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-unavailable">
-    <span slot="title" class="tw-mt-4 tw-block">{{ "pamApprovalsUnavailableTitle" | i18n }}</span>
-    <span slot="description">{{ "pamApprovalsUnavailableDescription" | i18n }}</span>
-  </bit-no-items>
-} @else if (loading() && totalRows() === 0) {
-  <p bitTypography="body2" class="tw-mt-2">{{ "loading" | i18n }}</p>
+@if (loading() && totalRows() === 0) {
+  <bit-spinner class="tw-mt-2" />
 } @else if (totalRows() === 0) {
   <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-empty">
     <span slot="title" class="tw-mt-4 tw-block">{{ "pamInboxEmptyTitle" | i18n }}</span>
@@ -85,7 +80,9 @@
           </td>
           <td bitCell>
             @if (row.reason) {
-              {{ row.reason }}
+              <div class="tw-line-clamp-2 tw-max-w-xs tw-break-words" [title]="row.reason">
+                {{ row.reason }}
+              </div>
             } @else {
               <span class="tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
             }

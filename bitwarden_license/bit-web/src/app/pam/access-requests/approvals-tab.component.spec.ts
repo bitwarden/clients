@@ -5,12 +5,8 @@ import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { UserId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -60,12 +56,8 @@ describe("ApprovalsTabComponent", () => {
     loading$: BehaviorSubject<boolean>;
     decide: jest.Mock;
   };
-  let organizations$: BehaviorSubject<Organization[]>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
-
-  const approverOrg = { canManageAccessRules: true } as Organization;
-  const memberOrg = { canManageAccessRules: false } as Organization;
 
   function create(): void {
     fixture = TestBed.createComponent(ApprovalsTabComponent);
@@ -84,7 +76,6 @@ describe("ApprovalsTabComponent", () => {
       loading$: new BehaviorSubject<boolean>(false),
       decide: jest.fn().mockResolvedValue(undefined),
     };
-    organizations$ = new BehaviorSubject<Organization[]>([approverOrg]);
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
 
@@ -93,8 +84,6 @@ describe("ApprovalsTabComponent", () => {
       providers: [
         provideRouter([]),
         { provide: ApproverInboxService, useValue: inbox },
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "me" as UserId }) } },
-        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -115,25 +104,13 @@ describe("ApprovalsTabComponent", () => {
       .compileComponents();
   });
 
-  describe("privilege gating", () => {
-    it("shows the unavailable state to a member who approves nothing", () => {
-      organizations$.next([memberOrg]);
-
+  describe("rendering", () => {
+    it("shows the empty state when there is nothing to approve", () => {
       create();
 
-      expect(query('[data-testid="approvals-unavailable"]')).not.toBeNull();
-      expect(query("bit-table")).toBeNull();
-    });
-
-    it("does not show the unavailable state to an approver with an empty inbox", () => {
-      create();
-
-      expect(query('[data-testid="approvals-unavailable"]')).toBeNull();
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
-  });
 
-  describe("rendering", () => {
     it("renders a row per pending request", () => {
       inbox.inboxRows$.next([row({ id: "req-1" }), row({ id: "req-2" })]);
 
