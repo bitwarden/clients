@@ -198,7 +198,7 @@ export class VaultPopupListTableComponent {
   protected readonly collectionsByOrg = computed(() => {
     const groups = new Map<
       string,
-      { name: string; collections: ChipFilterOption<CollectionView>[] }
+      { id: string; name: string; collections: ChipFilterOption<CollectionView>[] }
     >();
     for (const option of this.collectionOptions()) {
       const orgId = option.value?.organizationId as string | undefined;
@@ -211,7 +211,7 @@ export class VaultPopupListTableComponent {
         const orgName =
           this.organizationOptions().find((o) => o.value?.id === option.value?.organizationId)
             ?.label ?? orgId;
-        groups.set(orgId, { name: orgName, collections: [] });
+        groups.set(orgId, { id: orgId, name: orgName, collections: [] });
       }
       groups.get(orgId)!.collections.push(option);
     }

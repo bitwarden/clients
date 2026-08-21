@@ -62,7 +62,7 @@
         multiple
       >
         @if (groupCollectionsByOrg()) {
-          @for (org of collectionsByOrg(); track org.name) {
+          @for (org of collectionsByOrg(); track org.id) {
             <bit-filter-section [label]="org.name" collapsible>
               @for (option of org.collections; track option.value.id) {
                 <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">
