@@ -152,9 +152,8 @@ export class BitTableToolbarComponent {
   ]);
 
   /**
-   * The projected search (an empty slot collapses to nothing). Capped at ~400px on
-   * wide viewports so it doesn't run the length of the toolbar; below `md` it fills
-   * its row, since the `slot=end` controls have moved to a line of their own.
+   * The projected search. Capped on wide viewports so it doesn't run the length of
+   * the toolbar; below `md` it fills its row, the `slot=end` controls having moved off.
    */
   protected readonly searchClasses = computed(() => [
     "tw-flex",
@@ -164,8 +163,7 @@ export class BitTableToolbarComponent {
   ]);
 
   /**
-   * The projected `slot=end` controls. Inline after the search on wide viewports;
-   * below `md` they take a full-width line of their own (the search row wraps) and
+   * The projected `slot=end` controls. Below `md` they wrap to a full-width line and
    * split it evenly, so a table's actions never crowd the search field.
    */
   protected readonly endSlotClasses = computed(() => [
@@ -176,12 +174,10 @@ export class BitTableToolbarComponent {
   ]);
 
   constructor() {
-    // A chip changes width in place when its selection changes: the label grows to
-    // "Type: Login", a berry appears, the trailing angle icon becomes a dismiss
-    // button. The item count does the same as it gains a digit, and its width is
-    // the row's reserved trigger width. `bitOverflowList` only remeasures when the
-    // item set changes, so its cached widths would go stale and the collapse
-    // decision with them.
+    // Chips and the item count change width in place — a chip's label grows to
+    // "Type: Login", the count gains a digit (and its width is what the row reserves
+    // for the trigger). `bitOverflowList` only remeasures when the item set changes,
+    // so its cached widths would go stale and the collapse decision with them.
     effect(() => {
       for (const filter of this.filters()) {
         filter.active();
@@ -201,11 +197,7 @@ export class BitTableToolbarComponent {
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */
   protected readonly itemCount = computed(() => this.table?.filteredCount() ?? 0);
 
-  /**
-   * Digits in the item count. The count's rendered width is the row's reserved
-   * trigger width, and with tabular figures that width tracks its digits, not its
-   * value — so remeasuring keys on this rather than on `itemCount` directly.
-   */
+  /** The count's width tracks its digits, not its value — see the remeasure effect. */
   private readonly countDigits = computed(() => String(this.itemCount()).length);
 
   /** Opens the projected filters in a dialog (a bottom sheet on small screens). */

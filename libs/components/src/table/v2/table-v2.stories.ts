@@ -276,12 +276,6 @@ class DemoFilterableTableComponent {
   }
 }
 
-/**
- * Everything the toolbar can hold at once: search, the full range of filter chips,
- * three `slot=end` action buttons, and a paginator. Narrow the viewport past `md` to
- * watch the chip row collapse into the filter dialog and the action buttons drop to
- * their own row, splitting it evenly.
- */
 @Component({
   selector: "demo-kitchen-sink-table",
   changeDetection: ChangeDetectionStrategy.OnPush,
