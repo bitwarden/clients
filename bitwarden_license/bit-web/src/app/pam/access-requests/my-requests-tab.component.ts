@@ -307,10 +307,10 @@ export class MyRequestsTabComponent implements OnInit {
       });
     } catch (e) {
       this.logService.error(e);
-      // A taken single-active-lease slot or an org-wide freeze can also surface here; those, and
-      // anything else the server rejects activation for, now show verbatim via the "Api" variant
-      // rather than always the same generic string. The approved request stays activatable for a
-      // manual retry either way.
+      // A taken single-active-lease slot, an org-wide freeze, or anything else the server rejects
+      // activation for surfaces here. The "Api" variant carries the server's own message, shown
+      // verbatim; other variants fall back to the generic string. Either way the approved request
+      // stays activatable for a manual retry.
       const serverMessage =
         this.leasingErrorService.isLeasingError(e) && e.variant === "Api" ? e.message : undefined;
       this.toastService.showToast({
