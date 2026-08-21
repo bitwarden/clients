@@ -166,6 +166,22 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
 
+  // Parsed once per request change, like `activeLeaseExpiryMs` below: the per-second tick would
+  // otherwise re-parse the same ISO strings sixty times a minute. `null` covers both "no approved
+  // request" and an unparseable window.
+  private readonly approvedRequestWindow = computed(() => {
+    const request = this.approvedRequest();
+    if (request == null) {
+      return null;
+    }
+    const notBeforeMs = Date.parse(request.leaseNotBefore);
+    const notAfterMs = Date.parse(request.leaseNotAfter);
+    if (Number.isNaN(notBeforeMs) || Number.isNaN(notAfterMs)) {
+      return null;
+    }
+    return { request, notBeforeMs };
+  });
+
   /**
    * The approved request's activation window, or `null` before it opens or once it has — mirrors
    * `startsNow`/the window pair in `my-requests-tab.component.ts` so the two surfaces agree on the
@@ -177,18 +193,13 @@ export class CipherViewBannerComponent implements OnInit {
     startsAt: string | null;
     endsAt: string;
   } | null>(() => {
-    const request = this.approvedRequest();
-    if (request == null) {
-      return null;
-    }
-    const notBeforeMs = Date.parse(request.leaseNotBefore);
-    const notAfterMs = Date.parse(request.leaseNotAfter);
-    if (Number.isNaN(notBeforeMs) || Number.isNaN(notAfterMs)) {
+    const window = this.approvedRequestWindow();
+    if (window == null) {
       return null;
     }
     return {
-      startsAt: notBeforeMs > this.nowMs() ? request.leaseNotBefore : null,
-      endsAt: request.leaseNotAfter,
+      startsAt: window.notBeforeMs > this.nowMs() ? window.request.leaseNotBefore : null,
+      endsAt: window.request.leaseNotAfter,
     };
   });
 

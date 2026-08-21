@@ -494,11 +494,12 @@ describe("CipherViewBannerComponent", () => {
       expect(component["humanForm"].invalid).toBe(true);
       const end = component["humanForm"].controls.end;
       expect(end.touched).toBe(true);
+      const maxWindow = formatDuration("en-US", 1800, "long");
       expect(end.errors?.["requestWindow"]?.message).toBe(
-        ["requestAccessModalWindowExceedsMax", formatDuration("en-US", 1800, "long")].join(" "),
+        ["requestAccessModalWindowExceedsMax", maxWindow].join(" "),
       );
       expect(query('[data-testid="request-window-end-field"] bit-error')?.textContent).toContain(
-        formatDuration("en-US", 1800, "long"),
+        maxWindow,
       );
     });
 
