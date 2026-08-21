@@ -101,6 +101,20 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     overrideNeverMatchStrategy?: true,
   ): Promise<CipherView[]>;
   abstract getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]>;
+  /**
+   * Like {@link getAllDecryptedForIds}, but RETAINS PAM-gated ("partial") rows — ciphers whose
+   * sensitive fields the server suppressed, decrypted into a `partial` view carrying only the
+   * title and, for logins, the URIs.
+   *
+   * Opt-in, for the same reason {@link cipherListViewsWithPartials$} is: a surface that names a
+   * gated cipher (the PAM access-request lists, which are *about* gated ciphers) would otherwise
+   * resolve nothing and fall back to raw ids. Every other caller must use
+   * {@link getAllDecryptedForIds}, which excludes partials.
+   */
+  abstract getAllDecryptedForIdsIncludingPartials(
+    userId: UserId,
+    ids: string[],
+  ): Promise<CipherView[]>;
   abstract filterCiphersForUrl<C extends CipherViewLike = CipherView>(
     ciphers: C[],
     url: string,
