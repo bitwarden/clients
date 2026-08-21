@@ -7,7 +7,7 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { EMPTY, Observable, catchError, defer, filter, map, of, switchMap, take } from "rxjs";
+import { EMPTY, Observable, catchError, defer, filter, map, of, switchMap, take, tap } from "rxjs";
 
 import {
   VAULT_HEALTH_REPORT_IDLE,
@@ -87,19 +87,22 @@ export class HealthComponent {
   );
 
   /**
-   * The user whose ciphers fetch failed, if any. Scoped to a user so a failure
-   * for one account does not pin the failure view on the next after a switch;
-   * this failure never reaches the service, so it is tracked here rather than in
-   * the per-user state stream.
+   * The users whose ciphers fetch failed. A set rather than a single slot so
+   * recording or clearing one account's failure cannot disturb another's, which
+   * is the same per-user isolation the report service enforces with its per-user
+   * streams. This failure never reaches the service, so it is tracked here
+   * rather than in that state.
    */
-  private readonly pipelineFailedFor = signal<UserId | null>(null);
+  private readonly pipelineFailedFor = signal<ReadonlySet<UserId>>(new Set());
 
   /** True when the scan did not complete: the service published an error, or the ciphers fetch failed. */
-  protected readonly scanFailed = computed(
-    () =>
+  protected readonly scanFailed = computed(() => {
+    const userId = this.userId();
+    return (
       this.scanState().status === VaultHealthReportStatus.Error ||
-      this.pipelineFailedFor() === this.userId(),
-  );
+      (userId != null && this.pipelineFailedFor().has(userId))
+    );
+  });
 
   /** The completed report, or null while generating or after a failure. */
   protected readonly report = computed(() => {
@@ -163,10 +166,12 @@ export class HealthComponent {
 
   /** Runs one report build for `userId`. Never errors: the service publishes its own failures. */
   private startGeneration$(userId: UserId): Observable<unknown> {
-    // A fresh build clears any prior ciphers failure for this user, so a later
-    // success is not masked by the failure view from an earlier attempt.
-    this.pipelineFailedFor.set(null);
     return this.cipherService.cipherViews$(userId).pipe(
+      // A fresh build clears this user's prior ciphers failure, so a later success
+      // is not masked by the failure view from an earlier attempt. On subscribe
+      // rather than in the caller's switchMap body, so the reset belongs to the
+      // build itself rather than to composing the observable.
+      tap({ subscribe: () => this.clearPipelineFailure(userId) }),
       // cipherViews$ may emit null when decrypted ciphers are cleared.
       filterOutNullish(),
       // Generation does an external breach lookup; a vault edit must not re-run it.
@@ -177,10 +182,32 @@ export class HealthComponent {
       catchError((error: unknown) => {
         // A cipherViews$ failure never reaches the service, so surface it here for
         // this user and log it.
-        this.pipelineFailedFor.set(userId);
+        this.recordPipelineFailure(userId);
         this.logService.error("Vault health scan pipeline failed", error);
         return EMPTY;
       }),
     );
+  }
+
+  /** Records a ciphers failure against `userId`, leaving every other user's untouched. */
+  private recordPipelineFailure(userId: UserId): void {
+    this.pipelineFailedFor.update((failed) => new Set(failed).add(userId));
+  }
+
+  /**
+   * Clears `userId`'s ciphers failure, leaving every other user's untouched.
+   * Returns the same set when there is nothing to clear, so a build for a user
+   * who never failed does not notify readers of this signal.
+   */
+  private clearPipelineFailure(userId: UserId): void {
+    this.pipelineFailedFor.update((failed) => {
+      if (!failed.has(userId)) {
+        return failed;
+      }
+
+      const remaining = new Set(failed);
+      remaining.delete(userId);
+      return remaining;
+    });
   }
 }
