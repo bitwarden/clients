@@ -1,0 +1,75 @@
+<!-- Slot for the client-specific page header (e.g. web/desktop <app-header>). -->
+<ng-content></ng-content>
+
+<bit-table-v2
+  [tableDef]="table"
+  [filter]="filter"
+  [selection]="selection"
+  [loading]="loading()"
+  [trackBy]="trackById"
+>
+  <bit-table-toolbar>
+    <bit-search
+      id="my-folders_input_search"
+      class="tw-flex-1"
+      [placeholder]="'search' | i18n"
+      [attr.aria-label]="'search' | i18n"
+    ></bit-search>
+    <button
+      bitButton
+      type="button"
+      buttonType="primary"
+      startIcon="bwi-plus"
+      slot="end"
+      id="my-folders_button_add-folder"
+      (click)="addFolder()"
+    >
+      {{ "addFolder" | i18n }}
+    </button>
+  </bit-table-toolbar>
+
+  <bit-bulk-actions-bar>
+    <bit-bulk-action
+      [action]="deleteSelected"
+      icon="bwi-trash"
+      [label]="'delete' | i18n"
+    ></bit-bulk-action>
+  </bit-bulk-actions-bar>
+
+  <bit-column sortable defaultSort="asc" width="minmax(12rem, 20rem)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">{{ row.displayName }}</bit-cell>
+  </bit-column>
+
+  <bit-column sortable width="120px">
+    <bit-header-cell>{{ "items" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.itemCount; let row">{{ row.itemCount }}</bit-cell>
+  </bit-column>
+
+  <bit-column>
+    <bit-header-cell>
+      <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+    </bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.options; let row">
+      <button
+        slot="end"
+        type="button"
+        bitIconButton="bwi-pencil-square"
+        size="small"
+        [id]="'my-folders_button_edit-' + row.id"
+        [label]="'editFolderNamed' | i18n: row.displayName"
+        (click)="editFolder(row)"
+      ></button>
+      <button
+        slot="end"
+        type="button"
+        bitIconButton="bwi-trash"
+        buttonType="dangerGhost"
+        size="small"
+        [id]="'my-folders_button_delete-' + row.id"
+        [label]="'deleteFolderNamed' | i18n: row.displayName"
+        (click)="deleteFolder(row)"
+      ></button>
+    </bit-cell>
+  </bit-column>
+</bit-table-v2>

@@ -178,6 +178,20 @@ describe("Folder Service", () => {
     expect((await firstValueFrom(folderService.folders$(mockUserId))).length).toBe(0);
   });
 
+  it("re-assigns ciphers in every deleted folder to no folder", async () => {
+    const inFolder1 = { folderId: "1", toCipherData: () => ({ id: "c1" }) };
+    const inFolder2 = { folderId: "2", toCipherData: () => ({ id: "c2" }) };
+    const elsewhere = { folderId: "3", toCipherData: () => ({ id: "c3" }) };
+    cipherService.getAll.mockResolvedValue({ c1: inFolder1, c2: inFolder2, c3: elsewhere } as any);
+
+    await folderService.delete(["1", "2"], mockUserId);
+
+    expect(inFolder1.folderId).toBeNull();
+    expect(inFolder2.folderId).toBeNull();
+    expect(elsewhere.folderId).toBe("3");
+    expect(cipherService.upsert).toHaveBeenCalledWith([{ id: "c1" }, { id: "c2" }]);
+  });
+
   describe("clearDecryptedFolderState", () => {
     it("null userId", async () => {
       await expect(

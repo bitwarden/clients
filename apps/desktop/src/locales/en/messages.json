@@ -1358,6 +1358,12 @@
   "addedFolder": {
     "message": "Folder added"
   },
+  "folderEdited": {
+    "message": "Folder edited"
+  },
+  "enterAName": {
+    "message": "Enter a name."
+  },
   "deleteFolderConfirmation": {
     "message": "Are you sure you want to delete this folder?"
   },
