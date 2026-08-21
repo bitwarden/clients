@@ -13,7 +13,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
-import { AutofillService } from "../services/abstractions/autofill.service";
+import {
+  AutofillLifecycleService,
+  AutomationWorkflow,
+} from "../services/abstractions/autofill-lifecycle.service";
 
 import {
   AutoSubmitLoginBackground as AutoSubmitLoginBackgroundAbstraction,
@@ -28,14 +31,14 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   private currentAutoSubmitHostData: { url?: string; tabId?: number } = {};
   private readonly isSafariBrowser: boolean = false;
   private readonly extensionMessageHandlers: AutoSubmitLoginBackgroundExtensionMessageHandlers = {
-    triggerAutoSubmitLogin: ({ message, sender }) => this.triggerAutoSubmitLogin(message, sender),
+    automatedLoginStepReady: ({ sender }) => this.reportAutomatedLoginStepReady(sender),
     multiStepAutoSubmitLoginComplete: ({ sender }) =>
       this.handleMultiStepAutoSubmitLoginComplete(sender),
   };
 
   constructor(
     private logService: LogService,
-    private autofillService: AutofillService,
+    private autofillLifecycleService: AutofillLifecycleService,
     private scriptInjectorService: ScriptInjectorService,
     private authService: AuthService,
     private platformUtilsService: PlatformUtilsService,
@@ -345,12 +348,46 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   };
 
   /**
-   * Removes the provided URL from the list of valid auto-submit hosts.
+   * Retires the completed flow's host and reports the completion to the lifecycle.
+   * A completed flow is not a cancellation, so this reports a completion rather than
+   * an invalidation.
    *
-   * @param url - The URL to remove from the list of valid auto-submit hosts.
+   * @param url - The URL whose host completed its workflow.
+   * @param tabId - The tab the workflow ran on.
    */
-  private removeUrlFromAutoSubmitHosts = (url: string) => {
-    this.validAutoSubmitHosts.delete(this.getUrlHost(url));
+  private completeAutoSubmitFlow = (url: string, tabId: number | undefined) => {
+    const host = this.getUrlHost(url);
+    this.validAutoSubmitHosts.delete(host);
+    this.autofillLifecycleService.reportAutoSubmitFlowComplete(tabId, host);
+  };
+
+  /**
+   * Retires a single host from the active workflow and reports the retirement to
+   * the lifecycle.
+   *
+   * @param url - The URL whose host should be invalidated.
+   * @param tabId - The tab whose workflow the host belonged to.
+   */
+  private invalidateAutoSubmitHost = (url: string, tabId: number | undefined) => {
+    const host = this.getUrlHost(url);
+    if (this.validAutoSubmitHosts.delete(host)) {
+      this.autofillLifecycleService.reportAutoSubmitInvalidated(tabId, host);
+    }
+  };
+
+  /**
+   * Tears down the whole workflow, clearing every valid auto-submit host at once.
+   * When there was at least one valid auto-submit host, the cancellation is also
+   * reported to the lifecycle.
+   *
+   * @param tabId - The tab whose workflow the hosts belonged to.
+   */
+  private cancelAutoSubmitFlow = (tabId: number | undefined) => {
+    const hadHosts = this.validAutoSubmitHosts.size > 0;
+    this.validAutoSubmitHosts.clear();
+    if (hadHosts) {
+      this.autofillLifecycleService.reportAutoSubmitInvalidated(tabId);
+    }
   };
 
   /**
@@ -368,7 +405,7 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     details: chrome.webRequest.OnBeforeRequestDetails,
   ) => {
     if (this.isValidAutoSubmitHost(requestInitiator)) {
-      this.removeUrlFromAutoSubmitHosts(requestInitiator);
+      this.invalidateAutoSubmitHost(requestInitiator, details.tabId);
       return;
     }
 
@@ -379,15 +416,16 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     const tab = await BrowserApi.getTab(details.tabId);
     const tabUrl = tab?.url;
     if (tabUrl && this.isValidAutoSubmitHost(tabUrl)) {
-      this.removeUrlFromAutoSubmitHosts(tabUrl);
+      this.invalidateAutoSubmitHost(tabUrl, details.tabId);
     }
   };
 
   /**
-   * Clears all data associated with the current auto-submit host workflow.
+   * Clears all data associated with the current auto-submit host workflow, reporting
+   * the host retirement through the single authoritative invalidation path.
    */
   private clearAutoSubmitHostData = () => {
-    this.validAutoSubmitHosts.clear();
+    this.cancelAutoSubmitFlow(this.currentAutoSubmitHostData.tabId);
     this.currentAutoSubmitHostData = {};
     this.mostRecentIdpHost = {};
   };
@@ -496,42 +534,35 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
   };
 
   /**
-   * Triggers the auto-submit login feature on the provided tab.
+   * Reports the sender frame's auto-submit-login step-ready fact to the autofill
+   * lifecycle.
    *
-   * @param message - The auto-submit login message.
-   * @param sender - The message sender.
+   * @param sender - The message sender. This should be the frame running the auto-submit workflow.
    */
-  private triggerAutoSubmitLogin = async (
-    message: AutoSubmitLoginMessage,
-    sender: chrome.runtime.MessageSender,
-  ) => {
-    if (sender.frameId == null || !sender.tab || !message.pageDetails) {
+  private reportAutomatedLoginStepReady = (sender: chrome.runtime.MessageSender) => {
+    if (sender.frameId == null || !sender.tab) {
       return;
     }
 
-    await this.autofillService.doAutoFillOnTab(
-      [
-        {
-          frameId: sender.frameId,
-          tab: sender.tab,
-          details: message.pageDetails,
-        },
-      ],
+    this.autofillLifecycleService.reportAutomatedLoginStepReady(
       sender.tab,
-      true,
-      true,
+      sender.frameId,
+      sender.url,
+      AutomationWorkflow.autoSubmitLogin,
     );
   };
 
   /**
-   * Handles the completion of auto-submit login workflow on a multistep form.
+   * Handles the completion of an auto-submit login workflow on a multistep form.
    *
    * @param sender - The message sender.
    */
   private handleMultiStepAutoSubmitLoginComplete = (sender: chrome.runtime.MessageSender) => {
-    if (sender.url) {
-      this.removeUrlFromAutoSubmitHosts(sender.url);
+    if (!sender.url) {
+      return;
     }
+
+    this.completeAutoSubmitFlow(sender.url, sender.tab?.id);
   };
 
   /**
@@ -601,7 +632,10 @@ export class AutoSubmitLoginBackground implements AutoSubmitLoginBackgroundAbstr
     details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
   ) => {
     if (details.frameId === 0 && this.isValidIdpHost(details.url)) {
-      this.validAutoSubmitHosts.clear();
+      // A fresh SSO navigation cancels the autosubmit workflow. Prefer the active
+      // flow's tab, falling back to the navigating tab when no main-frame flow was
+      // recorded (e.g. hosts populated via the redirect path).
+      this.cancelAutoSubmitFlow(this.currentAutoSubmitHostData.tabId ?? details.tabId);
       this.mostRecentIdpHost = {
         url: details.url,
         tabId: details.tabId,

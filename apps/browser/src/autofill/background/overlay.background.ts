@@ -93,6 +93,7 @@ import {
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
 import { getSubFrameUrlVariations } from "../utils/url-variations";
 
+import { AutofillOrchestrator } from "./abstractions/autofill-orchestrator";
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
   BuildCipherDataParams,
@@ -274,6 +275,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private autofillOrchestrator: AutofillOrchestrator,
     private configService: ConfigService,
   ) {
     this.initOverlayEventObservables();
@@ -1446,11 +1448,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     const tab = sender.tab;
     const tabId = tab.id;
-    await BrowserApi.tabSendMessage(
-      tab,
-      { command: "collectPageDetails" },
-      { frameId: this.focusedFieldData?.frameId },
-    );
+    // awaiting `collectPageDetails` lets the frames' responses settle into `pageDetailsForTab`
+    // (via `storePageDetails`) before the read.
+    await this.autofillOrchestrator.collectPageDetails(tab, this.focusedFieldData?.frameId);
 
     const pageDetailsForTab = this.pageDetailsForTab[tabId];
     if (!inlineMenuCipherId || !pageDetailsForTab?.size) {
@@ -1491,7 +1491,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const result = await this.autofillService.doAutoFill({
+    const result = await this.autofillOrchestrator.fillCipher({
       tab,
       cipher,
       pageDetails,
@@ -2304,7 +2304,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         uri: "",
       });
 
-      const { didAutofill } = await this.autofillService.doAutoFill({
+      const { didAutofill } = await this.autofillOrchestrator.fillCipher({
         tab: senderTab,
         cipher,
         pageDetails,

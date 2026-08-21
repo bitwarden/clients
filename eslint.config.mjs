@@ -292,6 +292,7 @@ export default tseslint.config(
       "apps/browser/src/autofill/{deprecated/content,content,notification}/**/*.ts",
       "apps/browser/src/**/background/**/*.ts", // It's okay to have long lived listeners in the background
       "apps/browser/src/platform/background.ts",
+      "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
     ],
     rules: {
       "no-restricted-syntax": [
@@ -310,6 +311,24 @@ export default tseslint.config(
           selector:
             "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']",
         },
+        // This block owns the non-background browser files; the background block below covers the rest, so
+        // together they follow these methods everywhere without a third, colliding `no-restricted-syntax` block.
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
+      ],
+    },
+  },
+  {
+    files: ["apps/browser/src/**/background/**/*.ts"],
+    ignores: [
+      "apps/browser/src/autofill/background/autofill-orchestrator.ts",
+      "apps/browser/src/**/*.spec.ts", // Specs are not production dispatch paths.
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        doAutoFillSyntaxRule(),
+        unsafeAutofillTabWithCipherSyntaxRule(),
       ],
     },
   },
@@ -854,4 +873,32 @@ function buildNoRestrictedImports(
       ],
     },
   ];
+}
+
+/**
+ * A `no-restricted-syntax` entry that flags direct calls to the `AutofillService.doAutoFill*`
+ * methods.
+ * @returns {any}
+ */
+function doAutoFillSyntaxRule() {
+  return {
+    selector:
+      "CallExpression[callee.type='MemberExpression'][callee.property.name=/^doAutoFill(ActiveTab|OnTab)?$/]",
+    message:
+      "Request a fill using the AutofillOrchestrator (fillCipher / autofillTabWithCipher). See autofill.design.md and orchestrator.design.md for additional information.",
+  };
+}
+
+/**
+ * A `no-restricted-syntax` entry that flags every call to
+ * `AutofillOrchestrator.unsafeAutofillTabWithCipher`.
+ * @returns {any}
+ */
+function unsafeAutofillTabWithCipherSyntaxRule() {
+  return {
+    selector:
+      "CallExpression[callee.type='MemberExpression'][callee.property.name='unsafeAutofillTabWithCipher']",
+    message:
+      "unsafeAutofillTabWithCipher can fill a tab the user is not looking at. Only call this method after confirming the sender is internal to the extension with BrowserApi.senderIsInternal, and disable this rule inline with that justification. See orchestrator.design.md for additional information.",
+  };
 }
