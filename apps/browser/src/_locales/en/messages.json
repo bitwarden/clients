@@ -435,7 +435,7 @@
   "noFoldersLabel": {
     "message": "No folders"
   },
-"createFoldersToOrganize": {
+  "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
   },
   "deleteFolderPermanently": {
