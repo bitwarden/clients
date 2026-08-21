@@ -689,10 +689,6 @@ export default tseslint.config(
     files: [
       "libs/common/src/key-management/crypto/**/*.ts",
       "libs/common/src/key-management/types.ts",
-      "libs/common/src/platform/enums/encryption-type.enum.ts",
-      "libs/common/src/platform/interfaces/decryptable.interface.ts",
-      "libs/common/src/platform/models/domain/enc-array-buffer.ts",
-      "libs/common/src/platform/models/domain/symmetric-crypto-key.ts",
       "libs/common/src/types/csprng.ts",
     ],
     rules: {
