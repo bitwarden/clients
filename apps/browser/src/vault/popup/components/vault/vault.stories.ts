@@ -65,7 +65,7 @@ import {
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { StateProvider } from "@bitwarden/state";
-import { enabledFlags, featureFlagModesAtWidth } from "@bitwarden/storybook";
+import { enabledFlags, featureFlagModes } from "@bitwarden/storybook";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import AutofillService from "../../../../autofill/services/autofill.service";
@@ -788,17 +788,8 @@ export default {
   parameters: {
     // Snapshots every story twice: `vfo1-foundation` off (legacy header + grouped containers) and
     // on (`app-vault-popup-list-table`).
-    //
-    // The addon drives this through the `bwEnabledFeatureFlags` global, which `featureFlagDecorator`
-    // reads before providing its own mock `ConfigService`. That decorator SKIPS itself when the
-    // story provides `ConfigService` via `applicationConfig`, so this file must not provide one.
-    //
-    // Each mode also pins the viewport, because the table's toolbar picks its presentation from
-    // `matchMedia` rather than the host width that `popupFrame` constrains. Every popup width is
-    // below `md`, so the real popup always collapses the chips into the filter dialog. The width
-    // rides inside each mode because Chromatic rejects `viewports` and `modes` together.
     chromatic: {
-      modes: featureFlagModesAtWidth(PopupWidthOptions.narrow, FeatureFlag.VFO1Foundation),
+      modes: featureFlagModes(FeatureFlag.VFO1Foundation),
     },
   },
 } as Meta<VaultComponent>;

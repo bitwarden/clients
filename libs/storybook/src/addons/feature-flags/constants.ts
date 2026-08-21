@@ -53,20 +53,3 @@ export function featureFlagModes(...flags: string[]) {
     "flag on": enabledFlags(...flags),
   };
 }
-
-/**
- * Same as {@link featureFlagModes}, but also pins each mode to `width`. Chromatic rejects
- * `viewports` and `modes` on the same story, so a story needing both a flag matrix and a fixed
- * width has to carry the width inside each mode.
- *
- * ```ts
- * parameters: { chromatic: { modes: featureFlagModesAtWidth(400, FeatureFlag.Foobar) } },
- * ```
- */
-export function featureFlagModesAtWidth(width: number, ...flags: string[]) {
-  const viewport = { width };
-  return {
-    "flag off": { ...enabledFlags(), viewport },
-    "flag on": { ...enabledFlags(...flags), viewport },
-  };
-}
