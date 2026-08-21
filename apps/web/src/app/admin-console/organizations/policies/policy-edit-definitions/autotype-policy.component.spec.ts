@@ -3,7 +3,7 @@ import { firstValueFrom, of } from "rxjs";
 
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { autotypeFeatureFlagEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import {
@@ -11,6 +11,10 @@ import {
   DesktopAutotypeDefaultSettingPolicyComponent,
 } from "./autotype-policy.component";
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
+
+jest.mock("@bitwarden/common/desktop-native/services/autotype-feature-flags", () => ({
+  autotypeFeatureFlagEnabled$: jest.fn(),
+}));
 
 describe("DesktopAutotypeDefaultSettingPolicy", () => {
   const policy = new DesktopAutotypeDefaultSettingPolicy();
@@ -34,30 +38,20 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
 
     beforeEach(() => {
       configService = mock<ConfigService>();
+      jest.mocked(autotypeFeatureFlagEnabled$).mockReset();
     });
 
-    it("displays when only the MVP flag is enabled", async () => {
-      configService.getFeatureFlag$.mockImplementation(
-        (flag) => of(flag === FeatureFlag.WindowsDesktopAutotype) as any,
-      );
+    it("delegates to autotypeFeatureFlagEnabled$", async () => {
+      jest.mocked(autotypeFeatureFlagEnabled$).mockReturnValue(of(true));
 
       const result = await firstValueFrom(policy.display$(org, configService));
 
+      expect(autotypeFeatureFlagEnabled$).toHaveBeenCalledWith(configService);
       expect(result).toBe(true);
     });
 
-    it("displays when only the GA flag is enabled", async () => {
-      configService.getFeatureFlag$.mockImplementation(
-        (flag) => of(flag === FeatureFlag.WindowsDesktopAutotypeGA) as any,
-      );
-
-      const result = await firstValueFrom(policy.display$(org, configService));
-
-      expect(result).toBe(true);
-    });
-
-    it("does not display when neither flag is enabled", async () => {
-      configService.getFeatureFlag$.mockReturnValue(of(false) as any);
+    it("does not display when the feature flag is disabled", async () => {
+      jest.mocked(autotypeFeatureFlagEnabled$).mockReturnValue(of(false));
 
       const result = await firstValueFrom(policy.display$(org, configService));
 

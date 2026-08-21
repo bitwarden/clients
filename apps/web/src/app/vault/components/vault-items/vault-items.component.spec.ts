@@ -11,7 +11,12 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { RoutedVaultFilterService, RoutedVaultFilterModel, VaultItem } from "@bitwarden/vault";
+import {
+  RoutedVaultFilterService,
+  RoutedVaultFilterModel,
+  VaultCopyButtonsService,
+  VaultItem,
+} from "@bitwarden/vault";
 
 import { VaultItemsComponent } from "./vault-items.component";
 
@@ -70,11 +75,31 @@ describe("VaultItemsComponent", () => {
             getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
           },
         },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: {
+            showQuickCopyActions$: of(false),
+          },
+        },
       ],
     });
 
     const fixture = TestBed.createComponent(VaultItemsComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("optionsColumnWidthClass", () => {
+    it("reserves room for the quick copy icons when they are shown", () => {
+      expect(component["optionsColumnWidthClass"](true, true)).toBe("tw-w-48");
+    });
+
+    it("reserves room for the combined copy and launch actions", () => {
+      expect(component["optionsColumnWidthClass"](true, false)).toBe("tw-w-32");
+    });
+
+    it("only fits the options menu when there are no copy or launch actions", () => {
+      expect(component["optionsColumnWidthClass"](false, false)).toBe("tw-w-12");
+    });
   });
 
   describe("bulkArchiveAllowed", () => {
