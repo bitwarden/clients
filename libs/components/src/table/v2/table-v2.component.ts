@@ -20,6 +20,7 @@ import {
   model,
   output,
   signal,
+  untracked,
 } from "@angular/core";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -388,7 +389,7 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
         key: signal(SEARCH_FILTER_KEY),
         value: search.value,
         active: computed(() => (search.value() ?? "") !== ""),
-        setValue: (value) => search.writeValue((value as string) ?? ""),
+        setValue: (value) => search.writeValue(value == null ? "" : String(value)),
       };
       this.registerFilter(control);
       onCleanup(() => this.unregisterFilter(control));
@@ -448,7 +449,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
       if (!this.urlRestored()) {
         return;
       }
-      const state: ParamState = {};
+      // Seed from the store's current value rather than starting empty, so a param
+      // whose chip hasn't registered yet (e.g. one gated behind an `@if` that's still
+      // waiting on data) survives this write instead of being dropped.
+      const state: ParamState = { ...untracked(this.urlStore) };
       for (const control of this._filters()) {
         const key = control.key();
         if (key) {
