@@ -12,6 +12,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { ToastService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
 import { PopupSizeService } from "../../platform/popup/layout/popup-size.service";
@@ -23,6 +24,7 @@ export class InitService {
   private configService = inject(ConfigService);
   private stateProvider = inject(StateProvider);
   private messagingService = inject(MessagingService);
+  private toastService = inject(ToastService);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -52,7 +54,7 @@ export class InitService {
         this.configService,
         this.stateProvider,
         this.messagingService,
-        { logService: this.logService },
+        { logService: this.logService, toastService: this.toastService },
       );
 
       const htmlEl = window.document.documentElement;

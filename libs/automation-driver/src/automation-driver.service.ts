@@ -8,10 +8,27 @@ import { FlightRecorder, LogLevel, LogService } from "@bitwarden/logging";
 
 type FeatureFlagOverrides = Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
+/**
+ * Timeout, in milliseconds, forced onto every toast once the toast service is hooked. Toasts
+ * normally dismiss themselves in a few seconds, which is long enough for an automation run to miss
+ * them entirely between a click and a screenshot.
+ */
+export const AUTOMATION_TOAST_TIMEOUT_MS = 60_000;
+
 export interface LogEntry {
   level: LogLevel;
   message: any;
   params: any[];
+}
+
+/**
+ * A toast as the application requested it — the original timeout, before the hook overrides it.
+ */
+export interface ToastEntry {
+  message: any;
+  title?: any;
+  variant?: any;
+  timeout?: number;
 }
 
 /**
@@ -31,6 +48,15 @@ export interface AutomationBiometricsController {
 }
 
 /**
+ * Structural view of the Angular `ToastService`. Declared here rather than imported so this
+ * (client-agnostic) file keeps no dependency on `@bitwarden/components`; the CLI consumes the
+ * driver too and has no Angular.
+ */
+export interface AutomationToastController {
+  showToast(options: ToastEntry): void;
+}
+
+/**
  * Optional, client-specific capabilities. Each client wires only what it supports; the universal
  * capabilities (feature flags, messaging) are constructor dependencies that every client has.
  */
@@ -43,6 +69,11 @@ export interface AutomationDriverCapabilities {
   flightRecorder?: FlightRecorder;
   /** Log service to hook at startup; every write will also be appended to the log buffer. */
   logService?: LogService;
+  /**
+   * Toast service to hook at startup (clients with a UI only); every toast will be appended to the
+   * toast buffer and shown for {@link AUTOMATION_TOAST_TIMEOUT_MS}.
+   */
+  toastService?: AutomationToastController;
 }
 
 /**
@@ -55,6 +86,7 @@ export interface AutomationDriverCapabilities {
  */
 export class AutomationDriver {
   private logBuffer: LogEntry[] = [];
+  private toastBuffer: ToastEntry[] = [];
 
   constructor(
     private configService: ConfigService,
@@ -64,6 +96,9 @@ export class AutomationDriver {
   ) {
     if (capabilities.logService != null) {
       this.hookLogService(capabilities.logService);
+    }
+    if (capabilities.toastService != null) {
+      this.hookToastService(capabilities.toastService);
     }
   }
 
@@ -169,10 +204,11 @@ export class AutomationDriver {
    */
   hookLogService(logService: LogService): void {
     const original = logService.write.bind(logService);
-    const buffer = this.logBuffer;
 
     (logService as any).write = (level: LogLevel, message?: any, ...optionalParams: any[]) => {
-      buffer.push({ level, message, params: optionalParams });
+      // Reads the field on every call so the hook keeps writing to the current buffer after a
+      // clear swaps the array out.
+      this.logBuffer.push({ level, message, params: optionalParams });
       original(level, message, ...optionalParams);
     };
   }
@@ -185,5 +221,33 @@ export class AutomationDriver {
   /** Empty the log buffer. */
   clearLogBuffer(): void {
     this.logBuffer = [];
+  }
+
+  // --- Toast service hook ---
+
+  /**
+   * Patches `toastService.showToast` so every toast is appended to an internal buffer and shown
+   * for {@link AUTOMATION_TOAST_TIMEOUT_MS} instead of its requested timeout — long enough for an
+   * automation run to observe and screenshot it. The buffer records the timeout the caller asked
+   * for, not the overridden one. The original `showToast` still fires. Calling this more than once
+   * on the same service stacks wrappers; call it once at startup.
+   */
+  hookToastService(toastService: AutomationToastController): void {
+    const original = toastService.showToast.bind(toastService);
+
+    (toastService as any).showToast = (options: ToastEntry) => {
+      this.toastBuffer.push({ ...options });
+      original({ ...options, timeout: AUTOMATION_TOAST_TIMEOUT_MS });
+    };
+  }
+
+  /** Return a snapshot of buffered toasts since the last {@link clearToastBuffer} call. */
+  readToastBuffer(): ToastEntry[] {
+    return [...this.toastBuffer];
+  }
+
+  /** Empty the toast buffer. */
+  clearToastBuffer(): void {
+    this.toastBuffer = [];
   }
 }

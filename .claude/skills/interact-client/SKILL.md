@@ -36,6 +36,52 @@ Load these on demand for the specific sub-task:
   events from the running app.
 - **[references/log-buffer.md](references/log-buffer.md)** — read buffered log entries captured
   from the app's `LogService` since startup.
+- **[references/create-user.md](references/create-user.md)** — register a fresh test account.
+- **[references/create-organization.md](references/create-organization.md)** — create an
+  organization and put it on a paid plan.
+- **[references/test-payment.md](references/test-payment.md)** — test card numbers for any billing
+  form.
+
+## Always dismiss irrelevant popups
+
+If a dialog, toast, banner, or overlay appears that is **not part of the flow you are driving**,
+close it immediately and continue — do not stop, do not ask, and do not work around it. Typical
+offenders: "What's new" / release-notes dialogs, update-available banners, rating or feedback
+prompts, onboarding tours, cookie or notification bars, leftover toasts from a previous step.
+
+Dismiss in this order, re-snapshotting after each attempt:
+
+1. Click the dialog's own dismiss control — `Close`, `Got it`, `Cancel`, `Skip`, `Dismiss`, or the
+   `×` button — using the `uid` from `take_snapshot`.
+2. If there is no visible dismiss control, `press_key` with `Escape`.
+3. For native dialogs (`alert`, `confirm`, `beforeunload`), use `handle_dialog`.
+
+Then re-run `take_snapshot` to confirm the overlay is gone before resuming the flow. Bitwarden
+dialogs are `<bit-dialog>` inside a CDK overlay, so while one is open the underlying page is
+inert — clicks on elements behind it silently do nothing. If an interaction seems to have no
+effect, check for an overlay first.
+
+A popup that **is** part of the flow (a confirmation you must accept, a master-password reprompt,
+an unlock dialog, a paywall) is not irrelevant — handle it, don't dismiss it. When in doubt about
+whether closing a dialog loses state, screenshot it first, then close it and note it in the run
+summary.
+
+## Paywalls are not a blocker
+
+If a flow hits a premium upsell or a plan gate, **do not stop and report the run blocked.** Clear
+the paywall and carry on:
+
+- A personal feature behind Premium (attachments, TOTP, emergency access, file Sends) → buy Premium
+  from `#/settings/subscription/premium`.
+- An organization feature (collections, org-owned items, policies, SSO) → create an organization on
+  an Enterprise plan, per [references/create-organization.md](references/create-organization.md).
+
+Pay with the test card in [references/test-payment.md](references/test-payment.md). On a dev or QA
+server the card only has to pass front-end validation and is never charged.
+
+Record in the run summary that the account was upgraded mid-run, and which plan it landed on — the
+account state is part of the environment a later reader needs. Only report a genuine block if the
+upgrade itself fails, and then say what failed.
 
 ## Step 1 — Determine target and connect
 
@@ -91,6 +137,9 @@ Standard MCP operations — use the correct tool prefix for the active target:
 
 The Bitwarden clients are single-page Angular apps — navigate by interacting with UI elements, not
 by changing the URL directly.
+
+If a snapshot shows an unexpected overlay blocking the page, close it first — see
+[Always dismiss irrelevant popups](#always-dismiss-irrelevant-popups).
 
 For lock/unlock flows, see [references/lock.md](references/lock.md).
 

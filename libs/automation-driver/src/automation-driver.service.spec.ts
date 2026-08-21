@@ -10,7 +10,13 @@ import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spe
 import { UserId } from "@bitwarden/common/types/guid";
 import { ConsoleLogService, FlightRecorder, LogLevel } from "@bitwarden/logging";
 
-import { AutomationBiometricsController, AutomationDriver } from "./automation-driver.service";
+import {
+  AUTOMATION_TOAST_TIMEOUT_MS,
+  AutomationBiometricsController,
+  AutomationDriver,
+  AutomationToastController,
+  ToastEntry,
+} from "./automation-driver.service";
 
 describe("AutomationDriver", () => {
   const flag = FeatureFlag.GenerateInviteLink;
@@ -178,6 +184,107 @@ describe("AutomationDriver", () => {
       sut.clearLogBuffer();
 
       expect(sut.readLogBuffer()).toHaveLength(0);
+    });
+
+    it("keeps buffering after a clear", () => {
+      sut.hookLogService(logService);
+      logService.write(LogLevel.Info, "before");
+      sut.clearLogBuffer();
+
+      logService.write(LogLevel.Info, "after");
+
+      expect(sut.readLogBuffer()).toEqual([{ level: LogLevel.Info, message: "after", params: [] }]);
+    });
+  });
+
+  describe("toast service hook", () => {
+    let toastService: AutomationToastController;
+    let shown: ToastEntry[];
+
+    beforeEach(() => {
+      shown = [];
+      toastService = {
+        showToast: (options: ToastEntry) => {
+          shown.push(options);
+        },
+      };
+    });
+
+    it("hooks automatically when toastService is in capabilities", () => {
+      sut = new AutomationDriver(configService, stateProvider, messagingService, { toastService });
+
+      toastService.showToast({ message: "auto" });
+
+      expect(sut.readToastBuffer()).toEqual([{ message: "auto" }]);
+    });
+
+    it("overrides the timeout to the automation timeout", () => {
+      sut.hookToastService(toastService);
+
+      toastService.showToast({ message: "saved", variant: "success", timeout: 1000 });
+
+      expect(shown).toEqual([
+        {
+          message: "saved",
+          variant: "success",
+          timeout: AUTOMATION_TOAST_TIMEOUT_MS,
+        },
+      ]);
+    });
+
+    it("overrides the timeout when none was requested", () => {
+      sut.hookToastService(toastService);
+
+      toastService.showToast({ message: "saved" });
+
+      expect(shown[0].timeout).toBe(AUTOMATION_TOAST_TIMEOUT_MS);
+    });
+
+    it("buffers the timeout the caller asked for, not the override", () => {
+      sut.hookToastService(toastService);
+
+      toastService.showToast({ message: "saved", timeout: 1000 });
+
+      expect(sut.readToastBuffer()).toEqual([{ message: "saved", timeout: 1000 }]);
+    });
+
+    it("buffers title and variant", () => {
+      sut.hookToastService(toastService);
+
+      toastService.showToast({ message: "body", title: "Error", variant: "error" });
+
+      expect(sut.readToastBuffer()).toEqual([
+        { message: "body", title: "Error", variant: "error" },
+      ]);
+    });
+
+    it("readToastBuffer returns a snapshot, not the live array", () => {
+      sut.hookToastService(toastService);
+      toastService.showToast({ message: "first" });
+      const snapshot = sut.readToastBuffer();
+
+      toastService.showToast({ message: "second" });
+
+      expect(snapshot).toHaveLength(1);
+    });
+
+    it("clearToastBuffer empties the buffer", () => {
+      sut.hookToastService(toastService);
+      toastService.showToast({ message: "x" });
+
+      sut.clearToastBuffer();
+
+      expect(sut.readToastBuffer()).toHaveLength(0);
+    });
+
+    it("keeps buffering after a clear", () => {
+      sut.hookToastService(toastService);
+      toastService.showToast({ message: "before" });
+      sut.clearToastBuffer();
+
+      toastService.showToast({ message: "after" });
+
+      expect(sut.readToastBuffer()).toEqual([{ message: "after" }]);
     });
   });
 

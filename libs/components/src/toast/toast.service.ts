@@ -19,6 +19,7 @@ export type ToastOptions = {
  **/
 @Injectable({ providedIn: "root" })
 export class ToastService {
+  debugTimeout = 0;
   constructor(private toastrService: ToastrService) {}
 
   showToast(options: ToastOptions): void {

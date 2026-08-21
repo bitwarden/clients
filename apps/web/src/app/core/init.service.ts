@@ -27,6 +27,7 @@ import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/us
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { TaskService } from "@bitwarden/common/vault/tasks";
+import { ToastService } from "@bitwarden/components";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -64,6 +65,7 @@ export class InitService {
     private stateProvider: StateProvider,
     private messagingService: MessagingService,
     private logService: LogService,
+    private toastService: ToastService,
   ) {}
 
   init() {
@@ -128,6 +130,7 @@ export class InitService {
         {
           reloadProcess: () => this.win.location.reload(),
           logService: this.logService,
+          toastService: this.toastService,
         },
       );
     };

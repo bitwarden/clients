@@ -26,6 +26,7 @@ import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/us
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -79,6 +80,7 @@ export class InitService {
     private stateProvider: StateProvider,
     private messagingService: MessagingService,
     private logService: LogService,
+    private toastService: ToastService,
   ) {}
 
   init() {
@@ -146,6 +148,7 @@ export class InitService {
             deny: (id) => ipc.platform.automation.biometrics.deny(id),
           },
           logService: this.logService,
+          toastService: this.toastService,
         },
       );
 
