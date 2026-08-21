@@ -1,6 +1,5 @@
 import { filter, firstValueFrom } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
 import {
   CommandDefinition,
   MessageListener,
@@ -9,10 +8,17 @@ import {
 import { newGuid } from "@bitwarden/guid";
 import { UserId } from "@bitwarden/user-core";
 
+import { LockSource } from "./lock-source.enum";
+import { LockService } from "./lock.service";
+
 const LOCK_ALL_FINISHED = new CommandDefinition<{ requestId: string }>("lockAllFinished");
-const LOCK_ALL = new CommandDefinition<{ requestId: string }>("lockAll");
+const LOCK_ALL = new CommandDefinition<{ requestId: string; source: LockSource }>("lockAll");
 const LOCK_USER_FINISHED = new CommandDefinition<{ requestId: string }>("lockUserFinished");
-const LOCK_USER = new CommandDefinition<{ requestId: string; userId: UserId }>("lockUser");
+const LOCK_USER = new CommandDefinition<{
+  requestId: string;
+  userId: UserId;
+  source: LockSource;
+}>("lockUser");
 
 export class ForegroundLockService implements LockService {
   constructor(
@@ -20,7 +26,7 @@ export class ForegroundLockService implements LockService {
     private readonly messageListener: MessageListener,
   ) {}
 
-  async lockAll(): Promise<void> {
+  async lockAll(source: LockSource): Promise<void> {
     const requestId = newGuid();
     const finishMessage = firstValueFrom(
       this.messageListener
@@ -28,12 +34,12 @@ export class ForegroundLockService implements LockService {
         .pipe(filter((m) => m.requestId === requestId)),
     );
 
-    this.messageSender.send(LOCK_ALL, { requestId });
+    this.messageSender.send(LOCK_ALL, { requestId, source });
 
     await finishMessage;
   }
 
-  async lock(userId: UserId): Promise<void> {
+  async lock(userId: UserId, source: LockSource): Promise<void> {
     const requestId = newGuid();
     const finishMessage = firstValueFrom(
       this.messageListener
@@ -41,12 +47,14 @@ export class ForegroundLockService implements LockService {
         .pipe(filter((m) => m.requestId === requestId)),
     );
 
-    this.messageSender.send(LOCK_USER, { requestId, userId });
+    this.messageSender.send(LOCK_USER, { requestId, userId, source });
 
     await finishMessage;
   }
 
-  async runPlatformOnLockActions(userId: UserId): Promise<void> {}
+  async runPlatformOnLockActions(userId: UserId, source: LockSource): Promise<void> {}
 
-  async registerOnLockAction(action: (userId: UserId) => Promise<void>): Promise<void> {}
+  async registerOnLockAction(
+    action: (userId: UserId, source: LockSource) => Promise<void>,
+  ): Promise<void> {}
 }
