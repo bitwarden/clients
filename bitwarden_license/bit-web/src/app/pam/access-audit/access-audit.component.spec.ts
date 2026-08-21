@@ -42,11 +42,7 @@ describe("AccessAuditComponent", () => {
   let auditApiService: MockProxy<AuditApiService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
 
-  beforeEach(async () => {
-    auditApiService = mock<AuditApiService>();
-    nameResolver = mock<AccessNameResolverService>();
-    nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
-
+  const configureTestBed = async (canManageAccessRules = true) => {
     await TestBed.configureTestingModule({
       imports: [AccessAuditComponent],
       providers: [
@@ -61,7 +57,7 @@ describe("AccessAuditComponent", () => {
         {
           provide: OrganizationService,
           useValue: {
-            organizations$: () => of([{ id: ORGANIZATION_ID, canManageAccessRules: true }]),
+            organizations$: () => of([{ id: ORGANIZATION_ID, canManageAccessRules }]),
           },
         },
         {
@@ -106,6 +102,14 @@ describe("AccessAuditComponent", () => {
       .compileComponents();
 
     fixture = TestBed.createComponent(AccessAuditComponent);
+  };
+
+  beforeEach(async () => {
+    auditApiService = mock<AuditApiService>();
+    nameResolver = mock<AccessNameResolverService>();
+    nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
+
+    await configureTestBed();
   });
 
   /** The component's protected surface, reached the way the template reaches it. */
@@ -129,6 +133,30 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
 
     expect(component().status()).toBe("empty");
+  });
+
+  it("shows the empty state's Access rules link for a viewer who can manage access rules", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector("#access-audit_link_access-rules");
+    expect(link).not.toBeNull();
+  });
+
+  it("drops the empty state's Access rules link for a viewer who cannot manage access rules", async () => {
+    TestBed.resetTestingModule();
+    await configureTestBed(false);
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector("#access-audit_link_access-rules");
+    expect(link).toBeNull();
   });
 
   it("reports error when the read fails, and logs it", async () => {
