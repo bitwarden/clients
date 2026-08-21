@@ -59,9 +59,12 @@
               >
                 @for (cipherId of step.oldAttachmentCipherIds; track cipherId) {
                   <li>
-                    <a bitLink routerLink="/vault" [queryParams]="{ itemId: cipherId }">{{
-                      cipherId
-                    }}</a>
+                    <a
+                      bitLink
+                      routerLink="/vault"
+                      [queryParams]="{ itemId: cipherId, action: 'edit' }"
+                      >{{ cipherId }}</a
+                    >
                   </li>
                 }
               </ul>

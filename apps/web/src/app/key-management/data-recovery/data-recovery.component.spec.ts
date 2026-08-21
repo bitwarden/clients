@@ -217,9 +217,9 @@ describe("DataRecoveryComponent", () => {
 
       const links = fixture.nativeElement.querySelectorAll("a[href*='itemId']");
       expect(links.length).toBe(2);
-      expect(links[0].getAttribute("href")).toBe("/vault?itemId=cipher-1");
+      expect(links[0].getAttribute("href")).toBe("/vault?itemId=cipher-1&action=edit");
       expect(links[0].textContent.trim()).toBe("cipher-1");
-      expect(links[1].getAttribute("href")).toBe("/vault?itemId=cipher-2");
+      expect(links[1].getAttribute("href")).toBe("/vault?itemId=cipher-2&action=edit");
     });
 
     it("should continue diagnostics even if a step fails", async () => {
