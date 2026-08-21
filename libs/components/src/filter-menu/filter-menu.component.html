@@ -1,6 +1,7 @@
 <bit-chip-content size="large">
   <button
     bit-chip-content
+    [startIcon]="icon()"
     [endIcon]="active() ? undefined : menuTrigger.isOpen ? 'bwi-angle-up' : 'bwi-angle-down'"
     type="button"
     class="tw-w-full tw-truncate tw-border-none tw-bg-transparent tw-text-[length:inherit] tw-text-[color:inherit] tw-outline-none hover:tw-bg-transparent"

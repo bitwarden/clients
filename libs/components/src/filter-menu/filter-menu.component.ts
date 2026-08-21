@@ -30,6 +30,7 @@ import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
 import { OverflowItemDirective } from "../overflow-list";
 import { SearchComponent } from "../search/search.component";
+import { BitwardenIcon } from "../shared/icon";
 
 import { FilterOptionComponent } from "./filter-option.component";
 import { FilterSectionComponent } from "./filter-section.component";
@@ -116,6 +117,9 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
 
   /** Multi-select (checkbox) when `true`; single-select (radio) when omitted. */
   readonly multiple = input(false, { transform: booleanAttribute });
+
+  /** Leading icon, shown on the chip and beside the filter's row in the responsive dialog. */
+  readonly icon = input<BitwardenIcon>();
 
   protected readonly baseChip = inject(BaseChipDirective, { host: true });
 

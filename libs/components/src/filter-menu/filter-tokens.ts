@@ -1,5 +1,7 @@
 import { InjectionToken, Signal, TemplateRef } from "@angular/core";
 
+import { BitwardenIcon } from "../shared/icon";
+
 /**
  * What a chip exposes to a host bridge: a keyed, aggregated value. A filterable
  * host (e.g. `bit-table-v2`) collects these into a `{ key: value }` object, the
@@ -81,6 +83,8 @@ export interface FilterPresenter {
   readonly key: Signal<string>;
   /** Row + drill-in title — the chip's `placeholderText` or the toggle's `label`. */
   readonly label: Signal<string>;
+  /** Leading icon for the filter's row, when the consumer supplies one. */
+  readonly icon: Signal<BitwardenIcon | undefined>;
   /** Whether the filter has a selection (drives the row's active dot and the applied count). */
   readonly active: Signal<boolean>;
   /** Selected-options summary for the row, e.g. "Login"; empty when none. */
