@@ -594,30 +594,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 
   it("toasts and navigates back for an unparseable id, without ever calling the SDK", async () => {
-    pamApi = {
-      getAccessRule: jest.fn(),
-      createAccessRule: jest.fn(),
-      updateAccessRule: jest.fn(),
-      deleteAccessRule: jest.fn(),
-    };
-    showToast = jest.fn();
-
-    TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
-    TestBed.configureTestingModule({
-      imports: [AccessRuleEditComponent, ReactiveFormsModule],
-      providers: providersWith(
-        {
-          provide: ActivatedRoute,
-          useValue: routeStub({ params: { accessRuleId: "not-a-real-id" } }),
-        },
-        { provide: AccessRuleSdkService, useValue: pamApi },
-        { provide: ToastService, useValue: { showToast } },
-      ),
-    });
-
-    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
-    const fixture = TestBed.createComponent(AccessRuleEditComponent);
-    await fixture.whenStable();
+    await setup({ params: { accessRuleId: "not-a-real-id" } });
 
     expect(pamApi.getAccessRule).not.toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith(
