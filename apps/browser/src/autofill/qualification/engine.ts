@@ -14,12 +14,23 @@ import {
   FormKind,
   PageQualification,
   QualificationEngine,
+  QualificationEngineId,
 } from "./types";
 import { SCORING_ENGINE_COVERED_CATEGORIES, SCORING_ENGINE_COVERED_ROLES } from "./vocabulary";
 
 const FORM_KIND_EPSILON = 0.001;
 
+// Score given to a form purpose a targeting rule declared. Above
+// `isAboveFormMatchedFloor` and above the "certain" band, so a declared form
+// lands in `matchedCategories` without depending on how the archetype weights
+// happen to be tuned.
+const DECLARED_FORM_SCORE = 2.0;
+
 export class ScoringQualificationEngine implements QualificationEngine {
+  readonly id = QualificationEngineId.Scoring;
+  readonly name = "Scoring Qualification Engine";
+  readonly version = "0.2.0";
+
   /**
    * FieldRoles this engine knows how to emit. Adapter consumers should route
    * role-based boolean predicates through the engine only for these roles;
@@ -64,6 +75,10 @@ function classifyField(cluster: FieldCluster): ClassifiedField {
 }
 
 function classifyForm(cluster: FormClusterUnit): ClassifiedFormCluster {
+  if (cluster.declaredKind !== null) {
+    return declaredFormClassification(cluster, cluster.declaredKind);
+  }
+
   const distribution: Partial<Record<FormKind, number>> = {};
   const reasons: ClassificationReason[] = [];
   for (const archetype of ARCHETYPES) {
@@ -88,6 +103,34 @@ function classifyForm(cluster: FormClusterUnit): ClassifiedFormCluster {
   // No "unknown" fallback: an empty distribution means "no archetype claimed
   // this form." `argmax` reports `kind: "unknown"` as the sentinel for that.
   return { cluster, distribution, reasons };
+}
+
+/**
+ * The classification for a form a targeting rule already named.
+ *
+ * The field-level counterpart is `declaredClassification` in
+ * `classification.ts`, and the reasoning is identical: a rule is authored, the
+ * archetypes are inferred, and running the archetypes anyway could only agree
+ * or be wrong. Skipping them also skips the ambient priors, so a rule saying
+ * `payment-card` isn't second-guessed by a page title reading "Create account".
+ */
+function declaredFormClassification(
+  cluster: FormClusterUnit,
+  kind: FormKind,
+): ClassifiedFormCluster {
+  return {
+    cluster,
+    distribution: { [kind]: DECLARED_FORM_SCORE },
+    reasons: [
+      {
+        type: "ambient-cue",
+        contributedTo: kind,
+        slot: "formAttrs",
+        raw: "targeting-rule",
+        matchedToken: "declared",
+      },
+    ],
+  };
 }
 
 export function createScoringQualificationEngine(): QualificationEngine {

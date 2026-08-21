@@ -1,4 +1,6 @@
 import { ClassifiedField, FieldCluster, FieldUnit, FormClusterUnit } from "./internal";
+import { declaredKindFor } from "./signals";
+import { FormKind } from "./types";
 
 export function clusterFieldsBySplitForms(units: ReadonlyArray<FieldUnit>): FieldCluster[] {
   const consumed = new Set<string>();
@@ -113,6 +115,7 @@ export function clusterByForm(classified: ReadonlyArray<ClassifiedField>): FormC
       scope: { kind: "form-element", opids: [opid] },
       members,
       ambient: members[0].cluster.members[0].signals.ambient,
+      declaredKind: declaredKindOf(members),
     });
   }
   if (formLess.length > 0) {
@@ -120,7 +123,29 @@ export function clusterByForm(classified: ReadonlyArray<ClassifiedField>): FormC
       scope: { kind: "form-less" },
       members: formLess,
       ambient: formLess[0].cluster.members[0].signals.ambient,
+      declaredKind: declaredKindOf(formLess),
     });
   }
   return result;
+}
+
+/**
+ * The form purpose a targeting rule declared for this cluster.
+ *
+ * Rules carry the purpose per field rather than per form, so the cluster's
+ * purpose is the first one any of its fields declares. A rule that gave two
+ * fields in one form different purposes is an authoring mistake; taking the
+ * first is as good an answer as any and keeps the engine from inventing a
+ * tiebreak the rule author didn't ask for.
+ */
+function declaredKindOf(members: ReadonlyArray<ClassifiedField>): FormKind | null {
+  for (const member of members) {
+    for (const unit of member.cluster.members) {
+      const kind = declaredKindFor(unit.source);
+      if (kind !== null) {
+        return kind;
+      }
+    }
+  }
+  return null;
 }

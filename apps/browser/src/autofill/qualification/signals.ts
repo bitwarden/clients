@@ -1,9 +1,13 @@
+import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
+
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { tokenizeValue } from "../utils/qualification";
 
 import { AmbientSignals, AmbientSource, FieldUnit, SignalSnapshot, TightSignals } from "./internal";
+import { FORM_KIND_BY_PURPOSE_CATEGORY, ROLE_BY_TARGETING_RULE_TYPE } from "./role-mapping";
+import { FieldRole, FormKind } from "./types";
 
 const EXCLUDED_TYPES: ReadonlySet<string> = new Set([
   "hidden",
@@ -55,6 +59,7 @@ function extractSignals(
 
 function extractTight(field: AutofillField): TightSignals {
   return {
+    declaredRole: declaredRoleFor(field),
     autocomplete: parseAutocompleteTokens(field.autoCompleteType),
     type: field.type ? field.type.toLowerCase() : null,
     inputMode: field.inputMode ? field.inputMode.toLowerCase() : null,
@@ -65,6 +70,30 @@ function extractTight(field: AutofillField): TightSignals {
     maxLength: field.maxLength ?? null,
     viewable: field.viewable === true,
   };
+}
+
+/**
+ * The role a targeting rule assigned to this field.
+ *
+ * Gated on `targeted` because `fieldQualifier` carries two different
+ * vocabularies. On a rule-targeted field `collect-autofill-content.service.ts`
+ * writes an `AutofillTargetingRuleType`; everywhere else the overlay writes an
+ * `AutofillFieldQualifier` derived from qualification itself, and reading that
+ * back in would be the engine scoring its own output.
+ */
+function declaredRoleFor(field: AutofillField): FieldRole | null {
+  if (field.targeted !== true || !field.fieldQualifier) {
+    return null;
+  }
+  return ROLE_BY_TARGETING_RULE_TYPE[field.fieldQualifier as AutofillTargetingRuleType] ?? null;
+}
+
+/** The form purpose a targeting rule assigned to this field's form. */
+export function declaredKindFor(field: AutofillField): FormKind | null {
+  if (field.targeted !== true || !field.formCategory) {
+    return null;
+  }
+  return FORM_KIND_BY_PURPOSE_CATEGORY[field.formCategory] ?? null;
 }
 
 function extractAmbient(form: AutofillForm | null, pageAmbient: PageAmbient): AmbientSignals {
@@ -119,7 +148,14 @@ function safePathname(rawUrl: string): string {
   }
 }
 
-function parseAutocompleteTokens(raw: string | null | undefined): ReadonlySet<string> {
+/**
+ * Splits a raw `autocomplete` attribute into its lowercased tokens.
+ *
+ * Shared with the autocomplete engine so both read the attribute the same way.
+ * Any divergence here would show up as the two engines disagreeing about a
+ * field that plainly declares what it is.
+ */
+export function parseAutocompleteTokens(raw: string | null | undefined): ReadonlySet<string> {
   if (!raw) {
     return new Set<string>();
   }

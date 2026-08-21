@@ -3,6 +3,14 @@ import AutofillField from "../models/autofill-field";
 import { ClassificationReason, Distribution, FieldRole, FormKind } from "./types";
 
 export type TightSignals = {
+  /**
+   * The role a webmapper targeting rule declared for this field, if any.
+   *
+   * A rule is an authored statement about a specific page, not evidence to be
+   * weighed against the cue tables — so a field carrying one skips scoring
+   * entirely. See `classification.ts`.
+   */
+  readonly declaredRole: FieldRole | null;
   readonly autocomplete: ReadonlySet<string>;
   readonly type: string | null;
   readonly inputMode: string | null;
@@ -62,6 +70,12 @@ export type FormClusterUnit = {
   readonly scope: FormScope;
   readonly members: ReadonlyArray<ClassifiedField>;
   readonly ambient: AmbientSignals;
+  /**
+   * The form purpose a targeting rule declared for this form's fields, if any.
+   * Same standing as {@link TightSignals.declaredRole}: authored, so it wins
+   * over the archetype scores rather than competing with them.
+   */
+  readonly declaredKind: FormKind | null;
 };
 
 export type ClassifiedFormCluster = {

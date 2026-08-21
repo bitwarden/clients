@@ -1,4 +1,5 @@
 export { ScoringQualificationEngine, createScoringQualificationEngine } from "./engine";
+export { AutocompleteQualificationEngine } from "./engines/autocomplete.engine";
 export {
   ClusterMembership,
   ConfidenceBand,
@@ -10,4 +11,7 @@ export {
   PageScenario,
   PageScenarioKind,
   QualificationEngine,
+  QualificationEngineId,
+  isQualificationEngineId,
+  toQualificationEngineId,
 } from "./types";

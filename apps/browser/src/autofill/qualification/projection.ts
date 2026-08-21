@@ -50,18 +50,27 @@ export function buildPageQualification(
 ): PageQualification {
   const formMap = new Map<string, FormClassification>();
   const parentContextByOpid = new Map<string, ParentFormContext>();
+  // The form-less cluster is scored like any other, but it has no opid to key
+  // it by, so it can't enter either map. Its context is held aside and used as
+  // the fallback for fields with no owning form. Dropping it instead would
+  // leave every field on a form-less page with no matched categories, which
+  // reads to consumers as "not a login field" — see `isIgnoredField`.
+  let formLessContext = EMPTY_PARENT_CONTEXT;
   for (const cfc of classifiedForms) {
+    const record = projectFormClassification(cfc);
+    const context: ParentFormContext = {
+      categories: record.matchedCategories,
+      internalKind: argmax(cfc.distribution).kind as FormKind | "unknown",
+    };
+
     if (cfc.cluster.scope.kind !== "form-element") {
+      formLessContext = context;
       continue;
     }
-    const record = projectFormClassification(cfc);
-    const internalKind = argmax(cfc.distribution).kind as FormKind | "unknown";
+
     for (const opid of cfc.cluster.scope.opids) {
       formMap.set(opid, record);
-      parentContextByOpid.set(opid, {
-        categories: record.matchedCategories,
-        internalKind,
-      });
+      parentContextByOpid.set(opid, context);
     }
   }
 
@@ -69,8 +78,7 @@ export function buildPageQualification(
   for (const cf of classifiedFields) {
     const parentOpid = cf.cluster.members[0].source.form ?? null;
     const parentContext =
-      (parentOpid !== null ? parentContextByOpid.get(parentOpid) : undefined) ??
-      EMPTY_PARENT_CONTEXT;
+      (parentOpid !== null ? parentContextByOpid.get(parentOpid) : undefined) ?? formLessContext;
     for (let i = 0; i < cf.cluster.members.length; i++) {
       const member = cf.cluster.members[i];
       fieldMap.set(member.source.opid, projectFieldClassification(cf, i, parentContext));
@@ -262,8 +270,26 @@ function pickTopCategory(argmaxKind: FormKind | "unknown"): FormCategory | null 
 }
 
 function isFullyVetoed(classified: ClassifiedFormCluster): boolean {
-  // Refined `Distribution<FormKind>` never contains "unknown" and never holds
-  // entries at or below epsilon (engine.ts filters at the boundary). Empty
-  // distribution ≡ every archetype scored zero ≡ fully vetoed.
-  return Object.keys(classified.distribution).length === 0;
+  // An empty distribution is necessary but not sufficient. `engine.ts` drops
+  // every archetype scoring at or below epsilon, so a form with no evidence at
+  // all — nothing on the page looked like any archetype — arrives here looking
+  // exactly like one a forbidden matcher shot down. Those are different facts,
+  // and `ConfidenceBand` has a word for each: "none" and "disqualified".
+  // Reporting the stronger one for absence of evidence overstates what the
+  // engine knows.
+  //
+  // The veto is recoverable from the reasons. `scoreArchetype` vetoes on any
+  // forbidden matcher coming back unsatisfied, so that is the condition matched
+  // here rather than the `"vetoed"` outcome alone — a forbidden matcher with a
+  // non-zero `min` fails as `"failed-min"` and still vetoes.
+  if (Object.keys(classified.distribution).length > 0) {
+    return false;
+  }
+
+  return classified.reasons.some(
+    (reason) =>
+      reason.type === "archetype-matcher" &&
+      reason.role === "forbidden" &&
+      reason.outcome !== "satisfied",
+  );
 }

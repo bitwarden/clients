@@ -11,6 +11,7 @@ export const FieldRole = Object.freeze({
   CardExpirationMonth: "cardExpirationMonth",
   CardExpirationYear: "cardExpirationYear",
   CardCvv: "cardCvv",
+  CardBrand: "cardBrand",
   IdentityTitle: "identityTitle",
   IdentityFirstName: "identityFirstName",
   IdentityMiddleName: "identityMiddleName",

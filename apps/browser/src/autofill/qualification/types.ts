@@ -8,6 +8,11 @@ export {
   RoleScore,
 } from "./types/classification";
 export { FieldRole };
+export {
+  QualificationEngineId,
+  isQualificationEngineId,
+  toQualificationEngineId,
+} from "./types/engine-id";
 export { FormCategory } from "./types/form-category";
 export { PageScenario } from "./types/page-scenario";
 export { PageQualification, QualificationEngine } from "./abstractions/qualification-engine";
@@ -65,11 +70,7 @@ export type ClusterMembership = {
 };
 
 export type AmbientSlotName =
-  | "formAttrs"
-  | "submitButtonText"
-  | "headings"
-  | "pageTitle"
-  | "urlPath";
+  "formAttrs" | "submitButtonText" | "headings" | "pageTitle" | "urlPath";
 
 export type MatcherOutcome = "satisfied" | "failed-min" | "failed-max" | "vetoed";
 

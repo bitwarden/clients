@@ -10,6 +10,11 @@ import {
 
 const DISTRIBUTION_EPSILON = 0.001;
 
+// Mass given to a role a targeting rule declared. `bandFor` reads anything at
+// or above 1.0 as "certain", and a rule is the most certain thing the engine
+// will ever be handed.
+const DECLARED_MASS = 1.0;
+
 // Roles the engine scores directly. UpdateCurrentPassword is the one shipped
 // FieldRole the engine never emits in a Distribution — projection derives it
 // from a CurrentPassword field's context.
@@ -25,6 +30,11 @@ export function classifyFieldCluster(cluster: FieldCluster): FieldClassification
 }
 
 function classifyUnit(unit: FieldUnit): FieldClassificationResult {
+  const declared = unit.signals.tight.declaredRole;
+  if (declared !== null) {
+    return declaredClassification(unit, declared);
+  }
+
   const logits: Record<ScoredFieldRole | "unknown", number> = {
     username: 0,
     email: 0,
@@ -37,6 +47,7 @@ function classifyUnit(unit: FieldUnit): FieldClassificationResult {
     cardExpirationMonth: 0,
     cardExpirationYear: 0,
     cardCvv: 0,
+    cardBrand: 0,
     identityTitle: 0,
     identityFirstName: 0,
     identityMiddleName: 0,
@@ -79,6 +90,36 @@ function classifyUnit(unit: FieldUnit): FieldClassificationResult {
 
   const raw = softmax(logits) as RawDistribution<FieldRole>;
   return { distribution: withoutUnknown(raw), reasons };
+}
+
+/**
+ * The classification for a field a targeting rule already named.
+ *
+ * A rule is an authored statement about a specific page — someone looked at the
+ * form and wrote down what the field is. Scoring it would put a heuristic
+ * between that statement and the fill, and the heuristic can only agree or be
+ * wrong. So the cue tables are skipped entirely and the declared role is
+ * emitted at full mass, which lands in the "certain" band.
+ *
+ * The distribution holds the one role and nothing else, so `matchedRoles` for
+ * this field is exactly what the rule said. Every consumer — the inline menu,
+ * the triage report, fill-time selection — then agrees with what the targeted
+ * fill pipeline is going to do anyway.
+ */
+function declaredClassification(unit: FieldUnit, role: FieldRole): FieldClassificationResult {
+  return {
+    distribution: { [role]: DECLARED_MASS } as Distribution<FieldRole>,
+    reasons: [
+      {
+        type: "field-cue",
+        contributedTo: role,
+        fieldOpid: unit.source.opid,
+        slot: "declared",
+        matchedToken: "targeting-rule",
+        weight: DECLARED_MASS,
+      },
+    ],
+  };
 }
 
 function withoutUnknown<K extends string>(raw: RawDistribution<K>): Distribution<K> {
@@ -151,6 +192,15 @@ export function argmax<K extends string>(
   return { kind: bestKey, confidence: bestVal === -Infinity ? 0 : bestVal };
 }
 
+// The one place the confidence cutoffs live. Everything that asks "is this a
+// real classification?" — `bandFor` itself, `isAboveMatchedFloor` in
+// vocabulary.ts, the archetype matchers' `minBand` — resolves through here.
+//
+// Calibrated against `UNKNOWN_BASELINE_LOGIT = 1.0` (see likelihood-ratios.ts).
+// After softmax, an "unknown" cell of mass ~0.27 is the baseline, and positive
+// labels have to overcome it. Move these together if you move the baseline: a
+// higher baseline raises the bar for every such check at once, and tuning one
+// cutoff in isolation silently downgrades bands elsewhere.
 const CERTAIN = 1.0;
 const HIGH = 0.55;
 const LOW = 0.15;

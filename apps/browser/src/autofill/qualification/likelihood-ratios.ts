@@ -1,13 +1,7 @@
 import { FieldRole } from "./types";
 
 export type CueSignal =
-  | "autocomplete"
-  | "type"
-  | "inputmode"
-  | "idName"
-  | "placeholder"
-  | "label"
-  | "dataset";
+  "autocomplete" | "type" | "inputmode" | "idName" | "placeholder" | "label" | "dataset";
 
 export type Cue = {
   readonly signal: CueSignal;
@@ -147,6 +141,23 @@ const CARD_EXPIRATION_YEAR_CUES: ReadonlyArray<Cue> = [
   { signal: "label", token: "exp year", weight: 3.0 },
   { signal: "placeholder", token: "yyyy", weight: 2.5 },
   { signal: "placeholder", token: "yy", weight: 2.0 },
+];
+
+// The brand/type selector on a checkout form ("Visa", "Mastercard", …). Fill
+// time has always matched this — `CreditCardAutoFillConstants.CardBrandFieldNames`
+// — but no boolean predicate exposes it, so the inline menu never has. Weights
+// stay below the card-number cues: "cardtype" and "cardnumber" both contain
+// "card", and a brand field must not outscore the number field it sits beside.
+const CARD_BRAND_CUES: ReadonlyArray<Cue> = [
+  { signal: "autocomplete", token: "cc-type", weight: 8.0 },
+  { signal: "autocomplete", token: "cctype", weight: 8.0 },
+  { signal: "idName", token: "cardtype", weight: 3.5 },
+  { signal: "idName", token: "cctype", weight: 3.5 },
+  { signal: "idName", token: "cardbrand", weight: 3.5 },
+  { signal: "idName", token: "ccbrand", weight: 3.5 },
+  { signal: "idName", token: "cbtype", weight: 2.5 },
+  { signal: "label", token: "card type", weight: 3.0 },
+  { signal: "label", token: "card brand", weight: 3.0 },
 ];
 
 const CARD_CVV_CUES: ReadonlyArray<Cue> = [
@@ -350,6 +361,7 @@ export const CUES_BY_KIND: Readonly<Partial<Record<FieldRole, ReadonlyArray<Cue>
     cardExpirationMonth: CARD_EXPIRATION_MONTH_CUES,
     cardExpirationYear: CARD_EXPIRATION_YEAR_CUES,
     cardCvv: CARD_CVV_CUES,
+    cardBrand: CARD_BRAND_CUES,
     identityTitle: IDENTITY_TITLE_CUES,
     identityFirstName: IDENTITY_FIRST_NAME_CUES,
     identityMiddleName: IDENTITY_MIDDLE_NAME_CUES,

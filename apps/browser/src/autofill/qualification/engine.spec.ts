@@ -1,3 +1,8 @@
+import {
+  AutofillTargetingRuleTypes,
+  FormPurposeCategories,
+} from "@bitwarden/common/autofill/constants";
+
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -73,6 +78,194 @@ describe("ScoringQualificationEngine", () => {
     expect(result.scenario()).toBe(PageScenario.LoginPage);
   });
 
+  describe("targeting rules override the heuristics", () => {
+    // A targeting rule is authored — someone looked at the page and wrote down
+    // what the field is. The engine's job on those fields is to agree, so that
+    // the inline menu and the triage report say the same thing the targeted
+    // fill pipeline is going to do.
+    const targetedField = (overrides: Partial<AutofillField>): AutofillField =>
+      Object.assign(
+        buildField({
+          opid: "t",
+          form: "__form__0",
+          elementNumber: 0,
+          type: "text",
+          viewable: true,
+        }),
+        { targeted: true },
+        overrides,
+      );
+
+    it("takes the rule's role over every cue on the field", () => {
+      // Everything about this input screams card number. The rule says CVV.
+      const field = targetedField({
+        htmlID: "cardNumber",
+        htmlName: "cardNumber",
+        autoCompleteType: "cc-number",
+        fieldQualifier: AutofillTargetingRuleTypes.cardCvv,
+      });
+
+      const result = engine.classify(
+        buildPageDetails({
+          fields: [field],
+          forms: { __form__0: buildForm({ opid: "__form__0" }) },
+        }),
+      );
+
+      const t = result.fieldFor("t");
+      expect(t?.topRole).toBe(FieldRole.CardCvv);
+      expect(t?.matchedRoles.has(FieldRole.CardNumber)).toBe(false);
+      expect(t?.confidence).toBe("certain");
+    });
+
+    it("takes the rule's form purpose over the ambient signals", () => {
+      const field = targetedField({
+        htmlID: "cardNumber",
+        htmlName: "cardNumber",
+        fieldQualifier: AutofillTargetingRuleTypes.cardNumber,
+        formCategory: FormPurposeCategories.PaymentCard,
+      });
+
+      const result = engine.classify(
+        buildPageDetails({
+          fields: [field],
+          forms: {
+            __form__0: buildForm({ opid: "__form__0", submitButtonText: ["Create account"] }),
+          },
+          title: "Create account",
+        }),
+      );
+
+      const form = result.formFor("__form__0");
+      expect(form?.topCategory).toBe(FormCategory.CreditCard);
+      expect(form?.matchedCategories.has(FormCategory.CreditCard)).toBe(true);
+    });
+
+    it("still scores fields the rule did not name", () => {
+      // Rules name some fields, not always all of them. The engine is the
+      // fallback for the rest, not a replacement for the rule.
+      const declared = targetedField({
+        htmlID: "widgetAlpha",
+        htmlName: "widgetAlpha",
+        fieldQualifier: AutofillTargetingRuleTypes.cardNumber,
+      });
+      const scored = buildField({
+        opid: "s",
+        form: "__form__0",
+        elementNumber: 1,
+        type: "text",
+        htmlID: "cardCvv",
+        htmlName: "cardCvv",
+        viewable: true,
+      });
+
+      const result = engine.classify(
+        buildPageDetails({
+          fields: [declared, scored],
+          forms: { __form__0: buildForm({ opid: "__form__0" }) },
+        }),
+      );
+
+      expect(result.fieldFor("t")?.topRole).toBe(FieldRole.CardNumber);
+      expect(result.fieldFor("s")?.topRole).toBe(FieldRole.CardCvv);
+    });
+
+    it("ignores a rule type the qualification vocabulary has no role for", () => {
+      // `searchTerm` maps to null. The field falls back to scoring rather than
+      // being handed a role that doesn't exist.
+      const field = targetedField({
+        htmlID: "cardCvv",
+        htmlName: "cardCvv",
+        fieldQualifier: AutofillTargetingRuleTypes.searchTerm,
+      });
+
+      const result = engine.classify(
+        buildPageDetails({
+          fields: [field],
+          forms: { __form__0: buildForm({ opid: "__form__0" }) },
+        }),
+      );
+
+      expect(result.fieldFor("t")?.topRole).toBe(FieldRole.CardCvv);
+    });
+
+    it("ignores a fieldQualifier on a field no rule targeted", () => {
+      // Off the targeted path, `fieldQualifier` holds an AutofillFieldQualifier
+      // the overlay derived from qualification itself. Reading it back in would
+      // be the engine scoring its own output.
+      const field = Object.assign(
+        buildField({
+          opid: "t",
+          form: "__form__0",
+          elementNumber: 0,
+          type: "text",
+          htmlID: "cardCvv",
+          htmlName: "cardCvv",
+          viewable: true,
+        }),
+        { fieldQualifier: AutofillTargetingRuleTypes.cardNumber },
+      );
+
+      const result = engine.classify(
+        buildPageDetails({
+          fields: [field],
+          forms: { __form__0: buildForm({ opid: "__form__0" }) },
+        }),
+      );
+
+      expect(result.fieldFor("t")?.topRole).toBe(FieldRole.CardCvv);
+    });
+  });
+
+  it("reports a form with no evidence as none, not disqualified", () => {
+    // Both a vetoed form and a form nothing matched arrive at projection with an
+    // empty distribution. "disqualified" means an archetype's forbidden matcher
+    // fired; a page of unrecognizable inputs has simply told the engine nothing,
+    // and saying otherwise overstates what it knows.
+    const form = buildForm({ opid: "__form__0" });
+    const field = buildField({
+      opid: "x",
+      form: "__form__0",
+      elementNumber: 0,
+      type: "text",
+      htmlID: "widgetAlpha",
+      htmlName: "widgetAlpha",
+      viewable: true,
+    });
+
+    const result = engine.classify(
+      buildPageDetails({ fields: [field], forms: { __form__0: form } }),
+    );
+
+    const fr = result.formFor("__form__0");
+    expect(fr?.matchedCategories.size).toBe(0);
+    expect(fr?.confidence).toBe("none");
+  });
+
+  it("reports a vetoed form as disqualified", () => {
+    // Three viewable new-password fields: `account-login`'s forbidden matcher
+    // fires, and every other archetype's required matchers come up empty. This
+    // is the other side of the no-evidence case above — same empty distribution,
+    // different fact about why.
+    const form = buildForm({ opid: "__form__0" });
+    const fields = [0, 1, 2].map((i) =>
+      buildField({
+        opid: `np${i}`,
+        form: "__form__0",
+        elementNumber: i,
+        type: "password",
+        htmlID: "newPassword",
+        htmlName: "newPassword",
+        autoCompleteType: "new-password",
+        viewable: true,
+      }),
+    );
+
+    const result = engine.classify(buildPageDetails({ fields, forms: { __form__0: form } }));
+
+    expect(result.formFor("__form__0")?.confidence).toBe("disqualified");
+  });
+
   it("propagates the form's matched categories onto each field as matchedFormContexts", () => {
     const form = buildForm({ opid: "__form__0" });
     const username = buildField({
@@ -98,6 +291,36 @@ describe("ScoringQualificationEngine", () => {
 
     expect(result.fieldFor("u")?.matchedFormContexts.has(FormCategory.Login)).toBe(true);
     expect(result.fieldFor("p")?.matchedFormContexts.has(FormCategory.Login)).toBe(true);
+  });
+
+  // A form-less cluster has no opid, so it can't be keyed into the form map.
+  // Its categories still have to reach its fields: consumers gate the inline
+  // menu on matchedFormContexts, so dropping them hides the menu on every
+  // page that builds its login without a <form> element.
+  it("propagates a form-less cluster's categories onto its fields", () => {
+    const username = buildField({
+      opid: "u",
+      form: null,
+      elementNumber: 0,
+      type: "text",
+      autoCompleteType: "username",
+      viewable: true,
+    });
+    const password = buildField({
+      opid: "p",
+      form: null,
+      elementNumber: 1,
+      type: "password",
+      autoCompleteType: "current-password",
+      viewable: true,
+    });
+
+    const result = engine.classify(buildPageDetails({ fields: [username, password], forms: {} }));
+
+    expect(result.fieldFor("u")?.matchedFormContexts.has(FormCategory.Login)).toBe(true);
+    expect(result.fieldFor("p")?.matchedFormContexts.has(FormCategory.Login)).toBe(true);
+    // Still no form record — there is no form opid to look one up by.
+    expect(result.formFor("__form__0")).toBeNull();
   });
 
   it("clusters six maxLength=1 inputs into a single OTP field", () => {
@@ -989,6 +1212,7 @@ describe("ScoringQualificationEngine", () => {
         FieldRole.CardExpirationMonth,
         FieldRole.CardExpirationYear,
         FieldRole.CardCvv,
+        FieldRole.CardBrand,
         FieldRole.IdentityTitle,
         FieldRole.IdentityFirstName,
         FieldRole.IdentityMiddleName,
@@ -1145,6 +1369,43 @@ describe("ScoringQualificationEngine", () => {
     expect(formRecord?.matchedCategories.has(FormCategory.CreditCard)).toBe(true);
 
     expect(result.scenario()).toBe(PageScenario.CheckoutPage);
+  });
+
+  it("classifies a card brand selector without stealing the card number", () => {
+    // `cardtype` and `cardnumber` share the "card" prefix, and the brand field
+    // is usually a <select> next to the number input. Fill time has always
+    // matched this field; nothing else in the stack ever qualified it.
+    const form = buildForm({ opid: "__form__0", submitButtonText: ["Pay now"] });
+    const cardNumber = buildField({
+      opid: "cn",
+      form: "__form__0",
+      elementNumber: 0,
+      type: "text",
+      htmlID: "cardNumber",
+      htmlName: "cardNumber",
+      viewable: true,
+    });
+    const cardBrand = buildField({
+      opid: "cb",
+      form: "__form__0",
+      elementNumber: 1,
+      type: "select-one",
+      htmlID: "cardType",
+      htmlName: "cardType",
+      viewable: true,
+    });
+
+    const result = engine.classify(
+      buildPageDetails({
+        fields: [cardNumber, cardBrand],
+        forms: { __form__0: form },
+        url: "https://example.test/checkout",
+        title: "Checkout",
+      }),
+    );
+
+    expect(result.fieldFor("cb")?.topRole).toBe(FieldRole.CardBrand);
+    expect(result.fieldFor("cn")?.topRole).toBe(FieldRole.CardNumber);
   });
 
   it("classifies a credit-card form with split expiry month + year", () => {
