@@ -20,7 +20,7 @@
         @if (collections.length) {
           <bit-chip-filter
             fullWidth
-            formControlName="collection"
+            [formControl]="singleCollection"
             [placeholderIcon]="'bwi-collection-shared' | vfo1Icon"
             [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
             [options]="collections"
@@ -33,7 +33,7 @@
           <bit-chip-filter
             fullWidth
             placeholderIcon="bwi-folder"
-            formControlName="folder"
+            [formControl]="singleFolder"
             [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
             [options]="folders"
           >

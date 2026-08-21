@@ -130,8 +130,9 @@ describe("VaultPopupListTableComponent", () => {
   // the two-way sync is exercised through its actual value/`valueChanges` behavior.
   const filterForm = new FormGroup({
     organization: new FormControl<Organization | null>(null),
-    collection: new FormControl<CollectionView | null>(null),
-    folder: new FormControl<FolderView | null>(null),
+    // Collections and folders are multi-select, matching `PopupListFilter`.
+    collection: new FormControl<CollectionView[]>([], { nonNullable: true }),
+    folder: new FormControl<FolderView[]>([], { nonNullable: true }),
     cipherType: new FormControl<CipherType | null>(null),
   });
 
@@ -176,7 +177,7 @@ describe("VaultPopupListTableComponent", () => {
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
     compactModeEnabled$.next(false);
-    filterForm.reset({ organization: null, collection: null, folder: null, cipherType: null });
+    filterForm.reset({ organization: null, collection: [], folder: [], cipherType: null });
     cipherTypes$.next([]);
     organizations$.next([]);
     collections$.next([]);
@@ -544,18 +545,36 @@ describe("VaultPopupListTableComponent", () => {
       it("selects a seeded folder that is a different instance than its option", () => {
         const option = { id: "folder-1", name: "Work" } as FolderView;
         folders$.next([{ value: option, label: "Work" }]);
-        filterForm.controls.folder.setValue({ id: "folder-1", name: "Work" } as FolderView);
+        filterForm.controls.folder.setValue([{ id: "folder-1", name: "Work" } as FolderView]);
         fixture.detectChanges();
 
         const chip = chipFor("folder");
-        expect(chip.value()).toBe(option);
+        expect(chip.value()).toEqual([option]);
         expect(chip.isSelected(option)).toBe(true);
+      });
+
+      it("resolves every selection in a multi-select dimension", () => {
+        const work = { id: "folder-1", name: "Work" } as FolderView;
+        const personal = { id: "folder-2", name: "Personal" } as FolderView;
+        folders$.next([
+          { value: work, label: "Work" },
+          { value: personal, label: "Personal" },
+        ]);
+        filterForm.controls.folder.setValue([
+          { id: "folder-1", name: "Work" } as FolderView,
+          { id: "folder-2", name: "Personal" } as FolderView,
+        ]);
+        fixture.detectChanges();
+
+        const chip = chipFor("folder");
+        expect(chip.isSelected(work)).toBe(true);
+        expect(chip.isSelected(personal)).toBe(true);
       });
 
       it("re-resolves onto the new instance when the options are rebuilt", () => {
         const first = { id: "folder-1", name: "Work" } as FolderView;
         folders$.next([{ value: first, label: "Work" }]);
-        filterForm.controls.folder.setValue(first);
+        filterForm.controls.folder.setValue([first]);
         fixture.detectChanges();
 
         // `folders$` re-emits rebuilt copies on any cipher change (a sync, an item edit).
@@ -564,7 +583,7 @@ describe("VaultPopupListTableComponent", () => {
         fixture.detectChanges();
 
         const chip = chipFor("folder");
-        expect(chip.value()).toBe(rebuilt);
+        expect(chip.value()).toEqual([rebuilt]);
         expect(chip.isSelected(rebuilt)).toBe(true);
       });
 
@@ -573,10 +592,59 @@ describe("VaultPopupListTableComponent", () => {
         // here would fight `validateOrganizationChange`, which owns that reset.
         const orphan = { id: "folder-gone", name: "Archived" } as FolderView;
         folders$.next([{ value: { id: "folder-1", name: "Work" } as FolderView, label: "Work" }]);
-        filterForm.controls.folder.setValue(orphan);
+        filterForm.controls.folder.setValue([orphan]);
         fixture.detectChanges();
 
-        expect(filterForm.controls.folder.value).toBe(orphan);
+        expect(filterForm.controls.folder.value).toEqual([orphan]);
+      });
+    });
+
+    describe("multi-select", () => {
+      it("adds each toggled folder to the filterForm control", () => {
+        const work = { id: "folder-1", name: "Work" } as FolderView;
+        const personal = { id: "folder-2", name: "Personal" } as FolderView;
+        folders$.next([
+          { value: work, label: "Work" },
+          { value: personal, label: "Personal" },
+        ]);
+        fixture.detectChanges();
+
+        chipFor("folder").toggle(work);
+        fixture.detectChanges();
+        chipFor("folder").toggle(personal);
+        fixture.detectChanges();
+
+        expect(filterForm.controls.folder.value).toEqual([work, personal]);
+      });
+
+      it("removes a folder that is toggled off, keeping the rest applied", () => {
+        const work = { id: "folder-1", name: "Work" } as FolderView;
+        const personal = { id: "folder-2", name: "Personal" } as FolderView;
+        folders$.next([
+          { value: work, label: "Work" },
+          { value: personal, label: "Personal" },
+        ]);
+        filterForm.controls.folder.setValue([work, personal]);
+        fixture.detectChanges();
+
+        chipFor("folder").toggle(work);
+        fixture.detectChanges();
+
+        expect(filterForm.controls.folder.value).toEqual([personal]);
+      });
+
+      // The chip's own empty value, so the form and the chip agree on "nothing selected" — writing
+      // `null` here would leave the two sides disagreeing about the shape.
+      it("empties the control rather than nulling it when the chip is cleared", () => {
+        const work = { id: "folder-1", name: "Work" } as FolderView;
+        folders$.next([{ value: work, label: "Work" }]);
+        filterForm.controls.folder.setValue([work]);
+        fixture.detectChanges();
+
+        chipFor("folder").clear();
+        fixture.detectChanges();
+
+        expect(filterForm.controls.folder.value).toEqual([]);
       });
     });
   });

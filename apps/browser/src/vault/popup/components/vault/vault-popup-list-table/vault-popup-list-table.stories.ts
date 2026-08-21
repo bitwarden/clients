@@ -331,8 +331,12 @@ const buildProviders = (args: StoryArgs) => {
   // story's `appliedFilters` seed it exactly the way the view cache does on a real popup open.
   const filterForm = new FormGroup({
     organization: new FormControl<Organization | null>(args.appliedFilters?.organization ?? null),
-    collection: new FormControl<CollectionView | null>(args.appliedFilters?.collection ?? null),
-    folder: new FormControl<FolderView | null>(args.appliedFilters?.folder ?? null),
+    collection: new FormControl<CollectionView[]>(args.appliedFilters?.collection ?? [], {
+      nonNullable: true,
+    }),
+    folder: new FormControl<FolderView[]>(args.appliedFilters?.folder ?? [], {
+      nonNullable: true,
+    }),
     cipherType: new FormControl<CipherType | null>(args.appliedFilters?.cipherType ?? null),
   });
 
@@ -670,9 +674,9 @@ export const LegacyAutofillButton: Story = {
 };
 
 // Filters pre-applied to `filterForm`: the Type and Vault chips render in their active (selected)
-// styling with the selection reflected in the chip label. Narrow the viewport in Storybook to see
-// the chip row collapse into the sliders trigger, with these shown as dismissible active-filter
-// chips beneath it.
+// styling with the selection reflected in the chip label. My folders is multi-select, so it shows
+// a count berry instead of a label. Narrow the viewport in Storybook to see the chip row collapse
+// into the sliders trigger, with these shown as dismissible active-filter chips beneath it.
 export const ActiveFilters: Story = {
   decorators: [
     applicationConfig({
@@ -684,6 +688,7 @@ export const ActiveFilters: Story = {
         appliedFilters: {
           cipherType: CipherType.Login,
           organization: ORGANIZATION_OPTIONS[1].value,
+          folder: [FOLDER_OPTIONS[0].value, FOLDER_OPTIONS[1].value],
         },
       }),
     }),

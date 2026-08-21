@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormBuilder } from "@angular/forms";
+import { FormControl, FormGroup } from "@angular/forms";
 import {
   combineLatest,
   debounceTime,
@@ -66,16 +66,26 @@ const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "f
  */
 export interface CachedFilterState {
   organizationId?: string;
-  collectionId?: string;
-  folderId?: string;
+  collectionIds?: string[];
+  folderIds?: string[];
   cipherType?: CipherType | null;
+  /** @deprecated Single-select shape written before collections became multi-select. Read only. */
+  collectionId?: string;
+  /** @deprecated Single-select shape written before folders became multi-select. Read only. */
+  folderId?: string;
 }
 
 /** All available cipher filters */
 export type PopupListFilter = {
   organization: Organization | null;
-  collection: CollectionView | null;
-  folder: FolderView | null;
+  /**
+   * Multi-select: a cipher matches when it belongs to *any* selected collection. Empty means
+   * unfiltered — never `null`, so the form's empty value matches what a multi-select chip holds
+   * when cleared.
+   */
+  collection: CollectionView[];
+  /** Multi-select, same semantics as {@link PopupListFilter.collection}. */
+  folder: FolderView[];
   cipherType: CipherType | null;
 };
 
@@ -87,8 +97,8 @@ export const MY_VAULT_ID = "MyVault";
 
 const INITIAL_FILTERS: PopupListFilter = {
   organization: null,
-  collection: null,
-  folder: null,
+  collection: [],
+  folder: [],
   cipherType: null,
 };
 
@@ -103,17 +113,23 @@ function matchesFilters(cipher: PopupCipherViewLike, filters: Partial<PopupListF
     return false;
   }
 
-  if (filters.collection && !cipher.collectionIds?.includes(asUuid(filters.collection.id!))) {
-    return false;
+  // Multi-select dimensions are OR'd within themselves and AND'd against the others: an item in
+  // any selected collection, in any selected folder.
+  if (filters.collection?.length) {
+    const inAnyCollection = filters.collection.some((collection) =>
+      cipher.collectionIds?.includes(asUuid(collection.id!)),
+    );
+    if (!inAnyCollection) {
+      return false;
+    }
   }
 
-  if (filters.folder) {
-    if (!filters.folder.id) {
+  if (filters.folder?.length) {
+    const inAnyFolder = filters.folder.some((folder) =>
       // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
-      if (cipher.folderId) {
-        return false;
-      }
-    } else if (cipher.folderId !== filters.folder.id) {
+      folder.id ? cipher.folderId === folder.id : !cipher.folderId,
+    );
+    if (!inAnyFolder) {
       return false;
     }
   }
@@ -155,9 +171,21 @@ export class VaultPopupListFiltersService {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /**
-   * UI form for all filters
+   * UI form for all filters.
+   *
+   * Built with explicit controls rather than `FormBuilder.group`, which reads an array value as the
+   * `[value, validators]` config tuple and would type the multi-select controls as their element.
+   * The multi-select controls are `nonNullable` so clearing them yields `[]`, the same empty value
+   * their chips hold.
    */
-  filterForm = this.formBuilder.group<PopupListFilter>(INITIAL_FILTERS);
+  filterForm = new FormGroup({
+    organization: new FormControl<Organization | null>(INITIAL_FILTERS.organization),
+    collection: new FormControl<CollectionView[]>(INITIAL_FILTERS.collection, {
+      nonNullable: true,
+    }),
+    folder: new FormControl<FolderView[]>(INITIAL_FILTERS.folder, { nonNullable: true }),
+    cipherType: new FormControl<CipherType | null>(INITIAL_FILTERS.cipherType),
+  });
 
   /**
    * Observable for `filterForm` value
@@ -170,9 +198,17 @@ export class VaultPopupListFiltersService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  /** Emits the number of applied filters. */
+  /**
+   * Emits the number of applied filters — one per narrowed dimension, so a multi-select dimension
+   * counts once no matter how many options it holds. An empty array is not an applied filter.
+   */
   numberOfAppliedFilters$ = this.filters$.pipe(
-    map((filters) => Object.values(filters).filter((filter) => Boolean(filter)).length),
+    map(
+      (filters) =>
+        Object.values(filters).filter((filter) =>
+          Array.isArray(filter) ? filter.length > 0 : Boolean(filter),
+        ).length,
+    ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -192,8 +228,9 @@ export class VaultPopupListFiltersService {
   private serializeFilters(): CachedFilterState {
     return {
       organizationId: this.filterForm.value.organization?.id,
-      collectionId: this.filterForm.value.collection?.id,
-      folderId: this.filterForm.value.folder?.id,
+      collectionIds: this.filterForm.value.collection?.map((c) => c.id!),
+      // The "Items with no folder" option has no id of its own; it round-trips as an empty string.
+      folderIds: this.filterForm.value.folder?.map((f) => f.id ?? ""),
       cipherType: this.filterForm.value.cipherType,
     };
   }
@@ -208,8 +245,8 @@ export class VaultPopupListFiltersService {
       .subscribe(([orgOptions, collectionOptions, folderViews]) => {
         const patchValue: PopupListFilter = {
           organization: null,
-          collection: null,
-          folder: null,
+          collection: [],
+          folder: [],
           cipherType: null,
         };
 
@@ -222,16 +259,24 @@ export class VaultPopupListFiltersService {
           }
         }
 
-        if (state.collectionId) {
-          const collection = collectionOptions
-            .flatMap((c) => this.flattenOptions(c))
-            .find((c) => c.value?.id === state.collectionId)?.value;
-          patchValue.collection = collection || null;
+        // `collectionId`/`folderId` are the pre-multi-select shape: a cache entry written before
+        // the popup was updated still restores, as a single-item selection.
+        const collectionIds =
+          state.collectionIds ?? (state.collectionId ? [state.collectionId] : []);
+        const folderIds = state.folderIds ?? (state.folderId ? [state.folderId] : []);
+
+        if (collectionIds.length) {
+          const allCollections = collectionOptions.flatMap((c) => this.flattenOptions(c));
+          patchValue.collection = collectionIds
+            .map((id) => allCollections.find((c) => c.value?.id === id)?.value)
+            .filter((collection): collection is CollectionView => collection != null);
         }
 
-        if (state.folderId) {
-          const folder = folderViews.find((f) => f.id === state.folderId);
-          patchValue.folder = folder || null;
+        if (folderIds.length) {
+          patchValue.folder = folderIds
+            // "Items with no folder" has no id of its own and serializes as an empty string.
+            .map((id) => folderViews.find((f) => (f.id ?? "") === id))
+            .filter((folder): folder is FolderView => folder != null);
         }
 
         if (state.cipherType) {
@@ -252,7 +297,6 @@ export class VaultPopupListFiltersService {
     private organizationService: OrganizationService,
     private i18nService: I18nService,
     private collectionService: CollectionService,
-    private formBuilder: FormBuilder,
     private policyService: PolicyService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
@@ -633,26 +677,30 @@ export class VaultPopupListFiltersService {
 
     const currentFilters = this.filterForm.getRawValue();
 
-    // When the organization filter changes and a collection is already selected,
-    // reset the collection filter if the collection does not belong to the new organization filter
-    if (currentFilters.collection && currentFilters.collection.organizationId !== organization.id) {
-      this.filterForm.get("collection")?.setValue(null);
+    // When the organization filter changes, drop the selected collections that do not belong to
+    // the new organization. Only the ones that fell out are dropped — the rest stay applied.
+    const collections = currentFilters.collection ?? [];
+    const keptCollections = collections.filter((c) => c.organizationId === organization.id);
+    if (keptCollections.length !== collections.length) {
+      this.filterForm.get("collection")?.setValue(keptCollections);
     }
 
-    // When the organization filter changes and a folder is already selected,
-    // reset the folder filter if the folder does not belong to the new organization filter
-    if (currentFilters.folder && currentFilters.folder.id && organization.id !== MY_VAULT_ID) {
+    // Same for folders, which belong to an organization only by way of the ciphers in them. "My
+    // vault" imposes no folder constraint, so nothing is dropped there.
+    const folders = currentFilters.folder ?? [];
+    if (folders.length && organization.id !== MY_VAULT_ID) {
       // Get all ciphers that belong to the new organization
       const orgCiphers = this.cipherViews.filter((c) => c.organizationId === organization.id);
 
-      // Find any ciphers within the organization that belong to the current folder
-      const newOrgContainsFolder = orgCiphers.some(
-        (oc) => oc.folderId === currentFilters?.folder?.id,
+      // Keep the folders the new organization has ciphers in. "Items with no folder" (a falsy id)
+      // is left alone rather than evaluated, preserving the single-select behavior — the option
+      // list drops it when the organization has no folderless items, but the filter survives.
+      const keptFolders = folders.filter(
+        (folder) => !folder.id || orgCiphers.some((oc) => oc.folderId === folder.id),
       );
 
-      // If the new organization does not contain the current folder, reset the folder filter
-      if (!newOrgContainsFolder) {
-        this.filterForm.get("folder")?.setValue(null);
+      if (keptFolders.length !== folders.length) {
+        this.filterForm.get("folder")?.setValue(keptFolders);
       }
     }
   }

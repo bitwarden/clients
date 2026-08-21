@@ -36,6 +36,7 @@ import {
   CachedFilterState,
   MY_VAULT_ID,
   NO_FOLDER_COUNT_KEY,
+  PopupListFilter,
   VaultPopupListFiltersService,
 } from "./vault-popup-list-filters.service";
 
@@ -237,7 +238,7 @@ describe("VaultPopupListFiltersService", () => {
 
       service.filterForm.patchValue({
         organization: { id: "1234" } as Organization,
-        folder: { id: "folder11" } as FolderView,
+        folder: [{ id: "folder11" } as FolderView],
       });
     });
   });
@@ -579,7 +580,7 @@ describe("VaultPopupListFiltersService", () => {
         done();
       });
 
-      service.filterForm.patchValue({ collection });
+      service.filterForm.patchValue({ collection: [collection] });
     });
 
     it("filters by folder", (done) => {
@@ -590,7 +591,100 @@ describe("VaultPopupListFiltersService", () => {
         done();
       });
 
-      service.filterForm.patchValue({ folder });
+      service.filterForm.patchValue({ folder: [folder] });
+    });
+
+    /**
+     * Collections and folders filter to a set: the selections within a dimension are OR'd, and the
+     * dimensions are still AND'd against each other.
+     */
+    describe("multi-select dimensions", () => {
+      /**
+       * `filters$` starts with the form value captured when the service was constructed, so a
+       * fresh subscription always replays the unfiltered value. Applying the filter while
+       * subscribed is what puts the new one through.
+       */
+      const applyFilters = (filters: Partial<PopupListFilter>) => {
+        let filterFunction!: (ciphers: PopupCipherViewLike[]) => PopupCipherViewLike[];
+        const subscription = service.filterFunction$.subscribe((fn) => (filterFunction = fn));
+        service.filterForm.patchValue(filters);
+        subscription.unsubscribe();
+        return filterFunction;
+      };
+
+      const multiCiphers = [
+        {
+          type: CipherType.Login,
+          collectionIds: [],
+          folderId: "work" as any,
+          organizationId: null,
+        },
+        {
+          type: CipherType.Login,
+          collectionIds: [],
+          folderId: "personal" as any,
+          organizationId: null,
+        },
+        {
+          type: CipherType.Card,
+          collectionIds: [],
+          folderId: "archive" as any,
+          organizationId: null,
+        },
+        { type: CipherType.Login, collectionIds: [], organizationId: null },
+      ] as CipherView[];
+
+      it("matches items in any of the selected folders", () => {
+        const filterFunction = applyFilters({
+          folder: [{ id: "work" } as FolderView, { id: "personal" } as FolderView],
+        });
+
+        expect(filterFunction(multiCiphers)).toEqual([multiCiphers[0], multiCiphers[1]]);
+      });
+
+      it('matches folderless items alongside a named folder when "no folder" is selected', () => {
+        const filterFunction = applyFilters({
+          // "Items with no folder" carries a falsy id rather than one of its own.
+          folder: [{ id: "" } as FolderView, { id: "work" } as FolderView],
+        });
+
+        expect(filterFunction(multiCiphers)).toEqual([multiCiphers[0], multiCiphers[3]]);
+      });
+
+      it("matches items in any of the selected collections", () => {
+        const engineering = asUuid("cbcae898-9f9a-48eb-863e-edf92e3ad7e0");
+        const marketing = asUuid("dbcae898-9f9a-48eb-863e-edf92e3ad7e1");
+        const collectionCiphers = [
+          { type: CipherType.Login, collectionIds: [engineering], organizationId: null },
+          { type: CipherType.Login, collectionIds: [marketing], organizationId: null },
+          { type: CipherType.Login, collectionIds: [], organizationId: null },
+        ] as CipherView[];
+
+        const filterFunction = applyFilters({
+          collection: [{ id: engineering } as CollectionView, { id: marketing } as CollectionView],
+        });
+
+        expect(filterFunction(collectionCiphers)).toEqual([
+          collectionCiphers[0],
+          collectionCiphers[1],
+        ]);
+      });
+
+      it("still narrows across dimensions", () => {
+        const filterFunction = applyFilters({
+          folder: [{ id: "work" } as FolderView, { id: "archive" } as FolderView],
+          cipherType: CipherType.Card,
+        });
+
+        expect(filterFunction(multiCiphers)).toEqual([multiCiphers[2]]);
+      });
+
+      it("leaves the list unnarrowed when a dimension is emptied", () => {
+        applyFilters({ folder: [{ id: "work" } as FolderView] });
+        const filterFunction = applyFilters({ folder: [] });
+
+        expect(filterFunction(multiCiphers)).toEqual(multiCiphers);
+      });
     });
 
     describe("organizationId", () => {
@@ -637,6 +731,71 @@ describe("VaultPopupListFiltersService", () => {
 
         service.filterForm.patchValue({ organization });
       });
+    });
+  });
+
+  /**
+   * Changing the organization filter narrows which collections and folders are offered at all, so
+   * selections that fall outside the new organization are dropped. Only those are dropped — the
+   * rest of a multi-select dimension stays applied.
+   */
+  describe("organization change", () => {
+    it("drops only the collections outside the new organization", () => {
+      const kept = { id: "col-1", organizationId: "org-1" } as CollectionView;
+      const dropped = { id: "col-2", organizationId: "org-2" } as CollectionView;
+      service.filterForm.controls.collection.setValue([kept, dropped]);
+
+      service.filterForm.controls.organization.setValue({ id: "org-1" } as Organization);
+
+      expect(service.filterForm.value.collection).toEqual([kept]);
+    });
+
+    it("keeps the folders the new organization has items in", () => {
+      cipherListViews$.next({
+        "1": { id: "1", organizationId: "org-1", folderId: "shared" },
+        "2": { id: "2", organizationId: null, folderId: "personal" },
+      } as any);
+      // Folders belong to an organization only by way of its ciphers, which the validation reads
+      // from the snapshot `folders$` maintains.
+      const subscription = service.folders$.subscribe();
+
+      const kept = { id: "shared" } as FolderView;
+      const dropped = { id: "personal" } as FolderView;
+      service.filterForm.controls.folder.setValue([kept, dropped]);
+
+      service.filterForm.controls.organization.setValue({ id: "org-1" } as Organization);
+
+      expect(service.filterForm.value.folder).toEqual([kept]);
+      subscription.unsubscribe();
+    });
+
+    /**
+     * The option list drops "Items with no folder" when the new organization has no folderless
+     * items, but the filter itself is left alone — matching the behavior the single-select header
+     * has today, so turning the flag off changes nothing here.
+     */
+    it('leaves an "Items with no folder" selection applied', () => {
+      cipherListViews$.next({
+        "1": { id: "1", organizationId: "org-1", folderId: "shared" },
+      } as any);
+      const subscription = service.folders$.subscribe();
+
+      const noFolder = { id: "" } as FolderView;
+      service.filterForm.controls.folder.setValue([noFolder]);
+
+      service.filterForm.controls.organization.setValue({ id: "org-1" } as Organization);
+
+      expect(service.filterForm.value.folder).toEqual([noFolder]);
+      subscription.unsubscribe();
+    });
+
+    it("leaves every folder applied when My vault is selected", () => {
+      const folders = [{ id: "shared" } as FolderView, { id: "personal" } as FolderView];
+      service.filterForm.controls.folder.setValue(folders);
+
+      service.filterForm.controls.organization.setValue({ id: MY_VAULT_ID } as Organization);
+
+      expect(service.filterForm.value.folder).toEqual(folders);
     });
   });
 
@@ -768,8 +927,8 @@ describe("VaultPopupListFiltersService", () => {
     it("initializes form from cached state", fakeAsync(() => {
       const cachedState: CachedFilterState = {
         organizationId: MY_VAULT_ID,
-        collectionId: "test-collection-id",
-        folderId: "test-folder-id",
+        collectionIds: ["test-collection-id"],
+        folderIds: ["test-folder-id"],
         cipherType: CipherType.Login,
       };
 
@@ -800,14 +959,52 @@ describe("VaultPopupListFiltersService", () => {
 
       expect(service.filterForm.value).toEqual({
         organization: { id: MY_VAULT_ID },
-        collection: {
+        collection: [
+          {
+            id: "test-collection-id",
+            organizationId: MY_VAULT_ID,
+            name: "Test collection",
+          },
+        ],
+        folder: [{ id: "test-folder-id", name: "Test Folder" }],
+        cipherType: CipherType.Login,
+      });
+      discardPeriodicTasks();
+    }));
+
+    /**
+     * The cache is written on every filter change and read on the next popup open, so an entry
+     * written by a build from before collections and folders became multi-select outlives the
+     * update. Dropping it would silently clear the user's filters on their first open.
+     */
+    it("initializes form from the pre-multi-select cached state", fakeAsync(() => {
+      const cachedState: CachedFilterState = {
+        collectionId: "test-collection-id",
+        folderId: "test-folder-id",
+      };
+
+      const seededCollections: CollectionView[] = [
+        {
           id: "test-collection-id",
           organizationId: MY_VAULT_ID,
           name: "Test collection",
-        },
-        folder: { id: "test-folder-id", name: "Test Folder" },
-        cipherType: CipherType.Login,
-      });
+        } as CollectionView,
+      ];
+      const seededFolderViews: FolderView[] = [
+        { id: "test-folder-id", name: "Test Folder" } as FolderView,
+      ];
+
+      const { service } = createSeededVaultPopupListFiltersService(
+        [{ id: MY_VAULT_ID, name: "Test Org" } as Organization],
+        seededCollections,
+        seededFolderViews,
+        cachedState,
+      );
+
+      tick();
+
+      expect(service.filterForm.value.collection).toEqual(seededCollections);
+      expect(service.filterForm.value.folder).toEqual(seededFolderViews);
       discardPeriodicTasks();
     }));
 
@@ -842,8 +1039,8 @@ describe("VaultPopupListFiltersService", () => {
 
       service.filterForm.patchValue({
         organization: testOrg,
-        collection: testCollection,
-        folder: testFolder,
+        collection: [testCollection],
+        folder: [testFolder],
         cipherType: CipherType.Card,
       });
 
@@ -852,8 +1049,8 @@ describe("VaultPopupListFiltersService", () => {
       // force another emission by patching with the same value again. workaround for debounce times
       service.filterForm.patchValue({
         organization: testOrg,
-        collection: testCollection,
-        folder: testFolder,
+        collection: [testCollection],
+        folder: [testFolder],
         cipherType: CipherType.Card,
       });
 
@@ -861,8 +1058,8 @@ describe("VaultPopupListFiltersService", () => {
 
       expect(cachedSignal()).toEqual({
         organizationId: "test-org-id",
-        collectionId: "test-collection-id",
-        folderId: "test-folder-id",
+        collectionIds: ["test-collection-id"],
+        folderIds: ["test-folder-id"],
         cipherType: CipherType.Card,
       });
       discardPeriodicTasks();
@@ -933,8 +1130,6 @@ function createSeededVaultPopupListFiltersService(
     restricted$: new BehaviorSubject<RestrictedCipherType[]>([]),
     isCipherRestricted: jest.fn().mockReturnValue(false),
   } as any;
-  const formBuilderInstance = new FormBuilder();
-
   const seededCachedSignal = createMockSignal<CachedFilterState>(cachedState);
   const viewCacheServiceMock = {
     signal: jest.fn(() => seededCachedSignal),
@@ -951,7 +1146,6 @@ function createSeededVaultPopupListFiltersService(
       organizationServiceMock,
       i18nServiceMock,
       collectionServiceMock,
-      formBuilderInstance,
       policyServiceMock,
       stateProviderMock,
       accountServiceMock,

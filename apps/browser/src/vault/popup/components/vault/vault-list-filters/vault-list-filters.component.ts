@@ -1,9 +1,12 @@
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
-import { combineLatest, map, shareReplay } from "rxjs";
+import { Component, DestroyRef, inject } from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { FormControl, ReactiveFormsModule } from "@angular/forms";
+import { combineLatest, map, shareReplay, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ChipFilterComponent } from "@bitwarden/components";
 import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
 
@@ -24,11 +27,25 @@ import { VaultPopupListFiltersService } from "../../../services/vault-popup-list
   ],
 })
 export class VaultListFiltersComponent {
+  private readonly destroyRef = inject(DestroyRef);
+
   protected filterForm = this.vaultPopupListFiltersService.filterForm;
   protected organizations$ = this.vaultPopupListFiltersService.organizations$;
   protected collections$ = this.vaultPopupListFiltersService.collections$;
   protected folders$ = this.vaultPopupListFiltersService.folders$;
   protected cipherTypes$ = this.vaultPopupListFiltersService.cipherTypes$;
+
+  /**
+   * Single-select stand-ins for the multi-select `collection` and `folder` filters.
+   *
+   * `bit-chip-filter` holds one value, so it can't bind to those controls with `formControlName`.
+   * This header only renders while `VFO1Foundation` is off (the rollback path — the table's own
+   * toolbar replaces it), so rather than teaching the shared chip about arrays, these narrow each
+   * dimension to one selection for as long as the flag can still be flipped back. Both are dropped
+   * with the rest of this component once it does.
+   */
+  protected readonly singleCollection = new FormControl<CollectionView | null>(null);
+  protected readonly singleFolder = new FormControl<FolderView | null>(null);
 
   // Combine all filters into a single observable to eliminate the filters from loading separately in the UI.
   protected allFilters$ = combineLatest([
@@ -46,5 +63,27 @@ export class VaultListFiltersComponent {
     shareReplay({ bufferSize: 1, refCount: false }),
   );
 
-  constructor(private vaultPopupListFiltersService: VaultPopupListFiltersService) {}
+  constructor(private vaultPopupListFiltersService: VaultPopupListFiltersService) {
+    this.bindSingleSelect(this.singleCollection, this.filterForm.controls.collection);
+    this.bindSingleSelect(this.singleFolder, this.filterForm.controls.folder);
+  }
+
+  /**
+   * Keeps a single-select chip control and its multi-select filter control in step.
+   *
+   * The filter control stays authoritative: a chip selection replaces the dimension, while a write
+   * from anywhere else (the view cache, `validateOrganizationChange`, `resetFilterForm`) surfaces
+   * as its first selection. Only the first is representable here — the rest stay applied to the
+   * vault, which is what the table's chips wrote.
+   */
+  private bindSingleSelect<T>(chip: FormControl<T | null>, filter: FormControl<T[]>): void {
+    filter.valueChanges
+      .pipe(startWith(filter.value), takeUntilDestroyed(this.destroyRef))
+      // `emitEvent: false` so reflecting the filter here doesn't echo straight back into it.
+      .subscribe((values) => chip.setValue(values[0] ?? null, { emitEvent: false }));
+
+    chip.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => filter.setValue(value == null ? [] : [value]));
+  }
 }
