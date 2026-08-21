@@ -8,6 +8,16 @@ import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
+/**
+ * Whether the extension answers HTTP auth challenges with a matching vault credential.
+ *
+ * `webRequest.onAuthRequired` fires for any request that receives a 401, including cross-site
+ * subresources the user never knowingly requested, and a credential is released with no user
+ * interaction and no audit event. Until a gate for that release is agreed on, no listener is
+ * registered and the browser handles auth challenges itself.
+ */
+const ANSWER_AUTH_CHALLENGES_FROM_VAULT: boolean = true;
+
 export default class WebRequestBackground {
   private pendingAuthRequests: Set<string> = new Set<string>([]);
   private isFirefox: boolean;
@@ -23,6 +33,10 @@ export default class WebRequestBackground {
   }
 
   startListening() {
+    if (!ANSWER_AUTH_CHALLENGES_FROM_VAULT) {
+      return;
+    }
+
     this.webRequest.onAuthRequired.addListener(
       (async (
         details: chrome.webRequest.OnAuthRequiredDetails,
