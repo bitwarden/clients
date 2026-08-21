@@ -884,6 +884,39 @@ describe("VaultPopupListFiltersService", () => {
       expect(counts.cipherType.get(CipherType.Login)).toBe(2);
     });
 
+    it("excludes archived ciphers from every count", async () => {
+      const archived = {
+        id: "6",
+        type: CipherType.Login,
+        collectionIds: [],
+        organizationId: null,
+        isArchived: true,
+      } as unknown as CipherView;
+
+      const counts = await countsFor([...countedCiphers, archived]);
+
+      expect(counts.cipherType.get(CipherType.Login)).toBe(2);
+    });
+
+    it("excludes restricted ciphers from every count", async () => {
+      const restricted = {
+        id: "6",
+        type: CipherType.Login,
+        collectionIds: [],
+        organizationId: null,
+      } as unknown as CipherView;
+
+      restrictedItemTypesService.isCipherRestricted.mockImplementation(
+        (cipher: CipherView) => cipher === restricted,
+      );
+
+      const counts = await countsFor([...countedCiphers, restricted]);
+
+      expect(counts.cipherType.get(CipherType.Login)).toBe(2);
+
+      restrictedItemTypesService.isCipherRestricted.mockReturnValue(false);
+    });
+
     it("counts the whole vault regardless of which filters are applied", async () => {
       service.filterForm.patchValue({ organization: { id: "org-1" } as Organization });
 

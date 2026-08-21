@@ -336,12 +336,17 @@ export class VaultPopupListFiltersService {
 
   /**
    * Absolute item counts for every filter option. The applied filters deliberately don't narrow
-   * these, so an option's number stays stable as the user moves through the menus. Deleted items
-   * are still excluded, since they're never listed.
+   * these, so an option's number stays stable as the user moves through the menus. Deleted, archived,
+   * and restricted items are excluded, since they're never listed.
    */
   filterOptionCounts$: Observable<FilterOptionCounts> = this.activeUserId$.pipe(
-    switchMap((userId) => this.cipherService.cipherListViews$(userId)),
-    map((cipherViews) => {
+    switchMap((userId) =>
+      combineLatest([
+        this.cipherService.cipherListViews$(userId),
+        this.restrictedItemTypesService.restricted$,
+      ]),
+    ),
+    map(([cipherViews, restrictedTypes]) => {
       const ciphers = cipherViews ? Object.values(cipherViews) : [];
       const counts: FilterOptionCounts = {
         cipherType: new Map<CipherType, number>(),
@@ -355,7 +360,11 @@ export class VaultPopupListFiltersService {
       };
 
       for (const cipher of ciphers) {
-        if (CipherViewLikeUtils.isDeleted(cipher)) {
+        if (
+          CipherViewLikeUtils.isDeleted(cipher) ||
+          CipherViewLikeUtils.isArchived(cipher) ||
+          this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes)
+        ) {
           continue;
         }
 
