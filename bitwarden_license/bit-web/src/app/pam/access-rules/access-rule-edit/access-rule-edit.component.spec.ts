@@ -113,12 +113,12 @@ describe("AccessRuleEditComponent — default/max duration coupling", () => {
     expect(controls().maxLeaseDurationSeconds.value).toBe(THIRTY_MIN);
   });
 
-  it("drags the max up when the default is raised above it", () => {
+  it("clamps the default back down when raised above the max, without moving the max", () => {
     controls().maxLeaseDurationSeconds.setValue(THIRTY_MIN); // also pulls the default down to 30m
     controls().defaultLeaseDurationSeconds.setValue(ONE_HOUR);
 
-    expect(controls().maxLeaseDurationSeconds.value).toBe(ONE_HOUR);
-    expect(controls().defaultLeaseDurationSeconds.value).toBe(ONE_HOUR);
+    expect(controls().maxLeaseDurationSeconds.value).toBe(THIRTY_MIN);
+    expect(controls().defaultLeaseDurationSeconds.value).toBe(THIRTY_MIN);
   });
 
   it("never constrains the default while the max is 'no maximum'", () => {
@@ -163,12 +163,15 @@ describe("AccessRuleEditComponent — page furniture", () => {
   };
 
   it("shows the rule's name as the heading, with the list and edit-page crumbs", async () => {
-    const fixture = await render({ params: { accessRuleId: "rule-1" } }, {
-      id: "rule-1",
-      name: "Production database access",
-      collections: [],
-      conditions: [],
-    } as unknown as AccessRuleView);
+    const fixture = await render(
+      { params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } },
+      {
+        id: "11111111-1111-1111-1111-111111111111",
+        name: "Production database access",
+        collections: [],
+        conditions: [],
+      } as unknown as AccessRuleView,
+    );
 
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("Production database access");
@@ -341,8 +344,8 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   const controls = () => component["formGroup"].controls;
 
   it("seeds the collections control by mapping an existing rule's IDs onto loaded options", async () => {
-    await setup({ params: { accessRuleId: "rule-1" } }, {
-      id: "rule-1",
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
       collections: ["col-1", "col-3"],
       conditions: [],
     } as unknown as AccessRuleView);
@@ -398,7 +401,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     // human_approval/ip_allowlist are); it stands in for any future server-side
     // condition kind the SDK passes through unrecognised.
     const existingRule = {
-      id: "rule-1",
+      id: "11111111-1111-1111-1111-111111111111",
       name: "Existing rule",
       collections: ["col-2"],
       conditions: [
@@ -407,7 +410,7 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
       ],
     } as unknown as AccessRuleView;
 
-    await setup({ params: { accessRuleId: "rule-1" } }, existingRule);
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, existingRule);
 
     // Edit an unrelated field to exercise the round-trip.
     controls().description.setValue("updated description");
@@ -455,8 +458,8 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 
   it("snaps off-preset stored max/extension durations onto their picker options", async () => {
-    await setup({ params: { accessRuleId: "rule-1" } }, {
-      id: "rule-1",
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
       name: "Off-preset durations",
       collections: [],
       conditions: [],
@@ -471,8 +474,8 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 
   it("deletes the rule under edit and returns to the list once confirmed", async () => {
-    await setup({ params: { accessRuleId: "rule-1" } }, {
-      id: "rule-1",
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
       name: "Existing rule",
       collections: [],
       conditions: [],
@@ -485,7 +488,10 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
         content: { key: "pamAccessRuleDeleteConfirmContent", placeholders: ["Existing rule"] },
       }),
     );
-    expect(pamApi.deleteAccessRule).toHaveBeenCalledWith("org-1", "rule-1");
+    expect(pamApi.deleteAccessRule).toHaveBeenCalledWith(
+      "org-1",
+      "11111111-1111-1111-1111-111111111111",
+    );
     expect(showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "success", message: "pamAccessRuleDeleted" }),
     );
@@ -493,8 +499,8 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
   });
 
   it("leaves the rule alone when the confirm dialog is declined", async () => {
-    await setup({ params: { accessRuleId: "rule-1" } }, {
-      id: "rule-1",
+    await setup({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } }, {
+      id: "11111111-1111-1111-1111-111111111111",
       name: "Existing rule",
       collections: [],
       conditions: [],
@@ -566,7 +572,12 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     TestBed.configureTestingModule({
       imports: [AccessRuleEditComponent, ReactiveFormsModule],
       providers: providersWith(
-        { provide: ActivatedRoute, useValue: routeStub({ params: { accessRuleId: "missing" } }) },
+        {
+          provide: ActivatedRoute,
+          useValue: routeStub({
+            params: { accessRuleId: "22222222-2222-2222-2222-222222222222" },
+          }),
+        },
         { provide: AccessRuleSdkService, useValue: pamApi },
         { provide: ToastService, useValue: { showToast } },
       ),
@@ -576,6 +587,39 @@ describe("AccessRuleEditComponent — load, collections, and submit", () => {
     const fixture = TestBed.createComponent(AccessRuleEditComponent);
     await fixture.whenStable();
 
+    expect(showToast).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
+    );
+    expect(navigate).toHaveBeenCalledWith([".."], expect.objectContaining({}));
+  });
+
+  it("toasts and navigates back for an unparseable id, without ever calling the SDK", async () => {
+    pamApi = {
+      getAccessRule: jest.fn(),
+      createAccessRule: jest.fn(),
+      updateAccessRule: jest.fn(),
+      deleteAccessRule: jest.fn(),
+    };
+    showToast = jest.fn();
+
+    TestBed.overrideComponent(AccessRuleEditComponent, { set: { template: "" } });
+    TestBed.configureTestingModule({
+      imports: [AccessRuleEditComponent, ReactiveFormsModule],
+      providers: providersWith(
+        {
+          provide: ActivatedRoute,
+          useValue: routeStub({ params: { accessRuleId: "not-a-real-id" } }),
+        },
+        { provide: AccessRuleSdkService, useValue: pamApi },
+        { provide: ToastService, useValue: { showToast } },
+      ),
+    });
+
+    navigate = jest.spyOn(TestBed.inject(Router), "navigate").mockResolvedValue(true);
+    const fixture = TestBed.createComponent(AccessRuleEditComponent);
+    await fixture.whenStable();
+
+    expect(pamApi.getAccessRule).not.toHaveBeenCalled();
     expect(showToast).toHaveBeenCalledWith(
       expect.objectContaining({ variant: "error", message: "pamAccessRuleNotFound" }),
     );
@@ -601,7 +645,7 @@ describe("AccessRuleEditComponent — form states", () => {
   const render = async (state: RouteState = {}) => {
     pamApi = {
       getAccessRule: jest.fn().mockResolvedValue({
-        id: "rule-1",
+        id: "11111111-1111-1111-1111-111111111111",
         name: "Existing rule",
         collections: [],
         conditions: [],
@@ -665,7 +709,10 @@ describe("AccessRuleEditComponent — form states", () => {
       fixture.nativeElement.querySelector("#access-rule-edit_input_name") as HTMLInputElement;
 
     it("selects the prefilled name so typing replaces it", async () => {
-      await render({ params: { accessRuleId: "rule-1" }, queryParams: { renaming: "true" } });
+      await render({
+        params: { accessRuleId: "11111111-1111-1111-1111-111111111111" },
+        queryParams: { renaming: "true" },
+      });
 
       expect(document.activeElement).toBe(nameInput());
       expect(nameInput().selectionStart).toBe(0);
@@ -673,7 +720,7 @@ describe("AccessRuleEditComponent — form states", () => {
     });
 
     it("leaves focus alone on an ordinary edit", async () => {
-      await render({ params: { accessRuleId: "rule-1" } });
+      await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
 
       expect(document.activeElement).not.toBe(nameInput());
     });
@@ -913,7 +960,7 @@ describe("AccessRuleEditComponent — form states", () => {
     });
 
     it("names the edits, not the rule, when an existing rule is being edited", async () => {
-      await render({ params: { accessRuleId: "rule-1" } });
+      await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
       controls().name.setValue("Renamed rule");
       controls().name.markAsDirty();
 
@@ -963,7 +1010,7 @@ describe("AccessRuleEditComponent — form states", () => {
     });
 
     it("does not ask once the rule has been deleted", async () => {
-      await render({ params: { accessRuleId: "rule-1" } });
+      await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
       controls().name.setValue("Renamed rule");
       controls().name.markAsDirty();
 

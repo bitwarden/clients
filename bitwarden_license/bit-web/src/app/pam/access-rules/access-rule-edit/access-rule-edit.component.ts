@@ -45,6 +45,7 @@ import {
   TypographyModule,
   ContainerComponent,
 } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -291,16 +292,32 @@ export class AccessRuleEditComponent {
 
   /** Fetch the rule under edit; on a stale/inaccessible id (or any other failure), toast and route back. */
   private async loadRule(): Promise<AccessRuleView | null> {
+    if (!isGuid(this.accessRuleId!)) {
+      return await this.ruleNotFound();
+    }
     try {
       return await this.pamApi.getAccessRule(this.organizationId, this.accessRuleId!);
     } catch (e) {
-      const message = isAccessRuleNotFound(e)
-        ? this.i18nService.t("pamAccessRuleNotFound")
-        : this.i18nService.t(accessRuleErrorMessageKey(e));
-      this.toastService.showToast({ variant: "error", message });
+      if (isAccessRuleNotFound(e)) {
+        return await this.ruleNotFound();
+      }
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      });
       await this.navigateToList();
       return null;
     }
+  }
+
+  /** Toast and route back to the list for an id that does not resolve to a rule, malformed or not. */
+  private async ruleNotFound(): Promise<null> {
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t("pamAccessRuleNotFound"),
+    });
+    await this.navigateToList();
+    return null;
   }
 
   private applyRule(rule: AccessRuleView): void {
@@ -357,10 +374,11 @@ export class AccessRuleEditComponent {
   }
 
   /**
-   * Keep the default duration at or below the max: when the user moves one picker
-   * past the other, drag the other along so the pair stays consistent. A max of
-   * {@link NO_DURATION_CAP} ("no maximum") never constrains the default. Mutations
-   * use `emitEvent: false` so the paired control updates without re-triggering this.
+   * Keep the default duration at or below the max. Raising the default past the max clamps the
+   * default back down to it — the max is never adjusted by the default, only the other direction:
+   * lowering the max below the current default drags the default down with it. A max of
+   * {@link NO_DURATION_CAP} ("no maximum") never constrains the default. Mutations use
+   * `emitEvent: false` so the paired control updates without re-triggering this.
    */
   private coupleDurationBounds(): void {
     const defaultControl = this.formGroup.controls.defaultLeaseDurationSeconds;
@@ -368,7 +386,7 @@ export class AccessRuleEditComponent {
 
     defaultControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       if (maxControl.value !== NO_DURATION_CAP && value > maxControl.value) {
-        maxControl.setValue(value, { emitEvent: false });
+        defaultControl.setValue(maxControl.value, { emitEvent: false });
       }
     });
 
