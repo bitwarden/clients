@@ -2,13 +2,15 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { provideRouter } from "@angular/router";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
+
+import { LeasingErrorService } from "..";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
@@ -35,12 +37,51 @@ function leaseRow(overrides: Record<string, unknown> = {}): MyAccessLeaseRow {
   } as unknown as MyAccessLeaseRow;
 }
 
+function requestRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow {
+  return {
+    id: "req-1",
+    cipherId: "cipher-1",
+    collectionId: "col-1",
+    cipherName: "Prod database",
+    collectionName: "Production",
+    status: "approved",
+    statusVariant: "info",
+    statusLabelKey: "pamStatusApproved",
+    submittedAt: "2026-08-17T11:00:00.000Z",
+    resolvedAt: "2026-08-17T11:05:00.000Z",
+    leaseNotBefore: "2026-08-17T11:00:00.000Z",
+    leaseNotAfter: "2099-01-01T00:00:00.000Z",
+    resolverLabelKey: null,
+    resolverName: "Ada",
+    approverComment: null,
+    producedLeaseId: null,
+    extendedBySeconds: null,
+    extendedUntil: null,
+    ...overrides,
+  } as unknown as MyAccessRequestRow;
+}
+
 describe("MyRequestsTabComponent", () => {
   let fixture: ComponentFixture<MyRequestsTabComponent>;
+  let component: MyRequestsTabComponent;
+  let pendingRows$: BehaviorSubject<MyAccessRequestRow[]>;
+  let extensionRows$: BehaviorSubject<MyAccessRequestRow[]>;
   let leases$: BehaviorSubject<MyAccessLeaseRow[]>;
+  let myAccess: {
+    pendingRows$: BehaviorSubject<MyAccessRequestRow[]>;
+    extensionRows$: BehaviorSubject<MyAccessRequestRow[]>;
+    leases$: BehaviorSubject<MyAccessLeaseRow[]>;
+    cipherById$: BehaviorSubject<Map<string, CipherView>>;
+    activate: jest.Mock;
+    cancel: jest.Mock;
+    endLease: jest.Mock;
+  };
+  let leasingErrorService: MockProxy<LeasingErrorService>;
+  let toastService: MockProxy<ToastService>;
 
   function create(): void {
     fixture = TestBed.createComponent(MyRequestsTabComponent);
+    component = fixture.componentInstance;
     fixture.detectChanges();
   }
 
@@ -50,23 +91,30 @@ describe("MyRequestsTabComponent", () => {
 
   beforeEach(async () => {
     jest.useFakeTimers();
+    pendingRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
+    extensionRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     leases$ = new BehaviorSubject<MyAccessLeaseRow[]>([]);
+    myAccess = {
+      pendingRows$,
+      extensionRows$,
+      leases$,
+      cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
+      activate: jest.fn().mockResolvedValue(undefined),
+      cancel: jest.fn().mockResolvedValue(undefined),
+      endLease: jest.fn().mockResolvedValue(undefined),
+    };
+    leasingErrorService = mock<LeasingErrorService>();
+    leasingErrorService.isLeasingError.mockReturnValue(false);
+    toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
       imports: [MyRequestsTabComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
-        {
-          provide: MyAccessService,
-          useValue: {
-            pendingRows$: new BehaviorSubject<MyAccessRequestRow[]>([]),
-            extensionRows$: new BehaviorSubject<MyAccessRequestRow[]>([]),
-            leases$,
-            cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
-          },
-        },
+        { provide: MyAccessService, useValue: myAccess },
+        { provide: LeasingErrorService, useValue: leasingErrorService },
         { provide: DialogService, useValue: mock<DialogService>() },
-        { provide: ToastService, useValue: mock<ToastService>() },
+        { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
         {
           provide: I18nService,
@@ -127,6 +175,83 @@ describe("MyRequestsTabComponent", () => {
         kind: "active",
         expiresAt: new Date(LEASE_END),
       });
+    });
+  });
+
+  describe("activating an approved request", () => {
+    const row = requestRow({ id: "req-1" });
+
+    it("shows the server's own message for a failed activation", async () => {
+      const error = Object.assign(new Error("The approved access window has not started yet."), {
+        name: "AccessRequestError",
+        variant: "Api",
+      });
+      leasingErrorService.isLeasingError.mockReturnValue(true);
+      myAccess.activate.mockRejectedValue(error);
+      create();
+
+      await component["activate"](row);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "The approved access window has not started yet.",
+      });
+    });
+
+    it("falls back to the generic message for a non-leasing failure", async () => {
+      myAccess.activate.mockRejectedValue(new Error("offline"));
+      create();
+
+      await component["activate"](row);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseError",
+      });
+    });
+
+    it("falls back to the generic message for a leasing error that isn't the Api variant", async () => {
+      const error = Object.assign(new Error("internal detail"), {
+        name: "AccessRequestError",
+        variant: "SingleActiveLease",
+      });
+      leasingErrorService.isLeasingError.mockReturnValue(true);
+      myAccess.activate.mockRejectedValue(error);
+      create();
+
+      await component["activate"](row);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseError",
+      });
+    });
+  });
+
+  describe("Extension requests section", () => {
+    it("does not render when there are no open extension requests", () => {
+      create();
+
+      expect(query('[data-testid="my-access-extension-req-ext"]')).toBeNull();
+      expect(fixture.nativeElement.textContent).not.toContain("pamMyRequestsGroupExtensions");
+    });
+
+    it("renders the accordion and its row once an extension request is open", () => {
+      extensionRows$.next([requestRow({ id: "req-ext", status: "pending" })]);
+      create();
+
+      expect(fixture.nativeElement.textContent).toContain("pamMyRequestsGroupExtensions");
+      expect(query('[data-testid="my-access-extension-req-ext"]')).not.toBeNull();
+    });
+  });
+
+  describe("Pending section empty state", () => {
+    it("offers a link back to the vault when there is nothing pending", () => {
+      create();
+
+      const link = query('[data-testid="my-access-pending-empty"] a') as HTMLAnchorElement | null;
+      expect(link).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("pamMyRequestsPendingEmpty");
     });
   });
 });

@@ -17224,6 +17224,12 @@
   "pamMyRequestsExtensionsEmpty": {
     "message": "No extension requests"
   },
+  "pamApprovalsUnavailableTitle": {
+    "message": "Approvals aren't available yet"
+  },
+  "pamApprovalsUnavailableDescription": {
+    "message": "Reviewing and approving other members' access requests is coming soon."
+  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },

@@ -35,7 +35,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessLeaseId, AccessRequestId } from "..";
+import { AccessLeaseId, AccessRequestId, LeasingErrorService } from "..";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationShortPipe } from "../date/duration-short.pipe";
@@ -94,6 +94,7 @@ export class MyRequestsTabComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private readonly leasingErrorService = inject(LeasingErrorService);
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   /** Ids of approved requests currently being activated (prevents double-click). */
@@ -306,11 +307,15 @@ export class MyRequestsTabComponent implements OnInit {
       });
     } catch (e) {
       this.logService.error(e);
-      // A taken single-active-lease slot or an org-wide freeze surfaces here; the approved request
-      // stays activatable for a manual retry.
+      // A taken single-active-lease slot or an org-wide freeze can also surface here; those, and
+      // anything else the server rejects activation for, now show verbatim via the "Api" variant
+      // rather than always the same generic string. The approved request stays activatable for a
+      // manual retry either way.
+      const serverMessage =
+        this.leasingErrorService.isLeasingError(e) && e.variant === "Api" ? e.message : undefined;
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamStartLeaseError"),
+        message: serverMessage ?? this.i18nService.t("pamStartLeaseError"),
       });
     } finally {
       this.starting.update((s) => {

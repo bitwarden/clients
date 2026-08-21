@@ -19,9 +19,12 @@
     <span slot="end" bitBadge variant="secondary">{{ pendingRows().length }}</span>
 
     @if (pendingRows().length === 0) {
-      <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-pending-empty">
-        {{ "pamMyRequestsPendingEmpty" | i18n }}
-      </p>
+      <bit-no-items class="tw-mt-2 tw-block" data-testid="my-access-pending-empty">
+        <span slot="title" class="tw-mt-4 tw-block">{{ "pamMyRequestsPendingEmpty" | i18n }}</span>
+        <a slot="button" bitButton buttonType="secondary" routerLink="/vault">
+          {{ "goToVault" | i18n }}
+        </a>
+      </bit-no-items>
     } @else {
       <bit-table [dataSource]="pendingDataSource">
         <ng-container header>
@@ -77,6 +80,7 @@
                       bitButton
                       buttonType="primary"
                       size="small"
+                      class="tw-whitespace-nowrap"
                       [loading]="isStarting(row.id)"
                       [disabled]="isStarting(row.id)"
                       (click)="activate(row)"
@@ -84,7 +88,7 @@
                     >
                       {{ "pamStartLeaseButton" | i18n }}
                     </button>
-                    <span class="tw-text-xs tw-text-muted">
+                    <span class="tw-text-xs tw-text-muted tw-whitespace-nowrap">
                       {{ "pamActivateWithin" | i18n: (row.leaseNotAfter | remainingTime: nowMs()) }}
                     </span>
                   </div>
@@ -110,19 +114,11 @@
     }
   </bit-accordion>
 
-  <!-- Extension requests -->
-  <bit-accordion [title]="'pamMyRequestsGroupExtensions' | i18n">
-    <span slot="end" bitBadge variant="secondary">{{ extensionRows().length }}</span>
+  @if (extensionRows().length > 0) {
+    <!-- Extension requests -->
+    <bit-accordion [title]="'pamMyRequestsGroupExtensions' | i18n">
+      <span slot="end" bitBadge variant="secondary">{{ extensionRows().length }}</span>
 
-    @if (extensionRows().length === 0) {
-      <p
-        bitTypography="body2"
-        class="tw-mb-0 tw-text-muted"
-        data-testid="my-access-extensions-empty"
-      >
-        {{ "pamMyRequestsExtensionsEmpty" | i18n }}
-      </p>
-    } @else {
       <bit-table [dataSource]="extensionDataSource">
         <ng-container header>
           <tr>
@@ -182,8 +178,8 @@
           </tr>
         </ng-template>
       </bit-table>
-    }
-  </bit-accordion>
+    </bit-accordion>
+  }
 
   <!-- Currently checked out (active leases) -->
   <bit-accordion [title]="'pamMyRequestsGroupCheckedOut' | i18n">
