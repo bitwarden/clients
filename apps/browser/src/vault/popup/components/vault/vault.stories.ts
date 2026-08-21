@@ -752,7 +752,7 @@ const buildProviders = (args: StoryArgs) => {
           upgrade: "Upgrade",
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
-          launchWebsiteName: "Launch __$1__",
+          launchWebsiteForName: "Launch __$1__",
           // New-item dropdown / header controls. Every `labelKey` in `CIPHER_MENU_ITEMS` has to
           // resolve or the dropdown throws while rendering.
           new: "New",
