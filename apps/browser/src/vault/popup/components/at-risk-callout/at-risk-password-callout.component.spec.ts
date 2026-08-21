@@ -35,9 +35,6 @@ describe("AtRiskPasswordCalloutComponent", () => {
       providers: [
         { provide: AccountService, useValue: mockAccountService },
         { provide: I18nService, useValue: mock<I18nService>() },
-        // The callout reads `VFO1Foundation` to pick its margin. Stubbed rather than mocked:
-        // `mock<ConfigService>()` returns `undefined` from `getFeatureFlag$`, which `toSignal`
-        // can't consume.
         { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
       ],
     })

@@ -595,14 +595,13 @@ describe("VaultPopupListFiltersService", () => {
     });
 
     /**
-     * Collections and folders filter to a set: the selections within a dimension are OR'd, and the
-     * dimensions are still AND'd against each other.
+     * Collections and folders filter to a set: selections within a filter are OR'd, and the
+     * filters are still AND'd against each other.
      */
-    describe("multi-select dimensions", () => {
+    describe("multi-select filters", () => {
       /**
-       * `filters$` starts with the form value captured when the service was constructed, so a
-       * fresh subscription always replays the unfiltered value. Applying the filter while
-       * subscribed is what puts the new one through.
+       * `filters$` replays the form value captured at construction, so a fresh subscription always
+       * sees the unfiltered value — applying while subscribed is what puts the new one through.
        */
       const applyFilters = (filters: Partial<PopupListFilter>) => {
         let filterFunction!: (ciphers: PopupCipherViewLike[]) => PopupCipherViewLike[];
@@ -670,7 +669,7 @@ describe("VaultPopupListFiltersService", () => {
         ]);
       });
 
-      it("still narrows across dimensions", () => {
+      it("still narrows across filters", () => {
         const filterFunction = applyFilters({
           folder: [{ id: "work" } as FolderView, { id: "archive" } as FolderView],
           cipherType: CipherType.Card,
@@ -679,7 +678,7 @@ describe("VaultPopupListFiltersService", () => {
         expect(filterFunction(multiCiphers)).toEqual([multiCiphers[2]]);
       });
 
-      it("leaves the list unnarrowed when a dimension is emptied", () => {
+      it("leaves the list unnarrowed when a filter is emptied", () => {
         applyFilters({ folder: [{ id: "work" } as FolderView] });
         const filterFunction = applyFilters({ folder: [] });
 
@@ -735,9 +734,8 @@ describe("VaultPopupListFiltersService", () => {
   });
 
   /**
-   * Changing the organization filter narrows which collections and folders are offered at all, so
-   * selections that fall outside the new organization are dropped. Only those are dropped — the
-   * rest of a multi-select dimension stays applied.
+   * Changing the organization filter narrows which collections and folders are offered, so
+   * selections outside the new organization are dropped and the rest stay applied.
    */
   describe("organization change", () => {
     it("drops only the collections outside the new organization", () => {
@@ -755,8 +753,8 @@ describe("VaultPopupListFiltersService", () => {
         "1": { id: "1", organizationId: "org-1", folderId: "shared" },
         "2": { id: "2", organizationId: null, folderId: "personal" },
       } as any);
-      // Folders belong to an organization only by way of its ciphers, which the validation reads
-      // from the snapshot `folders$` maintains.
+      // Folders belong to an organization only by way of its ciphers, read from the snapshot
+      // `folders$` maintains.
       const subscription = service.folders$.subscribe();
 
       const kept = { id: "shared" } as FolderView;
@@ -771,8 +769,7 @@ describe("VaultPopupListFiltersService", () => {
 
     /**
      * The option list drops "Items with no folder" when the new organization has no folderless
-     * items, but the filter itself is left alone — matching the behavior the single-select header
-     * has today, so turning the flag off changes nothing here.
+     * items, but the filter itself is left alone.
      */
     it('leaves an "Items with no folder" selection applied', () => {
       cipherListViews$.next({
@@ -825,9 +822,8 @@ describe("VaultPopupListFiltersService", () => {
     ] as unknown as CipherView[];
 
     /**
-     * The latest counts for a set of ciphers. `cipherListViews$` is a `BehaviorSubject` shared
-     * across the suite and `filterOptionCounts$` replays, so a bare `subscribe` would see the
-     * previous test's emission first — take the value settled after this test's own input.
+     * The latest counts for a set of ciphers. `cipherListViews$` is shared across the suite and
+     * `filterOptionCounts$` replays, so a bare `subscribe` would see the previous test's emission.
      */
     const countsFor = async (ciphers: CipherView[]) => {
       cipherListViews$.next({ ...ciphers });
@@ -874,8 +870,7 @@ describe("VaultPopupListFiltersService", () => {
     });
 
     it("excludes deleted ciphers from every count", async () => {
-      // `CipherViewLikeUtils.isDeleted` reads `isDeleted` on a `CipherView` (it only consults
-      // `deletedDate` for a `CipherListView`), and these fixtures are the former.
+      // `CipherViewLikeUtils.isDeleted` reads `isDeleted` on a `CipherView`, which these are.
       const deleted = {
         id: "6",
         type: CipherType.Login,
@@ -974,8 +969,7 @@ describe("VaultPopupListFiltersService", () => {
 
     /**
      * The cache is written on every filter change and read on the next popup open, so an entry
-     * written by a build from before collections and folders became multi-select outlives the
-     * update. Dropping it would silently clear the user's filters on their first open.
+     * predating multi-select outlives the update — dropping it would clear the user's filters.
      */
     it("initializes form from the pre-multi-select cached state", fakeAsync(() => {
       const cachedState: CachedFilterState = {

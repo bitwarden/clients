@@ -36,13 +36,10 @@ export class VaultListFiltersComponent {
   protected cipherTypes$ = this.vaultPopupListFiltersService.cipherTypes$;
 
   /**
-   * Single-select stand-ins for the multi-select `collection` and `folder` filters.
-   *
-   * `bit-chip-filter` holds one value, so it can't bind to those controls with `formControlName`.
-   * This header only renders while `VFO1Foundation` is off (the rollback path — the table's own
-   * toolbar replaces it), so rather than teaching the shared chip about arrays, these narrow each
-   * dimension to one selection for as long as the flag can still be flipped back. Both are dropped
-   * with the rest of this component once it does.
+   * Single-select stand-ins for the multi-select `collection` and `folder` filters, since
+   * `bit-chip-filter` holds one value and can't bind to those controls with `formControlName`.
+   * This header only renders while `VFO1Foundation` is off, so these narrow each filter to one
+   * selection for as long as the flag can be flipped back, and are dropped with the component.
    */
   protected readonly singleCollection = new FormControl<CollectionView | null>(null);
   protected readonly singleFolder = new FormControl<FolderView | null>(null);
@@ -69,17 +66,15 @@ export class VaultListFiltersComponent {
   }
 
   /**
-   * Keeps a single-select chip control and its multi-select filter control in step.
-   *
-   * The filter control stays authoritative: a chip selection replaces the dimension, while a write
-   * from anywhere else (the view cache, `validateOrganizationChange`, `resetFilterForm`) surfaces
-   * as its first selection. Only the first is representable here — the rest stay applied to the
-   * vault, which is what the table's chips wrote.
+   * Keeps a single-select chip control and its multi-select filter control in step. The filter
+   * control stays authoritative: a chip selection replaces the filter, while a write from
+   * anywhere else surfaces as its first selection — the only one representable here. Any remaining
+   * selections stay applied to the vault.
    */
   private bindSingleSelect<T>(chip: FormControl<T | null>, filter: FormControl<T[]>): void {
     filter.valueChanges
       .pipe(startWith(filter.value), takeUntilDestroyed(this.destroyRef))
-      // `emitEvent: false` so reflecting the filter here doesn't echo straight back into it.
+      // `emitEvent: false` so reflecting the filter here doesn't echo back into it.
       .subscribe((values) => chip.setValue(values[0] ?? null, { emitEvent: false }));
 
     chip.valueChanges

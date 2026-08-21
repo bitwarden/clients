@@ -60,11 +60,9 @@ import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options
 import { VaultFilterChipDirective } from "./vault-filter-chip.directive";
 
 /**
- * Flattens a nested `ChipFilterOption` tree into a single depth-first list.
- *
- * Interim: the designs call for an indented, expand/collapse tree, but `bit-filter-option` has no
- * depth or children concept, so a flat list is the only shape the menu renders today. Recursive
- * nesting is being added in CL-985; revisit this (and drop the flattening) once it lands.
+ * Flattens a nested `ChipFilterOption` tree into a single depth-first list. Interim:
+ * `bit-filter-option` has no depth or children concept, so a flat list is the only shape the menu
+ * renders today. Drop this once the recursive nesting in CL-985 lands.
  */
 function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[] {
   return options.flatMap((option) => [option, ...flattenOptions(option.children ?? [])]);
@@ -77,9 +75,8 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
   host: {
     // Forward height through to the `height="fill"` table so it can size to a bounded parent
     // (e.g. the popup-page scroll area). Without this the host collapses to 0 and no rows show.
-    //
     // The negative margins cancel `popup-page`'s scroll-region padding so the toolbar's bottom
-    // border reaches the popup edges
+    // border reaches the popup edges.
     class:
       "tw-flex tw-flex-col tw-flex-1 tw-min-h-0 -tw-mx-3 -tw-mt-3 -tw-mb-2.5 bit-compact:-tw-mx-2 bit-compact:-tw-mt-2 bit-compact:-tw-mb-1.5",
   },
@@ -121,7 +118,6 @@ export class VaultPopupListTableComponent {
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
-  /** Empty-slot icons: the default no-results graphic, or the suspended-organization one. */
   protected readonly noResultsIcon = NoResults;
   protected readonly deactivatedIcon = DeactivatedOrg;
 
@@ -137,9 +133,9 @@ export class VaultPopupListTableComponent {
   });
 
   /**
-   * Whether the selected organization filter points at a suspended organization. The toolbar stays
-   * mounted in this state so the filter that caused it remains clearable — unmounting the table
-   * would strip the chips and the search box along with it.
+   * Whether the organization filter points at a suspended organization. The table stays mounted in
+   * this state so the filter that caused it remains clearable — unmounting would strip the chips
+   * and the search box along with it.
    */
   protected readonly showDeactivatedOrg = toSignal(this.listTableService.showDeactivatedOrg$, {
     initialValue: false,
@@ -150,19 +146,16 @@ export class VaultPopupListTableComponent {
   });
 
   /**
-   * A suspended organization's ciphers still match its own filter, so they have to be withheld
-   * here rather than by `filterFunction$` — otherwise the list would show items belonging to an
-   * organization the user can no longer act on. Emptying the rows also hands the state over to the
-   * table's empty slot, which renders the notice.
+   * A suspended organization's ciphers still match its own filter, so they're withheld here rather
+   * than by `filterFunction$`. Emptying the rows also hands the state to the table's empty slot.
    */
   protected readonly rows = computed(() => (this.showDeactivatedOrg() ? [] : this.allRows()));
 
   protected readonly table = defineTable<VaultTableRow, "name">(this.rows);
 
   /**
-   * The dimension-filter options. Each stream hides its own chip when empty — organizations are
-   * absent for a user with no orgs, and folders/collections narrow to the selected organization —
-   * so the chips are rendered conditionally on these having entries.
+   * The filter options. Each stream empties when its filter doesn't apply (no orgs, or
+   * folders/collections narrowed away by the selected organization), which hides that chip.
    */
   protected readonly cipherTypeOptions = toSignal(this.listFiltersService.cipherTypes$, {
     initialValue: [] as ChipFilterOption<CipherType>[],
@@ -181,22 +174,17 @@ export class VaultPopupListTableComponent {
   });
 
   /**
-   * Collections and folders arrive as nested trees, but a chip's options are a flat list, so the
-   * nesting is flattened into one option per node.
-   *
-   * Each node keeps the label the tree gave it — the trailing path segment — so a child of "Work"
-   * shows as "EU" rather than "Work/EU". Options are therefore tracked by id, not label, since
-   * two folders like "Work/Personal" and "Home/Personal" flatten to the same label.
+   * Collections and folders arrive as nested trees, flattened to one option per node. Each node
+   * keeps the trailing path segment the tree gave it, so a child of "Work" shows as "EU" — meaning
+   * options are tracked by id, since "Work/Personal" and "Home/Personal" flatten to one label.
    */
   protected readonly collectionOptions = computed(() => flattenOptions(this.collectionTree()));
   protected readonly folderOptions = computed(() => flattenOptions(this.folderTree()));
 
   /**
-   * Item counts per filter option, shown to the right of each option row.
-   *
-   * The table can't derive these itself: `bit-table-v2` counts its own rows, which are already
-   * narrowed by `filterFunction$` upstream, so every unselected option would read zero. The
-   * service counts the whole vault instead.
+   * Item counts per filter option. The table can't derive these itself: `bit-table-v2` counts its
+   * own rows, already narrowed by `filterFunction$` upstream, so every unselected option would read
+   * zero. The service counts the whole vault instead.
    */
   private readonly optionCounts = toSignal(this.listFiltersService.filterOptionCounts$, {
     initialValue: {
@@ -207,7 +195,6 @@ export class VaultPopupListTableComponent {
     } as FilterOptionCounts,
   });
 
-  /** An option's count, defaulting to zero so a dimension with no matches still renders a number. */
   protected cipherTypeCount(type: CipherType): number {
     return this.optionCounts().cipherType.get(type) ?? 0;
   }
@@ -250,10 +237,7 @@ export class VaultPopupListTableComponent {
     this.currentUriIsBlocked() ? "itemSuggestions" : "autofillSuggestions",
   );
 
-  /**
-   * The empty-slot title key, or `null` while rows are rendering. Mirrors the template's empty
-   * slot, which the table stamps whenever it has no rows to show.
-   */
+  /** The empty-slot title key, or `null` while rows are rendering. */
   private readonly emptyStateKey = computed(() => {
     if (this.loading() || this.rows().length > 0) {
       return null;

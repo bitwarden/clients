@@ -55,10 +55,9 @@ export function featureFlagModes(...flags: string[]) {
 }
 
 /**
- * Same as {@link featureFlagModes}, but also pins each mode to `width`.
- *
- * Chromatic rejects `viewports` and `modes` on the same story, so a story that needs both a
- * flag matrix and a fixed width has to carry the width *inside* each mode instead.
+ * Same as {@link featureFlagModes}, but also pins each mode to `width`. Chromatic rejects
+ * `viewports` and `modes` on the same story, so a story needing both a flag matrix and a fixed
+ * width has to carry the width inside each mode.
  *
  * ```ts
  * parameters: { chromatic: { modes: featureFlagModesAtWidth(400, FeatureFlag.Foobar) } },

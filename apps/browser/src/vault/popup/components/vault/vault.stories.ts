@@ -85,10 +85,9 @@ import { PopupCipherViewLike } from "../../views/popup-cipher.view";
 
 import { VaultComponent } from "./vault.component";
 
-// `NewItemDropdownComponent.ngOnInit` calls `BrowserApi.getTabFromCurrentWindow()`, which reaches
-// straight for `chrome.windows` — undefined outside the extension runtime, so the popup header
-// throws while rendering. A minimal stub reporting a single active tab keeps it on its normal path.
-// (Other browser stories stub `window.chrome` the same way; see the autofill lit-stories.)
+// `NewItemDropdownComponent.ngOnInit` reaches for `chrome.windows`, which is undefined outside the
+// extension runtime, so the popup header throws while rendering. A stub reporting a single active
+// tab keeps it on its normal path.
 window.chrome = {
   ...window.chrome,
   windows: {
@@ -101,10 +100,8 @@ window.chrome = {
   },
 } as unknown as typeof chrome;
 
-// Fixtures must be deterministic: Chromatic snapshots every story on each PR, so any randomness here
-// would diff against its baseline every build and erode the visual-regression signal. `pick` rotates
-// through each list in a fixed order — its own cursor per array — so fixtures keep their variety
-// without randomness. Mirrors the approach in `vault-popup-list-table.stories.ts`.
+// Fixtures must be deterministic, or Chromatic diffs every story against its baseline on each
+// build. `pick` rotates through each list in a fixed order, with its own cursor per array.
 const pickCursors = new WeakMap<readonly unknown[], number>();
 const pick = <T>(items: readonly T[]): T => {
   const next = pickCursors.get(items) ?? 0;
@@ -112,9 +109,8 @@ const pick = <T>(items: readonly T[]): T => {
   return items[next % items.length];
 };
 
-// Ids must also be stable across builds, so a counter replaces `crypto.randomUUID()` — the table
-// story can afford random ids because it never snapshots them, but these are used as `track` keys
-// and collection ids that appear in tooltips.
+// Ids are snapshotted (as `track` keys and in collection tooltips), so a counter replaces
+// `crypto.randomUUID()`.
 let idCounter = 0;
 const nextId = (): string => `00000000-0000-4000-8000-${String(++idCounter).padStart(12, "0")}`;
 
@@ -140,9 +136,8 @@ const makeEmail = (first = pick(FIRST_NAMES), last = pick(LAST_NAMES)): string =
   `${first}.${last}@${pick(EMAIL_DOMAINS)}`.toLowerCase();
 
 /**
- * Real `CipherView` instances rather than hand-mocked shapes: rows read derived values (e.g. the
- * `subTitle` getter that surfaces a login's username) straight off the model, so building the
- * actual class is both simpler than mocking every getter and a truer exercise of the components.
+ * Real `CipherView` instances rather than hand-mocked shapes: rows read derived values off the
+ * model (e.g. the `subTitle` getter), so building the class beats mocking every getter.
  */
 const baseCipher = (type: CipherType, name: string): CipherView => {
   const cipher = new CipherView();
@@ -242,10 +237,8 @@ const STORY_ORG_ID = "00000000-0000-4000-8000-0000000000fe" as OrganizationId;
 
 /**
  * Options for the list table's toolbar filter chips (VFO1 on). Each chip only renders when its
- * stream has entries, so these decide which of Vault / Shared folders / My folders appear at all —
- * without them the toolbar would show a lone inert Type chip, under-representing the real one.
- *
- * IDs are fixed rather than generated: these feed chip labels that Chromatic snapshots.
+ * stream has entries, so these decide which of Vault / Shared folders / My folders appear at all.
+ * IDs are fixed rather than generated, since they feed chip labels that Chromatic snapshots.
  */
 const FILTER_ORGANIZATION_OPTIONS = [
   { value: { id: MY_VAULT_ID } as Organization, label: "My vault", icon: "bwi-user" as const },
@@ -263,15 +256,14 @@ const FILTER_COLLECTION_OPTIONS = [
   },
 ];
 
-// Nested, to exercise the chip's tree flattening: the child renders as its own option.
+// Nested, to exercise the chip's tree flattening: the child renders as its own option, labeled
+// with only its trailing segment ("EU", never "Work/EU").
 const FILTER_FOLDER_OPTIONS = [
   {
     value: { id: "00000000-0000-4000-8000-0000000000fc", name: "Work" } as FolderView,
     label: "Work",
     children: [
       {
-        // Nesting splits the name and keeps only the trailing segment on each node, so the real
-        // `folders$` labels this "EU" — never the full "Work/EU" path.
         value: { id: "00000000-0000-4000-8000-0000000000fd", name: "Work/EU" } as FolderView,
         label: "EU",
       },
@@ -326,10 +318,9 @@ type StoryArgs = {
  * The org-user-notification policy backing `vault-organization-user-notifications`.
  *
  * That component (like `vault-at-risk-password-callout`) declares its service in its own
- * `providers`, and a component injector outranks both `applicationConfig` and `moduleMetadata` —
- * so the service itself cannot be swapped out from a story. Both therefore run for real, and the
- * stories steer them through the root-level dependencies they read (`PolicyService`,
- * `StateProvider`, `TaskService`), which is the higher-fidelity path anyway.
+ * `providers`, and a component injector outranks `applicationConfig`, so the service can't be
+ * swapped from a story. Both run for real, steered through the root-level dependencies they read
+ * (`PolicyService`, `StateProvider`, `TaskService`).
  */
 const buildNotificationPolicies = (args: StoryArgs) => {
   if (!args.showOrgNotification) {
@@ -353,12 +344,9 @@ const buildNotificationPolicies = (args: StoryArgs) => {
 };
 
 /**
- * Tasks backing `vault-at-risk-password-callout`.
- *
- * `AtRiskPasswordCalloutService.pendingTasks$` joins each task to a cipher by `cipherId` and keeps
- * only those the user can edit and whose password they can view — so tasks have to point at ciphers
- * the story actually provides, and `CipherService.cipherViews$` has to return them (it reports `[]`
- * for the other stories). `baseCipher` already sets `edit` and `viewPassword`.
+ * Tasks backing `vault-at-risk-password-callout`. `pendingTasks$` joins each task to a cipher by
+ * `cipherId` and keeps only the editable, password-visible ones, so tasks have to point at ciphers
+ * the story provides and `CipherService.cipherViews$` has to return them.
  */
 const buildAtRiskTask = (
   cipherId: PopupCipherViewLike["id"],
@@ -398,23 +386,20 @@ const buildProviders = (args: StoryArgs) => {
   const showDeactivatedOrg$ = new BehaviorSubject(args.showDeactivatedOrg ?? false);
   const hasSearchText$ = new BehaviorSubject(args.hasSearchText ?? false);
 
-  // An empty vault has no ciphers to list, and the no-results state means the filter matched none.
   const populated = !args.emptyVault && !args.noFilteredResults;
   const allItems = populated ? [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS] : [];
 
   const activeNudges = new Set(args.activeNudges ?? []);
   const atRiskTasks = buildAtRiskTasks(args);
-  // The at-risk callout's service joins tasks to ciphers, so these have to be visible to it. Only
-  // the at-risk stories populate this — elsewhere it stays `[]` so no callout renders.
+  // The at-risk callout's service joins tasks to ciphers, so these have to be visible to it.
   const atRiskCiphers = atRiskTasks.pending.length > 0 ? ALL_ITEM_CIPHERS : [];
 
   return [
-    // `vault-fade-in-out` uses Angular animations (`@fadeInOut`); without an animations provider
-    // Angular throws NG05105 on the synthetic property. Noop rather than real animations so
-    // Chromatic never snapshots a partially-faded frame.
+    // `vault-fade-in-out` uses Angular animations, which throw NG05105 without a provider. Noop
+    // rather than real, so Chromatic never snapshots a partially-faded frame.
     provideNoopAnimations(),
-    // `BrowserPopupUtils.inSidebar(window)` reads the window URL; inject a fake so no story picks up
-    // the real Storybook iframe URL and renders the sidebar-only autofill refresh control.
+    // `BrowserPopupUtils.inSidebar(window)` reads the window URL, so a fake keeps stories off the
+    // sidebar-only autofill refresh control.
     { provide: WINDOW, useValue: { location: { href: "https://example.com/" } } as Window },
     {
       provide: VaultPopupItemsService,
@@ -438,18 +423,15 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: VaultPopupListFiltersService,
       useValue: {
-        // The component's `loading$` stays true until `allFilters$` emits, so this must be a
-        // BehaviorSubject-like stream with a value rather than a bare `Subject`.
-        // Kept in step with the individual streams below: the legacy (VFO1-off) header reads this
-        // one, the list table's chips read those, and a mismatch would make the two presentations
-        // disagree about which filters exist.
+        // The component's `loading$` stays true until this emits, so it can't be a bare `Subject`.
+        // Kept in step with the individual streams below: the legacy header reads this one and the
+        // table's chips read those, so a mismatch would make the two presentations disagree.
         allFilters$: of({
           organizations: FILTER_ORGANIZATION_OPTIONS,
           collections: FILTER_COLLECTION_OPTIONS,
           folders: FILTER_FOLDER_OPTIONS,
         }),
-        // No filters applied, so the chips render in their unset state and the legacy header's
-        // count badge stays hidden — matching `hasFilterApplied$: of(false)` above.
+        // No filters applied, matching `hasFilterApplied$: of(false)` above.
         filters$: of({}),
         filterVisibilityState$: of(false),
         numberOfAppliedFilters$: of(0),
@@ -457,16 +439,15 @@ const buildProviders = (args: StoryArgs) => {
         collections$: of(FILTER_COLLECTION_OPTIONS),
         folders$: of(FILTER_FOLDER_OPTIONS),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
-        // Empty maps: the chips' option counts fall back to zero. The list-table stories are where
-        // counts are exercised against real ciphers; these stories cover the page around them.
+        // Empty maps, so the chips' option counts fall back to zero; counts against real ciphers
+        // are exercised in the list-table stories.
         filterOptionCounts$: of({
           cipherType: new Map(),
           organization: new Map(),
           collection: new Map(),
           folder: new Map(),
         }),
-        // `app-vault-list-filters` binds this directly to a `[formGroup]`, so it has to be a real
-        // FormGroup with the controls the template names.
+        // `app-vault-list-filters` binds this to a `[formGroup]`, so it has to be a real one.
         filterForm: new FormBuilder().group({
           organization: [null],
           collection: [null],
@@ -489,8 +470,7 @@ const buildProviders = (args: StoryArgs) => {
       },
     },
     {
-      // The premium spotlight needs this AND the PremiumUpgrade nudge on AND the HasVaultItems
-      // nudge off — see `showPremiumSpotlight$` in vault.component.ts.
+      // One of three conditions behind the premium spotlight — see `showPremiumSpotlight$`.
       provide: PremiumUpsellService,
       useValue: { showUpsell: () => args.showPremiumUpsell ?? false },
     },
@@ -510,8 +490,7 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: AutomaticUserConfirmationService,
       useValue: {
-        // `canManageAutoConfirm$` false keeps the auto-confirm setup dialog from opening over the
-        // story — an open dialog would dominate every snapshot.
+        // False keeps the auto-confirm setup dialog from opening over every snapshot.
         canManageAutoConfirm$: () => of(false),
         configuration$: () => of({ enabled: false, showBrowserNotification: false }),
         upsert: () => Promise.resolve(),
@@ -520,14 +499,12 @@ const buildProviders = (args: StoryArgs) => {
     },
     { provide: SearchService, useValue: { isCipherSearching$: of(false) } },
     // `VaultComponent` hardcodes `useClass: DefaultVaultItemsTransferService` in its own
-    // `providers`. A component injector outranks both `applicationConfig` and `moduleMetadata`, so
-    // the real implementation is always constructed and its dependencies must be satisfied here.
-    // (The spec sidesteps this with `TestBed.overrideComponent`, which Storybook has no equivalent
-    // of.) Everything else it needs is already provided above.
+    // `providers`, which outrank `applicationConfig`, so the real implementation is always
+    // constructed and these two dependencies of it have to be satisfied here.
     { provide: OrganizationUserApiService, useValue: {} },
     { provide: SyncService, useValue: { fullSync: () => Promise.resolve(true) } },
-    // The real CDK announcer appends a live element to the document body and tears it down with the
-    // first fixture, so later ones would announce into a detached node. Same reason as the spec.
+    // The real CDK announcer tears its live element down with the first fixture, so later ones
+    // would announce into a detached node.
     { provide: LiveAnnouncer, useValue: { announce: () => Promise.resolve(), clear: () => {} } },
     {
       provide: IntroCarouselService,
@@ -561,12 +538,12 @@ const buildProviders = (args: StoryArgs) => {
     {
       // Both the org-notifications and at-risk services read state through `getUser`, keyed by
       // their own `UserKeyDefinition`. Everything defaults to `null` (nothing dismissed); only the
-      // at-risk key carries a value, because its success banner is gated on prior interaction.
+      // at-risk key carries a value, since its success banner is gated on prior interaction.
       provide: StateProvider,
       useValue: {
         getUserState$: () => of(null),
-        // Matched on the literal key rather than importing `AT_RISK_PASSWORD_CALLOUT_KEY`, which
-        // `@bitwarden/vault` doesn't re-export — not worth widening its public API for a story.
+        // Matched on the literal key: `@bitwarden/vault` doesn't re-export
+        // `AT_RISK_PASSWORD_CALLOUT_KEY`, and widening its public API for a story isn't worth it.
         getUser: (_userId: UserId, key: { key: string }) => ({
           state$:
             key?.key === "atRiskPasswords" && args.showAtRiskSecuredBanner
@@ -582,8 +559,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: { environment$: of({ getIconsUrl: () => "https://icons.bitwarden.net" }) },
     },
     {
-      // Favicons off so snapshots don't attempt remote favicon fetches during Chromatic builds,
-      // which would make the rendered icons non-deterministic (and require network access offline).
+      // Favicons off, so snapshots don't depend on remote favicon fetches.
       provide: DomainSettingsService,
       useValue: { showFavicons$: of(false) },
     },
@@ -643,9 +619,8 @@ const buildProviders = (args: StoryArgs) => {
     { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
     { provide: PopupRouterCacheService, useValue: { back: () => Promise.resolve() } },
     {
-      // The real `DialogService` is reachable through component-level `providers`, and its
-      // constructor subscribes to `router.events` (gated on `AuthService` also being present), so
-      // `events` has to be a real stream or every story dies before rendering.
+      // The real `DialogService`'s constructor subscribes to `router.events`, so `events` has to
+      // be a real stream or every story dies before rendering.
       provide: Router,
       useValue: {
         navigate: () => Promise.resolve(true),
@@ -701,9 +676,8 @@ const buildProviders = (args: StoryArgs) => {
           collection: "Collection",
           folder: "Folder",
           type: "Type",
-          // The list table's filter chips (flag on). The three vfo1-terminology chips resolve to
-          // the plural VFO1 keys, so omitting those makes `Vfo1I18nPipe` throw and the chips render
-          // label-less.
+          // The list table's filter chips (flag on). The vfo1-terminology chips resolve to the
+          // plural VFO1 keys, so omitting those makes `Vfo1I18nPipe` throw.
           vaults: "Vaults",
           sharedFolders: "Shared folders",
           myFolders: "My folders",
@@ -740,8 +714,7 @@ const buildProviders = (args: StoryArgs) => {
           viewItemTitleWithField: "View item - __$1__ - __$2__",
           attachments: "Attachments",
           nSharedFolders: "__$1__ shared folders",
-          // The legacy (flag-off) container's org-icon tooltip uses this key rather than
-          // `nSharedFolders`; omitting it makes `I18nMockService.t` throw on a missing lookup.
+          // The legacy container's org-icon tooltip uses this rather than `nSharedFolders`.
           nCollections: "__$1__ collections",
           // Copyable-field labels used by app-item-copy-actions
           username: "Username",
@@ -780,8 +753,8 @@ const buildProviders = (args: StoryArgs) => {
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
           launchWebsiteName: "Launch __$1__",
-          // New-item dropdown / header controls. The menu labels come from `CIPHER_MENU_ITEMS`,
-          // so every `labelKey` in that list has to resolve or the dropdown throws while rendering.
+          // New-item dropdown / header controls. Every `labelKey` in `CIPHER_MENU_ITEMS` has to
+          // resolve or the dropdown throws while rendering.
           new: "New",
           add: "Add",
           typeNote: "Note",
@@ -795,8 +768,7 @@ const buildProviders = (args: StoryArgs) => {
           back: "Back",
           bitwardenAccount: "Bitwarden account",
           switchAccounts: "Switch accounts",
-          // Banners that keep an always-present host and decide internally whether to render.
-          // Their services report "nothing to show" here, but the keys still have to resolve.
+          // Banners whose host is always present even when their service reports nothing to show.
           autofillSuggestionsTip: "Autofill suggestions will appear here",
           autofillBlockedNoticeV2: "Autofill is blocked for this site",
           autofillBlockedNoticeGuidance: "Unblock this site to use autofill",
@@ -814,39 +786,32 @@ export default {
   title: "Browser/Vault/VaultComponent",
   component: VaultComponent,
   parameters: {
-    // Snapshots every story twice: `vfo1-foundation` off (legacy `app-vault-header` + grouped
-    // containers) and on (`app-vault-popup-list-table`).
+    // Snapshots every story twice: `vfo1-foundation` off (legacy header + grouped containers) and
+    // on (`app-vault-popup-list-table`).
     //
-    // The addon drives this through the `bwEnabledFeatureFlags` Storybook global, which
-    // `featureFlagDecorator` (registered in `.storybook/preview.tsx`) reads before providing its own
-    // mock `ConfigService` at the application root. That decorator explicitly SKIPS itself when the
-    // story already provides `ConfigService` via `applicationConfig` — so this file must not provide
-    // one, or the modes would silently stop taking effect.
+    // The addon drives this through the `bwEnabledFeatureFlags` global, which `featureFlagDecorator`
+    // reads before providing its own mock `ConfigService`. That decorator SKIPS itself when the
+    // story provides `ConfigService` via `applicationConfig`, so this file must not provide one.
     //
-    // Each mode also pins the viewport to the popup's own width: `popupFrame` constrains the story
-    // with CSS, while the list table's toolbar picks its presentation from `matchMedia` — so on a
-    // wide screen these would snapshot the inline chip row, which the extension never shows. Every
-    // popup width is below `md`, so the real popup always collapses the chips into the filter
-    // dialog. The width rides inside each mode because Chromatic rejects `viewports` and `modes`
-    // together on one story.
+    // Each mode also pins the viewport, because the table's toolbar picks its presentation from
+    // `matchMedia` rather than the host width that `popupFrame` constrains. Every popup width is
+    // below `md`, so the real popup always collapses the chips into the filter dialog. The width
+    // rides inside each mode because Chromatic rejects `viewports` and `modes` together.
     chromatic: {
       modes: featureFlagModesAtWidth(PopupWidthOptions.narrow, FeatureFlag.VFO1Foundation),
     },
   },
 } as Meta<VaultComponent>;
 
-// `StoryArgs` is the input to `buildProviders`, not Storybook args (data flows through providers,
-// not the args table), so the Story type is keyed on the component alone.
+// `StoryArgs` is the input to `buildProviders`, not Storybook args, so the Story type is keyed on
+// the component alone.
 type Story = StoryObj<VaultComponent>;
 
 /**
- * The popup renders at a fixed extension-popup size. A bounded height is also required for the
- * table's `height="fill"` sizing, which needs an unbroken flex chain to a bounded ancestor.
- *
- * `app-vault` needs `tw-flex-1 tw-min-h-0` explicitly: in the extension it's a routed component
- * filling the popup, but here it's an ordinary flex child, so it would otherwise size to content
- * and leave `popup-page`'s `tw-h-full` resolving against a zero-height parent — collapsing the
- * scroll region to nothing.
+ * The popup renders at a fixed extension-popup size, and the table's `height="fill"` sizing needs
+ * an unbroken flex chain to a bounded ancestor. `app-vault` needs `tw-flex-1 tw-min-h-0`
+ * explicitly: it's a routed component in the extension but an ordinary flex child here, so it would
+ * otherwise size to content and collapse `popup-page`'s scroll region to nothing.
  */
 const popupFrame = componentWrapperDecorator(
   (story) =>
@@ -876,7 +841,7 @@ export const DeactivatedOrg: Story = buildStory({ showDeactivatedOrg: true });
 
 /**
  * `showPremiumSpotlight$` requires all three: the PremiumUpgrade nudge on, the HasVaultItems nudge
- * OFF (it wins when both are active), and `premiumUpsellService.showUpsell()` true.
+ * off (it wins when both are active), and `showUpsell()` true.
  */
 export const WithPremiumSpotlight: Story = buildStory({
   activeNudges: [NudgeType.PremiumUpgrade],
@@ -888,9 +853,8 @@ export const WithHasItemsNudge: Story = buildStory({
 });
 
 /**
- * The at-risk-password callout's warning banner. Rendered only in the non-Empty branch, above every
- * other above-scroll-area child, and bleeds past the container's horizontal padding via its own
- * `-tw-m-5 tw-px-2` — so this is the story to check that bleed against the container edges.
+ * The at-risk-password callout's warning banner. It bleeds past the container's horizontal padding
+ * via its own `-tw-m-5 tw-px-2`, so this is the story to check that bleed against the edges.
  */
 export const WithAtRiskPasswords: Story = buildStory({ atRiskPasswordCount: 3 });
 
@@ -901,10 +865,9 @@ export const WithSingleAtRiskPassword: Story = buildStory({ atRiskPasswordCount:
 export const WithAtRiskPasswordsSecured: Story = buildStory({ showAtRiskSecuredBanner: true });
 
 /**
- * The at-risk callout and the org-notification banner stacked, which is where their bleed has to
- * agree: both sit in `above-scroll-area`, and any horizontal mismatch shows as one banner stopping
- * short of the other. Needs `pm-31948-org-user-notification-banner` ticked in the Feature Flags
- * panel for the lower banner to appear — see `WithNotifications`.
+ * The at-risk callout and the org-notification banner stacked, where their bleed has to agree — a
+ * horizontal mismatch shows as one banner stopping short of the other. Needs
+ * `pm-31948-org-user-notification-banner` ticked in the Feature Flags panel for the lower banner.
  */
 export const WithAtRiskPasswordsAndNotifications: Story = buildStory({
   atRiskPasswordCount: 2,
@@ -912,23 +875,19 @@ export const WithAtRiskPasswordsAndNotifications: Story = buildStory({
 });
 
 /**
- * The org-user-notifications banner, driven end-to-end: a real, enabled `OrganizationUserNotification`
- * policy flows through the component's own (real) service, which also gates on
- * `PM31948_OrgUserNotificationBanner`.
+ * The org-user-notifications banner, driven end-to-end: a real, enabled
+ * `OrganizationUserNotification` policy flows through the component's own service, which also gates
+ * on `PM31948_OrgUserNotificationBanner`. That flag defaults to off and each mode replaces the
+ * whole enabled-flag set, so it's listed explicitly in both entries below.
  *
- * That second flag defaults to off, and `featureFlagModes` replaces the whole enabled-flag set per
- * mode, so it has to be listed explicitly in each entry of a hand-written modes map.
- *
- * Deliberately no story-level `globals`: pinning them would make the Feature Flags panel inert for
- * this story (its checkboxes are controlled by the same globals, so a toggle would immediately snap
- * back). To see the banner locally, tick `pm-31948-org-user-notification-banner` in that panel.
+ * No story-level `globals`: pinning them would make the Feature Flags panel inert here, since its
+ * checkboxes are the same globals. To see the banner locally, tick the flag in that panel.
  */
 export const WithNotifications: Story = {
   ...buildStory({ showOrgNotification: true }),
   parameters: {
     chromatic: {
-      // This map replaces the meta-level one wholesale, so it has to re-pin the popup width too —
-      // see the note there on why the width rides inside each mode.
+      // Replaces the meta-level map wholesale, so it has to re-pin the popup width too.
       modes: {
         "flag off": {
           ...enabledFlags(FeatureFlag.PM31948_OrgUserNotificationBanner),

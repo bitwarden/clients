@@ -107,11 +107,7 @@ export class VaultPopupListTableService {
   /** Whether a search term is currently narrowing the vault list. */
   readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
 
-  /**
-   * Whether the selected organization filter points at a suspended organization. The table stays
-   * mounted in this state (so the filter remains clearable) and surfaces the notice in its empty
-   * slot instead.
-   */
+  /** Whether the selected organization filter points at a suspended organization. */
   readonly showDeactivatedOrg$ = this.vaultPopupItemsService.showDeactivatedOrg$;
 
   /**

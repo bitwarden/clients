@@ -478,10 +478,9 @@ describe("VaultComponent", () => {
   }));
 
   /**
-   * The table presentation publishes its own virtual-scroll viewport as the scroll host, and does
-   * so after loading settles — so latching the first host would bind to `popup-page`'s scroll
-   * region, which never overflows once the table fills it. The table also re-creates that viewport
-   * when it crosses its empty state, which would leave the service on a detached node.
+   * The table publishes its virtual-scroll viewport only after loading settles, and re-creates it
+   * when it crosses its empty state, so latching the first host would leave the service bound to
+   * `popup-page`'s scroll region or to a detached node.
    */
   it("re-binds scroll tracking when the scroll host changes", fakeAsync(() => {
     const fixture = TestBed.createComponent(VaultComponent);
@@ -516,18 +515,17 @@ describe("VaultComponent", () => {
   describe("vfo1-foundation presentation gate", () => {
     /**
      * The flag signal is read in a field initializer, so the mock has to be set before the
-     * component is constructed.
+     * component is constructed. The shared `beforeEach`'s fixture is torn down first so its
+     * subscriptions don't react to state pushed for this test.
      */
     function createWithFlag(enabled: boolean) {
-      // The shared `beforeEach` already built a fixture against these same service subjects;
-      // tear it down so its subscriptions don't react to state pushed for this test.
       defaultFixture.destroy();
 
       configSvc.getFeatureFlag$.mockImplementation((flag: string) =>
         of(flag === FeatureFlag.VFO1Foundation ? enabled : false),
       );
 
-      // Put the vault in its populated, settled state so the list branch renders.
+      // The populated, settled state, so the list branch renders.
       itemsSvc.emptyVault$.next(false);
       itemsSvc.noFilteredResults$.next(false);
       itemsSvc.showDeactivatedOrg$.next(false);
@@ -556,11 +554,8 @@ describe("VaultComponent", () => {
       flush();
     }));
 
-    /**
-     * With the flag on, the table's toolbar holds the only search input — the legacy
-     * `app-vault-header` is gated off. Unmounting the table on a zero-result search would strand
-     * the user with no way to clear the term.
-     */
+    // With the flag on the table's toolbar holds the only search input, so unmounting it on a
+    // zero-result search would strand the user with no way to clear the term.
     it("keeps the table mounted when a search returns no results", fakeAsync(() => {
       const fixture = createWithFlag(true);
 
@@ -584,20 +579,15 @@ describe("VaultComponent", () => {
       tick();
       fixture.detectChanges();
 
-      // The table is stubbed here, so this only asserts the page-level block is suppressed —
-      // the copy the table renders in its place is covered in the table component's own spec.
+      // The table is stubbed here, so the copy it renders is covered in its own spec.
       expect(fixture.nativeElement.querySelector("app-vault-popup-list-table")).toBeTruthy();
       expect(fixture.nativeElement.textContent).not.toContain("noItemsMatchSearch");
 
       flush();
     }));
 
-    /**
-     * The table carries the organization filter that produces this state, so unmounting it would
-     * leave the filter applied with no control able to clear it. It stays mounted and renders the
-     * notice (and withholds the suspended organization's rows) in its own empty slot, so the
-     * page-level block must stand down to avoid showing the message twice.
-     */
+    // The table carries the organization filter that produces this state, and renders the notice
+    // itself, so the page-level block stands down rather than showing the message twice.
     it("keeps the table mounted in the deactivated-org state", fakeAsync(() => {
       const fixture = createWithFlag(true);
 

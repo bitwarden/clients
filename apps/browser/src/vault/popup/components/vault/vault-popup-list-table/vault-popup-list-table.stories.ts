@@ -231,8 +231,8 @@ type StoryArgs = {
   collapsedSections?: VaultSection[];
 };
 
-// Option sets for the toolbar's filter chips. Organizations/collections/folders are only rendered
-// when their stream has entries, so these also control which chips appear.
+// Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
+// these also control which chips appear.
 const ORGANIZATION_OPTIONS = [
   { value: { id: MY_VAULT_ID } as Organization, label: "My vault", icon: "bwi-user" as const },
   {
@@ -247,15 +247,13 @@ const COLLECTION_OPTIONS = [
   { value: { id: "col-mkt", name: "Marketing" } as CollectionView, label: "Marketing" },
 ];
 
-// Nested to exercise the tree flattening: the child renders as its own option.
+// Nested to exercise the tree flattening: the child renders as its own option, labeled with only
+// its trailing segment.
 const FOLDER_OPTIONS = [
   {
     value: { id: "folder-work", name: "Work" } as FolderView,
     label: "Work",
-    children: [
-      // Nested nodes carry only their trailing segment, which is what the option renders.
-      { value: { id: "folder-work-eu", name: "Work/EU" } as FolderView, label: "EU" },
-    ],
+    children: [{ value: { id: "folder-work-eu", name: "Work/EU" } as FolderView, label: "EU" }],
   },
   { value: { id: "folder-personal", name: "Personal" } as FolderView, label: "Personal" },
 ];
@@ -268,9 +266,8 @@ const CIPHER_TYPE_OPTIONS = [
 ];
 
 /**
- * Option counts derived from the story's own ciphers, rather than hardcoded numbers that would
- * drift from the rows on screen. Mirrors the real service: counts are absolute, so the applied
- * filters don't narrow them.
+ * Option counts derived from the story's own ciphers, so they can't drift from the rows on screen.
+ * Mirrors the real service: counts are absolute, so the applied filters don't narrow them.
  */
 const buildOptionCounts = (ciphers: PopupCipherViewLike[]): FilterOptionCounts => {
   const counts: FilterOptionCounts = {
@@ -285,7 +282,6 @@ const buildOptionCounts = (ciphers: PopupCipherViewLike[]): FilterOptionCounts =
   };
 
   for (const cipher of ciphers) {
-    // The fixtures are real `CipherView`s, so `type` is readable without `CipherViewLikeUtils`.
     increment(counts.cipherType, (cipher as CipherView).type);
     increment(counts.organization, cipher.organizationId ?? MY_VAULT_ID);
     for (const collectionId of cipher.collectionIds ?? []) {
@@ -327,8 +323,8 @@ const buildProviders = (args: StoryArgs) => {
     },
   } as Window;
 
-  // A real `FormGroup`, since the chips are bridged to it rather than owning their own state; the
-  // story's `appliedFilters` seed it exactly the way the view cache does on a real popup open.
+  // A real `FormGroup`, since the chips are bridged to it rather than owning their own state.
+  // `appliedFilters` seeds it the way the view cache does on a real popup open.
   const filterForm = new FormGroup({
     organization: new FormControl<Organization | null>(args.appliedFilters?.organization ?? null),
     collection: new FormControl<CollectionView[]>(args.appliedFilters?.collection ?? [], {
@@ -340,8 +336,7 @@ const buildProviders = (args: StoryArgs) => {
     cipherType: new FormControl<CipherType | null>(args.appliedFilters?.cipherType ?? null),
   });
 
-  // A signal, matching the real service's `Signal<boolean | undefined>` return, so toggling a
-  // section header in the story actually re-renders it.
+  // A signal, matching the real service's return type, so a section header toggle re-renders.
   const collapsedSections = signal(new Set(args.collapsedSections ?? []));
 
   return [
@@ -354,8 +349,7 @@ const buildProviders = (args: StoryArgs) => {
         organizations$: of(ORGANIZATION_OPTIONS),
         collections$: of(COLLECTION_OPTIONS),
         folders$: of(FOLDER_OPTIONS),
-        // Counted across every section's ciphers, so the chip counts cover the whole list rather
-        // than just the all-items section.
+        // Counted across every section, so the chip counts cover the whole list.
         filterOptionCounts$: of(
           buildOptionCounts([
             ...args.autoFillCiphers,
@@ -374,8 +368,7 @@ const buildProviders = (args: StoryArgs) => {
         loading$: loading$.asObservable(),
         searchText$: searchText$.asObservable(),
         hasSearchText$: hasSearchText$.asObservable(),
-        // The table withholds its rows and shows the suspended-organization notice when true; no
-        // story exercises that state, so it stays off.
+        // No story exercises the suspended-organization notice.
         showDeactivatedOrg$: of(false),
         applyFilter,
       },
@@ -398,8 +391,8 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         getOpenDisplayStateForSection: (section: VaultSection) =>
           computed(() => !collapsedSections().has(section)),
+        // Persisted for real by the section service; here it just keeps the story interactive.
         updateSectionOpenStoredState: async (section: VaultSection, open: boolean) => {
-          // Persisted for real by the section service; here it just keeps the story interactive.
           collapsedSections.update((sections) => {
             const next = new Set(sections);
             if (open) {
@@ -673,10 +666,9 @@ export const LegacyAutofillButton: Story = {
   }),
 };
 
-// Filters pre-applied to `filterForm`: the Type and Vault chips render in their active (selected)
-// styling with the selection reflected in the chip label. My folders is multi-select, so it shows
-// a count berry instead of a label. Narrow the viewport in Storybook to see the chip row collapse
-// into the sliders trigger, with these shown as dismissible active-filter chips beneath it.
+// Filters pre-applied to `filterForm`: Type and Vault render active with their selection in the
+// chip label, while multi-select My folders shows a count berry. Narrow the viewport to see the
+// chip row collapse into the sliders trigger.
 export const ActiveFilters: Story = {
   decorators: [
     applicationConfig({
@@ -697,19 +689,17 @@ export const ActiveFilters: Story = {
     template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
   }),
   parameters: {
-    // The toolbar picks its presentation from the *viewport* (`matchMedia`), not from the host
-    // element's width, so a story constrained by CSS alone still renders the wide chip row on a wide
-    // screen — the one presentation the extension never shows. Pin the widths instead: every popup
-    // size (380/480/600) is below the `md` breakpoint, so the popup always collapses the chip row
-    // into the sliders trigger + filter dialog. 1280 keeps the wide row covered for the sidebar.
+    // The toolbar picks its presentation from the viewport (`matchMedia`), not the host width, so
+    // pin the widths rather than constraining with CSS. Every popup size is below the `md`
+    // breakpoint and collapses into the sliders trigger; 1280 covers the wide row for the sidebar.
     chromatic: {
       viewports: [PopupWidthOptions.narrow, PopupWidthOptions.default, 1280],
     },
   },
 };
 
-// Both collapsible sections start closed, so only their headers render. The autofill section has no
-// `collapsible` (its suggestions are always shown), so it stays expanded.
+// Both collapsible sections start closed, so only their headers render. The autofill section isn't
+// `collapsible`, so it stays expanded.
 export const CollapsedSections: Story = {
   decorators: [
     applicationConfig({

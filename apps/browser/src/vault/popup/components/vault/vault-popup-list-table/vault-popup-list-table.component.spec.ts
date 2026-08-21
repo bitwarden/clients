@@ -126,8 +126,8 @@ describe("VaultPopupListTableComponent", () => {
     updateSectionOpenStoredState: jest.fn(),
   };
 
-  // A real `FormGroup`, since the filter chips are bridged to it by `VaultFilterChipDirective` and
-  // the two-way sync is exercised through its actual value/`valueChanges` behavior.
+  // A real `FormGroup`: the chips are bridged to it by `VaultFilterChipDirective`, so the two-way
+  // sync is exercised through its actual value/`valueChanges` behavior.
   const filterForm = new FormGroup({
     organization: new FormControl<Organization | null>(null),
     // Collections and folders are multi-select, matching `PopupListFilter`.
@@ -164,8 +164,7 @@ describe("VaultPopupListTableComponent", () => {
 
   beforeEach(async () => {
     jest.clearAllMocks();
-    // `clearAllMocks` resets calls but not implementations, so restore the default open state —
-    // otherwise a test that seeds a section collapsed leaks that into the ones after it.
+    // `clearAllMocks` resets calls but not implementations, so restore the default open state.
     vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => true);
     featureFlag$.next(false);
     currentTabIsOnBlocklist$.next(false);
@@ -249,24 +248,15 @@ describe("VaultPopupListTableComponent", () => {
     component = fixture.componentInstance;
   });
 
-  /**
-   * The rows are filtered upstream by `VaultPopupListTableService`, so the table's own
-   * `noMatches()` heuristic (rendered rows vs. its source data) can't tell a zero-result search
-   * from an empty vault — both leave it with zero rows. The empty state is projected for that
-   * reason, so these assert the rendered copy rather than the absence of something.
-   */
   describe("collapsible sections", () => {
-    /** The rendered collapse toggle for a section, found by its header label. */
     const headerToggle = (label: string): HTMLButtonElement | undefined =>
       Array.from(fixture.nativeElement.querySelectorAll("button[aria-expanded]")).find((button) =>
         (button as HTMLButtonElement).textContent?.includes(label),
       ) as HTMLButtonElement | undefined;
 
     /**
-     * Renders the table with both collapsible sections populated.
-     *
      * The table virtualizes its rows into a `height="fill"` viewport, which measures 0 in JSDOM and
-     * so renders nothing — the host needs a real height before the group headers exist to click.
+     * renders nothing — so the host needs a real height before the group headers exist to click.
      */
     const render = async () => {
       favoriteCiphers$.next([makeCipher({ id: "fav-1", favorite: true })]);
@@ -295,8 +285,8 @@ describe("VaultPopupListTableComponent", () => {
     });
 
     it("persists the expanded state when the user re-expands a section", async () => {
-      // Seeded collapsed before the first render, so the click is an expand. Set here rather than
-      // by rebuilding the fixture: a second live fixture fights the first over the scroll host.
+      // Seeded before the first render rather than by rebuilding the fixture: a second live
+      // fixture fights the first over the scroll host.
       vaultPopupSectionService.getOpenDisplayStateForSection.mockReturnValue(() => false);
       await render();
 
@@ -313,6 +303,11 @@ describe("VaultPopupListTableComponent", () => {
     });
   });
 
+  /**
+   * Rows are filtered upstream, so the table's own `noMatches()` heuristic can't tell a zero-result
+   * search from an empty vault — both leave it with zero rows. The empty state is projected for
+   * that reason, so these assert the rendered copy.
+   */
   describe("empty state", () => {
     it("shows the search-specific copy and recovery hint when a search matches nothing", () => {
       hasSearchText$.next(true);
@@ -335,11 +330,6 @@ describe("VaultPopupListTableComponent", () => {
       expect(text).not.toContain("clearFiltersOrTryAnother");
     });
 
-    /**
-     * A suspended organization's ciphers match its own filter, so the rows have to be withheld
-     * here — and the table has to stay mounted regardless, since it carries the only control that
-     * can clear the filter responsible for the state.
-     */
     describe("deactivated organization", () => {
       beforeEach(() => {
         filteredCiphers$.next([makeCipher({ organizationId: "org-1" })]);
@@ -409,24 +399,21 @@ describe("VaultPopupListTableComponent", () => {
   });
 
   /**
-   * The chips are bridged to `VaultPopupListFiltersService.filterForm` rather than owning the
-   * filter state themselves, so these assert the round trip in both directions. Filtering itself
-   * is applied upstream (`filterFunction$` in `VaultPopupItemsService`), so a chip's job ends at
-   * writing the form.
+   * The chips are bridged to `filterForm` rather than owning the filter state, so these assert the
+   * round trip in both directions. Filtering is applied upstream by `filterFunction$`, so a chip's
+   * job ends at writing the form.
    */
   describe("filter chips", () => {
-    /** Resolves the projected `bit-filter-menu` for a `filterForm` control. */
     const chipFor = (key: string) =>
       fixture.debugElement
         .queryAll(By.directive(FilterMenuComponent))
         .find((chip) => chip.componentInstance.key() === key)?.componentInstance;
 
-    it("renders a chip per dimension, omitting those whose options are empty", () => {
+    it("renders a chip per filter, omitting those whose options are empty", () => {
       cipherTypes$.next([{ value: CipherType.Login, label: "Login" }]);
       fixture.detectChanges();
 
-      // Type is unconditional; the other three are hidden while their option streams are empty
-      // (no orgs, or folders/collections narrowed away by the selected organization).
+      // Type is unconditional; the other three are hidden while their option streams are empty.
       expect(chipFor("cipherType")).toBeDefined();
       expect(chipFor("organization")).toBeUndefined();
       expect(chipFor("collection")).toBeUndefined();
@@ -484,7 +471,6 @@ describe("VaultPopupListTableComponent", () => {
     it("flattens nested folder options into one option per node", () => {
       const parent = { id: "f-1", name: "Parent" } as FolderView;
       const child = { id: "f-2", name: "Parent/Child" } as FolderView;
-      // Nesting keeps only the trailing segment on each node, so the child's label is "Child".
       folders$.next([
         { value: parent, label: "Parent", children: [{ value: child, label: "Child" }] },
       ]);
@@ -494,8 +480,8 @@ describe("VaultPopupListTableComponent", () => {
     });
 
     it("keeps each nested option's own label, which may repeat across branches", () => {
-      // "Work/Personal" and "Home/Personal" both nest to a node labeled "Personal". Options are
-      // rendered with their own label and tracked by id, so the repeat is expected, not a defect.
+      // "Work/Personal" and "Home/Personal" both nest to a node labeled "Personal"; options are
+      // tracked by id, so the repeat is expected rather than a defect.
       folders$.next([
         {
           value: { id: "f-1", name: "Work" } as FolderView,
@@ -516,16 +502,10 @@ describe("VaultPopupListTableComponent", () => {
 
       const options = component["folderOptions"]();
       expect(options.map((o) => o.label)).toEqual(["Work", "Personal", "Home", "Personal"]);
-      // Ids stay unique, which is what keeps the `@for` track expression stable.
       expect(new Set(options.map((o) => o.value.id)).size).toBe(4);
     });
 
-    /**
-     * The chip matches its options by reference, but the form's value is frequently an
-     * equal-but-distinct object: the view cache rebuilds "My vault" as a fresh `Organization`, and
-     * `getAllFoldersNested` copies each `FolderView` per emission. Seeding the raw value would leave
-     * the chip active but label-less, so the directive resolves it against the option list first.
-     */
+    /** See `VaultFilterChipDirective.filterOptions` for why the resolution is needed. */
     describe("identity-independent seeding", () => {
       it("selects a seeded organization that is a different instance than its option", () => {
         const option = { id: MY_VAULT_ID } as Organization;
@@ -536,8 +516,7 @@ describe("VaultPopupListTableComponent", () => {
 
         const chip = chipFor("organization");
         expect(chip.active()).toBe(true);
-        // Resolved onto the option's own instance, so the chip's reference-based `isSelected` marks
-        // it selected — which is what drives the label and the menu/dialog checkmark.
+        // Resolved onto the option's own instance, which is what drives the label and checkmark.
         expect(chip.value()).toBe(option);
         expect(chip.isSelected(option)).toBe(true);
       });
@@ -553,7 +532,7 @@ describe("VaultPopupListTableComponent", () => {
         expect(chip.isSelected(option)).toBe(true);
       });
 
-      it("resolves every selection in a multi-select dimension", () => {
+      it("resolves every selection in a multi-select filter", () => {
         const work = { id: "folder-1", name: "Work" } as FolderView;
         const personal = { id: "folder-2", name: "Personal" } as FolderView;
         folders$.next([
@@ -588,8 +567,7 @@ describe("VaultPopupListTableComponent", () => {
       });
 
       it("leaves a selection that matches no option untouched", () => {
-        // The org filter can name a folder the current option list no longer contains; clearing it
-        // here would fight `validateOrganizationChange`, which owns that reset.
+        // Clearing here would fight `validateOrganizationChange`, which owns that reset.
         const orphan = { id: "folder-gone", name: "Archived" } as FolderView;
         folders$.next([{ value: { id: "folder-1", name: "Work" } as FolderView, label: "Work" }]);
         filterForm.controls.folder.setValue([orphan]);
@@ -633,8 +611,7 @@ describe("VaultPopupListTableComponent", () => {
         expect(filterForm.controls.folder.value).toEqual([personal]);
       });
 
-      // The chip's own empty value, so the form and the chip agree on "nothing selected" — writing
-      // `null` here would leave the two sides disagreeing about the shape.
+      // `null` would leave the chip and the form disagreeing on the shape of "nothing selected".
       it("empties the control rather than nulling it when the chip is cleared", () => {
         const work = { id: "folder-1", name: "Work" } as FolderView;
         folders$.next([{ value: work, label: "Work" }]);

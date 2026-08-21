@@ -107,7 +107,7 @@
           </bit-callout>
         </div>
       }
-      <!-- The table presentation supplies its own search/filter toolbar, so the legacy header is only rendered when the flag is off. -->
+      <!-- The table supplies its own search/filter toolbar, so it replaces this header. -->
       @if (!vfo1Enabled()) {
         <app-vault-header></app-vault-header>
       }
@@ -117,9 +117,8 @@
   @if (vaultState !== VaultStateEnum.Empty) {
     <!--
       The table owns the search input and the filter chips, so it stays mounted in the no-results
-      AND deactivated-org states — unmounting it would remove the only way to clear the term or the
-      organization filter that produced the state. It renders both messages in its own empty slot,
-      so no rows belonging to a suspended organization are shown either way.
+      and deactivated-org states — unmounting would remove the only way to clear whatever produced
+      the state. It renders both messages in its own empty slot.
     -->
     @if (vfo1Enabled()) {
       <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
@@ -184,8 +183,7 @@
     }
   }
 
-  <!-- The table renders its own skeleton rows via `bit-table-v2 [loading]`, so the page-level
-       skeleton is only used by the legacy list. -->
+  <!-- The table renders its own skeleton rows via `bit-table-v2 [loading]`. -->
   @if (!vfo1Enabled() && (showSkeletonsLoaders$ | async)) {
     <vault-fade-in-out-skeleton>
       <vault-loading-skeleton></vault-loading-skeleton>

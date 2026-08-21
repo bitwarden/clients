@@ -18,12 +18,9 @@
     ></bit-search>
 
     <!--
-      The dimension chips. Each drives its `filterForm` control through
-      `bitVaultFilterChip`, which keeps the form authoritative rather than moving filter
-      state onto the chips — `filterFunction$` (applied upstream in
-      `VaultPopupItemsService`) reads the form, so a selection here re-narrows the rows
-      the table receives. Deliberately no Favorites toggle: favorites are their own
-      section rather than a filter.
+      Each chip drives its `filterForm` control through `bitVaultFilterChip`; `filterFunction$`
+      reads the form upstream, so a selection re-narrows the rows the table receives. No Favorites
+      chip by design — favorites are their own section rather than a filter.
     -->
     <bit-filter-menu
       key="cipherType"
@@ -89,11 +86,9 @@
     }
   </bit-table-toolbar>
   <!--
-    Zeroes `bit-no-items`' built-in top padding, which would offset the centering.
-
-    A suspended organization filter yields no rows, so it lands here rather than replacing the
-    table: unmounting would take the toolbar with it and leave the filter stuck with no way to
-    clear it.
+    `[&>div]:!tw-pt-0` zeroes `bit-no-items`' built-in top padding, which would offset the
+    centering. The suspended-organization state renders here rather than replacing the table, so
+    the filter that caused it stays clearable.
   -->
   <bit-no-items
     slot="empty"

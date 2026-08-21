@@ -79,9 +79,8 @@ export interface CachedFilterState {
 export type PopupListFilter = {
   organization: Organization | null;
   /**
-   * Multi-select: a cipher matches when it belongs to *any* selected collection. Empty means
-   * unfiltered — never `null`, so the form's empty value matches what a multi-select chip holds
-   * when cleared.
+   * Multi-select: a cipher matches when it belongs to any selected collection. Empty means
+   * unfiltered — never `null`, matching what a multi-select chip holds when cleared.
    */
   collection: CollectionView[];
   /** Multi-select, same semantics as {@link PopupListFilter.collection}. */
@@ -113,7 +112,7 @@ function matchesFilters(cipher: PopupCipherViewLike, filters: Partial<PopupListF
     return false;
   }
 
-  // Multi-select dimensions are OR'd within themselves and AND'd against the others: an item in
+  // Multi-select filters are OR'd within themselves and AND'd against the others: an item in
   // any selected collection, in any selected folder.
   if (filters.collection?.length) {
     const inAnyCollection = filters.collection.some((collection) =>
@@ -150,9 +149,8 @@ function matchesFilters(cipher: PopupCipherViewLike, filters: Partial<PopupListF
 }
 
 /**
- * Item counts for each filter dimension's options, keyed by the option's identity: the
- * `CipherType` for `cipherType`, and the entity id for the object-valued dimensions ("Items with
- * no folder" has no id, so it counts under {@link NO_FOLDER_COUNT_KEY}).
+ * Item counts for each filter's options, keyed by the option's identity: the `CipherType`
+ * for `cipherType`, and the entity id for the object-valued filters.
  */
 export type FilterOptionCounts = {
   cipherType: Map<CipherType, number>;
@@ -171,12 +169,9 @@ export class VaultPopupListFiltersService {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /**
-   * UI form for all filters.
-   *
-   * Built with explicit controls rather than `FormBuilder.group`, which reads an array value as the
-   * `[value, validators]` config tuple and would type the multi-select controls as their element.
-   * The multi-select controls are `nonNullable` so clearing them yields `[]`, the same empty value
-   * their chips hold.
+   * UI form for all filters. Built with explicit controls rather than `FormBuilder.group`, which
+   * reads an array value as the `[value, validators]` config tuple and would type the multi-select
+   * controls as their element. Those are `nonNullable`, so clearing them yields `[]`.
    */
   filterForm = new FormGroup({
     organization: new FormControl<Organization | null>(INITIAL_FILTERS.organization),
@@ -198,10 +193,7 @@ export class VaultPopupListFiltersService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  /**
-   * Emits the number of applied filters — one per narrowed dimension, so a multi-select dimension
-   * counts once no matter how many options it holds. An empty array is not an applied filter.
-   */
+  /** Emits the number of narrowed filters, so a multi-select filter counts once. */
   numberOfAppliedFilters$ = this.filters$.pipe(
     map(
       (filters) =>
@@ -259,8 +251,7 @@ export class VaultPopupListFiltersService {
           }
         }
 
-        // `collectionId`/`folderId` are the pre-multi-select shape: a cache entry written before
-        // the popup was updated still restores, as a single-item selection.
+        // `collectionId`/`folderId` are the pre-multi-select shape, restored as one selection.
         const collectionIds =
           state.collectionIds ?? (state.collectionId ? [state.collectionId] : []);
         const folderIds = state.folderIds ?? (state.folderId ? [state.folderId] : []);
@@ -344,12 +335,9 @@ export class VaultPopupListFiltersService {
     );
 
   /**
-   * Absolute item counts for every filter option: how many of the vault's items belong to each
-   * option, independent of what's currently filtered.
-   *
-   * The applied filters deliberately don't narrow these — an option reads the same whether or not
-   * other chips are set, so the numbers stay stable as the user moves through the menus. Deleted
-   * items are still excluded, since they're never listed.
+   * Absolute item counts for every filter option. The applied filters deliberately don't narrow
+   * these, so an option's number stays stable as the user moves through the menus. Deleted items
+   * are still excluded, since they're never listed.
    */
   filterOptionCounts$: Observable<FilterOptionCounts> = this.activeUserId$.pipe(
     switchMap((userId) => this.cipherService.cipherListViews$(userId)),
@@ -692,9 +680,8 @@ export class VaultPopupListFiltersService {
       // Get all ciphers that belong to the new organization
       const orgCiphers = this.cipherViews.filter((c) => c.organizationId === organization.id);
 
-      // Keep the folders the new organization has ciphers in. "Items with no folder" (a falsy id)
-      // is left alone rather than evaluated, preserving the single-select behavior — the option
-      // list drops it when the organization has no folderless items, but the filter survives.
+      // "Items with no folder" (a falsy id) is left alone rather than evaluated: the option list
+      // drops it when the organization has no folderless items, but the filter survives.
       const keptFolders = folders.filter(
         (folder) => !folder.id || orgCiphers.some((oc) => oc.folderId === folder.id),
       );
