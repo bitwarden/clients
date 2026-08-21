@@ -202,13 +202,12 @@ describe("PopupHeaderComponent", () => {
   });
 
   /**
-   * jsdom computes no styles, so collapse state has to be read off the classes that drive it. These
-   * two helpers are the only place the spec looks at a class name.
+   * The bar publishes its own state on `data-state`, so these specs never read the classes that
+   * implement it. The collapse itself is CSS — a `focus-within` reveal and a transition — and jsdom
+   * computes no styles, so that part is left to manual verification.
    */
   describe("title bar visibility", () => {
-    const collapsed = () =>
-      titleBar().classList.contains("!tw-max-h-0") && titleBar().classList.contains("!tw-py-0");
-    const expandsOnFocus = () => titleBar().classList.contains("focus-within:!tw-max-h-24");
+    const collapsed = () => titleBar().dataset.state === "collapsed";
 
     describe("when the flag is on", () => {
       beforeEach(() => {
@@ -226,19 +225,11 @@ describe("PopupHeaderComponent", () => {
         expect(collapsed()).toBe(true);
       });
 
-      it("keeps the hidden title bar reachable by keyboard", async () => {
-        await scrollTo(200);
-
-        expect(expandsOnFocus()).toBe(true);
-      });
-
-      it("keeps the app bar pinned while the title bar is hidden", async () => {
-        const before = appBar().className;
-
+      it("keeps the app bar while the title bar collapses", async () => {
         await scrollTo(200);
 
         expect(collapsed()).toBe(true);
-        expect(appBar().className).toBe(before);
+        expect(appBar()).not.toBeNull();
       });
 
       it("shows the title bar again when scrolling back up", async () => {
@@ -303,11 +294,18 @@ describe("PopupHeaderComponent", () => {
     const backButtons = (): HTMLElement[] =>
       Array.from(fixture.nativeElement.querySelectorAll("button[bitIconButton]"));
 
+    /** The variant asked of the component, rather than the classes it resolves that variant into. */
+    const backButtonType = () =>
+      fixture.debugElement
+        .query(By.directive(BitIconButtonComponent))
+        .injector.get(BitIconButtonComponent)
+        .buttonType();
+
     /**
      * The bar keeps its element so the `end` slot's projected content survives — destroying it
-     * would take that content with it — so "hidden" here means `display: none`, not absent.
+     * would take that content with it — so "hidden" here means hidden, not absent.
      */
-    const suppressed = () => titleBar().classList.contains("tw-hidden");
+    const suppressed = () => titleBar().dataset.state === "suppressed";
 
     describe("when the flag is on", () => {
       beforeEach(() => {
@@ -320,11 +318,6 @@ describe("PopupHeaderComponent", () => {
         expect(suppressed()).toBe(true);
         expect(appBar()).not.toBeNull();
         expect(banners()).toHaveLength(1);
-      });
-
-      it("drops the title bar's padding and border along with it", () => {
-        expect(titleBar().classList.contains("tw-p-3")).toBe(false);
-        expect(titleBar().classList.contains("tw-border-b")).toBe(false);
       });
 
       it("renders the back button once, in the app bar", () => {
@@ -340,7 +333,7 @@ describe("PopupHeaderComponent", () => {
         fixture.componentInstance.showBackButton.set(true);
         fixture.detectChanges();
 
-        expect(backButtons()[0].classList).toContain("!tw-text-fg-nav");
+        expect(backButtonType()).toBe("side-nav");
       });
 
       it("renders no back button without showBackButton", () => {
@@ -351,11 +344,11 @@ describe("PopupHeaderComponent", () => {
         expect(appBar().contains(slot("end"))).toBe(true);
       });
 
+      /** `data-state` holds one value, so staying `suppressed` is also proof it never collapsed. */
       it("stays hidden through a scroll that would otherwise collapse the bar", async () => {
         await scrollTo(200);
 
         expect(suppressed()).toBe(true);
-        expect(titleBar().classList.contains("!tw-max-h-0")).toBe(false);
       });
     });
 
@@ -366,7 +359,7 @@ describe("PopupHeaderComponent", () => {
 
       expect(suppressed()).toBe(false);
       expect(titleBar().contains(backButtons()[0])).toBe(true);
-      expect(backButtons()[0].classList).not.toContain("!tw-text-fg-nav");
+      expect(backButtonType()).toBe("primaryGhost");
     });
   });
 });

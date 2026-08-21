@@ -126,6 +126,18 @@ export class PopupHeaderComponent {
   );
 
   /**
+   * The bar's own account of where it is, published on `data-state` so anything watching the bar
+   * reads the state rather than inferring it from the classes that happen to implement it.
+   */
+  protected readonly titleBarState = computed(() => {
+    if (this.titleBarSuppressed()) {
+      return "suppressed";
+    }
+
+    return this.titleBarHidden() ? "collapsed" : "expanded";
+  });
+
+  /**
    * TODO: remove with the VFO1Foundation flag, along with the gate in `titleBarClasses`. Once the bar
    * is styled on its first render, the transition classes go back in the base list unconditionally —
    * an element never transitions on its first style resolution.
@@ -192,12 +204,10 @@ export class PopupHeaderComponent {
       return "tw-hidden";
     }
 
+    // The bar is a single-row grid, collapsed by animating that row between `1fr` and `0fr`. There
+    // is no height ceiling to guess: the expanded bar is whatever height its content needs.
     const classes = [
-      "tw-p-3",
-      "bit-compact:tw-p-2",
-      // `tw-max-h-24` is a ceiling above the bar's natural height, not a fixed size — collapsing
-      // animates `max-height` so the expanded bar keeps whatever height its content needs.
-      "tw-max-h-24",
+      "tw-grid",
       "tw-overflow-hidden",
       "tw-border-0",
       "tw-border-b",
@@ -208,7 +218,11 @@ export class PopupHeaderComponent {
     // See `titleBarAnimated`: declaring the transition before the bar collapses would animate the
     // padding and border that arrive with the flag rather than the collapse.
     if (this.titleBarAnimated()) {
-      classes.push("motion-safe:tw-transition-all", "tw-duration-200", "tw-ease-out");
+      classes.push(
+        "motion-safe:tw-transition-[grid-template-rows,padding]",
+        "tw-duration-200",
+        "tw-ease-out",
+      );
     }
 
     // The transparent bar keeps the border box so both treatments collapse to the same height.
@@ -224,17 +238,20 @@ export class PopupHeaderComponent {
     }
 
     if (this.titleBarHidden()) {
-      // The padding collapses alongside the height so visible motion starts on the first frame.
-      // `focus-within` keeps the collapsed bar reachable, and visible, by Shift+Tab.
-      // `!` is required on both max-heights: Tailwind emits `tw-max-h-24` after `tw-max-h-0`, so at
-      // equal specificity the static ceiling would otherwise win and the bar would never collapse.
+      // The block padding collapses alongside the row so visible motion starts on the first frame.
+      // `focus-within` keeps the collapsed bar reachable, and visible, by Shift+Tab — its extra
+      // pseudo-class outweighs the collapsed values, so no `!` is needed.
       classes.push(
-        "!tw-max-h-0",
-        "!tw-py-0",
-        "focus-within:!tw-max-h-24",
-        "focus-within:!tw-py-3",
-        "bit-compact:focus-within:!tw-py-2",
+        "tw-grid-rows-[0fr]",
+        "tw-px-3",
+        "bit-compact:tw-px-2",
+        "tw-py-0",
+        "focus-within:tw-grid-rows-[1fr]",
+        "focus-within:tw-py-3",
+        "bit-compact:focus-within:tw-py-2",
       );
+    } else {
+      classes.push("tw-grid-rows-[1fr]", "tw-p-3", "bit-compact:tw-p-2");
     }
 
     return classes.join(" ");
