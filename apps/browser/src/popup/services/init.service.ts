@@ -12,6 +12,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { ToastService } from "@bitwarden/components";
 import { FlightRecorderService } from "@bitwarden/logging-angular";
 import { StorageServiceProvider } from "@bitwarden/storage-core";
 import { LockService, UnlockService } from "@bitwarden/unlock";
@@ -32,6 +33,7 @@ export class InitService {
   private lockService = inject(LockService);
   private unlockService = inject(UnlockService);
   private flightRecorder = inject(FlightRecorderService);
+  private toastService = inject(ToastService);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -69,6 +71,7 @@ export class InitService {
         undefined,
         undefined,
         undefined,
+        this.toastService,
       );
 
       const htmlEl = window.document.documentElement;

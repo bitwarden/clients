@@ -16,12 +16,19 @@ import { FakeStorageService } from "@bitwarden/storage-test-utils";
 import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 
 import { AutomationDriver } from "./automation-driver.service";
-import { AutomationBiometricsController, ReloadProcess } from "./capabilities";
+import {
+  AUTOMATION_TOAST_TIMEOUT_MS,
+  AutomationBiometricsController,
+  AutomationToastController,
+  ReloadProcess,
+  ToastEntry,
+} from "./capabilities";
 
 interface OptionalDependencies {
   reloadProcess?: ReloadProcess;
   biometrics?: AutomationBiometricsController;
   messagingService?: MessagingService;
+  toastService?: AutomationToastController;
 }
 
 describe("AutomationDriver", () => {
@@ -56,6 +63,7 @@ describe("AutomationDriver", () => {
       optional.reloadProcess,
       optional.biometrics,
       optional.messagingService,
+      optional.toastService,
     );
 
   beforeEach(() => {
@@ -167,6 +175,7 @@ describe("AutomationDriver", () => {
         undefined,
         undefined,
         undefined,
+        undefined,
       );
 
       expect(sut.logging).toBeUndefined();
@@ -271,6 +280,88 @@ describe("AutomationDriver", () => {
     });
   });
 
+  describe("toast", () => {
+    let toastService: AutomationToastController;
+    let shown: ToastEntry[];
+
+    beforeEach(() => {
+      shown = [];
+      toastService = {
+        showToast: (options: ToastEntry) => {
+          shown.push(options);
+        },
+      };
+    });
+
+    it("is undefined when no toast service is supplied", () => {
+      expect(sut.toast).toBeUndefined();
+    });
+
+    it("buffers toasts shown after the service is hooked", () => {
+      sut = buildDriver({ toastService });
+
+      toastService.showToast({ message: "auto" });
+
+      expect(sut.toast!.readBuffer()).toEqual([{ message: "auto" }]);
+    });
+
+    it("overrides the timeout to the automation timeout", () => {
+      sut = buildDriver({ toastService });
+
+      toastService.showToast({ message: "saved", variant: "success", timeout: 1000 });
+
+      expect(shown).toEqual([
+        { message: "saved", variant: "success", timeout: AUTOMATION_TOAST_TIMEOUT_MS },
+      ]);
+    });
+
+    it("overrides the timeout when none was requested", () => {
+      sut = buildDriver({ toastService });
+
+      toastService.showToast({ message: "saved" });
+
+      expect(shown[0].timeout).toBe(AUTOMATION_TOAST_TIMEOUT_MS);
+    });
+
+    it("buffers the timeout the caller asked for, not the override", () => {
+      sut = buildDriver({ toastService });
+
+      toastService.showToast({ message: "saved", timeout: 1000 });
+
+      expect(sut.toast!.readBuffer()).toEqual([{ message: "saved", timeout: 1000 }]);
+    });
+
+    it("buffers title and variant", () => {
+      sut = buildDriver({ toastService });
+
+      toastService.showToast({ message: "body", title: "Error", variant: "error" });
+
+      expect(sut.toast!.readBuffer()).toEqual([
+        { message: "body", title: "Error", variant: "error" },
+      ]);
+    });
+
+    it("readBuffer returns a snapshot, not the live array", () => {
+      sut = buildDriver({ toastService });
+      toastService.showToast({ message: "first" });
+      const snapshot = sut.toast!.readBuffer();
+
+      toastService.showToast({ message: "second" });
+
+      expect(snapshot).toHaveLength(1);
+    });
+
+    it("keeps buffering after a clear", () => {
+      sut = buildDriver({ toastService });
+      toastService.showToast({ message: "before" });
+      sut.toast!.clearBuffer();
+
+      toastService.showToast({ message: "after" });
+
+      expect(sut.toast!.readBuffer()).toEqual([{ message: "after" }]);
+    });
+  });
+
   describe("attachToGlobal", () => {
     it("attaches the driver", () => {
       const global: any = {};
@@ -285,6 +376,7 @@ describe("AutomationDriver", () => {
         authService,
         lockService,
         unlockService,
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -307,6 +399,7 @@ describe("AutomationDriver", () => {
         authService,
         lockService,
         unlockService,
+        undefined,
         undefined,
         undefined,
         undefined,

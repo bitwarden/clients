@@ -9,6 +9,7 @@ import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import {
   AutomationBiometricsController,
+  AutomationToastController,
   DesktopNavigationCapability,
   FeatureFlagsCapability,
   LockCapability,
@@ -16,6 +17,7 @@ import {
   ProcessReloadCapability,
   ReloadProcess,
   StateCapability,
+  ToastCapability,
 } from "./capabilities";
 
 /**
@@ -29,6 +31,7 @@ export class AutomationDriver {
   private readonly loggingCapability?: LoggingCapability;
   private readonly desktopNavigationCapability?: DesktopNavigationCapability;
   private readonly lockCapability: LockCapability;
+  private readonly toastCapability?: ToastCapability;
 
   /**
    * Every parameter is required. The `undefined`-able ones are capabilities not every client
@@ -38,6 +41,7 @@ export class AutomationDriver {
    * @param reloadProcess - `undefined` on clients that cannot reload themselves.
    * @param biometricsController - Desktop only.
    * @param messagingService - Desktop only; backs menubar navigation.
+   * @param toastService - `undefined` on clients without a UI.
    */
   constructor(
     configService: ConfigService,
@@ -51,6 +55,7 @@ export class AutomationDriver {
     reloadProcess: ReloadProcess | undefined,
     private biometricsController: AutomationBiometricsController | undefined,
     messagingService: MessagingService | undefined,
+    toastService: AutomationToastController | undefined,
   ) {
     this.featureFlagsCapability = new FeatureFlagsCapability(configService, stateProvider);
     this.stateCapability = new StateCapability(storageServiceProvider);
@@ -65,6 +70,10 @@ export class AutomationDriver {
 
     if (messagingService != null) {
       this.desktopNavigationCapability = new DesktopNavigationCapability(messagingService);
+    }
+
+    if (toastService != null) {
+      this.toastCapability = new ToastCapability(toastService);
     }
 
     this.lockCapability = new LockCapability(
@@ -89,6 +98,7 @@ export class AutomationDriver {
     reloadProcess: ReloadProcess | undefined,
     biometrics: AutomationBiometricsController | undefined,
     messagingService: MessagingService | undefined,
+    toastService: AutomationToastController | undefined,
   ): void {
     new AutomationDriver(
       configService,
@@ -102,6 +112,7 @@ export class AutomationDriver {
       reloadProcess,
       biometrics,
       messagingService,
+      toastService,
     ).attachToGlobal(global);
   }
 
@@ -139,5 +150,9 @@ export class AutomationDriver {
 
   get state(): StateCapability {
     return this.stateCapability;
+  }
+
+  get toast(): ToastCapability | undefined {
+    return this.toastCapability;
   }
 }

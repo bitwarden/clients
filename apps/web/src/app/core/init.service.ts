@@ -22,6 +22,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { TaskService } from "@bitwarden/common/vault/tasks";
+import { ToastService } from "@bitwarden/components";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -62,9 +63,9 @@ export class InitService {
     private organizationInviteService: OrganizationInviteService,
     private storageServiceProvider: StorageServiceProvider,
     private stateProvider: StateProvider,
-    private storageServiceProvider: StorageServiceProvider,
     private logService: LogService,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {}
 
   init() {
@@ -131,6 +132,7 @@ export class InitService {
         () => this.win.location.reload(),
         undefined,
         undefined,
+        this.toastService,
       );
     };
   }

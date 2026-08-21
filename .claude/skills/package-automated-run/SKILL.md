@@ -141,9 +141,25 @@ Copy in a supporting artifact only when the result references it (a saved diagno
 network capture) and list it under `FILES`. Do not copy the screenshots or the raw screencast —
 the MP4 replaces them.
 
-## Step 6 — Report
+## Step 6 — Zip the package
 
-Tell the user the package path, the one-line result, and the video duration
+Bundle the full set of run artifacts — screenshots, screencast (if any), `run-plan.md`,
+`summary.md`, and the `package/` folder itself (README, captions, MP4) — into a single zip placed
+in the run directory, alongside `package/`, not inside it:
+
+```bash
+(cd <run-dir> && zip -r "<run-id>.zip" . -x '*.DS_Store')
+```
+
+This zip is the one artifact meant for sharing outside the repo (Slack, a ticket attachment), so it
+should be self-contained: someone who only has the zip must be able to see every screenshot, the
+run plan, and the finished video without access to the repo.
+
+Report the zip's path and size (`du -h <run-dir>/<run-id>.zip`) alongside the rest of Step 7.
+
+## Step 7 — Report
+
+Tell the user the package path, the zip path, the one-line result, and the video duration
 (`frames x seconds`). Paste the `RESULT` section into chat so they do not have to open the file.
 
 ## References

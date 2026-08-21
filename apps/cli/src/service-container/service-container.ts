@@ -1229,6 +1229,7 @@ export class ServiceContainer {
       undefined,
       undefined,
       undefined,
+      undefined,
     );
 
     await this.i18nService.init();

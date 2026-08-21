@@ -23,6 +23,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
+import { ToastService } from "@bitwarden/components";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
@@ -83,6 +84,7 @@ export class InitService {
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigService,
+    private toastService: ToastService,
   ) {}
 
   init() {
@@ -153,6 +155,7 @@ export class InitService {
           deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
         },
         this.messagingService,
+        this.toastService,
       );
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();

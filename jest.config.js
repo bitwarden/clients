@@ -62,6 +62,7 @@ module.exports = {
     "<rootDir>/libs/user-core/jest.config.js",
     "<rootDir>/libs/vault/jest.config.js",
     "<rootDir>/libs/auto-confirm/jest.config.js",
+    "<rootDir>/libs/automation-driver/jest.config.js",
     "<rootDir>/libs/subscription/jest.config.js",
     "<rootDir>/libs/unlock/jest.config.js",
     "<rootDir>/libs/user-crypto-management/jest.config.js",
