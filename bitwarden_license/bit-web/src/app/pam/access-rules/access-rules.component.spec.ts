@@ -342,7 +342,7 @@ describe("AccessRulesComponent — make a copy", () => {
   });
 });
 
-describe("AccessRulesComponent — activation toasts", () => {
+describe("AccessRulesComponent — mutation success toasts", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
