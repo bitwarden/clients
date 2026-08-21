@@ -145,7 +145,9 @@ import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
+  DefaultVaultNavService,
   SshImportPromptService,
+  VaultNavService,
   VaultFilterServiceAbstraction,
   VaultFilterService,
   RoutedVaultFilterService,
@@ -585,6 +587,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoComponentService,
     useClass: DefaultSsoComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: VaultNavService,
+    useClass: DefaultVaultNavService,
     deps: [],
   }),
   safeProvider({
