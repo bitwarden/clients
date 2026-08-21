@@ -74,7 +74,7 @@
     <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ option.label() }}</span>
     @let count = optionCounts().get(option);
     @if (count != null) {
-      <span class="tw-flex-none tw-text-muted">{{ count }}</span>
+      <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{ count }}</span>
     }
   </button>
 </ng-template>
@@ -85,7 +85,7 @@
       <bit-search [ngModel]="searchTerm()" (ngModelChange)="setSearchTerm($event)"></bit-search>
     </div>
   }
-  <div class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto tw-py-1">
+  <div class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto">
     <!-- Single-select always offers "All" at the top; selecting it clears the chip. -->
     @if (!multiple()) {
       @let allSelected = isSelected(clearValue);
@@ -100,6 +100,11 @@
           *ngTemplateOutlet="indicator; context: { $implicit: allSelected }"
         ></ng-container>
         <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ unsetLabel() ?? ("all" | i18n) }}</span>
+        @if (unsetCount() != null) {
+          <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+            unsetCount()
+          }}</span>
+        }
       </button>
     }
 
