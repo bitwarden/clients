@@ -203,6 +203,17 @@ export class TargetingRulesDataService {
       return;
     }
 
+    // Skip when fill assist is off — otherwise an opted-out user would still
+    // have outbound traffic to the (potentially org-admin-configured) rules
+    // feed URL. Cache warmth on opt-in is handled from the settings toggle.
+    const fillAssistEnabled = await firstValueFrom(
+      this.domainSettingsService.resolvedEnableFillAssist$,
+    );
+    if (!fillAssistEnabled) {
+      this.logService.debug("[TargetingRulesDataService] Fill assist is disabled, skipping fetch.");
+      return;
+    }
+
     this.logService.info("[TargetingRulesDataService] Update triggered...");
 
     const env = await firstValueFrom(this.environmentService.environment$);

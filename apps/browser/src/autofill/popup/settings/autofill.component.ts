@@ -65,6 +65,7 @@ import {
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
+import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../../../autofill/services/targeting-rules-data.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -325,6 +326,11 @@ export class AutofillComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         void this.domainSettingsService.setEnableFillAssist(value);
+        // The fetcher skips fetches while fill assist is off, so toggling back
+        // on would otherwise wait until the next scheduled interval.
+        if (value === true) {
+          this.messagingService.send(FORCE_TARGETING_RULES_UPDATE_COMMAND);
+        }
       });
 
     this.enableContextMenuItem = await firstValueFrom(
