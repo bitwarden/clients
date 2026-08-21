@@ -15764,6 +15764,18 @@
   "recoveryStepFoldersTitle": {
     "message": "Verifying folder integrity"
   },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have old file attachments that need to be fixed. Select an item below, then select 'Fix' on the attachment.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "dataRecoveryTitle": {
     "message": "Data Recovery and Diagnostics"
   },
