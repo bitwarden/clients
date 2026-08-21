@@ -132,12 +132,16 @@ export class TargetingRulesDataService {
     // Warm the cache when fill assist transitions on. Observing the same
     // observable the gate reads avoids a race with cross-context state
     // propagation that a popup-triggered force-update would introduce.
+    // `false` is enough: an opted-out user has no meta entry under their
+    // cache key, so the age check passes on the first post-opt-in fetch.
+    // Using `true` (skip cache-age) would fire a network request on every
+    // MV3 service worker wake for any user with fill assist on.
     this.domainSettingsService.resolvedEnableFillAssist$
       .pipe(
         filter((enabled) => enabled),
         takeUntil(this._destroy$),
       )
-      .subscribe(() => this._triggerUpdate$.next(true));
+      .subscribe(() => this._triggerUpdate$.next(false));
   }
 
   /**
