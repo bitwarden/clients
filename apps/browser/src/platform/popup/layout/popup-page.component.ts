@@ -36,13 +36,6 @@ export class PopupPageComponent {
   /** Hides any overflow within the page content */
   readonly hideOverflow = input(false, { transform: booleanAttribute });
 
-  /**
-   * Makes the scroll region a full-height flex column so projected content can size itself against
-   * it. Needed by content that manages its own scrolling (e.g. a `height="fill"` table): without a
-   * flex parent such content has no bounded height to grow into and collapses to zero.
-   */
-  readonly fillContent = input(false, { transform: booleanAttribute });
-
   protected readonly scrolled = signal(false);
   readonly isScrolled = this.scrolled.asReadonly();
 

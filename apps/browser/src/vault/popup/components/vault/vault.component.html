@@ -1,6 +1,4 @@
-<!-- The table manages its own scrolling via `height="fill"`, so the scroll region has to become a
-     bounded flex column for it to have any height to fill. -->
-<popup-page [hideOverflow]="showSkeletonsLoaders$ | async" [fillContent]="vfo1Enabled()">
+<popup-page [hideOverflow]="showSkeletonsLoaders$ | async">
   <popup-header slot="header" [pageTitle]="'vault' | i18n">
     <ng-container slot="end">
       <app-new-item-dropdown
@@ -14,11 +12,9 @@
   </popup-header>
 
   @if (vaultState === VaultStateEnum.Empty) {
-    <vault-fade-in-out class="tw-block tw-h-full">
+    <vault-fade-in-out>
       <div class="tw-flex tw-flex-col tw-h-full tw-justify-center">
-        <!-- `bit-no-items` pads its inner wrapper with an unconditional `tw-pt-6`, which pushes
-             the content below the centered box. Zeroed so the graphic reads as optically centred. -->
-        <bit-no-items class="[&>div]:!tw-pt-0" [icon]="vaultIcon">
+        <bit-no-items [icon]="vaultIcon">
           <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
           <ng-container slot="description">
             <p bitTypography="body2" class="tw-mx-6 tw-mt-2">
@@ -87,17 +83,17 @@
     }
     @if (vaultState === VaultStateEnum.Empty) {
       <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-px-2 tw-flex tw-flex-col"
+        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
       ></vault-organization-user-notifications>
     } @else {
       <!-- At-Risk callout displays as a banner and should always remain visually above all other callouts -->
       <vault-at-risk-password-callout></vault-at-risk-password-callout>
       <vault-organization-user-notifications
-        class="-tw-mx-5 -tw-mt-3 tw-px-2 tw-flex tw-flex-col"
+        class="-tw-mx-5 -tw-mt-3 tw-flex tw-flex-col tw-px-2 tw-mb-3"
       ></vault-organization-user-notifications>
 
       @if (showHasItemsVaultSpotlight$ | async) {
-        <div>
+        <div class="tw-mb-4">
           <bit-callout
             [title]="'hasItemsVaultNudgeTitle' | i18n"
             [icon]="null"
@@ -111,8 +107,7 @@
           </bit-callout>
         </div>
       }
-      <!-- The table presentation supplies its own search/filter toolbar, so the legacy header is
-           only rendered when the flag is off. -->
+      <!-- The table presentation supplies its own search/filter toolbar, so the legacy header is only rendered when the flag is off. -->
       @if (!vfo1Enabled()) {
         <app-vault-header></app-vault-header>
       }
