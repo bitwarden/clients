@@ -142,10 +142,17 @@ export abstract class BaseProgram {
     // If the process.env does not have a BW_SESSION key, then we will never be able to retrieve
     // the auto user key from secure storage. This is because the auto user key is encrypted with
     // the session key.
-    const hasUserKey =
-      await this.serviceContainer.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(
-        userId,
+    // A failed auto-unlock leaves the user locked, to be handled below, rather than aborting
+    // the command outright.
+    let hasUserKey = false;
+    try {
+      hasUserKey = await this.serviceContainer.unlockService.unlockWithAutoUnlockKey(userId);
+    } catch (e) {
+      this.serviceContainer.logService.error(
+        "[BaseProgram] Failed to unlock with the never-lock key",
+        e,
       );
+    }
 
     if (hasUserKey) {
       // User is unlocked
