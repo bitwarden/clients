@@ -66,6 +66,7 @@ export default {
               search: "Search",
               resetSearch: "Reset search",
               clear: "Clear",
+              filtersSelected: (count) => `${count} selected`,
             }),
         },
       ],

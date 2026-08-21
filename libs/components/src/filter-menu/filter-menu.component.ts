@@ -183,7 +183,7 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
   });
 
   /** Live count of selected options (`multiple` only). Source for the committed berry value. */
-  private readonly selectedCount = computed(() => {
+  protected readonly selectedCount = computed(() => {
     const value = this._value();
     return this.multiple() && Array.isArray(value) ? value.length : 0;
   });
