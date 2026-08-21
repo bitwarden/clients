@@ -975,24 +975,6 @@ export default class MainBackground {
       this.collectionEncryptionService,
     );
 
-    this.keyConnectorService = new KeyConnectorService(
-      this.accountService,
-      this.masterPasswordService,
-      this.keyService,
-      this.legacyCompatKeyService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      logoutCallback,
-      this.stateProvider,
-      this.configService,
-      this.registerSdkService,
-      this.accountCryptographicStateService,
-      this.sdkService,
-      this.userDecryptionOptionsService,
-    );
-
     this.pinService = new PinService(this.sdkService);
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
@@ -1026,6 +1008,25 @@ export default class MainBackground {
       this.keyService,
     );
     void browserBiometricsService.setUnlockService(this.unlockService);
+
+    // Constructed after the unlock service, which it depends on.
+    this.keyConnectorService = new KeyConnectorService(
+      this.accountService,
+      this.masterPasswordService,
+      this.legacyCompatKeyService,
+      this.apiService,
+      this.tokenService,
+      this.logService,
+      this.organizationService,
+      logoutCallback,
+      this.stateProvider,
+      this.configService,
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      this.sdkService,
+      this.userDecryptionOptionsService,
+      this.unlockService,
+    );
 
     this.passwordStrengthService = new PasswordStrengthService();
 
