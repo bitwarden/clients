@@ -2,24 +2,22 @@ import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-
-import { parseVaultScope, VaultScopeType } from "../models/vault-scope";
+import { VaultNavItemType } from "../models/vault-nav-view-model";
+import { isPersonalOnly, parseVaultScope, VaultScopeType } from "../models/vault-scope";
+import { VaultNavService } from "../services/vault-nav.service";
 
 /**
  * Guards the `:vaultId` vault routes, redirecting to the unscoped vault when the segment names no
- * vault the user has — a typo, or a bookmark to an organization they have since left. Without it
- * those URLs render an empty vault, which reads as data loss.
+ * vault the side nav offers — a typo, a bookmark to an organization the user has left, or
+ * `my-vault` on an account whose lone entry already points at the unscoped route. Without it those
+ * URLs render an empty vault, or the right rows under a nav with nothing highlighted.
  *
- * Resolving membership here also lets the page trust the segment, so it can scope its rows the
- * moment it loads rather than waiting on the organization list.
+ * The nav view model, rather than the organization list, decides membership: the two disagree on
+ * provider organizations, and the guard should admit exactly what the nav can highlight.
  */
 export const vaultScopeGuard: CanActivateFn = async (route) => {
   const router = inject(Router);
-  const accountService = inject(AccountService);
-  const organizationService = inject(OrganizationService);
+  const vaultNavService = inject(VaultNavService);
 
   const allItems = () => router.createUrlTree(["/vault"]);
 
@@ -28,12 +26,19 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
     return allItems();
   }
 
-  if (scope.type !== VaultScopeType.Organization) {
+  if (scope.type !== VaultScopeType.MyVault && scope.type !== VaultScopeType.Organization) {
     return true;
   }
 
-  const userId = await firstValueFrom(accountService.activeAccount$.pipe(getUserId));
-  const organizations = await firstValueFrom(organizationService.organizations$(userId));
+  const nav = await firstValueFrom(vaultNavService.viewModel$);
 
-  return organizations.some(({ id }) => id === scope.organizationId) ? true : allItems();
+  if (scope.type === VaultScopeType.MyVault) {
+    return isPersonalOnly(nav) ? allItems() : true;
+  }
+
+  const isMember = nav.vaults.some(
+    ({ id, type }) => type !== VaultNavItemType.Personal && id === scope.organizationId,
+  );
+
+  return isMember ? true : allItems();
 };
