@@ -47,6 +47,12 @@ export class MainDesktopAutotypeMvpService {
     });
 
     ipcMain.on(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE, (_event, vaultData: AutotypeVaultData) => {
+      // Reuse the OS-level registration itself as the "is autotype currently enabled" signal
+      // EXECUTE should never fire once the shortcut that triggers it has been unregistered.
+      if (!globalShortcut.isRegistered(this.autotypeKeyboardShortcut.getElectronFormat())) {
+        return;
+      }
+
       if (
         stringIsNotUndefinedNullAndEmpty(vaultData.username) &&
         stringIsNotUndefinedNullAndEmpty(vaultData.password)
