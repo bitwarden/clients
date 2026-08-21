@@ -15,6 +15,7 @@
   "afterSign": "scripts/after-sign.js",
   "afterPack": "scripts/after-pack.js",
   "beforePack": "scripts/before-pack.js",
+  "appxManifestCreated": "scripts/appx-manifest-created.js",
   "files": [
     "!node_modules/@bitwarden/desktop-napi/scripts",
     "!node_modules/@bitwarden/desktop-napi/src",
@@ -161,7 +162,9 @@
   },
   "appx": {
     "artifactName": "Bitwarden-Beta-${version}-${arch}.${ext}",
-    "backgroundColor": "#175DDC",
+    "backgroundColor": "#FDC700",
+    "customExtensionsPath": "../custom-appx-extensions.beta.xml",
+    "minVersion": "10.0.14393.0",
     "applicationId": "BitwardenBeta",
     "identityName": "8bitSolutionsLLC.BitwardenBeta",
     "publisher": "CN=14D52771-DE3C-4886-B8BF-825BA7690418",
