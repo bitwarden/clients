@@ -3,3 +3,4 @@ export * from "./aria-disabled-click-capture.service";
 export * from "./aria-disable.directive";
 export * from "./router-focus-manager.service";
 export * from "./autofocus-fallback.directive";
+export * from "./set-a11y-title-and-aria-label";

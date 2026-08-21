@@ -1,3 +1,4 @@
+export { VaultFabComponent } from "./components/fab/fab.component";
 export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
