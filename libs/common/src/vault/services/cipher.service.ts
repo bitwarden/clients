@@ -40,6 +40,7 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
 import { FileUploadType } from "../../platform/enums";
 import { MessageSender } from "../../platform/messaging";
+import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { StateProvider } from "../../platform/state";
 import { CipherId, CollectionId, OrganizationId, UserId } from "../../types/guid";
@@ -1169,6 +1170,42 @@ export class CipherService implements CipherServiceAbstraction {
     if (!admin) {
       await this.upsert(cData);
     }
+    return new Cipher(cData);
+  }
+
+  async seedAndSaveAttachmentRawWithServerLegacy(): Promise<Cipher> {
+    const filename = "old-cipher.txt";
+    const data = Utils.fromUtf8ToArray("Old cipher content");
+
+    const userId = await firstValueFrom(this.stateProvider.activeUserId$);
+    if (userId == null) {
+      throw new Error("No active user.");
+    }
+
+    const ciphers = await this.getAll(userId);
+    const cipher = ciphers.find((c) => c.organizationId == null);
+    if (cipher == null) {
+      throw new Error("The active user has no personal ciphers.");
+    }
+
+    const vaultKey = await this.getKeyForCipherKeyDecryption(cipher, userId);
+
+    const encFileName = await this.encryptService.encryptString(filename, vaultKey);
+    // Legacy attachments have no key of their own, so the file data is encrypted with the same key.
+    const encData = await this.encryptService.encryptFileData(data, vaultKey);
+
+    // The SDK always creates an attachment key, so the legacy format only works over the API path.
+    const response = await this.cipherFileUploadService.upload(
+      cipher,
+      encFileName,
+      encData,
+      false,
+      null,
+      userId,
+    );
+
+    const cData = new CipherData(response, cipher.collectionIds);
+    await this.upsert(cData);
     return new Cipher(cData);
   }
 

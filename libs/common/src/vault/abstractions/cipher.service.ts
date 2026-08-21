@@ -181,6 +181,22 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     options?: UploadOptions,
   ): Promise<Cipher>;
   /**
+   * Adds an attachment in the legacy format to the first personal cipher of the active user.
+   * Organization ciphers are not used. The attachment has no key of its own and the file data is
+   * encrypted with the cipher key, or with the user key when the cipher has no key. The file is
+   * named `old-cipher.txt`.
+   *
+   * This exists only to create test data for the flows that detect and upgrade old attachments.
+   * Call it from the console, not from product code.
+   *
+   * For a faithful legacy attachment, make sure the first personal cipher has no cipher key. When
+   * the cipher has a key, the emergency access decryption path uses the user key and cannot read
+   * the file.
+   *
+   * @throws Will throw if there is no active user, or if the active user has no personal ciphers.
+   */
+  abstract seedAndSaveAttachmentRawWithServerLegacy(): Promise<Cipher>;
+  /**
    * Upgrade all old attachments for a cipher by downloading, decrypting, re-uploading with new key, and deleting old.
    * @param cipher - The cipher with old attachments to upgrade
    * @param userId - The user ID

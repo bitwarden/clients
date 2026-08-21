@@ -21,6 +21,7 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -53,6 +54,7 @@ export class InitService {
     private sharedUnlockFollowerService: SharedUnlockFollowerService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
+    private cipherService: CipherService,
   ) {}
 
   init() {
@@ -100,6 +102,7 @@ export class InitService {
         this.keyService,
         this.encryptService,
         this.legacyCompatKeyService,
+        this.cipherService,
       );
       containerService.attachToGlobal(this.win);
     };

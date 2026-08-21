@@ -1194,6 +1194,7 @@ export default class MainBackground {
       this.keyService,
       this.encryptService,
       this.legacyCompatKeyService,
+      this.cipherService,
     );
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
