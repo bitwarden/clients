@@ -16,7 +16,7 @@ import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
 
 /// @bitwarden/legacy-crypto is a holding pen for crypto primitives being retired in favour of the
-/// SDK `.// eslint-disable-next-line no-restricted-imports`.
+/// SDK
 const LEGACY_CRYPTO_RESTRICTED_PATTERN = {
   group: ["@bitwarden/legacy-crypto", "@bitwarden/legacy-crypto/**"],
   message:
