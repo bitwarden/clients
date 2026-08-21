@@ -6,8 +6,10 @@ import {
   MessageSender,
 } from "@bitwarden/common/platform/messaging";
 import { newGuid } from "@bitwarden/guid";
-import { LockService, LockSource } from "@bitwarden/unlock";
 import { UserId } from "@bitwarden/user-core";
+
+import { LockSource } from "./lock-source.enum";
+import { LockService } from "./lock.service";
 
 const LOCK_ALL_FINISHED = new CommandDefinition<{ requestId: string }>("lockAllFinished");
 const LOCK_ALL = new CommandDefinition<{ requestId: string; source: LockSource }>("lockAll");
