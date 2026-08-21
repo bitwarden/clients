@@ -10,7 +10,7 @@ describe("accessRuleDeleteConfirmOptions", () => {
       },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
-      type: "warning",
+      type: "danger",
     });
   });
 });
