@@ -129,9 +129,10 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   /**
-   * Shared decrypt source for {@link cipherViews$} and {@link cipherListViewsWithPartials$},
-   * retaining PAM-gated ("partial") rows so each can filter as it needs. The sole decrypt
-   * subscription, so decryption and the overlay refresh run once.
+   * Shared decrypt source for {@link cipherViews$}, {@link cipherListViewsWithPartials$} and
+   * {@link getAllDecryptedForIdsIncludingPartials}, retaining PAM-gated ("partial") rows so each
+   * can filter as it needs. The sole decrypt subscription, so decryption and the overlay refresh
+   * run once.
    *
    * A `null` value indicates that decryption is in progress.
    */
@@ -554,8 +555,24 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async getAllDecryptedForIds(userId: UserId, ids: string[]): Promise<CipherView[]> {
+    return this.decryptedForIds(this.cipherViews$(userId), ids);
+  }
+
+  /** @inheritdoc */
+  async getAllDecryptedForIdsIncludingPartials(
+    userId: UserId,
+    ids: string[],
+  ): Promise<CipherView[]> {
+    return this.decryptedForIds(this.cipherViewsWithPartials$(userId), ids);
+  }
+
+  /** Pick the requested ids out of a decrypted-view stream, once it has decrypted. */
+  private decryptedForIds(
+    views$: Observable<CipherView[] | null>,
+    ids: string[],
+  ): Promise<CipherView[]> {
     return firstValueFrom(
-      this.cipherViews$(userId).pipe(
+      views$.pipe(
         filter((ciphers) => ciphers != null),
         map((ciphers) => ciphers.filter((cipher) => ids.includes(cipher.id))),
       ),
