@@ -34,9 +34,10 @@ export interface FilterHost {
   registerFilter(control: FilterControl): void;
   unregisterFilter(control: FilterControl): void;
   /**
-   * Faceted count for one of a chip's options: how many rows match if the chip's
-   * `key` is pinned to `value`, with every other active filter still applied.
-   * Returns `undefined` when the host can't compute it (e.g. server-side, with no
+   * Count for one of a chip's options: how many rows match if the chip's `key` is
+   * pinned to `value`, ignoring every other filter — an absolute count, not a
+   * faceted one, so it doesn't shift as unrelated filters change. Returns
+   * `undefined` when the host can't compute it (e.g. server-side, with no
    * client-side predicate), so the chip falls back to an option's explicit `count`.
    * Optional — a host that can't count omits it.
    */
