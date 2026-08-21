@@ -6,10 +6,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { autotypeFeatureFlagEnabled$ } from "@bitwarden/common/desktop-native/services/autotype-feature-flags";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
-import {
-  DesktopAutotypeDefaultSettingPolicy,
-  DesktopAutotypeDefaultSettingPolicyComponent,
-} from "./autotype-policy.component";
+import { DesktopAutotypeDefaultSettingPolicy } from "./autotype-policy.component";
 import { SimpleTogglePolicyComponent } from "./simple-toggle-policy.component";
 
 jest.mock("@bitwarden/common/desktop-native/services/autotype-feature-flags", () => ({
@@ -21,16 +18,10 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   const org = {} as Organization;
 
   it("should have correct attributes", () => {
-    expect(policy.name).toBe("desktopAutotypePolicy");
-    expect(policy.description).toBe("desktopAutotypePolicyDesc");
+    expect(policy.name).toBe("desktopAutotypePolicyTitleV2");
+    expect(policy.description).toBe("desktopAutotypePolicyDescV2");
     expect(policy.type).toBe(PolicyType.AutotypeDefaultSetting);
-    expect(policy.component).toBe(DesktopAutotypeDefaultSettingPolicyComponent);
-  });
-
-  describe("v2", () => {
-    it("should point to SimpleTogglePolicyComponent", () => {
-      expect(policy.v2?.component).toBe(SimpleTogglePolicyComponent);
-    });
+    expect(policy.component).toBe(SimpleTogglePolicyComponent);
   });
 
   describe("display$", () => {
