@@ -278,6 +278,10 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
   }
 
   constructor() {
+    // Unselected filter chips are white with a grey border, not brand-tinted; the
+    // base chip only routes to `primary` while selected, so `subtle` is the resting
+    // variant. Set rather than defaulted so a consumer's `variant` still wins.
+    this.baseChip.variant.set("subtle");
     effect(() => {
       const options = this.allOptions();
       if (options.length === 0) {
