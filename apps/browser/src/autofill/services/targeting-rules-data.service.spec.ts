@@ -261,6 +261,24 @@ describe("TargetingRulesDataService", () => {
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
     });
+
+    it("triggers a fetch when fill assist transitions from off to on", async () => {
+      // Start opted out so init doesn't consume the trigger.
+      resolvedEnableFillAssistMock$.next(false);
+
+      const fetchSpy = jest
+        .spyOn(service as any, "_fetchAndStoreRules")
+        .mockResolvedValue(undefined);
+
+      await service.init();
+      // Clear the init-time fires from serverConfig$ / fillAssistPolicy$.
+      fetchSpy.mockClear();
+
+      resolvedEnableFillAssistMock$.next(true);
+      await new Promise((r) => setTimeout(r, 0));
+
+      expect(fetchSpy).toHaveBeenCalled();
+    });
   });
 
   describe("_resetMeta", () => {

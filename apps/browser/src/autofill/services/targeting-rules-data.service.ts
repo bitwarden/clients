@@ -2,6 +2,7 @@ import {
   catchError,
   defer,
   EMPTY,
+  filter,
   firstValueFrom,
   from,
   retry,
@@ -127,6 +128,16 @@ export class TargetingRulesDataService {
     this.domainSettingsService.fillAssistPolicy$.pipe(takeUntil(this._destroy$)).subscribe(() => {
       this._triggerUpdate$.next(false);
     });
+
+    // Warm the cache when fill assist transitions on. Observing the same
+    // observable the gate reads avoids a race with cross-context state
+    // propagation that a popup-triggered force-update would introduce.
+    this.domainSettingsService.resolvedEnableFillAssist$
+      .pipe(
+        filter((enabled) => enabled),
+        takeUntil(this._destroy$),
+      )
+      .subscribe(() => this._triggerUpdate$.next(true));
   }
 
   /**
