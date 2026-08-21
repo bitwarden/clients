@@ -509,6 +509,25 @@ describe("HealthComponent", () => {
 
       expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
     });
+
+    it("shows the progress view while a rescan runs, even though the service still holds the last report", async () => {
+      // The state keeps the previous report across loading so the detail view is
+      // not ejected mid-rescan. The tab gates on status, so it shows progress
+      // rather than the stale overview.
+      hasRunScan$.next(true);
+      const previous = new VaultHealthReportView({ totalCount: 10, atRiskCount: 4 });
+      published.next({ userId, status: VaultHealthReportStatus.Success, report: previous });
+
+      await initComponent();
+      await settle();
+      expect(overview()?.report().atRiskCount).toBe(4);
+
+      published.next({ userId, status: VaultHealthReportStatus.Loading, report: previous });
+      await settle();
+
+      expect(scanning()).not.toBeNull();
+      expect(overview()).toBeNull();
+    });
   });
 
   describe("scan my vault", () => {

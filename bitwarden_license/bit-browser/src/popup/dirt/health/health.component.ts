@@ -4,26 +4,13 @@ import {
   computed,
   inject,
   effect,
-  Signal,
+  signal,
 } from "@angular/core";
-import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import {
-  Observable,
-  catchError,
-  defer,
-  filter,
-  ignoreElements,
-  map,
-  merge,
-  of,
-  startWith,
-  switchMap,
-  take,
-} from "rxjs";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { EMPTY, Observable, catchError, defer, filter, map, of, switchMap, take } from "rxjs";
 
 import {
   VAULT_HEALTH_REPORT_IDLE,
-  VaultHealthReportState,
   VaultHealthReportStatus,
 } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -87,37 +74,24 @@ export class HealthComponent {
     { initialValue: false },
   );
 
-  /**
-   * Where report generation is for the active user, per the report service.
-   *
-   * Annotated rather than passed as a type argument: `toSignal`'s only overload
-   * that accepts a non-null `initialValue` declares two type parameters, so one
-   * explicit argument disqualifies it on arity.
-   */
-  private readonly scanState: Signal<VaultHealthReportState> = toSignal(
+  /** The latest report for the active user and where its generation got to. */
+  private readonly scanState = toSignal(
     toObservable(this.userId).pipe(
-      filterOutNullish(),
       switchMap((userId) =>
-        this.healthAccessService.hasRunHealthScan$(userId).pipe(
-          // On the first visit this waits for the intro's "Scan my vault"; on
-          // every later visit it is already true, so generation starts as soon
-          // as the tab opens. take(1) keeps it to one build per open.
-          filter(Boolean),
-          take(1),
-          switchMap(() => this.generateReport$(userId)),
-          // Clears the previous account's result the moment the active account
-          // changes, so switching users can never briefly show A's at-risk
-          // counts to B while B's own state is still resolving.
-          startWith(VAULT_HEALTH_REPORT_IDLE),
-        ),
+        userId
+          ? this.vaultHealthReportService.getVaultHealthReport$(userId)
+          : of(VAULT_HEALTH_REPORT_IDLE),
       ),
     ),
     { initialValue: VAULT_HEALTH_REPORT_IDLE },
   );
 
-  /** True when report generation did not complete. */
+  /** Set when fetching the ciphers to scan fails, which never reaches the service. */
+  private readonly pipelineFailed = signal(false);
+
+  /** True when the scan did not complete: the service published an error, or the ciphers fetch failed. */
   protected readonly scanFailed = computed(
-    () => this.scanState().status === VaultHealthReportStatus.Error,
+    () => this.scanState().status === VaultHealthReportStatus.Error || this.pipelineFailed(),
   );
 
   /** The completed report, or null while generating or after a failure. */
@@ -127,6 +101,36 @@ export class HealthComponent {
   });
 
   constructor() {
+    // Triggers the scan. Reading happens through scanState above.
+    toObservable(this.userId)
+      .pipe(
+        filterOutNullish(),
+        switchMap((userId) =>
+          this.healthAccessService.hasRunHealthScan$(userId).pipe(
+            // First visit waits for the intro's "Scan my vault"; later visits are
+            // already true. take(1) keeps it to one trigger per popup open.
+            filter(Boolean),
+            take(1),
+            // Reuse guard (load-bearing): back-navigation re-creates this
+            // component, so only build when the service holds nothing or a
+            // failure for this user. Without it every back press rescans.
+            switchMap(() =>
+              this.vaultHealthReportService.getVaultHealthReport$(userId).pipe(
+                take(1),
+                filter(
+                  (state) =>
+                    state.status === VaultHealthReportStatus.Idle ||
+                    state.status === VaultHealthReportStatus.Error,
+                ),
+                switchMap(() => this.startGeneration$(userId)),
+              ),
+            ),
+          ),
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe();
+
     effect(async () => {
       const userId = this.userId();
       if (!userId) {
@@ -150,64 +154,23 @@ export class HealthComponent {
     await this.healthAccessService.setHasRunHealthScan(userId);
   };
 
-  /**
-   * Reports where generation is for `userId`, starting it only if the service
-   * has nothing for them yet.
-   *
-   * Re-creating this component must not repeat the scan. `/health/:category` is
-   * a sibling route and the popup never reuses routes, so the back arrow
-   * destroys and rebuilds this component; without the guard the user pays a
-   * second breach lookup and watches the progress view again for results they
-   * were reading a moment earlier. The report service is popup-scoped, so
-   * closing the popup still discards everything and the next open scans afresh.
-   *
-   * Never errors, so a failure renders the failure view instead of tearing down
-   * the pipeline.
-   */
-  private generateReport$(userId: UserId): Observable<VaultHealthReportState> {
-    return this.vaultHealthReportService.getVaultHealthReport$(userId).pipe(
-      take(1),
-      switchMap((existing) =>
-        // Nothing worth keeping, so generate. `error` counts as nothing: there is
-        // no report to preserve and no build to follow, and the failure view
-        // offers no retry, so reusing it would strand the user on it for the life
-        // of the popup. That matters more than it sounds, because this tab can be
-        // popped out into a window that lives for hours.
-        existing.status === VaultHealthReportStatus.Idle ||
-        existing.status === VaultHealthReportStatus.Error
-          ? this.startGeneration$(userId)
-          : // Already generated, or generating. Follow it rather than starting a
-            // second one.
-            this.vaultHealthReportService.getVaultHealthReport$(userId),
-      ),
-      // The service publishes its own failures as state, so reaching here means
-      // the ciphers stream failed instead. Distinct message so the two failure
-      // classes are separable in a log dump.
-      catchError((error: unknown): Observable<VaultHealthReportState> => {
-        this.logService.error("Vault health scan pipeline failed", error);
-        return of({ status: VaultHealthReportStatus.Error, report: null });
-      }),
-    );
-  }
-
-  /** Runs one report build for `userId` and reports the service's state for it. */
-  private startGeneration$(userId: UserId): Observable<VaultHealthReportState> {
+  /** Runs one report build for `userId`. Never errors: the service publishes its own failures. */
+  private startGeneration$(userId: UserId): Observable<unknown> {
     return this.cipherService.cipherViews$(userId).pipe(
       // cipherViews$ may emit null when decrypted ciphers are cleared.
       filterOutNullish(),
       // Generation does an external breach lookup; a vault edit must not re-run it.
       take(1),
       switchMap((ciphers) =>
-        merge(
-          // Trigger only. merge subscribes in order, so the service has already
-          // published `loading` by the time the state stream is subscribed
-          // below.
-          defer(() => this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)).pipe(
-            ignoreElements(),
-          ),
-          this.vaultHealthReportService.getVaultHealthReport$(userId),
-        ),
+        defer(() => this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)),
       ),
+      catchError((error: unknown) => {
+        // A cipherViews$ failure never reaches the service, so surface it here as
+        // a failure and log it.
+        this.pipelineFailed.set(true);
+        this.logService.error("Vault health scan pipeline failed", error);
+        return EMPTY;
+      }),
     );
   }
 }
