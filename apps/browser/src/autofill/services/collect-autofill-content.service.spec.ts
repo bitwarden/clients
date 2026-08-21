@@ -4,6 +4,7 @@ import { FormPurposeCategories } from "@bitwarden/common/autofill/constants";
 
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
+import AutofillPageDetails from "../models/autofill-page-details";
 import { createAutofillFieldMock, createAutofillFormMock } from "../spec/autofill-mocks";
 import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import {
@@ -276,6 +277,11 @@ describe("CollectAutofillContentService", () => {
       );
 
       await collectAutofillContentService.getPageDetails();
+      // The visibility sweep is deliberately not awaited by `getPageDetails`,
+      // and it now resolves every field's visibility before building the shared
+      // page-details snapshot — so overlay setup lands a microtask later than
+      // the call that triggered it. A macrotask boundary drains the queue.
+      await new Promise((resolve) => setTimeout(resolve, 0));
 
       expect(autofillField.viewable).toBe(true);
       expect(isElementViewableSpy).toHaveBeenCalledWith(fieldElement);
@@ -3479,6 +3485,40 @@ describe("CollectAutofillContentService", () => {
     });
   });
 
+  describe("updateCachedAutofillFieldVisibility", () => {
+    // Sibling of the `handleFormElementIntersection` case below, and the same
+    // hazard: this sweep also shares one page-details snapshot across the
+    // fields that became viewable, and that snapshot is a qualification
+    // engine's memoization key.
+    it("builds the shared snapshot only after every visibility check has resolved", async () => {
+      const first = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      const second = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.append(first, second);
+      collectAutofillContentService["autofillFieldElements"] = new Map([
+        [first, mock<AutofillField>({ opid: "__0", viewable: false })],
+        [second, mock<AutofillField>({ opid: "__1", viewable: false })],
+      ]);
+      jest
+        .spyOn(collectAutofillContentService["domElementVisibilityService"], "isElementViewable")
+        .mockResolvedValue(true);
+
+      const seen: boolean[][] = [];
+      jest
+        .spyOn(
+          collectAutofillContentService["autofillOverlayContentService"],
+          "setupOverlayListeners",
+        )
+        .mockImplementation(async (_element, _field, pageDetails: AutofillPageDetails) => {
+          seen.push(pageDetails.fields.map((field) => field.viewable));
+        });
+
+      await collectAutofillContentService["updateCachedAutofillFieldVisibility"]();
+
+      expect(seen).toHaveLength(2);
+      expect(seen[0]).toEqual([true, true]);
+    });
+  });
+
   describe("handleFormElementIntersection", () => {
     let isElementViewableSpy: jest.SpyInstance;
     let setupAutofillOverlayListenerOnFieldSpy: jest.SpyInstance;
@@ -3555,6 +3595,47 @@ describe("CollectAutofillContentService", () => {
         autofillField,
         expect.anything(),
       );
+    });
+
+    // The shared snapshot is the memoization key for whole-page qualification,
+    // and the `AutofillField` objects inside it are the live cache entries. A
+    // snapshot built while the batch was half-processed gets classified against
+    // fields still marked hidden, `requireViewable` archetype matchers reject
+    // the form, and every field in it loses its form context for the life of
+    // the snapshot — with no second chance, because the verdict is memoized.
+    it("builds the shared snapshot only after every field in the batch is marked viewable", async () => {
+      const first = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      const second = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      document.body.append(first, second);
+      const firstField = mock<AutofillField>({ opid: "__0", viewable: false });
+      const secondField = mock<AutofillField>({ opid: "__1", viewable: false });
+      collectAutofillContentService["autofillFieldElements"].set(first, firstField);
+      collectAutofillContentService["autofillFieldElements"].set(second, secondField);
+      isElementViewableSpy.mockResolvedValue(true);
+      const entries = [
+        { target: first, isIntersecting: true },
+        { target: second, isIntersecting: true },
+      ] as unknown as IntersectionObserverEntry[];
+
+      // Read the flags *at the moment of the call*, not afterwards. The
+      // snapshot holds live references to the cache entries, so by the end of
+      // the batch it always looks correct — what a qualification engine sees is
+      // whatever was true when it first classified, which is this instant.
+      const seen: [AutofillPageDetails, boolean[]][] = [];
+      setupAutofillOverlayListenerOnFieldSpy.mockImplementation(
+        (_element, _field, pageDetails: AutofillPageDetails) => {
+          seen.push([pageDetails, pageDetails.fields.map((field) => field.viewable)]);
+        },
+      );
+
+      await collectAutofillContentService["handleFormElementIntersection"](entries);
+
+      expect(seen).toHaveLength(2);
+      // One snapshot for the batch, so the engine classifies the page once...
+      expect(seen[0][0]).toBe(seen[1][0]);
+      // ...and the first classification already sees both fields as viewable,
+      // not just the one that happened to be marked first.
+      expect(seen[0][1]).toEqual([true, true]);
     });
   });
 

@@ -237,7 +237,10 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     }
 
     if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
-      this.updateCachedAutofillFieldVisibility();
+      // Deliberately not awaited, as before: the sweep sets up overlays for
+      // fields that became viewable, and the page details returned below come
+      // from the cache either way.
+      void this.updateCachedAutofillFieldVisibility();
 
       return this.getFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
@@ -582,17 +585,59 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * Re-checks the visibility for all form fields and updates the
    * cached data to reflect the most recent visibility state.
    *
+   * Two passes, and the order is load-bearing. Every visibility check resolves
+   * before the shared page-details snapshot is built. See
+   * {@link buildSweepPageDetails} for what a snapshot taken mid-sweep costs.
+   *
    * @private
    */
-  private updateCachedAutofillFieldVisibility() {
-    this.autofillFieldElements.forEach(async (autofillField, element) => {
-      const previouslyViewable = autofillField.viewable;
-      autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
+  private async updateCachedAutofillFieldVisibility() {
+    const newlyViewable: [ElementWithOpId<FormFieldElement>, AutofillField][] = [];
 
-      if (!previouslyViewable && autofillField.viewable) {
-        this.setupOverlayOnField(element, autofillField);
-      }
-    });
+    await Promise.all(
+      Array.from(this.autofillFieldElements, async ([element, autofillField]) => {
+        const previouslyViewable = autofillField.viewable;
+        autofillField.viewable = await this.domElementVisibilityService.isElementViewable(element);
+
+        if (!previouslyViewable && autofillField.viewable) {
+          newlyViewable.push([element, autofillField]);
+        }
+      }),
+    );
+
+    if (!newlyViewable.length) {
+      return;
+    }
+
+    const sweepPageDetails = this.buildSweepPageDetails();
+    for (const [element, autofillField] of newlyViewable) {
+      this.setupOverlayOnField(element, autofillField, sweepPageDetails);
+    }
+  }
+
+  /**
+   * One page-details snapshot for a whole visibility sweep, built only once
+   * every field's `viewable` has settled.
+   *
+   * Both callers used to build this the moment the *first* field turned
+   * viewable, and reuse it for the rest of the sweep. That reuse is what makes
+   * the timing matter. A qualification engine memoizes its whole-page
+   * classification against snapshot identity, and the `AutofillField` objects
+   * inside a snapshot are the live entries from `autofillFieldElements` — so a
+   * snapshot handed to the first field gets classified while the rest of the
+   * sweep still reads `viewable: false`. Archetype matchers gated on
+   * `requireViewable` then see a form that looks hidden, and the resulting
+   * weaker classification sticks for the life of the snapshot: those fields
+   * lose their form context and get no inline menu, even though every one of
+   * them is on screen.
+   *
+   * @private
+   */
+  private buildSweepPageDetails(): AutofillPageDetails {
+    return this.getFormattedPageDetails(
+      this.getFormattedAutofillFormsData(),
+      this.getFormattedAutofillFieldsData(),
+    );
   }
 
   /**
@@ -1929,6 +1974,15 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
    * @param entries - The entries observed by the IntersectionObserver
    */
   private handleFormElementIntersection = async (entries: IntersectionObserverEntry[]) => {
+    // Two passes, same reason as `updateCachedAutofillFieldVisibility`: mark
+    // every newly-viewable field in the batch first, then build one snapshot
+    // and set up overlays against it. One snapshot per batch — rather than one
+    // per entry — is what keeps a qualification engine to a single page
+    // classification, and building it only after the marking pass is what
+    // keeps that classification from being made against fields that had not
+    // been marked yet. See `buildSweepPageDetails`.
+    const newlyViewable: [ElementWithOpId<FormFieldElement>, AutofillField][] = [];
+
     for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
       const entry = entries[entryIndex];
       const formFieldElement = entry.target as ElementWithOpId<FormFieldElement>;
@@ -1949,9 +2003,18 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
 
       cachedAutofillFieldElement.viewable = true;
-      this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement);
+      newlyViewable.push([formFieldElement, cachedAutofillFieldElement]);
 
       this.intersectionObserver.unobserve(entry.target);
+    }
+
+    if (!newlyViewable.length) {
+      return;
+    }
+
+    const batchPageDetails = this.buildSweepPageDetails();
+    for (const [formFieldElement, cachedAutofillFieldElement] of newlyViewable) {
+      this.setupOverlayOnField(formFieldElement, cachedAutofillFieldElement, batchPageDetails);
     }
   };
 
