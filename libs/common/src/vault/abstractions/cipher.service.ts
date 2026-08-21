@@ -23,6 +23,12 @@ export type EncryptionContext = {
   cipher: Cipher;
   /** The Id of the user that encrypted the cipher. It should always represent a UserId, even for Organization-owned ciphers */
   encryptedFor: UserId;
+  /**
+   * Hex-encoded id of the key the cipher's fields, or the cipher-key (if present) are wrapped under
+   * - the organization key for Organization-owned ciphers, otherwise the user key - captured at the
+   * time the cipher was encrypted. The server uses it to reject writes made under a wrong key.
+   */
+  encryptedByKeyId?: string;
 };
 
 export abstract class CipherService implements UserKeyRotationDataProvider<CipherWithIdRequest> {
