@@ -9,13 +9,13 @@
     </div>
     <div class="tw-flex tw-flex-col tw-gap-2">
       <h3
-        class="tw-font-medium tw-text-center !tw-mb-0"
+        class="tw-font-medium tw-text-center !tw-mb-0 tw-text-fg-heading"
         [class.tw-text-base]="effectiveSize() === 'base'"
         [class.tw-text-sm]="effectiveSize() === 'small'"
       >
         <ng-content select="[slot=title]"></ng-content>
       </h3>
-      <div bitTypography="body2" class="tw-text-center empty:tw-hidden">
+      <div bitTypography="body2" class="tw-text-center empty:tw-hidden tw-text-fg-body">
         <ng-content select="[slot=description]"></ng-content>
       </div>
     </div>
