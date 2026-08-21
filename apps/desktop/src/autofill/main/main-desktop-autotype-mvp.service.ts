@@ -102,11 +102,17 @@ export class MainDesktopAutotypeMvpService {
     const result = globalShortcut.register(
       this.autotypeKeyboardShortcut.getElectronFormat(),
       () => {
-        const windowTitle = autotype_mvp.getForegroundWindowTitle();
+        if (this.windowMain.win != null && !this.windowMain.win.isDestroyed()) {
+          const windowTitle = autotype_mvp.getForegroundWindowTitle();
 
-        this.windowMain.win.webContents.send(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, {
-          windowTitle,
-        });
+          this.windowMain.win.webContents.send(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN, {
+            windowTitle,
+          });
+        } else {
+          this.logService.debug(
+            "Autotype keyboard shortcut activated, but the main window does not exist.",
+          );
+        }
       },
     );
 
