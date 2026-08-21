@@ -1,4 +1,6 @@
 export { ButtonType, ButtonLikeAbstraction } from "./shared/button-like.abstraction";
+export { BaseButtonDirective } from "./shared/base-button.directive";
+export { FocusableElement } from "./shared/focusable-element";
 export { BitwardenIcon } from "./shared/icon";
 export * from "./a11y";
 export * from "./accordion";

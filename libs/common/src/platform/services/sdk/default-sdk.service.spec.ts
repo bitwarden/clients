@@ -3,7 +3,9 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -15,7 +17,6 @@ import {
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -27,7 +28,6 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 import { DefaultSdkService } from "./default-sdk.service";
 
