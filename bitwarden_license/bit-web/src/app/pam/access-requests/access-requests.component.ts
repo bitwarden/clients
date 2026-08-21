@@ -49,6 +49,13 @@ export class AccessRequestsComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
 
   /**
+   * The History tab intentionally shows no berry: {@link MyAccessService.historyRows$} only grows
+   * (terminal requests never leave history), so a live count there would read as permanent
+   * unattended work rather than something to act on — unlike the My requests and Approvals
+   * berries below, which count outstanding work.
+   */
+
+  /**
    * The "My requests" berry: everything the caller still holds or can act on — pending requests,
    * open extension requests, and active leases. Zero renders no berry (see `bit-tab-link`).
    */
@@ -73,12 +80,6 @@ export class AccessRequestsComponent implements OnInit {
 
   /** The "Approvals" berry: requests awaiting the caller's decision. */
   protected readonly approvalsCount = toSignal(this.inbox.pendingCount$, { initialValue: 0 });
-
-  /** The "History" berry: the caller's terminal requests. */
-  protected readonly historyCount = toSignal(
-    this.myAccess.historyRows$.pipe(map((rows) => rows.length)),
-    { initialValue: 0 },
-  );
 
   ngOnInit(): void {
     void this.myAccess.load();
