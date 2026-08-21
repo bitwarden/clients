@@ -1,5 +1,6 @@
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { FieldClassification, FormClassification } from "../types/classification";
+import { QualificationEngineId } from "../types/engine-id";
 import { FieldRole } from "../types/field-role";
 import { FormCategory } from "../types/form-category";
 import { PageScenario } from "../types/page-scenario";
@@ -57,6 +58,22 @@ export interface PageQualification {
  * fields; the adapter treats absence as "covers everything."
  */
 export interface QualificationEngine {
+  /**
+   * Stable key this engine is selected by. Must match the id it is registered
+   * under in `ENGINE_REGISTRY`.
+   */
+  readonly id: QualificationEngineId;
+
+  /**
+   * Human-readable name, e.g. "Scoring Qualification Engine". Shown in the dev
+   * build's selection log line and in the popup engine picker, so it is an
+   * identifier rather than prose — don't translate it.
+   */
+  readonly name: string;
+
+  /** Bump when classification behavior changes, so a demo can tell two builds apart. */
+  readonly version: string;
+
   classify(pageDetails: AutofillPageDetails): PageQualification;
 
   /**
@@ -73,4 +90,21 @@ export interface QualificationEngine {
    * {@link coveredRoles}.
    */
   readonly coveredCategories?: ReadonlySet<FormCategory>;
+
+  /**
+   * True when this engine derives its verdicts from the legacy keyword
+   * predicates rather than from anything of its own.
+   *
+   * A consumer that already has a legacy answer available — the adapter holds
+   * the legacy service, fill-time holds the keyword tables — should prefer it
+   * over asking such an engine. The two agree by construction, and asking
+   * costs the eager whole-page pass the legacy path exists to avoid. This is
+   * the property, not `id === Legacy`: a second legacy-derived engine gets the
+   * same treatment without every consumer being taught its name.
+   *
+   * Declared by the engine rather than decided per call site because the three
+   * consumers kept forgetting it independently. Read it per call — a
+   * {@link SwappableQualificationEngine} changes the answer in place.
+   */
+  readonly mirrorsLegacy?: boolean;
 }

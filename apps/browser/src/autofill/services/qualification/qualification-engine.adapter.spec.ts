@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { AutofillFieldQualifier } from "../../enums/autofill-field.enums";
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
@@ -8,11 +9,19 @@ import {
   QualificationEngine,
 } from "../../qualification/abstractions/qualification-engine";
 import { FieldClassification } from "../../qualification/types/classification";
+import { QualificationEngineId } from "../../qualification/types/engine-id";
 import { FieldRole } from "../../qualification/types/field-role";
 import { FormCategory } from "../../qualification/types/form-category";
 import { InlineMenuFieldQualificationService } from "../abstractions/inline-menu-field-qualifications.service";
 
 import { QualificationEngineAdapter } from "./qualification-engine.adapter";
+
+function legacyMirroringEngine(): QualificationEngine {
+  const engine = mock<QualificationEngine>();
+  Object.defineProperty(engine, "id", { value: QualificationEngineId.Legacy });
+  Object.defineProperty(engine, "mirrorsLegacy", { value: true });
+  return engine;
+}
 
 function fieldClassification(
   roles: FieldRole[],
@@ -46,6 +55,10 @@ describe("QualificationEngineAdapter", () => {
     // circuit on the optional chain and trigger the `?? true` default.
     Object.defineProperty(engine, "coveredRoles", { value: undefined });
     Object.defineProperty(engine, "coveredCategories", { value: undefined });
+    // Same reason: the auto-mocked property would be a truthy jest.fn, and the
+    // bypass reads `mirrorsLegacy === true`. Explicit here so the routing under
+    // test is stated rather than inherited from mock behavior.
+    Object.defineProperty(engine, "mirrorsLegacy", { value: undefined });
     legacy = mock<InlineMenuFieldQualificationService>();
     adapter = new QualificationEngineAdapter(engine, legacy);
 
@@ -58,6 +71,43 @@ describe("QualificationEngineAdapter", () => {
     pageDetails.fields = [field];
     pageQualification = mock<PageQualification>();
     engine.classify.mockReturnValue(pageQualification);
+  });
+
+  describe("topQualifierFor", () => {
+    it("returns the qualifier for the engine's chosen role", () => {
+      pageQualification.fieldFor.mockReturnValue(fieldClassification([FieldRole.CardCvv]));
+      adapter.enroll(pageDetails);
+
+      expect(adapter.topQualifierFor(field)).toBe(AutofillFieldQualifier.cardCvv);
+    });
+
+    it("returns null for a field whose page was never enrolled", () => {
+      pageQualification.fieldFor.mockReturnValue(fieldClassification([FieldRole.CardCvv]));
+
+      expect(adapter.topQualifierFor(field)).toBeNull();
+    });
+
+    it("returns null when the engine scored nothing for the field", () => {
+      pageQualification.fieldFor.mockReturnValue(null);
+      adapter.enroll(pageDetails);
+
+      expect(adapter.topQualifierFor(field)).toBeNull();
+    });
+
+    it("returns null for a role with no qualifier of its own", () => {
+      // `cardBrand` is fill-time only — nothing captures it on save.
+      pageQualification.fieldFor.mockReturnValue(fieldClassification([FieldRole.CardBrand]));
+      adapter.enroll(pageDetails);
+
+      expect(adapter.topQualifierFor(field)).toBeNull();
+    });
+
+    it("returns null while a legacy-mirroring engine is selected", () => {
+      const legacyAdapter = new QualificationEngineAdapter(legacyMirroringEngine(), legacy);
+      legacyAdapter.enroll(pageDetails);
+
+      expect(legacyAdapter.topQualifierFor(field)).toBeNull();
+    });
   });
 
   describe("before enroll()", () => {
@@ -95,6 +145,34 @@ describe("QualificationEngineAdapter", () => {
       adapter.isCurrentPasswordField(field);
       expect(legacy.isUsernameField).not.toHaveBeenCalled();
       expect(legacy.isCurrentPasswordField).not.toHaveBeenCalled();
+    });
+
+    // Callers enroll per field while the work is per page, so the repeat guard
+    // is what keeps an N-field page from costing N² map writes.
+    it("re-enrolling the same snapshot walks its fields only once", () => {
+      const freshAdapter = new QualificationEngineAdapter(engine, legacy);
+      const readFields = jest.fn(() => [field]);
+      const snapshot = mock<AutofillPageDetails>({ forms: {} });
+      Object.defineProperty(snapshot, "fields", { get: readFields, configurable: true });
+
+      freshAdapter.enroll(snapshot);
+      freshAdapter.enroll(snapshot);
+
+      expect(readFields).toHaveBeenCalledTimes(1);
+    });
+
+    it("enrolling a different snapshot resolves its fields through the engine", () => {
+      const nextField = mock<AutofillField>({ opid: "field-2", form: "form-1" });
+      const nextPage = mock<AutofillPageDetails>({ forms: {}, fields: [] });
+      nextPage.fields = [nextField];
+      pageQualification.fieldFor.mockImplementation((opid) =>
+        opid === "field-2" ? fieldClassification([FieldRole.Email]) : null,
+      );
+
+      adapter.enroll(nextPage);
+
+      expect(adapter.isEmailField(nextField)).toBe(true);
+      expect(legacy.isEmailField).not.toHaveBeenCalled();
     });
   });
 

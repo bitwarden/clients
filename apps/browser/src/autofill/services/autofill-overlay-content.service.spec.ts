@@ -30,11 +30,12 @@ import {
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import { EventSecurity } from "../utils/event-security";
 
+import { InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceAbstraction } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
 import DomElementVisibilityService from "./dom-element-visibility.service";
 import { DomQueryService } from "./dom-query.service";
-import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
+import { LegacyInlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
@@ -53,7 +54,7 @@ describe("AutofillOverlayContentService", () => {
   let domQueryService: DomQueryService;
   let domElementVisibilityService: DomElementVisibilityService;
   let autofillInit: AutofillInit;
-  let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  let inlineMenuFieldQualificationService: LegacyInlineMenuFieldQualificationService;
   let inlineMenuContentService: MockProxy<AutofillInlineMenuContentService>;
   let autofillOverlayContentService: AutofillOverlayContentService;
   let sendExtensionMessageSpy: jest.SpyInstance;
@@ -64,7 +65,7 @@ describe("AutofillOverlayContentService", () => {
     // Mock EventSecurity to allow synthetic events in tests
     jest.spyOn(EventSecurity, "isEventTrusted").mockReturnValue(true);
 
-    inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    inlineMenuFieldQualificationService = new LegacyInlineMenuFieldQualificationService();
     domQueryService = new DomQueryService();
     domElementVisibilityService = new DomElementVisibilityService();
     inlineMenuContentService = mock<AutofillInlineMenuContentService>();
@@ -472,6 +473,69 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService["storeModifiedFormElement"](randomElement);
 
           expect(autofillOverlayContentService["qualifyUserFilledField"]).not.toHaveBeenCalled();
+        });
+
+        describe("qualifier assignment", () => {
+          // A dedicated service over a mocked qualification service: the outer
+          // suite uses the real legacy one, which has no `topQualifierFor` and
+          // so can only exercise the fallback.
+          let qualificationService: MockProxy<InlineMenuFieldQualificationServiceAbstraction>;
+          let service: AutofillOverlayContentService;
+
+          const loginField = (): AutofillField =>
+            Object.assign(new AutofillField(), {
+              opid: "field-1",
+              inlineMenuFillType: CipherType.Login,
+            });
+
+          beforeEach(() => {
+            qualificationService = mock<InlineMenuFieldQualificationServiceAbstraction>();
+            service = new AutofillOverlayContentService(
+              domQueryService,
+              domElementVisibilityService,
+              qualificationService,
+              inlineMenuContentService,
+            );
+          });
+
+          it("takes the engine's chosen role when the engine has one", () => {
+            // The predicate loop takes the first qualifier whose predicate
+            // returns true, which on an overlapping field depends on map
+            // iteration order. The engine already picked a winner.
+            qualificationService.topQualifierFor.mockReturnValue(AutofillFieldQualifier.password);
+            qualificationService.isUsernameField.mockReturnValue(true);
+            const field = loginField();
+
+            service["qualifyUserFilledField"](field, service["loginFieldQualifiers"]);
+
+            expect(field.fieldQualifier).toBe(AutofillFieldQualifier.password);
+            expect(qualificationService.isUsernameField).not.toHaveBeenCalled();
+          });
+
+          it("falls back to the predicates when the engine has no answer", () => {
+            // The legacy path, and any field the engine scored nothing for.
+            qualificationService.topQualifierFor.mockReturnValue(null);
+            qualificationService.isUsernameField.mockReturnValue(true);
+            const field = loginField();
+
+            service["qualifyUserFilledField"](field, service["loginFieldQualifiers"]);
+
+            expect(field.fieldQualifier).toBe(AutofillFieldQualifier.username);
+          });
+
+          it("ignores an engine role this fill type does not capture", () => {
+            // The engine classifies the whole page. On a checkout form it will
+            // name a card role for a field the login map would leave untagged,
+            // and tagging it would put a card value in a login save prompt.
+            qualificationService.topQualifierFor.mockReturnValue(AutofillFieldQualifier.cardCvv);
+            qualificationService.isUsernameField.mockReturnValue(false);
+            qualificationService.isCurrentPasswordField.mockReturnValue(false);
+            const field = loginField();
+
+            service["qualifyUserFilledField"](field, service["loginFieldQualifiers"]);
+
+            expect(field.fieldQualifier).toBeUndefined();
+          });
         });
 
         it("sets the field as the most recently focused form field element", async () => {

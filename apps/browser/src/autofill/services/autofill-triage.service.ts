@@ -1,7 +1,10 @@
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
+import { QualificationEngine } from "../qualification/abstractions/qualification-engine";
 import {
   AutofillTriageConditionResult,
+  AutofillTriageEngineFieldDetail,
+  AutofillTriageEngineInfo,
   AutofillTriageFieldResult,
   AutofillTriageFormContext,
   TriageQualification,
@@ -23,7 +26,27 @@ const SENSITIVE_AUTOCOMPLETE_TYPES = [
 ];
 
 export class AutofillTriageService implements AutofillTriageServiceInterface {
-  constructor(private qualificationService: InlineMenuFieldQualificationService) {}
+  /**
+   * `engine` is optional because not every construction site has one — the
+   * popup builds this service from the boolean interface alone. When it is
+   * supplied it is the same memoized instance the qualification service routes
+   * through, so asking it here costs no extra classify pass.
+   *
+   * A legacy-mirroring engine is stamped on the report but not interrogated;
+   * see {@link getEngineDetail}.
+   */
+  constructor(
+    private qualificationService: InlineMenuFieldQualificationService,
+    private engine?: QualificationEngine,
+  ) {}
+
+  get engineInfo(): AutofillTriageEngineInfo | undefined {
+    if (!this.engine) {
+      return undefined;
+    }
+    const { id, name, version } = this.engine;
+    return { id, name, version };
+  }
 
   /**
    * Analyzes a field by calling all relevant qualification methods and recording
@@ -427,6 +450,44 @@ export class AutofillTriageService implements AutofillTriageServiceInterface {
       rel: field.rel || undefined,
       showPasskeys: field.showPasskeys,
       ariaHasPopup: field["aria-haspopup"],
+      engineDetail: this.getEngineDetail(field, pageDetails),
+    };
+  }
+
+  /**
+   * The engine's own verdict on a field, which the booleans above cannot show.
+   *
+   * A field that reaches the consumer as "not a username, not a password, not
+   * for a login form" may have been scored and rejected, or may never have
+   * been classified at all — the engine excludes hidden and submit fields
+   * before scoring. `classified: false` names the second case explicitly so a
+   * missing inline menu can be traced to the right cause.
+   *
+   * Skipped for an engine that only mirrors the legacy predicates: its verdict
+   * is a restatement of the booleans already in the report, and producing it
+   * costs the eager whole-page pass the bypass exists to avoid. The report
+   * still carries {@link engineInfo}, so which engine ran stays unambiguous.
+   */
+  private getEngineDetail(
+    field: AutofillField,
+    pageDetails: AutofillPageDetails,
+  ): AutofillTriageEngineFieldDetail | undefined {
+    if (!this.engine || this.engine.mirrorsLegacy === true) {
+      return undefined;
+    }
+
+    const classification = this.engine.classify(pageDetails).fieldFor(field.opid);
+    if (!classification) {
+      return { classified: false, matchedRoles: [], matchedFormContexts: [] };
+    }
+
+    return {
+      classified: true,
+      topRole: classification.topRole ?? undefined,
+      confidence: classification.confidence,
+      score: classification.score,
+      matchedRoles: [...classification.matchedRoles],
+      matchedFormContexts: [...classification.matchedFormContexts],
     };
   }
 

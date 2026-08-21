@@ -5,6 +5,9 @@ import {
   PageQualification,
   QualificationEngine,
 } from "../../../qualification/abstractions/qualification-engine";
+import { QualificationEngineId } from "../../../qualification/types/engine-id";
+import { FieldRole } from "../../../qualification/types/field-role";
+import { FormCategory } from "../../../qualification/types/form-category";
 
 import { MemoizingQualificationEngine } from "./memoizing.engine";
 
@@ -64,5 +67,52 @@ describe("MemoizingQualificationEngine", () => {
     expect(memoizing.classify(pageDetailsB)).toBe(resultB);
     // Still only two inner calls total — the repeat queries are cached.
     expect(inner.classify).toHaveBeenCalledTimes(2);
+  });
+
+  describe("delegation", () => {
+    // A plain stub rather than mock<QualificationEngine>(): jest-mock-extended
+    // deep-proxies Set values, so the identity assertions below would compare a
+    // proxy against the original.
+    const stubEngine = (overrides: Partial<QualificationEngine>): QualificationEngine => ({
+      id: QualificationEngineId.Legacy,
+      name: "Stub",
+      version: "0.0.0",
+      classify: () => mock<PageQualification>(),
+      ...overrides,
+    });
+
+    it("reports the inner engine's identity, so selection survives wrapping", () => {
+      const identified = new MemoizingQualificationEngine(
+        stubEngine({
+          id: QualificationEngineId.Scoring,
+          name: "Scoring Qualification Engine",
+          version: "0.2.0",
+        }),
+      );
+
+      expect(identified.id).toBe(QualificationEngineId.Scoring);
+      expect(identified.name).toBe("Scoring Qualification Engine");
+      expect(identified.version).toBe("0.2.0");
+    });
+
+    it("forwards coverage declarations so the adapter still falls through", () => {
+      const roles = new Set([FieldRole.Username]);
+      const categories = new Set([FormCategory.Login]);
+      const covered = new MemoizingQualificationEngine(
+        stubEngine({ coveredRoles: roles, coveredCategories: categories }),
+      );
+
+      expect(covered.coveredRoles).toBe(roles);
+      expect(covered.coveredCategories).toBe(categories);
+    });
+
+    it("preserves an inner engine's absent coverage as absent, not empty", () => {
+      // The adapter reads undefined as "covers everything" and an empty set as
+      // "covers nothing" — collapsing the two would invert routing entirely.
+      const uncovered = new MemoizingQualificationEngine(stubEngine({}));
+
+      expect(uncovered.coveredRoles).toBeUndefined();
+      expect(uncovered.coveredCategories).toBeUndefined();
+    });
   });
 });

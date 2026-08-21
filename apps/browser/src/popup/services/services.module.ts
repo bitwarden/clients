@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { APP_INITIALIZER, NgModule, NgZone } from "@angular/core";
-import { firstValueFrom, merge, of, Subject } from "rxjs";
+import { distinctUntilChanged, merge, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { DeviceManagementComponentServiceAbstraction } from "@bitwarden/angular/auth/device-management/device-management-component.service.abstraction";
@@ -86,7 +86,6 @@ import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/
 import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/dirt/services/abstractions/phishing-detection-settings.service.abstraction";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
@@ -204,10 +203,15 @@ import { ExtensionTwoFactorAuthDuoComponentService } from "../../auth/services/e
 import { ExtensionTwoFactorAuthWebAuthnComponentService } from "../../auth/services/extension-two-factor-auth-webauthn-component.service";
 import { AutofillLifecycleService } from "../../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../../autofill/services/abstractions/inline-menu-field-qualifications.service";
 import AutofillService from "../../autofill/services/autofill.service";
-import { InlineMenuFieldQualificationService } from "../../autofill/services/inline-menu-field-qualification.service";
 import { NoopAutofillLifecycleService } from "../../autofill/services/noop-autofill-lifecycle.service";
-import { createInlineMenuFieldQualificationService } from "../../autofill/services/qualification/qualification-service.factory";
+import { QualificationEngineOverrideState } from "../../autofill/services/qualification/engine-override.state";
+import {
+  logEngineSelection,
+  resolveEngineId,
+} from "../../autofill/services/qualification/engine-registry";
+import { buildQualificationStack } from "../../autofill/services/qualification/qualification-service.factory";
 import { WebmapperDraftService } from "../../autofill/services/webmapper-draft.service";
 import { ForegroundEventUploadService } from "../../dirt/event-logs/foreground-event-upload.service";
 import { ForegroundBrowserBiometricsService } from "../../key-management/biometrics/foreground-browser-biometrics";
@@ -262,43 +266,6 @@ const DISK_BACKUP_LOCAL_STORAGE = new SafeInjectionToken<
 >("DISK_BACKUP_LOCAL_STORAGE");
 
 /**
- * Holds the resolved `AutofillQualificationEngine` feature-flag value for the
- * popup's `InlineMenuFieldQualificationService` factory. Angular factory
- * providers can't be async, so the flag is awaited during bootstrap by an
- * APP_INITIALIZER and stored here for the sync factory to read.
- *
- * The `enabled` getter throws when accessed before the initializer has run.
- * That converts what used to be a silent regression — provider runs before
- * initializer, factory reads `false`, popup gets the legacy service for the
- * rest of its lifetime — into a loud bootstrap failure that points at the
- * ordering bug.
- */
-class AutofillQualificationEngineFlagHolder {
-  private resolved = false;
-  private value = false;
-
-  set(enabled: boolean): void {
-    this.resolved = true;
-    this.value = enabled;
-  }
-
-  get enabled(): boolean {
-    if (!this.resolved) {
-      throw new Error(
-        "AutofillQualificationEngine feature flag read before its APP_INITIALIZER " +
-          "resolved. The InlineMenuFieldQualificationService provider ran before " +
-          "the initializer that sets the flag — check provider ordering in " +
-          "services.module.ts (the initializer must be in the provider array " +
-          "ahead of any consumer that injects InlineMenuFieldQualificationService).",
-      );
-    }
-    return this.value;
-  }
-}
-
-const autofillQualificationEngineFlag = new AutofillQualificationEngineFlagHolder();
-
-/**
  * Provider definitions used in the ngModule.
  * Add your provider definition here using the safeProvider function as a wrapper. This will give you type safety.
  * If you need help please ask for it, do NOT change the type of this array.
@@ -309,22 +276,26 @@ const safeProviders: SafeProvider[] = [
   safeProvider(DialogService),
   safeProvider(PopupCloseWarningService),
   safeProvider({
-    provide: APP_INITIALIZER as SafeInjectionToken<() => Promise<void>>,
-    useFactory: (configService: ConfigService) => async () => {
-      autofillQualificationEngineFlag.set(
-        await firstValueFrom(
-          configService.getFeatureFlag$(FeatureFlag.AutofillQualificationEngine),
-        ),
-      );
-    },
-    deps: [ConfigService],
-    multi: true,
+    provide: QualificationEngineOverrideState,
+    useClass: QualificationEngineOverrideState,
+    deps: [StateProvider, ConfigService],
   }),
   safeProvider({
     provide: InlineMenuFieldQualificationService,
-    useFactory: () =>
-      createInlineMenuFieldQualificationService(autofillQualificationEngineFlag.enabled),
-    deps: [],
+    // Built at whatever `resolveEngineId` can answer synchronously, then
+    // corrected — the same shape the background and the content scripts use,
+    // for the same reason: an Angular factory provider can't await. The
+    // subscription is what makes the engine picker take effect in the popup
+    // that hosts it; without it the popup would keep qualifying through the
+    // engine it booted with while every other context had already swapped.
+    // No teardown: the subscription dies with the popup's injector.
+    useFactory: (engineOverride: QualificationEngineOverrideState) => {
+      const stack = buildQualificationStack(resolveEngineId());
+      logEngineSelection(stack.engine, "popup");
+      engineOverride.resolvedId$.pipe(distinctUntilChanged()).subscribe(stack.swap);
+      return stack.service;
+    },
+    deps: [QualificationEngineOverrideState],
   }),
   safeProvider({
     provide: DEFAULT_VAULT_TIMEOUT,

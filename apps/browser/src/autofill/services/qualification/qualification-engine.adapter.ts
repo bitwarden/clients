@@ -1,11 +1,13 @@
+import { AutofillFieldQualifierType } from "../../enums/autofill-field.enums";
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { QualificationEngine } from "../../qualification/abstractions/qualification-engine";
+import { FIELD_QUALIFIER_BY_ROLE } from "../../qualification/role-mapping";
 import { FieldRole } from "../../qualification/types/field-role";
 import { FormCategory } from "../../qualification/types/form-category";
 import { InlineMenuFieldQualificationService } from "../abstractions/inline-menu-field-qualifications.service";
 
-import { CATEGORY_PREDICATES, ROLE_PREDICATES } from "./role-predicates";
+import { CATEGORY_PREDICATES, legacyRoleAnswer } from "./role-predicates";
 
 /**
  * Implements the legacy 35-method {@link InlineMenuFieldQualificationService}
@@ -26,9 +28,20 @@ import { CATEGORY_PREDICATES, ROLE_PREDICATES } from "./role-predicates";
  * checks whether the engine declared coverage for that role/category. If
  * yes, the answer comes from `matchedRoles.has(...)` / `matchedFormContexts.has(...)`
  * against the engine's classification. If no, the call falls through to
- * the held legacy service via {@link ROLE_PREDICATES} / {@link CATEGORY_PREDICATES}.
+ * the held legacy service via {@link legacyRoleAnswer} / {@link CATEGORY_PREDICATES}.
  * An engine that omits `coveredRoles` / `coveredCategories` is treated as
  * covering everything (no fall-through).
+ *
+ * **A legacy-mirroring engine is bypassed.** When the active engine declares
+ * {@link QualificationEngine.mirrorsLegacy}, every predicate answers straight
+ * from the legacy service without touching the engine. This is a performance
+ * short-circuit, not a semantic one: such an engine computes `matchedRoles` by
+ * calling the very predicates this bypass calls, so the two routes agree by
+ * construction. Taking the bypass avoids the bridge's eager whole-page pass —
+ * roughly 1500 boolean calls on a 40-field page, see
+ * `engines/legacy-bridge.engine.ts` — on the path every user is on today.
+ * Because the check reads the flag per call rather than at construction, it
+ * follows a {@link SwappableQualificationEngine} swap in either direction.
  *
  * **Un-enrolled fields.** A field-only role query for a field whose page has
  * not been enrolled falls through to the legacy service rather than returning
@@ -40,6 +53,9 @@ import { CATEGORY_PREDICATES, ROLE_PREDICATES } from "./role-predicates";
  * attribute check are always delegated to the legacy service — the engine
  * port does not accept live DOM elements, and the autocomplete check is a
  * simple attribute test that does not benefit from running through an engine.
+ * `isFieldForSshKeyForm` is also always delegated: {@link FormCategory} has no
+ * SSH key member, so there is no engine classification to route to. Adding one
+ * means teaching the scoring engine's archetypes and cue tables about SSH keys.
  *
  * All public methods are declared as arrow class fields so that
  * `AutofillOverlayContentService` (which extracts unbound method references
@@ -47,6 +63,7 @@ import { CATEGORY_PREDICATES, ROLE_PREDICATES } from "./role-predicates";
  */
 export class QualificationEngineAdapter implements InlineMenuFieldQualificationService {
   private readonly fieldToPage = new WeakMap<AutofillField, AutofillPageDetails>();
+  private lastEnrolled: AutofillPageDetails | undefined;
 
   constructor(
     private readonly engine: QualificationEngine,
@@ -56,13 +73,51 @@ export class QualificationEngineAdapter implements InlineMenuFieldQualificationS
   /**
    * Registers a freshly collected `AutofillPageDetails` snapshot with the
    * adapter. Subsequent field-only boolean queries that reference fields in
-   * this snapshot will resolve through the engine. Re-enrolling the same
-   * snapshot re-populates the reverse-lookup map idempotently.
+   * this snapshot will resolve through the engine.
+   *
+   * Re-enrolling the same snapshot is a no-op. Callers enroll per field
+   * (`setupOverlayListeners` does, once per field it sets up) while the work
+   * is per page, so without the guard a page of N fields costs N² map writes
+   * to reach the same state.
    */
   enroll(pageDetails: AutofillPageDetails): void {
+    if (this.lastEnrolled === pageDetails) {
+      return;
+    }
+    this.lastEnrolled = pageDetails;
+
     for (const field of pageDetails.fields) {
       this.fieldToPage.set(field, pageDetails);
     }
+  }
+
+  /**
+   * The qualifier for the role the engine picked as this field's best fit.
+   *
+   * `null` whenever there is no engine answer to give: the legacy bypass is
+   * active, the field's page was never enrolled, the engine scored nothing, or
+   * the winning role has no qualifier (see {@link FIELD_QUALIFIER_BY_ROLE}).
+   * The caller falls back to its predicate pass in each of those cases, so this
+   * can only improve on the old behavior, never remove it.
+   *
+   * Reads `topRole` rather than iterating `matchedRoles`, because picking a
+   * winner is exactly what the caller was doing badly — by predicate order —
+   * and exactly what an engine with mutual-exclusion dispatch already did well.
+   */
+  topQualifierFor = (field: AutofillField): AutofillFieldQualifierType | null => {
+    if (this.bypassEngine) {
+      return null;
+    }
+    const pd = this.fieldToPage.get(field);
+    if (!pd) {
+      return null;
+    }
+    const topRole = this.engine.classify(pd).fieldFor(field.opid)?.topRole;
+    return topRole ? FIELD_QUALIFIER_BY_ROLE[topRole] : null;
+  };
+
+  private get bypassEngine(): boolean {
+    return this.engine.mirrorsLegacy === true;
   }
 
   private engineCoversRole(role: FieldRole): boolean {
@@ -74,12 +129,12 @@ export class QualificationEngineAdapter implements InlineMenuFieldQualificationS
   }
 
   private fieldHasRole(field: AutofillField, role: FieldRole): boolean {
-    if (!this.engineCoversRole(role)) {
-      return ROLE_PREDICATES[role](this.legacy, field);
+    if (this.bypassEngine || !this.engineCoversRole(role)) {
+      return legacyRoleAnswer(this.legacy, field, role);
     }
     const pd = this.fieldToPage.get(field);
     if (!pd) {
-      return ROLE_PREDICATES[role](this.legacy, field);
+      return legacyRoleAnswer(this.legacy, field, role);
     }
     return this.engine.classify(pd).fieldFor(field.opid)?.matchedRoles.has(role) ?? false;
   }
@@ -89,7 +144,7 @@ export class QualificationEngineAdapter implements InlineMenuFieldQualificationS
     pageDetails: AutofillPageDetails,
     category: FormCategory,
   ): boolean {
-    if (!this.engineCoversCategory(category)) {
+    if (this.bypassEngine || !this.engineCoversCategory(category)) {
       return CATEGORY_PREDICATES[category](this.legacy, field, pageDetails);
     }
     this.enroll(pageDetails);
@@ -132,6 +187,9 @@ export class QualificationEngineAdapter implements InlineMenuFieldQualificationS
 
   isFieldForIdentityForm = (field: AutofillField, pageDetails: AutofillPageDetails): boolean =>
     this.fieldHasFormContext(field, pageDetails, FormCategory.Identity);
+
+  isFieldForSshKeyForm = (field: AutofillField, pageDetails: AutofillPageDetails): boolean =>
+    this.legacy.isFieldForSshKeyForm(field, pageDetails);
 
   isFieldForCardholderName = (field: AutofillField): boolean =>
     this.fieldHasRole(field, FieldRole.CardholderName);

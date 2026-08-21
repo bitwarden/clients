@@ -1,10 +1,11 @@
 import AutofillField from "../../models/autofill-field";
 import AutofillForm from "../../models/autofill-form";
 import AutofillPageDetails from "../../models/autofill-page-details";
-import { InlineMenuFieldQualificationService } from "../../services/inline-menu-field-qualification.service";
+import { LegacyInlineMenuFieldQualificationService } from "../../services/inline-menu-field-qualification.service";
 import { LegacyBridgeEngine } from "../../services/qualification/engines/legacy-bridge.engine";
-import { PageQualification } from "../abstractions/qualification-engine";
+import { PageQualification, QualificationEngine } from "../abstractions/qualification-engine";
 import { ScoringQualificationEngine } from "../engine";
+import { AutocompleteQualificationEngine } from "../engines/autocomplete.engine";
 import { FieldRole } from "../types/field-role";
 import { FormCategory } from "../types/form-category";
 
@@ -66,7 +67,7 @@ describe("Engine ↔ LegacyBridge parity (credential roles)", () => {
 
   beforeEach(() => {
     scoring = new ScoringQualificationEngine();
-    bridge = new LegacyBridgeEngine(new InlineMenuFieldQualificationService());
+    bridge = new LegacyBridgeEngine(new LegacyInlineMenuFieldQualificationService());
   });
 
   // Both login and signup fixtures share an identity-username divergence:
@@ -189,13 +190,73 @@ describe("Engine ↔ LegacyBridge parity (credential roles)", () => {
   });
 });
 
+/**
+ * The same harness pointed at two engines that share nothing but the port.
+ *
+ * This is the engine bay's strongest artifact: the autocomplete engine reads
+ * one attribute and the scoring engine reads weighted cues over every signal
+ * on the page, and the differ says exactly where that lands them apart. Left
+ * is the autocomplete engine, so comparison is scoped to the narrow set of
+ * roles it claims — everything else is fall-through, not disagreement.
+ */
+describe("Autocomplete ↔ Scoring divergence", () => {
+  let autocomplete: AutocompleteQualificationEngine;
+  let scoring: ScoringQualificationEngine;
+
+  beforeEach(() => {
+    autocomplete = new AutocompleteQualificationEngine();
+    scoring = new ScoringQualificationEngine();
+  });
+
+  describe("login (username + current-password, both attributed)", () => {
+    // Every field carries an explicit autocomplete token, so the two engines
+    // should reach the same answer by completely different routes.
+    it("agrees completely when the page declares itself", () => {
+      expect(compareEngines(autocomplete, scoring, loginFixture())).toEqual([]);
+    });
+  });
+
+  describe("login with no autocomplete attributes", () => {
+    it("classifies nothing, leaving every covered role to fall through", () => {
+      const fixture = unattributedLoginFixture();
+      const pq = autocomplete.classify(fixture.pageDetails);
+
+      expect(pq.fieldFor("u")?.matchedRoles.size).toBe(0);
+      expect(pq.fieldFor("p")?.matchedRoles.size).toBe(0);
+      expect(pq.scenario()).toBeNull();
+
+      // ...while the scoring engine still classifies from ids and labels. This
+      // is the demo's second half: swap the engine on a page like this one and
+      // the inline menu's behavior visibly changes.
+      const scored = scoring.classify(fixture.pageDetails);
+      expect(scored.fieldFor("u")?.topRole).toBe(FieldRole.Username);
+      expect(scored.fieldFor("p")?.topRole).toBe(FieldRole.CurrentPassword);
+    });
+  });
+});
+
+/**
+ * Diffs any two engines over a fixture.
+ *
+ * Typed on the port rather than on the two concrete classes, so this is a
+ * general any-two-engines differ — scoring vs legacy today, scoring vs
+ * autocomplete in `describe("scoring vs autocomplete")` below. The `engine` /
+ * `legacy` field names on {@link Divergence} are historical: read them as
+ * "left" and "right".
+ *
+ * Comparison is scoped to what the left engine claims to cover. Roles it never
+ * emits aren't disagreements, they're fall-through, and the adapter handles
+ * them by asking the legacy service instead.
+ */
 function compareEngines(
-  scoring: ScoringQualificationEngine,
-  bridge: LegacyBridgeEngine,
+  left: QualificationEngine,
+  right: QualificationEngine,
   fixture: Fixture,
 ): Divergence[] {
-  const sPq = scoring.classify(fixture.pageDetails);
-  const bPq = bridge.classify(fixture.pageDetails);
+  const sPq = left.classify(fixture.pageDetails);
+  const bPq = right.classify(fixture.pageDetails);
+  const roles = left.coveredRoles ?? new Set(Object.values(FieldRole));
+  const categories = left.coveredCategories ?? new Set(Object.values(FormCategory));
   const divergences: Divergence[] = [];
 
   for (const opid of fixture.fieldOpids) {
@@ -204,14 +265,14 @@ function compareEngines(
     if (s === null || b === null) {
       continue;
     }
-    for (const role of scoring.coveredRoles) {
+    for (const role of roles) {
       const engine = s.matchedRoles.has(role);
       const legacy = b.matchedRoles.has(role);
       if (engine !== legacy) {
         divergences.push({ kind: "role", opid, role, engine, legacy });
       }
     }
-    for (const category of scoring.coveredCategories) {
+    for (const category of categories) {
       const engine = s.matchedFormContexts.has(category);
       const legacy = b.matchedFormContexts.has(category);
       if (engine !== legacy) {
@@ -226,7 +287,7 @@ function compareEngines(
     if (s === null || b === null) {
       continue;
     }
-    for (const category of scoring.coveredCategories) {
+    for (const category of categories) {
       const engine = s.matchedCategories.has(category);
       const legacy = b.matchedCategories.has(category);
       if (engine !== legacy) {
@@ -291,6 +352,15 @@ function loginFixture(): Fixture {
     fieldOpids: ["u", "p"],
     formOpids: ["__form__0"],
   };
+}
+
+/** The login fixture with every `autocomplete` attribute stripped. */
+function unattributedLoginFixture(): Fixture {
+  const fixture = loginFixture();
+  for (const field of fixture.pageDetails.fields) {
+    field.autoCompleteType = null;
+  }
+  return { ...fixture, name: "login (no autocomplete)" };
 }
 
 function signupFixture(): Fixture {

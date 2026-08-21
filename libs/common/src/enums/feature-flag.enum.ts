@@ -158,7 +158,18 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
   [FeatureFlag.EnableAutofillTriage]: FALSE,
-  [FeatureFlag.AutofillQualificationEngine]: FALSE,
+  // Carries a browser QualificationEngineId ("legacy" | "scoring" | ...). Typed
+  // as STRING rather than that union on purpose: the vocabulary lives in
+  // apps/browser and libs/common must not depend on a client. The browser
+  // narrows the value at its own boundary via `resolveEngineId`, which has to
+  // validate anyway — getFeatureFlagValue casts server values without any
+  // runtime check.
+  //
+  // The assertion is load-bearing. DefaultFeatureFlagValue closes with
+  // `satisfies`, which preserves each entry's literal type, and
+  // FeatureFlagValueType indexes straight into it — a bare "legacy" would make
+  // this flag's type the literal "legacy". Same reason FALSE exists above.
+  [FeatureFlag.AutofillQualificationEngine]: "legacy" as string,
 
   /* Desktop Native */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,

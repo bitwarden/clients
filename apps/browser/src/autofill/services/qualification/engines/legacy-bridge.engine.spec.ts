@@ -124,4 +124,22 @@ describe("LegacyBridgeEngine", () => {
       expect(engine.classify(pageDetails).scenario()).toBeNull();
     });
   });
+
+  describe("self-declaration", () => {
+    // The adapter reads a missing `coveredRoles` as "covers everything". This
+    // engine does not: a role with no legacy predicate can never reach
+    // `matchedRoles`, so leaving coverage undeclared would turn the adapter's
+    // fall-through into a silent `false`.
+    it("declares coverage that excludes roles with no legacy predicate", () => {
+      expect(engine.coveredRoles.has(FieldRole.CardBrand)).toBe(false);
+      expect(engine.coveredRoles.has(FieldRole.Username)).toBe(true);
+      expect(engine.coveredCategories.has(FormCategory.Login)).toBe(true);
+    });
+
+    it("declares that it mirrors the legacy predicates", () => {
+      // What the adapter, fill-time selection and triage all key their bypass
+      // on, instead of each comparing `id` to a hardcoded engine name.
+      expect(engine.mirrorsLegacy).toBe(true);
+    });
+  });
 });

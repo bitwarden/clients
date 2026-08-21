@@ -339,6 +339,7 @@ export class ContextMenuClickedHandler {
       },
       extensionVersion: chrome.runtime.getManifest().version,
       browserInfo: this.getBrowserInfo(),
+      engine: this.triageService.engineInfo,
     };
 
     await BrowserApi.sendMessage("triageResultReady", { tabId: tab.id });

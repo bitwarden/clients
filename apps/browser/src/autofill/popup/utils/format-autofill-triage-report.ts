@@ -21,6 +21,15 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
   lines.push("Version Information:");
   lines.push(`  Extension Version: ${result.extensionVersion}`);
   lines.push(`  Browser: ${result.browserInfo.name} ${result.browserInfo.version}`);
+  // Without this line a report cannot be compared against another one: the
+  // same page qualifies differently depending on which engine ran. The
+  // fallback says "unknown" rather than naming an engine — a report from a
+  // build that didn't stamp one tells us nothing about which ran.
+  lines.push(
+    result.engine
+      ? `  Qualification Engine: ${result.engine.name} v${result.engine.version} (${result.engine.id})`
+      : "  Qualification Engine: unknown (not reported)",
+  );
 
   // Page Context
   if (result.pageContext) {
@@ -52,6 +61,20 @@ export function formatAutofillTriageReport(result: AutofillTriagePageResult): st
     lines.push(`Field: ${fieldLabel}`);
     lines.push(`  Status: ${field.eligible ? "✅ ELIGIBLE" : "❌ INELIGIBLE"}`);
     lines.push(`  Qualified as: ${field.qualifiedAs}`);
+
+    const engineDetail = field.engineDetail;
+    if (engineDetail) {
+      if (!engineDetail.classified) {
+        lines.push("  Engine: no classification (field not scored)");
+      } else {
+        lines.push(
+          `  Engine: role=${engineDetail.topRole ?? "none"} ` +
+            `confidence=${engineDetail.confidence} score=${engineDetail.score?.toFixed(3)}`,
+        );
+        lines.push(`    Matched roles: ${listOrNone(engineDetail.matchedRoles)}`);
+        lines.push(`    Matched form contexts: ${listOrNone(engineDetail.matchedFormContexts)}`);
+      }
+    }
 
     // Field attributes (only show if present)
     if (field.htmlId) {
@@ -228,4 +251,8 @@ export function getFieldLabel(field: {
     return `(${field.htmlType})`;
   }
   return "(unnamed field)";
+}
+
+function listOrNone(values: string[]): string {
+  return values.length > 0 ? values.join(", ") : "(none)";
 }

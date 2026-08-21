@@ -27,7 +27,7 @@ import {
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
-import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/abstractions/inline-menu-field-qualifications.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopupViewCacheService } from "../../../platform/popup/view-cache/popup-view-cache.service";
 import { PopupCipherViewLike } from "../views/popup-cipher.view";

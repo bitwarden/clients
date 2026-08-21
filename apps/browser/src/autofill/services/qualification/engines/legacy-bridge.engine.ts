@@ -11,14 +11,15 @@ import {
   FormClassification,
   RoleScore,
 } from "../../../qualification/types/classification";
+import { QualificationEngineId } from "../../../qualification/types/engine-id";
 import { FieldRole } from "../../../qualification/types/field-role";
 import { FormCategory } from "../../../qualification/types/form-category";
 import { InlineMenuFieldQualificationService } from "../../abstractions/inline-menu-field-qualifications.service";
 import {
-  ALL_FIELD_ROLES,
   ALL_FORM_CATEGORIES,
   CATEGORY_PREDICATES,
-  ROLE_PREDICATES,
+  LEGACY_ANSWERABLE_ROLES,
+  legacyRoleAnswer,
 } from "../role-predicates";
 
 const emptyRoleScores: ReadonlyArray<RoleScore> = Object.freeze([]);
@@ -27,7 +28,7 @@ const emptyCategoryScores: ReadonlyArray<CategoryScore> = Object.freeze([]);
 /**
  * Bridges the legacy {@link InlineMenuFieldQualificationService} boolean
  * methods into a {@link QualificationEngine}. Each field's matched roles
- * are computed by calling every legacy predicate from {@link ROLE_PREDICATES};
+ * are computed by calling every legacy predicate from {@link LEGACY_ANSWERABLE_ROLES};
  * each form's matched categories are computed by checking every form-level
  * predicate from {@link CATEGORY_PREDICATES} against every field in the form.
  *
@@ -49,6 +50,23 @@ const emptyCategoryScores: ReadonlyArray<CategoryScore> = Object.freeze([]);
  * processes high-mutation surfaces.
  */
 export class LegacyBridgeEngine implements QualificationEngine {
+  readonly id = QualificationEngineId.Legacy;
+  readonly name = "Legacy Bridge Engine";
+  readonly version = "1.0.0";
+
+  // Declared rather than omitted. The adapter reads a missing `coveredRoles` as
+  // "covers everything", and this engine demonstrably does not: roles with no
+  // legacy predicate — `cardBrand` today — are filtered out of
+  // LEGACY_ANSWERABLE_ROLES and can never land in `matchedRoles`. Left
+  // undefined, a query for one of those roles would route into this engine and
+  // come back a silent `false` instead of falling through.
+  readonly coveredRoles: ReadonlySet<FieldRole> = new Set(LEGACY_ANSWERABLE_ROLES);
+  readonly coveredCategories: ReadonlySet<FormCategory> = new Set(ALL_FORM_CATEGORIES);
+
+  // Every verdict here comes back out of the predicates the consumer could
+  // have called itself. See `QualificationEngine.mirrorsLegacy`.
+  readonly mirrorsLegacy = true;
+
   constructor(private readonly legacy: InlineMenuFieldQualificationService) {}
 
   classify(pageDetails: AutofillPageDetails): PageQualification {
@@ -77,8 +95,8 @@ export class LegacyBridgeEngine implements QualificationEngine {
     const matched = new Set<FieldRole>();
     const matchedFormContexts = new Set<FormCategory>();
 
-    for (const role of ALL_FIELD_ROLES) {
-      if (ROLE_PREDICATES[role](this.legacy, field)) {
+    for (const role of LEGACY_ANSWERABLE_ROLES) {
+      if (legacyRoleAnswer(this.legacy, field, role)) {
         matched.add(role);
       }
     }
