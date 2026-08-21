@@ -3,7 +3,10 @@ import {
   Component,
   computed,
   contentChildren,
+  effect,
   inject,
+  viewChild,
+  viewChildren,
 } from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -18,6 +21,11 @@ import {
 } from "../../filter-menu/filter-dialog.component";
 import { FILTER_PRESENTER, FilterPresenter } from "../../filter-menu/filter-tokens";
 import { IconButtonModule } from "../../icon-button";
+import {
+  OverflowItemDirective,
+  OverflowListDirective,
+  OverflowTriggerDirective,
+} from "../../overflow-list";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
 import { BitTableV2Component } from "./table-v2.component";
@@ -39,7 +47,16 @@ import { BitTableV2Component } from "./table-v2.component";
 @Component({
   selector: "bit-table-toolbar",
   templateUrl: "./bit-table-toolbar.component.html",
-  imports: [I18nPipe, IconButtonModule, BerryComponent, ChipComponent, ButtonModule],
+  imports: [
+    I18nPipe,
+    IconButtonModule,
+    BerryComponent,
+    ChipComponent,
+    ButtonModule,
+    OverflowListDirective,
+    OverflowItemDirective,
+    OverflowTriggerDirective,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class: "tw-block tw-border-0 tw-border-b tw-border-solid tw-border-border-base",
@@ -66,10 +83,60 @@ export class BitTableToolbarComponent {
   /** The filters with a selection — shown as dismissible chips on the small-screen filter row. */
   protected readonly activeFilters = computed(() => this.filters().filter((f) => f.active()));
 
+  /** The projected chips, as overflow items — the toolbar feeds these to the list. */
+  private readonly projectedItems = contentChildren(OverflowItemDirective, { descendants: true });
+
+  /** Overflow items declared in this template (the "Clear all" button). */
+  private readonly localItems = viewChildren(OverflowItemDirective);
+
+  /**
+   * Everything competing for the chip row, in DOM order. `bitOverflowList` can't
+   * query the projected chips itself (they're this component's content, not the
+   * row's), so they're passed in via its `items` input.
+   */
+  protected readonly overflowItems = computed(() => [
+    ...this.projectedItems(),
+    ...this.localItems(),
+  ]);
+
+  private readonly overflowList = viewChild(OverflowListDirective);
+
+  /**
+   * Whether the filter row is collapsed to the single trigger + dialog. Below `md`
+   * always; above it, once the chips, "Clear all", and the item count stop fitting
+   * on one line. Gated on `ready()` so the first paint doesn't flash the collapsed
+   * view before the row has been measured.
+   */
+  protected readonly collapsed = computed(() => {
+    if (!this.isLargeScreen()) {
+      return true;
+    }
+    const list = this.overflowList();
+    return (list?.ready() && list.overflow().length > 0) ?? false;
+  });
+
   /** Whether a filter row renders below the search row; gates the divider between the two. */
   protected readonly hasFilterRow = computed(() =>
-    this.isLargeScreen() ? this.hasFilters() : this.activeFilters().length > 0,
+    this.collapsed() ? this.activeFilters().length > 0 : this.hasFilters(),
   );
+
+  /**
+   * The chip row. While collapsed it stays laid out but invisible and out of flow,
+   * so `bitOverflowList` can keep measuring it — hiding it with `display: none`
+   * would zero every width and bounce it straight back open.
+   */
+  protected readonly filterRowClasses = computed(() => [
+    "tw-flex",
+    "tw-flex-wrap",
+    "tw-items-center",
+    "tw-gap-2",
+    "tw-px-5",
+    "tw-py-3.5",
+    "empty:tw-hidden",
+    ...(this.collapsed()
+      ? ["tw-invisible", "tw-pointer-events-none", "tw-absolute", "tw-inset-x-0", "tw-top-0"]
+      : []),
+  ]);
 
   protected readonly searchRowClasses = computed(() => [
     "tw-flex",
@@ -107,6 +174,20 @@ export class BitTableToolbarComponent {
     "tw-gap-3",
     ...(this.isLargeScreen() ? ["tw-ms-auto"] : ["tw-w-full", "[&>*]:tw-flex-1"]),
   ]);
+
+  constructor() {
+    // A chip changes width in place when its selection changes: the label grows to
+    // "Type: Login", a berry appears, the trailing angle icon becomes a dismiss
+    // button. `bitOverflowList` only remeasures when the item set changes, so its
+    // cached widths would go stale and the collapse decision with them.
+    effect(() => {
+      for (const filter of this.filters()) {
+        filter.active();
+        filter.summary();
+      }
+      this.overflowList()?.remeasure();
+    });
+  }
 
   /** An active filter's chip label: `label`, or `label: summary` when it has a summary. */
   protected appliedLabel(filter: FilterPresenter): string {
