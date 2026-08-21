@@ -16,15 +16,12 @@ import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
 
 /// @bitwarden/legacy-crypto is a holding pen for crypto primitives being retired in favour of the
-/// SDK. Two kinds of file may import it, and both sets only ever shrink: the re-export shims left
-/// behind at the pre-move paths, allowlisted at the bottom of this config via `allowLegacyCrypto`,
-/// and the call sites still waiting on an SDK replacement, which opt out inline with
-/// `// eslint-disable-next-line no-restricted-imports`.
+/// SDK
 const LEGACY_CRYPTO_RESTRICTED_PATTERN = {
   group: ["@bitwarden/legacy-crypto", "@bitwarden/legacy-crypto/**"],
   message:
     "@bitwarden/legacy-crypto holds crypto primitives that are being retired in favour of the SDK. " +
-    "Do not add new imports — implement the operation in the SDK and contact the Key Management team.",
+    "Do not add new imports if possible — implement the operation in the SDK and contact the Key Management team.",
 };
 
 // Common is at the base level - should not import from other libs except shared
@@ -679,39 +676,6 @@ export default tseslint.config(
         false,
         true,
       ),
-    },
-  },
-
-  /// The re-export shims left behind when the crypto primitives moved to @bitwarden/legacy-crypto.
-  /// These are the only files permitted to import that package. Delete an entry here whenever its
-  /// shim is deleted; never add one.
-  {
-    files: [
-      "libs/common/src/key-management/crypto/**/*.ts",
-      "libs/common/src/key-management/types.ts",
-      "libs/common/src/types/csprng.ts",
-    ],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES, false, true),
-    },
-  },
-  {
-    files: [
-      "libs/key-management/src/enums/kdf-type.enum.ts",
-      "libs/key-management/src/models/kdf-config.ts",
-    ],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports(
-        KEY_MANAGEMENT_FORBIDDEN_PACKAGES,
-        false,
-        true,
-      ),
-    },
-  },
-  {
-    files: ["libs/node/src/services/node-crypto-function.service.ts"],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports(NODE_FORBIDDEN_PACKAGES, false, true),
     },
   },
 
