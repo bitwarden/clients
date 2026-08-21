@@ -57,6 +57,7 @@ describe("TargetingRulesDataService", () => {
 
   let fillAssistPolicyMock$: BehaviorSubject<{ rulesUrl?: string } | null>;
   let effectiveUrlMock$: BehaviorSubject<string>;
+  let resolvedEnableFillAssistMock$: BehaviorSubject<boolean>;
   let serverConfigMock$: BehaviorSubject<any>;
   let metaStateMock$: BehaviorSubject<Record<string, any>>;
   let metaState: MockProxy<GlobalState<Record<string, any>>>;
@@ -90,6 +91,12 @@ describe("TargetingRulesDataService", () => {
     // "which URL should the fetcher use" (derived in DomainSettingsService).
     effectiveUrlMock$ = new BehaviorSubject<string>(DEFAULT_URL_TRAILING);
     (domainSettingsService as any).effectiveFillAssistRulesUrl$ = effectiveUrlMock$;
+
+    // resolvedEnableFillAssist$ gates whether the fetcher runs at all —
+    // an opted-out user should have zero outbound traffic. Default to `true`
+    // so existing tests exercise the fetch path unchanged.
+    resolvedEnableFillAssistMock$ = new BehaviorSubject<boolean>(true);
+    (domainSettingsService as any).resolvedEnableFillAssist$ = resolvedEnableFillAssistMock$;
 
     metaStateMock$ = new BehaviorSubject<Record<string, any>>({});
     metaState = mock<GlobalState<Record<string, any>>>();
@@ -241,6 +248,18 @@ describe("TargetingRulesDataService", () => {
       const callsAfterFirst = apiService.nativeFetch.mock.calls.length;
       await (service as any)._fetchAndStoreRules(false);
       expect(apiService.nativeFetch.mock.calls.length).toBe(callsAfterFirst);
+    });
+  });
+
+  describe("resolvedEnableFillAssist$ gate", () => {
+    it("skips fetch when fill assist is off, even with the feature flag on", async () => {
+      // An opted-out user should have zero outbound traffic to the
+      // (potentially org-admin-configured) rules feed URL.
+      resolvedEnableFillAssistMock$.next(false);
+
+      await (service as any)._fetchAndStoreRules(true /* skip cache-age */);
+
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
     });
   });
 
