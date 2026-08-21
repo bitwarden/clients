@@ -227,11 +227,17 @@
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"
         >
-          @for (item of renderItems(); track trackRenderItem($index, item)) {
-            <ng-container
-              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
-            ></ng-container>
-          }
+          <!--
+            Sizes to the scrolled content, not the viewport, so row borders and
+            hover/selected fills still span the row once scrolled horizontally.
+          -->
+          <div class="tw-w-fit tw-min-w-full">
+            @for (item of renderItems(); track trackRenderItem($index, item)) {
+              <ng-container
+                *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
+              ></ng-container>
+            }
+          </div>
         </div>
       }
     } @else {
