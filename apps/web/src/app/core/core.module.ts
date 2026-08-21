@@ -42,7 +42,6 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -146,11 +145,13 @@ import {
   LegacyCompatKeyService,
 } from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
+  DefaultVaultNavService,
   SshImportPromptService,
+  VaultNavService,
 } from "@bitwarden/vault";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
@@ -346,6 +347,7 @@ const safeProviders: SafeProvider[] = [
       RouterService,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -502,6 +504,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherFormGenerationService,
     useClass: WebCipherFormGenerationService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: VaultNavService,
+    useClass: DefaultVaultNavService,
     deps: [],
   }),
   safeProvider({
