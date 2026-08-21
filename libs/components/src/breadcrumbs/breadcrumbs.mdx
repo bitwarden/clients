@@ -41,6 +41,14 @@ they are not hooked into the router.
 
 <Canvas of={stories.DefaultAsButtons} />
 
+### Start slot
+
+A leading element can be projected into the `start` slot for a richer visual than the `icon` input —
+most commonly a `bit-icon-tile`. When a `bit-icon-tile` is projected, its `size` is controlled by
+the breadcrumbs `size`, so it stays in step with the crumbs without any extra wiring.
+
+<Canvas of={stories.WithStartSlot} />
+
 ### Sizes
 
 Size should be chosen based on available space. Use the base size on large screen layouts where
@@ -57,11 +65,23 @@ screen widths and the extension.
 
 ### Overflow
 
-When a user is several levels deep into a tree, the breadcrumbs list will truncate. Based on the
-number passed to the `show` input (which defaults to 4), it will display any overflow breadcrumbs in
-a menu before the last breadcrumb.
+When a trail doesn't fit the available width, breadcrumbs collapse the middle: the first (root) and
+last (current page) crumbs stay anchored, and the crumbs between them move into a "More" menu opened
+by an <i class="bwi bwi-ellipsis-h"></i> button placed just after the root. Overflow is width-driven
+— it responds to the container size rather than a fixed count — so the same breadcrumbs adapt across
+layouts and screen sizes.
+
+Collapsing works inward from the end of the trail, so **declare crumbs in path order, root first** —
+the crumbs nearest the current page are the first to collapse. A crumb's contract is unchanged when
+it collapses: same route or click handler, same label, now rendered as a menu item.
 
 <Canvas of={stories.OverflowLinks} />
+
+As space gets tighter, more middle crumbs collapse; at very small widths the root collapses into the
+menu too, and finally the current page truncates. Drag the resizable container below to see it
+adapt.
+
+<Canvas of={stories.ResponsiveOverflow} />
 
 ### Breadcrumbs with page header
 
@@ -72,6 +92,15 @@ heading element as a logical continuation of the breadcrumbs. The heading elemen
 immediately below the breadcrumbs.
 
 <Canvas of={stories.WithTrailingArrow} />
+
+## Accessibility
+
+- The host carries `role="navigation"` with a localized `aria-label`, so assistive technology
+  announces the trail as a landmark. Nothing extra is required of the consumer.
+- Collapsed crumbs keep their semantics inside the menu — a crumb declared as a link is still a link
+  there, so the full trail stays navigable at every width.
+- The <i class="bwi bwi-ellipsis-h"></i> trigger has its own localized label and is only rendered
+  when something has actually collapsed.
 
 ## Guidelines
 

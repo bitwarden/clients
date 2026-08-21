@@ -2,6 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
+  contentChild,
+  effect,
   inject,
   input,
   output,
@@ -13,6 +15,7 @@ import { NavigationEnd, QueryParamsHandling, Router, RouterLink, UrlTree } from 
 import { filter } from "rxjs";
 
 import { IconModule } from "../icon";
+import { IconTileComponent } from "../icon-tile";
 import { BitwardenIcon } from "../shared/icon";
 
 /**
@@ -57,6 +60,15 @@ export class BreadcrumbComponent {
   /** Used by the BreadcrumbsComponent to access the breadcrumb content */
   readonly content = viewChild(TemplateRef);
 
+  /** An icon tile projected into the `start` slot, whose size we keep in sync with the container. */
+  private readonly startIconTile = contentChild(IconTileComponent);
+
+  /**
+   * The size of the crumb, set by the parent `bit-breadcrumbs`. Used to size a projected
+   * icon tile in step with the breadcrumbs `size`. Defaults to "base" for standalone use.
+   */
+  readonly size = signal<"small" | "base">("base");
+
   private readonly router = inject(Router);
 
   readonly isActiveRoute = signal(false);
@@ -93,6 +105,15 @@ export class BreadcrumbComponent {
         filter((event) => event instanceof NavigationEnd),
       )
       .subscribe((_) => this.checkActiveRoute());
+
+    // Drive the projected icon tile's size from the crumb size (pushed by the parent
+    // `bit-breadcrumbs`) so it stays in sync. Runs once the content query resolves.
+    effect(() => {
+      const tile = this.startIconTile();
+      if (tile) {
+        tile.size.set(this.size() === "small" ? "xs" : "sm");
+      }
+    });
   }
 
   onClick(args: unknown) {

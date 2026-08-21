@@ -1,5 +1,4 @@
 import {
-  DestroyRef,
   Directive,
   ElementRef,
   Injector,
@@ -15,9 +14,10 @@ import {
 } from "@angular/core";
 
 import { measureWidth, revealForMeasurement } from "./measure";
+import { observedWidth } from "./observed-width";
 import { OverflowItemDirective } from "./overflow-item.directive";
 import { OverflowTriggerDirective } from "./overflow-trigger.directive";
-import { PackedItems, pack } from "./pack";
+import { PackedItems, pack, packMiddle } from "./pack";
 
 /**
  * Manages a horizontal row of items that should not wrap. Items that don't fit
@@ -50,7 +50,6 @@ import { PackedItems, pack } from "./pack";
   },
 })
 export class OverflowListDirective {
-  private readonly destroyRef = inject(DestroyRef);
   private readonly injector = inject(Injector);
   private readonly hostEl = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
 
@@ -71,6 +70,16 @@ export class OverflowListDirective {
   readonly gap = input(0);
 
   /**
+   * How items are chosen for the visible row when they don't all fit:
+   * - `"end"` (default) — first-fit: keep leading items, overflow the trailing ones.
+   *   Respects `[pinned]`. Used by tabs.
+   * - `"middle"` — collapse the middle: keep the first and last items anchored and
+   *   overflow the run between them (the breadcrumb pattern). The last item is never
+   *   dropped; the first is dropped only at very small widths. Ignores `[pinned]`.
+   */
+  readonly strategy = input<"end" | "middle">("end");
+
+  /**
    * External container width override (px). When non-null, the directive packs
    * against this value instead of its own host's inline size — required when
    * the host is content-sized in its parent, since observing it would create a
@@ -79,7 +88,7 @@ export class OverflowListDirective {
    */
   readonly containerWidth = input<number | null>(null);
 
-  private readonly observedContainerWidth = signal(0);
+  private readonly observedContainerWidth = observedWidth(this.hostEl);
   private readonly itemWidths = signal<readonly number[]>([]);
   private readonly triggerWidth = signal(0);
   /** The item instances that produced the current `itemWidths`; drives cache invalidation. */
@@ -123,6 +132,16 @@ export class OverflowListDirective {
 
     const triggerReserve = this.triggerWidth() > 0 ? this.triggerWidth() + gap : 0;
     const available = containerWidth - triggerReserve;
+
+    if (this.strategy() === "middle") {
+      // No room even for the current page after reserving the trigger. Keep the
+      // last item displayed anyway and overflow the rest — `packMiddle` reads a
+      // non-positive budget as "not measured", so handle it here.
+      if (available <= 0) {
+        return { displayed: [count - 1], overflow: indices(count - 1) };
+      }
+      return packMiddle(widths, available, gap);
+    }
 
     // Trigger reservation consumes the whole container. `pack` treats a
     // non-positive container as "not measured" and returns all displayed,
@@ -176,15 +195,7 @@ export class OverflowListDirective {
   });
 
   constructor() {
-    const ro = new ResizeObserver((entries) =>
-      this.observedContainerWidth.set(entries[0].contentBoxSize[0].inlineSize),
-    );
-
-    afterNextRender(() => {
-      this.measureItems();
-      ro.observe(this.hostEl);
-      this.destroyRef.onDestroy(() => ro.disconnect());
-    });
+    afterNextRender(() => this.measureItems());
 
     // Remeasure whenever the item set changes. Compared by instance identity
     // rather than count, so a same-length swap is caught too. A new set may
@@ -209,11 +220,10 @@ export class OverflowListDirective {
       const overflowList = this.overflow();
       const displayedList = this.displayed();
       const overflowSet = new Set(overflowList);
-      const lonelyIndex =
-        displayedList.length === 1 && overflowList.length > 0 ? displayedList[0] : -1;
+      const soleDisplayedIndex = displayedList.length === 1 ? displayedList[0] : -1;
       this.items().forEach((item, i) => {
         applyHide(item.elementRef.nativeElement, overflowSet.has(i));
-        item.shouldShrink.set(i === lonelyIndex);
+        item.shouldShrink.set(i === soleDisplayedIndex);
       });
       const trigger = this.trigger();
       if (this.ready() && trigger) {
@@ -228,16 +238,22 @@ export class OverflowListDirective {
    * only remeasures on its own when the item set changes.
    *
    * Keeps the existing widths until the new measurement lands; clearing them
-   * would flash all-displayed and overflow the row mid-resize.
+   * would flash all-displayed and overflow the row mid-resize. Pass
+   * `{ reset: true }` to drop them anyway — `packed` then falls back to
+   * all-displayed for the render before measurement, which consumers need when
+   * an item's content is only stamped while it's displayed.
    *
    * No-ops before the first measurement pass, so a caller can't race the
    * directive's own initial measurement — that pass is already queued.
    */
-  remeasure(): void {
+  remeasure(options?: { reset?: boolean }): void {
     // Read untracked: this runs inside callers' effects, and tracking `ready`
     // would make every one of them re-run when it flips.
     if (!untracked(this.ready)) {
       return;
+    }
+    if (options?.reset) {
+      this.itemWidths.set([]);
     }
     afterNextRender(() => this.measureItems(), { injector: this.injector });
   }
