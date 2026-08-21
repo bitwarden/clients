@@ -3,6 +3,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
+import { UnlockSource } from "./unlock-source.enum";
 
 /**
  * Service for unlocking a user's account with various methods.
@@ -74,10 +75,10 @@ export abstract class UnlockService {
   /**
    * Registers an action to be run when a user is unlocked through this service.
    *
-   * @param action Callback invoked after a successful unlock with the user id and the
-   *   freshly-decrypted user key.
+   * @param action Callback invoked after a successful unlock with the user id, the
+   *   freshly-decrypted user key, and what caused the unlock.
    */
   abstract registerOnUnlockAction(
-    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+    action: (userId: UserId, userKey: SymmetricCryptoKey, source: UnlockSource) => Promise<void>,
   ): void;
 }

@@ -39,7 +39,6 @@ import {
   NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
 import {
-  LockService,
   LoginEmailService,
   SsoUrlService,
   LogoutService,
@@ -184,6 +183,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
+import { LockService } from "@bitwarden/unlock";
 import {
   DefaultSshImportPromptService,
   PasswordRepromptService,
