@@ -7,10 +7,7 @@
   [loading]="loading()"
   [trackBy]="trackRow"
 >
-  <bit-table-toolbar
-    class="tw-transition-colors tw-duration-200"
-    [class.!tw-border-transparent]="!pageScrolled()"
-  >
+  <bit-table-toolbar>
     <bit-search
       class="tw-flex-1"
       autocomplete="off"

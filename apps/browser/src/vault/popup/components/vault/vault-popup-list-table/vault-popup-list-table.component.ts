@@ -1,18 +1,7 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
-import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import {
-  afterRenderEffect,
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  OnDestroy,
-  signal,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { filter, map, Subject } from "rxjs";
@@ -46,14 +35,12 @@ import {
   IconButtonModule,
   IconComponent,
   NoItemsModule,
-  ScrollLayoutService,
   SearchModule,
   TypographyModule,
 } from "@bitwarden/components";
 import { OrgIconDirective, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
-import { PopupPageComponent } from "../../../../../platform/popup/layout/popup-page.component";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import {
   FilterOptionCounts,
@@ -94,7 +81,7 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
     // The negative margins cancel `popup-page`'s scroll-region padding so the toolbar's bottom
     // border reaches the popup edges
     class:
-      "tw-flex tw-flex-col tw-flex-1 tw-min-h-0 -tw-mx-3 bit-compact:-tw-mx-2 -tw-mt-3 bit-compact:-tw-mt-2",
+      "tw-flex tw-flex-col tw-flex-1 tw-min-h-0 -tw-mx-3 -tw-mt-3 -tw-mb-2.5 bit-compact:-tw-mx-2 bit-compact:-tw-mt-2 bit-compact:-tw-mb-1.5",
   },
   imports: [
     CommonModule,
@@ -121,7 +108,7 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
     Vfo1I18nPipe,
   ],
 })
-export class VaultPopupListTableComponent implements OnDestroy {
+export class VaultPopupListTableComponent {
   private readonly vaultPopupLoadingService = inject(VaultPopupLoadingService);
   private readonly vaultPopupAutofillService = inject(VaultPopupAutofillService);
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
@@ -129,21 +116,8 @@ export class VaultPopupListTableComponent implements OnDestroy {
   private readonly listTableService = inject(VaultPopupListTableService);
   private readonly listFiltersService = inject(VaultPopupListFiltersService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
-  private readonly scrollLayout = inject(ScrollLayoutService);
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
-  private readonly liveAnnouncer = inject(LiveAnnouncer);
   protected readonly i18nService = inject(I18nService);
   private readonly window = inject<Window>(WINDOW);
-
-  /**
-   * Whether the page content is scrolled, used to reveal the toolbar's bottom border.
-   *
-   * The table supplies the popup's search bar, so the separator between it and the list belongs to
-   * the toolbar rather than to `popup-page`'s above-scroll-area, which is empty in this
-   * presentation. Optional so the table still renders outside a `popup-page` (e.g. Storybook).
-   */
-  protected readonly pageScrolled =
-    inject(PopupPageComponent, { optional: true })?.isScrolled ?? signal(false).asReadonly();
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
@@ -263,59 +237,6 @@ export class VaultPopupListTableComponent implements OnDestroy {
   /** Whether the popup is rendered in the sidebar, where the autofill refresh control is offered. */
   protected readonly showRefresh = BrowserPopupUtils.inSidebar(this.window);
 
-  /** The viewport this component published, so repeat render passes can skip re-publishing. */
-  private publishedScrollHost: ElementRef<HTMLElement> | null = null;
-
-  /** The host `popup-page` had claimed, restored on teardown. */
-  private displacedScrollHost: ElementRef<HTMLElement> | null = null;
-
-  /**
-   * Publishes the table's virtual-scroll viewport as the layout scroll host while mounted, so
-   * scroll-position restore and the scrolled-state separator track the element that actually
-   * scrolls — `popup-page`'s own region doesn't once the table fills it.
-   *
-   * Queried from the DOM because the viewport belongs to `bit-table-v2`'s template, so it is
-   * neither this component's view nor its content.
-   */
-  private readonly _publishScrollHost = afterRenderEffect(() => {
-    // Read as dependencies — the query below isn't reactive, and the viewport only exists once
-    // these settle. Removing them stops the effect from ever finding it.
-    this.loading();
-    this.rows();
-
-    // Compared against the service's value, not our own: the host gets re-claimed elsewhere.
-    const current = this.scrollLayout.scrollableRef();
-    const viewport = this.host.nativeElement.querySelector<HTMLElement>(
-      "cdk-virtual-scroll-viewport",
-    );
-
-    // The viewport is destroyed whenever the table falls back to its loading or empty branch (e.g. a
-    // search that matches nothing). Release the host rather than leaving a detached element
-    // published, so `popup-page`'s own region takes back over until rows return.
-    if (!viewport) {
-      if (current === this.publishedScrollHost) {
-        this.scrollLayout.scrollableRef.set(this.displacedScrollHost);
-        this.publishedScrollHost = null;
-      }
-      return;
-    }
-
-    if (current?.nativeElement === viewport) {
-      return;
-    }
-
-    this.displacedScrollHost ??= current;
-    this.publishedScrollHost = new ElementRef(viewport);
-    this.scrollLayout.scrollableRef.set(this.publishedScrollHost);
-  });
-
-  ngOnDestroy() {
-    // Only yield the host back if nothing else has claimed it since.
-    if (this.scrollLayout.scrollableRef() === this.publishedScrollHost) {
-      this.scrollLayout.scrollableRef.set(this.displacedScrollHost);
-    }
-  }
-
   /** Keyboard-shortcut tooltip shown on the legacy (flag-off) autofill chip, e.g. "Autofill ⌘⇧L". */
   protected readonly autofillShortcutTooltip = signal<string | undefined>(undefined);
 
@@ -343,21 +264,6 @@ export class VaultPopupListTableComponent implements OnDestroy {
     }
 
     return this.hasSearchText() ? "noItemsMatchSearch" : "nothingToShow";
-  });
-
-  /**
-   * Announces the empty state as it appears.
-   *
-   * The message can't carry `role="status"` itself: the table stamps the empty slot with a
-   * structural `@if`, so the live region and its content would enter the DOM in the same pass and
-   * screen readers generally skip that. Announcing imperatively sidesteps the timing entirely.
-   */
-  private readonly _announceEmptyState = effect(() => {
-    const key = this.emptyStateKey();
-
-    if (key !== null) {
-      void this.liveAnnouncer.announce(this.i18nService.t(key), "polite");
-    }
   });
 
   protected readonly favoritesOpenState = computed(
