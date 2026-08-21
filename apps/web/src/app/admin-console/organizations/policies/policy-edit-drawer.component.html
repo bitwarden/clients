@@ -3,7 +3,7 @@
   [bitSubmit]="submit"
   bit-dialog
   [loading]="loading()"
-  [title]="policy.name | i18n"
+  [title]="titleKeys[0] | vfo1I18n: titleKeys[1]"
   subtitle=""
 >
   <span bitBadge [variant]="policyEnabled() ? 'success' : 'secondary'" bitDialogHeaderEnd>{{
@@ -13,9 +13,11 @@
     @if (loading()) {
       <bit-spinner></bit-spinner>
     } @else {
-      @if (policy.prerequisiteKey) {
+      @let prereqKeys = prerequisiteKeys;
+      @let warnKeys = warningKeys;
+      @if (prereqKeys) {
         <bit-callout type="info" [title]="'prerequisite' | i18n">
-          {{ policy.prerequisiteKey | i18n }}
+          {{ prereqKeys[0] | vfo1I18n: prereqKeys[1] }}
           @if (policy.prerequisiteLinkHref && policy.prerequisiteLinkTextKey) {
             <a bitLink [href]="policy.prerequisiteLinkHref" target="_blank" rel="noreferrer">
               {{ policy.prerequisiteLinkTextKey | i18n }}
@@ -23,11 +25,11 @@
           }
         </bit-callout>
       }
-      @if (policy.warningKey) {
-        <bit-callout type="warning">{{ policy.warningKey | i18n }}</bit-callout>
+      @if (warnKeys) {
+        <bit-callout type="warning">{{ warnKeys[0] | vfo1I18n: warnKeys[1] }}</bit-callout>
       }
       @if (policy.showDescription) {
-        <p bitTypography="body1">{{ policy.description | i18n }}</p>
+        <p bitTypography="body1">{{ descriptionKeys[0] | vfo1I18n: descriptionKeys[1] }}</p>
       }
       <ng-template #policyForm></ng-template>
     }
