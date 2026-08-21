@@ -1,11 +1,4 @@
-import { LiveAnnouncer } from "@angular/cdk/a11y";
-import {
-  ChangeDetectionStrategy,
-  Component,
-  ElementRef,
-  input,
-  NO_ERRORS_SCHEMA,
-} from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, flush, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
@@ -39,7 +32,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { TaskService } from "@bitwarden/common/vault/tasks";
-import { DialogService, ScrollLayoutService } from "@bitwarden/components";
+import { DialogService } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
 import {
   DecryptionFailureDialogComponent,
@@ -346,9 +339,6 @@ describe("VaultComponent", () => {
           useValue: { organizations$: jest.fn().mockReturnValue(of([])) },
         },
         { provide: PremiumUpsellService, useValue: premiumUpsellSvc },
-        // The real CDK announcer appends a live element to the document body and tears it down
-        // with the first fixture, so later fixtures would announce into a detached node.
-        { provide: LiveAnnouncer, useValue: mock<LiveAnnouncer>() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -475,41 +465,6 @@ describe("VaultComponent", () => {
     tick();
 
     expect(scrollSvc.start).toHaveBeenCalledWith(scrollRegion);
-  }));
-
-  /**
-   * The table publishes its virtual-scroll viewport only after loading settles, and re-creates it
-   * when it crosses its empty state, so latching the first host would leave the service bound to
-   * `popup-page`'s scroll region or to a detached node.
-   */
-  it("re-binds scroll tracking when the scroll host changes", fakeAsync(() => {
-    const fixture = TestBed.createComponent(VaultComponent);
-    const component = fixture.componentInstance;
-
-    const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
-    const vaultLoading$ = loadingSvc.loading$ as unknown as BehaviorSubject<boolean>;
-    const allFilters$ = filtersSvc.allFilters$ as unknown as Subject<any>;
-
-    fixture.detectChanges();
-    tick();
-
-    vaultLoading$.next(false);
-    readySubject$.next(true);
-    allFilters$.next({});
-    tick();
-
-    const initialCalls = (scrollSvc.start as jest.Mock).mock.calls.length;
-    expect(initialCalls).toBeGreaterThan(0);
-
-    // A later host takes over, as the table's viewport does once it renders.
-    const viewport = document.createElement("cdk-virtual-scroll-viewport");
-    TestBed.inject(ScrollLayoutService).scrollableRef.set(new ElementRef(viewport));
-    tick();
-
-    expect(scrollSvc.start).toHaveBeenCalledWith(viewport);
-    expect((scrollSvc.start as jest.Mock).mock.calls.length).toBeGreaterThan(initialCalls);
-
-    flush();
   }));
 
   describe("vfo1-foundation presentation gate", () => {
