@@ -25,6 +25,14 @@ export abstract class VaultHealthReportService {
   abstract buildVaultHealthReport(ciphers: CipherView[], userId: UserId): Promise<void>;
 
   /**
+   * Publishes a `loading` status for `userId` right away, before the caller has
+   * fetched the ciphers to scan. Lets a rescan show the progress view
+   * immediately instead of briefly re-showing the previous report. Retains the
+   * current report so it is still available if the build then fails.
+   */
+  abstract markScanning(userId: UserId): void;
+
+  /**
    * The user's scan status and latest report. Starts at `idle` with no report
    * until a build runs.
    */

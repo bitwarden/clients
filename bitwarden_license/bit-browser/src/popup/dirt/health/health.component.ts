@@ -118,23 +118,14 @@ export class HealthComponent {
         switchMap((userId) =>
           this.healthAccessService.hasRunHealthScan$(userId).pipe(
             // First visit waits for the intro's "Scan my vault"; later visits are
-            // already true. take(1) keeps it to one trigger per popup open.
+            // already true. take(1) keeps it to one trigger per component load.
             filter(Boolean),
             take(1),
-            // Reuse guard (load-bearing): back-navigation re-creates this
-            // component, so only build when the service holds nothing or a
-            // failure for this user. Without it every back press rescans.
-            switchMap(() =>
-              this.vaultHealthReportService.getVaultHealthReport$(userId).pipe(
-                take(1),
-                filter(
-                  (state) =>
-                    state.status === VaultHealthReportStatus.Idle ||
-                    state.status === VaultHealthReportStatus.Error,
-                ),
-                switchMap(() => this.startGeneration$(userId)),
-              ),
-            ),
+            // PM-39223: the scan runs on every Health Tab load with no caching.
+            // The popup rebuilds this component on each navigation to Health (and
+            // on return from a category detail), so there is no reuse guard here:
+            // every load starts a fresh build.
+            switchMap(() => this.startGeneration$(userId)),
           ),
         ),
         takeUntilDestroyed(),
@@ -167,11 +158,18 @@ export class HealthComponent {
   /** Runs one report build for `userId`. Never errors: the service publishes its own failures. */
   private startGeneration$(userId: UserId): Observable<unknown> {
     return this.cipherService.cipherViews$(userId).pipe(
-      // A fresh build clears this user's prior ciphers failure, so a later success
-      // is not masked by the failure view from an earlier attempt. On subscribe
-      // rather than in the caller's switchMap body, so the reset belongs to the
-      // build itself rather than to composing the observable.
-      tap({ subscribe: () => this.clearPipelineFailure(userId) }),
+      tap({
+        subscribe: () => {
+          // A fresh build clears this user's prior ciphers failure, so a later
+          // success is not masked by the failure view from an earlier attempt.
+          this.clearPipelineFailure(userId);
+          // Show the progress view at once. Without this, a rescan on load would
+          // briefly re-show the previous report the service still holds while the
+          // ciphers fetch resolves. On subscribe rather than in the caller's
+          // switchMap body, so the reset belongs to the build itself.
+          this.vaultHealthReportService.markScanning(userId);
+        },
+      }),
       // cipherViews$ may emit null when decrypted ciphers are cleared.
       filterOutNullish(),
       // Generation does an external breach lookup; a vault edit must not re-run it.
