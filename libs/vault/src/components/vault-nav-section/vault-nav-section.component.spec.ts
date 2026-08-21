@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router } from "@angular/router";
+import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -16,7 +16,6 @@ import {
   VaultsNavViewModel,
 } from "../../models/vault-nav-view-model";
 import { VaultNavService } from "../../services/vault-nav.service";
-import { MY_VAULT } from "../vault-items-table/vault-items-table.component";
 
 import { VaultNavSectionComponent } from "./vault-nav-section.component";
 
@@ -87,7 +86,6 @@ describe("VaultNavSectionComponent", () => {
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(personalOnly);
   const vaultNavService = mock<VaultNavService>();
   const i18nService = mock<I18nService>();
-  const router = mock<Router>();
 
   /** Trimmed first-line text of every rendered nav item, group, and section, in document order. */
   const navText = () =>
@@ -110,11 +108,12 @@ describe("VaultNavSectionComponent", () => {
     return group.nativeElement as HTMLElement;
   };
 
-  const clickNavItem = (root: HTMLElement, text: string) => {
+  /** The `href` the nav item labelled `text` links to. */
+  const navItemHref = (root: HTMLElement, text: string) => {
     const item = Array.from(root.querySelectorAll("bit-nav-item")).find((el) =>
       (el as HTMLElement).textContent?.includes(text),
     ) as HTMLElement;
-    item.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+    return item.querySelector("a")?.getAttribute("href");
   };
 
   beforeEach(async () => {
@@ -129,8 +128,8 @@ describe("VaultNavSectionComponent", () => {
       providers: [
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: I18nService, useValue: i18nService },
-        { provide: Router, useValue: router },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        provideRouter([]),
       ],
     }).compileComponents();
 
@@ -150,10 +149,15 @@ describe("VaultNavSectionComponent", () => {
       expect(text).not.toContain("vaults");
     });
 
-    it("routes to the personal vault using the my-vault segment when the lone vault is clicked", () => {
-      clickNavItem(fixture.nativeElement, "My vault");
+    it("links the lone vault to the unscoped vault, matching it exactly", () => {
+      expect(navItemHref(fixture.nativeElement, "My vault")).toBe("/vault");
 
-      expect(router.navigate).toHaveBeenCalledWith(["/vault", MY_VAULT]);
+      const loneVault = fixture.debugElement
+        .queryAll(By.css("bit-nav-item"))
+        .find((el) => el.componentInstance.text() === "My vault");
+
+      // A subset match would leave it lit on the Trash and Archive routes nested beneath /vault.
+      expect(loneVault.componentInstance.routerLinkActiveOptions().paths).toBe("exact");
     });
   });
 
@@ -179,17 +183,21 @@ describe("VaultNavSectionComponent", () => {
       expect(vaultLabels).toEqual(["My vault", "Acme corporation", "Smith family"]);
     });
 
-    it("routes to the unfiltered vault when All items is clicked", () => {
-      clickNavItem(fixture.nativeElement, "allItems");
+    it("links All items to the unscoped vault, matching it exactly", () => {
+      expect(navItemHref(fixture.nativeElement, "allItems")).toBe("/vault");
 
-      expect(router.navigate).toHaveBeenCalledWith(["/vault"]);
+      const allItems = fixture.debugElement
+        .queryAll(By.css("bit-nav-item"))
+        .find((el) => el.componentInstance.text() === "allItems");
+
+      // A subset match would leave All items lit alongside whichever vault is scoped.
+      expect(allItems.componentInstance.routerLinkActiveOptions().paths).toBe("exact");
     });
 
-    it("routes to the organization vault when its All vault items is clicked", () => {
+    it("links each organization vault to its own route", () => {
       const group = expandGroup("Acme corporation");
-      clickNavItem(group, "allVaultItems");
 
-      expect(router.navigate).toHaveBeenCalledWith(["/vault", "org-a"]);
+      expect(navItemHref(group, "allVaultItems")).toBe("/vault/org-a");
     });
   });
 

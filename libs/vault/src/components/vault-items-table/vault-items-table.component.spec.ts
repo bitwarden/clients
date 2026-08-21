@@ -1,4 +1,5 @@
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -26,7 +27,12 @@ import {
   SearchTextDebounceInterval,
 } from "@bitwarden/common/vault/services/search.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  ButtonModule,
+  DialogService,
+  FilterControl,
+} from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
@@ -73,6 +79,43 @@ function cipherListView(overrides: Partial<CipherListView> = {}): CipherListView
     copyableFields: [],
     ...overrides,
   } as unknown as CipherListView;
+}
+
+/** Projects conditional toolbar actions the supported way — inside a static `slot="toolbar"`. */
+@Component({
+  selector: "test-wrapped-toolbar-host",
+  template: `
+    <vault-items-table [ciphers]="[]">
+      <div slot="toolbar">
+        @if (show()) {
+          <button id="toolbar-action" type="button">Add</button>
+        }
+      </div>
+    </vault-items-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent],
+})
+class WrappedToolbarHostComponent {
+  readonly show = signal(true);
+}
+
+/** Projects the same actions with the control flow block itself as the projected node. */
+@Component({
+  selector: "test-bare-toolbar-host",
+  template: `
+    <vault-items-table [ciphers]="[]">
+      @if (show()) {
+        <button slot="toolbar" id="toolbar-action" type="button" bitButton>Import</button>
+        <span slot="toolbar" id="toolbar-second">Add</span>
+      }
+    </vault-items-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent, ButtonModule],
+})
+class BareToolbarHostComponent {
+  readonly show = signal(true);
 }
 
 describe("VaultItemsTableComponent", () => {
@@ -194,6 +237,31 @@ describe("VaultItemsTableComponent", () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("Amazon");
     expect(text).toContain("Apple ID");
+  });
+
+  describe("projected toolbar content", () => {
+    /** The projected action, as it lands inside the rendered toolbar. */
+    const toolbarAction = (host: ComponentFixture<unknown>) =>
+      host.nativeElement.querySelector("bit-table-toolbar #toolbar-action");
+
+    it("reaches the toolbar when it is conditional within a static slot element", () => {
+      const host = TestBed.createComponent(WrappedToolbarHostComponent);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).not.toBeNull();
+
+      host.componentInstance.show.set(false);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).toBeNull();
+    });
+
+    it("drops a multi-node control flow block projected as the slot itself", () => {
+      const host = TestBed.createComponent(BareToolbarHostComponent);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).toBeNull();
+    });
   });
 
   describe("filtering", () => {

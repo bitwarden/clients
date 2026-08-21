@@ -1,5 +1,5 @@
 import { inject } from "@angular/core";
-import { CanActivateFn, ParamMap, createUrlTreeFromSnapshot } from "@angular/router";
+import { CanActivateFn, ParamMap, Router, createUrlTreeFromSnapshot } from "@angular/router";
 
 import { Unassigned } from "@bitwarden/common/admin-console/models/collections";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -13,6 +13,7 @@ import {
   VAULT_FILTER_NAMESPACE,
 } from "../components/vault-items-table/vault-items-table.component";
 import { All } from "../models/routed-vault-filter.model";
+import { VaultScope, VaultScopeType, vaultScopeCommands } from "../models/vault-scope";
 
 /** Maps the legacy `?type=` string values to their numeric CipherType equivalents. */
 const LEGACY_TYPE_MAP: Record<string, CipherType> = {
@@ -24,6 +25,15 @@ const LEGACY_TYPE_MAP: Record<string, CipherType> = {
   driversLicense: CipherType.DriversLicense,
   bankAccount: CipherType.BankAccount,
   passport: CipherType.Passport,
+};
+
+/**
+ * The legacy `?type=` values that are now side-nav scopes rather than table filters. These
+ * redirect to their own route instead of a namespaced query param — see {@link VaultScope}.
+ */
+const LEGACY_SCOPE_MAP: Record<string, VaultScope> = {
+  trash: { type: VaultScopeType.Trash },
+  archive: { type: VaultScopeType.Archive },
 };
 
 /** All legacy param key names stripped from the URL during redirect. */
@@ -91,9 +101,13 @@ function buildRedirectPatch(
  * `queryParam="vault"` namespaced equivalents (`?vault.type=`, `?vault.folder=`, etc.)
  * when the VFO1Foundation feature flag is enabled. Non-legacy params (e.g. `cipherId`,
  * `action`) are preserved in the redirect.
+ *
+ * `?type=trash` and `?type=archive` are the exceptions: those are side-nav scopes now, so they
+ * redirect to the scope's own route rather than to a filter chip — see {@link LEGACY_SCOPE_MAP}.
  */
 export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
   const configService = inject(ConfigService);
+  const router = inject(Router);
 
   const legacy = extractLegacyParams(route.queryParamMap);
   const hasLegacyParams = Object.values(legacy).some((v) => v != null);
@@ -103,9 +117,10 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
   }
 
   const patch = buildRedirectPatch(legacy);
+  const scope = legacy.type == null ? undefined : LEGACY_SCOPE_MAP[legacy.type];
 
-  // No mapped params — nothing to redirect (e.g. ?type=trash, ?type=archive).
-  if (Object.keys(patch).length === 0) {
+  // No mapped params and no scope — nothing to redirect (e.g. ?type=all).
+  if (Object.keys(patch).length === 0 && scope == null) {
     return true;
   }
 
@@ -119,15 +134,15 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
   // Copy non-legacy params first, then apply the converted patch.
   // This preserves params like cipherId and action that the vault uses independently.
   //
-  // If `type` was present but untranslatable (e.g. trash/archive), keep it in the
-  // redirect so the legacy filter$ can still apply it. Without this, a URL like
-  // ?vaultId=<org>&type=trash would silently drop the Trash filter when the redirect
-  // fires for the org param.
+  // If `type` was present but neither translated nor a scope (e.g. `all`, or a value from a
+  // client this guard has not caught up with), keep it in the redirect so the legacy filter$ can
+  // still apply it. Without this, a URL like ?vaultId=<org>&type=all would silently drop the type
+  // filter when the redirect fires for the org param.
   const typeTranslated =
     patch[`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.type}`] != null ||
     patch[`${VAULT_FILTER_NAMESPACE}.${VAULT_FILTER_KEYS.favorites}`] != null;
   const keysToStrip = new Set(LEGACY_KEYS);
-  if (legacy.type != null && !typeTranslated) {
+  if (legacy.type != null && !typeTranslated && scope == null) {
     keysToStrip.delete("type");
   }
 
@@ -139,6 +154,12 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
     }
   }
   Object.assign(queryParams, patch);
+
+  // A scope is a different route, not a param on this one, so it can't ride along on the
+  // snapshot-relative tree the param-only redirect uses.
+  if (scope != null) {
+    return router.createUrlTree(vaultScopeCommands(scope), { queryParams });
+  }
 
   return createUrlTreeFromSnapshot(route, [], queryParams);
 };

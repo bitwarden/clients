@@ -1,36 +1,39 @@
-<app-header></app-header>
+<app-header [title]="title()"></app-header>
 
 <vault-organization-user-notifications></vault-organization-user-notifications>
 <app-vault-banners [organizations]="organizations()"></app-vault-banners>
 
-<app-vault-onboarding [ciphers]="ciphers()"></app-vault-onboarding>
+<app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
 <vault-items-table
   [ciphers]="ciphers()"
   [loading]="loading()"
   [rowActions]="rowActions()"
   [folders]="folders()"
-  [collections]="collections()"
-  [organizations]="organizations()"
+  [collections]="scopedCollections()"
+  [organizations]="scopedOrganizations()"
+  [organizationId]="scopedOrganizationId()"
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
 >
-  <button
-    slot="toolbar"
-    id="vault-next_button_import"
-    type="button"
-    bitButton
-    startIcon="bwi-download"
-    buttonType="secondary"
-    (click)="openImportDialog()"
-  >
-    {{ "importNoun" | i18n }}
-  </button>
-  <vault-new-cipher-menu
-    slot="toolbar"
-    [canCreateCipher]="true"
-    [canCreateSshKey]="true"
-    (cipherAdded)="addCipher($event)"
-    (onAddItemDialog)="openAddItemDialog()"
-  />
+  <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
+    @if (showItemCreation()) {
+      <button
+        id="vault-next_button_import"
+        type="button"
+        bitButton
+        startIcon="bwi-download"
+        buttonType="secondary"
+        (click)="openImportDialog()"
+      >
+        {{ "importNoun" | i18n }}
+      </button>
+      <vault-new-cipher-menu
+        [canCreateCipher]="true"
+        [canCreateSshKey]="true"
+        (cipherAdded)="addCipher($event)"
+        (onAddItemDialog)="openAddItemDialog()"
+      />
+    }
+  </div>
 </vault-items-table>

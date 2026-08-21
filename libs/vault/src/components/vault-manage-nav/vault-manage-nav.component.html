@@ -1,0 +1,20 @@
+<bit-nav-item icon="bwi-folder" [text]="'myFolders' | i18n" route="folders"></bit-nav-item>
+<bit-nav-item
+  icon="bwi-archive"
+  [text]="'archiveNoun' | i18n"
+  [forceActiveStyles]="archiveActive()"
+  (mainContentClicked)="selectArchive()"
+>
+  @if (showArchivePremiumBadge()) {
+    <button
+      type="button"
+      slot="end"
+      bit-chip-action
+      startIcon="bwi-diamond"
+      [label]="'upgrade' | i18n"
+      size="small"
+      (click)="promptForPremium()"
+    ></button>
+  }
+</bit-nav-item>
+<bit-nav-item icon="bwi-trash" [text]="'trash' | i18n" [route]="trashRoute"></bit-nav-item>
