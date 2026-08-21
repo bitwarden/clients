@@ -48,12 +48,6 @@ export class FilterDialogComponent {
   /** How many filters currently have a selection — shown in the footer. */
   protected readonly selectedCount = computed(() => this.filters.filter((f) => f.active()).length);
 
-  /** A row's text: the filter label, plus `": summary"` when it has a selection. */
-  protected rowText(filter: FilterPresenter): string {
-    const summary = filter.summary();
-    return summary ? `${filter.label()}: ${summary}` : filter.label();
-  }
-
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */
   protected select(filter: FilterPresenter): void {
     if (filter.optionsTemplate()) {

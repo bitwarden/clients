@@ -23,9 +23,18 @@
           >
             <span
               class="tw-size-2 tw-flex-none tw-rounded-full"
-              [class.tw-bg-primary-600]="filter.active()"
+              [class.tw-bg-bg-brand]="filter.active()"
             ></span>
-            <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ rowText(filter) }}</span>
+            @if (filter.icon(); as icon) {
+              <bit-icon [name]="icon" class="tw-flex-none" aria-hidden="true"></bit-icon>
+            }
+            <span class="tw-min-w-0 tw-flex-1 tw-truncate">
+              {{ filter.label() }}
+              <!-- The selection reads as secondary to the category it belongs to. -->
+              @if (filter.summary(); as summary) {
+                <span class="tw-text-fg-body">: {{ summary }}</span>
+              }
+            </span>
             @if (filter.optionsTemplate()) {
               <bit-icon name="bwi-angle-right" class="tw-flex-none tw-text-muted"></bit-icon>
             }
