@@ -7,7 +7,6 @@ import {
 function row(overrides: Partial<AuditRow> = {}): AuditRow {
   return {
     occurredAt: new Date("2026-06-30T12:00:00Z"),
-    kind: AccessAuditEventKind.RequestSubmitted,
     kindLabelKey: "pamAuditKindRequestSubmitted",
     actor: "alice",
     requester: "alice",

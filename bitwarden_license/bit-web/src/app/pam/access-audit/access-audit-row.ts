@@ -11,7 +11,6 @@ import {
  */
 export type AuditRow = {
   occurredAt: Date;
-  kind: AccessAuditEventKind;
   /** i18n key for the human-readable event label (see {@link auditKindLabelKey}). */
   kindLabelKey: string;
   /** Who performed it (name, falling back to email); null for a system / automatic event. */
@@ -107,7 +106,6 @@ export function toAuditRow(
     (event.collectionId != null ? collectionNameById.get(event.collectionId) : undefined) ?? null;
   return {
     occurredAt: new Date(event.occurredAt),
-    kind: event.kind,
     kindLabelKey: selfEnded ? "pamAuditKindLeaseEndedByHolder" : auditKindLabelKey(event.kind),
     actor,
     requester,
