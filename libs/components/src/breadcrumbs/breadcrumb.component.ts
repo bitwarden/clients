@@ -90,7 +90,7 @@ export class BreadcrumbComponent implements OnInit {
     }
 
     const result = this.router.isActive(routeStringOrUrlTree, {
-      paths: "subset",
+      paths: "exact",
       queryParams: "exact",
       fragment: "ignored",
       matrixParams: "ignored",

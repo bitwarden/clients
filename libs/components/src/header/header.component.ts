@@ -43,7 +43,7 @@ import { HeaderContext } from "./header-context";
     }),
   ],
   host: {
-    class: "tw-@container",
+    class: "tw-@container tw-block",
   },
 })
 export class HeaderComponent {
