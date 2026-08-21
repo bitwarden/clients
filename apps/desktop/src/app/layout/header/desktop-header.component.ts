@@ -4,7 +4,7 @@ import { ActivatedRoute } from "@angular/router";
 import { map } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { HeaderComponent, BannerModule, HeaderContext } from "@bitwarden/components";
+import { HeaderComponent, BannerModule, HeaderContext, BitwardenIcon } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
 
 import { AccountSwitcherV2Component } from "../../../auth/components/account-switcher/account-switcher-v2.component";
@@ -32,7 +32,7 @@ export class DesktopHeaderComponent {
   /**
    * Icon to show before the title
    */
-  readonly icon = input<string>();
+  readonly icon = input<BitwardenIcon>();
 
   private readonly routeData = toSignal(
     this.route.data.pipe(
