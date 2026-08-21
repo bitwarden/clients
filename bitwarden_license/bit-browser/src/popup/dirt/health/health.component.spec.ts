@@ -506,8 +506,7 @@ describe("HealthComponent", () => {
     });
 
     it("does not carry a ciphers failure from one account to the next after a switch", async () => {
-      // pipelineFailed is scoped to the user: a ciphers failure for account A must
-      // not pin the failure view on account B once B scans successfully.
+      // The ciphers-failure flag clears at the start of each build, so B's successful scan is not masked by A's failure.
       const nextUserId = Utils.newGuid() as UserId;
       const nextUserScan$ = new Subject<boolean>();
       healthAccessService.hasRunHealthScan$.mockImplementation((id) =>
@@ -536,8 +535,7 @@ describe("HealthComponent", () => {
     });
 
     it("clears a prior ciphers failure when the same user scans again", async () => {
-      // pipelineFailedFor must reset when a build starts, or a later successful
-      // scan for that user is still masked by the failure view.
+      // The ciphers-failure flag clears at the start of each build, so A's later successful scan is not masked by its earlier failure.
       const nextUserId = Utils.newGuid() as UserId;
       const nextUserScan$ = new Subject<boolean>();
       healthAccessService.hasRunHealthScan$.mockImplementation((id) =>
@@ -586,7 +584,6 @@ describe("HealthComponent", () => {
       await initComponent();
       await settle();
 
-      expect(reportService.markScanning).toHaveBeenCalledWith(userId);
       expect(scanning()).not.toBeNull();
       expect(overview()).toBeNull();
     });

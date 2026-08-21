@@ -454,33 +454,6 @@ describe("DefaultVaultHealthReportService", () => {
     });
   });
 
-  describe("markScanning", () => {
-    it("publishes loading right away, before any build, so a rescan shows progress at once", async () => {
-      const seen: VaultHealthReportState[] = [];
-      service
-        .getVaultHealthReport$(userId)
-        .pipe(takeUntil(destroy$))
-        .subscribe((state) => seen.push(state));
-
-      service.markScanning(userId);
-
-      expect(seen.map((state) => state.status)).toEqual(["idle", "loading"]);
-    });
-
-    it("retains the current report while marking scanning", async () => {
-      await service.buildVaultHealthReport(
-        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
-        userId,
-      );
-
-      service.markScanning(userId);
-      const state = await firstValueFrom(service.getVaultHealthReport$(userId));
-
-      expect(state.status).toBe(VaultHealthReportStatus.Loading);
-      expect(cipherIds(state.report!.categoryItems.exposed)).toEqual(["a"]);
-    });
-  });
-
   describe("deleteItemFromReport", () => {
     /** Collects every report emitted from now on, so missed emissions are visible. */
     const observeReports = (): VaultHealthReportView[] => {

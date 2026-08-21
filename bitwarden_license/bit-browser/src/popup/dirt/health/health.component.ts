@@ -86,23 +86,18 @@ export class HealthComponent {
     { initialValue: VAULT_HEALTH_REPORT_IDLE },
   );
 
-  /**
-   * The users whose ciphers fetch failed. A set rather than a single slot so
-   * recording or clearing one account's failure cannot disturb another's, which
-   * is the same per-user isolation the report service enforces with its per-user
-   * streams. This failure never reaches the service, so it is tracked here
-   * rather than in that state.
-   */
-  private readonly pipelineFailedFor = signal<ReadonlySet<UserId>>(new Set());
+  /** Set when fetching the ciphers to scan fails, which never reaches the service. */
+  private readonly pipelineFailed = signal(false);
+
+  /** True while a scan is running, read from the service's published status. */
+  protected readonly loading = computed(
+    () => this.scanState().status === VaultHealthReportStatus.Loading,
+  );
 
   /** True when the scan did not complete: the service published an error, or the ciphers fetch failed. */
-  protected readonly scanFailed = computed(() => {
-    const userId = this.userId();
-    return (
-      this.scanState().status === VaultHealthReportStatus.Error ||
-      (userId != null && this.pipelineFailedFor().has(userId))
-    );
-  });
+  protected readonly scanFailed = computed(
+    () => this.scanState().status === VaultHealthReportStatus.Error || this.pipelineFailed(),
+  );
 
   /** The completed report, or null while generating or after a failure. */
   protected readonly report = computed(() => {
@@ -158,18 +153,10 @@ export class HealthComponent {
   /** Runs one report build for `userId`. Never errors: the service publishes its own failures. */
   private startGeneration$(userId: UserId): Observable<unknown> {
     return this.cipherService.cipherViews$(userId).pipe(
-      tap({
-        subscribe: () => {
-          // A fresh build clears this user's prior ciphers failure, so a later
-          // success is not masked by the failure view from an earlier attempt.
-          this.clearPipelineFailure(userId);
-          // Show the progress view at once. Without this, a rescan on load would
-          // briefly re-show the previous report the service still holds while the
-          // ciphers fetch resolves. On subscribe rather than in the caller's
-          // switchMap body, so the reset belongs to the build itself.
-          this.vaultHealthReportService.markScanning(userId);
-        },
-      }),
+      // A fresh build clears the prior ciphers failure so a later success is not
+      // masked by an earlier attempt's failure view. buildVaultHealthReport owns
+      // publishing the loading status.
+      tap({ subscribe: () => this.clearPipelineFailure() }),
       // cipherViews$ may emit null when decrypted ciphers are cleared.
       filterOutNullish(),
       // Generation does an external breach lookup; a vault edit must not re-run it.
@@ -178,34 +165,19 @@ export class HealthComponent {
         defer(() => this.vaultHealthReportService.buildVaultHealthReport(ciphers, userId)),
       ),
       catchError((error: unknown) => {
-        // A cipherViews$ failure never reaches the service, so surface it here for
-        // this user and log it.
-        this.recordPipelineFailure(userId);
+        // A cipherViews$ failure never reaches the service, so surface it here.
+        this.recordPipelineFailure();
         this.logService.error("Vault health scan pipeline failed", error);
         return EMPTY;
       }),
     );
   }
 
-  /** Records a ciphers failure against `userId`, leaving every other user's untouched. */
-  private recordPipelineFailure(userId: UserId): void {
-    this.pipelineFailedFor.update((failed) => new Set(failed).add(userId));
+  private recordPipelineFailure(): void {
+    this.pipelineFailed.set(true);
   }
 
-  /**
-   * Clears `userId`'s ciphers failure, leaving every other user's untouched.
-   * Returns the same set when there is nothing to clear, so a build for a user
-   * who never failed does not notify readers of this signal.
-   */
-  private clearPipelineFailure(userId: UserId): void {
-    this.pipelineFailedFor.update((failed) => {
-      if (!failed.has(userId)) {
-        return failed;
-      }
-
-      const remaining = new Set(failed);
-      remaining.delete(userId);
-      return remaining;
-    });
+  private clearPipelineFailure(): void {
+    this.pipelineFailed.set(false);
   }
 }

@@ -54,17 +54,6 @@ export class DefaultVaultHealthReportService implements VaultHealthReportService
   }
 
   /**
-   * Publishes `loading` for `userId` immediately, retaining the current report,
-   * so a rescan shows the progress view at once instead of the stale report. The
-   * subsequent {@link buildVaultHealthReport} publishes `loading` again with the
-   * same report, which `getVaultHealthReport$` dedupes.
-   */
-  markScanning(userId: UserId): void {
-    const state = this.stateFor(userId);
-    state.next({ status: VaultHealthReportStatus.Loading, report: state.value.report });
-  }
-
-  /**
    * This user's stream, created on first use. Created on read too, so a
    * subscriber that arrives before any build still receives its publishes.
    */
