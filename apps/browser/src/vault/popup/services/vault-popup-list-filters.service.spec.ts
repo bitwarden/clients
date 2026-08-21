@@ -478,7 +478,7 @@ describe("VaultPopupListFiltersService", () => {
       });
     });
 
-    it('moves "No Folder" to the end of the list', (done) => {
+    it('moves "No Folders" to the top of the list', (done) => {
       folderViews$.next([
         { id: "", name: "No Folder" },
         { id: "2345", name: "Folder 2" },
@@ -486,7 +486,7 @@ describe("VaultPopupListFiltersService", () => {
       ]);
 
       service.folders$.subscribe((folders) => {
-        expect(folders.map((f) => f.label)).toEqual(["Folder 1", "Folder 2", "itemsWithNoFolder"]);
+        expect(folders.map((f) => f.label)).toEqual(["noFoldersLabel", "Folder 1", "Folder 2"]);
         done();
       });
     });
