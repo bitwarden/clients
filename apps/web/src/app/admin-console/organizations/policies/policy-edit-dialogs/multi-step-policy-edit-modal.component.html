@@ -13,8 +13,8 @@
   </ng-container>
 
   <ng-container bitDialogContent>
-    @if (policy.showDescription) {
-      <p bitTypography="body1">{{ policy.description | i18n }}</p>
+    @if (showDescription()) {
+      <p bitTypography="body1">{{ descriptionKey() | i18n }}</p>
     }
 
     @let bodyTemplate = policySteps()[currentStep()]?.bodyContent?.();

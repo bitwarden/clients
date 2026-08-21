@@ -11,7 +11,7 @@
 
 <ng-template #step0Content>
   <p class="tw-mb-6">
-    {{ "autoConfirmPolicyEditDescription" | i18n }}
+    {{ "autoConfirmPolicyEditDescription" | vfo1I18n: "autoConfirmPolicyEditDescriptionVfo1" }}
   </p>
 
   <ul class="tw-mb-6 tw-pl-6">
@@ -33,14 +33,14 @@
     <li>
       @if (singleOrgEnabled$ | async) {
         <span class="tw-font-medium">
-          {{ "autoConfirmSingleOrgExemption" | i18n }}
+          {{ "autoConfirmSingleOrgExemption" | vfo1I18n: "autoConfirmSingleOrgExemptionVfo1" }}
         </span>
       } @else {
         <span class="tw-font-medium">
-          {{ "autoConfirmSingleOrgRequired" | i18n }}
+          {{ "autoConfirmSingleOrgRequired" | vfo1I18n: "autoConfirmSingleOrgRequiredVfo1" }}
         </span>
       }
-      {{ "autoConfirmSingleOrgRequiredDesc" | i18n }}
+      {{ "autoConfirmSingleOrgRequiredDesc" | vfo1I18n: "autoConfirmSingleOrgRequiredDescVfo1" }}
     </li>
 
     <li>

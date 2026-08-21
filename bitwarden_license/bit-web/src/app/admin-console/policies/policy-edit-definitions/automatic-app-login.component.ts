@@ -15,6 +15,8 @@ import {
 export class AutomaticAppLoginPolicy extends BasePolicyEditDefinition {
   name = "automaticAppLoginWithSSO";
   description = "automaticAppLoginWithSSODescV2";
+  descriptionVfo1 = "automaticAppLoginWithSSODescListVfo1";
+  drawerDescriptionVfo1 = "automaticAppLoginWithSSODescListVfo1";
   type = PolicyType.AutomaticAppLogIn;
   category = PolicyCategory.VaultManagement;
   priority = 30;

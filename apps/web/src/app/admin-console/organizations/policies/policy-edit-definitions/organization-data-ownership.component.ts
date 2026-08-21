@@ -11,6 +11,7 @@ import { SwitchComponent } from "@bitwarden/components";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 import { EncString } from "@bitwarden/sdk-internal";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
 import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-policy-edit.component";
@@ -27,7 +28,9 @@ type OrganizationDataOwnershipPolicyData = {
 
 export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
   name = "centralizeDataOwnership";
+  nameVfo1 = "centralizeDataOwnershipVfo1";
   description = "centralizeDataOwnershipDesc";
+  descriptionVfo1 = "centralizeDataOwnershipDescVfo1";
   type = PolicyType.OrganizationDataOwnership;
   category = PolicyCategory.DataControl;
   priority = 20;
@@ -41,7 +44,7 @@ export class OrganizationDataOwnershipPolicy extends BasePolicyEditDefinition {
 @Component({
   selector: "organization-data-ownership-policy-edit",
   templateUrl: "organization-data-ownership.component.html",
-  imports: [SharedModule, SwitchComponent],
+  imports: [SharedModule, SwitchComponent, Vfo1I18nPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class OrganizationDataOwnershipPolicyComponent

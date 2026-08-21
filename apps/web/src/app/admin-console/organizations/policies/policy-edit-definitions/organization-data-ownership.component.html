@@ -1,5 +1,5 @@
 <p>
-  {{ "centralizeDataOwnershipDescV2" | i18n
+  {{ "centralizeDataOwnershipDescV3" | i18n
   }}<a
     bitLink
     href="https://bitwarden.com/resources/credential-lifecycle-management/"
@@ -19,7 +19,7 @@
       {{ "centralizeDataOwnershipBenefit2" | i18n }}
     </li>
     <li>
-      {{ "centralizeDataOwnershipBenefit3V2" | i18n }}
+      {{ "centralizeDataOwnershipBenefit3V2" | vfo1I18n: "centralizeDataOwnershipBenefit3Vfo1" }}
     </li>
   </ul>
 </div>
@@ -37,6 +37,6 @@
       [formControl]="data.controls.enableIndividualItemsTransfer"
       id="enableIndividualItemsTransferV2"
     />
-    <bit-label>{{ "promptUsersToMoveItemsV2" | i18n }}</bit-label>
+    <bit-label>{{ "promptUsersToMoveItemsV2" | vfo1I18n: "promptUsersToMoveItemsVfo1" }}</bit-label>
   </bit-form-control>
 }
