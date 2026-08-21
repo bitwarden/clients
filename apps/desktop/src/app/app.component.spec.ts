@@ -10,7 +10,6 @@ import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import {
   AuthRequestServiceAbstraction,
-  LockService,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -46,6 +45,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 
 import { AppComponent } from "./app.component";
 

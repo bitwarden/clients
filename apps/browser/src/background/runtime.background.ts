@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, mergeMap } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility, ExtensionCommand } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -16,6 +15,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { VaultMessages } from "@bitwarden/common/vault/enums/vault-messages.enum";
 import { BiometricsCommands } from "@bitwarden/key-management";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -321,17 +321,17 @@ export default class RuntimeBackground {
         this.lockedVaultPendingNotifications = [];
         break;
       case "lockVault":
-        await this.lockService.lock(msg.userId);
+        await this.lockService.lock(msg.userId, LockSource.Manual);
         break;
       case "lockAll":
         {
-          await this.lockService.lockAll();
+          await this.lockService.lockAll(msg.source);
           this.messagingService.send("lockAllFinished", { requestId: msg.requestId });
         }
         break;
       case "lockUser":
         {
-          await this.lockService.lock(msg.userId);
+          await this.lockService.lock(msg.userId, msg.source);
           this.messagingService.send("lockUserFinished", {
             requestId: msg.requestId,
           });

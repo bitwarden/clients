@@ -7,7 +7,6 @@ import { Subject, filter, firstValueFrom, map, timeout } from "rxjs";
 
 import { DeviceTrustToastService } from "@bitwarden/angular/auth/services/device-trust-toast.service.abstraction";
 import { DocumentLangSetter } from "@bitwarden/angular/platform/i18n";
-import { LockService } from "@bitwarden/auth/common";
 import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -26,6 +25,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { DialogService, RouterFocusManagerService, ToastService } from "@bitwarden/components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -115,7 +115,7 @@ export class AppComponent implements OnDestroy, OnInit {
             break;
           case "lockVault": {
             const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
-            await this.lockService.lock(userId);
+            await this.lockService.lock(userId, LockSource.Manual);
             break;
           }
           case "locked":

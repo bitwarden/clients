@@ -1,14 +1,12 @@
 import { firstValueFrom, Observable, Subject } from "rxjs";
 
-// eslint-disable-next-line no-restricted-imports
-import { LockService } from "@bitwarden/auth/common";
 import { ClientType } from "@bitwarden/client-type";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SharedUnlockLeader } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";

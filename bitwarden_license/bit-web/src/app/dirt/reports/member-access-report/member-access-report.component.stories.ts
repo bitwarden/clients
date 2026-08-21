@@ -14,7 +14,7 @@ import {
   OrganizationUserApiService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -44,6 +44,7 @@ import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 import { featureFlagModes } from "@bitwarden/storybook";
+import { LockService } from "@bitwarden/unlock";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { MemberAccessReportComponent } from "./member-access-report.component";

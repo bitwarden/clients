@@ -39,11 +39,9 @@ import {
   AuthRequestService,
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
-  DefaultLockService,
   DefaultLoginSuccessHandlerService,
   DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailService,
   LoginEmailServiceAbstraction,
   LoginStrategyCacheService,
@@ -417,7 +415,12 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  DefaultLockService,
+  LockService,
+  DefaultUnlockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   UserCryptoDialogService,
   UserKeyRotationService,
@@ -2038,9 +2041,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       LogoutService,
       MessagingServiceAbstraction,
-      SearchServiceAbstraction,
       FolderServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
       StateEventRunnerService,
       CipherServiceAbstraction,
       AuthServiceAbstraction,

@@ -23,9 +23,7 @@ import {
   SsoUrlService,
   AuthRequestApiServiceAbstraction,
   DefaultAuthRequestApiService,
-  DefaultLockService,
   DefaultLogoutService,
-  LockService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
@@ -229,7 +227,12 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  DefaultLockService,
+  LockService,
+  DefaultUnlockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -995,9 +998,7 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
-      this.searchService,
       this.folderService,
-      this.masterPasswordService,
       this.stateEventRunnerService,
       this.cipherService,
       this.authService,
