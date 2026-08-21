@@ -26,8 +26,12 @@ describe("vaultFilterLegacyRedirectGuard", () => {
   const state = mock<RouterStateSnapshot>();
   const mockUrlTree = mock<UrlTree>();
 
-  function makeRoute(queryParams: Record<string, string>): ActivatedRouteSnapshot {
-    return mock<ActivatedRouteSnapshot>({ queryParamMap: convertToParamMap(queryParams) });
+  function makeRoute(queryParams: Record<string, string | string[]>): ActivatedRouteSnapshot {
+    // The param map is assigned after construction rather than passed as a partial:
+    // jest-mock-extended wraps nested values in proxies, which mangles array-valued params.
+    const route = mock<ActivatedRouteSnapshot>();
+    Object.assign(route, { queryParamMap: convertToParamMap(queryParams) });
+    return route;
   }
 
   function runGuard(route: ActivatedRouteSnapshot) {
@@ -255,6 +259,23 @@ describe("vaultFilterLegacyRedirectGuard", () => {
           }),
         );
         expect(queryParams?.["type"]).toBeUndefined();
+      });
+
+      it("preserves every value of a repeated non-legacy param", async () => {
+        await runGuard(makeRoute({ folderId: "folder-1", "vault.sharedFolder": ["a", "b"] }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams).toEqual({
+          "vault.sharedFolder": ["a", "b"],
+          "vault.folder": "folder-1",
+        });
+      });
+
+      it("preserves a single-valued non-legacy param as a string", async () => {
+        await runGuard(makeRoute({ folderId: "folder-1", "vault.sharedFolder": ["a"] }));
+
+        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
+        expect(queryParams?.["vault.sharedFolder"]).toBe("a");
       });
     });
 
