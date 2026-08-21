@@ -430,7 +430,10 @@ describe("VaultComponent", () => {
     const readySubject$ = component["readySubject"] as unknown as BehaviorSubject<boolean>;
 
     const values: boolean[] = [];
-    getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
+    // `loadingSvc.loading$` is shared by every test in this file, so this subscription has to be
+    // torn down explicitly — it isn't owned by a fixture, and a leaked one keeps announcing
+    // through a `LiveAnnouncer` that TestBed has already destroyed.
+    const sub = getObs<boolean>(component, "loading$").subscribe((v) => values.push(!!v));
 
     vaultLoading$.next(true);
 
@@ -441,6 +444,8 @@ describe("VaultComponent", () => {
     readySubject$.next(true);
 
     expect(values[values.length - 1]).toBe(false);
+
+    sub.unsubscribe();
   });
 
   it("passes popup-page scroll region element to scroll position service", fakeAsync(() => {
