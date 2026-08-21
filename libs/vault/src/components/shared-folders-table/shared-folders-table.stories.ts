@@ -1,0 +1,153 @@
+import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
+import { action } from "storybook/actions";
+
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { ButtonModule, DialogModule, I18nMockService, NoItemsModule } from "@bitwarden/components";
+
+import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
+import { SharedFoldersTableComponent } from "./shared-folders-table.component";
+
+const sharedFolders: SharedFolderRow[] = [
+  { id: "col-1", name: "Engineering", permissions: "Can manage", items: 42 },
+  { id: "col-2", name: "Finance", permissions: "Can edit", items: 8 },
+  { id: "col-3", name: "Human resources", permissions: "Can view", items: 0 },
+  { id: "col-4", name: "Marketing", permissions: "Can edit, except passwords", items: 17 },
+  { id: "col-5", name: "Operations", permissions: "Can view, except passwords", items: 3 },
+];
+
+const rowActions: SharedFoldersTableRowAction[] = [
+  {
+    id: "edit",
+    label: "Edit",
+    icon: "bwi-pencil-square",
+    run: action("edit"),
+  },
+  {
+    id: "access",
+    label: "Manage access",
+    icon: "bwi-users",
+    run: action("access"),
+  },
+  {
+    id: "delete",
+    label: "Delete",
+    icon: "bwi-trash",
+    variant: "danger",
+    // Deleting a folder that still holds items is a separate, confirmed flow, so the plain
+    // action is offered only for empty folders.
+    show: (row) => row.items === 0,
+    run: action("delete"),
+  },
+];
+
+type StoryProps = {
+  sharedFolders: SharedFolderRow[];
+  loading: boolean;
+  rowActions: SharedFoldersTableRowAction[];
+};
+
+const template = /* HTML */ `
+  <div class="tw-bg-background-alt tw-p-6">
+    <vault-shared-folders-table
+      [sharedFolders]="sharedFolders"
+      [loading]="loading"
+      [rowActions]="rowActions"
+      (add)="add()"
+    ></vault-shared-folders-table>
+  </div>
+`;
+
+export default {
+  title: "Vault/Shared Folders Table",
+  component: SharedFoldersTableComponent,
+  render: (args) => ({ props: { ...args, add: action("add") }, template }),
+  args: {
+    sharedFolders,
+    loading: false,
+    rowActions,
+  },
+  decorators: [
+    moduleMetadata({
+      // `DialogModule` for its `DialogService` provider: `bit-table-toolbar` injects it for the
+      // small-screen filter dialog. Apps get it from their own module graph; a story has to
+      // supply it.
+      imports: [ButtonModule, DialogModule, NoItemsModule],
+      providers: [
+        {
+          provide: I18nService,
+          useFactory: () =>
+            new I18nMockService({
+              // Toolbar
+              search: "Search",
+              resetSearch: "Reset search",
+              addSharedFolder: "Add shared folder",
+              itemCount: (count) => `${count} items`,
+              clearAll: "Clear all",
+              filters: "Filters",
+              // Columns and rows
+              name: "Name",
+              permissions: "Permissions",
+              items: "Items",
+              options: "Options",
+              optionsForItem: (name) => `Options for ${name}`,
+              // Default empty state
+              noItemsTitle: "No items to show",
+              noItemsDescription: "There are no items to list.",
+            }),
+        },
+      ],
+    }),
+  ],
+} as Meta<StoryProps>;
+
+type Story = StoryObj<StoryProps>;
+
+/**
+ * The table as a host gets it out of the box: bind `sharedFolders` and `rowActions`, and the
+ * columns, sorting, and search follow from the rows. Sort by any of Name, Permissions, or Items;
+ * the search box matches on name.
+ */
+export const Default: Story = {};
+
+/** Bind `loading` while the client resolves the folders; skeleton rows stand in for the data. */
+export const Loading: Story = {
+  args: { loading: true },
+};
+
+/** With no `rowActions` the Options menu trigger is omitted from every row. */
+export const NoRowActions: Story = {
+  args: { rowActions: [] },
+};
+
+/** An empty `sharedFolders` array, falling back to the table's default empty state. */
+export const Empty: Story = {
+  args: { sharedFolders: [] },
+};
+
+/**
+ * Project a `slot="empty"` element to replace the default empty state with copy — and a call to
+ * action — of the host's own.
+ */
+export const CustomEmptyState: Story = {
+  args: { sharedFolders: [] },
+  render: (args) => ({
+    props: { ...args, add: action("add") },
+    template: /* HTML */ `
+      <div class="tw-bg-background-alt tw-p-6">
+        <vault-shared-folders-table
+          [sharedFolders]="sharedFolders"
+          [rowActions]="rowActions"
+          (add)="add()"
+        >
+          <bit-no-items slot="empty">
+            <span slot="title">No shared folders yet</span>
+            <span slot="description">Share vault items with your team by adding a folder.</span>
+            <button slot="button" type="button" bitButton buttonType="primary" (click)="add()">
+              Add shared folder
+            </button>
+          </bit-no-items>
+        </vault-shared-folders-table>
+      </div>
+    `,
+  }),
+};

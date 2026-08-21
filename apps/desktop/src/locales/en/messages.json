@@ -6410,5 +6410,8 @@
         "example": "user@acme.com"
       }
     }
+  },
+  "permissions": {
+    "message": "Permissions"
   }
 }

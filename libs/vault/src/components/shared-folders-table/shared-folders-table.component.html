@@ -1,0 +1,100 @@
+<bit-table-v2
+  [tableDef]="table"
+  [filter]="filter"
+  [loading]="loading()"
+  [queryParam]="queryParam()"
+  [trackBy]="trackById"
+>
+  <bit-table-toolbar>
+    <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
+
+    <button
+      id="shared-folders-table_button_add"
+      slot="end"
+      type="button"
+      bitButton
+      buttonType="primary"
+      startIcon="bwi-plus"
+      (click)="add.emit()"
+    >
+      {{ "addSharedFolder" | i18n }}
+    </button>
+  </bit-table-toolbar>
+
+  <!--
+    Passes a client-supplied empty state through to the table's own `empty` slot; the `slot`
+    attribute sits on the `ng-content` itself so the table's selector matches it. Omit it and the
+    table falls back to its default `bit-no-items`.
+  -->
+  <ng-content select="[slot=empty]" slot="empty"></ng-content>
+
+  <!-- Name -->
+  <bit-column sortable defaultSort="asc" width="minmax(240px, 1fr)">
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      <bit-icon slot="start" name="bwi-shared-folder" class="tw-text-muted" />
+      {{ row.name }}
+    </bit-cell>
+  </bit-column>
+
+  <!-- Permissions -->
+  <bit-column sortable width="minmax(160px, 280px)">
+    <bit-header-cell>{{ "permissions" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.permissions; let row">{{ row.permissions }}</bit-cell>
+  </bit-column>
+
+  <!-- Items -->
+  <bit-column sortable width="minmax(100px, 160px)">
+    <bit-header-cell>{{ "items" | i18n }}</bit-header-cell>
+
+    <bit-cell *bitCellDef="table.columns.items; let row">{{ row.items }}</bit-cell>
+  </bit-column>
+
+  <!-- Options -->
+  <bit-column width="80px">
+    <bit-header-cell>
+      <span class="tw-w-full tw-text-end">{{ "options" | i18n }}</span>
+    </bit-header-cell>
+
+    <bit-cell *bitCellLoading>
+      <div class="tw-flex tw-justify-end">
+        <bit-skeleton-text class="tw-w-6" />
+      </div>
+    </bit-cell>
+
+    <bit-cell *bitCellDef="table.columns.options; let row">
+      <!--
+        The overflow trigger sits in the `end` slot so the cell's flex-grow middle element pushes
+        it hard right, anchoring it to the same position on every row.
+      -->
+      @let actions = visibleActions(row);
+      @if (actions.length > 0) {
+        <div slot="end">
+          <button
+            type="button"
+            bitIconButton="bwi-ellipsis-v"
+            size="small"
+            [label]="'optionsForItem' | i18n: row.name"
+            [bitMenuTriggerFor]="rowMenu"
+          ></button>
+          <bit-menu #rowMenu>
+            @for (rowAction of actions; track rowAction.id) {
+              <button
+                type="button"
+                bitMenuItem
+                [attr.id]="'shared-folders-table_menu-item_' + rowAction.id + '-' + row.id"
+                [variant]="rowAction.variant ?? 'primary'"
+                (click)="handleAction(rowAction, row)"
+              >
+                <bit-icon slot="start" fixedWidth [name]="rowAction.icon" />
+                {{ rowAction.label }}
+              </button>
+            }
+          </bit-menu>
+        </div>
+      }
+    </bit-cell>
+  </bit-column>
+</bit-table-v2>
