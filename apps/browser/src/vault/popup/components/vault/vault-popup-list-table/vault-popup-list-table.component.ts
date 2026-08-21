@@ -237,19 +237,6 @@ export class VaultPopupListTableComponent {
     this.currentUriIsBlocked() ? "itemSuggestions" : "autofillSuggestions",
   );
 
-  /** The empty-slot title key, or `null` while rows are rendering. */
-  private readonly emptyStateKey = computed(() => {
-    if (this.loading() || this.rows().length > 0) {
-      return null;
-    }
-
-    if (this.showDeactivatedOrg()) {
-      return "organizationIsDeactivated";
-    }
-
-    return this.hasSearchText() ? "noItemsMatchSearch" : "nothingToShow";
-  });
-
   protected readonly favoritesOpenState = computed(
     () => this.vaultPopupSectionService.getOpenDisplayStateForSection("favorites")() ?? true,
   );

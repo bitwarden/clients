@@ -1,7 +1,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
@@ -46,7 +46,6 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
-  ScrollLayoutService,
   ToastService,
   TypographyModule,
   CalloutModule,
@@ -292,31 +291,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         }
       });
   }
-
-  private readonly scrollLayout = inject(ScrollLayoutService);
-
-  /**
-   * Binds scroll-position tracking to whichever element currently owns scrolling, re-binding on
-   * every host change rather than latching the first one: the table publishes its virtual-scroll
-   * viewport only after loading settles, and destroys and re-creates it when it crosses its empty
-   * state. `stop()` without `reset` keeps the stored position, so re-binding preserves it.
-   */
-  private readonly _scrollPositionEffect = effect((onCleanup) => {
-    const sub = combineLatest([this.scrollLayout.scrollableRef$, this.allFilters$, this.loading$])
-      .pipe(
-        filter(([ref, _filters, loading]) => !!ref && !loading),
-        distinctUntilChanged(([prevRef], [ref]) => prevRef === ref),
-        takeUntilDestroyed(this.destroyRef),
-      )
-      .subscribe(([ref]) => {
-        this.vaultScrollPositionService.start(ref!.nativeElement);
-      });
-
-    onCleanup(() => {
-      sub.unsubscribe();
-      this.vaultScrollPositionService.stop();
-    });
-  });
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
