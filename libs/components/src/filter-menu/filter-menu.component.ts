@@ -290,6 +290,14 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     });
     // Reflect the active state as the chip's pressed (selected) styling.
     effect(() => this.baseChip.selectedState.set(this.active()));
+    // The berry count is otherwise only committed on menu close. Toggling the last
+    // selection off in an open menu drops the dismiss button, so a stale berry would
+    // be left sitting at the end of the chip until it closed.
+    effect(() => {
+      if (!this.active()) {
+        this.committedCount.set(0);
+      }
+    });
   }
 
   ngOnInit(): void {
