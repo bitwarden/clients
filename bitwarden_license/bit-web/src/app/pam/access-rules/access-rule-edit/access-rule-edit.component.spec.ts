@@ -244,14 +244,14 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(section.querySelectorAll("input")).toHaveLength(1);
   });
 
-  it("links the event logs at the organization's reporting route", async () => {
+  it("links the event log notice at the organization's PAM audit route", async () => {
     const fixture = await render({});
 
     const link = fixture.nativeElement.querySelector(
       "#access-rule-edit_anchor_event-logs",
     ) as HTMLAnchorElement | null;
     expect(link).not.toBeNull();
-    expect(link!.getAttribute("href")).toBe("/organizations/org-1/reporting/events");
+    expect(link!.getAttribute("href")).toBe("/organizations/org-1/pam/audit");
   });
 
   it("drops the event log notice for an organization without event log access", async () => {
