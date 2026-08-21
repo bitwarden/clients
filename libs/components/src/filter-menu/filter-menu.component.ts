@@ -208,6 +208,9 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
   /** @see FilterPresenter.summary — the selected option labels, e.g. "Login". */
   readonly summary = computed(() => this.labels().join(", "));
 
+  /** @see FilterPresenter.summaryLabels */
+  readonly summaryLabels = this.labels.asReadonly();
+
   /**
    * The menu body (search + options) as a template, so the responsive filter dialog
    * can stamp the same options on a drill-in page. Also stamped in the popover on wide viewports.
