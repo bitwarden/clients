@@ -48,6 +48,34 @@ export class FilterDialogComponent {
   /** How many filters currently have a selection — shown in the footer. */
   protected readonly selectedCount = computed(() => this.filters.filter((f) => f.active()).length);
 
+  /**
+   * A row's label, carrying the colon when there's a selection to follow it. Kept out
+   * of the template so no whitespace lands between the label and the colon.
+   */
+  protected rowLabel(filter: FilterPresenter): string {
+    return filter.summary() ? `${filter.label()}:` : filter.label();
+  }
+
+  /**
+   * The drill-in option list: one bordered card, with the rows divided rather than
+   * individually rounded. The rows come from the chip's own options template, which
+   * is shared with its desktop popover (where they sit on the menu surface with no
+   * card around them), so the card and dividers are applied from out here.
+   */
+  protected readonly optionListClasses = [
+    "tw-overflow-hidden",
+    "tw-rounded-lg",
+    "tw-border",
+    "tw-border-solid",
+    "tw-border-border-base",
+    "[&_[role^=menuitem]]:tw-rounded-none",
+    "[&_[role^=menuitem]]:tw-border-0",
+    "[&_[role^=menuitem]]:tw-border-b",
+    "[&_[role^=menuitem]]:tw-border-solid",
+    "[&_[role^=menuitem]]:tw-border-border-base",
+    "[&_[role^=menuitem]:last-of-type]:tw-border-b-0",
+  ].join(" ");
+
   /** A row tap: drill into a filter that has options, or flip a toggle in place. */
   protected select(filter: FilterPresenter): void {
     if (filter.optionsTemplate()) {
