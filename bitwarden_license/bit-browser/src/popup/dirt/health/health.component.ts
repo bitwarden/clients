@@ -163,6 +163,9 @@ export class HealthComponent {
 
   /** Runs one report build for `userId`. Never errors: the service publishes its own failures. */
   private startGeneration$(userId: UserId): Observable<unknown> {
+    // A fresh build clears any prior ciphers failure for this user, so a later
+    // success is not masked by the failure view from an earlier attempt.
+    this.pipelineFailedFor.set(null);
     return this.cipherService.cipherViews$(userId).pipe(
       // cipherViews$ may emit null when decrypted ciphers are cleared.
       filterOutNullish(),

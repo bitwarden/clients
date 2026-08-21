@@ -540,6 +540,41 @@ describe("HealthComponent", () => {
       expect(overview()).not.toBeNull();
     });
 
+    it("clears a prior ciphers failure when the same user scans again", async () => {
+      // pipelineFailedFor must reset when a build starts, or a later successful
+      // scan for that user is still masked by the failure view.
+      const nextUserId = Utils.newGuid() as UserId;
+      const nextUserScan$ = new Subject<boolean>();
+      healthAccessService.hasRunHealthScan$.mockImplementation((id) =>
+        id === nextUserId ? nextUserScan$ : hasRunScan$,
+      );
+      hasRunScan$.next(true);
+      let aScans = 0;
+      cipherService.cipherViews$.mockImplementation((id) => {
+        if (id !== userId) {
+          return of([] as CipherView[]);
+        }
+        aScans += 1;
+        return aScans === 1
+          ? (throwError(() => new Error("ciphers unavailable")) as never)
+          : of([] as CipherView[]);
+      });
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 3, atRiskCount: 1 }));
+
+      await initComponent();
+      await settle();
+      expect(scanError()).not.toBeNull();
+
+      // Switch away and back; account A's second scan succeeds.
+      activeAccount$.next({ id: nextUserId } as Account);
+      await settle();
+      activeAccount$.next({ id: userId } as Account);
+      await settle();
+
+      expect(scanError()).toBeNull();
+      expect(overview()).not.toBeNull();
+    });
+
     it("shows the progress view while a rescan runs, even though the service still holds the last report", async () => {
       // The state keeps the previous report across loading so the detail view is
       // not ejected mid-rescan. The tab gates on status, so it shows progress
