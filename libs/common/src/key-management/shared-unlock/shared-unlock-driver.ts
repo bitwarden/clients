@@ -1,13 +1,11 @@
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { LockService } from "@bitwarden/auth/common";
-// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -43,7 +41,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       return;
     }
 
-    await this.lockService.lock(fromSdkUserId(user_id));
+    await this.lockService.lock(fromSdkUserId(user_id), LockSource.SharedUnlock);
   }
 
   async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
