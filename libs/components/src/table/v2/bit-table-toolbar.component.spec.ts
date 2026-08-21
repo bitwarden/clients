@@ -11,15 +11,6 @@ import { I18nMockService } from "../../utils/i18n-mock.service";
 
 import { BitTableToolbarComponent } from "./bit-table-toolbar.component";
 
-// JSDOM does not implement ResizeObserver, which the toolbar's `bitOverflowList`
-// constructs. These tests don't exercise packing, so a no-op stub is enough.
-class ResizeObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
-
 @Component({
   imports: [BitTableToolbarComponent, FilterToggleComponent, SearchComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
