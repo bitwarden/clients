@@ -1,10 +1,11 @@
 // FIXME(https://bitwarden.atlassian.net/browse/CL-1062): `OnPush` components should not use mutable properties
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
+import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
-import { filter, map, Subject } from "rxjs";
+import { distinctUntilChanged, filter, map, skip, Subject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
@@ -113,6 +114,7 @@ export class VaultPopupListTableComponent {
   private readonly listTableService = inject(VaultPopupListTableService);
   private readonly listFiltersService = inject(VaultPopupListFiltersService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
+  private readonly liveAnnouncer = inject(LiveAnnouncer);
   protected readonly i18nService = inject(I18nService);
   private readonly window = inject<Window>(WINDOW);
 
@@ -317,6 +319,15 @@ export class VaultPopupListTableComponent {
       .applyFilterOnInput(this.searchText$)
       .pipe(takeUntilDestroyed())
       .subscribe();
+
+    this.listTableService.showDeactivatedOrg$
+      .pipe(takeUntilDestroyed(), distinctUntilChanged(), skip(1), filter(Boolean))
+      .subscribe(() => {
+        void this.liveAnnouncer.announce(
+          `${this.i18nService.t("organizationIsDeactivated")} ${this.i18nService.t("contactYourOrgAdmin")}`,
+          "polite",
+        );
+      });
 
     // Resolve the keyboard-shortcut tooltip for the legacy (flag-off) autofill chip.
     void this.setAutofillShortcutTooltip();

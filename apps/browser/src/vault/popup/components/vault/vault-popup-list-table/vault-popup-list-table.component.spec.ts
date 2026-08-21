@@ -331,6 +331,19 @@ describe("VaultPopupListTableComponent", () => {
       expect(text).not.toContain("clearFiltersOrTryAnother");
     });
 
+    it("does not announce a suspended organization that is already selected when the popup opens", () => {
+      // A fresh component, because the announcement is skipped only for the state present at
+      // subscribe time — the same reason the flag-off layout's live region stayed silent on open.
+      showDeactivatedOrg$.next(true);
+      liveAnnouncer.announce.mockClear();
+
+      const openedFixture = TestBed.createComponent(VaultPopupListTableComponent);
+      openedFixture.detectChanges();
+
+      expect(openedFixture.nativeElement.textContent).toContain("organizationIsDeactivated");
+      expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+    });
+
     describe("deactivated organization", () => {
       beforeEach(() => {
         filteredCiphers$.next([makeCipher({ organizationId: "org-1" })]);
@@ -358,6 +371,22 @@ describe("VaultPopupListTableComponent", () => {
 
         expect(component["rows"]()).toHaveLength(1);
         expect(fixture.nativeElement.textContent).not.toContain("organizationIsDeactivated");
+      });
+
+      it("announces the notice", () => {
+        expect(liveAnnouncer.announce).toHaveBeenCalledWith(
+          "organizationIsDeactivated contactYourOrgAdmin",
+          "polite",
+        );
+      });
+
+      it("does not announce again when the filter moves off the suspended organization", () => {
+        liveAnnouncer.announce.mockClear();
+
+        showDeactivatedOrg$.next(false);
+        fixture.detectChanges();
+
+        expect(liveAnnouncer.announce).not.toHaveBeenCalled();
       });
     });
   });
