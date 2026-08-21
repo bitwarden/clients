@@ -79,6 +79,8 @@ jobs:
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
       beta_package_version: ${{ steps.retrieve-version.outputs.beta_package_version }}
+      beta_number: ${{ steps.retrieve-version.outputs.beta_number }}
+      ms_store_in_scope: ${{ steps.retrieve-version.outputs.ms_store_in_scope }}
       release_channel: ${{ steps.release-channel.outputs.channel }}
       build_number: ${{ steps.increment-version.outputs.build_number }}
       rc_branch_exists: ${{ steps.branch-check.outputs.rc_branch_exists }}
@@ -114,7 +116,17 @@ jobs:
 
           BETA_PKG_VERSION="$PKG_VERSION-beta.$BETA_NUMBER"
           echo "Setting beta version number to $BETA_PKG_VERSION"
+          echo "beta_number=$BETA_NUMBER" >> "$GITHUB_OUTPUT"
           echo "beta_package_version=$BETA_PKG_VERSION" >> "$GITHUB_OUTPUT"
+
+          # Whether this beta cycle publishes the Windows Store appx. Checked by
+          # windows-beta-store-check, which is where the reasoning lives.
+          MS_STORE_IN_SCOPE=$(jq -r '.msStoreInScope' beta-release.json)
+          if [[ "$MS_STORE_IN_SCOPE" != "true" && "$MS_STORE_IN_SCOPE" != "false" ]]; then
+            echo "[!] Invalid msStoreInScope '$MS_STORE_IN_SCOPE'; expected true or false"
+            exit 1
+          fi
+          echo "ms_store_in_scope=$MS_STORE_IN_SCOPE" >> "$GITHUB_OUTPUT"
 
       - name: Increment Version
         id: increment-version
@@ -754,6 +766,46 @@ jobs:
           name: ${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
           if-no-files-found: error
+
+  windows-beta-store-check:
+    name: Windows Beta Store Submittability
+    runs-on: ubuntu-22.04
+    needs: setup
+    steps:
+      # Every beta off one base version ships the same Store appx Identity/@Version: an MSIX
+      # version is numeric quad notation and the Store reserves the fourth field, so
+      # electron-builder drops the -beta.N suffix. Partner Center rejects the second as a
+      # duplicate package full name, so catch it at build time rather than at release.
+      #
+      # Separate job by design: failing inside windows-beta would skip its artifact uploads
+      # and take the whole beta release with it.
+      - name: Check the beta Store appx version is submittable
+        env:
+          _BETA_NUMBER: ${{ needs.setup.outputs.beta_number }}
+          _MS_STORE_IN_SCOPE: ${{ needs.setup.outputs.ms_store_in_scope }}
+          _PACKAGE_VERSION: ${{ needs.setup.outputs.beta_package_version }}
+        run: |
+          if (( _BETA_NUMBER <= 1 )); then
+            echo "Beta $_BETA_NUMBER is the first off this base version; its Store appx version is unused."
+            exit 0
+          fi
+
+          # ${_PACKAGE_VERSION%-beta.*} is the base the Store appx is versioned from.
+          message="$_PACKAGE_VERSION packs a Store appx versioned ${_PACKAGE_VERSION%-beta.*}.0, which beta 1 already used. Publishing it to the Microsoft Store will be rejected as a duplicate package full name. Bump the base version in apps/desktop/src/package.json and reset betaNumber to 1, or leave msStoreInScope false and do not run the Store publish for this beta."
+
+          if [[ "$_MS_STORE_IN_SCOPE" == "true" ]]; then
+            echo "::error::$message"
+            exit 1
+          fi
+
+          echo "::warning::$message"
+          {
+            echo "## Windows Store appx not submittable"
+            echo ""
+            echo "$message"
+            echo ""
+            echo "\`msStoreInScope\` is false in \`apps/desktop/beta-release.json\`, so this is a recorded decision and does not fail the build."
+          } >> "$GITHUB_STEP_SUMMARY"
 
   windows-beta:
     name: Windows Beta Build
