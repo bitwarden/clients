@@ -21,9 +21,11 @@
         <bit-item-group [attr.aria-label]="section.labelKey | i18n">
           @for (p of section.policies; track p.type) {
             <bit-item>
+              @let nk = nameKeys(p);
+              @let dk = descriptionKeys(p);
               <button type="button" bit-item-content (click)="edit(p, organization)">
-                {{ p.name | i18n }}
-                <span slot="secondary">{{ p.description | i18n }}</span>
+                {{ nk[0] | vfo1I18n: nk[1] }}
+                <span slot="secondary">{{ dk[0] | vfo1I18n: dk[1] }}</span>
                 @if (policiesEnabledMap.get(p.type)) {
                   <span bitBadge variant="success" slot="end">{{ "on" | i18n }}</span>
                 } @else {
