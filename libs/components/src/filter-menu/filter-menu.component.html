@@ -170,12 +170,26 @@
 <bit-menu #menu (closed)="onMenuClosed()">
   <div class="tw-flex tw-max-h-96 tw-min-w-52 tw-max-w-80 tw-flex-col">
     <ng-container *ngTemplateOutlet="optionsBody"></ng-container>
-    @if (multiple() && active()) {
-      <div class="tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-px-2 tw-pt-2">
-        <button bitButton buttonType="secondary" size="small" type="button" (click)="clear()">
-          {{ "clear" | i18n }}
-        </button>
-      </div>
-    }
   </div>
+  <!--
+    The footer goes in `bit-menu`'s own slot rather than the body so its divider
+    runs the full width of the popover instead of being inset by the body padding.
+  -->
+  @if (multiple() && active()) {
+    <div slot="footer" class="tw-flex tw-items-center tw-gap-2">
+      <span class="tw-flex-1 tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+        "filtersSelected" | i18n: selectedCount()
+      }}</span>
+      <button
+        bitButton
+        buttonType="subtleGhost"
+        size="small"
+        type="button"
+        startIcon="bwi-clear"
+        (click)="clear()"
+      >
+        {{ "clear" | i18n }}
+      </button>
+    </div>
+  }
 </bit-menu>
