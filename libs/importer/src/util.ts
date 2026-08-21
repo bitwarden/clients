@@ -1,27 +1,19 @@
 import { ClientType } from "@bitwarden/client-type";
 
-import { LoaderAvailability, ImportersMetadata } from "./metadata";
-import { ImportType } from "./models";
+import { LoaderAvailability } from "./metadata";
+import { ImportOptionData, ImportType } from "./models";
 
-/** Lookup the loaders supported by a specific client.
- *  WARNING: this method does not supply metadata for every import type.
- *  @returns `undefined` when metadata is not defined for the type, or
- *   an array identifying the supported clients.
+/** Lookup the loaders supported by a specific client, filtered from the format's declared
+ *  `loaders` against `LoaderAvailability`.
+ *  @returns an empty array if `type` isn't a real `ImportType` at runtime — the type parameter is
+ *   not a runtime guarantee here: callers (e.g. `ImportComponent`'s format dropdown) can emit an
+ *   unvalidated value, such as the reset placeholder's `""`.
  */
 export function availableLoaders(
-  importersMetadata: ImportersMetadata,
+  options: Record<ImportType, ImportOptionData>,
   type: ImportType,
   client: ClientType,
 ) {
-  if (!importersMetadata) {
-    return undefined;
-  }
-
-  if (!(type in importersMetadata)) {
-    return undefined;
-  }
-
-  const capabilities = importersMetadata[type]?.loaders ?? [];
-  const available = capabilities.filter((loader) => LoaderAvailability[loader].includes(client));
-  return available;
+  const loaders = options[type]?.loaders ?? [];
+  return loaders.filter((loader) => LoaderAvailability[loader].includes(client));
 }

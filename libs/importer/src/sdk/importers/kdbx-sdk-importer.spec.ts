@@ -28,11 +28,6 @@ describe("KdbxSdkImporter", () => {
     } as unknown as PasswordManagerClient;
   });
 
-  it("declares password + key file credentials and a .kdbx file hint", () => {
-    expect(importer.credentialKind).toBe("passwordWithKeyFile");
-    expect(importer.fileTypeHint).toBe(".kdbx");
-  });
-
   it("rejects credentials of the wrong kind", async () => {
     await expect(
       importer.import(

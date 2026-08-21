@@ -79,7 +79,7 @@ export class ImportCommand {
     }
 
     // SDK-backed importers parse/encrypt/submit entirely in the SDK.
-    if (this.importService.isSdkImporter(format)) {
+    if (this.importService.getImportOption(format)?.sdk != null) {
       return await this.importWithSdk(format, filepath, organizationId, options);
     }
 
@@ -177,7 +177,7 @@ export class ImportCommand {
 
     try {
       const credentials = await this.collectSdkCredentials(
-        this.importService.credentialKindFor(format),
+        this.importService.getImportOption(format)?.sdk?.credentialKind,
         options,
       );
 

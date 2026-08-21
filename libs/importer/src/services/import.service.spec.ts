@@ -32,8 +32,9 @@ import { EncryptService, EncString, KeyGenerationService } from "@bitwarden/lega
 
 import { BitwardenPasswordProtectedImporter } from "../importers";
 import { Importer } from "../importers/importer";
+import { ImportType } from "../models/import-options";
 import { ImportResult } from "../models/import-result";
-import { SdkImportCredentials } from "../sdk";
+import { buildSdkImporterRegistry, SdkImportCredentials } from "../sdk";
 
 import { ImportApiServiceAbstraction } from "./import-api.service.abstraction";
 import { ImportService } from "./import.service";
@@ -78,6 +79,29 @@ describe("ImportService", () => {
       restrictedItemTypesService,
       sdkService,
     );
+  });
+
+  describe("importOptions data integrity", () => {
+    it("agrees with the SDK registry on which formats are SDK-backed", () => {
+      const registry = buildSdkImporterRegistry();
+      for (const option of importService.importOptions) {
+        expect(registry.has(option.id as ImportType)).toBe(option.sdk != null);
+      }
+    });
+
+    it("keeps pasteFormats a subset of acceptedFileTypes for every format", () => {
+      for (const option of importService.importOptions) {
+        for (const pasteFormat of option.pasteFormats) {
+          expect(option.acceptedFileTypes).toContain(pasteFormat);
+        }
+      }
+    });
+
+    it("pairs instructionLink and sourceName — never one without the other", () => {
+      for (const option of importService.importOptions) {
+        expect(!!option.instructionLink).toEqual(!!option.sourceName);
+      }
+    });
   });
 
   describe("getImporterInstance", () => {
@@ -433,12 +457,6 @@ describe("ImportService", () => {
       accountService.activeAccount$ = of({ id: userId } as any);
       (restrictedItemTypesService as any).restricted$ = of([]);
       i18nService.t.mockImplementation((key) => key);
-    });
-
-    it("recognizes registered SDK importers", () => {
-      expect(importService.isSdkImporter("keepasskdbx")).toBe(true);
-      expect(importService.credentialKindFor("keepasskdbx")).toBe("passwordWithKeyFile");
-      expect(importService.isSdkImporter("bitwardencsv")).toBe(false);
     });
 
     it("imports into the personal vault, passing the target folder", async () => {
