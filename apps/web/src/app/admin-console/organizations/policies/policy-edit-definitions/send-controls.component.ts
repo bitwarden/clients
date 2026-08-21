@@ -53,7 +53,9 @@ import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
   name = "manageSend";
+  nameVfo1 = "manageSendAndShareVfo1";
   description = "sendControlsPolicyDescV4";
+  descriptionVfo1 = "sendControlsPolicyDescVfo1";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
   priority = 30;
