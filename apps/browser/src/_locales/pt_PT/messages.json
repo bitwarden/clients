@@ -26,7 +26,7 @@
     "message": "Novo no Bitwarden?"
   },
   "logInWithPasskey": {
-    "message": "Iniciar sessão com a chave de acesso"
+    "message": "Iniciar sessão com chave de acesso"
   },
   "unlockWithPasskey": {
     "message": "Desbloquear com chave de acesso"
@@ -509,7 +509,7 @@
     "message": "Opções"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Opções para $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Nenhuma pasta partilhada"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrar por $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Marque itens como favoritos para os filtrar aqui."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Adicione pastas aos itens para os filtrar aqui."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Editar item - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Nenhum item no cofre"
   },
   "length": {
     "message": "Comprimento"
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Abrir site"
-  },
-  "launchWebsiteForName": {
-    "message": "Abrir o site de $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Site"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Atualizar subscrição"
   },
-  "premiumNotCurrentMember": {
-    "message": "Atualmente, não é um membro Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Subscreva uma subscrição Premium e obtenha:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação web Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "É um membro Premium!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Obrigado por apoiar o Bitwarden."
   },
   "premiumFeatures": {
     "message": "Atualize para o Premium e receba:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Código de segurança"
   },
-  "cardNumber": {
-    "message": "número do cartão"
-  },
   "ex": {
     "message": "ex."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ coleções",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ pastas partilhadas",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5215,7 +5200,7 @@
     "message": "A chave de acesso não será copiada para o item duplicado. Pretende ainda assim duplicar este item?"
   },
   "logInWithPasskeyQuestion": {
-    "message": "Iniciar sessão com a chave de acesso?"
+    "message": "Iniciar sessão com chave de acesso?"
   },
   "passkeyAlreadyExists": {
     "message": "Já existe uma chave de acesso para esta aplicação."
@@ -5230,16 +5215,16 @@
     "message": "Sem credenciais correspondentes para este site"
   },
   "searchSavePasskeyNewLogin": {
-    "message": "Procure ou guarde a chave de acesso como uma nova credencial"
+    "message": "Pesquisar ou guardar chave de acesso como nova credencial"
   },
   "confirm": {
     "message": "Confirmar"
   },
   "savePasskey": {
-    "message": "Guardar a chave de acesso"
+    "message": "Guardar chave de acesso"
   },
   "savePasskeyNewLogin": {
-    "message": "Guarde a chave de acesso como uma nova credencial"
+    "message": "Guardar chave de acesso como nova credencial"
   },
   "chooseCipherForPasskeySave": {
     "message": "Escolha uma credencial para guardar esta chave de acesso"
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Limpe os filtros ou tente outro termo de pesquisa"
   },
-  "copyDetailsTitle": {
-    "message": "Copiar detalhes de $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copiar nota - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Mais opções, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Copiar $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -6330,7 +6281,7 @@
     "description": "A section header for a list of passwords."
   },
   "logInWithPasskeyAriaLabel": {
-    "message": "Iniciar sessão com a chave de acesso",
+    "message": "Iniciar sessão com chave de acesso",
     "description": "ARIA label for the inline menu button that logs in with a passkey."
   },
   "assign": {
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "Nenhum item requer atenção",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Palavras-passe expostas"
+  },
+  "exposedPasswordsDescription": {
+    "message": "As palavras-passe destas credenciais foram expostas em violações de dados. Altere-as imediatamente para proteger as suas contas."
+  },
+  "weakPasswordsTitle": {
+    "message": "Palavras-passe fracas"
+  },
+  "weakPasswordsDescription": {
+    "message": "Estas palavras-passe podem ser facilmente adivinhadas porque são demasiado curtas ou simples. Reforce-as tornando-as mais complexas."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Palavras-passe reutilizadas"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Estas credenciais utilizam uma palavra-passe reutilizada. Crie uma palavra-passe única para cada conta para impedir que alguém aceda a várias contas com uma só palavra-passe."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Eliminar esta credencial remove-a do seu cofre, mas não resolve o risco. Para proteger a sua conta, altere primeiro a sua palavra-passe."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Esta palavra-passe apresenta riscos adicionais:"
+  },
+  "reused": {
+    "message": "Reutilizada",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ vezes",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Nenhuma das suas palavras-passe foi encontrada em violações de dados."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "Tudo a postos!"
   }
 }

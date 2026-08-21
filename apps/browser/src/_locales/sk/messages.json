@@ -509,7 +509,7 @@
     "message": "Možnosti"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Možnosti pre $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Žiadny zdieľaný priečinok"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrovať podľa $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Označte položky ako obľúbené a filtrujte ich tu."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Pridajte priečinky k položkám a filtrujte ich tu."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Upraviť položku – $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "V trezore nie sú žiadne položky"
   },
   "length": {
     "message": "Dĺžka"
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Otvoriť stránku"
-  },
-  "launchWebsiteForName": {
-    "message": "Otvoriť stránku pre $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Webstránka"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Obnoviť členstvo"
   },
-  "premiumNotCurrentMember": {
-    "message": "Momentálne nie ste prémiovým členom."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Zaregistrujte sa na prémiové členstvo a získajte:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiska na prílohy."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Ste prémiovým členom!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Ďakujeme, že podporujete Bitwarden."
   },
   "premiumFeatures": {
     "message": "Inovujte na prémium a získajte:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Bezpečnostný kód"
   },
-  "cardNumber": {
-    "message": "číslo karty"
-  },
   "ex": {
     "message": "napr."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ zbierok",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "Zdieľané priečinky: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Vymažte filtre alebo zmeňte vyhľadávaný výraz"
   },
-  "copyDetailsTitle": {
-    "message": "Kopírovať podrobnosti o položke $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Skopírovať poznámku – $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Ďalšie možnosti, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "Žiadne položky si nevyžadujú pozornosť",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Uniknuté heslá"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Heslá k týmto prihláseniam boli zverejnené v reportoch o úniku dát. Okamžite ich zmeňte, aby ste ochránili svoje účty."
+  },
+  "weakPasswordsTitle": {
+    "message": "Slabé heslá"
+  },
+  "weakPasswordsDescription": {
+    "message": "Tieto heslá sa dajú ľahko uhádnuť, pretože sú príliš krátke alebo jednoduché. Zvýšte ich bezpečnosť tým, že ich urobíte zložitejšími."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Opakovane použité heslá"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Tieto prihlásenia používajú rovnaké heslo. Vytvorte pre každý účet jedinečné heslo, aby ste zabránili tomu, že sa niekto dostane k viacerým účtom pomocou jedného hesla."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Odstránením tohto prihlásenia ho odstránite z trezoru, čím sa však riziko neodstráni. Ak chcete chrániť svoj účet, najprv zmeňte heslo."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Toto heslo so sebou prináša ďalšie riziká:"
+  },
+  "reused": {
+    "message": "Opakovane použité",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$-krát",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Žiadne z vašich hesiel sa nenašlo v uniknutých údajoch."
+  },
+  "weakPasswordEmpty": {
+    "message": "Všetky vaše heslá sú bezpečné."
+  },
+  "reusedPasswordEmpty": {
+    "message": "Všetky vaše heslá sú jedinečné."
+  },
+  "youreAllSet": {
+    "message": "Všetko je hotové!"
   }
 }

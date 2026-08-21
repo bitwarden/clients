@@ -38,7 +38,7 @@
     "message": "Ο οργανισμός σας απαιτεί single sign-on (SSO)."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Σύνδεση"
   },
   "setAStrongPassword": {
     "message": "Ορίστε έναν ισχυρό κωδικό πρόσβασης"
@@ -397,7 +397,7 @@
     "message": "Αποθήκευση"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Αποθήκευση και συμπλήρωση"
   },
   "move": {
     "message": "Μετακίνηση"
@@ -751,15 +751,6 @@
   "launchWebsite": {
     "message": "Εκκίνηση ιστοσελίδας"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "website": {
     "message": "Ιστοσελίδα"
   },
@@ -788,7 +779,7 @@
     "message": "Βαθμολογήστε την επέκταση"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Αντιμετώπιση προβλημάτων"
   },
   "experiencingAnIssue": {
     "message": "Experiencing an issue?"
@@ -801,7 +792,7 @@
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Λήψη"
   },
   "browserNotSupportClipboard": {
     "message": "Το πρόγραμμα περιήγησης ιστού δεν υποστηρίζει εύκολη αντιγραφή πρόχειρου. Αντιγράψτε το με το χέρι αντ'αυτού."
@@ -1038,7 +1029,7 @@
     "message": "Σύνδεση"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Σύνδεση"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Εισάγετε τον κωδικό που στάλθηκε στο email σας"
@@ -1131,7 +1122,7 @@
     "message": "Ο κωδικός αντιγράφηκε"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "διάστημα",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
@@ -1533,10 +1524,10 @@
     "message": "Shared folders"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Ο φάκελός μου"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Οι φάκελοί μου"
   },
   "addSharedFolder": {
     "message": "Add shared folder"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Ανανέωση συνδρομής"
   },
-  "premiumNotCurrentMember": {
-    "message": "Δεν είστε Premium μέλος αυτήν τη στιγμή."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Εγγραφείτε για μία συνδρομή Premium και λάβετε:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Μπορείτε να αγοράσετε το Premium από τις ρυθμίσεις του λογαριασμού σας στην διαδικτυακή εφαρμογή Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Είστε Premium μέλος!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Ευχαριστούμε που υποστηρίζετε το Bitwarden."
   },
   "premiumFeatures": {
     "message": "Αναβαθμίστε σε Premium και λάβετε:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Κωδικός ασφαλείας"
   },
-  "cardNumber": {
-    "message": "αριθμός κάρτας"
-  },
   "ex": {
     "message": "πχ."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ συλλογές",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Καθαρισμός φίλτρων ή δοκιμή άλλου όρου αναζήτησης"
   },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Αντιγραφή Σημείωσης - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Περισσότερες επιλογές, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Exposed passwords"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+  },
+  "weakPasswordsTitle": {
+    "message": "Weak passwords"
+  },
+  "weakPasswordsDescription": {
+    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Reused passwords"
+  },
+  "reusedPasswordsDescription": {
+    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "This password has additional risks:"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ times",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "None of your passwords were found in data breaches."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "You're all set!"
   }
 }
