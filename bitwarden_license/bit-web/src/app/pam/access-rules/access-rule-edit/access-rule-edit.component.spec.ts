@@ -1,6 +1,7 @@
 import { EnvironmentProviders, Provider } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
+import { By } from "@angular/platform-browser";
 import { ActivatedRoute, provideRouter, Router } from "@angular/router";
 import { of, throwError } from "rxjs";
 
@@ -8,7 +9,12 @@ import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
+import {
+  DialogService,
+  SelectComponent,
+  SelectItemView,
+  ToastService,
+} from "@bitwarden/components";
 
 import { AccessRuleSdkService, AccessRuleView } from "../..";
 
@@ -700,6 +706,36 @@ describe("AccessRuleEditComponent — form states", () => {
       await render({ params: { accessRuleId: "11111111-1111-1111-1111-111111111111" } });
 
       expect(document.activeElement).not.toBe(nameInput());
+    });
+  });
+
+  describe("default-duration options", () => {
+    const defaultDurationSelect = (): SelectComponent<number> =>
+      fixture.debugElement
+        .query(By.css("#access-rule-edit_select_default-duration"))
+        .injector.get(SelectComponent);
+
+    it("disables presets above the configured max", async () => {
+      await render();
+      controls().maxLeaseDurationSeconds.setValue(THIRTY_MIN);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const items = defaultDurationSelect().items()!;
+      expect(items.find((i) => i.value === THIRTY_MIN)!.disabled).toBe(false);
+      expect(items.find((i) => i.value === ONE_HOUR)!.disabled).toBe(true);
+      expect(items.find((i) => i.value === SEVEN_DAYS)!.disabled).toBe(true);
+    });
+
+    it("leaves every preset enabled while the max is 'no maximum'", async () => {
+      await render();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const items = defaultDurationSelect().items()!;
+      expect(items.every((i) => !i.disabled)).toBe(true);
     });
   });
 
