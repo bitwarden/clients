@@ -33,7 +33,8 @@
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
     <bit-cell *bitCellDef="table.columns.name; let row">
-      <bit-icon slot="start" name="bwi-shared-folder" class="tw-text-muted" />
+      <!-- Decorative: the folder name beside it already names the row. -->
+      <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
       {{ row.name }}
     </bit-cell>
   </bit-column>
