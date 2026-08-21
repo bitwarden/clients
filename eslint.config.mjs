@@ -679,21 +679,6 @@ export default tseslint.config(
     },
   },
 
-  /// The re-export shims left behind when the crypto primitives moved to @bitwarden/legacy-crypto.
-  /// These are the only files permitted to import that package. Delete an entry here whenever its
-  /// shim is deleted; never add one.
-  {
-    files: [
-      "libs/common/src/platform/enums/encryption-type.enum.ts",
-      "libs/common/src/platform/interfaces/decryptable.interface.ts",
-      "libs/common/src/platform/models/domain/enc-array-buffer.ts",
-      "libs/common/src/platform/models/domain/symmetric-crypto-key.ts",
-    ],
-    rules: {
-      "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES, false, true),
-    },
-  },
-
   // Within a package, import sibling code via relative paths rather than the package's own
   // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.
   // https://contributing.bitwarden.com/contributing/code-style/web/typescript#imports-within-the-same-package
