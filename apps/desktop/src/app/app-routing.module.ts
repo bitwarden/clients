@@ -45,6 +45,7 @@ import {
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
+import { vaultFilterLegacyRedirectGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
@@ -448,6 +449,7 @@ const routes: Routes = [
       {
         path: "vault",
         component: VaultComponent,
+        canActivate: [vaultFilterLegacyRedirectGuard],
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
       },
       {

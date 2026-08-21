@@ -7,33 +7,21 @@
   [loading]="loading()"
   [selection]="selection"
   [virtualRowHeight]="56"
+  [queryParam]="filterNamespace"
   height="fill"
   (selectedChange)="selectedChange.emit($event)"
 >
-  <!--
-    The design separates the search row from the filter row with a full-bleed rule, which
-    `bit-table-toolbar` doesn't offer as an input. Until it does, we draw it from here as a
-    top border on the filter row, selected by the one thing that identifies it structurally —
-    it's the row that holds the filter chips as direct children. The negative inline margin
-    cancels the toolbar's `p-3` so the rule reaches both edges.
-
-    Two things fall out of targeting the filter row rather than the search row: below `md` the
-    toolbar hides that row, so the rule disappears with it instead of doubling up on the
-    toolbar's own bottom border; and the small-screen active-filter row holds `bit-chip`s, not
-    filter menus, so it doesn't match.
-
-    TODO: replace with a first-class `bit-table-toolbar` affordance — this couples to the
-    toolbar's internal DOM.
-  -->
-  <bit-table-toolbar
-    class="[&_div:has(>bit-filter-menu)]:-tw-mx-3 [&_div:has(>bit-filter-menu)]:tw-border-0 [&_div:has(>bit-filter-menu)]:tw-border-t [&_div:has(>bit-filter-menu)]:tw-border-solid [&_div:has(>bit-filter-menu)]:tw-border-border-base [&_div:has(>bit-filter-menu)]:tw-px-3 [&_div:has(>bit-filter-menu)]:tw-pt-2"
-  >
+  <bit-table-toolbar>
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
 
     <!-- Page-level controls (Import, Add, ...) are the host's concern, not the table's. -->
     <ng-content select="[slot=toolbar]" slot="end"></ng-content>
 
-    <bit-filter-menu key="type" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
+    <bit-filter-menu
+      [key]="filterKeys.type"
+      [placeholderText]="'type' | i18n"
+      [unsetLabel]="'all' | i18n"
+    >
       @for (cipherType of availableCipherTypes(); track cipherType) {
         <bit-filter-option [value]="cipherType">
           {{ cipherTypeLabel(cipherType) | i18n }}
@@ -48,7 +36,7 @@
       `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
     -->
     <bit-filter-toggle
-      key="favorites"
+      [key]="filterKeys.favorites"
       [label]="'favorites' | i18n"
       icon="bwi-star"
       iconActive="bwi-star-f"
@@ -58,7 +46,7 @@
     ></bit-filter-toggle>
 
     @if (multipleVaults()) {
-      <bit-filter-menu key="vault" [placeholderText]="'vault' | i18n" multiple>
+      <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
           <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>
         }
@@ -69,7 +57,11 @@
     }
 
     @if (showSharedFolders()) {
-      <bit-filter-menu key="sharedFolder" [placeholderText]="'sharedFolders' | i18n" multiple>
+      <bit-filter-menu
+        [key]="filterKeys.sharedFolder"
+        [placeholderText]="'sharedFolders' | i18n"
+        multiple
+      >
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {
             <bit-filter-section [label]="group.name" collapsible>
@@ -87,7 +79,7 @@
     }
 
     <bit-filter-menu
-      key="folder"
+      [key]="filterKeys.folder"
       [placeholderText]="'myFolders' | i18n"
       multiple
       [disabled]="noFolders()"
@@ -120,7 +112,7 @@
   </bit-status-lockup>
 
   <!-- Name -->
-  <bit-column sortable defaultSort="asc" width="minmax(200px, 2fr)">
+  <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
 
     <bit-cell *bitCellDef="table.columns.name; let row">
@@ -174,7 +166,7 @@
   </bit-column>
 
   <!-- Vault -->
-  <bit-column sortable [sortFn]="sortByVault" width="minmax(140px, 1fr)">
+  <bit-column sortable [sortFn]="sortByVault" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "vault" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.vault; let row">
       <bit-icon
@@ -187,14 +179,14 @@
   </bit-column>
 
   <!-- Shared folders -->
-  <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(140px, 1fr)">
+  <bit-column sortable [sortFn]="sortBySharedFolders" width="minmax(176px, 280px)">
     <bit-header-cell>{{ "sharedFolders" | i18n }}</bit-header-cell>
     <bit-cell *bitCellDef="table.columns.sharedFolders; let row">
       <vault-items-table-chips-cell
         [chips]="sharedFolderChips(row)"
         icon="bwi-shared-folder"
         [emptyLabel]="'noSharedFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, 'sharedFolder', $event)"
+        (chipSelect)="filterTo(vaultTable, filterKeys.sharedFolder, $event)"
       />
     </bit-cell>
   </bit-column>
@@ -207,7 +199,7 @@
         [chips]="folderChips(row)"
         icon="bwi-folder"
         [emptyLabel]="'noneFolder' | i18n"
-        (chipSelect)="filterTo(vaultTable, 'folder', $event)"
+        (chipSelect)="filterTo(vaultTable, filterKeys.folder, $event)"
       />
     </bit-cell>
   </bit-column>

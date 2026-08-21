@@ -200,7 +200,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -535,7 +534,6 @@ export default class MainBackground {
   billingAccountProfileStateService: BillingAccountProfileStateService;
   // eslint-disable-next-line rxjs/no-exposed-subjects -- Needed to give access to services module
   intraprocessMessagingSubject: Subject<Message<Record<string, unknown>>>;
-  userAutoUnlockKeyService: UserAutoUnlockKeyService;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -977,24 +975,6 @@ export default class MainBackground {
       this.collectionEncryptionService,
     );
 
-    this.keyConnectorService = new KeyConnectorService(
-      this.accountService,
-      this.masterPasswordService,
-      this.keyService,
-      this.legacyCompatKeyService,
-      this.apiService,
-      this.tokenService,
-      this.logService,
-      this.organizationService,
-      logoutCallback,
-      this.stateProvider,
-      this.configService,
-      this.registerSdkService,
-      this.accountCryptographicStateService,
-      this.sdkService,
-      this.userDecryptionOptionsService,
-    );
-
     this.pinService = new PinService(this.sdkService);
 
     this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
@@ -1025,8 +1005,28 @@ export default class MainBackground {
       this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.keyService,
     );
     void browserBiometricsService.setUnlockService(this.unlockService);
+
+    // Constructed after the unlock service, which it depends on.
+    this.keyConnectorService = new KeyConnectorService(
+      this.accountService,
+      this.masterPasswordService,
+      this.legacyCompatKeyService,
+      this.apiService,
+      this.tokenService,
+      this.logService,
+      this.organizationService,
+      logoutCallback,
+      this.stateProvider,
+      this.configService,
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      this.sdkService,
+      this.userDecryptionOptionsService,
+      this.unlockService,
+    );
 
     this.passwordStrengthService = new PasswordStrengthService();
 
@@ -1721,8 +1721,6 @@ export default class MainBackground {
       );
     }
 
-    this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
-
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
       this.organizationService,
@@ -1822,16 +1820,13 @@ export default class MainBackground {
     const userIds = Object.keys(accounts) as UserId[];
     await this.tokenService.cleanupTokenStorage(userIds);
 
-    const setUserKeyInMemoryPromises = [];
     for (const userId of userIds) {
-      // For each acct, we must await the process of setting the user key in memory
-      // if the auto user key is set to avoid race conditions of any code trying to access
-      // the user key from mem.
-      setUserKeyInMemoryPromises.push(
-        this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId),
-      );
+      try {
+        await this.unlockService.unlockWithAutoUnlockKey(userId);
+      } catch (e) {
+        this.logService.error("Failed to auto-unlock user on bootstrap", e);
+      }
     }
-    await Promise.all(setUserKeyInMemoryPromises);
 
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);

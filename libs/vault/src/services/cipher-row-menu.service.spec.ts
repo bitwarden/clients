@@ -2,7 +2,9 @@ import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -53,19 +55,25 @@ function makeCipher(
 describe("CipherRowMenuService", () => {
   let service: CipherRowMenuService;
   let cipherArchiveService: MockProxy<CipherArchiveService>;
+  let organizationService: MockProxy<OrganizationService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let i18nService: MockProxy<I18nService>;
   let userCanArchiveSubject: BehaviorSubject<boolean>;
   let restrictedTypesSubject: BehaviorSubject<RestrictedCipherType[]>;
+  let organizationsSubject: BehaviorSubject<Organization[]>;
 
   beforeEach(() => {
     cipherArchiveService = mock<CipherArchiveService>();
+    organizationService = mock<OrganizationService>();
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
     i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key) => key);
 
     userCanArchiveSubject = new BehaviorSubject<boolean>(false);
     restrictedTypesSubject = new BehaviorSubject<RestrictedCipherType[]>([]);
+
+    organizationsSubject = new BehaviorSubject<Organization[]>([]);
+    organizationService.organizations$.mockReturnValue(organizationsSubject.asObservable());
 
     cipherArchiveService.userCanArchive$.mockReturnValue(userCanArchiveSubject.asObservable());
     Object.defineProperty(restrictedItemTypesService, "restricted$", {
@@ -76,6 +84,7 @@ describe("CipherRowMenuService", () => {
       providers: [
         CipherRowMenuService,
         { provide: CipherArchiveService, useValue: cipherArchiveService },
+        { provide: OrganizationService, useValue: organizationService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: I18nService, useValue: i18nService },
         { provide: AccountService, useValue: mockAccountServiceWith(userId) },
@@ -246,33 +255,115 @@ describe("CipherRowMenuService", () => {
   });
 
   describe("addToSharedFolder", () => {
-    it("shows when the cipher belongs to an org and can be assigned", () => {
+    /** A member of one organization holding one writable collection in it — the ordinary case. */
+    function canAssignSomewhere() {
+      organizationsSubject.next([{ id: "org-1" } as Organization]);
+      return [{ id: "collection-1", organizationId: "org-1", readOnly: false } as CollectionView];
+    }
+
+    it("shows for an organization cipher that can be assigned", () => {
+      const collections = canAssignSomewhere();
+
       expect(
         show(
           "addToSharedFolder",
           makeCipher({ organizationId: "org-1", canAssignToCollections: true }),
+          collections,
         ),
       ).toBe(true);
     });
 
-    it("hides when the cipher has no organization", () => {
-      expect(show("addToSharedFolder", makeCipher({ canAssignToCollections: true }))).toBe(false);
+    it("shows for a personal cipher, which is how one is moved into an organization", () => {
+      const collections = canAssignSomewhere();
+
+      expect(
+        show("addToSharedFolder", makeCipher({ canAssignToCollections: true }), collections),
+      ).toBe(true);
+    });
+
+    it("hides for an organization cipher when the only writable collections belong to another organization", () => {
+      organizationsSubject.next([{ id: "org-1" } as Organization, { id: "org-2" } as Organization]);
+      const collections = [
+        { id: "collection-2", organizationId: "org-2", readOnly: false } as CollectionView,
+      ];
+
+      expect(
+        show(
+          "addToSharedFolder",
+          makeCipher({ organizationId: "org-1", canAssignToCollections: true }),
+          collections,
+        ),
+      ).toBe(false);
+    });
+
+    it("hides for an organization cipher when its own organization's collections are all read-only", () => {
+      organizationsSubject.next([{ id: "org-1" } as Organization]);
+      const collections = [
+        { id: "collection-1", organizationId: "org-1", readOnly: true } as CollectionView,
+        { id: "collection-2", organizationId: "org-2", readOnly: false } as CollectionView,
+      ];
+
+      expect(
+        show(
+          "addToSharedFolder",
+          makeCipher({ organizationId: "org-1", canAssignToCollections: true }),
+          collections,
+        ),
+      ).toBe(false);
+    });
+
+    it("shows for a personal cipher using a writable collection in any organization", () => {
+      organizationsSubject.next([{ id: "org-2" } as Organization]);
+      const collections = [
+        { id: "collection-2", organizationId: "org-2", readOnly: false } as CollectionView,
+      ];
+
+      expect(
+        show("addToSharedFolder", makeCipher({ canAssignToCollections: true }), collections),
+      ).toBe(true);
+    });
+
+    it("hides when the user belongs to no organization", () => {
+      const collections = [
+        { id: "collection-1", organizationId: "org-1", readOnly: false } as CollectionView,
+      ];
+
+      expect(
+        show("addToSharedFolder", makeCipher({ canAssignToCollections: true }), collections),
+      ).toBe(false);
+    });
+
+    it("hides when the user has no collection they can write to", () => {
+      organizationsSubject.next([{ id: "org-1" } as Organization]);
+      const readOnly = [
+        { id: "collection-1", organizationId: "org-1", readOnly: true } as CollectionView,
+      ];
+
+      expect(
+        show("addToSharedFolder", makeCipher({ canAssignToCollections: true }), readOnly),
+      ).toBe(false);
     });
 
     it("hides when the user cannot assign to collections", () => {
+      const collections = canAssignSomewhere();
+
       expect(
         show(
           "addToSharedFolder",
           makeCipher({ organizationId: "org-1", canAssignToCollections: false }),
+          collections,
         ),
       ).toBe(false);
     });
 
     it("hides when deleted", () => {
+      const collections = canAssignSomewhere();
+
       expect(
         show(
           "addToSharedFolder",
           makeCipher({ organizationId: "org-1", canAssignToCollections: true, isDeleted: true }),
+          collections,
         ),
       ).toBe(false);
     });
