@@ -7,6 +7,11 @@ import { ButtonModule } from "../button";
 import { DIALOG_DATA, DialogModule, DialogRef } from "../dialog";
 import { IconComponent } from "../icon";
 import { IconButtonModule } from "../icon-button";
+import {
+  OverflowItemDirective,
+  OverflowListDirective,
+  OverflowTriggerDirective,
+} from "../overflow-list";
 
 import { FilterPresenter } from "./filter-tokens";
 
@@ -33,6 +38,9 @@ export interface FilterDialogParams {
     IconButtonModule,
     IconComponent,
     I18nPipe,
+    OverflowListDirective,
+    OverflowItemDirective,
+    OverflowTriggerDirective,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

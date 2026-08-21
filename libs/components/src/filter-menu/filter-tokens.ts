@@ -90,6 +90,11 @@ export interface FilterPresenter {
   /** Selected-options summary for the row, e.g. "Login"; empty when none. */
   readonly summary: Signal<string>;
   /**
+   * The same selection as {@link summary}, unjoined, so a surface that has to fit it
+   * into a fixed width can measure and drop labels individually.
+   */
+  readonly summaryLabels: Signal<readonly string[]>;
+  /**
    * The options to stamp on a drill-in page. `undefined` means the filter has no
    * drill-in (a toggle), so its row flips it in place via {@link flip}.
    */
