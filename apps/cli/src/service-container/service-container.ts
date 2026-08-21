@@ -774,7 +774,6 @@ export class ServiceContainer {
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
-      this.keyService,
       this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
@@ -787,6 +786,7 @@ export class ServiceContainer {
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
+      this.unlockService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(
