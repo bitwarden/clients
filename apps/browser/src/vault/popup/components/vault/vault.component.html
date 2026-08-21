@@ -122,7 +122,9 @@
       so no rows belonging to a suspended organization are shown either way.
     -->
     @if (vfo1Enabled()) {
-      <app-vault-popup-list-table></app-vault-popup-list-table>
+      <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
+        <app-vault-popup-list-table></app-vault-popup-list-table>
+      </div>
     } @else if (!vfo1Enabled() && vaultState === VaultStateEnum.NoResults) {
       <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
         <bit-no-items class="[&>div]:!tw-pt-0" [icon]="noResultsIcon">
@@ -133,26 +135,20 @@
     }
 
     <!-- For better consistency with screen readers, the role/aria needs to be on an element that isn't dynamic by @if -->
-    <!-- The height is bound rather than static so the empty region stays rendered (and so still in
-         the accessibility tree) without claiming space it isn't using. -->
-    <!-- Only the legacy list needs this block: the table renders the same notice in its empty slot,
-         so leaving it unguarded would show the message twice with the flag on. -->
-    <div
-      role="status"
-      aria-live="polite"
-      [class.tw-h-full]="!vfo1Enabled() && vaultState === VaultStateEnum.DeactivatedOrg"
-    >
-      @if (!vfo1Enabled() && vaultState === VaultStateEnum.DeactivatedOrg) {
-        <div class="tw-flex tw-flex-col tw-justify-center tw-h-full">
-          <bit-no-items class="[&>div]:!tw-pt-0" [icon]="deactivatedIcon">
-            <ng-container slot="title">
-              {{ "organizationIsDeactivated" | i18n }}
-            </ng-container>
-            <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
-          </bit-no-items>
-        </div>
-      }
-    </div>
+    @if (!vfo1Enabled()) {
+      <div role="status" aria-live="polite">
+        @if (vaultState === VaultStateEnum.DeactivatedOrg) {
+          <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
+            <bit-no-items [icon]="deactivatedIcon">
+              <ng-container slot="title">
+                {{ "organizationIsDeactivated" | i18n }}
+              </ng-container>
+              <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
+            </bit-no-items>
+          </div>
+        }
+      </div>
+    }
 
     @if (vaultState === null && !vfo1Enabled()) {
       <vault-fade-in-out>
