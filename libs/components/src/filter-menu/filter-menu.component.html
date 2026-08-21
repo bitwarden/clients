@@ -34,24 +34,32 @@
 -->
 <div class="tw-hidden"><ng-content></ng-content></div>
 
-<!-- Selection indicator: a check for a checkbox, a filled dot for a radio. -->
+<!--
+  Selection indicator: a check for a checkbox, a filled dot for a radio. Drawn here
+  rather than with `bitCheckbox`/`bitRadio` because those are `input` elements, which
+  can't nest inside the row's `button`; the tokens below mirror what they render.
+-->
 <ng-template #indicator let-selected>
   <span
-    class="tw-flex tw-size-4 tw-flex-none tw-items-center tw-justify-center tw-border tw-border-solid tw-border-border-base"
+    class="tw-flex tw-size-4 tw-flex-none tw-items-center tw-justify-center tw-border-solid"
     [class.tw-rounded]="multiple()"
     [class.tw-rounded-full]="!multiple()"
-    [class.tw-bg-primary-600]="multiple() && selected"
-    [class.tw-border-primary-600]="selected"
+    [class.tw-border]="!selected"
+    [class.tw-border-border-strong]="!selected"
+    [class.tw-border-2]="selected"
+    [class.tw-border-border-brand]="selected"
+    [class.tw-bg-bg-brand]="multiple() && selected"
+    [class.tw-bg-bg-tertiary]="!(multiple() && selected)"
   >
     @if (selected) {
       @if (multiple()) {
         <bit-icon
           name="bwi-check"
-          class="tw-text-xs tw-text-contrast"
+          class="tw-text-xs tw-text-fg-contrast"
           aria-hidden="true"
         ></bit-icon>
       } @else {
-        <span class="tw-size-1.5 tw-rounded-full tw-bg-primary-600"></span>
+        <span class="tw-size-2 tw-rounded-full tw-bg-bg-brand"></span>
       }
     }
   </span>
