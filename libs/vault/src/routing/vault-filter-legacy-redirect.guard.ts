@@ -131,10 +131,11 @@ export const vaultFilterLegacyRedirectGuard: CanActivateFn = async (route) => {
     keysToStrip.delete("type");
   }
 
-  const queryParams: Record<string, string> = {};
+  const queryParams: Record<string, string | string[]> = {};
   for (const key of route.queryParamMap.keys) {
     if (!keysToStrip.has(key)) {
-      queryParams[key] = route.queryParamMap.get(key)!;
+      const values = route.queryParamMap.getAll(key);
+      queryParams[key] = values.length > 1 ? values : values[0];
     }
   }
   Object.assign(queryParams, patch);
