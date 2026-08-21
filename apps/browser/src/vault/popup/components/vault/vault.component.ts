@@ -1,7 +1,7 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject, OnDestroy, OnInit } from "@angular/core";
+import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
@@ -49,6 +49,7 @@ import {
   ToastService,
   TypographyModule,
   CalloutModule,
+  ScrollLayoutService,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -267,6 +268,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private organizationService: InternalOrganizationServiceAbstraction,
     private premiumUpsellService: PremiumUpsellService,
+    private scrollLayoutService: ScrollLayoutService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -291,6 +293,24 @@ export class VaultComponent implements OnInit, OnDestroy {
         }
       });
   }
+
+  private readonly _scrollPositionEffect = effect((onCleanup) => {
+    const sub = combineLatest([
+      this.scrollLayoutService.scrollableRef$,
+      this.allFilters$,
+      this.loading$,
+    ])
+      .pipe(
+        filter(([ref, _filters, loading]) => !!ref && !loading),
+        take(1),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(([ref]) => {
+        this.vaultScrollPositionService.start(ref!.nativeElement);
+      });
+
+    onCleanup(() => sub.unsubscribe());
+  });
 
   async ngOnInit() {
     this.activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
