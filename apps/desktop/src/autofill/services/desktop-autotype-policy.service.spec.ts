@@ -4,7 +4,6 @@ import { BehaviorSubject, firstValueFrom, take } from "rxjs";
 
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -29,7 +28,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
   let mockAccountSubject: BehaviorSubject<Account | null>;
   let featureFlagSubject: BehaviorSubject<boolean>;
   let mockAuthStatusSubject: BehaviorSubject<AuthenticationStatus>;
-  let mockPoliciesSubject: BehaviorSubject<Policy[]>;
+  let mockPolicyAppliesSubject: BehaviorSubject<boolean>;
 
   const mockUserId = "user-123" as UserId;
 
@@ -45,7 +44,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     mockAuthStatusSubject = new BehaviorSubject<AuthenticationStatus>(
       AuthenticationStatus.Unlocked,
     );
-    mockPoliciesSubject = new BehaviorSubject<Policy[]>([]);
+    mockPolicyAppliesSubject = new BehaviorSubject<boolean>(false);
 
     accountService = mock<AccountService>();
     authService = mock<AuthService>();
@@ -57,7 +56,9 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     authService.authStatusFor$ = jest
       .fn()
       .mockImplementation((_: UserId) => mockAuthStatusSubject.asObservable());
-    policyService.policies$ = jest.fn().mockReturnValue(mockPoliciesSubject.asObservable());
+    policyService.policyAppliesToUser$ = jest
+      .fn()
+      .mockReturnValue(mockPolicyAppliesSubject.asObservable());
 
     TestBed.configureTestingModule({
       providers: [
@@ -77,7 +78,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     mockAccountSubject.complete();
     featureFlagSubject.complete();
     mockAuthStatusSubject.complete();
-    mockPoliciesSubject.complete();
+    mockPolicyAppliesSubject.complete();
   });
 
   describe("autotypeDefaultSetting$", () => {
@@ -93,12 +94,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
 
       mockAccountSubject.next({ id: mockUserId } as Account);
       mockAuthStatusSubject.next(AuthenticationStatus.Unlocked);
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: true,
-        } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
 
       const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(result).toBe(true);
@@ -111,51 +107,25 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     });
 
     it("should emit null when no autotype policy exists", async () => {
-      mockPoliciesSubject.next([]);
+      mockPolicyAppliesSubject.next(false);
       const policy = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policy).toBeNull();
     });
 
     it("should emit true when autotype policy is enabled", async () => {
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: true,
-        } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
       const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policyStatus).toBe(true);
     });
 
     it("should emit null when autotype policy is disabled", async () => {
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: false,
-        } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(false);
       const policyStatus = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(policyStatus).toBeNull();
     });
 
-    it("should emit null when autotype policy does not apply", async () => {
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.RequireSso,
-          enabled: true,
-        } as Policy,
-      ]);
-      const policy = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
-      expect(policy).toBeNull();
-    });
-
     it("should react to authentication status changes", async () => {
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: true,
-        } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
 
       // Expect one emission when unlocked
       mockAuthStatusSubject.next(AuthenticationStatus.Unlocked);
@@ -171,12 +141,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     it("should react to account changes", async () => {
       const newUserId = "user-456" as UserId;
 
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: true,
-        } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
 
       // First value for original user
       const firstValue = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
@@ -191,32 +156,28 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
 
       // Verify the auth lookup was switched to the new user
       expect(authService.authStatusFor$).toHaveBeenCalledWith(newUserId);
-      expect(policyService.policies$).toHaveBeenCalledWith(newUserId);
+      expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
+        PolicyType.AutotypeDefaultSetting,
+        newUserId,
+      );
     });
 
     it("should react to policy changes", async () => {
-      mockPoliciesSubject.next([]);
+      mockPolicyAppliesSubject.next(false);
       const nullValue = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(nullValue).toBeNull();
 
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: true,
-        } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
       const trueValue = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(trueValue).toBe(true);
 
-      mockPoliciesSubject.next([]);
+      mockPolicyAppliesSubject.next(false);
       const nullValueAgain = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(nullValueAgain).toBeNull();
     });
 
     it("emits null again if the feature flag turns off after emitting", async () => {
-      mockPoliciesSubject.next([
-        { type: PolicyType.AutotypeDefaultSetting, enabled: true } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
       expect(await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)))).toBe(true);
 
       featureFlagSubject.next(false);
@@ -224,9 +185,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     });
 
     it("replays the latest value to late subscribers", async () => {
-      mockPoliciesSubject.next([
-        { type: PolicyType.AutotypeDefaultSetting, enabled: true } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
 
       await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
 
@@ -238,14 +197,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
       mockAccountSubject.next({ id: mockUserId } as Account);
       mockAuthStatusSubject.next(AuthenticationStatus.Unlocked);
 
-      const policies = [
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: true,
-        } as Policy,
-      ];
-
-      mockPoliciesSubject.next(policies);
+      mockPolicyAppliesSubject.next(true);
       const first = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(first).toBe(true);
 
@@ -254,7 +206,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
         emissionCount++;
       });
 
-      mockPoliciesSubject.next(policies);
+      mockPolicyAppliesSubject.next(true);
 
       await new Promise((resolve) => setTimeout(resolve, 50));
       subscription.unsubscribe();
@@ -264,9 +216,7 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
 
     it("does not emit policy values while locked; emits after unlocking", async () => {
       mockAuthStatusSubject.next(AuthenticationStatus.Locked);
-      mockPoliciesSubject.next([
-        { type: PolicyType.AutotypeDefaultSetting, enabled: true } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
 
       expect(await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)))).toBeNull();
 
@@ -277,25 +227,21 @@ describe("DesktopAutotypeDefaultSettingPolicy", () => {
     it("emits correctly if auth unlocks before policies arrive", async () => {
       mockAccountSubject.next({ id: mockUserId } as Account);
       mockAuthStatusSubject.next(AuthenticationStatus.Unlocked);
-      mockPoliciesSubject.next([
-        {
-          type: PolicyType.AutotypeDefaultSetting,
-          enabled: true,
-        } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
 
       const result = await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
       expect(result).toBe(true);
     });
 
     it("wires dependencies with initial user id", async () => {
-      mockPoliciesSubject.next([
-        { type: PolicyType.AutotypeDefaultSetting, enabled: true } as Policy,
-      ]);
+      mockPolicyAppliesSubject.next(true);
       await firstValueFrom(service.autotypeDefaultSetting$.pipe(take(1)));
 
       expect(authService.authStatusFor$).toHaveBeenCalledWith(mockUserId);
-      expect(policyService.policies$).toHaveBeenCalledWith(mockUserId);
+      expect(policyService.policyAppliesToUser$).toHaveBeenCalledWith(
+        PolicyType.AutotypeDefaultSetting,
+        mockUserId,
+      );
     });
   });
 });
