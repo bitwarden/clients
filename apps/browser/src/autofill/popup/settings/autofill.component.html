@@ -351,6 +351,28 @@
               </ng-container>
             </bit-hint>
           </bit-form-field>
+          @if (showEnginePicker$ | async) {
+            <bit-form-field disableMargin>
+              <bit-label for="qualificationEngine">{{ "qualificationEngine" | i18n }}</bit-label>
+              <bit-select
+                formControlName="qualificationEngine"
+                aria-describedby="qualificationEngineHelp"
+                bitInput
+                id="qualificationEngine"
+              >
+                <bit-option
+                  [label]="'qualificationEngineFollowFlag' | i18n"
+                  [value]="null"
+                ></bit-option>
+                @for (option of qualificationEngineOptions; track option.value) {
+                  <bit-option [label]="option.name" [value]="option.value"></bit-option>
+                }
+              </bit-select>
+              <bit-hint class="tw-text-sm" id="qualificationEngineHelp">
+                {{ "qualificationEngineDesc" | i18n }}
+              </bit-hint>
+            </bit-form-field>
+          }
         </bit-card>
       </form>
     </bit-section>

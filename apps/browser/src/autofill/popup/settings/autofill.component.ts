@@ -10,6 +10,7 @@ import {
   map,
   Observable,
   pairwise,
+  scan,
   shareReplay,
   startWith,
   switchMap,
@@ -64,7 +65,13 @@ import {
 } from "@bitwarden/components";
 import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
+import { QualificationEngineId } from "../../../autofill/qualification/types/engine-id";
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
+import { QualificationEngineOverrideState } from "../../../autofill/services/qualification/engine-override.state";
+import {
+  DEFAULT_ENGINE_ID,
+  describeEngines,
+} from "../../../autofill/services/qualification/engine-registry";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -135,6 +142,35 @@ export class AutofillComponent implements OnInit {
     FeatureFlag.FillAssistTargetingRules,
   );
 
+  /**
+   * Internal control for the autofill qualification engine bay. Shown on
+   * development builds, and on any build where the engine has already moved
+   * off the default — so it stays invisible to everyone not deliberately
+   * exercising the engines, while a dev build needs no setup to reach it.
+   *
+   * `process.env.ENV` is a build-time constant, so DefinePlugin drops the
+   * branch from production bundles rather than leaving a runtime toggle.
+   *
+   * Latched, because the visibility rule reads the same value the control
+   * writes. On a production build reaching the default id hides the picker, so
+   * without the latch a user who picks "Default (follow rollout)" watches the
+   * control vanish mid-click and cannot pick anything else. Staying visible for
+   * the life of the view makes that choice undoable. Reopening the popup
+   * re-applies the rule, which is the intent: an absent override means follow
+   * the flag, and the flag is what summoned the picker in the first place.
+   */
+  protected showEnginePicker$: Observable<boolean> =
+    this.qualificationEngineOverrideState.resolvedId$.pipe(
+      map((id) => process.env.ENV === "development" || id !== DEFAULT_ENGINE_ID),
+      scan((everShown, visible) => everShown || visible, false),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+  protected qualificationEngineOptions = describeEngines().map((engine) => ({
+    name: `${engine.name} v${engine.version}`,
+    value: engine.id,
+  }));
+
   protected autofillOnPageLoadForm = new FormGroup({
     autofillOnPageLoad: new FormControl(),
     defaultAutofill: new FormControl(),
@@ -146,6 +182,7 @@ export class AutofillComponent implements OnInit {
     enableAutoTotpCopy: new FormControl(),
     clearClipboard: new FormControl(),
     defaultUriMatch: new FormControl(),
+    qualificationEngine: new FormControl(),
   });
 
   protected isDefaultUriMatchDisabledByPolicy = false;
@@ -186,6 +223,7 @@ export class AutofillComponent implements OnInit {
     private accountService: AccountService,
     private autofillBrowserSettingsService: AutofillBrowserSettingsService,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private qualificationEngineOverrideState: QualificationEngineOverrideState,
   ) {
     this.autofillOnPageLoadOptions = [
       { name: this.i18nService.t("autoFillOnPageLoadYes"), value: true },
@@ -383,6 +421,19 @@ export class AutofillComponent implements OnInit {
       )
       .subscribe();
 
+    // Seeded from the picker's own value, not the resolved one: the control
+    // shows what has been pinned here, and "Default" when nothing has.
+    this.additionalOptionsForm.controls.qualificationEngine.patchValue(
+      (await firstValueFrom(this.qualificationEngineOverrideState.engineId$)) ?? null,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.qualificationEngine.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.applyQualificationEngine(value);
+      });
+
     const command = await this.platformUtilsService.getAutofillKeyboardShortcut();
     await this.setAutofillKeyboardHelperText(command);
 
@@ -456,6 +507,25 @@ export class AutofillComponent implements OnInit {
     } else {
       this.autofillOnPageLoadForm.controls.defaultAutofill.disable();
     }
+  }
+
+  /**
+   * Persists the engine choice, or drops it when "Default" is picked. Nothing
+   * else to do — every context that qualifies fields is already listening. The
+   * picker writes to the shared feature-flag override store; the background and
+   * the popup's own service subscribe to it, and the background pushes the new
+   * id out to every open content script. No restart, and no context left on the
+   * previous engine.
+   *
+   * `null` clears rather than writing the default id, so the install rejoins
+   * the flag rollout instead of being pinned to the default forever.
+   */
+  private async applyQualificationEngine(id: QualificationEngineId | null): Promise<void> {
+    if (id === null) {
+      await this.qualificationEngineOverrideState.clear();
+      return;
+    }
+    await this.qualificationEngineOverrideState.set(id);
   }
 
   private async setAutofillKeyboardHelperText(command: string) {
