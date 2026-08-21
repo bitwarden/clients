@@ -178,13 +178,16 @@ export class BitTableToolbarComponent {
   constructor() {
     // A chip changes width in place when its selection changes: the label grows to
     // "Type: Login", a berry appears, the trailing angle icon becomes a dismiss
-    // button. `bitOverflowList` only remeasures when the item set changes, so its
-    // cached widths would go stale and the collapse decision with them.
+    // button. The item count does the same as it gains a digit, and its width is
+    // the row's reserved trigger width. `bitOverflowList` only remeasures when the
+    // item set changes, so its cached widths would go stale and the collapse
+    // decision with them.
     effect(() => {
       for (const filter of this.filters()) {
         filter.active();
         filter.summary();
       }
+      this.countDigits();
       this.overflowList()?.remeasure();
     });
   }
@@ -197,6 +200,13 @@ export class BitTableToolbarComponent {
 
   /** Rows matching the active filters — shown as the "N items" count on the filter row. */
   protected readonly itemCount = computed(() => this.table?.filteredCount() ?? 0);
+
+  /**
+   * Digits in the item count. The count's rendered width is the row's reserved
+   * trigger width, and with tabular figures that width tracks its digits, not its
+   * value — so remeasuring keys on this rather than on `itemCount` directly.
+   */
+  private readonly countDigits = computed(() => String(this.itemCount()).length);
 
   /** Opens the projected filters in a dialog (a bottom sheet on small screens). */
   protected openFilterDialog(): void {
