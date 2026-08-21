@@ -76,6 +76,7 @@ For each numbered step in the run plan:
 1. Perform the action using the `interact-client` skill's MCP tool conventions — refer to the
    loaded skill for driver method signatures, feature flag patterns, and biometrics flows.
 2. Call `take_screenshot` (with the appropriate MCP prefix) after each action.
+   - Use the fullPage parameter
 3. Save to `.debug/automated-run/<run-id>/step-N-<slug>.png` where N is the step number and slug is a
    2-3 word kebab-case description (e.g. `step-1-login-screen`, `step-2-flag-enabled`).
 4. If a step fails, note it in the plan file and continue with remaining steps.
@@ -89,6 +90,9 @@ Call `screencast_stop` to end the recording.
 Write `.debug/automated-run/<run-id>/summary.md` using the Write tool. Include:
 
 - Run ID, date, and account used
+- An **Environment** section: client and DevTools port, server URL, the account (email or user id)
+  and how it was unlocked, and every feature flag the run overrode with its value. This is what the
+  `package-automated-run` skill reports, and it cannot be recovered once the app is closed.
 - A pass/fail table with one row per step
 - A **Findings** section: describe what worked, what failed, and why — grounded in observed UI
   behavior. If a failure is expected (e.g. a known limitation or in-progress feature), say so.
@@ -97,9 +101,17 @@ Write `.debug/automated-run/<run-id>/summary.md` using the Write tool. Include:
 Then relay the same summary to the user in chat. Include the run ID so they can reference the
 artifacts.
 
+### Step 7: Offer a shareable package
+
+If the run is meant for QA, a PM, or a PR, invoke the `package-automated-run` skill on the run
+directory. It builds `package/` with a plain-text report and an MP4 of the screenshots whose
+burned-in subtitles describe what each frame verifies.
+
 ## References
 
+- `package-automated-run` skill: turns a finished run into a shareable report plus subtitled video
+- `scripts/steps-to-video.sh`: builds the MP4 from `step-*.png` (`-c` takes a caption file)
 - `interact-client` skill: MCP tool conventions, automation driver, feature flags, biometrics, platform routing
 - `interact-client-lock` skill: lock and unlock flows
-- `libs/common/src/platform/services/automation-driver.service.ts`: automation driver definition
+- `libs/automation-driver/src/automation-driver.service.ts`: automation driver definition
 - `apps/desktop/src/app/services/init.service.ts`: desktop driver attachment point
