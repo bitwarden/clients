@@ -188,7 +188,7 @@
                   id="pam-cipher-view-banner_input_start"
                 />
               </bit-form-field>
-              <bit-form-field>
+              <bit-form-field data-testid="request-window-end-field">
                 <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
                 <input
                   bitInput
@@ -199,31 +199,15 @@
               </bit-form-field>
             </div>
 
-            @if (windowEndBeforeStart()) {
-              <p
-                bitTypography="helper"
-                class="tw-text-danger"
-                data-testid="window-end-before-start"
-              >
-                {{ "requestAccessModalEndBeforeStart" | i18n }}
-              </p>
-            } @else if (windowExceedsMax()) {
-              <p bitTypography="helper" class="tw-text-danger" data-testid="window-exceeds-max">
-                {{
-                  "requestAccessModalWindowExceedsMax" | i18n: (maxWindowSeconds() | durationLong)
-                }}
-              </p>
-            }
-
             <bit-form-field>
               <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
-              <input
+              <textarea
                 bitInput
-                type="text"
+                rows="3"
                 formControlName="reason"
                 [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
-                id="pam-cipher-view-banner_input_human-reason"
-              />
+                id="pam-cipher-view-banner_textarea_human-reason"
+              ></textarea>
               <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
             </bit-form-field>
           </form>

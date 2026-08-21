@@ -3,9 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  LOCALE_ID,
   NgZone,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   signal,
@@ -51,6 +53,7 @@ import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
+import { formatDuration } from "../date/format-duration";
 import { formatRemaining } from "../date/format-remaining";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
@@ -89,6 +92,7 @@ import {
     AsyncActionsModule,
     ButtonModule,
     CalloutModule,
+    DatePipe,
     FormFieldModule,
     ReactiveFormsModule,
     TypographyModule,
@@ -116,6 +120,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+  private readonly locale = inject(LOCALE_ID);
 
   /** Ticks once a second so the live countdown and a scheduled window's opening stay current. */
   private readonly nowMs = signal(Date.now());
@@ -160,6 +165,32 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly activeLease = computed(() => this.state()?.activeLease);
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
+
+  /**
+   * The approved request's activation window, or `null` before it opens or once it has — mirrors
+   * `startsNow`/the window pair in `my-requests-tab.component.ts` so the two surfaces agree on the
+   * same fields. `startsAt` is non-null only while the window hasn't opened yet; `DatePipe` throws
+   * on an unparseable value rather than rendering nothing, so an unparseable date renders no window
+   * text at all instead of blanking the whole banner.
+   */
+  protected readonly approvedAccessWindow = computed<{
+    startsAt: string | null;
+    endsAt: string;
+  } | null>(() => {
+    const request = this.approvedRequest();
+    if (request == null) {
+      return null;
+    }
+    const notBeforeMs = Date.parse(request.leaseNotBefore);
+    const notAfterMs = Date.parse(request.leaseNotAfter);
+    if (Number.isNaN(notBeforeMs) || Number.isNaN(notAfterMs)) {
+      return null;
+    }
+    return {
+      startsAt: notBeforeMs > this.nowMs() ? request.leaseNotBefore : null,
+      endsAt: request.leaseNotAfter,
+    };
+  });
 
   /** The unified access-state pill, so this banner reads the same as the row and the Requests page. */
   protected readonly badge = computed(() => cipherAccessBadgeState(this.state()));
@@ -284,6 +315,35 @@ export class CipherViewBannerComponent implements OnInit {
     this.humanForm.valueChanges.pipe(map(() => this.humanForm.errors)),
     { initialValue: null },
   );
+
+  constructor() {
+    // The window validator lives on the form group, not on `end`, so `bit-form-field`'s automatic
+    // error slot (which reads `end`'s own control status) never sees it. Setting it on `end`
+    // directly is the same technique `access-rule-edit.component.ts`'s `showFieldSaveError` uses.
+    effect(() => {
+      const end = this.humanForm.controls.end;
+      if (this.windowEndBeforeStart()) {
+        end.setErrors({
+          [REQUEST_WINDOW_ERROR_KEY]: {
+            message: this.i18nService.t("requestAccessModalEndBeforeStart"),
+          },
+        });
+        end.markAsTouched();
+      } else if (this.windowExceedsMax()) {
+        end.setErrors({
+          [REQUEST_WINDOW_ERROR_KEY]: {
+            message: this.i18nService.t(
+              "requestAccessModalWindowExceedsMax",
+              formatDuration(this.locale, this.maxWindowSeconds(), "long"),
+            ),
+          },
+        });
+        end.markAsTouched();
+      } else if (end.hasError(REQUEST_WINDOW_ERROR_KEY)) {
+        end.setErrors(null);
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Kept outside the Angular zone: a periodic in-zone timer never lets NgZone settle, which would
