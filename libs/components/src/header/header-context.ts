@@ -46,4 +46,15 @@ export class HeaderContext {
   registerPromotedHeading(promoted: Signal<boolean>) {
     this.promotedHeading.set(promoted);
   }
+
+  /**
+   * Unregister the promoted heading source. Called by a projected `bit-breadcrumbs` on destroy.
+   * Only unregister if the current promoted heading matches, to prevent erroneous unregistrations
+   * in edge cases like race conditions
+   */
+  unregisterPromotedHeading(promoted: Signal<boolean>) {
+    if (this.promotedHeading() === promoted) {
+      this.promotedHeading.set(undefined);
+    }
+  }
 }

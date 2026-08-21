@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   TemplateRef,
   contentChild,
   effect,
@@ -31,7 +32,7 @@ import { BitwardenIcon } from "../shared/icon";
   imports: [IconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbComponent {
+export class BreadcrumbComponent implements OnInit {
   /**
    * Optional icon to display before the breadcrumb text.
    */
@@ -99,8 +100,6 @@ export class BreadcrumbComponent {
   }
 
   constructor() {
-    this.checkActiveRoute();
-
     this.router.events
       .pipe(
         takeUntilDestroyed(),
@@ -116,6 +115,13 @@ export class BreadcrumbComponent {
         tile.size.set(this.size() === "small" ? "xs" : "sm");
       }
     });
+  }
+
+  ngOnInit() {
+    // Check again, when inputs are populated, to catch the case where a `bit-breadcrumb` created
+    // *after* the `NavigationEnd` for the current URL has already fired (ex. async data revealing
+    // an `@if`, a lazily-shown breadcrumb list, a Storybook story with no subsequent navigation).
+    this.checkActiveRoute();
   }
 
   onClick(args: unknown) {

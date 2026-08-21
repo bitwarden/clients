@@ -5,6 +5,7 @@ import {
   Component,
   computed,
   contentChildren,
+  DestroyRef,
   effect,
   ElementRef,
   inject,
@@ -55,7 +56,7 @@ const TRAILING_ARROW_RESERVE_PX = { base: 48, small: 34 } as const;
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: "tw-flex tw-items-center",
+    class: "tw-flex tw-items-center tw-w-full tw-min-w-0",
     role: "navigation",
     "[attr.aria-label]": "ariaLabel",
   },
@@ -104,6 +105,13 @@ export class BreadcrumbsComponent {
   private readonly overflowList = viewChild.required(OverflowListDirective);
 
   constructor() {
+    if (this.headerContext) {
+      this.headerContext.registerPromotedHeading(this.displayActiveAsHeader);
+      inject(DestroyRef).onDestroy(() =>
+        this.headerContext?.unregisterPromotedHeading(this.displayActiveAsHeader),
+      );
+    }
+
     // Push our size down to each child crumb so they can size projected icon tiles in step.
     effect(() => {
       const size = this.size();
@@ -118,8 +126,6 @@ export class BreadcrumbsComponent {
       this.size();
       this.overflowList().remeasure({ reset: true });
     });
-
-    this.headerContext?.registerPromotedHeading(this.displayActiveAsHeader);
   }
 
   protected readonly activeBreadcrumb = computed(() => {

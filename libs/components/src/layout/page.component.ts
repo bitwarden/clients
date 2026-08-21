@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
+import { of } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -30,11 +31,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PageComponent {
-  private readonly configService = inject(ConfigService);
+  private readonly configService = inject(ConfigService, { optional: true });
 
   // remove when VFO1 flag is removed
   protected readonly vfo1Enabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
     { initialValue: false },
   );
 }

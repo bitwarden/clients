@@ -42,6 +42,9 @@ import { HeaderContext } from "./header-context";
       deps: [],
     }),
   ],
+  host: {
+    class: "tw-@container",
+  },
 })
 export class HeaderComponent {
   private readonly configService = inject(ConfigService, { optional: true });
