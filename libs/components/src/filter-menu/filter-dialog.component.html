@@ -1,18 +1,27 @@
-<bit-dialog [title]="activeFilter()?.label() ?? ('filter' | i18n)" dialogSize="small">
-  <div bitDialogContent>
-    @if (activeFilter(); as filter) {
+<bit-dialog [title]="activeFilter() ? '' : ('filter' | i18n)" dialogSize="small">
+  <!--
+    A drill-in titles itself, prefixed by the control that returns to the list. The
+    chevron belongs beside the title rather than above the options, so it's projected
+    into the header instead of using `[title]`.
+  -->
+  @if (activeFilter(); as filter) {
+    <span bitDialogTitle class="tw-flex tw-items-center tw-gap-1">
       <button
         type="button"
-        bitButton
-        buttonType="secondary"
+        bitIconButton="bwi-angle-left"
+        buttonType="primaryGhost"
         size="small"
-        startIcon="bwi-angle-left"
-        class="tw-mb-2"
+        [label]="'back' | i18n"
         (click)="back()"
-      >
-        {{ "back" | i18n }}
-      </button>
-      <ng-container *ngTemplateOutlet="filter.optionsTemplate()!"></ng-container>
+      ></button>
+      {{ filter.label() }}
+    </span>
+  }
+  <div bitDialogContent>
+    @if (activeFilter(); as filter) {
+      <div [class]="optionListClasses">
+        <ng-container *ngTemplateOutlet="filter.optionsTemplate()!"></ng-container>
+      </div>
     } @else {
       <div class="tw-flex tw-flex-col tw-gap-2">
         @for (filter of filters; track filter.key()) {
@@ -29,10 +38,10 @@
               <bit-icon [name]="icon" class="tw-flex-none" aria-hidden="true"></bit-icon>
             }
             <span class="tw-min-w-0 tw-flex-1 tw-truncate">
-              {{ filter.label() }}
+              {{ rowLabel(filter) }}
               <!-- The selection reads as secondary to the category it belongs to. -->
               @if (filter.summary(); as summary) {
-                <span class="tw-text-fg-body">: {{ summary }}</span>
+                <span class="tw-text-fg-body">{{ summary }}</span>
               }
             </span>
             @if (filter.optionsTemplate()) {
@@ -50,17 +59,29 @@
         {{ "done" | i18n }}
       </button>
     } @else {
-      <span class="tw-text-sm tw-text-muted">{{ "filtersSelected" | i18n: selectedCount() }}</span>
+      <!-- Nothing to count or clear until a filter is set, so both stay out of the way. -->
+      @if (selectedCount()) {
+        <span class="tw-text-sm tw-text-muted">{{
+          "filtersSelected" | i18n: selectedCount()
+        }}</span>
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          class="tw-ms-auto"
+          startIcon="bwi-clear"
+          (click)="clearAll()"
+        >
+          {{ "clearAll" | i18n }}
+        </button>
+      }
       <button
         bitButton
-        buttonType="secondary"
+        buttonType="primary"
         type="button"
-        class="tw-ms-auto"
-        (click)="clearAll()"
+        [class.tw-ms-auto]="!selectedCount()"
+        (click)="close()"
       >
-        {{ "clearAll" | i18n }}
-      </button>
-      <button bitButton buttonType="primary" type="button" (click)="close()">
         {{ "done" | i18n }}
       </button>
     }
