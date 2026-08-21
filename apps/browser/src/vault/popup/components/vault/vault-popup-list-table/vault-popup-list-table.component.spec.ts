@@ -35,6 +35,7 @@ import {
   CompactModeService,
   DialogService,
   FilterMenuComponent,
+  FilterSectionComponent,
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
@@ -503,6 +504,99 @@ describe("VaultPopupListTableComponent", () => {
       const options = component["folderOptions"]();
       expect(options.map((o) => o.label)).toEqual(["Work", "Personal", "Home", "Personal"]);
       expect(new Set(options.map((o) => o.value.id)).size).toBe(4);
+    });
+
+    describe("collection org grouping", () => {
+      const col1 = {
+        id: "col-1",
+        name: "Alpha",
+        organizationId: "org-1",
+      } as unknown as CollectionView;
+      const col2 = {
+        id: "col-2",
+        name: "Beta",
+        organizationId: "org-1",
+      } as unknown as CollectionView;
+      const col3 = {
+        id: "col-3",
+        name: "Gamma",
+        organizationId: "org-2",
+      } as unknown as CollectionView;
+
+      it("does not group when all collections belong to one organization", () => {
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col2, label: "Beta" },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(false);
+      });
+
+      it("groups when collections belong to multiple organizations", () => {
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["groupCollectionsByOrg"]()).toBe(true);
+      });
+
+      it("places each collection under its owning organization", () => {
+        organizations$.next([
+          { value: { id: "org-1" } as Organization, label: "Acme" },
+          { value: { id: "org-2" } as Organization, label: "Zeta" },
+        ]);
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        fixture.detectChanges();
+
+        const groups = component["collectionsByOrg"]();
+        expect(groups).toHaveLength(2);
+        expect(groups[0]).toMatchObject({ name: "Acme", collections: [{ value: col1 }] });
+        expect(groups[1]).toMatchObject({ name: "Zeta", collections: [{ value: col3 }] });
+      });
+
+      it("sorts groups alphabetically by organization name", () => {
+        organizations$.next([
+          { value: { id: "org-2" } as Organization, label: "Zeta" },
+          { value: { id: "org-1" } as Organization, label: "Acme" },
+        ]);
+        collections$.next([
+          { value: col3, label: "Gamma" },
+          { value: col1, label: "Alpha" },
+        ]);
+        fixture.detectChanges();
+
+        expect(component["collectionsByOrg"]().map((g) => g.name)).toEqual(["Acme", "Zeta"]);
+      });
+
+      it("renders a flat option list when there is only one organization", () => {
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col2, label: "Beta" },
+        ]);
+        fixture.detectChanges();
+
+        expect(fixture.debugElement.queryAll(By.directive(FilterSectionComponent))).toHaveLength(0);
+      });
+
+      it("renders one collapsible section per organization when there are multiple", () => {
+        organizations$.next([
+          { value: { id: "org-1" } as Organization, label: "Acme" },
+          { value: { id: "org-2" } as Organization, label: "Zeta" },
+        ]);
+        collections$.next([
+          { value: col1, label: "Alpha" },
+          { value: col3, label: "Gamma" },
+        ]);
+        fixture.detectChanges();
+
+        expect(fixture.debugElement.queryAll(By.directive(FilterSectionComponent))).toHaveLength(2);
+      });
     });
 
     /** See `VaultFilterChipDirective.filterOptions` for why the resolution is needed. */

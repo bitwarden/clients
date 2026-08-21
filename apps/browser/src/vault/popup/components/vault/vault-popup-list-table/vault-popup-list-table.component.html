@@ -61,10 +61,22 @@
         [unsetLabel]="'all' | i18n"
         multiple
       >
-        @for (option of collectionOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">{{
-            option.label
-          }}</bit-filter-option>
+        @if (groupCollectionsByOrg()) {
+          @for (org of collectionsByOrg(); track org.name) {
+            <bit-filter-section [label]="org.name" collapsible>
+              @for (option of org.collections; track option.value.id) {
+                <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">
+                  {{ option.label }}
+                </bit-filter-option>
+              }
+            </bit-filter-section>
+          }
+        } @else {
+          @for (option of collectionOptions(); track option.value.id) {
+            <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">{{
+              option.label
+            }}</bit-filter-option>
+          }
         }
       </bit-filter-menu>
     }
