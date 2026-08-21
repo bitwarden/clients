@@ -183,7 +183,11 @@ export class VaultPopupListTableComponent {
 
   /** True when collections span more than one organization — switches to org-sectioned layout. */
   protected readonly groupCollectionsByOrg = computed(() => {
-    const orgIds = new Set(this.collectionOptions().map((o) => o.value.organizationId));
+    const orgIds = new Set(
+      this.collectionOptions()
+        .map((o) => o.value?.organizationId)
+        .filter(Boolean),
+    );
     return orgIds.size > 1;
   });
 
@@ -197,10 +201,15 @@ export class VaultPopupListTableComponent {
       { name: string; collections: ChipFilterOption<CollectionView>[] }
     >();
     for (const option of this.collectionOptions()) {
-      const orgId = option.value.organizationId as string;
+      const orgId = option.value?.organizationId as string | undefined;
+
+      if (!orgId) {
+        continue;
+      }
+
       if (!groups.has(orgId)) {
         const orgName =
-          this.organizationOptions().find((o) => o.value.id === option.value.organizationId)
+          this.organizationOptions().find((o) => o.value?.id === option.value?.organizationId)
             ?.label ?? orgId;
         groups.set(orgId, { name: orgName, collections: [] });
       }
