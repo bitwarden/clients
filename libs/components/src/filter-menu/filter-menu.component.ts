@@ -245,8 +245,8 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
   });
 
   /**
-   * The count shown on the single-select "All" row: this chip's `key` cleared, every
-   * other active filter still applied. `undefined` without a host or a `[filter]`.
+   * The count shown on the single-select "All" row: every row the host holds, since
+   * "All" pins no value. `undefined` without a host or a `[filter]`.
    */
   protected readonly unsetCount = computed(() => this.filterHost?.optionCount?.(this.key(), null));
 
