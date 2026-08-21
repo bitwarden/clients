@@ -89,10 +89,10 @@
         <rescap:Capability Name="runFullTrust" />
     </Capabilities>
     <Applications>
-        <Application Id="bitwardendesktop" Executable="${executable}"
+        <Application Id="${applicationId}" Executable="${executable}"
             EntryPoint="Windows.FullTrustApplication">
             <uap:VisualElements
-                BackgroundColor="#175DDC"
+                BackgroundColor="${backgroundColor}"
                 DisplayName="${displayName}"
                 Square150x150Logo="assets\Square150x150Logo.png"
                 Square44x44Logo="assets\Square44x44Logo.png"
