@@ -29,7 +29,6 @@
       [canCreateCipher]="(canCreateCipher$ | async) ?? true"
       [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
       [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
-      [initialSearchText]="currentSearchText$ | async"
       (onEvent)="onVaultItemsEvent($event)"
       (onAddCipher)="addCipher($event)"
       (onAddFolder)="addFolder()"

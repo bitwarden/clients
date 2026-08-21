@@ -4,6 +4,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, switchMap } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoCredentialsIcon, ReportExposedPasswords, LockIcon } from "@bitwarden/assets/svg";
+import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
 import { CurrentAccountComponent } from "@bitwarden/browser/auth/popup/account-switching/current-account.component";
@@ -24,9 +26,19 @@ import {
   TypographyModule,
   ButtonModule,
   IconButtonModule,
+  MenuModule,
+  IconModule,
+  DialogService,
+  CenterPositionStrategy,
+  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
+
+import {
+  HealthDeleteAtRiskItemDialogComponent,
+  HealthDeleteAtRiskItemDialogData,
+} from "./health-delete-at-risk-item-dialog.component";
 
 const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
 
@@ -47,6 +59,9 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     IconButtonModule,
     AppVaultIconComponent,
     I18nPipe,
+    MenuModule,
+    IconModule,
+    NoItemsModule,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
@@ -58,6 +73,7 @@ export class HealthRiskCategoryDetailComponent {
   readonly passwordRepromptService = inject(PasswordRepromptService);
   readonly platformUtilsService = inject(PlatformUtilsService);
   readonly vaultHealthReportService = inject(VaultHealthReportService);
+  readonly dialogService = inject(DialogService);
 
   constructor() {
     effect(() => {
@@ -119,18 +135,39 @@ export class HealthRiskCategoryDetailComponent {
     });
   };
 
+  readonly onDeleteItem = async (health: CipherHealthView, cipher: CipherView) => {
+    const repromptPassed = await this.passwordRepromptService.passwordRepromptCheck(cipher);
+    if (!repromptPassed) {
+      return;
+    }
+
+    await this.dialogService.open(HealthDeleteAtRiskItemDialogComponent, {
+      positionStrategy: new CenterPositionStrategy(),
+      data: {
+        item: health,
+        currentCategory: this.category()!,
+      } satisfies HealthDeleteAtRiskItemDialogData,
+    });
+  };
+
   readonly HEALTH_DETAIL_CONTENTS = {
     [RiskCategory.Exposed]: {
       titleKey: "exposedPasswordsTitle",
       descriptionKey: "exposedPasswordsDescription",
+      emptyKey: "exposedPasswordsEmpty",
+      emptyIcon: ReportExposedPasswords,
     },
     [RiskCategory.Weak]: {
       titleKey: "weakPasswordsTitle",
       descriptionKey: "weakPasswordsDescription",
+      emptyKey: "weakPasswordEmpty",
+      emptyIcon: LockIcon,
     },
     [RiskCategory.Reused]: {
       titleKey: "reusedPasswordsTitle",
       descriptionKey: "reusedPasswordsDescription",
+      emptyKey: "reusedPasswordEmpty",
+      emptyIcon: NoCredentialsIcon,
     },
   };
 }

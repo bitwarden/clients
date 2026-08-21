@@ -14,6 +14,7 @@ import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-t
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -21,6 +22,7 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
+  KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -55,6 +57,7 @@ describe("DefaultUnlockService", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   const biometricStateService = mock<BiometricStateService>();
   const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();
+  const keyService = mock<KeyService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -126,6 +129,7 @@ describe("DefaultUnlockService", () => {
       stateService,
       biometricStateService,
       v2UpgradeTokenStateService,
+      keyService,
     );
 
     setLegacyMasterKeyFromUnlockDataSpy = jest
@@ -358,6 +362,63 @@ describe("DefaultUnlockService", () => {
       await expect(
         service.unlockWithKeyConnector(mockUserId, mockKeyConnectorUnlockData),
       ).rejects.toThrow("SDK not available");
+    });
+  });
+
+  describe("unlockWithAutoUnlockKey", () => {
+    const mockAutoUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+
+    it("returns false without reading storage when the userId is null", async () => {
+      const result = await service.unlockWithAutoUnlockKey(null as unknown as UserId);
+
+      expect(result).toBe(false);
+      expect(keyService.getUserKeyFromStorage).not.toHaveBeenCalled();
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
+    });
+
+    it("returns false without unlocking when no never-lock key is stored", async () => {
+      keyService.getUserKeyFromStorage.mockResolvedValue(null);
+
+      const result = await service.unlockWithAutoUnlockKey(mockUserId);
+
+      expect(result).toBe(false);
+      expect(keyService.getUserKeyFromStorage).toHaveBeenCalledWith(
+        KeySuffixOptions.Auto,
+        mockUserId,
+      );
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
+    });
+
+    it("calls SDK initialize_user_crypto with the stored key and returns true", async () => {
+      keyService.getUserKeyFromStorage.mockResolvedValue(mockAutoUserKey);
+
+      const result = await service.unlockWithAutoUnlockKey(mockUserId);
+
+      expect(result).toBe(true);
+      expect(keyService.getUserKeyFromStorage).toHaveBeenCalledWith(
+        KeySuffixOptions.Auto,
+        mockUserId,
+      );
+      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith({
+        userId: mockUserId,
+        kdfParams: mockKdfParams,
+        email: mockEmail,
+        accountCryptographicState: mockAccountCryptographicState,
+        method: {
+          decryptedKey: {
+            decrypted_user_key: mockAutoUserKey.toBase64(),
+          },
+        },
+      });
+    });
+
+    it("throws when SDK is not available", async () => {
+      keyService.getUserKeyFromStorage.mockResolvedValue(mockAutoUserKey);
+      registerSdkService.registerClient$.mockReturnValue(of(null as any));
+
+      await expect(service.unlockWithAutoUnlockKey(mockUserId)).rejects.toThrow(
+        "SDK not available",
+      );
     });
   });
 

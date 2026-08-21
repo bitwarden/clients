@@ -287,7 +287,6 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
@@ -1054,6 +1053,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      KeyService,
     ],
   }),
   safeProvider({
@@ -1337,7 +1337,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      KeyService,
       LegacyCompatKeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -1350,6 +1349,7 @@ const safeProviders: SafeProvider[] = [
       AccountCryptographicStateService,
       SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -1721,11 +1721,6 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: UserAutoUnlockKeyService,
-    useClass: UserAutoUnlockKeyService,
-    deps: [KeyService],
-  }),
-  safeProvider({
     provide: ErrorHandler,
     useClass: LoggingErrorHandler,
     deps: [],
@@ -1801,6 +1796,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
