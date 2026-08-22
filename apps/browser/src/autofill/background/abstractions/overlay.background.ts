@@ -132,6 +132,10 @@ export type CloseInlineMenuMessage = {
   overlayElement?: string;
 };
 
+export type FilterInlineMenuMessage = {
+  filterValue?: string;
+};
+
 export type ToggleInlineMenuHiddenMessage = {
   isInlineMenuHidden?: boolean;
   setTransparentInlineMenu?: boolean;
@@ -161,6 +165,7 @@ export type OverlayBackgroundExtensionMessage = {
   iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
+  FilterInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &
   UpdateInlineMenuVisibilityMessage;
 
@@ -255,6 +260,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   getInlineMenuIdentitiesVisibility: () => void;
   getInlineMenuSshKeysVisibility: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  filterAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: ({ sender }: BackgroundSenderParam) => void;
   focusAutofillInlineMenuList: () => void;
   getAutofillInlineMenuPosition: () => InlineMenuPosition;

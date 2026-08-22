@@ -23,7 +23,6 @@ import {
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
 import { AutofillFieldQualifier, AutofillFieldQualifierType } from "../enums/autofill-field.enums";
 import {
-  AutofillOverlayElement,
   InlineMenuAccountCreationFieldType,
   InlineMenuFillTypes,
   MAX_SUB_FRAME_DEPTH,
@@ -876,9 +875,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.sendExtensionMessage("closeAutofillInlineMenu", {
-      overlayElement: AutofillOverlayElement.List,
-      forceCloseInlineMenu: true,
+    await this.sendExtensionMessage("filterAutofillInlineMenu", {
+      filterValue: formFieldElement.value,
     });
 
     if (!formFieldElement?.value) {
