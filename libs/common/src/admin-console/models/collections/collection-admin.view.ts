@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
-import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { DECRYPT_ERROR, EncryptService, EncString } from "@bitwarden/legacy-crypto";
 
 import { OrgKey } from "../../../types/key";
 import { Organization } from "../domain/organization";
@@ -123,7 +123,7 @@ export class CollectionAdminView extends CollectionView {
     try {
       view.name = await encryptService.decryptString(new EncString(view.name), orgKey);
     } catch (e) {
-      view.name = "[error: cannot decrypt]";
+      view.name = DECRYPT_ERROR;
       // Note: This should be replaced by the owning team with appropriate, domain-specific behavior.
       // eslint-disable-next-line no-console
       console.error(
@@ -147,6 +147,70 @@ export class CollectionAdminView extends CollectionView {
     view.users = collection.users
       ? collection.users.map((g) => new CollectionAccessSelectionView(g))
       : [];
+
+    return view;
+  }
+
+  /**
+   * Wraps an already-decrypted `CollectionView` (produced by
+   * {@link CollectionEncryptionService.decryptManyWithFailures}) with the admin-only fields
+   * (`groups`, `users`, `unmanaged`, `assigned`) carried by the access-details response. This is a
+   * data transform only - decryption itself is the responsibility of `CollectionEncryptionService`.
+   */
+  static fromCollectionView(
+    view: CollectionView,
+    source: CollectionAccessDetailsResponse,
+  ): CollectionAdminView {
+    const adminView = new CollectionAdminView({
+      id: view.id,
+      organizationId: view.organizationId,
+      name: view.name,
+    });
+
+    adminView.externalId = view.externalId;
+    adminView.hidePasswords = view.hidePasswords;
+    adminView.readOnly = view.readOnly;
+    adminView.manage = view.manage;
+    adminView.type = view.type;
+    adminView.defaultUserCollectionEmail = view.defaultUserCollectionEmail;
+
+    adminView.assigned = source.assigned;
+    adminView.unmanaged = source.unmanaged;
+    adminView.groups = source.groups
+      ? source.groups.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+    adminView.users = source.users
+      ? source.users.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+
+    return adminView;
+  }
+
+  /**
+   * Creates a placeholder CollectionAdminView for a collection that failed to decrypt via the
+   * SDK bulk path (`decrypt_list_with_failures`). Unlike the personal-vault decryption path, the
+   * Admin Console must never silently drop a collection that fails to decrypt, since admins still
+   * need to see, manage, and delete it. Mirrors the fallback behavior of
+   * {@link fromCollectionAccessDetails}'s catch branch.
+   */
+  static fromCollectionAccessDetailsDecryptionFailure(
+    source: CollectionAccessDetailsResponse,
+  ): CollectionAdminView {
+    const view = new CollectionAdminView({ ...source, name: DECRYPT_ERROR });
+
+    view.assigned = source.assigned;
+    view.readOnly = source.readOnly;
+    view.hidePasswords = source.hidePasswords;
+    view.manage = source.manage;
+    view.unmanaged = source.unmanaged;
+    view.type = source.type;
+    view.externalId = source.externalId;
+    view.defaultUserCollectionEmail = source.defaultUserCollectionEmail;
+
+    view.groups = source.groups
+      ? source.groups.map((g) => new CollectionAccessSelectionView(g))
+      : [];
+    view.users = source.users ? source.users.map((g) => new CollectionAccessSelectionView(g)) : [];
 
     return view;
   }

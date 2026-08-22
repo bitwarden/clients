@@ -6,6 +6,7 @@ import { Router } from "@angular/router";
 
 import {
   CollectionAdminService,
+  CollectionEncryptionService,
   CollectionService,
   DefaultCollectionAdminService,
   DefaultOrganizationUserService,
@@ -389,6 +390,9 @@ const safeProviders: SafeProvider[] = [
       EncryptService,
       CollectionService,
       OrganizationService,
+      CollectionEncryptionService,
+      ConfigService,
+      LogService,
     ],
   }),
   safeProvider({
