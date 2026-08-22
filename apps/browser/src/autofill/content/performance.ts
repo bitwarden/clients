@@ -24,6 +24,12 @@ const NAMES_CACHE_WARN_THRESHOLD = 64;
 
 const NAMES_SUFFIX = "autofill:bw";
 
+// Beacon so an out-of-page harness can confirm an instrumented build before any
+// measured code has run.
+if (enabled) {
+  performance.mark(`perf:enabled:${NAMES_SUFFIX}`);
+}
+
 function formatMark(name: string, mark: string) {
   return `${name}:${mark}:${NAMES_SUFFIX}`;
 }
