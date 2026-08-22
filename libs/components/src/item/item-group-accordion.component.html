@@ -1,0 +1,15 @@
+<bit-accordion
+  [title]="title()"
+  [subtitle]="subtitle()"
+  [(open)]="open"
+  [startIcon]="startIcon()"
+  [disabled]="disabled()"
+  [size]="size()"
+  [variant]="variant()"
+  [padded]="false"
+>
+  <ng-content select="[slot=end]" ngProjectAs="[slot=end]"></ng-content>
+  <div class="tw-divide-y tw-divide-solid tw-divide-border-base">
+    <ng-content></ng-content>
+  </div>
+</bit-accordion>

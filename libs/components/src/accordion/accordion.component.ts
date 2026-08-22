@@ -57,6 +57,12 @@ export class AccordionComponent {
   readonly size = input<AccordionSize>("default");
   readonly variant = input<AccordionVariant>("default");
 
+  /**
+   * Whether the collapsible content region keeps its default inner padding. Set `false` for
+   * content that should sit flush to the body edges — e.g. a divided list of items.
+   */
+  readonly padded = input(true, { transform: booleanAttribute });
+
   protected readonly resolvedVariant = computed(() => this.group?.variant() ?? this.variant());
 
   protected readonly _baseId = `bit-accordion-${nextId++}`;
@@ -148,7 +154,11 @@ export class AccordionComponent {
       this.resolvedVariant() === "subtle" && this.open()
         ? "tw-border-t tw-border-solid tw-border-border-base"
         : "",
-      this.open() ? "tw-grid-rows-[1fr] tw-py-4" : "tw-grid-rows-[0fr] tw-py-0",
+      this.open()
+        ? this.padded()
+          ? "tw-grid-rows-[1fr] tw-py-4"
+          : "tw-grid-rows-[1fr] tw-py-0"
+        : "tw-grid-rows-[0fr] tw-py-0",
     ].join(" "),
   );
 }
