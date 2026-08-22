@@ -72,6 +72,28 @@ both content projection and content queries against where a template is _declare
 through `ngTemplateOutlet` doesn't work: the child options are neither projected past the parent's
 label nor visible to its content query. Depth is therefore whatever the template spells out.
 
+## Keyboard
+
+A single-select menu is a group of radios: the browser gives it one tab stop, arrow keys move and
+select, and Space selects.
+
+A multi-select menu is a **tree** — rows are selectable, rows can own rows, and a parent can be
+partly selected, which is more than a listbox can express. It's one tab stop, navigated with:
+
+| Key            | Behaviour                                          |
+| -------------- | -------------------------------------------------- |
+| `↑` / `↓`      | Move between the rows currently on screen          |
+| `→`            | Open a closed row; step into an already-open one   |
+| `←`            | Close an open row; otherwise move up to the parent |
+| `Home` / `End` | First / last row                                   |
+| `Space`        | Select or clear the row, and everything beneath it |
+
+The expander is driven by `←`/`→` rather than being its own tab stop, and section headers are rows
+too — expandable but not selectable.
+
+Both surfaces sit in a `dialog`-role popover, so `Tab` reaches the search field and the footer
+instead of dismissing, and `Escape` closes and returns focus to the chip.
+
 ## Value
 
 A chip is a named form control. It owns its selection — **no `ngModel`** — and exposes it under its
