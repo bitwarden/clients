@@ -42,7 +42,6 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailService,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -68,8 +67,6 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { ClientType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import {
   InternalMasterPasswordServiceAbstraction,
@@ -142,13 +139,19 @@ import {
   KeyManagementUiModule,
 } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  CryptoFunctionService,
+  EncryptService,
+  LegacyCompatKeyService,
+} from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
+  DefaultVaultNavService,
   SshImportPromptService,
+  VaultNavService,
 } from "@bitwarden/vault";
 import { WebVaultPremiumUpgradePromptService } from "@bitwarden/web-vault/app/billing/services/web-premium-upgrade-prompt.service";
 import { WebCipherFormGenerationService } from "@bitwarden/web-vault/app/vault/services/web-cipher-form-generation.service";
@@ -344,6 +347,7 @@ const safeProviders: SafeProvider[] = [
       RouterService,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -500,6 +504,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CipherFormGenerationService,
     useClass: WebCipherFormGenerationService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: VaultNavService,
+    useClass: DefaultVaultNavService,
     deps: [],
   }),
   safeProvider({

@@ -5,8 +5,6 @@ import mock from "jest-mock-extended/lib/Mock";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterKeyWrappedUserKey,
@@ -18,21 +16,23 @@ import {
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey, UserPrivateKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { newGuid } from "@bitwarden/guid";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
   DEFAULT_KDF_CONFIG,
+  EncryptionType,
+  EncryptService,
+  EncString,
   KdfType,
-  KeyService,
-} from "@bitwarden/key-management";
-// eslint-disable-next-line no-restricted-imports
-import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";

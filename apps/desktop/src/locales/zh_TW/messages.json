@@ -525,15 +525,6 @@
   "launch": {
     "message": "前往"
   },
-  "launchWebsiteForName": {
-    "message": "開啟 $ITEMNAME$ 的網站",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
     "message": "Launch website"
   },
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "複製驗證碼 (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "複製 $FIELD$，$CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "複製私鑰"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "在保管庫中顯示快速複製操作"
   },
-  "copyNoteTitle": {
-    "message": "複製備註 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "沒有可複製的詳細資訊"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "沒有安全碼"
   },
-  "copyDetailsTitle": {
-    "message": "複製 $ITEMNAME$ 的詳細資訊",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "複製使用者名稱"
   },
@@ -2179,9 +2136,6 @@
     "message": "複製安全代碼",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "信用卡號碼"
-  },
   "premiumMembership": {
     "message": "進階會員"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "您可以在 bitwarden.com 網頁版密碼庫管理你的會員資格。現在要前往嗎？"
   },
-  "premiumRefresh": {
-    "message": "更新會員資格狀態"
-  },
-  "premiumNotCurrentMember": {
-    "message": "您尚未成為進階會員。"
-  },
-  "premiumSignUpAndGet": {
-    "message": "註冊成為進階會員將獲得："
-  },
   "premiumSignUpStorage": {
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
-  },
-  "premiumSignUpStorageV2": {
-    "message": "用於檔案附件的 $SIZE$ 加密儲存空間。",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "專有的兩步驟登入選項，例如 YubiKey 和 Duo。"
-  },
-  "premiumSignUpReports": {
-    "message": "密碼健康度檢查、提供帳戶體檢以及資料外洩報告，以保障您的密碼庫安全。"
-  },
-  "premiumSignUpTotp": {
-    "message": "用於您的密碼庫中登入項目的 TOTP 驗證碼 (2FA) 產生器。"
-  },
-  "premiumSignUpSupport": {
-    "message": "優先客戶支援。"
-  },
-  "premiumSignUpFuture": {
-    "message": "未來會增加更多進階功能，敬請期待！"
   },
   "premiumPurchase": {
     "message": "購買進階會員資格"
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 網頁應用程式的帳號設定中購買進階版。"
-  },
-  "premiumCurrentMember": {
-    "message": "您目前是進階會員！"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "感謝您支持 Bitwarden 。"
-  },
-  "premiumPrice": {
-    "message": "每年只需 $PRICE$！",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "月"
@@ -5267,10 +5173,17 @@
     "message": "更改帳號電子郵件位址"
   },
   "passkeyLogin": {
-    "message": "使用密碼金鑰登入？"
+    "message": "使用密碼金鑰登入？",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "儲存密碼金鑰？"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "儲存為新的登入資訊"
@@ -5282,7 +5195,11 @@
     "message": "未找到此網站的登入資訊"
   },
   "overwritePasskey": {
-    "message": "要覆寫密碼金鑰嗎？"
+    "message": "要覆寫密碼金鑰嗎？",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "無法儲存通行金鑰"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }
