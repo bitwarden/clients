@@ -3,7 +3,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as chalk from "chalk";
+import chalk from "chalk";
 import { program, Command, Option, OptionValues } from "commander";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
