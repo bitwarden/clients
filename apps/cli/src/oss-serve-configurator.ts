@@ -177,6 +177,7 @@ export class OssServeConfigurator {
       this.serviceContainer.i18nService,
       this.serviceContainer.encryptedMigrator,
       this.serviceContainer.unlockService,
+      this.serviceContainer.biometricsService,
     );
 
     this.sendCreateCommand = new SendCreateCommand(
