@@ -148,6 +148,7 @@ export default {
       ChangePasswordWithOptionalUserKeyRotation:
         InputPasswordFlow.ChangePasswordWithOptionalUserKeyRotation,
       ChangePasswordDelegation: InputPasswordFlow.ChangePasswordDelegation,
+      AccountRecovery: InputPasswordFlow.AccountRecovery,
     },
     userId: "1" as UserId,
     email: "user@email.com",
@@ -225,6 +226,17 @@ export const ChangePasswordDelegation: Story = {
       <auth-input-password [flow]="InputPasswordFlow.ChangePasswordDelegation"></auth-input-password>
       <br />
       <div>Note: no buttons here as this flow is expected to be used in a dialog, which will have its own buttons</div>
+    `,
+  }),
+};
+
+export const AccountRecovery: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <auth-input-password [flow]="InputPasswordFlow.AccountRecovery"></auth-input-password>
+      <br />
+      <div>Note: single "Temporary master password" field — no confirm field. Used by the Account Recovery dialog. No buttons; the dialog owns Save/Cancel.</div>
     `,
   }),
 };

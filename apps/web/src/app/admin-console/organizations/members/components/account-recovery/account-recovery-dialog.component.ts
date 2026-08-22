@@ -1,4 +1,4 @@
-import { AsyncPipe, NgIf } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import { ChangeDetectionStrategy, Component, Inject, viewChild } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule } from "@angular/forms";
 import { map, of, switchMap } from "rxjs";
@@ -86,7 +86,6 @@ export type AccountRecoveryDialogResultType =
     CheckboxModule,
     DialogModule,
     FormFieldModule,
-    NgIf,
     ReactiveFormsModule,
     I18nPipe,
     InputPasswordComponent,
@@ -137,7 +136,7 @@ export class AccountRecoveryDialogComponent {
         ),
       );
 
-  readonly inputPasswordFlow = InputPasswordFlow.ChangePasswordDelegation;
+  readonly inputPasswordFlow = InputPasswordFlow.AccountRecovery;
 
   protected readonly form = this.formBuilder.group({
     resetMasterPassword: [true],

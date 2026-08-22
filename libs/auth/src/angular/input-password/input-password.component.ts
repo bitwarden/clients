@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { NgClass } from "@angular/common";
 import {
   ChangeDetectorRef,
   Component,
@@ -81,9 +81,8 @@ export enum InputPasswordFlow {
   /**
    * This flow is used when a user changes the password for another user's account, such as:
    * - Emergency Access Takeover
-   * - Account Recovery
    *
-   * Since both of those processes use a dialog, the `InputPasswordComponent` will not display
+   * Since that process uses a dialog, the `InputPasswordComponent` will not display
    * buttons for `ChangePasswordDelegation` because the dialog will have its own buttons.
    *
    * Form Fields: `[newPassword, newPasswordConfirm]`
@@ -91,13 +90,26 @@ export enum InputPasswordFlow {
    * Note: this flow does not receive an active account `userId` or `email` as `@Input`s
    */
   ChangePasswordDelegation,
+  /**
+   * This flow is used by the Account Recovery dialog when an admin resets a member's
+   * master password. Unlike `ChangePasswordDelegation`, there is only one password field
+   * (no confirm field) and the label reads "Temporary master password".
+   *
+   * Since this process uses a dialog, the `InputPasswordComponent` will not display
+   * buttons — the dialog owns Save/Cancel.
+   *
+   * Form Fields: `[newPassword]`
+   *
+   * Note: this flow does not receive an active account `userId` or `email` as `@Input`s
+   */
+  AccountRecovery,
 }
 
 interface InputPasswordForm {
   currentPassword?: FormControl<string>;
 
   newPassword: FormControl<string>;
-  newPasswordConfirm: FormControl<string>;
+  newPasswordConfirm?: FormControl<string>;
   newPasswordHint?: FormControl<string>;
 
   checkForBreaches?: FormControl<boolean>;
@@ -110,7 +122,7 @@ interface InputPasswordForm {
   selector: "auth-input-password",
   templateUrl: "./input-password.component.html",
   imports: [
-    CommonModule,
+    NgClass,
     AsyncActionsModule,
     ButtonModule,
     CheckboxModule,
@@ -180,25 +192,12 @@ export class InputPasswordComponent implements OnInit {
   protected showErrorSummary = false;
   protected showPassword = false;
 
-  protected formGroup = this.formBuilder.nonNullable.group<InputPasswordForm>(
-    {
-      newPassword: this.formBuilder.nonNullable.control("", [
-        Validators.required,
-        Validators.minLength(this.minPasswordLength),
-      ]),
-      newPasswordConfirm: this.formBuilder.nonNullable.control("", Validators.required),
-    },
-    {
-      validators: [
-        compareInputs(
-          ValidationGoal.InputsShouldMatch,
-          "newPassword",
-          "newPasswordConfirm",
-          this.i18nService.t("masterPassDoesntMatch"),
-        ),
-      ],
-    },
-  );
+  protected formGroup = this.formBuilder.nonNullable.group<InputPasswordForm>({
+    newPassword: this.formBuilder.nonNullable.control("", [
+      Validators.required,
+      Validators.minLength(this.minPasswordLength),
+    ]),
+  });
 
   protected get minPasswordLengthMsg() {
     if (
@@ -238,7 +237,10 @@ export class InputPasswordComponent implements OnInit {
   }
 
   private addFormFieldsIfNecessary() {
-    if (this.flow !== InputPasswordFlow.ChangePasswordDelegation) {
+    if (
+      this.flow !== InputPasswordFlow.ChangePasswordDelegation &&
+      this.flow !== InputPasswordFlow.AccountRecovery
+    ) {
       this.formGroup.addControl(
         "newPasswordHint",
         this.formBuilder.nonNullable.control("", [
@@ -257,6 +259,22 @@ export class InputPasswordComponent implements OnInit {
       ]);
 
       this.formGroup.addControl("checkForBreaches", this.formBuilder.nonNullable.control(true));
+    }
+
+    if (this.flow !== InputPasswordFlow.AccountRecovery) {
+      this.formGroup.addControl(
+        "newPasswordConfirm",
+        this.formBuilder.nonNullable.control("", Validators.required),
+      );
+
+      this.formGroup.addValidators([
+        compareInputs(
+          ValidationGoal.InputsShouldMatch,
+          "newPassword",
+          "newPasswordConfirm",
+          this.i18nService.t("masterPassDoesntMatch"),
+        ),
+      ]);
     }
 
     if (
@@ -317,7 +335,10 @@ export class InputPasswordComponent implements OnInit {
       const newPasswordHint = this.formGroup.controls.newPasswordHint?.value ?? "";
       const checkForBreaches = this.formGroup.controls.checkForBreaches?.value ?? true;
 
-      if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
+      if (
+        this.flow === InputPasswordFlow.ChangePasswordDelegation ||
+        this.flow === InputPasswordFlow.AccountRecovery
+      ) {
         return await this.handleChangePasswordDelegationFlow(newPassword);
       }
 
@@ -410,7 +431,8 @@ export class InputPasswordComponent implements OnInit {
     // These flows require that an active account userId must NOT be passed down
     if (
       this.flow === InputPasswordFlow.SetInitialPasswordAccountRegistration ||
-      this.flow === InputPasswordFlow.ChangePasswordDelegation
+      this.flow === InputPasswordFlow.ChangePasswordDelegation ||
+      this.flow === InputPasswordFlow.AccountRecovery
     ) {
       if (this.userId) {
         throw new Error("There should be no active account userId passed down in a this flow.");
@@ -420,7 +442,8 @@ export class InputPasswordComponent implements OnInit {
     // All other flows require that an active account userId MUST be passed down
     if (
       this.flow !== InputPasswordFlow.SetInitialPasswordAccountRegistration &&
-      this.flow !== InputPasswordFlow.ChangePasswordDelegation
+      this.flow !== InputPasswordFlow.ChangePasswordDelegation &&
+      this.flow !== InputPasswordFlow.AccountRecovery
     ) {
       if (!this.userId) {
         throw new Error("This flow requires that an active account userId be passed down.");
@@ -429,15 +452,21 @@ export class InputPasswordComponent implements OnInit {
 
     /** Email checks */
 
-    // This flow requires that an email must NOT be passed down
-    if (this.flow === InputPasswordFlow.ChangePasswordDelegation) {
+    // These flows require that an email must NOT be passed down
+    if (
+      this.flow === InputPasswordFlow.ChangePasswordDelegation ||
+      this.flow === InputPasswordFlow.AccountRecovery
+    ) {
       if (this.email) {
         throw new Error("There should be no email passed down in this flow.");
       }
     }
 
     // All other flows require that an email MUST be passed down
-    if (this.flow !== InputPasswordFlow.ChangePasswordDelegation) {
+    if (
+      this.flow !== InputPasswordFlow.ChangePasswordDelegation &&
+      this.flow !== InputPasswordFlow.AccountRecovery
+    ) {
       if (!this.email) {
         throw new Error("This flow requires that an email be passed down.");
       }
@@ -593,6 +622,25 @@ export class InputPasswordComponent implements OnInit {
 
   protected getPasswordStrengthScore(score: PasswordStrengthScore) {
     this.passwordStrengthScore = score;
+  }
+
+  protected getPasswordScorePolicyLabel(): string {
+    if (!this.masterPasswordPolicyOptions) {
+      return "";
+    }
+    let label: string;
+    switch (this.masterPasswordPolicyOptions.minComplexity) {
+      case 4:
+        label = this.i18nService.t("strong");
+        break;
+      case 3:
+        label = this.i18nService.t("good");
+        break;
+      default:
+        label = this.i18nService.t("weak");
+        break;
+    }
+    return `${label} (${this.masterPasswordPolicyOptions.minComplexity})`;
   }
 
   protected async generatePassword() {

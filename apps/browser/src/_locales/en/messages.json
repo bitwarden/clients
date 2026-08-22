@@ -3099,6 +3099,12 @@
   "confirmNewMasterPass": {
     "message": "Confirm new master password"
   },
+  "temporaryMasterPass": {
+    "message": "Temporary master password"
+  },
+  "passwordRequirements": {
+    "message": "Password requirements"
+  },
   "masterPasswordPolicyInEffect": {
     "message": "One or more organization policies require your master password to meet the following requirements:"
   },
@@ -3131,6 +3137,42 @@
   },
   "policyInEffectSpecial": {
     "message": "Contain one or more of the following special characters $CHARS$",
+    "placeholders": {
+      "chars": {
+        "content": "$1",
+        "example": "!@#$%^&*"
+      }
+    }
+  },
+  "policyInEffectMinComplexityShort": {
+    "message": "Complexity score of $SCORE$ or higher",
+    "placeholders": {
+      "score": {
+        "content": "$1",
+        "example": "Strong (4)"
+      }
+    }
+  },
+  "policyInEffectMinLengthShort": {
+    "message": "$LENGTH$ or more characters",
+    "placeholders": {
+      "length": {
+        "content": "$1",
+        "example": "25"
+      }
+    }
+  },
+  "policyInEffectUppercaseShort": {
+    "message": "1 uppercase character"
+  },
+  "policyInEffectLowercaseShort": {
+    "message": "1 lowercase character"
+  },
+  "policyInEffectNumbersShort": {
+    "message": "1 number"
+  },
+  "policyInEffectSpecialShort": {
+    "message": "1 of the following: $CHARS$",
     "placeholders": {
       "chars": {
         "content": "$1",
