@@ -1,6 +1,3 @@
-import { pathToFileURL } from "node:url";
-import * as path from "path";
-
 import { mock } from "jest-mock-extended";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -43,12 +40,6 @@ describe("WindowMain", () => {
     // in production code.
     let isLocalBundleUrl: (url: string) => boolean;
 
-    // The `file:` branch accepts only the app's own bundle, derived from
-    // __dirname the same way the production code does. __dirname here is
-    // this spec's directory, which is also the directory the code under test
-    // resolves against, so this is the real bundle URL for the running test.
-    const bundleUrl = pathToFileURL(path.join(__dirname, "/index.html")).toString();
-
     beforeEach(() => {
       sut = new WindowMain(
         mock<BiometricStateService>(),
@@ -64,30 +55,8 @@ describe("WindowMain", () => {
       isLocalBundleUrl = (url: string) => (sut as any).isLocalBundleUrl(url);
     });
 
-    it("returns true for the app's own file:// bundle URL", () => {
-      expect(isLocalBundleUrl(bundleUrl)).toBe(true);
-    });
-
-    it("returns true for the app's own bundle URL with a hash", () => {
-      expect(isLocalBundleUrl(`${bundleUrl}#/passkeys`)).toBe(true);
-    });
-
-    it("returns true for the app's own bundle URL with a query", () => {
-      expect(isLocalBundleUrl(`${bundleUrl}?redirectUrl=/passkeys`)).toBe(true);
-    });
-
-    it("returns false for a file:// URL with a foreign host", () => {
-      expect(isLocalBundleUrl("file://attacker.com/index.html")).toBe(false);
-    });
-
-    it("returns false for a file:// URL in a foreign directory", () => {
-      expect(isLocalBundleUrl("file:///tmp/evil/index.html")).toBe(false);
-    });
-
-    it("returns false for a file:// URL that traverses outside the bundle dir", () => {
-      // The `../` segments normalize (via the URL parser) to
-      // /tmp/evil/index.html, outside the bundle.
-      expect(isLocalBundleUrl(`${bundleUrl}/../../../tmp/evil/index.html`)).toBe(false);
+    it("returns false for any file:// URL regardless of host or path", () => {
+      expect(isLocalBundleUrl("file:///Applications/Bitwarden/dist/index.html")).toBe(false);
     });
 
     it("returns true for a bw-desktop-file://bundle/index.html URL", () => {
