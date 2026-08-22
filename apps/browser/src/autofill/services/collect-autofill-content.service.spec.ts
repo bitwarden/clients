@@ -1989,6 +1989,23 @@ describe("CollectAutofillContentService", () => {
 
       expect(labelTag).toEqual("Helper text");
     });
+
+    it("does not collect text from sibling comment nodes", () => {
+      // Regression: "email" in `isEmailOtpProof` matched UsernameFieldNames and outranked
+      // this field's own `name="otc"`, filling the username into the one-time code box.
+      document.body.innerHTML = `
+        <div class="placeholderContainer">
+          <input id="idTxtBx_SAOTCC_OTC" name="otc" type="tel" placeholder="Code">
+          <!-- ko if: enableShowResendCode && isEmailOtpProof --><!-- /ko -->
+          <!-- ko ifnot: usePlaceholderAttribute --><!-- /ko -->
+        </div>
+      `;
+      const element = document.querySelector("#idTxtBx_SAOTCC_OTC") as FillableFormFieldElement;
+
+      const labelTag = collectAutofillContentService["createAutofillFieldRightLabel"](element);
+
+      expect(labelTag).toEqual("");
+    });
   });
 
   describe("createAutofillFieldLeftLabel", () => {
@@ -2308,6 +2325,22 @@ describe("CollectAutofillContentService", () => {
       );
       expect(textContent).toEqual(element.textContent);
     });
+
+    it("returns null for a comment node", () => {
+      document.body.innerHTML = `
+        <div>
+          <!-- ko if: isEmailOtpProof -->
+          <input type="text" id="username-id">
+        </div>
+      `;
+      const element = document.querySelector("#username-id");
+      const commentNode = element.previousSibling.previousSibling;
+
+      const textContent = collectAutofillContentService["getTextContentFromElement"](commentNode);
+
+      expect(commentNode.nodeType).toEqual(Node.COMMENT_NODE);
+      expect(textContent).toBeNull();
+    });
   });
 
   describe("trimAndRemoveNonPrintableText", () => {
@@ -2464,6 +2497,24 @@ describe("CollectAutofillContentService", () => {
         collectAutofillContentService["recursivelyGetTextFromPreviousSiblings"](textInput);
 
       expect(elementList).toEqual(["some nested things"]);
+    });
+
+    it("climbs to the parent's previous siblings when only comments precede the element", () => {
+      document.body.innerHTML = `
+        <div>
+          <label for="input-tag">Username</label>
+          <div>
+            <!-- ko template: { nodes: $componentTemplateNodes } -->
+            <input id="input-tag" type="text" />
+          </div>
+        </div>
+      `;
+      const textInput = document.querySelector("#input-tag") as FormElementWithAttribute;
+
+      const elementList: string[] =
+        collectAutofillContentService["recursivelyGetTextFromPreviousSiblings"](textInput);
+
+      expect(elementList).toEqual(["Username"]);
     });
 
     it("should exit early if the target element has no parent element/node", () => {
