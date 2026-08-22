@@ -1718,58 +1718,12 @@
   "copyName": {
     "message": "Копиране на името"
   },
-  "cardNumber": {
-    "message": "номер на карта"
-  },
-  "copyFieldCipherName": {
-    "message": "Копиране на $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Копиране на подробностите за $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Копиране на бележката – $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Няма въведена стойност",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
     "message": "Няма подробности за копиране"
-  },
-  "launchWebsiteForName": {
-    "message": "Отваряне на уеб сайта за $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsite": {
     "message": "Посещаване на уеб сайта"
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ пространство за файлове, които се шифрират.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Авариен достъп"
-  },
-  "premiumSignUpReports": {
-    "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за изтекли данни, което спомага трезорът ви да е допълнително защитен."
-  },
-  "premiumSignUpTotp": {
-    "message": "Генериране на временни, еднократни кодове за двустепенно удостоверяване за регистрациите в трезора."
-  },
-  "premiumSignUpSupport": {
-    "message": "Приоритетна поддръжка."
-  },
-  "premiumSignUpFuture": {
-    "message": "Всички бъдещи ползи! Предстои въвеждането на още!"
-  },
-  "premiumPrice": {
-    "message": "И това само за $PRICE$ на година!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Преминете към платен план само за $PRICE$ /година, или към групов план за $FAMILYPLANUSERCOUNT$ потребители и неограничено семейно споделяне със ",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "Организация, в която членувате в момента, не позволява на членовете си да бъдат в повече от една организация."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "Организацията, в която членувате в момента, позволява на членовете си да имат достъп само до един споделен трезор."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "Организацията, към която се опитвате да се присъедините, позволява на членовете си да имат достъп само до един споделен трезор."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Организацията, в която се опитвате да се присъедините, не позволява на членовете си да бъдат в повече от една организация."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "Този потребител има достъп до Управлението на тайни"
   },
+  "privilegedControls": {
+    "message": "Разширено управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Активирайте достъп на потребителя до Разширеното управление.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Този потребител има достъп до Разширеното управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "Важно:"
   },
@@ -12210,6 +12149,10 @@
     "message": "Достъпът до Управлението на тайни е включен",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Активиран е достъпът до Разширеното управление",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Включване на достъпа"
   },
@@ -12217,8 +12160,16 @@
     "message": "Дайте на следните членове достъп до Управлението на тайни. Ролята, която всеки от тях има в Управителя на пароли, ще се приложи и в Управлението на тайни.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Дайте на следните потребители достъп до Разширеното управление.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Включване на Управлението на тайни"
+  },
+  "activatePrivilegedControls": {
+    "message": "Активиране на Разширеното управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Уникална фраза, идентифицираща организацията ви",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Безплатни организации с 2-ма човека"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Неограничени тайни"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "Направете проверка на достъпа на членовете до групи, колекции и елементи в колекциите. Изнасянето на на данните като файл CSV предоставя подробна разбивка по членове, включително информация относно правата за колекции и настройките на регистрациите."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Направете проверка на достъпа на членовете до групи, колекции и елементи в колекциите. Изнасянето на на данните като файл CSV предоставя подробна разбивка по членове, включително информация относно правата за колекции и настройките на регистрациите."
+  "memberAccessReportPageDescV3": {
+    "message": "Направете проверка на достъпа на членовете до групи, споделени папки и елементи. Изнасянето на на данните като файл CSV предоставя подробна разбивка по членове, включително информация относно правата и настройките на акаунтите."
   },
   "memberAccessReportNoCollection": {
     "message": "(Няма колекция)"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Отворете страницата за абонаменти в акаунта си за Битуорден и свалете лицензния си файл. След това се върнете на този екран и го качете по-долу."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "В своята облачна среда, се впишете в акаунта си в Битуорден, отворете страницата за абонамента и свалете файла с лиценза. След това се върнете на този екран и го качете."
   },
   "viewAllPlans": {
     "message": "Преглед на всички планове"

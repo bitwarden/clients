@@ -60,7 +60,7 @@
     "message": "Passordrisiko"
   },
   "passwords": {
-    "message": "Passwords"
+    "message": "Passord"
   },
   "riskOverTime": {
     "message": "Risk over time"
@@ -108,7 +108,7 @@
     "message": "Opprett nytt påloggingselement"
   },
   "percentageCompleted": {
-    "message": "$PERCENT$% complete",
+    "message": "$PERCENT$% fullført",
     "placeholders": {
       "percent": {
         "content": "$1",
@@ -251,7 +251,7 @@
     "message": "Start tour"
   },
   "noDataInOrgTitle": {
-    "message": "No data found"
+    "message": "Ingen data funnet"
   },
   "noDataInOrgDescription": {
     "message": "Import your organization's login data to get started with Access Intelligence. Once you do that, you'll be able to:"
@@ -275,7 +275,7 @@
     "message": "Track changes over time to show security improvements."
   },
   "noReportsRunTitle": {
-    "message": "Generate report"
+    "message": "Generer rapport"
   },
   "noReportsRunDescription": {
     "message": "You’re ready to start generating reports. Once you generate, you’ll be able to:"
@@ -362,7 +362,7 @@
     "message": "Program"
   },
   "applications": {
-    "message": "Applications"
+    "message": "Applikasjoner"
   },
   "atRiskPasswords": {
     "message": "At-risk passwords"
@@ -546,7 +546,7 @@
     "message": "Error saving review status"
   },
   "pleaseTryAgain": {
-    "message": "Please try again"
+    "message": "Vennligst prøv igjen"
   },
   "unmarkAsCritical": {
     "message": "Unmark as critical"
@@ -669,7 +669,7 @@
     "message": "Legg til nettsted"
   },
   "addWebsiteOrApp": {
-    "message": "Add website or app"
+    "message": "Legg til nettsted eller app"
   },
   "app": {
     "message": "App"
@@ -742,22 +742,22 @@
     "message": "Passnummer"
   },
   "sex": {
-    "message": "Sex"
+    "message": "Kjønn"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "Kopier kjønn"
   },
   "birthPlace": {
     "message": "Birth place"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "Nasjonalitet"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "Kopier nasjonalitet"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "Passtype"
   },
   "nationalIdentificationNumber": {
     "message": "National identification number"
@@ -769,7 +769,7 @@
     "message": "E-post"
   },
   "emails": {
-    "message": "Emails"
+    "message": "E-poster"
   },
   "phone": {
     "message": "Telefon"
@@ -929,7 +929,7 @@
     "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Er du sikker på at du vil slette denne mappen permanent?"
   },
   "baseDomain": {
     "message": "Grunndomene",
@@ -1005,7 +1005,7 @@
     "message": "Lukk"
   },
   "done": {
-    "message": "Done"
+    "message": "Ferdig"
   },
   "delete": {
     "message": "Slett"
@@ -1060,7 +1060,7 @@
     "message": "Søk i grupper"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Tilbakestill søk"
   },
   "allItems": {
     "message": "Alle elementer"
@@ -1069,7 +1069,7 @@
     "message": "Favoritter"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Merk gjenstander som favoritter for å filtrere dem her."
   },
   "taskSummary": {
     "message": "Task summary"
@@ -1090,37 +1090,37 @@
     "message": "Sikkert notat"
   },
   "typeNote": {
-    "message": "Note"
+    "message": "Notat"
   },
   "typeSshKey": {
     "message": "SSH-nøkkel"
   },
   "typeDriversLicense": {
-    "message": "License"
+    "message": "Lisens"
   },
   "typeDriversLicenseSubtitle": {
     "message": "Drivers license or ID"
   },
   "typeLoginSubtitle": {
-    "message": "Website or app"
+    "message": "Nettsted eller app"
   },
   "typeCardSubtitle": {
-    "message": "Credit or debit card"
+    "message": "Bank- eller kredittkort"
   },
   "typeIdentitySubtitle": {
-    "message": "Personal info"
+    "message": "Personopplysninger"
   },
   "typeNoteSubtitle": {
-    "message": "Important text"
+    "message": "Viktig tekst"
   },
   "typeSshKeySubtitle": {
     "message": "Server login token"
   },
   "typeBankAccountSubtitle": {
-    "message": "Banking details"
+    "message": "Bankopplysninger"
   },
   "typePassport": {
-    "message": "Passport"
+    "message": "Pass"
   },
   "passportDetails": {
     "message": "Passport details"
@@ -1129,10 +1129,10 @@
     "message": "Passport added"
   },
   "typePassportSubtitle": {
-    "message": "Travel document"
+    "message": "Reisedokument"
   },
   "folderSubtitle": {
-    "message": "Organize your items"
+    "message": "Organiser gjenstandene dine"
   },
   "collectionSubtitle": {
     "message": "Organize shared items"
@@ -1150,7 +1150,7 @@
     "message": "Sikre notater"
   },
   "typeBankAccount": {
-    "message": "Bank account"
+    "message": "Bankkonto"
   },
   "folders": {
     "message": "Mapper"
@@ -1198,25 +1198,25 @@
     "message": "Delt"
   },
   "sharedFolder": {
-    "message": "Shared folder"
+    "message": "Delt mappe"
   },
   "sharedFolders": {
-    "message": "Shared folders"
+    "message": "Delte mapper"
   },
   "myFolder": {
-    "message": "My folder"
+    "message": "Min mappe"
   },
   "myFolders": {
-    "message": "My folders"
+    "message": "Mine mapper"
   },
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Legg til delt mappe"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Ny delt mappe"
   },
   "searchSharedFolder": {
     "message": "Search shared folder"
@@ -1365,7 +1365,7 @@
     "message": "Legg til element"
   },
   "chooseItemToAdd": {
-    "message": "Choose item to add"
+    "message": "Velg gjenstand å legge til"
   },
   "editItem": {
     "message": "Rediger element"
@@ -1374,35 +1374,35 @@
     "message": "Vis elementet"
   },
   "addItemHeaderLogin": {
-    "message": "Add login",
+    "message": "Legg til pålogging",
     "description": "Header for new login item type"
   },
   "addItemHeaderCard": {
-    "message": "Add card",
+    "message": "Legg til kort",
     "description": "Header for new card item type"
   },
   "addItemHeaderIdentity": {
-    "message": "Add identity",
+    "message": "Legg til identitet",
     "description": "Header for new identity item type"
   },
   "addItemHeaderNote": {
-    "message": "Add note",
+    "message": "Legg til notat",
     "description": "Header for new note item type"
   },
   "addItemHeaderSecureNote": {
-    "message": "Add secure note",
+    "message": "Legg til sikkert notat",
     "description": "Header for new secure note item type"
   },
   "addItemHeaderSshKey": {
-    "message": "Add SSH key",
+    "message": "Legg til SSH-nøkkel",
     "description": "Header for new SSH key item type"
   },
   "addItemHeaderBankAccount": {
-    "message": "Add bank account",
+    "message": "Legg til bankkonto",
     "description": "Header for new bank account item type"
   },
   "addItemHeaderDriversLicense": {
-    "message": "Add license",
+    "message": "Legg til lisens",
     "description": "Header for new license item type"
   },
   "addItemHeaderPassport": {
@@ -1410,139 +1410,139 @@
     "description": "Header for new passport item type"
   },
   "newItemHeaderLogin": {
-    "message": "New Login",
+    "message": "Ny innlogging",
     "description": "Header for new login item type"
   },
   "newItemHeaderCard": {
-    "message": "New Card",
+    "message": "Nytt kort",
     "description": "Header for new card item type"
   },
   "newItemHeaderIdentity": {
-    "message": "New Identity",
+    "message": "Ny identitet",
     "description": "Header for new identity item type"
   },
   "newItemHeaderNote": {
-    "message": "New Note",
+    "message": "Nytt notat",
     "description": "Header for new note item type"
   },
   "newItemHeaderSecureNote": {
-    "message": "New secure note",
+    "message": "Nytt sikkert notat",
     "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
-    "message": "New SSH key",
+    "message": "Ny SSH-nøkkel",
     "description": "Header for new SSH key item type"
   },
   "newItemHeaderBankAccount": {
-    "message": "New bank account",
+    "message": "Ny bankkonto",
     "description": "Header for new bank account item type"
   },
   "newItemHeaderDriversLicense": {
-    "message": "New license",
+    "message": "Ny lisens",
     "description": "Header for new license item type"
   },
   "newItemHeaderPassport": {
-    "message": "New passport",
+    "message": "Nytt pass",
     "description": "Header for new passport item type"
   },
   "newItemHeaderTextSendV2": {
-    "message": "New text",
+    "message": "Ny tekst",
     "description": "Header for new text send"
   },
   "newItemHeaderFileSendV2": {
-    "message": "New file",
+    "message": "Ny fil",
     "description": "Header for new file send"
   },
   "editItemHeaderLogin": {
-    "message": "Edit Login",
+    "message": "Rediger innlogging",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCard": {
-    "message": "Edit Card",
+    "message": "Rediger kort",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentity": {
-    "message": "Edit Identity",
+    "message": "Rediger identitet",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNote": {
-    "message": "Edit Note",
+    "message": "Rediger notat",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSecureNote": {
-    "message": "Edit secure note",
+    "message": "Rediger sikkert notat",
     "description": "Header for edit secure note item type"
   },
   "editItemHeaderLoginSentenceCase": {
-    "message": "Edit login",
+    "message": "Rediger innlogging",
     "description": "Header for edit login item type"
   },
   "editItemHeaderCardSentenceCase": {
-    "message": "Edit card",
+    "message": "Rediger kort",
     "description": "Header for edit card item type"
   },
   "editItemHeaderIdentitySentenceCase": {
-    "message": "Edit identity",
+    "message": "Rediger identitet",
     "description": "Header for edit identity item type"
   },
   "editItemHeaderNoteSentenceCase": {
-    "message": "Edit note",
+    "message": "Rediger notat",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
-    "message": "Edit SSH key",
+    "message": "Rediger SSH-nøkkel",
     "description": "Header for edit SSH key item type"
   },
   "editItemHeaderBankAccount": {
-    "message": "Edit bank account",
+    "message": "Rediger bankkonto",
     "description": "Header for edit bank account item type"
   },
   "editItemHeaderLicense": {
-    "message": "Edit license",
+    "message": "Rediger lisens",
     "description": "Header for edit license item type"
   },
   "editItemHeaderPassport": {
-    "message": "Edit passport",
+    "message": "Rediger pass",
     "description": "Header for edit passport item type"
   },
   "editItemHeaderTextSendV2": {
-    "message": "Edit text",
+    "message": "Rediger tekst",
     "description": "Header for edit text send"
   },
   "editItemHeaderFileSendV2": {
-    "message": "Edit file",
+    "message": "Rediger fil",
     "description": "Header for edit file send"
   },
   "viewItemHeaderLogin": {
-    "message": "View Login",
+    "message": "Vis innlogging",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCard": {
-    "message": "View Card",
+    "message": "Vis kort",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentity": {
-    "message": "View Identity",
+    "message": "Vis identitet",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNote": {
-    "message": "View Note",
+    "message": "Vis notat",
     "description": "Header for view note item type"
   },
   "viewItemHeaderSecureNote": {
-    "message": "View secure note",
+    "message": "Vis sikkert notat",
     "description": "Header for view secure note item type"
   },
   "viewItemHeaderSshKey": {
-    "message": "View SSH key",
+    "message": "Vis SSH-nøkkel",
     "description": "Header for view SSH key item type"
   },
   "viewItemHeaderBankAccount": {
-    "message": "View bank account",
+    "message": "Vis bankkonto",
     "description": "Header for view bank account item type"
   },
   "viewItemHeaderLicense": {
-    "message": "View license",
+    "message": "Vis lisens",
     "description": "Header for view license item type"
   },
   "viewItemHeaderPassport": {
@@ -1550,23 +1550,23 @@
     "description": "Header for view passport item type"
   },
   "viewItemHeaderLoginSentenceCase": {
-    "message": "View login",
+    "message": "Vis innlogging",
     "description": "Header for view login item type"
   },
   "viewItemHeaderCardSentenceCase": {
-    "message": "View card",
+    "message": "Vis kort",
     "description": "Header for view card item type"
   },
   "viewItemHeaderIdentitySentenceCase": {
-    "message": "View identity",
+    "message": "Vis identitet",
     "description": "Header for view identity item type"
   },
   "viewItemHeaderNoteSentenceCase": {
-    "message": "View note",
+    "message": "Vis notat",
     "description": "Header for view note item type"
   },
   "create": {
-    "message": "Create",
+    "message": "Opprett",
     "description": "for adding new items"
   },
   "new": {
@@ -1577,7 +1577,7 @@
     "message": "Element"
   },
   "itemLower": {
-    "message": "item"
+    "message": "gjenstand"
   },
   "itemDetails": {
     "message": "Gjenstandens detaljer"
@@ -1627,7 +1627,7 @@
     "message": "Passordet er kopiert"
   },
   "passwordAnnounceSpace": {
-    "message": "space",
+    "message": "mellomrom",
     "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "copyUsername": {
@@ -1689,25 +1689,25 @@
     "message": "Copy passport type"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Kopier fornavn"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Kopier mellomnavn"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Kopier etternavn"
   },
   "copyLicenseNumber": {
     "message": "Kopiér lisensnummer"
   },
   "copyPrivateKey": {
-    "message": "Copy private key"
+    "message": "Kopiér privat nøkkel"
   },
   "copyPublicKey": {
-    "message": "Copy public key"
+    "message": "Kopiér offentlig nøkkel"
   },
   "copyFingerprint": {
-    "message": "Copy fingerprint"
+    "message": "Kopiér fingeravtrykk"
   },
   "copyIssuingAuthority": {
     "message": "Copy issuing authority / office"
@@ -1718,67 +1718,21 @@
   "copyName": {
     "message": "Kopiér navn"
   },
-  "cardNumber": {
-    "message": "kortnummer"
-  },
-  "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
-  },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+    "message": "Ingen detaljer å kopiere"
   },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Åpne nettstedet"
   },
   "me": {
     "message": "Meg"
   },
   "myItems": {
-    "message": "My Items"
+    "message": "Mine gjenstander"
   },
   "myVault": {
     "message": "Mitt hvelv"
@@ -1808,10 +1762,10 @@
     "message": "Velg alt"
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Velg alle rader"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Velg rad"
   },
   "showingItemRange": {
     "message": "Showing $START$ - $END$ of $TOTAL$",
@@ -1831,10 +1785,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Rekker per side"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ rekker per side",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1843,7 +1797,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ gjenstand(er)",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1852,10 +1806,10 @@
     }
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Tøm alle"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ valgt",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1864,16 +1818,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Forrige side"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Neste side"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Gå til side"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "av $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1882,16 +1836,16 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Ingen samsvarende gjenstander"
   },
   "deselectAll": {
-    "message": "Deselect all"
+    "message": "Avvelg alle"
   },
   "unselectAll": {
     "message": "Avvelg alt"
   },
   "bulkActionsBar": {
-    "message": "Bulk actions"
+    "message": "Massehandlinger"
   },
   "bulkActionsBarAnnouncement": {
     "message": "$COUNT$ item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press $SHORTCUTBINDING$ to toggle focus to the bulk action bar.",
@@ -1910,7 +1864,7 @@
     "message": "Selection cleared"
   },
   "additionalActions": {
-    "message": "Additional actions"
+    "message": "Ytterligere handlinger"
   },
   "launch": {
     "message": "Åpne"
@@ -1931,7 +1885,7 @@
     "message": "Fil"
   },
   "photo": {
-    "message": "Photo"
+    "message": "Fotografi"
   },
   "selectFile": {
     "message": "Velg en fil."
@@ -2013,7 +1967,7 @@
     "message": "You will not be able to recover these items."
   },
   "deleteSelection": {
-    "message": "Delete selection"
+    "message": "Slett utvalg"
   },
   "deleteItemsAndCollectionsDesc": {
     "message": "The selected items and collections will be permanently deleted."
@@ -2025,7 +1979,7 @@
     "message": "Slett vedlegget"
   },
   "deleteAttachmentName": {
-    "message": "Delete attachment $NAME$",
+    "message": "Slett $NAME$-vedlegget",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2034,7 +1988,7 @@
     }
   },
   "downloadAttachmentName": {
-    "message": "Download $NAME$",
+    "message": "Last ned $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -2151,7 +2105,7 @@
     "message": "Passkey authentication failed. Please try again."
   },
   "useDifferentLoginMethod": {
-    "message": "Use different login method"
+    "message": "Bruk en annen påloggingsmetode"
   },
   "logInWithPasskey": {
     "message": "Logg inn med passnøkkel"
@@ -2163,7 +2117,7 @@
     "message": "Organisasjonen din krever enkel pålogging (SSO)."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Welcome back"
+    "message": "Velkommen tilbake"
   },
   "invalidPasskeyPleaseTryAgain": {
     "message": "Ugyldig Passkey. Vennligst prøv igjen."
@@ -2235,7 +2189,7 @@
     "message": "Fjern Passkey"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Slett passordnøkkel"
   },
   "deletePasskeyConfirmation": {
     "message": "This passkey will be permanently deleted from your login item. This can't be undone."
@@ -2271,7 +2225,7 @@
     "message": "Logg på"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in to Bitwarden"
+    "message": "Logg inn på Bitwarden"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Skriv inn koden du har fått tilsendt på e-post"
@@ -2286,7 +2240,7 @@
     "message": "Tidsavbrudd for autentisering"
   },
   "authenticationSessionTimedOut": {
-    "message": "The authentication session timed out. Please restart the login process."
+    "message": "Autentiseringsøkten har utløpt. Vennligst start innloggingsprosessen på nytt."
   },
   "verifyYourIdentity": {
     "message": "Verify your Identity"
@@ -2469,16 +2423,16 @@
     "message": "Det er ingen elementer å vise."
   },
   "noItemsInTrash": {
-    "message": "No items in trash"
+    "message": "Ingen gjenstander i papirkurven"
   },
   "noItemsInTrashDesc": {
-    "message": "Items you delete will appear here and be permanently deleted after 30 days"
+    "message": "Gjenstander du sletter, vises her og slettes permanent etter 30 dager"
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Ingen gjenstander i hvelvet"
   },
   "emptyVaultDescription": {
-    "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+    "message": "Hvelvet beskytter mer enn bare passordene dine. Her kan du lagre innloggingsopplysninger, ID-er, kort og notater sikkert."
   },
   "emptyFavorites": {
     "message": "You haven't favorited any items"
@@ -2487,10 +2441,10 @@
     "message": "Add frequently used items to favorites for quick access."
   },
   "noSearchResults": {
-    "message": "No search results returned"
+    "message": "Ingen søkeresultater ble funnet"
   },
   "clearFiltersOrTryAnother": {
-    "message": "Clear filters or try another search term"
+    "message": "Tøm filtrene eller prøv et annet søkeuttrykk"
   },
   "noPermissionToViewAllCollectionItems": {
     "message": "Du har ikke tillatelse til å se alle elementer i denne samlingen."
@@ -2612,7 +2566,7 @@
     "message": "Gjenopprettingskode"
   },
   "invalidRecoveryCode": {
-    "message": "Invalid recovery code"
+    "message": "Ugyldig gjenopprettingskode"
   },
   "authenticatorAppTitle": {
     "message": "Autentiseringsapp"
@@ -2729,19 +2683,19 @@
     "message": "Kopier verifiseringskoden"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Ingen brukernavn"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Ingen passord"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Ingen bekreftelseskode"
   },
   "noNumber": {
     "message": "No number"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Ingen sikkerhetskode"
   },
   "copyUuid": {
     "message": "Kopier UUID"
@@ -2774,11 +2728,11 @@
     "message": "Kontokrypteringsnøkler er unike for hver Bitwarden sin brukerkonto, og du kan ikke importere en kryptert eksport til en annen konto."
   },
   "exportNoun": {
-    "message": "Export",
+    "message": "Eksporter",
     "description": "The noun form of the word Export"
   },
   "exportVerb": {
-    "message": "Export",
+    "message": "Eksporter",
     "description": "The verb form of the word Export"
   },
   "exportFrom": {
@@ -2806,19 +2760,19 @@
     "message": "KeePass master password"
   },
   "addKeyFile": {
-    "message": "Add key file"
+    "message": "Legg til nøkkelfil"
   },
   "keyFileUpload": {
     "message": "Key file upload"
   },
   "kdbxFileUpload": {
-    "message": "KDBX file upload"
+    "message": "KDBX-filopplasting"
   },
   "acceptedFormatsKdbx": {
     "message": "Accepted formats: kdbx"
   },
   "kdbxCorruptOrOutdated": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Dataene er ikke formatert riktig. Sjekk importfilen din og prøv på nytt."
   },
   "kdbxWrongFileType": {
     "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
@@ -2998,7 +2952,7 @@
     "message": "Gjeldende økt"
   },
   "requestPending": {
-    "message": "Request pending"
+    "message": "Avventende forespørsel"
   },
   "logBackInOthersToo": {
     "message": "Vennligst logg inn på nytt. Dersom du bruker andre Bitwarden-applikasjoner logg av og på på dem også."
@@ -3170,11 +3124,11 @@
     "message": "Verktøy"
   },
   "importNoun": {
-    "message": "Import",
+    "message": "Importer",
     "description": "The noun form of the word Import"
   },
   "importVerb": {
-    "message": "Import",
+    "message": "Importer",
     "description": "The verb form of the word Import"
   },
   "importData": {
@@ -3247,22 +3201,22 @@
     "message": "This item could not be imported"
   },
   "contact": {
-    "message": "Contact"
+    "message": "Kontakt"
   },
   "membership": {
-    "message": "Membership"
+    "message": "Medlemskap"
   },
   "passport": {
-    "message": "Passport"
+    "message": "Pass"
   },
   "driverLicense": {
-    "message": "Driver's license"
+    "message": "Førerkort"
   },
   "ssnCard": {
-    "message": "Identity card"
+    "message": "Identitetskort"
   },
   "birthCertificate": {
-    "message": "Birth certificate"
+    "message": "Fødselsattest"
   },
   "databaseCredentials": {
     "message": "Database credentials"
@@ -3277,10 +3231,10 @@
     "message": "Health insurance"
   },
   "wifiCredentials": {
-    "message": "Wi-Fi credentials"
+    "message": "Wi-Fi-pålogginger"
   },
   "general": {
-    "message": "General"
+    "message": "Generelt"
   },
   "importEncKeyError": {
     "message": "Feil under dekryptering av den eksporterte filen. Krypteringsnøkkelen samsvarte ikke med krypteringsnøkkelen som ble brukt eksport av data."
@@ -3298,7 +3252,7 @@
     "message": "Velg en samling"
   },
   "importTargetHintCollection": {
-    "message": "Select this option if you want the imported file contents moved to a collection"
+    "message": "Velg denne innstillingen hvis du vil ha de importerte innholdene flyttet til en samling"
   },
   "importTargetHintFolder": {
     "message": "Select this option if you want the imported file contents moved to a folder"
@@ -3316,13 +3270,13 @@
     "message": "Velg fil"
   },
   "chooseFileSentenceCase": {
-    "message": "Choose file"
+    "message": "Velg fil"
   },
   "noFileChosen": {
     "message": "Ingen fil er valgt"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "Ingen fil er valgt"
   },
   "fileChosen": {
     "message": "File chosen: $FILE_NAME$",
@@ -3365,10 +3319,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 fil er lastet opp"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ filer lastet opp",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3383,7 +3337,7 @@
     "message": "Click to upload or drag and drop"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Velg filer"
   },
   "maxFileSizeParam": {
     "message": "Max. file size: $SIZE$ MB",
@@ -3411,10 +3365,10 @@
     "message": "Alternativer"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Flere alternativer"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Alternativer for $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3423,7 +3377,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrer etter $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3557,7 +3511,7 @@
     "message": "Aktivert"
   },
   "optionEnabled": {
-    "message": "Enabled"
+    "message": "Skrudd på"
   },
   "restoreAccess": {
     "message": "Gjenopprett tilgang"
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB med kryptert fillagring."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Nødtilgang"
-  },
-  "premiumSignUpReports": {
-    "message": "Passordhygiene, kontohelse, og databruddsrapporter som holder hvelvet ditt trygt."
-  },
-  "premiumSignUpTotp": {
-    "message": "TOTP-verifiseringskodegenerator (2FA) for innlogginger i ditt hvelv."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioritert kundestøtte."
-  },
-  "premiumSignUpFuture": {
-    "message": "Alle fremtidige Premium-egenskaper. Mere er planlagt snart!"
-  },
-  "premiumPrice": {
-    "message": "Alt dette for bare $PRICE$/år!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Kjøp premium for kun $PRICE$/år, eller kjøp premiumkontoer for $FAMILYPLANUSERCOUNT$ brukere og ubegrenset familiedeling med et ",
@@ -4265,7 +4186,7 @@
     "message": "år"
   },
   "years": {
-    "message": "years"
+    "message": "år"
   },
   "yr": {
     "message": "år"
@@ -4274,7 +4195,7 @@
     "message": "måned"
   },
   "months": {
-    "message": "months"
+    "message": "måneder"
   },
   "monthAbbr": {
     "message": "må.",
@@ -4420,10 +4341,10 @@
     }
   },
   "churnOfferDecline": {
-    "message": "Cancel subscription"
+    "message": "Avbryt abonnementet"
   },
   "churnOfferSuccessTitle": {
-    "message": "You're all set!"
+    "message": "Alt er klart for deg!"
   },
   "churnOfferSuccessBody": {
     "message": "Your $DISCOUNT$ discount has been applied to your next $DURATION$ of service.",
@@ -4995,7 +4916,7 @@
     "message": "Data controls"
   },
   "authentication": {
-    "message": "Authentication"
+    "message": "Autentisering"
   },
   "vaultManagement": {
     "message": "Vault management"
@@ -5110,7 +5031,7 @@
     }
   },
   "invite": {
-    "message": "Invite"
+    "message": "Inviter"
   },
   "inviteUserDesc": {
     "message": "Inviter en ny bruker til din organisasjon ved å skrive inn E-postadressen til Bitwarden-kontoen deres nedenfor. Hvis de ikke allerede har en Bitwarden-konto, vil de bli forespurt om å lage en ny konto."
@@ -5123,7 +5044,7 @@
     "description": "VFO1 (shared folder terminology) variant of inviteUserDesc, shown when the vfo1-foundation flag is enabled."
   },
   "inviteMultipleEmailDesc": {
-    "message": "Enter up to $COUNT$ emails by separating with a comma.",
+    "message": "Du kan invitere opptil $COUNT$ brukere om gangen ved å komma-adskille en liste over E-postadresser.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5484,7 +5405,7 @@
     }
   },
   "sendAccessExternal": {
-    "message": "External"
+    "message": "Ekstern"
   },
   "sendAccessExternalDomain": {
     "message": "External ($DOMAIN$ domain)",
@@ -5598,7 +5519,7 @@
     }
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Rediger gjenstand - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5844,7 +5765,7 @@
     "message": "Discard edits"
   },
   "keepEditing": {
-    "message": "Keep editing"
+    "message": "Fortsett å redigere"
   },
   "editedPolicyId": {
     "message": "Endret vilkår $ID$.",
@@ -6255,25 +6176,25 @@
     "message": "Innloggingsstatus"
   },
   "recentlyActive": {
-    "message": "Recently active"
+    "message": "Nylig aktiv"
   },
   "recentlyActiveToday": {
-    "message": "Today"
+    "message": "I dag"
   },
   "recentlyActivePast7Days": {
-    "message": "Past 7 days"
+    "message": "Siste 7 dager"
   },
   "recentlyActivePast14Days": {
-    "message": "Past 14 days"
+    "message": "Siste 14 dager"
   },
   "recentlyActivePast30Days": {
-    "message": "Past 30 days"
+    "message": "Siste 30 dager"
   },
   "recentlyActiveOver30Days": {
-    "message": "Over 30 days ago"
+    "message": "Mer enn 30 dager siden"
   },
   "firstLogin": {
-    "message": "First login"
+    "message": "Første pålogging"
   },
   "trusted": {
     "message": "Betrodd"
@@ -6282,7 +6203,7 @@
     "message": "Trenger godkjenning"
   },
   "areYouTryingToLogin": {
-    "message": "Are you trying to log in?"
+    "message": "Prøver du å logge på?"
   },
   "logInAttemptBy": {
     "message": "Påloggingsforsøk av $EMAIL$",
@@ -6349,7 +6270,7 @@
     "message": "Følg lenken i E-postadressen som ble sendt til"
   },
   "andContinueCreatingYourAccount": {
-    "message": "and continue creating your account."
+    "message": "og fortsett opprettingen av kontoen din."
   },
   "noEmail": {
     "message": "Ingen E-post?"
@@ -6478,7 +6399,7 @@
     "message": "Compiling insights..."
   },
   "reportGenerationDone": {
-    "message": "Done!"
+    "message": "Ferdig!"
   },
   "reportGenerationFailed": {
     "message": "An error occurred while generating the report. Try again."
@@ -6643,6 +6564,12 @@
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "An organization you are already a member of only allows its members to belong to one organization."
   },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
+  },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "The organization you are trying to join only allows its members to belong to one organization."
   },
@@ -6671,7 +6598,7 @@
     "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
   },
   "goToLogin": {
-    "message": "Go to login"
+    "message": "Gå til innlogging"
   },
   "goToVault": {
     "message": "Go to vault"
@@ -6698,7 +6625,7 @@
     "message": "An error occurred updating the encryption settings."
   },
   "updateEncryptionSettingsTitle": {
-    "message": "Update your encryption settings"
+    "message": "Oppdater krypteringsinnstillingene dine"
   },
   "updateEncryptionSettingsDesc": {
     "message": "The new recommended encryption settings will improve your account security. Enter your master password to update now."
@@ -6707,7 +6634,7 @@
     "message": "Confirm your identity to continue"
   },
   "enterYourMasterPassword": {
-    "message": "Enter your master password"
+    "message": "Skriv inn hovedpassordet ditt"
   },
   "updateSettings": {
     "message": "Update settings"
@@ -7004,7 +6931,7 @@
     }
   },
   "deleteCustomField": {
-    "message": "Delete $LABEL$",
+    "message": "Slett $LABEL$",
     "placeholders": {
       "label": {
         "content": "$1",
@@ -7250,7 +7177,7 @@
     "message": "Organization is suspended"
   },
   "organizationIsSuspendedDesc": {
-    "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
+    "message": "Gjenstander i suspenderte organisasjoner kan ikke åpnes. Ta kontakt med eieren av organisasjonen for hjelp."
   },
   "secretsAccessSuspended": {
     "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
@@ -7274,7 +7201,7 @@
     "message": "Valgt"
   },
   "selectedLowercase": {
-    "message": "selected",
+    "message": "valgt",
     "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "recommended": {
@@ -7328,7 +7255,7 @@
     "description": "This is a verb. ex. 'Fix The Car'"
   },
   "fixEncryption": {
-    "message": "Fix encryption"
+    "message": "Fiks kryptering"
   },
   "fixEncryptionTooltip": {
     "message": "This file is using an outdated encryption method."
@@ -7340,7 +7267,7 @@
     "message": "Hvelvet ditt har gamle fil-vedlegg som må repareres før du kan oppdatere krypteringsnøkkelen til kontoen din."
   },
   "itemsTransferred": {
-    "message": "Items transferred"
+    "message": "Gjenstander overført"
   },
   "yourAccountsFingerprint": {
     "message": "Din kontos fingeravtrykksfrase",
@@ -7426,13 +7353,13 @@
     "message": "Special characters (e.g. !, @, $)"
   },
   "uppercasePolicy": {
-    "message": "Uppercase"
+    "message": "Store bokstaver"
   },
   "lowercasePolicy": {
-    "message": "Lowercase"
+    "message": "Små bokstaver"
   },
   "numbersPolicy": {
-    "message": "Numbers"
+    "message": "Tall"
   },
   "passwordStrengthScore": {
     "message": "Passordstyrke-score: $SCORE$",
@@ -7468,7 +7395,7 @@
     "message": "Select a set of minimum requirements for any member-generated passwords."
   },
   "generatedPassword": {
-    "message": "Generated password"
+    "message": "Generert passord"
   },
   "generatedPassphrase": {
     "message": "Generated passphrase"
@@ -7792,7 +7719,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "createSendV2": {
-    "message": "Create Send",
+    "message": "Opprett Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "editSend": {
@@ -7838,7 +7765,7 @@
     }
   },
   "durationTimeHours": {
-    "message": "$HOURS$ hours",
+    "message": "$HOURS$ timer",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -7886,7 +7813,7 @@
     "message": "Opphevet"
   },
   "accepted": {
-    "message": "Accepted"
+    "message": "Godtatt"
   },
   "staged": {
     "message": "Staged"
@@ -7938,7 +7865,7 @@
     "description": "Badge label shown on an access token that will expire within the warning threshold."
   },
   "tokenActive": {
-    "message": "Active",
+    "message": "Aktiv",
     "description": "Badge label shown on an access token that is valid and not approaching expiration."
   },
   "searchSends": {
@@ -7957,7 +7884,7 @@
     "message": "Download attachments"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Feilsøking"
   },
   "troubleshootingDiagnosticReport": {
     "message": "Experiencing an issue? Download then share the diagnostic report with"
@@ -7967,7 +7894,7 @@
     "description": "Link text that follows the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Last ned"
   },
   "sendAccessPasswordTitle": {
     "message": "Enter the password to view this Send",
@@ -8145,7 +8072,7 @@
     "description": "This will be used as a hyperlink"
   },
   "benefits": {
-    "message": "Benefits"
+    "message": "Fordeler"
   },
   "centralizeDataOwnershipBenefit1": {
     "message": "Gain full visibility into credential health, including shared and unshared items."
@@ -8215,7 +8142,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about the credential lifecycle.'"
   },
   "availableNow": {
-    "message": "Available now"
+    "message": "Tilgjengelig nå"
   },
   "automaticUserConfirmation": {
     "message": "Automatic user confirmation"
@@ -8231,7 +8158,7 @@
     "message": "Open your Bitwarden extension"
   },
   "autoConfirmExtension2": {
-    "message": "Select",
+    "message": "Velg",
     "description": "This is a fragment of a larger sencence. The whole sentence will read: 'Select Turn on'"
   },
   "autoConfirmExtension3": {
@@ -8393,7 +8320,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "makeACopy": {
-    "message": "Make a copy"
+    "message": "Lag en kopi"
   },
   "sendControls": {
     "message": "Send controls"
@@ -8426,7 +8353,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "uriMatchDetectionPolicy": {
-    "message": "Default URI match detection"
+    "message": "Standard URI-samsvarsgjenkjenning"
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Determine when logins are suggested for autofill. Admins and owners are exempt from this policy."
@@ -8435,7 +8362,7 @@
     "message": "Set a default for which parts of a website address (URI) need to match for Bitwarden to suggest a login for autofill. This policy won't be enforced for owners and admins."
   },
   "uriMatchDetectionOptionsLabel": {
-    "message": "Default URI match detection"
+    "message": "Standard URI-samsvarsgjenkjenning"
   },
   "invalidUriMatchDefaultPolicySetting": {
     "message": "Please select a valid URI match detection option.",
@@ -9231,7 +9158,7 @@
     "message": "Your organization has updated your decryption options. Please set a master password to access your vault."
   },
   "sessionTimeoutPolicyTitle": {
-    "message": "Session timeout"
+    "message": "Tidsavbrudd for økten"
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Set a maximum session timeout for all members except owners."
@@ -9246,19 +9173,19 @@
     "message": "Time is invalid. Change at least one value."
   },
   "sessionTimeoutAction": {
-    "message": "Session timeout action"
+    "message": "Handling ved tidsavbrudd"
   },
   "sessionTimeoutSuppressedByConnectedDevice": {
     "message": "Managed by the Bitwarden browser extension app. Open the browser app to edit."
   },
   "immediately": {
-    "message": "Immediately"
+    "message": "Umiddelbart"
   },
   "onSystemLock": {
-    "message": "On system lock"
+    "message": "Ved maskinlåsing"
   },
   "onAppRestart": {
-    "message": "On app restart"
+    "message": "Ved omstart av appen"
   },
   "hours": {
     "message": "Åpningstider"
@@ -9373,10 +9300,10 @@
     "message": "exploit autofill on page load"
   },
   "autofillOnPageLoadExploitWarning": {
-    "message": "Compromised or untrusted websites can exploit autofill on page load."
+    "message": "Kompromitterte eller upålitelige nettsider kan utnytte auto-utfylling når du laster inn siden."
   },
   "learnMoreAboutAutofillPolicy": {
-    "message": "Learn more about autofill"
+    "message": "Lær mer om auto-utfylling"
   },
   "selectType": {
     "message": "Velg SSO-type"
@@ -9856,7 +9783,7 @@
     "message": "You must add either the base Server URL or at least one custom environment."
   },
   "selfHostedEnvMustUseHttps": {
-    "message": "URLs must use HTTPS."
+    "message": "URL-er må bruke HTTPS."
   },
   "apiUrl": {
     "message": "API-tjenernettadresse"
@@ -9986,7 +9913,7 @@
     "message": "Eksporterer organisasjonshvelv"
   },
   "exportingIndividualVaultScopeDescription": {
-    "message": "Only items in your individual vault will export."
+    "message": "Kun gjenstander i ditt individuelle hvelv vil bli eksportert."
   },
   "exportingOrganizationVaultScopeDescription": {
     "message": "Only items associated with the $ORGANIZATION$ vault will export. Items in individual vaults will not.",
@@ -10147,7 +10074,7 @@
     "message": "Bruk dette passordet"
   },
   "useThisPassphrase": {
-    "message": "Use this passphrase"
+    "message": "Bruk denne passfrasen"
   },
   "useThisUsername": {
     "message": "Bruk dette brukernavnet"
@@ -10271,7 +10198,7 @@
     }
   },
   "forwarderInvalidToken": {
-    "message": "Invalid $SERVICENAME$ API token",
+    "message": "Ugyldig $SERVICENAME$-API-sjetong",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -10281,7 +10208,7 @@
     }
   },
   "forwarderInvalidTokenWithMessage": {
-    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
+    "message": "Ugyldig $SERVICENAME$-API-sjetong: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -10305,7 +10232,7 @@
     }
   },
   "forwarderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
+    "message": "$SERVICENAME$ avslo forespørselen din: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -10402,7 +10329,7 @@
     }
   },
   "premiumSubscriptionRequired": {
-    "message": "Premium subscription required"
+    "message": "Krever Premium-abonnement"
   },
   "scim": {
     "message": "SCIM klargjøring",
@@ -10520,13 +10447,13 @@
     "message": "Inndata er påkrevd."
   },
   "enterMonth": {
-    "message": "Enter month."
+    "message": "Skriv inn måned."
   },
   "enterDay": {
-    "message": "Enter day."
+    "message": "Skriv inn dag."
   },
   "enterYear": {
-    "message": "Enter year."
+    "message": "Skriv inn år."
   },
   "invalidDay": {
     "message": "Enter a valid day."
@@ -10646,7 +10573,7 @@
     "message": "Av"
   },
   "connected": {
-    "message": "Connected"
+    "message": "Tilkoblet"
   },
   "members": {
     "message": "Medlemmer"
@@ -10700,10 +10627,10 @@
     "message": "Coral"
   },
   "purple": {
-    "message": "Purple"
+    "message": "Lilla"
   },
   "blue": {
-    "message": "Blue"
+    "message": "Blå"
   },
   "customColor": {
     "message": "Egendefinert farge"
@@ -11208,7 +11135,7 @@
     "message": "Ingen samling"
   },
   "noSharedFolder": {
-    "message": "No shared folder",
+    "message": "Ingen delte mapper",
     "description": "VFO1 terminology feature flag variant of noCollection"
   },
   "noCollectionsAdded": {
@@ -11233,7 +11160,7 @@
     "message": "Nytt domene"
   },
   "addDomain": {
-    "message": "Add domain"
+    "message": "Legg til domene"
   },
   "noDomains": {
     "message": "Ingen domener"
@@ -11368,7 +11295,7 @@
     "message": "Inviter medlem"
   },
   "inviteMembers": {
-    "message": "Invite members"
+    "message": "Inviter medlemmer"
   },
   "addSponsorship": {
     "message": "Add sponsorship"
@@ -11380,7 +11307,7 @@
     "message": "Medlemsrolle"
   },
   "moreActions": {
-    "message": "More actions"
+    "message": "Flere handlinger"
   },
   "emailUpdateOnSave": {
     "message": "Email will update on save"
@@ -11413,10 +11340,10 @@
     "message": "This member does not have a claimed account. Contact the member to update their name."
   },
   "createdDate": {
-    "message": "Created date"
+    "message": "Opprettelsesdato"
   },
   "moreSettings": {
-    "message": "More settings"
+    "message": "Flere innstillinger"
   },
   "moreFromBitwarden": {
     "message": "Mer fra Bitwarden"
@@ -11470,7 +11397,7 @@
     }
   },
   "freeOrgRestoreLimitReachedNoManageBilling": {
-    "message": "Free organizations may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade.",
+    "message": "Gratis-organisasjoner kan ha opptil $SEATCOUNT$ medlemmer. Kontakt organisasjonens eier for å oppgradere.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -11642,6 +11569,18 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "This user can access Secrets Manager"
+  },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Activate user access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "This user can access Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
     "message": "Viktig:"
@@ -11915,7 +11854,7 @@
     "message": "Organize your secrets into projects"
   },
   "smOnboardingCreateProjectCta": {
-    "message": "Create project"
+    "message": "Opprett prosjekt"
   },
   "smOnboardingImportSecretsSubtitle": {
     "message": "Bring existing secrets in from another tool"
@@ -12083,7 +12022,7 @@
     "message": "Be om administratorgodkjennelse"
   },
   "unableToCompleteLogin": {
-    "message": "Unable to complete login"
+    "message": "Mislyktes i å fullføre innloggingen"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
     "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
@@ -12210,6 +12149,10 @@
     "message": "Activated access to Secrets Manager",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Activated access to Privileged Controls",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Activate access"
   },
@@ -12217,8 +12160,16 @@
     "message": "Grant the following members access to Secrets Manager. The role granted in the Password Manager will apply to Secrets Manager.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Grant the following members access to Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Activate Secrets Manager"
+  },
+  "activatePrivilegedControls": {
+    "message": "Activate Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Your organization's fingerprint phrase",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Gratis for organisasjoner med 2 personer"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Unlimited secrets"
@@ -12736,7 +12690,7 @@
     "message": "Dismiss this checklist"
   },
   "onboardingCreateYourAccountTitle": {
-    "message": "Create your account"
+    "message": "Opprett kontoen din"
   },
   "onboardingImportYourPasswordsTitle": {
     "message": "Import your passwords"
@@ -12754,10 +12708,10 @@
     "message": "Pin the extension to your browser. It'll allow you to sign in faster and seamlessly save your passwords."
   },
   "onboardingInstallExtensionCta": {
-    "message": "Install extension"
+    "message": "Installer utvidelsen"
   },
   "completed": {
-    "message": "Completed"
+    "message": "Fullført"
   },
   "projectAccessUpdated": {
     "message": "Project access updated"
@@ -13123,7 +13077,7 @@
     "message": "Elementer"
   },
   "itemsLower": {
-    "message": "items"
+    "message": "saker"
   },
   "assignedSeats": {
     "message": "Assigned seats"
@@ -13653,7 +13607,7 @@
     "message": "Name of the repository to ingest into"
   },
   "index": {
-    "message": "Index"
+    "message": "Indeks"
   },
   "httpEventCollectorUrl": {
     "message": "HTTP Event Collector URL"
@@ -13814,10 +13768,10 @@
     }
   },
   "secureYourInfrastructure": {
-    "message": "Secure your infrastructure"
+    "message": "Sikre infrastrukturen din"
   },
   "protectYourFamilyOrBusiness": {
-    "message": "Protect your family or business"
+    "message": "Beskytt familien eller virksomheten din"
   },
   "upgradeOrganizationCloseSecurityGaps": {
     "message": "Close security gaps with monitoring reports"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "Audit organization member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(No Collection)"
@@ -14607,7 +14561,7 @@
     "message": "Claimed"
   },
   "domainStatusPending": {
-    "message": "Pending"
+    "message": "Avventer"
   },
   "claimedDomainsDescription": {
     "message": "Krev eierskap til et domene for å eie medlemskontoer. Siden for SSO-identifikator blir hoppet over under pålogging for medlemmer med bekreftede domener, og administratorer vil kunne slette bekreftede kontoer."
@@ -14676,13 +14630,13 @@
     "message": "Domain claimed"
   },
   "itemAddedToFavorites": {
-    "message": "Item added to favorites"
+    "message": "Gjenstand lagt til i favorittene"
   },
   "itemRemovedFromFavorites": {
-    "message": "Item removed from favorites"
+    "message": "Gjenstand fjernet fra favorittene"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Kopier notatet"
   },
   "organizationNameMaxLength": {
     "message": "Organization name cannot exceed 50 characters."
@@ -14739,7 +14693,7 @@
     "message": "SSH-nøkkelen er ugyldig"
   },
   "sshKeyTypeUnsupported": {
-    "message": "The SSH key type is not supported"
+    "message": "SSH-nøkkeltypen støttes ikke"
   },
   "importSshKeyFromClipboard": {
     "message": "Importer nøkkel fra utklippstavlen"
@@ -14967,7 +14921,7 @@
     "message": "Vulnerable password."
   },
   "changeNow": {
-    "message": "Change now"
+    "message": "Endre nå"
   },
   "missingWebsite": {
     "message": "Missing website"
@@ -15001,39 +14955,39 @@
     "description": "VFO1 terminology feature flag variant of cannotCreateCollection"
   },
   "searchArchive": {
-    "message": "Search archive"
+    "message": "Søk i arkivet"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Arkiver",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Arkiver",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Angre arkivering"
   },
   "archived": {
-    "message": "Archived"
+    "message": "Arkivert"
   },
   "unArchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Uarkiver og lagre"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Gjenstander i arkivet"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Ingen gjenstander i arkivet"
   },
   "noItemsInArchiveDesc": {
     "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Gjenstand arkivert"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Gjenstand uarkivert"
   },
   "bulkArchiveItems": {
     "message": "Items archived"
@@ -15042,11 +14996,11 @@
     "message": "Items unarchived"
   },
   "archiveItem": {
-    "message": "Archive item",
+    "message": "Arkiver gjenstand",
     "description": "Verb"
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "Arkiver $NUM$ gjenstander",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -15056,7 +15010,7 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Arkiver gjenstand",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsSingular": {
@@ -15248,7 +15202,7 @@
     "description": "Error message shown when trying to add credit to a trialing organization without a billing address."
   },
   "aboutThisSetting": {
-    "message": "About this setting"
+    "message": "Om denne innstillingen"
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
@@ -15360,16 +15314,16 @@
     "message": "Unlimited secrets and projects"
   },
   "providersubscriptionCanceled": {
-    "message": "Subscription canceled"
+    "message": "Abonnementet har blitt avbrutt"
   },
   "providersubCanceledmessage": {
     "message": "To resubscribe, contact Bitwarden Customer Support."
   },
   "showMore": {
-    "message": "Show more"
+    "message": "Vis mer"
   },
   "showLess": {
-    "message": "Show less"
+    "message": "Vis mindre"
   },
   "missingTaxId": {
     "message": "Missing Tax ID"
@@ -15468,7 +15422,7 @@
     "message": "Families membership"
   },
   "advancedOnlineSecurity": {
-    "message": "Advanced online security"
+    "message": "Avansert nettsikkerhet"
   },
   "planDescFamiliesV2": {
     "message": "Premium security for your family"
@@ -15498,7 +15452,7 @@
     "message": "Breach monitoring"
   },
   "andMoreFeatures": {
-    "message": "And more!"
+    "message": "Og mer!"
   },
   "secureFileStorage": {
     "message": "Secure file storage"
@@ -15591,13 +15545,13 @@
     "message": "Seamless integration"
   },
   "families": {
-    "message": "Families"
+    "message": "Familier"
   },
   "upgradeToFamilies": {
     "message": "Upgrade to Families"
   },
   "upgradeToPremium": {
-    "message": "Upgrade to Premium"
+    "message": "Oppgrader til Premium"
   },
   "familiesUpdated": {
     "message": "You've upgraded to Families!"
@@ -15606,7 +15560,7 @@
     "message": "There was an error calculating tax for your location. Please try again."
   },
   "individualUpgradeWelcomeMessage": {
-    "message": "Welcome to Bitwarden"
+    "message": "Velkommen til Bitwarden"
   },
   "individualUpgradeDescriptionMessage": {
     "message": "Unlock more security features with Premium, or start sharing items with Families"
@@ -15621,10 +15575,10 @@
     "message": "Continue without upgrading"
   },
   "upgradeYourPlan": {
-    "message": "Upgrade your plan"
+    "message": "Oppgrader planen din"
   },
   "upgradeNow": {
-    "message": "Upgrade now"
+    "message": "Oppgrader nå"
   },
   "formWillCreateNewFamiliesOrgMessage": {
     "message": "Completing this form will create a new Families organization. You can upgrade your Free organization from the Admin Console."
@@ -15645,10 +15599,10 @@
     "message": "Update encryption settings"
   },
   "updateYourEncryptionSettings": {
-    "message": "Update your encryption settings"
+    "message": "Oppdater krypteringsinnstillingene dine"
   },
   "algorithm": {
-    "message": "Algorithm"
+    "message": "Algoritme"
   },
   "encryptionKeySettingsHowShouldWeEncryptYourData": {
     "message": "Choose how Bitwarden should encrypt your vault data. All options are secure, but stronger methods offer better protection - especially against brute-force attacks. Bitwarden recommends the default setting for most users."
@@ -15666,10 +15620,10 @@
     "message": "Argon2id offers stronger protection against modern attacks. Best for advanced users with powerful devices."
   },
   "zipPostalCodeLabel": {
-    "message": "ZIP / Postal code"
+    "message": "Postnummer"
   },
   "cardNumberLabel": {
-    "message": "Card number"
+    "message": "Kortnummer"
   },
   "startFreeFamiliesTrial": {
     "message": "Start free Families trial"
@@ -15693,19 +15647,19 @@
     "message": "Learn more about claimed domains"
   },
   "vaultTimeoutTooLarge": {
-    "message": "Your vault timeout exceeds the restrictions set by your organization."
+    "message": "Tidsavbrudd i hvelvet ditt overskrider restriksjoner fastsatt av din organisasjon."
   },
   "neverLockWarning": {
-    "message": "Are you sure you want to use the \"Never\" option? Setting your lock options to \"Never\" stores your vault's encryption key on your device. If you use this option you should ensure that you keep your device properly protected."
+    "message": "Er du sikker på at du vil bruke alternativet «Aldri»? Ved å angi låsemulighetene til «Aldri» lagres hvelvets krypteringsnøkkel på enheten. Hvis du bruker dette alternativet, bør du sørge for at du holder enheten forsvarlig beskyttet."
   },
   "sessionTimeoutSettingsAction": {
-    "message": "Timeout action"
+    "message": "Handling ved tidsavbrudd"
   },
   "sessionTimeoutHeader": {
-    "message": "Session timeout"
+    "message": "Tidsavbrudd for økten"
   },
   "appearance": {
-    "message": "Appearance"
+    "message": "Utseende"
   },
   "vaultTimeoutPolicyMaximumError": {
     "message": "Timeout exceeds the restriction set by your organization: $HOURS$ hour(s) and $MINUTES$ minute(s) maximum",
@@ -15724,13 +15678,13 @@
     "message": "Your organization is no longer using master passwords to log into Bitwarden. To continue, verify the organization and domain."
   },
   "continueWithLogIn": {
-    "message": "Continue with log in"
+    "message": "Fortsett med innlogging"
   },
   "doNotContinue": {
-    "message": "Do not continue"
+    "message": "Ikke fortsett"
   },
   "domain": {
-    "message": "Domain"
+    "message": "Domene"
   },
   "keyConnectorDomainTooltip": {
     "message": "This domain will store your account encryption keys, so make sure you trust it. If you're not sure, check with your admin."
@@ -15763,7 +15717,7 @@
     "message": "No critical applications are selected"
   },
   "confirmNoSelectedCriticalApplicationsDesc": {
-    "message": "Are you sure you want to continue?"
+    "message": "Er du sikker på at du vil fortsette?"
   },
   "errorCannotDecrypt": {
     "message": "Error: Cannot decrypt"
@@ -15855,7 +15809,7 @@
     }
   },
   "sessionTimeoutOnRestart": {
-    "message": "On browser refresh"
+    "message": "Ved nettlesergjeninnlasting"
   },
   "sessionTimeoutSettingsSetUnlockMethodToChangeTimeoutAction": {
     "message": "Set an unlock method to change your timeout action"
@@ -15870,7 +15824,7 @@
     "message": "Contact your admin to regain access."
   },
   "leaveConfirmationDialogConfirmButton": {
-    "message": "Leave $ORGANIZATION$",
+    "message": "Forlat $ORGANIZATION$",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -15879,7 +15833,7 @@
     }
   },
   "howToManageMyVault": {
-    "message": "How do I manage my vault?"
+    "message": "Hvordan behandler jeg hvelvet mitt?"
   },
   "transferItemsToOrganizationTitle": {
     "message": "Transfer items to $ORGANIZATION$",
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "View all plans"
@@ -16046,16 +16003,16 @@
     "message": "A web browser showing the Bitwarden extension with autofill items for the current webpage."
   },
   "skip": {
-    "message": "Skip"
+    "message": "Hopp over"
   },
   "downloadExtension": {
     "message": "Download extension"
   },
   "whoCanView": {
-    "message": "Who can view"
+    "message": "Hvem kan se"
   },
   "specificPeople": {
-    "message": "Specific people"
+    "message": "Bestemte personer"
   },
   "emailVerificationDesc": {
     "message": "After sharing this Send link, individuals will need to verify their email with a code to view this Send."
@@ -16100,7 +16057,7 @@
     "message": "Start tour"
   },
   "vaultWelcomeDialogDismissCta": {
-    "message": "Skip"
+    "message": "Hopp over"
   },
   "sendPasswordHelperText": {
     "message": "Individuals will need to enter the password to view this Send",
@@ -16177,20 +16134,20 @@
     }
   },
   "bankName": {
-    "message": "Bank name"
+    "message": "Banknavn"
   },
   "nameOnAccount": {
     "message": "Name on account"
   },
   "bankRoutingNumber": {
-    "message": "Routing number",
+    "message": "Rutingsnummer",
     "description": "Used in the bank account cipher type"
   },
   "branchNumber": {
     "message": "Branch/institution number"
   },
   "swiftCode": {
-    "message": "SWIFT code"
+    "message": "Swift-kode"
   },
   "iban": {
     "message": "IBAN"
@@ -16205,16 +16162,16 @@
     "message": "Search passports"
   },
   "copyAccountNumber": {
-    "message": "Copy account number"
+    "message": "Kopier kontonummer"
   },
   "copyRoutingNumber": {
     "message": "Copy routing number"
   },
   "copyPin": {
-    "message": "Copy PIN"
+    "message": "Kopier PIN"
   },
   "copyIban": {
-    "message": "Copy IBAN"
+    "message": "Kopier IBAN"
   },
   "copyNameOnAccount": {
     "message": "Copy name on account"
@@ -16223,13 +16180,13 @@
     "message": "Copy branch number"
   },
   "copySwiftCode": {
-    "message": "Copy SWIFT code"
+    "message": "Kopier SWIFT-kode"
   },
   "bankAccountTypeChecking": {
-    "message": "Checking"
+    "message": "Undersøker"
   },
   "bankAccountTypeSavings": {
-    "message": "Savings"
+    "message": "Oppsparinger"
   },
   "bankAccountTypeCertificateOfDeposit": {
     "message": "Certificate of deposit"
@@ -16244,7 +16201,7 @@
     "message": "Money market"
   },
   "bankAccountTypeOther": {
-    "message": "Other"
+    "message": "Annet"
   },
   "newBankAccountNudgeTitle": {
     "message": "Securely store your bank details"
@@ -16253,10 +16210,10 @@
     "message": "Save your bank account information to access it easily and securely across your devices."
   },
   "sendsTitleNoSearchResults": {
-    "message": "No search results returned"
+    "message": "Ingen søkeresultater ble funnet"
   },
   "sendsBodyNoSearchResults": {
-    "message": "Clear filters or try another search term"
+    "message": "Tøm filtrene eller prøv et annet søkeuttrykk"
   },
   "pastMonth": {
     "message": "Past month"
@@ -16271,13 +16228,13 @@
     "message": "Past year"
   },
   "allTime": {
-    "message": "All time"
+    "message": "For evig"
   },
   "timePeriod": {
     "message": "Time period"
   },
   "of": {
-    "message": "of"
+    "message": "av"
   },
   "coachmarkImportTitle": {
     "message": "Quickly import your passwords"
@@ -16366,7 +16323,7 @@
     "message": "Enter the email you use to log in to Keeper"
   },
   "dataCenterLocation": {
-    "message": "Data center location"
+    "message": "Datasentersted"
   },
   "keeperMasterPassword": {
     "message": "Keeper master password"
@@ -16393,10 +16350,10 @@
     "message": "We've sent an admin approval request to your admin"
   },
   "method": {
-    "message": "Method"
+    "message": "Metode"
   },
   "directImporter": {
-    "message": "Direct importer"
+    "message": "Direkteimportør"
   },
   "csv": {
     "message": "CSV"
@@ -16414,7 +16371,7 @@
     "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
   },
   "ssoToken": {
-    "message": "SSO token"
+    "message": "SSO-sjetong"
   },
   "keeperAuthRequired": {
     "message": "Keeper authentication required"
@@ -16438,7 +16395,7 @@
     "message": "Two-factor method"
   },
   "emailVerification": {
-    "message": "Email verification"
+    "message": "E-postbekreftelse"
   },
   "approvalEmailDesc": {
     "message": "Please check your email and enter the verification code below"
@@ -16471,10 +16428,10 @@
     "message": "Choose how you want to verify your identity."
   },
   "authenticatorAppTotp": {
-    "message": "Authenticator app (TOTP)"
+    "message": "Autentiseringsapp (TOTP)"
   },
   "textMessageSms": {
-    "message": "Text message (SMS)"
+    "message": "Tekstmelding (SMS)"
   },
   "duoSecurity": {
     "message": "Duo Security"
@@ -16486,10 +16443,10 @@
     "message": "Backup codes"
   },
   "securityKeyU2f": {
-    "message": "Security key (U2F)"
+    "message": "Sikkerhetsnøkkel (U2F)"
   },
   "securityKeyWebAuthn": {
-    "message": "Security key (WebAuthn)"
+    "message": "Sikkerhetsnøkkel (WebAuthn)"
   },
   "keeperDna": {
     "message": "Keeper DNA"
@@ -16510,16 +16467,16 @@
     "message": "Push notification"
   },
   "enterCodeManually": {
-    "message": "Enter code manually"
+    "message": "Skriv inn koden manuelt"
   },
   "twoFactorAuthentication": {
-    "message": "Two-factor authentication"
+    "message": "2-trinnsautentisering"
   },
   "unknownMethod": {
-    "message": "Unknown method"
+    "message": "Ukjent metode"
   },
   "selectDuoMethod": {
-    "message": "Select Duo method"
+    "message": "Velg Duo-metode"
   },
   "selectDuoMethodDesc": {
     "message": "Choose how you want to verify with Duo Security."
@@ -16528,10 +16485,10 @@
     "message": "Duo Push"
   },
   "phoneCall": {
-    "message": "Phone call"
+    "message": "Telefonsamtale"
   },
   "duoVerification": {
-    "message": "Duo verification"
+    "message": "Duo-verifisering"
   },
   "duoPushWaiting": {
     "message": "Approve the Duo push notification on your device."
@@ -16549,19 +16506,19 @@
     "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifactor authentication cancelled"
+    "message": "Multifaktorautentisering ble avbrutt"
   },
   "multifactorAuthenticationFailed": {
-    "message": "Multifactor authentication failed"
+    "message": "Multifaktorautentisering mislyktes"
   },
   "keeperConnectionError": {
     "message": "There was a problem communicating with Keeper. Please try the import again."
   },
   "importingYourAccount": {
-    "message": "Importing your account..."
+    "message": "Importerer kontoen din…"
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "Passkode"
   },
   "multipleInputDomainsInvalid": {
     "message": "One or more domains are invalid"
@@ -16583,13 +16540,13 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "any": {
-    "message": "Any"
+    "message": "Enhver"
   },
   "allowedDomainsAutopopulateAlert": {
     "message": "This was filled in using claimed domains."
   },
   "more": {
-    "message": "More"
+    "message": "Mer"
   },
   "unverifiedBankAccountNotSupportedForUpgrade": {
     "message": "Your bank account needs to be verified before it can be used for this upgrade. Please verify your bank account or choose a different payment method."
@@ -16616,7 +16573,7 @@
     "message": "Create banner message"
   },
   "header": {
-    "message": "Header"
+    "message": "Topptekst"
   },
   "maximumOfXCharacters": {
     "message": "Maximum of $COUNT$ characters",
@@ -16660,7 +16617,7 @@
     "message": "Enter a description."
   },
   "button": {
-    "message": "Button"
+    "message": "Knapp"
   },
   "showAfterEveryLogin": {
     "message": "Show after every login"
@@ -16677,10 +16634,10 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "allow": {
-    "message": "Allow"
+    "message": "Tillat"
   },
   "block": {
-    "message": "Block"
+    "message": "Blokkér"
   },
   "sendControlAccessOptions": {
     "message": "Access options"
@@ -16695,22 +16652,22 @@
     "message": "Enforce deletion date"
   },
   "sendDeletionDate": {
-    "message": "Deletion date"
+    "message": "Dato for sletting"
   },
   "hideMyEmail": {
-    "message": "Hide my email address from recipients."
+    "message": "Skjul min e-postadresse fra mottakere."
   },
   "fileToShare": {
-    "message": "File to share"
+    "message": "Filen som skal deles"
   },
   "viewTextSendHeader": {
-    "message": "View text"
+    "message": "Vis tekst"
   },
   "viewFileSendHeader": {
-    "message": "View file"
+    "message": "Vis fil"
   },
   "sendCreated": {
-    "message": "Send created",
+    "message": "Opprettet Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "numericInputError": {
@@ -16751,7 +16708,7 @@
     "message": "Clicked vault banner button"
   },
   "progressBar": {
-    "message": "Progress bar",
+    "message": "Fremgangslinje",
     "description": "This is the name of a page component that displays progress to the user. This string will be used to label the progress bar for a screenreader when multiple progress bars are on a page, like 'Progress bar 1' and 'Progress bar 2'."
   },
   "separateDomainsWithComma": {
@@ -16764,10 +16721,10 @@
     "message": "Search licenses"
   },
   "driversLicenseDetails": {
-    "message": "License details"
+    "message": "Førerkortdetaljer"
   },
   "dateOfBirth": {
-    "message": "Date of birth"
+    "message": "Fødselsdato"
   },
   "birthMonth": {
     "message": "Birth month"
@@ -16779,34 +16736,34 @@
     "message": "Birth year"
   },
   "issuingCountry": {
-    "message": "Issuing country"
+    "message": "Utstedende land"
   },
   "issuingState": {
-    "message": "Issuing state / province"
+    "message": "Utstedende land"
   },
   "issueDate": {
-    "message": "Issue date"
+    "message": "Utstedelsesdato"
   },
   "issueMonth": {
-    "message": "Issue month"
+    "message": "Utstedelsesmåned"
   },
   "issueDay": {
-    "message": "Issue day"
+    "message": "Utstedelsesdag"
   },
   "issueYear": {
-    "message": "Issue year"
+    "message": "Utstedelsesår"
   },
   "expirationDay": {
     "message": "Expiration day"
   },
   "issuingAuthority": {
-    "message": "Issuing authority"
+    "message": "Utstedende myndighet"
   },
   "licenseClass": {
-    "message": "License class"
+    "message": "Førerkortklasse"
   },
   "copy": {
-    "message": "Copy"
+    "message": "Kopier"
   },
   "pam": {
     "message": "PAM"
@@ -16815,7 +16772,7 @@
     "message": "Access rules"
   },
   "pamAccessRuleEnabled": {
-    "message": "Enabled"
+    "message": "Skrudd på"
   },
   "pamAccessRuleEnabledHint": {
     "message": "When disabled, the rule is inactive and does not restrict access."
@@ -16848,7 +16805,7 @@
     "message": "Edit access rule"
   },
   "pamAccessRuleName": {
-    "message": "Name"
+    "message": "Navn"
   },
   "pamAccessRuleNamePlaceholder": {
     "message": "e.g. VPN + business hours"
@@ -16863,7 +16820,7 @@
     "message": "Optional conditions"
   },
   "pamAccessRuleCollectionsSelect": {
-    "message": "Select collections"
+    "message": "Velg samlinger"
   },
   "pamAccessRuleCollectionsHint": {
     "message": "This access rule will apply to all selected collections."
@@ -16875,7 +16832,7 @@
     "message": "This duration will be pre-filled in access requests."
   },
   "pamAccessRuleDescription": {
-    "message": "Description"
+    "message": "Beskrivelse"
   },
   "pamAccessRuleDefaultDuration": {
     "message": "Default access duration"
@@ -16890,28 +16847,28 @@
     "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
   },
   "pamAccessRuleDuration15m": {
-    "message": "15 minutes"
+    "message": "15 minutter"
   },
   "pamAccessRuleDuration30m": {
-    "message": "30 minutes"
+    "message": "30 minutter"
   },
   "pamAccessRuleDuration1h": {
-    "message": "1 hour"
+    "message": "1 time"
   },
   "pamAccessRuleDuration2h": {
-    "message": "2 hours"
+    "message": "2 timer"
   },
   "pamAccessRuleDuration4h": {
-    "message": "4 hours"
+    "message": "4 timer"
   },
   "pamAccessRuleDuration8h": {
-    "message": "8 hours"
+    "message": "8 timer"
   },
   "pamAccessRuleDuration24h": {
-    "message": "24 hours"
+    "message": "24 timer"
   },
   "pamAccessRuleDuration7d": {
-    "message": "7 days"
+    "message": "7 dager"
   },
   "pamAccessRuleSingleActiveLease": {
     "message": "Only one user can hold an active lease at a time"
@@ -16938,7 +16895,7 @@
     "message": "Restrict by IP address"
   },
   "pamAccessRuleApprovers": {
-    "message": "Approvers"
+    "message": "Godkjennere"
   },
   "pamAccessRuleApproversCollectionManagers": {
     "message": "Collection managers"
@@ -16974,7 +16931,7 @@
     "message": "Start from a template"
   },
   "pamAccessRuleUseTemplate": {
-    "message": "Use template"
+    "message": "Bruk mal"
   },
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
@@ -17004,10 +16961,10 @@
     "message": "IP-restricted access"
   },
   "pamAccessRuleCollectionsColumn": {
-    "message": "Collections"
+    "message": "Samlinger"
   },
   "pamAccessRuleCollectionsNone": {
-    "message": "Unassigned"
+    "message": "Utildelt"
   },
   "pamSearchRules": {
     "message": "Search rules"
@@ -17022,7 +16979,7 @@
     "message": "Access window"
   },
   "pamAccessRuleLastModified": {
-    "message": "Last modified"
+    "message": "Sist endret"
   },
   "pamAccessRuleConditionAutoApproved": {
     "message": "Auto-approved"
@@ -17037,10 +16994,10 @@
     "message": "No access rules match your filters."
   },
   "pamAccessRuleBulkEnable": {
-    "message": "Enable"
+    "message": "Skru på"
   },
   "pamAccessRuleBulkDisable": {
-    "message": "Disable"
+    "message": "Skru av"
   },
   "pamAccessRulesUpdated": {
     "message": "Access rules updated."
@@ -17100,7 +17057,7 @@
     "message": "Upgrade status"
   },
   "processing": {
-    "message": "Processing"
+    "message": "Prosesserer"
   },
   "managePlanInWebApp": {
     "message": "Manage plan in web app"
@@ -17121,7 +17078,7 @@
     }
   },
   "labelWithNotification": {
-    "message": "$LABEL$: New notification",
+    "message": "$LABEL$: Nytt varsel",
     "description": "Label for the notification with a new login suggestion.",
     "placeholders": {
       "label": {

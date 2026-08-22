@@ -1718,58 +1718,12 @@
   "copyName": {
     "message": "名前をコピー"
   },
-  "cardNumber": {
-    "message": "カード番号"
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$ ($CIPHERNAME$) をコピー",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
     "message": "No details to copy"
-  },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsite": {
     "message": "Launch website"
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1GB の暗号化されたファイルストレージ"
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "YubiKey、Duo などのプロプライエタリな2段階認証オプション。"
-  },
   "premiumSignUpEmergency": {
     "message": "緊急アクセス"
-  },
-  "premiumSignUpReports": {
-    "message": "保管庫を安全に保つための、パスワードやアカウントの健全性、データ侵害に関するレポート"
-  },
-  "premiumSignUpTotp": {
-    "message": "保管庫内での2段階認証コード生成"
-  },
-  "premiumSignUpSupport": {
-    "message": "優先カスタマーサポート"
-  },
-  "premiumSignUpFuture": {
-    "message": "将来のプレミアム機能すべて（詳細は近日公開予定！）"
-  },
-  "premiumPrice": {
-    "message": "全部で年間たった$PRICE$！",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "$PRICE$ /年でプレミアム会員になるか、下記のプランなら $FAMILYPLANUSERCOUNT$ 人分のプレミアムアカウントを取得して家族での共有を無制限にできるようになります：",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "The organization you are trying to join only allows its members to belong to one organization."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "このユーザーはシークレットマネージャーにアクセスできます"
   },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Activate user access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "This user can access Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "重要"
   },
@@ -12210,6 +12149,10 @@
     "message": "シークレットマネージャーへのアクセスを有効にしました",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Activated access to Privileged Controls",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "アクセスを有効化"
   },
@@ -12217,8 +12160,16 @@
     "message": "次のメンバーへシークレットマネージャーへのアクセスを許可します。パスワードマネージャーに与えられたロールはシークレットマネージャーに適用されます。",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Grant the following members access to Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "シークレットマネージャーを有効化"
+  },
+  "activatePrivilegedControls": {
+    "message": "Activate Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "組織のフィンガープリントフレーズ",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "二人用無料組織"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "無制限のシークレット"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "組織メンバーによるグループ、コレクション、コレクションアイテム間のアクセスを監査します。 CSV エクスポートには、コレクションの権限とアカウント構成に関する情報を含むメンバーごとの詳細な内訳が表示されます。"
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "（コレクションなし）"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "View all plans"
