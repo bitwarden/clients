@@ -912,5 +912,34 @@ describe("SettingsComponent", () => {
       // `showEnableAutotype` should be false
       expect(component.showEnableAutotype).toBe(false);
     });
+
+    describe("flag-driven visibility on windows", () => {
+      beforeEach(() => {
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+
+        // Recreate component to apply the correct device
+        fixture = TestBed.createComponent(SettingsComponent);
+        component = fixture.componentInstance;
+      });
+
+      it("shows the enable autotype control when the feature flag is enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true) as any);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.showEnableAutotype).toBe(true);
+        expect(fixture.debugElement.query(By.css("label[for='enableAutotype']"))).not.toBeNull();
+      });
+
+      it("hides the enable autotype control when the feature flag is disabled", async () => {
+        // The top-level `beforeEach` already mocks every feature flag as false.
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect(component.showEnableAutotype).toBe(false);
+        expect(fixture.debugElement.query(By.css("label[for='enableAutotype']"))).toBeNull();
+      });
+    });
   });
 });
