@@ -34,7 +34,7 @@ import { EncString } from "@bitwarden/legacy-crypto";
 
 import { Account } from "../../auth/abstractions/account.service";
 import { SingleUserState, UserKeyDefinition } from "../../platform/state";
-import { UserEncryptor } from "../cryptography/user-encryptor.abstraction";
+import { SubjectKeyEncryptor } from "../cryptography/subject-key-encryptor.abstraction";
 import { SemanticLogger } from "../log";
 import { anyComplete, pin, ready, withLatestReady } from "../rx";
 import { Constraints, SubjectConstraints, WithConstraints } from "../types";
@@ -224,14 +224,17 @@ export class UserStateSubject<
   private readonly stateKey: UserKeyDefinition<unknown>;
   private readonly objectKey: ObjectKey<State, Secret, Disclosed>;
 
-  private encryptor(account$: Observable<Account>): Observable<UserEncryptor> {
+  private encryptor(account$: Observable<Account>): Observable<SubjectKeyEncryptor> {
     const singleUserId$ = account$.pipe(map((account) => account.id));
     const frameSize = this.objectKey?.frame ?? DEFAULT_FRAME_SIZE;
-    const encryptor$ = this.providers.encryptor.userEncryptor$(frameSize, { singleUserId$ }).pipe(
-      tap(() => this.log.debug("encryptor constructed")),
-      map(({ encryptor }) => encryptor),
-      shareReplay({ refCount: true, bufferSize: 1 }),
-    );
+    const subjectId = `${this.stateKey.stateDefinition.name}/${this.stateKey.key}`;
+    const encryptor$ = this.providers.encryptor
+      .subjectEncryptor$(frameSize, subjectId, { singleUserId$ })
+      .pipe(
+        tap(() => this.log.debug("encryptor constructed")),
+        map(({ encryptor }) => encryptor),
+        shareReplay({ refCount: true, bufferSize: 1 }),
+      );
     return encryptor$;
   }
 
@@ -337,7 +340,9 @@ export class UserStateSubject<
     );
   }
 
-  private declassify(encryptor$: Observable<UserEncryptor>): OperatorFunction<unknown, State> {
+  private declassify(
+    encryptor$: Observable<SubjectKeyEncryptor>,
+  ): OperatorFunction<unknown, State> {
     // short-circuit if they key lacks encryption support
     if (!this.objectKey || this.objectKey.format === "plain") {
       this.log.debug("key uses plain format; bypassing declassification");
@@ -410,7 +415,7 @@ export class UserStateSubject<
     this.log.panic({ format: this.objectKey.format }, "unsupported serialization format");
   }
 
-  private classify(encryptor$: Observable<UserEncryptor>): OperatorFunction<State, unknown> {
+  private classify(encryptor$: Observable<SubjectKeyEncryptor>): OperatorFunction<State, unknown> {
     // short-circuit if they key lacks encryption support; `encryptor` is
     // readied to preserve `dependencies.singleUserId$` emission contract
     if (!this.objectKey || this.objectKey.format === "plain") {
