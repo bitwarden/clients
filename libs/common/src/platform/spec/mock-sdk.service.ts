@@ -10,7 +10,11 @@ import {
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import { UserId } from "../../types/guid";
-import { SdkService, UserNotLoggedInError } from "../abstractions/sdk/sdk.service";
+import {
+  SdkEndpointOverrides,
+  SdkService,
+  UserNotLoggedInError,
+} from "../abstractions/sdk/sdk.service";
 import { Rc } from "../misc/reference-counting/rc";
 
 import { DeepMockProxy, mockDeep } from "./mock-deep";
@@ -37,6 +41,18 @@ export class MockSdkService implements SdkService {
   setClient(): void {
     throw new Error("Not supported in mock service");
   }
+
+  /**
+   * Returns the same non-user scoped client mock as `client$`; the mock does not model per-call
+   * endpoint overrides. Use {@link ephemeralClientEndpoints} to assert on what was requested.
+   */
+  createEphemeralClient(endpoints: SdkEndpointOverrides): Promise<PasswordManagerClient> {
+    this.ephemeralClientEndpoints.push(endpoints);
+    return Promise.resolve(this._client$.value);
+  }
+
+  /** Endpoint overrides passed to {@link createEphemeralClient}, in call order. */
+  readonly ephemeralClientEndpoints: SdkEndpointOverrides[] = [];
 
   /**
    * Returns the non-user scoped client mock.

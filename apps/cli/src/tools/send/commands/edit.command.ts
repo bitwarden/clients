@@ -106,10 +106,12 @@ export class SendEditCommand {
     sendView = SendResponse.toView(req, sendView);
 
     try {
-      const [encSend, encFileData] = await this.sendService.encrypt(sendView, null, req.password);
-      // Forward the plaintext  password (null when preserving an existing password) so the SDK path can
-      // derive the send password over the key it generates; the legacy path ignores it.
-      await this.sendApiService.save([encSend, encFileData], req.password);
+      // Hand over the plaintext view and let the API service encrypt: the legacy path encrypts
+      // client-side, while the SDK path encrypts under the send key it generates itself. The
+      // plaintext password (null when preserving an existing password) rides along so the SDK
+      // path can derive the send password over that same key; the legacy path ignores it. File
+      // contents are immutable after create, so no file data is supplied on an edit.
+      await this.sendApiService.saveView(sendView, null, req.password);
     } catch (e) {
       return Response.error(e);
     }
