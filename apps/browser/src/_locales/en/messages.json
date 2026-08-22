@@ -432,6 +432,9 @@
   "noFoldersAdded": {
     "message": "No folders added"
   },
+  "noFoldersLabel": {
+    "message": "No folders"
+  },
   "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
   },
@@ -750,6 +753,15 @@
   },
   "launchWebsite": {
     "message": "Launch website"
+  },
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret item"
+      }
+    }
   },
   "website": {
     "message": "Website"
@@ -7904,7 +7916,7 @@
   },
   "weakPasswordsDescription": {
     "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
-  },    
+  },
   "reusedPasswordsTitle": {
     "message": "Reused passwords"
   },

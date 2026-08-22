@@ -1,3 +1,5 @@
+import { computed, signal } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
@@ -25,6 +27,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -37,8 +40,17 @@ import {
 import { StateProvider } from "@bitwarden/state";
 import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
+import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
+import {
+  FilterOptionCounts,
+  MY_VAULT_ID,
+  NO_FOLDER_COUNT_KEY,
+  PopupListFilter,
+  VaultPopupListFiltersService,
+} from "../../../services/vault-popup-list-filters.service";
+import { VaultSection } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -213,6 +225,72 @@ type StoryArgs = {
   simplifiedItemActionEnabled?: boolean;
   /** Legacy (flag-off) setting: whether clicking an autofill suggestion fills it. Defaults to on. */
   clickItemsToAutofillVaultView?: boolean;
+  /** Filters pre-applied to `filterForm`, so the chips render in their active state. */
+  appliedFilters?: Partial<PopupListFilter>;
+  /** Sections rendered collapsed. Defaults to all expanded. */
+  collapsedSections?: VaultSection[];
+};
+
+// Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
+// these also control which chips appear.
+const ORGANIZATION_OPTIONS = [
+  { value: { id: MY_VAULT_ID } as Organization, label: "My vault", icon: "bwi-user" as const },
+  {
+    value: { id: "org-engineering" } as Organization,
+    label: "Acme Co",
+    icon: "bwi-business" as const,
+  },
+];
+
+const COLLECTION_OPTIONS = [
+  { value: { id: "col-eng", name: "Engineering" } as CollectionView, label: "Engineering" },
+  { value: { id: "col-mkt", name: "Marketing" } as CollectionView, label: "Marketing" },
+];
+
+// Nested to exercise the tree flattening: the child renders as its own option, labeled with only
+// its trailing segment.
+const FOLDER_OPTIONS = [
+  {
+    value: { id: "folder-work", name: "Work" } as FolderView,
+    label: "Work",
+    children: [{ value: { id: "folder-work-eu", name: "Work/EU" } as FolderView, label: "EU" }],
+  },
+  { value: { id: "folder-personal", name: "Personal" } as FolderView, label: "Personal" },
+];
+
+const CIPHER_TYPE_OPTIONS = [
+  { value: CipherType.Login, label: "Login" },
+  { value: CipherType.Card, label: "Card" },
+  { value: CipherType.Identity, label: "Identity" },
+  { value: CipherType.SecureNote, label: "Note" },
+];
+
+/**
+ * Option counts derived from the story's own ciphers, so they can't drift from the rows on screen.
+ * Mirrors the real service: counts are absolute, so the applied filters don't narrow them.
+ */
+const buildOptionCounts = (ciphers: PopupCipherViewLike[]): FilterOptionCounts => {
+  const counts: FilterOptionCounts = {
+    cipherType: new Map<CipherType, number>(),
+    organization: new Map<string, number>(),
+    collection: new Map<string, number>(),
+    folder: new Map<string, number>(),
+  };
+
+  const increment = <K>(map: Map<K, number>, key: K) => {
+    map.set(key, (map.get(key) ?? 0) + 1);
+  };
+
+  for (const cipher of ciphers) {
+    increment(counts.cipherType, (cipher as CipherView).type);
+    increment(counts.organization, cipher.organizationId ?? MY_VAULT_ID);
+    for (const collectionId of cipher.collectionIds ?? []) {
+      increment(counts.collection, collectionId);
+    }
+    increment(counts.folder, cipher.folderId ?? NO_FOLDER_COUNT_KEY);
+  }
+
+  return counts;
 };
 
 const buildProviders = (args: StoryArgs) => {
@@ -245,8 +323,42 @@ const buildProviders = (args: StoryArgs) => {
     },
   } as Window;
 
+  // A real `FormGroup`, since the chips are bridged to it rather than owning their own state.
+  // `appliedFilters` seeds it the way the view cache does on a real popup open.
+  const filterForm = new FormGroup({
+    organization: new FormControl<Organization | null>(args.appliedFilters?.organization ?? null),
+    collection: new FormControl<CollectionView[]>(args.appliedFilters?.collection ?? [], {
+      nonNullable: true,
+    }),
+    folder: new FormControl<FolderView[]>(args.appliedFilters?.folder ?? [], {
+      nonNullable: true,
+    }),
+    cipherType: new FormControl<CipherType | null>(args.appliedFilters?.cipherType ?? null),
+  });
+
+  // A signal, matching the real service's return type, so a section header toggle re-renders.
+  const collapsedSections = signal(new Set(args.collapsedSections ?? []));
+
   return [
     { provide: WINDOW, useValue: fakeWindow },
+    {
+      provide: VaultPopupListFiltersService,
+      useValue: {
+        filterForm,
+        cipherTypes$: of(CIPHER_TYPE_OPTIONS),
+        organizations$: of(ORGANIZATION_OPTIONS),
+        collections$: of(COLLECTION_OPTIONS),
+        folders$: of(FOLDER_OPTIONS),
+        // Counted across every section, so the chip counts cover the whole list.
+        filterOptionCounts$: of(
+          buildOptionCounts([
+            ...args.autoFillCiphers,
+            ...args.favoriteCiphers,
+            ...args.filteredCiphers,
+          ]),
+        ),
+      },
+    },
     {
       provide: VaultPopupItemsService,
       useValue: {
@@ -256,6 +368,8 @@ const buildProviders = (args: StoryArgs) => {
         loading$: loading$.asObservable(),
         searchText$: searchText$.asObservable(),
         hasSearchText$: hasSearchText$.asObservable(),
+        // No story exercises the suspended-organization notice.
+        showDeactivatedOrg$: of(false),
         applyFilter,
       },
     },
@@ -275,8 +389,20 @@ const buildProviders = (args: StoryArgs) => {
     {
       provide: VaultPopupSectionService,
       useValue: {
-        getOpenDisplayStateForSection: () => () => true,
-        updateSectionOpenStoredState: async () => {},
+        getOpenDisplayStateForSection: (section: VaultSection) =>
+          computed(() => !collapsedSections().has(section)),
+        // Persisted for real by the section service; here it just keeps the story interactive.
+        updateSectionOpenStoredState: async (section: VaultSection, open: boolean) => {
+          collapsedSections.update((sections) => {
+            const next = new Set(sections);
+            if (open) {
+              next.delete(section);
+            } else {
+              next.add(section);
+            }
+            return next;
+          });
+        },
       },
     },
     {
@@ -361,8 +487,26 @@ const buildProviders = (args: StoryArgs) => {
           archiveVerb: "Archive",
           upgradeToUseArchive: "Upgrade to use archive",
           delete: "Delete",
-          launchWebsite: "Launch website",
+          launchWebsiteForName: "Launch __$1__",
           itemCount: "__$1__ items",
+          // Toolbar filter chips (and the responsive filter dialog they collapse into)
+          all: "All",
+          type: "Type",
+          vault: "Vault",
+          vaults: "Vaults",
+          collection: "Collection",
+          sharedFolders: "Shared folders",
+          folder: "Folder",
+          myFolders: "My folders",
+          filter: "Filter",
+          filters: "Filters",
+          filtersSelected: "__$1__ selected",
+          removeItem: "Remove __$1__",
+          clear: "Clear",
+          clearAll: "Clear all",
+          done: "Done",
+          back: "Back",
+          noMatchingItems: "No matching items",
         }),
     },
     {
@@ -514,6 +658,57 @@ export const LegacyAutofillButton: Story = {
         loading: false,
         simplifiedItemActionEnabled: false,
         clickItemsToAutofillVaultView: false,
+      }),
+    }),
+  ],
+  render: () => ({
+    template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
+  }),
+};
+
+// Filters pre-applied to `filterForm`: Type and Vault render active with their selection in the
+// chip label, while multi-select My folders shows a count berry. Narrow the viewport to see the
+// chip row collapse into the sliders trigger.
+export const ActiveFilters: Story = {
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        autoFillCiphers: AUTOFILL_CIPHERS,
+        favoriteCiphers: FAVORITE_CIPHERS,
+        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+        loading: false,
+        appliedFilters: {
+          cipherType: CipherType.Login,
+          organization: ORGANIZATION_OPTIONS[1].value,
+          folder: [FOLDER_OPTIONS[0].value, FOLDER_OPTIONS[1].value],
+        },
+      }),
+    }),
+  ],
+  render: () => ({
+    template: `<div class="tw-flex tw-flex-col" style="height: 500px"><app-vault-popup-list-table></app-vault-popup-list-table></div>`,
+  }),
+  parameters: {
+    // The toolbar picks its presentation from the viewport (`matchMedia`), not the host width, so
+    // pin the widths rather than constraining with CSS. Every popup size is below the `md`
+    // breakpoint and collapses into the sliders trigger; 1280 covers the wide row for the sidebar.
+    chromatic: {
+      viewports: [PopupWidthOptions.narrow, PopupWidthOptions.default, 1280],
+    },
+  },
+};
+
+// Both collapsible sections start closed, so only their headers render. The autofill section isn't
+// `collapsible`, so it stays expanded.
+export const CollapsedSections: Story = {
+  decorators: [
+    applicationConfig({
+      providers: buildProviders({
+        autoFillCiphers: AUTOFILL_CIPHERS,
+        favoriteCiphers: FAVORITE_CIPHERS,
+        filteredCiphers: [...AUTOFILL_CIPHERS, ...FAVORITE_CIPHERS, ...ALL_ITEM_CIPHERS],
+        loading: false,
+        collapsedSections: ["favorites", "allItems"],
       }),
     }),
   ],

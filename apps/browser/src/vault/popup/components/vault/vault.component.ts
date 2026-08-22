@@ -2,7 +2,7 @@ import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ScrollingModule } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, effect, inject, OnDestroy, OnInit } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router, RouterModule } from "@angular/router";
 import {
   BehaviorSubject,
@@ -46,10 +46,10 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
-  ScrollLayoutService,
   ToastService,
   TypographyModule,
   CalloutModule,
+  ScrollLayoutService,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -79,6 +79,7 @@ import {
   NewItemInitialValues,
 } from "./new-item-dropdown/new-item-dropdown.component";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
+import { VaultPopupListTableComponent } from "./vault-popup-list-table/vault-popup-list-table.component";
 
 import { AutofillVaultListItemsComponent, VaultListItemsContainerComponent } from ".";
 
@@ -119,6 +120,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     VaultFadeInOutSkeletonComponent,
     VaultFadeInOutComponent,
     VaultOrganizationUserNotificationsComponent,
+    VaultPopupListTableComponent,
   ],
   providers: [{ provide: VaultItemsTransferService, useClass: DefaultVaultItemsTransferService }],
 })
@@ -203,15 +205,17 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
-      switchMap(
-        async (filter) =>
-          ({
-            organizationId: (filter.organization?.id ||
-              filter.collection?.organizationId) as OrganizationId,
-            collectionId: filter.collection?.id as CollectionId,
-            folderId: filter.folder?.id,
-          }) as NewItemInitialValues,
-      ),
+      switchMap(async (filter) => {
+        // Collections and folders filter to a set, so they only prefill an unambiguous selection.
+        const collection = filter.collection?.length === 1 ? filter.collection[0] : undefined;
+        const folder = filter.folder?.length === 1 ? filter.folder[0] : undefined;
+
+        return {
+          organizationId: (filter.organization?.id || collection?.organizationId) as OrganizationId,
+          collectionId: collection?.id as CollectionId,
+          folderId: folder?.id,
+        } as NewItemInitialValues;
+      }),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -224,6 +228,16 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   /** Visual state of the vault */
   protected vaultState: VaultState | null = null;
+
+  /**
+   * When enabled, the popup renders `app-vault-popup-list-table`, which supplies its own search
+   * toolbar and section grouping. The legacy header and grouped list stay in the template behind
+   * the `@else` branches so the flag can be turned back off.
+   */
+  protected readonly vfo1Enabled = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected vaultIcon = VaultOpen;
   protected deactivatedIcon = DeactivatedOrg;
@@ -254,6 +268,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private organizationService: InternalOrganizationServiceAbstraction,
     private premiumUpsellService: PremiumUpsellService,
+    private scrollLayoutService: ScrollLayoutService,
   ) {
     combineLatest([
       this.vaultPopupItemsService.emptyVault$,
@@ -279,10 +294,12 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
   }
 
-  private readonly scrollLayout = inject(ScrollLayoutService);
-
   private readonly _scrollPositionEffect = effect((onCleanup) => {
-    const sub = combineLatest([this.scrollLayout.scrollableRef$, this.allFilters$, this.loading$])
+    const sub = combineLatest([
+      this.scrollLayoutService.scrollableRef$,
+      this.allFilters$,
+      this.loading$,
+    ])
       .pipe(
         filter(([ref, _filters, loading]) => !!ref && !loading),
         take(1),
