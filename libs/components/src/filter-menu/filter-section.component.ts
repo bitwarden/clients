@@ -39,8 +39,15 @@ export class FilterSectionComponent implements FilterEntry {
   /** Whether the section starts expanded (only meaningful when collapsible). */
   readonly expanded = input(true, { transform: booleanAttribute });
 
-  /** This section's options; the chip renders their rows under the header. */
-  readonly options = contentChildren(FilterOptionComponent, { descendants: true });
+  /**
+   * The options directly under this section — the chip renders a row for each, and
+   * each of those renders anything nested beneath it. Deliberately not `descendants`,
+   * or nested options would also be drawn flat at the section's own level.
+   */
+  readonly options = contentChildren(FilterOptionComponent);
+
+  /** Every option in the section, nesting included — for the header's selected count. */
+  readonly allOptions = contentChildren(FilterOptionComponent, { descendants: true });
 
   /** Open state, seeded from `expanded` and thereafter driven by the chip's header. */
   readonly open = linkedSignal(() => this.expanded());

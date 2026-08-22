@@ -241,6 +241,12 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
    */
   readonly optionsTemplate = viewChild<TemplateRef<unknown>>("optionsBody");
 
+  /**
+   * Whether any option in this menu has children. Leaves reserve the expander's width
+   * when so, to keep every checkbox in a column.
+   */
+  protected readonly hasNesting = computed(() => this.allOptions().some((o) => o.hasChildren()));
+
   /** Whether the menu has enough options to warrant the in-menu search box. */
   protected readonly showSearch = computed(() => this.allOptions().length > SEARCH_THRESHOLD);
 
@@ -365,10 +371,28 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     return entry.kind === "option" ? (entry as FilterOptionComponent) : null;
   }
 
-  /** Whether an option matches the current search term (always true with no term). */
+  /**
+   * Whether an option shows for the current search term. A parent stays visible when
+   * anything beneath it matches, so a nested match is reachable through its ancestors
+   * rather than being hidden with them.
+   */
   protected optionVisible(option: FilterOptionComponent): boolean {
     const term = this._searchTerm().trim().toLowerCase();
-    return term === "" || option.label().toLowerCase().includes(term);
+    if (term === "") {
+      return true;
+    }
+    return (
+      option.label().toLowerCase().includes(term) ||
+      option.children().some((child) => this.optionVisible(child))
+    );
+  }
+
+  /**
+   * Whether a parent's children are shown: its own expansion state, or forced open
+   * while a search is narrowing the list so matches aren't buried in a collapsed row.
+   */
+  protected optionExpanded(option: FilterOptionComponent): boolean {
+    return this._searchTerm().trim() !== "" || option.open();
   }
 
   /** Whether a section has any option matching the search — hides empty sections while searching. */
@@ -376,12 +400,60 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     return section.options().some((option) => this.optionVisible(option));
   }
 
-  /** How many of a section's options are selected — shown as the header berry. */
+  /** How many of a section's options are selected, nesting included — the header berry. */
   protected sectionSelectedCount(section: FilterSectionComponent): number {
-    return section.options().filter((option) => {
+    return section.allOptions().filter((option) => {
       const resolved = this.optionValue(option);
       return resolved != null && this.isSelected(resolved.value);
     }).length;
+  }
+
+  /** An option's own value followed by every value nested beneath it. */
+  private subtreeValues(option: FilterOptionComponent): unknown[] {
+    const own = this.optionValue(option);
+    const values = own ? [own.value] : [];
+    for (const child of option.children()) {
+      values.push(...this.subtreeValues(child));
+    }
+    return values;
+  }
+
+  /**
+   * Whether an option's row draws as selected: for a leaf, whether its value is
+   * selected; for a parent, whether its whole subtree is. A parent that's only
+   * partly selected draws as {@link partiallySelected} instead.
+   */
+  protected optionSelected(option: FilterOptionComponent): boolean {
+    const values = this.subtreeValues(option);
+    return values.length > 0 && values.every((value) => this.isSelected(value));
+  }
+
+  /** Whether some — but not all — of a parent's subtree is selected. */
+  protected partiallySelected(option: FilterOptionComponent): boolean {
+    const values = this.subtreeValues(option);
+    return (
+      values.some((value) => this.isSelected(value)) && !values.every((v) => this.isSelected(v))
+    );
+  }
+
+  /**
+   * Selecting a row selects everything beneath it, and clearing it clears the same
+   * set — so a parent is a bulk control for its subtree rather than a value that can
+   * drift out of step with its children.
+   */
+  protected toggleOption(option: FilterOptionComponent): void {
+    const values = this.subtreeValues(option);
+    if (!this.multiple() || values.length <= 1) {
+      this.toggle(values[0]);
+      return;
+    }
+    const current = Array.isArray(this._value()) ? (this._value() as unknown[]) : [];
+    const selectAll = !values.every((value) => current.includes(value));
+    this._value.set(
+      selectAll
+        ? [...current, ...values.filter((value) => !current.includes(value))]
+        : current.filter((value) => !values.includes(value)),
+    );
   }
 
   isSelected(value: unknown): boolean {

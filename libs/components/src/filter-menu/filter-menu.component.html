@@ -40,20 +40,22 @@
   decorative — the row's own `input` carries the state and the semantics — so it's
   hidden from assistive tech. Tokens mirror what `bitCheckbox`/`bitRadio` render.
 -->
-<ng-template #indicator let-selected>
+<ng-template #indicator let-selected let-partial="partial">
   <span
     aria-hidden="true"
     class="tw-flex tw-size-4 tw-flex-none tw-items-center tw-justify-center tw-border-solid"
     [class.tw-rounded]="multiple()"
     [class.tw-rounded-full]="!multiple()"
-    [class.tw-border]="!selected"
-    [class.tw-border-border-strong]="!selected"
-    [class.tw-border-2]="selected"
-    [class.tw-border-border-brand]="selected"
-    [class.tw-bg-bg-brand]="multiple() && selected"
-    [class.tw-bg-bg-tertiary]="!(multiple() && selected)"
+    [class.tw-border]="!selected && !partial"
+    [class.tw-border-border-strong]="!selected && !partial"
+    [class.tw-bg-bg-brand]="multiple() && selected && !partial"
+    [class.tw-bg-bg-tertiary]="!(multiple() && selected) || partial"
+    [class.tw-border-2]="selected || partial"
+    [class.tw-border-border-brand]="selected || partial"
   >
-    @if (selected) {
+    @if (partial) {
+      <span class="tw-h-0.5 tw-w-2 tw-rounded-full tw-bg-bg-brand"></span>
+    } @else if (selected) {
       @if (multiple()) {
         <bit-icon
           name="bwi-check"
@@ -68,44 +70,78 @@
 </ng-template>
 
 <!--
-  One option row, drawn by the chip (data only) so it re-stamps cleanly per surface.
-  A `label` around a real checkbox/radio: the browser supplies the role, the checked
-  state, the announcement, and — for radios sharing a `name` — arrow-key navigation,
-  none of which a `button` gets for free. The input is visually hidden and the styled
-  indicator stands in for it.
+  One option row, drawn by the chip (data only) so it re-stamps cleanly per surface,
+  and recursive so a parent renders the options nested under it. A `label` around a
+  real checkbox/radio: the browser supplies the role, the checked state, the
+  announcement, Space to toggle, and — for radios sharing a name — arrow-key
+  navigation, none of which a `button` gets for free. The expander sits outside the
+  label so it isn't interactive content nested inside it.
 -->
-<ng-template #optionRow let-option>
-  @let optionSelected = isSelected(option.value());
-  <label [class]="optionRowClasses">
-    <input
-      class="tw-sr-only"
-      [type]="multiple() ? 'checkbox' : 'radio'"
-      [attr.name]="multiple() ? null : radioName"
-      [checked]="optionSelected"
-      [disabled]="option.disabled()"
-      (change)="toggle(option.value())"
-    />
-    <ng-container
-      *ngTemplateOutlet="indicator; context: { $implicit: optionSelected }"
-    ></ng-container>
-    @if (option.iconTile(); as tile) {
-      <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a line
-           box's worth of descender space below the tile and push it above the row's center. -->
-      <bit-icon-tile
-        class="!tw-flex tw-flex-none"
-        [icon]="tile.icon"
-        [variant]="tileVariant(option)"
-        [color]="tileColor(option)"
-        [emphasis]="tile.emphasis ?? 'subtle'"
-        size="xs"
+<ng-template #optionRow let-option let-depth="depth">
+  @let selected = optionSelected(option);
+  @let partial = partiallySelected(option);
+  <div [class]="optionRowClasses" [style.padding-inline-start.rem]="0.5 + depth * 1.25">
+    @if (option.hasChildren()) {
+      <button
+        type="button"
+        class="tw-flex tw-size-4 tw-flex-none tw-items-center tw-justify-center tw-border-none tw-bg-transparent tw-p-0 tw-text-fg-body-subtle focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-border-focus"
+        [attr.aria-expanded]="optionExpanded(option)"
+        [attr.aria-label]="option.label()"
+        (click)="option.toggleOpen()"
+      >
+        <bit-icon
+          [name]="optionExpanded(option) ? 'bwi-angle-down' : 'bwi-angle-right'"
+          class="tw-text-xs"
+          aria-hidden="true"
+        ></bit-icon>
+      </button>
+    } @else if (hasNesting()) {
+      <!-- Keeps leaves aligned with the checkboxes of siblings that do expand. -->
+      <span class="tw-size-4 tw-flex-none" aria-hidden="true"></span>
+    }
+    <label class="tw-mb-0 tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2">
+      <input
+        class="tw-sr-only"
+        [type]="multiple() ? 'checkbox' : 'radio'"
+        [attr.name]="multiple() ? null : radioName"
+        [checked]="selected"
+        [indeterminate]="partial"
+        [disabled]="option.disabled()"
+        (change)="toggleOption(option)"
       />
+      <ng-container
+        *ngTemplateOutlet="indicator; context: { $implicit: selected, partial: partial }"
+      ></ng-container>
+      @if (option.iconTile(); as tile) {
+        <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a line
+             box's worth of descender space below the tile and push it above the row's center. -->
+        <bit-icon-tile
+          class="!tw-flex tw-flex-none"
+          [icon]="tile.icon"
+          [variant]="tileVariant(option)"
+          [color]="tileColor(option)"
+          [emphasis]="tile.emphasis ?? 'subtle'"
+          size="xs"
+        />
+      }
+      <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ option.label() }}</span>
+      @let count = optionCounts().get(option);
+      @if (count != null) {
+        <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+          count
+        }}</span>
+      }
+    </label>
+  </div>
+  @if (option.hasChildren() && optionExpanded(option)) {
+    @for (child of option.children(); track child.value()) {
+      @if (optionVisible(child)) {
+        <ng-container
+          *ngTemplateOutlet="optionRow; context: { $implicit: child, depth: depth + 1 }"
+        ></ng-container>
+      }
     }
-    <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ option.label() }}</span>
-    @let count = optionCounts().get(option);
-    @if (count != null) {
-      <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{ count }}</span>
-    }
-  </label>
+  }
 </ng-template>
 
 <ng-template #optionsBody>
@@ -172,7 +208,7 @@
             @for (option of section.options(); track option.value()) {
               @if (optionVisible(option)) {
                 <ng-container
-                  *ngTemplateOutlet="optionRow; context: { $implicit: option }"
+                  *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
                 ></ng-container>
               }
             }
@@ -181,7 +217,7 @@
       } @else if (asOption(entry); as option) {
         @if (optionVisible(option)) {
           <ng-container
-            *ngTemplateOutlet="optionRow; context: { $implicit: option }"
+            *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
           ></ng-container>
         }
       }
