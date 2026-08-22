@@ -18,12 +18,13 @@ export class OrganizationUserAdminView {
   permissions: PermissionsApi;
   resetPasswordEnrolled: boolean;
   hasMasterPassword: boolean;
-  managedByOrganization: boolean;
+  claimedByOrganization: boolean;
 
   collections: CollectionAccessSelectionView[] = [];
   groups: string[] = [];
 
   accessSecretsManager: boolean;
+  accessPam: boolean;
 
   constructor(c: {
     id: Guid;
@@ -37,9 +38,10 @@ export class OrganizationUserAdminView {
     ssoExternalId: string;
     permissions: PermissionsApi;
     accessSecretsManager: boolean;
+    accessPam: boolean;
     resetPasswordEnrolled: boolean;
     hasMasterPassword: boolean;
-    managedByOrganization: boolean;
+    claimedByOrganization: boolean;
   }) {
     this.id = c.id;
     this.userId = c.userId;
@@ -52,9 +54,10 @@ export class OrganizationUserAdminView {
     this.ssoExternalId = c.ssoExternalId;
     this.permissions = c.permissions;
     this.accessSecretsManager = c.accessSecretsManager;
+    this.accessPam = c.accessPam;
     this.resetPasswordEnrolled = c.resetPasswordEnrolled;
     this.hasMasterPassword = c.hasMasterPassword;
-    this.managedByOrganization = c.managedByOrganization;
+    this.claimedByOrganization = c.claimedByOrganization;
   }
 
   static fromResponse(
@@ -78,9 +81,10 @@ export class OrganizationUserAdminView {
       ssoExternalId: response.ssoExternalId,
       permissions: response.permissions,
       accessSecretsManager: response.accessSecretsManager ?? false,
+      accessPam: response.accessPam ?? false,
       resetPasswordEnrolled: response.resetPasswordEnrolled ?? false,
       hasMasterPassword: response.hasMasterPassword ?? false,
-      managedByOrganization: response.managedByOrganization ?? false,
+      claimedByOrganization: response.claimedByOrganization ?? false,
     });
 
     return view;

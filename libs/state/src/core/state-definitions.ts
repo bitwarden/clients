@@ -38,6 +38,9 @@ export const DELETE_MANAGED_USER_WARNING = new StateDefinition(
 );
 export const AUTO_CONFIRM = new StateDefinition("autoConfirm", "disk", { web: "disk-local" });
 export const ORGANIZATION_INVITE_LINK_DISK = new StateDefinition("organizationInviteLink", "disk");
+export const SCIM_BANNER = new StateDefinition("scimBanner", "disk", {
+  web: "disk-local",
+});
 
 // Billing
 export const BILLING_DISK = new StateDefinition("billing", "disk");
@@ -77,7 +80,13 @@ export const TOKEN_MEMORY = new StateDefinition("token", "memory");
 export const SEND_ACCESS_DISK = new StateDefinition("sendAccess", "disk");
 export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
+/**
+ * Shared disk (session on web) storage for both organization-invite variants (direct and open).
+ */
 export const ORGANIZATION_INVITE_DISK = new StateDefinition("organizationInvite", "disk");
+export const OPEN_ORG_INVITE_DISK_LOCAL = new StateDefinition("openOrgInvite", "disk", {
+  web: "disk-local",
+});
 export const VAULT_TIMEOUT_SETTINGS_DISK_LOCAL = new StateDefinition(
   "vaultTimeoutSettings",
   "disk",
@@ -100,6 +109,7 @@ export const AUTOFILL_SETTINGS_DISK = new StateDefinition("autofillSettings", "d
 export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSettingsLocal", "disk", {
   web: "disk-local",
 });
+export const WEBMAPPER_DISK = new StateDefinition("webmapper", "disk");
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
 
@@ -113,6 +123,16 @@ export const BIT_SIDE_NAV_DISK = new StateDefinition("bitSideNav", "disk");
 // DIRT
 
 export const PHISHING_DETECTION_DISK = new StateDefinition("phishingDetection", "disk");
+export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
+  "accessIntelligenceWelcomeDialog",
+  "disk",
+  {
+    web: "disk-local",
+  },
+);
+export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
+  web: "disk-local",
+});
 
 // Platform
 
@@ -209,7 +229,9 @@ export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
 });
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
+export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {
+  web: "disk-local",
+});
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");
@@ -228,20 +250,22 @@ export const VAULT_BROWSER_INTRO_CAROUSEL = new StateDefinition(
   "vaultBrowserIntroCarousel",
   "disk",
 );
+export const VAULT_BROWSER_DEFAULT_PASSWORD_MANAGER_PROMPT = new StateDefinition(
+  "vaultBrowserDefaultPasswordManagerPrompt",
+  "disk",
+);
 export const VAULT_AUTOFILL_SIMPLIFIED_ICON = new StateDefinition(
   "vaultAutofillSimplifiedIcon",
   "disk",
 );
 export const VAULT_AT_RISK_PASSWORDS_MEMORY = new StateDefinition("vaultAtRiskPasswords", "memory");
+export const VAULT_ORG_USER_NOTIFICATION_DISK_LOCAL = new StateDefinition(
+  "vaultOrgUserNotification",
+  "disk",
+  { web: "disk-local" },
+);
 export const WELCOME_EXTENSION_DIALOG_DISK = new StateDefinition(
   "vaultWelcomeExtensionDialogDismissed",
-  "disk",
-  {
-    web: "disk-local",
-  },
-);
-export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
-  "accessIntelligenceWelcomeDialog",
   "disk",
   {
     web: "disk-local",

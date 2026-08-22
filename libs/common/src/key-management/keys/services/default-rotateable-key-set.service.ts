@@ -1,17 +1,18 @@
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KeyService } from "@bitwarden/key-management";
+import {
+  EncryptService,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { EncryptService } from "../../crypto/abstractions/encrypt.service";
 import { RotateableKeySet } from "../models/rotateable-key-set";
 
 import { RotateableKeySetService } from "./abstractions/rotateable-key-set.service";
 
 export class DefaultRotateableKeySetService implements RotateableKeySetService {
   constructor(
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
   ) {}
 
@@ -26,7 +27,8 @@ export class DefaultRotateableKeySetService implements RotateableKeySetService {
       throw new Error("failed to create key set: downstreamKey is required");
     }
 
-    const [publicKey, encryptedPrivateKey] = await this.keyService.makeKeyPair(upstreamKey);
+    const [publicKey, encryptedPrivateKey] =
+      await this.legacyCompatKeyService.makeKeyPair(upstreamKey);
 
     const rawPublicKey = Utils.fromB64ToArray(publicKey);
     const encryptedRotateableKey = await this.encryptService.encapsulateKeyUnsigned(

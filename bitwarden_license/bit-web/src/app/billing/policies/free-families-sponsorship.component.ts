@@ -1,26 +1,18 @@
-import { Component } from "@angular/core";
-
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import {
   BasePolicyEditDefinition,
-  BasePolicyEditComponent,
   PolicyCategory,
 } from "@bitwarden/web-vault/app/admin-console/organizations/policies";
-import { SharedModule } from "@bitwarden/web-vault/app/shared";
+import { SimpleTogglePolicyComponent } from "@bitwarden/web-vault/app/admin-console/organizations/policies/policy-edit-definitions/simple-toggle-policy.component";
 
 export class FreeFamiliesSponsorshipPolicy extends BasePolicyEditDefinition {
-  name = "freeFamiliesSponsorship";
-  description = "freeFamiliesSponsorshipPolicyDesc";
+  name = "freeFamiliesSponsorshipPolicyTitleV2";
+  nameVfo1 = "freeFamiliesSponsorshipTitleVfo1";
+  drawerNameVfo1 = "freeFamiliesSponsorshipPolicyTitleV2Vfo1";
+  description = "freeFamiliesSponsorshipPolicyDescV2";
+  descriptionVfo1 = "freeFamiliesSponsorshipDescVfo1";
   type = PolicyType.FreeFamiliesSponsorship;
   category = PolicyCategory.VaultManagement;
   priority = 60;
-  component = FreeFamiliesSponsorshipPolicyComponent;
+  component = SimpleTogglePolicyComponent;
 }
-
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
-@Component({
-  templateUrl: "free-families-sponsorship.component.html",
-  imports: [SharedModule],
-})
-export class FreeFamiliesSponsorshipPolicyComponent extends BasePolicyEditComponent {}

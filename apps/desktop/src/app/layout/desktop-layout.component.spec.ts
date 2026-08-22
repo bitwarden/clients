@@ -4,6 +4,7 @@ import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { DialogService, NavigationModule } from "@bitwarden/components";
@@ -58,6 +59,9 @@ describe("DesktopLayoutComponent", () => {
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   beforeEach(async () => {
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],
       providers: [
@@ -76,6 +80,10 @@ describe("DesktopLayoutComponent", () => {
         {
           provide: SendPolicyService,
           useValue: { disableSend$: of(false) },
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     })

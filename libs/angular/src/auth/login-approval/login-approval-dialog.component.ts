@@ -2,7 +2,6 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { firstValueFrom, map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
@@ -24,6 +23,8 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
+
+import { JslibModule } from "../../jslib.module";
 
 const RequestTimeOut = 60000 * 15; // 15 Minutes
 const RequestTimeUpdate = 60000 * 5; // 5 Minutes
@@ -132,8 +133,19 @@ export class LoginApprovalDialogComponent implements OnInit, OnDestroy {
   };
 
   private async retrieveAuthRequestAndRespond(approve: boolean) {
-    this.authRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
-    if (this.authRequestResponse.requestApproved || this.authRequestResponse.responseDate != null) {
+    if (this.authRequestResponse == null) {
+      this.logService.error("LoginApprovalDialogComponent: authRequestResponse not found");
+      return;
+    }
+
+    // Re-fetch to check validity.
+    // This is check-only; does not replace or augment the existing local authRequestResponse.
+    const refetchedAuthRequestResponse = await this.apiService.getAuthRequest(this.authRequestId);
+
+    if (
+      refetchedAuthRequestResponse.requestApproved ||
+      refetchedAuthRequestResponse.responseDate != null
+    ) {
       this.toastService.showToast({
         variant: "info",
         message: this.i18nService.t("thisRequestIsNoLongerValid"),

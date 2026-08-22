@@ -10,10 +10,11 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { ResetPasswordPolicy, ResetPasswordPolicyComponent } from "./reset-password.component";
 
@@ -36,6 +37,7 @@ describe("ResetPasswordPolicy", () => {
     expect(policy.name).toBe("accountRecoveryPolicy");
     expect(policy.type).toBe(PolicyType.ResetPassword);
     expect(policy.component).toBe(ResetPasswordPolicyComponent);
+    expect(policy.showDescription).toBe(false);
   });
 });
 
@@ -43,29 +45,25 @@ describe("ResetPasswordPolicyComponent", () => {
   let component: ResetPasswordPolicyComponent;
   let fixture: ComponentFixture<ResetPasswordPolicyComponent>;
   let mockOrganizationService: MockProxy<OrganizationService>;
-  let mockAccountService: MockProxy<AccountService>;
-  let mockConfigService: MockProxy<ConfigService>;
+  let accountService: FakeAccountService;
 
   beforeEach(async () => {
     mockOrganizationService = mock<OrganizationService>();
-    mockAccountService = mock<AccountService>();
-    mockConfigService = mock<ConfigService>();
+    accountService = mockAccountServiceWith(USER_ID);
 
-    mockAccountService.activeAccount$ = of({ id: USER_ID } as any);
     mockOrganizationService.organizations$.mockReturnValue(
       of([{ id: ORG_ID, keyConnectorEnabled: false } as Organization]),
     );
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       imports: [ReactiveFormsModule],
       providers: [
         { provide: I18nService, useValue: mock<I18nService>() },
         { provide: OrganizationService, useValue: mockOrganizationService },
-        { provide: AccountService, useValue: mockAccountService },
-        { provide: ConfigService, useValue: mockConfigService },
+        { provide: AccountService, useValue: accountService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
+        { provide: Vfo1TerminologyService, useValue: { enabled: () => false } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -75,30 +73,30 @@ describe("ResetPasswordPolicyComponent", () => {
   });
 
   describe("autoEnrollEnabled initial state", () => {
-    it("is disabled when the policy is initially disabled", async () => {
+    it("is disabled when the policy is initially disabled", () => {
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
 
-      await component.ngOnInit();
+      component.ngOnInit();
 
       expect(component.data.controls.autoEnrollEnabled.disabled).toBe(true);
     });
 
-    it("is enabled when the policy is initially enabled", async () => {
+    it("is enabled when the policy is initially enabled", () => {
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(true));
 
-      await component.ngOnInit();
+      component.ngOnInit();
 
       expect(component.data.controls.autoEnrollEnabled.enabled).toBe(true);
     });
   });
 
   describe("autoEnrollEnabled reactive behavior", () => {
-    it("becomes disabled and unchecked when 'Turn On' is unchecked", async () => {
+    it("becomes disabled and unchecked when 'Turn On' is unchecked", () => {
       fixture.componentRef.setInput(
         "policyResponse",
         makePolicyResponse(true, { autoEnrollEnabled: true }),
       );
-      await component.ngOnInit();
+      component.ngOnInit();
 
       component.enabled.setValue(false);
 
@@ -106,9 +104,9 @@ describe("ResetPasswordPolicyComponent", () => {
       expect(component.data.controls.autoEnrollEnabled.value).toBe(false);
     });
 
-    it("becomes enabled when 'Turn On' is checked", async () => {
+    it("becomes enabled when 'Turn On' is checked", () => {
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
-      await component.ngOnInit();
+      component.ngOnInit();
 
       component.enabled.setValue(true);
 
@@ -117,21 +115,21 @@ describe("ResetPasswordPolicyComponent", () => {
   });
 
   describe("buildRequestData", () => {
-    it("includes autoEnrollEnabled: false in the payload even when the control is disabled", async () => {
+    it("includes autoEnrollEnabled: false in the payload even when the control is disabled", () => {
       fixture.componentRef.setInput("policyResponse", makePolicyResponse(false));
-      await component.ngOnInit();
+      component.ngOnInit();
 
       const result = component["buildRequestData"]();
 
       expect(result.autoEnrollEnabled).toBe(false);
     });
 
-    it("includes autoEnrollEnabled: true in the payload when enabled and checked", async () => {
+    it("includes autoEnrollEnabled: true in the payload when enabled and checked", () => {
       fixture.componentRef.setInput(
         "policyResponse",
         makePolicyResponse(true, { autoEnrollEnabled: true }),
       );
-      await component.ngOnInit();
+      component.ngOnInit();
 
       const result = component["buildRequestData"]();
 

@@ -20,11 +20,11 @@ import { TokenService } from "../../../auth/services/token.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { UserId } from "../../../types/guid";
+import { SessionTimeoutTypeService } from "../../session-timeout";
 import {
   PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
   PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
-} from "../../pin/pin.state";
-import { SessionTimeoutTypeService } from "../../session-timeout";
+} from "../../state-definitions";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import {
@@ -928,7 +928,7 @@ describe("VaultTimeoutSettingsService", () => {
       await expect(result).rejects.toThrow("Vault Timeout cannot be null.");
     });
 
-    it("should throw an error if a null vault timout action is provided", async () => {
+    it("should throw an error if a null vault timeout action is provided", async () => {
       // note: don't await here because we want to test the error
       const result = vaultTimeoutSettingsService.setVaultTimeoutOptions(mockUserId, 30, null);
       // Assert

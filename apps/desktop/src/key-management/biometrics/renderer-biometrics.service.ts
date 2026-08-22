@@ -7,9 +7,10 @@ import { fromSdkUserId } from "@bitwarden/common/key-management/utils";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsStatus, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import {
   CryptoClient,
   ipcRegisterBiometricsHandlers,
@@ -151,14 +152,6 @@ export class RendererBiometricsService extends DesktopBiometricsService {
 
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return await ipc.keyManagement.biometric.hasPersistentKey(userId);
-  }
-
-  async enableLinuxV2Biometrics(): Promise<void> {
-    return await ipc.keyManagement.biometric.enableLinuxV2Biometrics();
-  }
-
-  async isLinuxV2BiometricsEnabled(): Promise<boolean> {
-    return await ipc.keyManagement.biometric.isLinuxV2BiometricsEnabled();
   }
 
   async setUnlockService(service: UnlockService): Promise<void> {

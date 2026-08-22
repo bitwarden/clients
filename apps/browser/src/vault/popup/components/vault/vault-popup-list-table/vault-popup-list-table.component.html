@@ -1,0 +1,140 @@
+<bit-table-v2
+  [tableDef]="table"
+  presentation="list"
+  height="fill"
+  [virtualRowHeight]="itemHeight()"
+  [loading]="loading()"
+  [trackBy]="trackRow"
+>
+  <bit-table-toolbar>
+    <bit-search
+      class="tw-flex-1"
+      autocomplete="off"
+      [placeholder]="'search' | i18n"
+      [(ngModel)]="searchText"
+      (ngModelChange)="onSearchTextChanged()"
+      appAutofocus
+    ></bit-search>
+  </bit-table-toolbar>
+
+  <bit-column>
+    <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>
+    <bit-cell *bitCellDef="table.columns.name; let row">
+      <!-- CL-1297 will refactor this to a bit-item, currently the focus state does not cover the full row -->
+      <button
+        type="button"
+        (click)="onCipherSelect(row)"
+        (dblclick)="launchCipher(row.cipher)"
+        [appA11yTitle]="
+          row.actions.titleKey
+            | i18n: row.cipher.name : CipherViewLikeUtils.getLogin(row.cipher)?.username
+        "
+        class="tw-flex tw-items-center tw-gap-2 tw-w-full tw-min-w-0 tw-p-0 tw-bg-transparent tw-border-0 tw-text-left tw-text-main tw-cursor-pointer tw-rounded-lg focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-primary-600"
+      >
+        <div class="tw-justify-start tw-w-7 tw-flex tw-shrink-0">
+          <app-vault-icon [cipher]="row.cipher"></app-vault-icon>
+        </div>
+        <div class="tw-flex tw-flex-col tw-flex-1 tw-min-w-0">
+          <div class="tw-flex tw-items-center tw-gap-1.5 tw-min-w-0">
+            <span data-testid="item-name" bitTypography="body2" class="tw-truncate tw-min-w-0">{{
+              row.cipher.name
+            }}</span>
+            <div class="tw-flex tw-items-center tw-gap-1.5 tw-shrink-0">
+              @if (row.cipher.organizationId) {
+                <i
+                  appOrgIcon
+                  [tierType]="row.cipher.organization!.productTierType"
+                  [size]="'small'"
+                  [appA11yTitle]="orgIconTooltip(row.cipher)"
+                ></i>
+              }
+              @if (CipherViewLikeUtils.hasAttachments(row.cipher)) {
+                <bit-icon
+                  name="bwi-paperclip"
+                  class="bwi-sm"
+                  [appA11yTitle]="'attachments' | i18n"
+                ></bit-icon>
+              }
+            </div>
+          </div>
+          <span class="tw-text-muted tw-text-xs tw-truncate">
+            {{ CipherViewLikeUtils.subtitle(row.cipher, i18nService) }}
+          </span>
+        </div>
+      </button>
+      <div slot="end" class="tw-flex tw-items-center tw-shrink-0 tw-relative tw-z-10">
+        @if (row.actions.showFillOnHover) {
+          <button
+            type="button"
+            (click)="doAutofill(row.cipher)"
+            class="tw-text-primary-600 tw-font-semibold tw-px-2 tw-bg-transparent tw-border-0 tw-opacity-0 group-hover/row:tw-opacity-100 group-focus-within/row:tw-opacity-100"
+            bitTypography="body2"
+          >
+            {{ "fill" | i18n }}
+          </button>
+        }
+        @if (row.actions.showAutofillBadge) {
+          <button
+            type="button"
+            bit-chip-action
+            variant="primary"
+            (click)="doAutofill(row.cipher)"
+            [title]="autofillShortcutTooltip() ?? ('autofillTitle' | i18n: row.cipher.name)"
+            [attr.aria-label]="'autofillTitle' | i18n: row.cipher.name"
+            [label]="'fill' | i18n"
+          ></button>
+        }
+        @if (row.actions.showLaunch && CipherViewLikeUtils.canLaunch(row.cipher)) {
+          <button
+            type="button"
+            bitIconButton="bwi-external-link"
+            size="small"
+            (click)="launchCipher(row.cipher)"
+            [label]="'launchWebsite' | i18n"
+          ></button>
+        }
+        <app-item-copy-actions [cipher]="row.cipher"></app-item-copy-actions>
+        <app-item-more-options
+          [cipher]="row.cipher"
+          [showAutofill]="row.actions.showAutofillInMenu"
+          [showViewOption]="row.actions.showViewInMenu"
+        ></app-item-more-options>
+      </div>
+    </bit-cell>
+  </bit-column>
+
+  <bit-row-group [match]="isAutofill">
+    <div class="tw-flex tw-gap-2 tw-items-center">
+      {{ autofillSectionKey() | i18n }}
+      @if (showRefresh) {
+        <button
+          bitIconButton="bwi-refresh"
+          type="button"
+          size="small"
+          (click)="refreshCurrentTab()"
+          [label]="'refresh' | i18n"
+        ></button>
+      }
+    </div>
+    <bit-row-group [match]="isCard">{{ "typeCard" | i18n }}</bit-row-group>
+    <bit-row-group [match]="isIdentity">{{ "typeIdentity" | i18n }}</bit-row-group>
+  </bit-row-group>
+
+  <bit-row-group
+    collapsible
+    [match]="isFavorites"
+    [collapsed]="!favoritesOpenState()"
+    (collapsedChange)="setSectionCollapsed('favorites', $event)"
+  >
+    {{ "favorites" | i18n }}
+  </bit-row-group>
+
+  <bit-row-group
+    collapsible
+    [match]="isAllItems"
+    [collapsed]="!allItemsOpenState()"
+    (collapsedChange)="setSectionCollapsed('allItems', $event)"
+  >
+    {{ allItemsSectionKey() | i18n }}
+  </bit-row-group>
+</bit-table-v2>

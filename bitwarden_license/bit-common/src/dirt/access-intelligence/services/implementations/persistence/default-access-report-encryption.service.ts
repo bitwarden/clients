@@ -1,13 +1,18 @@
 import { Observable, catchError, forkJoin, from, map, switchMap, take } from "rxjs";
 
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncArrayBuffer,
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { AccessReportSummaryView } from "../../../models";
 import {
@@ -57,7 +62,12 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
         const contentKey$ = (
           wrappedKey
             ? from(this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey))
-            : from(this.keyGeneratorService.createKey(512))
+            : from(
+                (async () => {
+                  await SdkLoadService.Ready;
+                  return SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+                })(),
+              )
         ).pipe(
           catchError((error: unknown) => {
             this.logService.error(
@@ -250,7 +260,12 @@ export class DefaultAccessReportEncryptionService extends AccessReportEncryption
         const contentKey$ = (
           wrappedKey
             ? from(this.encryptService.unwrapSymmetricKey(wrappedKey, orgKey))
-            : from(this.keyGeneratorService.createKey(512))
+            : from(
+                (async () => {
+                  await SdkLoadService.Ready;
+                  return SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
+                })(),
+              )
         ).pipe(
           catchError((error: unknown) => {
             this.logService.error(

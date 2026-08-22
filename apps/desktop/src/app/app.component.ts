@@ -24,7 +24,6 @@ import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
   DESKTOP_SSO_CALLBACK,
-  LockService,
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -35,8 +34,10 @@ import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { PremiumCheckoutPendingService } from "@bitwarden/common/billing/abstractions/account/premium-checkout-pending.service";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -67,12 +68,14 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { DialogRef, DialogService, ToastOptions, ToastService } from "@bitwarden/components";
 import { CredentialGeneratorHistoryDialogComponent } from "@bitwarden/generator-components";
 import { KeyService, BiometricStateService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
+import { LockService, LockSource } from "@bitwarden/unlock";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
 import { ChangePasswordDialogComponent } from "../auth/password-management/change-password-dialog.component";
-import { PremiumComponent } from "../billing/app/accounts/premium.component";
 import { MenuAccount, MenuUpdateRequest } from "../main/menu/menu.updater";
 import { SSO_COOKIE_VENDOR_CALLBACK_COMMAND } from "../platform/services/server-communication-config/server-communication-config-platform-api.service";
 
@@ -93,8 +96,6 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   styles: [],
   template: `
     <ng-template #settings></ng-template>
-    <ng-template #premium></ng-template>
-    <ng-template #loginApproval></ng-template>
     @if (showHeader$ | async) {
       <div class="header"></div>
     }
@@ -117,13 +118,6 @@ export class AppComponent implements OnInit, OnDestroy {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild("settings", { read: ViewContainerRef, static: true }) settingsRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("premium", { read: ViewContainerRef, static: true }) premiumRef: ViewContainerRef;
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild("loginApproval", { read: ViewContainerRef, static: true })
-  loginApprovalModalRef: ViewContainerRef;
 
   showHeader$ = this.accountService.showHeader$;
   loading = false;
@@ -153,6 +147,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private logService: LogService,
     private messagingService: MessagingService,
     private notificationsService: ServerNotificationsService,
@@ -182,6 +177,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private authRequestAnsweringService: AuthRequestAnsweringService,
     private ssoLoginService: SsoLoginServiceAbstraction,
     private accountDeletionService: AccountDeletionService,
+    private premiumCheckoutPendingService: PremiumCheckoutPendingService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     this.deviceTrustToastService.setupListeners$.pipe(takeUntilDestroyed()).subscribe();
 
@@ -247,10 +244,10 @@ export class AppComponent implements OnInit, OnDestroy {
             this.loading = false;
             break;
           case "lockVault":
-            await this.lockService.lock(message.userId ?? this.activeUserId);
+            await this.lockService.lock(message.userId ?? this.activeUserId, LockSource.Manual);
             break;
           case "lockAllVaults": {
-            await this.lockService.lockAll();
+            await this.lockService.lockAll(LockSource.Manual);
             break;
           }
           case "locked":
@@ -319,7 +316,10 @@ export class AppComponent implements OnInit, OnDestroy {
                   " fingerprint can't be displayed.",
               );
             } else {
-              const fingerprint = await this.keyService.getFingerprint(activeUserId, publicKey);
+              const fingerprint = await this.legacyCompatKeyService.getFingerprint(
+                activeUserId,
+                publicKey,
+              );
               const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
                 fingerprint,
               });
@@ -374,18 +374,6 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             break;
           }
-          case "premiumRequired": {
-            const premiumConfirmed = await this.dialogService.openSimpleDialog({
-              title: { key: "premiumRequired" },
-              content: { key: "premiumRequiredDesc" },
-              acceptButtonText: { key: "learnMore" },
-              type: "success",
-            });
-            if (premiumConfirmed) {
-              await this.openModal<PremiumComponent>(PremiumComponent, this.premiumRef);
-            }
-            break;
-          }
           case "emailVerificationRequired": {
             const emailVerificationConfirmed = await this.dialogService.openSimpleDialog({
               title: { key: "emailVerificationRequired" },
@@ -432,6 +420,25 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             this.messagingService.send("scheduleNextSync");
             break;
+          case "windowIsFocused": {
+            if (message.windowIsFocused !== true) {
+              break;
+            }
+            try {
+              const userId = await firstValueFrom(
+                getOptionalUserId(this.accountService.activeAccount$),
+              );
+              if (
+                userId != null &&
+                (await this.premiumCheckoutPendingService.consumeCheckoutPending(userId))
+              ) {
+                await this.syncService.fullSync(true);
+              }
+            } catch (e) {
+              this.logService.error("Failed to sync after returning from premium checkout", e);
+            }
+            break;
+          }
           case "importVault":
             await this.dialogService.open(ImportDesktopComponent);
             break;
@@ -615,6 +622,9 @@ export class AppComponent implements OnInit, OnDestroy {
             email: stateAccounts[userId].email,
             userId: userId,
             hasMasterPassword: await this.userVerificationService.hasMasterPassword(userId),
+            hasPremium: await firstValueFrom(
+              this.billingAccountProfileStateService.hasPremiumFromAnySource$(userId),
+            ),
             // TODO: PM-32419 - remove multiClientPasswordManagement flag and logic once the feature is fully rolled out
             multiClientPasswordManagement: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM32413_MultiClientPasswordManagement),
@@ -622,6 +632,10 @@ export class AppComponent implements OnInit, OnDestroy {
             // TODO: PM-34438 - remove desktopAddDevices flag read and MenuAccount field population
             desktopAddDevices: await firstValueFrom(
               this.configService.getFeatureFlag$(FeatureFlag.PM34210_DesktopAddDevices),
+            ),
+            // TODO: PM-34580 - remove pm32009NewItemTypes flag read and MenuAccount field population
+            pm32009NewItemTypes: await firstValueFrom(
+              this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes),
             ),
           };
         }
@@ -744,11 +758,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
       // Provide the userId of the user to upload events for
       await this.eventUploadService.uploadEvents(userBeingLoggedOut);
-      await this.keyService.clearKeys(userBeingLoggedOut);
+
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
       await this.pinService.logout(userBeingLoggedOut);
+
+      await this.keyService.clearKeys(userBeingLoggedOut);
 
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
 
@@ -858,7 +874,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (options[0] === timeout) {
         options[1] === "logOut"
           ? await this.logOut("vaultTimeout", userId as UserId)
-          : await this.lockService.lock(userId as UserId);
+          : await this.lockService.lock(userId as UserId, LockSource.VaultTimeout);
       }
     }
   }

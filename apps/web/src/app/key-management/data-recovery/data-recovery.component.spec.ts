@@ -3,7 +3,6 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -12,6 +11,8 @@ import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/ci
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService, EncryptService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { DataRecoveryComponent, StepStatus } from "./data-recovery.component";
@@ -40,6 +41,7 @@ describe("DataRecoveryComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockCryptoFunctionService: MockProxy<CryptoFunctionService>;
   let mockFileDownloadService: MockProxy<FileDownloadService>;
+  let mockEncryptService: MockProxy<EncryptService>;
 
   const mockUserId = "user-id" as UserId;
 
@@ -55,6 +57,7 @@ describe("DataRecoveryComponent", () => {
     mockLogService = mock<LogService>();
     mockCryptoFunctionService = mock<CryptoFunctionService>();
     mockFileDownloadService = mock<FileDownloadService>();
+    mockEncryptService = mock<EncryptService>();
 
     mockI18nService.t.mockImplementation((key) => `${key}_used-i18n`);
 
@@ -75,6 +78,7 @@ describe("DataRecoveryComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: CryptoFunctionService, useValue: mockCryptoFunctionService },
         { provide: FileDownloadService, useValue: mockFileDownloadService },
+        { provide: EncryptService, useValue: mockEncryptService },
       ],
     }).compileComponents();
 
@@ -230,7 +234,6 @@ describe("DataRecoveryComponent", () => {
         userId: mockUserId,
         userKey: null as any,
         isPrivateKeyCorrupt: false,
-        encryptedPrivateKey: null,
         ciphers: [],
         folders: [],
       };

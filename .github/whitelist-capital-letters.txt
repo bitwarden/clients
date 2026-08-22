@@ -18,7 +18,6 @@
 ./apps/cli/stores/chocolatey/tools/VERIFICATION.txt
 ./apps/browser/store/windows/AppxManifest.xml
 ./apps/browser/src/background/nativeMessaging.background.ts
-./apps/browser/src/models/biometricErrors.ts
 ./apps/browser/src/browser/safariApp.ts
 ./apps/browser/src/safari/desktop/ViewController.swift
 ./apps/browser/src/safari/desktop/Assets.xcassets/AppIcon.appiconset/Contents.json
@@ -32,4 +31,3 @@
 ./apps/browser/src/safari/desktop.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
 ./SECURITY.md
 ./libs/nx-plugin/src/generators/files/README.md__tmpl__
-./.claude/CONTRIBUTING.md

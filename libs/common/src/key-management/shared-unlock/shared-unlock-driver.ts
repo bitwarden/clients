@@ -1,22 +1,19 @@
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { LockService } from "@bitwarden/auth/common";
-// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../../types/key";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
-
-import { SharedUnlockSettingsService } from "./shared-unlock-settings.service";
 
 function fromSdkUserId(userId: UserId): TSUserId {
   return uuidAsString(userId) as TSUserId;
@@ -35,19 +32,20 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private environmentService: EnvironmentService,
-    private sharedUnlockSettingsService: SharedUnlockSettingsService,
+    private isEnabled: (userId: TSUserId) => Promise<boolean>,
+    private onExternalUnlock?: (userId: TSUserId) => void,
   ) {}
 
   async lock_user(user_id: UserId): Promise<void> {
-    if (!(await this.sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
+    if (!(await this.isEnabled(fromSdkUserId(user_id)))) {
       return;
     }
 
-    await this.lockService.lock(fromSdkUserId(user_id));
+    await this.lockService.lock(fromSdkUserId(user_id), LockSource.SharedUnlock);
   }
 
   async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {
-    if (!(await this.sharedUnlockSettingsService.allowSharingUnlockState(fromSdkUserId(user_id)))) {
+    if (!(await this.isEnabled(fromSdkUserId(user_id)))) {
       return;
     }
 
@@ -55,6 +53,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       fromSdkUserId(user_id),
       SymmetricCryptoKey.fromSdk(user_key) as UserKey,
     );
+    this.onExternalUnlock?.(fromSdkUserId(user_id));
   }
 
   async get_user_key(user_id: UserId): Promise<SymmetricKey | undefined> {

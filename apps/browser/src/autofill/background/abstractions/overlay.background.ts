@@ -158,7 +158,7 @@ export type OverlayBackgroundExtensionMessage = {
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
   iframeSrc?: string;
-  iframeTargetedFields?: { selector: string; fieldType: string }[];
+  iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage &
@@ -253,6 +253,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   openAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   getInlineMenuCardsVisibility: () => void;
   getInlineMenuIdentitiesVisibility: () => void;
+  getInlineMenuSshKeysVisibility: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: ({ sender }: BackgroundSenderParam) => void;
   focusAutofillInlineMenuList: () => void;

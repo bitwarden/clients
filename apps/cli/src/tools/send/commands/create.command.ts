@@ -5,10 +5,16 @@ import * as path from "path";
 
 import { firstValueFrom, switchMap } from "rxjs";
 
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { SendControlsPolicyData } from "@bitwarden/common/tools/models/send-controls-policy-data";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
@@ -19,6 +25,7 @@ import { Response } from "../../../models/response";
 import { CliUtils } from "../../../utils";
 import { SendTextResponse } from "../models/send-text.response";
 import { SendResponse } from "../models/send.response";
+
 export class SendCreateCommand {
   constructor(
     private sendService: SendService,
@@ -26,6 +33,8 @@ export class SendCreateCommand {
     private sendApiService: SendApiService,
     private accountProfileService: BillingAccountProfileStateService,
     private accountService: AccountService,
+    private policyService: PolicyService,
+    private configService: ConfigService,
   ) {}
 
   async run(requestJson: any, cmdOptions: Record<string, any>) {
@@ -100,6 +109,11 @@ export class SendCreateCommand {
       req.authType = AuthType.None;
     }
 
+    const policyError = await this.enforceSendPolicy(req);
+    if (policyError) {
+      return policyError;
+    }
+
     const hasPremium$ = this.accountService.activeAccount$.pipe(
       switchMap(({ id }) => this.accountProfileService.hasPremiumFromAnySource$(id)),
     );
@@ -134,6 +148,8 @@ export class SendCreateCommand {
         req.text.text = text;
         req.text.hidden = hidden;
         break;
+      case SendType.Item:
+        return Response.badRequest("Item type Send functionality not yet available");
       default:
         return Response.badRequest(
           "Unknown Send type " + SendType[req.type] + ". Valid types are: file, text",
@@ -148,7 +164,9 @@ export class SendCreateCommand {
 
       const sendView = SendResponse.toView(req);
       const [encSend, fileData] = await this.sendService.encrypt(sendView, fileBuffer, password);
-      await this.sendApiService.save([encSend, fileData]);
+      // Forward the plaintext password so the SDK path can derive the send password over the key it
+      // generates; the legacy path ignores it.
+      await this.sendApiService.save([encSend, fileData], password);
       const newSend = await this.sendService.getFromState(encSend.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
       const decSend = await newSend.decrypt(activeUserId);
@@ -158,6 +176,68 @@ export class SendCreateCommand {
     } catch (e) {
       return Response.error(e);
     }
+  }
+
+  private async enforceSendPolicy(req: SendResponse): Promise<Response | null> {
+    const sendControlsEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendControls);
+    if (!sendControlsEnabled) {
+      return null;
+    }
+
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+    const policies = await firstValueFrom(
+      this.policyService.policiesByType$(PolicyType.SendControls, userId),
+    );
+
+    const whoCanAccessPolicyData = policies.find((p) => p.data?.whoCanAccess != null)?.data as
+      SendControlsPolicyData | undefined;
+    if (whoCanAccessPolicyData?.whoCanAccess === WhoCanAccessType.SpecificPeople) {
+      if (req.authType !== AuthType.Email || !req.emails?.length) {
+        return Response.error(
+          "Organization policy requires Send access to be restricted to specific people. Use --emails to specify recipients.",
+        );
+      }
+
+      const rawDomains = whoCanAccessPolicyData?.allowedDomains;
+      if (rawDomains) {
+        const allowedDomains = rawDomains
+          .split(",")
+          .map((d: string) => d.trim().toLowerCase())
+          .filter((d: string) => d.length > 0);
+
+        if (allowedDomains.length > 0) {
+          const disallowed = req.emails.filter((email) => {
+            const domain = email.split("@")[1]?.toLowerCase();
+            return !allowedDomains.includes(domain);
+          });
+          if (disallowed.length > 0) {
+            return Response.error(
+              `Organization policy restricts email domains. The following emails are not allowed: ${disallowed.join(", ")}. Allowed domains: ${allowedDomains.join(", ")}.`,
+            );
+          }
+        }
+      }
+    } else if (whoCanAccessPolicyData?.whoCanAccess === WhoCanAccessType.PasswordProtected) {
+      if (req.authType !== AuthType.Password) {
+        return Response.error(
+          "Organization policy requires Send access to be password protected. Use --password to set a password.",
+        );
+      }
+    }
+    // If org policy specifies a deletion date we comply with it, overriding what
+    // the user has specified. This matches the UI behavior, where users are
+    // barred from using other deletion dates when one is mandated by org policy.
+    const deletionDatePolicyData = policies.find((p) => p.data?.deletionHours)?.data as
+      SendControlsPolicyData | undefined;
+    if (deletionDatePolicyData?.deletionHours != null) {
+      const policyCompliantDeletionDate = new Date();
+      policyCompliantDeletionDate.setTime(
+        policyCompliantDeletionDate.getTime() + deletionDatePolicyData.deletionHours * 3600000, // ms per hour
+      );
+      req.deletionDate = policyCompliantDeletionDate;
+    }
+
+    return null;
   }
 }
 

@@ -45,6 +45,9 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 import {
   OrganizationSubscriptionPlan,
   SubscriberBillingClient,
@@ -114,6 +117,7 @@ interface OnSuccessArgs {
     EnterPaymentMethodComponent,
     EnterBillingAddressComponent,
     CardComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class ChangePlanDialogComponent implements OnInit, OnDestroy {
@@ -147,6 +151,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   protected estimatedTax: number = 0;
+  protected estimatedTotal?: number;
   private _productTier = ProductTierType.Free;
   private _familyPlan: PlanType;
 
@@ -176,7 +181,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
   @Output() onTrialBillingSuccess = new EventEmitter();
 
-  protected discountPercentageFromSub: number;
   protected loading = true;
   protected planCards: PlanCard[];
   protected ResultType = ChangePlanDialogResultType;
@@ -235,6 +239,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private i18nService: I18nService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private router: Router,
     private syncService: SyncService,
     private policyService: PolicyService,
@@ -247,6 +252,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     private subscriberBillingClient: SubscriberBillingClient,
     private previewInvoiceClient: PreviewInvoiceClient,
     private organizationWarningsService: OrganizationWarningsService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -333,9 +339,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
         selected: false,
       },
     ];
-    this.discountPercentageFromSub = this.isSecretsManagerTrial()
-      ? 0
-      : (this.sub?.customerDiscount?.percentOff ?? 0);
 
     await this.setInitialPlanSelection();
     if (!this.isSubscriptionCanceled) {
@@ -366,10 +369,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       }
     }
 
-    return this.i18nService.t(
-      "upgradeFreeOrganization",
-      this.resolvePlanName(this.dialogParams.productTierType),
-    );
+    return this.vfo1TerminologyService.enabled()
+      ? this.i18nService.t("upgradeYourPlan")
+      : this.i18nService.t(
+          "upgradeFreeOrganization",
+          this.resolvePlanName(this.dialogParams.productTierType),
+        );
   }
 
   async setInitialPlanSelection() {
@@ -386,6 +391,12 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
   }
 
   isSecretsManagerTrial(): boolean {
+    // A schedule-derived discount (e.g. a deferred price-migration coupon) is not an SM trial,
+    // even when it applies to a subscription product.
+    if (this.sub?.customerDiscount?.isFromSchedule) {
+      return false;
+    }
+
     return (
       this.sub?.subscription?.items?.some((item) =>
         this.sub?.customerDiscount?.appliesTo?.includes(item.productId),
@@ -509,12 +520,16 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       return;
     }
     this.selectedPlan = plan;
+    // Clear the previous plan's server total so the summary falls back to the client
+    // estimate for the newly selected plan until refreshSalesTax() resolves.
+    this.estimatedTotal = undefined;
     this.formGroup.patchValue({ productTier: plan.productTier });
 
     try {
       await this.refreshSalesTax();
     } catch {
       this.estimatedTax = 0;
+      this.estimatedTotal = undefined;
     }
   }
 
@@ -741,7 +756,8 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     }
 
     const baseServiceAccount = this.currentPlan.SecretsManager?.baseServiceAccount || 0;
-    const usedServiceAccounts = this.sub?.smServiceAccounts || 0;
+    const usedServiceAccounts =
+      (this.sub?.smServiceAccounts || 0) - (this.sub?.smServiceAccountsGrace || 0);
 
     const additionalServiceAccounts = baseServiceAccount - usedServiceAccounts;
 
@@ -890,7 +906,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
           .orgKeys$(userId)
           .pipe(map((orgKeys) => orgKeys?.[this.organizationId as OrganizationId] ?? null)),
       );
-      const orgKeys = await this.keyService.makeKeyPair(orgShareKey);
+      const orgKeys = await this.legacyCompatKeyService.makeKeyPair(orgShareKey);
       request.keys = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
     }
 
@@ -973,10 +989,6 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
     this.totalOpened = !this.totalOpened;
   }
 
-  calculateTotalAppliedDiscount(total: number) {
-    return total * (this.discountPercentageFromSub / 100);
-  }
-
   resolvePlanName(productTier: ProductTierType) {
     switch (productTier) {
       case ProductTierType.Enterprise:
@@ -1006,12 +1018,9 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
 
       setTimeout(() => {
         const card = cardElements[newIndex];
-        if (
-          !(
-            card.classList.contains("tw-bg-secondary-100") &&
-            card.classList.contains("tw-text-muted")
-          )
-        ) {
+        if (!(
+          card.classList.contains("tw-bg-secondary-100") && card.classList.contains("tw-text-muted")
+        )) {
           card?.focus();
         }
       }, 0);
@@ -1065,6 +1074,7 @@ export class ChangePlanDialogComponent implements OnInit, OnDestroy {
       );
 
     this.estimatedTax = taxAmounts.tax;
+    this.estimatedTotal = taxAmounts.total;
   }
 
   protected canUpdatePaymentInformation(): boolean {

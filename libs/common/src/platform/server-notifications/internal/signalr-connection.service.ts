@@ -20,10 +20,11 @@ const MIN_RECONNECT_TIME = 2 * 60 * 1000;
 // 5 Minutes
 const MAX_RECONNECT_TIME = 5 * 60 * 1000;
 
+export type Connected = { type: "Connected" };
 export type Heartbeat = { type: "Heartbeat" };
 export type ReceiveMessage = { type: "ReceiveMessage"; message: NotificationResponse };
 
-export type SignalRNotification = Heartbeat | ReceiveMessage;
+export type SignalRNotification = Connected | Heartbeat | ReceiveMessage;
 
 export type TimeoutManager = {
   setTimeout: (handler: TimerHandler, timeout: number) => number;
@@ -82,7 +83,7 @@ export class SignalRConnectionService {
       throw new InsecureUrlNotAllowedError();
     }
 
-    return new Observable<SignalRNotification>((subsciber) => {
+    return new Observable<SignalRNotification>((subscriber) => {
       const connection = this.hubConnectionBuilderFactory()
         .withUrl(notificationsUrl + "/hub", {
           accessTokenFactory: () => this.apiService.getActiveBearerToken(userId),
@@ -94,11 +95,11 @@ export class SignalRConnectionService {
         .build();
 
       connection.on("ReceiveMessage", (data: any) => {
-        subsciber.next({ type: "ReceiveMessage", message: new NotificationResponse(data) });
+        subscriber.next({ type: "ReceiveMessage", message: new NotificationResponse(data) });
       });
 
       connection.on("Heartbeat", () => {
-        subsciber.next({ type: "Heartbeat" });
+        subscriber.next({ type: "Heartbeat" });
       });
 
       let reconnectSubscription: Subscription | null = null;
@@ -117,7 +118,7 @@ export class SignalRConnectionService {
 
         // If we've somehow gotten here while the subscriber is closed,
         // we do not want to reconnect. So leave.
-        if (subsciber.closed) {
+        if (subscriber.closed) {
           return;
         }
 
@@ -127,6 +128,7 @@ export class SignalRConnectionService {
             .start()
             .then(() => {
               reconnectSubscription = null;
+              subscriber.next({ type: "Connected" });
             })
             .catch(() => {
               scheduleReconnect();
@@ -143,9 +145,14 @@ export class SignalRConnectionService {
       });
 
       // Start connection
-      connection.start().catch(() => {
-        scheduleReconnect();
-      });
+      connection
+        .start()
+        .then(() => {
+          subscriber.next({ type: "Connected" });
+        })
+        .catch(() => {
+          scheduleReconnect();
+        });
 
       return () => {
         // Cancel any possible scheduled reconnects

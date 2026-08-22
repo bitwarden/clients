@@ -1,4 +1,5 @@
 import { CommonModule } from "@angular/common";
+import { signal, WritableSignal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
@@ -24,6 +25,7 @@ import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SelectComponent } from "@bitwarden/components";
 
+import { Vfo1TerminologyService } from "../../../services/vfo1-terminology.service";
 import {
   CipherFormConfig,
   OptionalInitialValues,
@@ -69,6 +71,7 @@ describe("ItemDetailsSectionComponent", () => {
   let mockPolicyService: MockProxy<PolicyService>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockCipherArchiveService: MockProxy<CipherArchiveService>;
+  let mockVfo1Enabled: WritableSignal<boolean>;
 
   const activeAccount$ = new BehaviorSubject<{ email: string }>({ email: "test@example.com" });
   const getInitialCipherView = jest.fn<CipherView | null, []>(() => null);
@@ -94,7 +97,8 @@ describe("ItemDetailsSectionComponent", () => {
     } as Intl.Collator;
 
     mockConfigService = mock<ConfigService>();
-    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+    mockVfo1Enabled = signal(false);
     mockPolicyService = mock<PolicyService>();
     mockPolicyService.policiesByType$.mockReturnValue(of([]));
     mockPlatformUtilsService = mock<PlatformUtilsService>();
@@ -110,6 +114,7 @@ describe("ItemDetailsSectionComponent", () => {
         { provide: PolicyService, useValue: mockPolicyService },
         { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
         { provide: CipherArchiveService, useValue: mockCipherArchiveService },
+        { provide: Vfo1TerminologyService, useFactory: () => ({ enabled: mockVfo1Enabled }) },
       ],
     }).compileComponents();
 
@@ -131,12 +136,13 @@ describe("ItemDetailsSectionComponent", () => {
   });
 
   describe("ngOnInit", () => {
-    it("should throw an error if no organizations are available for ownership and organization data ownership is enabled", async () => {
+    it("should initialize with a null organizationId when no organizations are available for ownership and organization data ownership is enabled", async () => {
       component.config.organizationDataOwnershipDisabled = false;
       component.config.organizations = [];
-      await expect(component.ngOnInit()).rejects.toThrow(
-        "No organizations available for ownership.",
-      );
+
+      await expect(component.ngOnInit()).resolves.not.toThrow();
+
+      expect(component.itemDetailsForm.controls.organizationId.value).toBeNull();
     });
 
     it("should initialize form with default values if no originalCipher is provided", fakeAsync(async () => {
@@ -699,6 +705,46 @@ describe("ItemDetailsSectionComponent", () => {
 
       expect(component.itemDetailsForm.controls.organizationId.value).toBe("org1");
     });
+
+    it("should not disable the collections control when the cipher has no id", async () => {
+      // Regression test: setCollectionControlState() checks edit/viewPassword to determine
+      // if the collection control should be disabled. These flags are only meaningful for
+      // server-fetched ciphers. A cipher without an id (e.g. one being created, or an
+      // in-progress cipher restored from the popup's view cache) will have edit=false as
+      // a default, which would incorrectly disable the control. The guard on `id` ensures
+      // the permission check is skipped for unsaved ciphers.
+      component.config.mode = "add";
+      component.config.organizationDataOwnershipDisabled = true;
+      component.config.organizations = [
+        {
+          id: "org1",
+          name: "Organization 1",
+          canEditAllCiphers: false,
+          allowAdminAccessToAllCollectionItems: true,
+        } as unknown as Organization,
+      ];
+      component.config.collections = [
+        createMockCollection("col1", "Collection 1", "org1") as CollectionView,
+      ];
+
+      // No id — unsaved cipher with edit=false defaults that would fail the permission check
+      const unsavedCipher = {
+        name: "My New Item",
+        organizationId: "org1",
+        folderId: null,
+        collectionIds: ["col1"],
+        favorite: false,
+        edit: false,
+        viewPassword: true,
+      } as unknown as CipherView;
+
+      getInitialCipherView.mockReturnValue(unsavedCipher);
+      initializedWithCachedCipher.mockReturnValue(true);
+
+      await component.ngOnInit();
+
+      expect(component.itemDetailsForm.controls.collectionIds.disabled).toBe(false);
+    });
   });
 
   describe("form status when editing a cipher", () => {
@@ -834,6 +880,56 @@ describe("ItemDetailsSectionComponent", () => {
       await component.ngOnInit();
 
       expect(component["showArchiveBadge"]()).toBe(true);
+    });
+  });
+
+  describe("when VFO1Foundation flag is enabled", () => {
+    beforeEach(() => {
+      mockVfo1Enabled.set(true);
+      i18nService.t.calledWith("myVault").mockReturnValue("My vault");
+    });
+
+    it("shows 'My vault' as the personal ownership option label", async () => {
+      component.config.mode = "edit";
+      component.config.organizationDataOwnershipDisabled = true;
+      fixture.componentRef.setInput("originalCipherView", {} as CipherView);
+      component.config.organizations = [{ id: "134-433-22" } as Organization];
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent));
+      const firstItem = select.componentInstance.items()[0];
+
+      expect(firstItem.value).toBeNull();
+      expect(firstItem.label).toBe("My vault");
+    });
+
+    it("shows the user email as description for the personal ownership option", async () => {
+      component.config.mode = "edit";
+      component.config.organizationDataOwnershipDisabled = true;
+      fixture.componentRef.setInput("originalCipherView", {} as CipherView);
+      component.config.organizations = [{ id: "134-433-22" } as Organization];
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent));
+      const firstItem = select.componentInstance.items()[0];
+
+      expect(firstItem.description).toBe("test@example.com");
+    });
+
+    it("shows the user icon on the personal ownership option", async () => {
+      component.config.mode = "edit";
+      component.config.organizationDataOwnershipDisabled = true;
+      fixture.componentRef.setInput("originalCipherView", {} as CipherView);
+      component.config.organizations = [{ id: "134-433-22" } as Organization];
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const select = fixture.debugElement.query(By.directive(SelectComponent));
+      const firstItem = select.componentInstance.items()[0];
+
+      expect(firstItem.icon).toBe("bwi-user");
     });
   });
 });

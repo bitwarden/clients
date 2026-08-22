@@ -37,8 +37,8 @@
   "yourOrganizationRequiresSingleSignOn": {
     "message": "องค์กรของคุณบังคับใช้ Single Sign-On"
   },
-  "welcomeBack": {
-    "message": "ยินดีต้อนรับกลับ"
+  "loginPageMasterPasswordEntryScreenTitle": {
+    "message": "Log in"
   },
   "setAStrongPassword": {
     "message": "ตั้งรหัสผ่านที่รัดกุม"
@@ -118,6 +118,9 @@
   },
   "vault": {
     "message": "ตู้นิรภัย"
+  },
+  "vaults": {
+    "message": "Vaults"
   },
   "myVault": {
     "message": "ตู้นิรภัยของฉัน"
@@ -289,8 +292,8 @@
   "enterYourAccountEmailAddressAndYourPasswordHintWillBeSentToYou": {
     "message": "กรอกอีเมลบัญชี แล้วระบบจะส่งคำใบ้รหัสผ่านไปให้"
   },
-  "getMasterPasswordHint": {
-    "message": "รับคำใบ้รหัสผ่านหลัก"
+  "hint": {
+    "message": "Hint"
   },
   "continue": {
     "message": "ดำเนินการต่อ"
@@ -505,6 +508,45 @@
   "options": {
     "message": "ตัวเลือก"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
+  },
+  "editItemWithName": {
+    "message": "Edit item - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noItemsInVault": {
+    "message": "No items in the vault"
+  },
   "length": {
     "message": "ความยาว"
   },
@@ -614,6 +656,23 @@
   "upgradeToUseArchive": {
     "message": "ต้องเป็นสมาชิกพรีเมียมจึงจะใช้งานฟีเจอร์จัดเก็บถาวรได้"
   },
+  "archiveItemsPlural": {
+    "message": "Archive $NUM$ items",
+    "description": "Title of the archive items dialog when multiple items are selected",
+    "placeholders": {
+      "num": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "archiveItemTitle": {
+    "message": "Archive item",
+    "description": "Title of the archive items dialog when a single item is selected"
+  },
+  "archiveItemsPluralDescription": {
+    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+  },
   "itemRestored": {
     "message": "Item has been restored"
   },
@@ -692,8 +751,8 @@
   "launchWebsite": {
     "message": "เปิดเว็บไซต์"
   },
-  "launchWebsiteName": {
-    "message": "เปิดเว็บไซต์ $ITEMNAME$",
+  "launchWebsiteForName": {
+    "message": "Launch website for $ITEMNAME$",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -978,8 +1037,8 @@
   "logIn": {
     "message": "เข้าสู่ระบบ"
   },
-  "logInToBitwarden": {
-    "message": "เข้าสู่ระบบ Bitwarden"
+  "loginPageEmailEntryScreenTitle": {
+    "message": "Log in"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "ป้อนรหัสที่ส่งไปยังอีเมลของคุณ"
@@ -1070,6 +1129,10 @@
   },
   "passwordCopied": {
     "message": "คัดลอกรหัสผ่านแล้ว"
+  },
+  "passwordAnnounceSpace": {
+    "message": "space",
+    "description": "Screen-reader-only token substituted for a literal space character when announcing a password character-by-character. Screen readers collapse bare whitespace, so this word is read in place of the space."
   },
   "uri": {
     "message": "URI"
@@ -1346,17 +1409,17 @@
   "additionalOptions": {
     "message": "ตัวเลือกเพิ่มเติม"
   },
-  "enableFillAssist": {
-    "message": "Use fill assist"
+  "fillAssistActiveNotice": {
+    "message": "Autofill is using Fill Assist on this page."
   },
-  "turnOnFillAssist": {
-    "message": "Turn on fill assist"
+  "activateFillAssist": {
+    "message": "Turn on Fill Assist"
   },
-  "enableFillAssistDescription": {
-    "message": "Fill assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+  "activateFillAssistDescription": {
+    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
   },
-  "aboutFillAssist": {
-    "message": "About fill assist"
+  "aboutFillAssistLabel": {
+    "message": "About Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "แสดงตัวเลือกเมนูบริบท"
@@ -1434,8 +1497,8 @@
   "accountRestricted": {
     "message": "จำกัดเฉพาะบัญชี"
   },
-  "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "“รหัสผ่านไฟล์” และ “ยืนยันรหัสผ่านไฟล์” ไม่ตรงกัน"
+  "filePasswordConfirmationMismatch": {
+    "message": "“File password” and “Confirm file password” do not match."
   },
   "warning": {
     "message": "คำเตือน",
@@ -1448,8 +1511,8 @@
   "confirmVaultExport": {
     "message": "ยืนยันการส่งออกตู้นิรภัย"
   },
-  "exportWarningDesc": {
-    "message": "การส่งออกนี้มีข้อมูลตู้นิรภัยในรูปแบบที่ไม่ได้เข้ารหัส คุณไม่ควรจัดเก็บหรือส่งไฟล์ที่ส่งออกผ่านช่องทางที่ไม่ปลอดภัย (เช่น อีเมล) ลบไฟล์ทันทีหลังจากใช้งานเสร็จ"
+  "exportUnencryptedWarningDesc": {
+    "message": "This export contains your vault data in an unencrypted format. You should not store or send the exported file over insecure channels (such as email). Delete it immediately after you are done using it."
   },
   "encExportKeyWarningDesc": {
     "message": "การส่งออกนี้เข้ารหัสข้อมูลของคุณโดยใช้กุญแจเข้ารหัสบัญชีของคุณ หากคุณหมุนเวียนกุญแจเข้ารหัสบัญชี คุณควรส่งออกใหม่อีกครั้ง เนื่องจากคุณจะไม่สามารถถอดรหัสไฟล์ส่งออกนี้ได้"
@@ -1462,6 +1525,24 @@
   },
   "shared": {
     "message": "แชร์แล้ว"
+  },
+  "sharedFolder": {
+    "message": "Shared folder"
+  },
+  "sharedFolders": {
+    "message": "Shared folders"
+  },
+  "myFolder": {
+    "message": "My folder"
+  },
+  "myFolders": {
+    "message": "My folders"
+  },
+  "addSharedFolder": {
+    "message": "Add shared folder"
+  },
+  "newSharedFolder": {
+    "message": "New shared folder"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden สำหรับธุรกิจช่วยให้คุณแชร์รายการในตู้นิรภัยกับผู้อื่นโดยใช้องค์กร เรียนรู้เพิ่มเติมที่เว็บไซต์ bitwarden.com"
@@ -1518,6 +1599,21 @@
   "copyVerificationCode": {
     "message": "คัดลอกรหัสยืนยัน"
   },
+  "noUsername": {
+    "message": "No username"
+  },
+  "noPassword": {
+    "message": "No password"
+  },
+  "noVerificationCode": {
+    "message": "No verification code"
+  },
+  "noNumber": {
+    "message": "No number"
+  },
+  "noSecurityCode": {
+    "message": "No security code"
+  },
   "attachments": {
     "message": "ไฟล์แนบ"
   },
@@ -1550,6 +1646,12 @@
   },
   "file": {
     "message": "ไฟล์"
+  },
+  "photo": {
+    "message": "Photo"
+  },
+  "unknown": {
+    "message": "Unknown"
   },
   "fileToShare": {
     "message": "ไฟล์ที่จะแชร์"
@@ -1587,8 +1689,8 @@
   "premiumSignUpAndGet": {
     "message": "สมัครสมาชิกพรีเมียมแล้วรับ:"
   },
-  "ppremiumSignUpStorage": {
-    "message": "พื้นที่จัดเก็บไฟล์แนบเข้ารหัสขนาด 1 GB"
+  "premiumSignUpStorage": {
+    "message": "1 GB encrypted storage for file attachments."
   },
   "premiumSignUpStorageV2": {
     "message": "พื้นที่จัดเก็บไฟล์แนบเข้ารหัสขนาด $SIZE$",
@@ -1614,17 +1716,17 @@
   "restartPremium": {
     "message": "Restart Premium"
   },
-  "ppremiumSignUpReports": {
-    "message": "รายงานความปลอดภัยของรหัสผ่าน สุขภาพบัญชี และข้อมูลรั่วไหล เพื่อรักษาตู้นิรภัยให้ปลอดภัย"
+  "premiumSignUpReports": {
+    "message": "Password hygiene, account health, and data breach reports to keep your vault safe."
   },
-  "ppremiumSignUpTotp": {
-    "message": "ตัวสร้างรหัสยืนยัน TOTP (2FA) สำหรับข้อมูลเข้าสู่ระบบในตู้นิรภัย"
+  "premiumSignUpTotp": {
+    "message": "TOTP verification code (2FA) generator for logins in your vault."
   },
-  "ppremiumSignUpSupport": {
-    "message": "บริการลูกค้าสัมพันธ์ระดับพรีเมียม"
+  "premiumSignUpSupport": {
+    "message": "Priority customer support."
   },
-  "ppremiumSignUpFuture": {
-    "message": "ฟีเจอร์พรีเมียมในอนาคตทั้งหมด และอื่น ๆ ที่กำลังจะมาเร็ว ๆ นี้!"
+  "premiumSignUpFuture": {
+    "message": "All future Premium features. More coming soon!"
   },
   "premiumPurchase": {
     "message": "ซื้อพรีเมียม"
@@ -1714,8 +1816,8 @@
   "passkeyAuthenticationFailed": {
     "message": "การยืนยันตัวตนด้วยพาสคีย์ล้มเหลว"
   },
-  "useADifferentLogInMethod": {
-    "message": "ใช้วิธีเข้าสู่ระบบอื่น"
+  "useDifferentLoginMethod": {
+    "message": "Use different login method"
   },
   "awaitingSecurityKeyInteraction": {
     "message": "กำลังรอการตอบสนองจากคีย์ความปลอดภัย..."
@@ -1904,6 +2006,9 @@
   },
   "showInlineMenuCardsLabel": {
     "message": "แสดงบัตรเป็นคำแนะนำ"
+  },
+  "showInlineMenuSSHKeysLabel": {
+    "message": "Display SSH keys as suggestions"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "แสดงคำแนะนำเมื่อเลือกไอคอน"
@@ -2321,6 +2426,42 @@
   "licenseClass": {
     "message": "License class"
   },
+  "addItemHeaderLogin": {
+    "message": "Add login",
+    "description": "Header for new login item type"
+  },
+  "addItemHeaderCard": {
+    "message": "Add card",
+    "description": "Header for new card item type"
+  },
+  "addItemHeaderIdentity": {
+    "message": "Add identity",
+    "description": "Header for new identity item type"
+  },
+  "addItemHeaderNote": {
+    "message": "Add note",
+    "description": "Header for new note item type"
+  },
+  "addItemHeaderSecureNote": {
+    "message": "Add secure note",
+    "description": "Header for new secure note item type"
+  },
+  "addItemHeaderSshKey": {
+    "message": "Add SSH key",
+    "description": "Header for new SSH key item type"
+  },
+  "addItemHeaderBankAccount": {
+    "message": "Add bank account",
+    "description": "Header for new bank account item type"
+  },
+  "addItemHeaderDriversLicense": {
+    "message": "Add license",
+    "description": "Header for new license item type"
+  },
+  "addItemHeaderPassport": {
+    "message": "Add passport",
+    "description": "Header for new passport item type"
+  },
   "newItemHeaderLogin": {
     "message": "ข้อมูลเข้าสู่ระบบใหม่",
     "description": "Header for new login item type"
@@ -2336,6 +2477,10 @@
   "newItemHeaderNote": {
     "message": "โน้ตใหม่",
     "description": "Header for new note item type"
+  },
+  "newItemHeaderSecureNote": {
+    "message": "New secure note",
+    "description": "Header for new secure note item type"
   },
   "newItemHeaderSshKey": {
     "message": "คีย์ SSH ใหม่",
@@ -2375,6 +2520,26 @@
   },
   "editItemHeaderNote": {
     "message": "แก้ไขโน้ต",
+    "description": "Header for edit note item type"
+  },
+  "editItemHeaderSecureNote": {
+    "message": "Edit secure note",
+    "description": "Header for edit secure note item type"
+  },
+  "editItemHeaderLoginSentenceCase": {
+    "message": "Edit login",
+    "description": "Header for edit login item type"
+  },
+  "editItemHeaderCardSentenceCase": {
+    "message": "Edit card",
+    "description": "Header for edit card item type"
+  },
+  "editItemHeaderIdentitySentenceCase": {
+    "message": "Edit identity",
+    "description": "Header for edit identity item type"
+  },
+  "editItemHeaderNoteSentenceCase": {
+    "message": "Edit note",
     "description": "Header for edit note item type"
   },
   "editItemHeaderSshKey": {
@@ -2417,6 +2582,10 @@
     "message": "ดูโน้ต",
     "description": "Header for view note item type"
   },
+  "viewItemHeaderSecureNote": {
+    "message": "View secure note",
+    "description": "Header for view secure note item type"
+  },
   "viewItemHeaderSshKey": {
     "message": "ดูคีย์ SSH",
     "description": "Header for view SSH key item type"
@@ -2445,8 +2614,8 @@
   "clearGeneratorHistoryTitle": {
     "message": "ล้างประวัติตัวสร้างรหัสผ่าน"
   },
-  "cleargGeneratorHistoryDescription": {
-    "message": "หากดำเนินการต่อ รายการทั้งหมดจะถูกลบออกจากประวัติของตัวสร้างอย่างถาวร ยืนยันที่จะดำเนินการต่อหรือไม่"
+  "clearGeneratorHistoryDescription": {
+    "message": "If you continue, all entries will be permanently deleted from generator's history. Are you sure you want to continue?"
   },
   "back": {
     "message": "ย้อนกลับ"
@@ -2491,8 +2660,98 @@
     "message": "ล้าง",
     "description": "To clear something out. example: To clear browser history."
   },
+  "selectAllRows": {
+    "message": "Select all rows"
+  },
+  "selectRow": {
+    "message": "Select row"
+  },
+  "showingItemRange": {
+    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "Rows per page"
+  },
+  "rowsPerPageOption": {
+    "message": "$COUNT$ rows per page",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ items",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "All"
+  },
+  "clearAll": {
+    "message": "Clear all"
+  },
+  "done": {
+    "message": "Done"
+  },
+  "filter": {
+    "message": "Filter"
+  },
+  "filtersSelected": {
+    "message": "$COUNT$ selected",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "Previous page"
+  },
+  "nextPage": {
+    "message": "Next page"
+  },
+  "goToPage": {
+    "message": "Go to page"
+  },
+  "ofPageCount": {
+    "message": "of $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "No matching items"
+  },
   "selected": {
     "message": "Selected"
+  },
+  "selectedLowercase": {
+    "message": "selected",
+    "description": "Lowercase 'selected' used inline after a count in the bulk-actions bar, e.g. '4 selected'."
   },
   "bulkActionsBar": {
     "message": "Bulk actions"
@@ -2891,8 +3150,8 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "รหัสผ่านหลักใหม่ของคุณไม่ตรงตามข้อกำหนดของนโยบาย"
   },
-  "receiveMarketingEmailsV2": {
-    "message": "รับคำแนะนำ ประกาศ และโอกาสในการทำวิจัยจาก Bitwarden ทางอีเมล"
+  "receiveMarketingEmails": {
+    "message": "Receive updates from Bitwarden in your inbox."
   },
   "unsubscribe": {
     "message": "ยกเลิกการรับข่าวสาร"
@@ -2966,11 +3225,11 @@
   "nativeMessagingWrongUserDesc": {
     "message": "แอปพลิเคชันเดสก์ท็อปเข้าสู่ระบบด้วยบัญชีอื่น โปรดตรวจสอบให้แน่ใจว่าทั้งสองแอปพลิเคชันเข้าสู่ระบบด้วยบัญชีเดียวกัน"
   },
-  "nativeMessagingWrongUserTitle": {
-    "message": "บัญชีไม่ตรงกัน"
+  "nativeMessagingAccountMismatchTitle": {
+    "message": "Account mismatch"
   },
-  "nativeMessagingWrongUserKeyTitle": {
-    "message": "คีย์ไบโอเมตริกไม่ตรงกัน"
+  "nativeMessagingBiometricKeyMismatchTitle": {
+    "message": "Biometric key mismatch"
   },
   "nativeMessagingWrongUserKeyDesc": {
     "message": "การปลดล็อกด้วยไบโอเมตริกล้มเหลว คีย์ลับไบโอเมตริกไม่สามารถปลดล็อกตู้นิรภัยได้ โปรดลองตั้งค่าไบโอเมตริกใหม่อีกครั้ง"
@@ -3004,6 +3263,18 @@
   },
   "biometricsFailedDesc": {
     "message": "ไม่สามารถดำเนินการไบโอเมตริกให้เสร็จสิ้นได้ โปรดพิจารณาใช้รหัสผ่านหลักหรือออกจากระบบ หากปัญหายังคงอยู่ โปรดติดต่อฝ่ายสนับสนุน Bitwarden"
+  },
+  "nativeMessagingPermissionErrorTitle": {
+    "message": "Permission not provided"
+  },
+  "nativeMessagingPermissionErrorDesc": {
+    "message": "Without permission to communicate with the Bitwarden Desktop Application we cannot provide biometrics in the browser extension. Please try again."
+  },
+  "nativeMessagingPermissionSidebarTitle": {
+    "message": "Permission request error"
+  },
+  "nativeMessagingPermissionSidebarDesc": {
+    "message": "This action cannot be done in the sidebar, please retry the action in the popup or popout."
   },
   "personalOwnershipSubmitError": {
     "message": "เนื่องจากนโยบายองค์กร คุณถูกจำกัดไม่ให้บันทึกรายการลงในตู้นิรภัยส่วนตัว เปลี่ยนตัวเลือกความเป็นเจ้าของเป็นองค์กรและเลือกคอลเลกชันที่มีอยู่"
@@ -3067,6 +3338,10 @@
   "atRiskPasswords": {
     "message": "รหัสผ่านที่มีความเสี่ยง"
   },
+  "atRisk": {
+    "message": "at risk",
+    "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
+  },
   "atRiskPasswordDescSingleOrg": {
     "message": "$ORGANIZATION$ ร้องขอให้คุณเปลี่ยนรหัสผ่าน 1 รายการเนื่องจากมีความเสี่ยง",
     "placeholders": {
@@ -3123,6 +3398,18 @@
   },
   "reviewAndChangeAtRiskPasswordsPlural": {
     "message": "ตรวจสอบและเปลี่ยนรหัสผ่านที่มีความเสี่ยง $COUNT$ รายการ",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "reviewXAtRiskPassword": {
+    "message": "Review 1 at-risk password"
+  },
+  "reviewXAtRiskPasswordsPlural": {
+    "message": "Review $COUNT$ at-risk passwords",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3326,6 +3613,10 @@
   },
   "createSend": {
     "message": "Send ใหม่",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "createSendV2": {
+    "message": "Create Send",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
@@ -3795,8 +4086,8 @@
       }
     }
   },
-  "forwaderInvalidToken": {
-    "message": "โทเค็น API ของ $SERVICENAME$ ไม่ถูกต้อง",
+  "forwarderInvalidToken": {
+    "message": "Invalid $SERVICENAME$ API token",
     "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3805,8 +4096,8 @@
       }
     }
   },
-  "forwaderInvalidTokenWithMessage": {
-    "message": "โทเค็น API ของ $SERVICENAME$ ไม่ถูกต้อง: $ERRORMESSAGE$",
+  "forwarderInvalidTokenWithMessage": {
+    "message": "Invalid $SERVICENAME$ API token: $ERRORMESSAGE$",
     "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3819,8 +4110,8 @@
       }
     }
   },
-  "forwaderInvalidOperation": {
-    "message": "$SERVICENAME$ ปฏิเสธคำขอของคุณ โปรดติดต่อผู้ให้บริการเพื่อขอความช่วยเหลือ",
+  "forwarderInvalidOperation": {
+    "message": "$SERVICENAME$ refused your request. Please contact your service provider for assistance.",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service.",
     "placeholders": {
       "servicename": {
@@ -3829,8 +4120,8 @@
       }
     }
   },
-  "forwaderInvalidOperationWithMessage": {
-    "message": "$SERVICENAME$ ปฏิเสธคำขอของคุณ: $ERRORMESSAGE$",
+  "forwarderInvalidOperationWithMessage": {
+    "message": "$SERVICENAME$ refused your request: $ERRORMESSAGE$",
     "description": "Displayed when the user is forbidden from using the API by the forwarding service with an error message.",
     "placeholders": {
       "servicename": {
@@ -3893,6 +4184,14 @@
       }
     }
   },
+  "forwarderWebsitePrefix": {
+    "message": "Add website prefix",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
+  },
   "hostname": {
     "message": "ชื่อโฮสต์",
     "description": "Part of a URL."
@@ -3906,8 +4205,8 @@
   "ssoKeyConnectorError": {
     "message": "ข้อผิดพลาด Key Connector: ตรวจสอบให้แน่ใจว่า Key Connector พร้อมใช้งานและทำงานอย่างถูกต้อง"
   },
-  "premiumSubcriptionRequired": {
-    "message": "จำเป็นต้องสมัครสมาชิกพรีเมียม"
+  "premiumSubscriptionRequired": {
+    "message": "Premium subscription required"
   },
   "organizationIsDisabled": {
     "message": "องค์กรถูกระงับ"
@@ -3950,9 +4249,6 @@
         "example": "Jun 15, 2015"
       }
     }
-  },
-  "loginWithMasterPassword": {
-    "message": "เข้าสู่ระบบด้วยรหัสผ่านหลัก"
   },
   "newAroundHere": {
     "message": "เพิ่งเคยใช้งานใช่หรือไม่"
@@ -4400,6 +4696,9 @@
   "multipleInputEmails": {
     "message": "อีเมลอย่างน้อย 1 รายการไม่ถูกต้อง"
   },
+  "sendEmailsCharacterLimitReached": {
+    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+  },
   "inputTrimValidator": {
     "message": "ข้อมูลต้องไม่ประกอบด้วยช่องว่างเพียงอย่างเดียว",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
@@ -4655,6 +4954,72 @@
   "importNothingError": {
     "message": "ไม่มีการนำเข้าข้อมูล"
   },
+  "importPartialErrorTitle": {
+    "message": "$COUNT$ items will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ item will be skipped",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
+  "importPartialErrorDescription": {
+    "message": "The following items could not be read and will not be included in your import:"
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "This SSH key could not be imported"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "Unsupported item type"
+  },
+  "importSkipReasonGeneric": {
+    "message": "This item could not be imported"
+  },
+  "identifier": {
+    "message": "Identifier"
+  },
+  "contact": {
+    "message": "Contact"
+  },
+  "membership": {
+    "message": "Membership"
+  },
+  "passport": {
+    "message": "Passport"
+  },
+  "driverLicense": {
+    "message": "Driver's license"
+  },
+  "ssnCard": {
+    "message": "Identity card"
+  },
+  "birthCertificate": {
+    "message": "Birth certificate"
+  },
+  "databaseCredentials": {
+    "message": "Database credentials"
+  },
+  "serverCredentials": {
+    "message": "Server credentials"
+  },
+  "softwareLicense": {
+    "message": "Software license"
+  },
+  "healthInsurance": {
+    "message": "Health insurance"
+  },
+  "wifiCredentials": {
+    "message": "Wi-Fi credentials"
+  },
   "importEncKeyError": {
     "message": "เกิดข้อผิดพลาดในการถอดรหัสไฟล์ที่ส่งออก กุญแจเข้ารหัสของคุณไม่ตรงกับกุญแจเข้ารหัสที่ใช้ส่งออกข้อมูล"
   },
@@ -4697,6 +5062,79 @@
   "noFileChosen": {
     "message": "ไม่ได้เลือกไฟล์"
   },
+  "noFileSelected": {
+    "message": "No file selected"
+  },
+  "fileChosen": {
+    "message": "File chosen: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "File added: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "File removed: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 file uploaded"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ files uploaded",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Uploaded files"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Click to upload or drag and drop"
+  },
+  "chooseFiles": {
+    "message": "Choose files"
+  },
+  "maxFileSizeParam": {
+    "message": "Max. file size: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "หรือคัดลอก/วางเนื้อหาไฟล์นำเข้า"
   },
@@ -4718,6 +5156,30 @@
   },
   "confirmFilePassword": {
     "message": "ยืนยันรหัสผ่านไฟล์"
+  },
+  "keePassMasterPassword": {
+    "message": "KeePass master password"
+  },
+  "addKeyFile": {
+    "message": "Add key file"
+  },
+  "keyFileUpload": {
+    "message": "Key file upload"
+  },
+  "kdbxFileUpload": {
+    "message": "KDBX file upload"
+  },
+  "acceptedFormatsKdbx": {
+    "message": "Accepted formats: kdbx"
+  },
+  "kdbxCorruptOrOutdated": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "kdbxWrongFileType": {
+    "message": "This file is not a valid KeePass database (.kdbx). Please select a .kdbx file and try again."
+  },
+  "kdbxFileTooLarge": {
+    "message": "This KeePass database is too large to import."
   },
   "exportSuccess": {
     "message": "ส่งออกข้อมูลตู้นิรภัยแล้ว"
@@ -4821,6 +5283,9 @@
   "multifactorAuthenticationFailed": {
     "message": "การยืนยันตัวตนแบบหลายปัจจัยล้มเหลว"
   },
+  "keeperConnectionError": {
+    "message": "There was a problem communicating with Keeper. Please try the import again."
+  },
   "includeSharedFolders": {
     "message": "รวมโฟลเดอร์ที่แชร์"
   },
@@ -4872,6 +5337,195 @@
   },
   "lastPassYubikeyDesc": {
     "message": "เสียบ YubiKey ที่เชื่อมโยงกับบัญชี LastPass เข้ากับพอร์ต USB ของคอมพิวเตอร์ แล้วแตะที่ปุ่ม"
+  },
+  "keeperEmail": {
+    "message": "Keeper email"
+  },
+  "keeperEmailHint": {
+    "message": "Enter the email you use to log in to Keeper"
+  },
+  "dataCenterLocation": {
+    "message": "Data center location"
+  },
+  "keeperMasterPassword": {
+    "message": "Keeper master password"
+  },
+  "keeperMasterPasswordPrompt": {
+    "message": "Please enter your Keeper master password"
+  },
+  "twoFactorCodePrompt": {
+    "message": "Please enter the code from your two-factor method"
+  },
+  "totpCodePrompt": {
+    "message": "Please enter the code from your authenticator app"
+  },
+  "smsCodePrompt": {
+    "message": "Please enter the code sent via text message"
+  },
+  "keeperDnaCodePrompt": {
+    "message": "Please enter the code from your Keeper DNA app"
+  },
+  "adminApproval": {
+    "message": "Admin approval"
+  },
+  "adminDeviceApprovalPushDesc": {
+    "message": "We've sent an admin approval request to your admin"
+  },
+  "method": {
+    "message": "Method"
+  },
+  "directImporter": {
+    "message": "Direct importer"
+  },
+  "csv": {
+    "message": "CSV"
+  },
+  "json": {
+    "message": "Json"
+  },
+  "ssoAuthRequired": {
+    "message": "SSO authentication required"
+  },
+  "keeperSsoDesc": {
+    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+  },
+  "keeperSsoAutoCaptureDesc": {
+    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+  },
+  "ssoToken": {
+    "message": "SSO token"
+  },
+  "keeperAuthRequired": {
+    "message": "Keeper authentication required"
+  },
+  "keeperDeviceApprovalRequired": {
+    "message": "Keeper device approval required"
+  },
+  "selectApprovalMethod": {
+    "message": "Approval methods"
+  },
+  "deviceApprovalNeeded": {
+    "message": "Device approval needed"
+  },
+  "selectApprovalMethodDesc": {
+    "message": "Approve this device by selecting a method below"
+  },
+  "keeperPush": {
+    "message": "Keeper Push"
+  },
+  "twoFactorMethod": {
+    "message": "Two-factor method"
+  },
+  "emailVerification": {
+    "message": "Email verification"
+  },
+  "approvalEmailDesc": {
+    "message": "Please check your email and enter the verification code below"
+  },
+  "otherDeviceApprovalPushDesc": {
+    "message": "Keeper Push notification sent to approved device"
+  },
+  "keeperPushSent": {
+    "message": "Keeper Push sent"
+  },
+  "approvalRequestWillBeCanceled": {
+    "message": "Approval request will be canceled"
+  },
+  "pendingApprovalCancelConfirmation": {
+    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+  },
+  "cancelRequest": {
+    "message": "Cancel request"
+  },
+  "keeperMFARequired": {
+    "message": "Keeper two-factor authentication required"
+  },
+  "mfaPushDesc": {
+    "message": "Approve the login request in your authentication app. This dialog will close automatically."
+  },
+  "selectTwoFactorMethod": {
+    "message": "Select two-factor method"
+  },
+  "selectTwoFactorMethodDesc": {
+    "message": "Choose how you want to verify your identity."
+  },
+  "authenticatorAppTotp": {
+    "message": "Authenticator app (TOTP)"
+  },
+  "textMessageSms": {
+    "message": "Text message (SMS)"
+  },
+  "duoSecurity": {
+    "message": "Duo Security"
+  },
+  "rsaSecurId": {
+    "message": "RSA SecurID"
+  },
+  "backupCodes": {
+    "message": "Backup codes"
+  },
+  "securityKeyU2f": {
+    "message": "Security key (U2F)"
+  },
+  "securityKeyWebAuthn": {
+    "message": "Security key (WebAuthn)"
+  },
+  "keeperDna": {
+    "message": "Keeper DNA"
+  },
+  "keeperDnaVerification": {
+    "message": "Keeper DNA verification"
+  },
+  "keeperDnaPushWaiting": {
+    "message": "Approve the Keeper DNA notification on your device"
+  },
+  "selectKeeperDnaMethod": {
+    "message": "Select Keeper DNA method"
+  },
+  "selectKeeperDnaMethodDesc": {
+    "message": "Choose how you want to verify with Keeper DNA."
+  },
+  "pushNotification": {
+    "message": "Push notification"
+  },
+  "enterCodeManually": {
+    "message": "Enter code manually"
+  },
+  "twoFactorAuthentication": {
+    "message": "Two-factor authentication"
+  },
+  "unknownMethod": {
+    "message": "Unknown method"
+  },
+  "selectDuoMethod": {
+    "message": "Select Duo method"
+  },
+  "selectDuoMethodDesc": {
+    "message": "Choose how you want to verify with Duo Security."
+  },
+  "duoPush": {
+    "message": "Duo Push"
+  },
+  "phoneCall": {
+    "message": "Phone call"
+  },
+  "duoVerification": {
+    "message": "Duo verification"
+  },
+  "duoPushWaiting": {
+    "message": "Approve the Duo push notification on your device."
+  },
+  "duoSmsWaiting": {
+    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+  },
+  "duoVoiceWaiting": {
+    "message": "Answer the phone call from Duo and follow the instructions."
+  },
+  "tryAnotherMethod": {
+    "message": "Try another method"
+  },
+  "keeperUnsupported2faMethod": {
+    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
   },
   "switchAccount": {
     "message": "สลับบัญชี"
@@ -4987,6 +5641,20 @@
     "message": "ตั้งให้ Bitwarden เป็นตัวจัดการรหัสผ่านเริ่มต้น",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
+  "defaultPasswordManagerCalloutTitle": {
+    "message": "Make your autofill experience better",
+    "description": "Title for the callout that prompts users to set Bitwarden as their default password manager"
+  },
+  "defaultPasswordManagerCalloutDesc": {
+    "message": "You'll be asked to grant a $BROWSER$ browser permission to make Bitwarden your default password manager.",
+    "description": "Description for the callout that prompts users to set Bitwarden as their default password manager",
+    "placeholders": {
+      "browser": {
+        "content": "$1",
+        "example": "Chrome"
+      }
+    }
+  },
   "privacyPermissionAdditionNotGrantedTitle": {
     "message": "ไม่สามารถตั้งค่า Bitwarden เป็นตัวจัดการรหัสผ่านเริ่มต้นได้",
     "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
@@ -4998,6 +5666,37 @@
   "makeDefault": {
     "message": "ตั้งเป็นค่าเริ่มต้น",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "defaultPasswordManagerPromptTitle": {
+    "message": "Make Bitwarden your browser's default password manager"
+  },
+  "defaultPasswordManagerPromptTitleV2": {
+    "message": "Make Bitwarden your default password manager",
+    "description": "Label for the setting to make Bitwarden the default password manager"
+  },
+  "defaultPasswordManagerSettingHintV2": {
+    "message": "Turn off the browser autofill settings to avoid conflicts.",
+    "description": "Hint text for the default password manager setting. Followed by a link to browser autofill settings."
+  },
+  "defaultPasswordManagerSettingHintLinkV2": {
+    "message": "Manage browser settings",
+    "description": "Link text to browser autofill settings in the default password manager setting hint."
+  },
+  "defaultPasswordManagerPromptStep2AfterAllow": {
+    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+  },
+  "defaultPasswordManagerPromptStep3": {
+    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+  },
+  "defaultPasswordManagerSuccessToast": {
+    "message": "Made Bitwarden your default browser password manager"
+  },
+  "allow": {
+    "message": "Allow",
+    "description": "Label of the Allow button in the browser's native permission dialog, shown in step 2 of the default password manager prompt"
+  },
+  "skip": {
+    "message": "Skip"
   },
   "saveCipherAttemptSuccess": {
     "message": "บันทึกข้อมูลเข้าสู่ระบบสำเร็จแล้ว!",
@@ -5025,6 +5724,12 @@
   "removePasskey": {
     "message": "เอาพาสคีย์ออก"
   },
+  "deletePasskey": {
+    "message": "Delete passkey"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+  },
   "passkeyRemoved": {
     "message": "เอาพาสคีย์ออกแล้ว"
   },
@@ -5046,8 +5751,8 @@
   "clearFiltersOrTryAnother": {
     "message": "ล้างตัวกรองหรือลองค้นหาด้วยคำอื่น"
   },
-  "copyInfoTitle": {
-    "message": "คัดลอกข้อมูล - $ITEMNAME$",
+  "copyDetailsTitle": {
+    "message": "Copy details for $ITEMNAME$",
     "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
@@ -5155,11 +5860,17 @@
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
-  "noValuesToCopy": {
-    "message": "ไม่มีค่าให้คัดลอก"
+  "noDetailsToCopy": {
+    "message": "No details to copy"
   },
   "assignToCollections": {
     "message": "มอบหมายให้คอลเลกชัน"
+  },
+  "addToSharedFolder": {
+    "message": "Add to shared folder"
+  },
+  "transferAndAdd": {
+    "message": "Transfer and add"
   },
   "copyEmail": {
     "message": "คัดลอกอีเมล"
@@ -5253,6 +5964,29 @@
       }
     }
   },
+  "viewItemHeaderLoginSentenceCase": {
+    "message": "View login",
+    "description": "Header for view login item type"
+  },
+  "viewItemHeaderCardSentenceCase": {
+    "message": "View card",
+    "description": "Header for view card item type"
+  },
+  "viewItemHeaderIdentitySentenceCase": {
+    "message": "View identity",
+    "description": "Header for view identity item type"
+  },
+  "viewItemHeaderNoteSentenceCase": {
+    "message": "View note",
+    "description": "Header for view note item type"
+  },
+  "create": {
+    "message": "Create",
+    "description": "for adding new items"
+  },
+  "addCollection": {
+    "message": "Add collection"
+  },
   "new": {
     "message": "ใหม่"
   },
@@ -5280,6 +6014,60 @@
   },
   "owner": {
     "message": "เจ้าของ"
+  },
+  "sharedFolderAriaLabel": {
+    "message": "Shared folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "Collection $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "My folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "Folder $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "Owner $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "Vault $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
   },
   "selfOwnershipLabel": {
     "message": "คุณ",
@@ -5437,11 +6225,30 @@
       }
     }
   },
+  "appUri": {
+    "message": "App (URI)"
+  },
+  "appUriCount": {
+    "message": "App (URI) $COUNT$",
+    "description": "Label for an input field that contains an app URI. The input field is part of a list of fields, and the count indicates the position of the field in the list.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "websiteAdded": {
     "message": "เพิ่มเว็บไซต์แล้ว"
   },
   "addWebsite": {
     "message": "เพิ่มเว็บไซต์"
+  },
+  "addWebsiteOrApp": {
+    "message": "Add website or app"
+  },
+  "app": {
+    "message": "App"
   },
   "deleteWebsite": {
     "message": "ลบเว็บไซต์"
@@ -5532,8 +6339,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "เฉพาะสมาชิกองค์กรที่มีสิทธิ์เข้าถึงคอลเลกชันเหล่านี้เท่านั้นที่จะเห็นรายการนี้"
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Only vault members with access to these shared folders will be able to see the item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "เฉพาะสมาชิกองค์กรที่มีสิทธิ์เข้าถึงคอลเลกชันเหล่านี้เท่านั้นที่จะเห็นรายการเหล่านี้"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Only vault members with access to these shared folders will be able to see the items."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "คุณเลือก $TOTAL_COUNT$ รายการ คุณไม่สามารถอัปเดต $READONLY_COUNT$ รายการได้เนื่องจากคุณไม่มีสิทธิ์แก้ไข",
@@ -5571,8 +6384,8 @@
   "linkedHelpText": {
     "message": "ใช้ฟิลด์เชื่อมโยงเมื่อคุณประสบปัญหาการป้อนอัตโนมัติสำหรับเว็บไซต์ใดเว็บไซต์หนึ่งโดยเฉพาะ"
   },
-  "linkedLabelHelpText": {
-    "message": "ป้อน html id, name, aria-label หรือ placeholder ของฟิลด์"
+  "linkedFieldLabelHelpText": {
+    "message": "Enter the field's HTML id, name, aria-label, or placeholder."
   },
   "editField": {
     "message": "แก้ไขฟิลด์"
@@ -5639,8 +6452,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 รายการจะถูกโอนย้ายไปยังองค์กรที่เลือกอย่างถาวร คุณจะไม่ได้เป็นเจ้าของรายการนี้อีกต่อไป"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ รายการจะถูกโอนย้ายไปยังองค์กรที่เลือกอย่างถาวร คุณจะไม่ได้เป็นเจ้าของรายการเหล่านี้อีกต่อไป",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5672,6 +6497,39 @@
   },
   "successfullyAssignedCollections": {
     "message": "มอบหมายคอลเลกชันสำเร็จแล้ว"
+  },
+  "successfullyAddedSharedFolders": {
+    "message": "Successfully added shared folders"
+  },
+  "itemMovedToCollection": {
+    "message": "Item moved to collection"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item added to shared folder"
+  },
+  "itemMovedToCollections": {
+    "message": "Item moved to collections"
+  },
+  "itemAddedToSharedFolders": {
+    "message": "Item added to shared folders"
+  },
+  "itemsMovedToCollection": {
+    "message": "Items moved to collection"
+  },
+  "itemsAddedToSharedFolder": {
+    "message": "Items added to shared folder"
+  },
+  "itemsMovedToCollections": {
+    "message": "Items moved to collections"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Items added to shared folders"
+  },
+  "itemAssignedToCollections": {
+    "message": "Item assigned to collections"
+  },
+  "itemsAssignedToCollections": {
+    "message": "Items assigned to collections"
   },
   "nothingSelected": {
     "message": "คุณไม่ได้เลือกสิ่งใดเลย"
@@ -5715,10 +6573,16 @@
     "message": "ตำแหน่งรายการ"
   },
   "fileSends": {
-    "message": "ไฟล์ Send"
+    "message": "ไฟล์ Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "textSends": {
-    "message": "ข้อความ Send"
+    "message": "ข้อความ Send",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "itemSends": {
+    "message": "Item Sends",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
     "message": "การดำเนินการกับบัญชี"
@@ -5738,8 +6602,8 @@
       }
     }
   },
-  "showQuickCopyActions": {
-    "message": "แสดงการดำเนินการคัดลอกด่วนบนตู้นิรภัย"
+  "showQuickCopyActionsInVault": {
+    "message": "Show quick copy actions in vault"
   },
   "systemDefault": {
     "message": "ค่าเริ่มต้นของระบบ"
@@ -5842,9 +6706,6 @@
   },
   "unlockPinSet": {
     "message": "ตั้งค่า PIN ปลดล็อกแล้ว"
-  },
-  "unlockWithBiometricSet": {
-    "message": "ตั้งค่าการปลดล็อกด้วยไบโอเมตริกแล้ว"
   },
   "authenticating": {
     "message": "กำลังยืนยันตัวตน"
@@ -6056,6 +6917,15 @@
       }
     }
   },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
   "updateDesktopAppOrDisableFingerprintDialogTitle": {
     "message": "โปรดอัปเดตแอปพลิเคชันเดสก์ท็อปของคุณ"
   },
@@ -6237,6 +7107,9 @@
   },
   "permitCipherDetailsDescription": {
     "message": "Bitwarden จะใช้ URI ข้อมูลเข้าสู่ระบบที่บันทึกไว้เพื่อระบุว่าควรใช้ไอคอนหรือ URL เปลี่ยนรหัสผ่านใดเพื่อปรับปรุงประสบการณ์ของคุณ ไม่มีการรวบรวมหรือบันทึกข้อมูลเมื่อคุณใช้บริการนี้"
+  },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
   },
   "noPermissionsViewPage": {
     "message": "คุณไม่มีสิทธิ์ดูหน้านี้ ลองเข้าสู่ระบบด้วยบัญชีอื่น"
@@ -6524,14 +7397,32 @@
   "sharedUnlock": {
     "message": "Shared unlock"
   },
-  "sharedUnlockDescription": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared by all apps on this machine. The desktop app is required to synchronize between different browsers."
+  "sharedUnlockWithDesktop": {
+    "message": "Share unlock with Desktop"
   },
-  "sharedUnlockDescriptionSafari": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with Bitwarden web vaults in Safari."
+  "sharedUnlockWithDesktopDescription": {
+    "message": "When enabled, unlock state will be shared with the Bitwarden Desktop app."
   },
-  "sharedUnlockDescriptionFirefox": {
-    "message": "Keep your Bitwarden apps in sync. When enabled, unlock state will be shared with the Bitwarden desktop app."
+  "sharedUnlockWithWeb": {
+    "message": "Share unlock with web vault"
+  },
+  "sharedUnlockWithWebDescription": {
+    "message": "When enabled, unlock state will be shared with Bitwarden web vaults."
+  },
+  "sharedUnlockUnavailableUntrustedDevice": {
+    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+  },
+  "newPermissionNeeded": {
+    "message": "New permission needed"
+  },
+  "sharedUnlockDesktopPermissionDesc": {
+    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+  },
+  "sharedUnlockDesktopPermissionWarning": {
+    "message": "Bitwarden will lock and reload. After you approve, the extension reloads and will lock your vault."
+  },
+  "biometricPermissionDesc": {
+    "message": "To use biometric unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
   },
   "enterMonth": {
     "message": "Enter month."
@@ -6679,7 +7570,173 @@
   "hideEmailPolicyInEffect": {
     "message": "Your organization requires email visibility. Uncheck \"Hide your email from viewers\" to save."
   },
+  "domainNotAllowed": {
+    "message": "Only include the following domains: $DOMAINS$. Please review and try again",
+    "placeholders": {
+      "domains": {
+        "content": "$1"
+      }
+    }
+  },
+  "sendNotCompliantWithYourOrgsPolicy": {
+    "message": "Not compliant with your organization's Send policy",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendDisabledNonCompliantBannerMessage": {
+    "message": "To edit this Send, make a copy. If this Send can expire at the set deletion date, no action is needed",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "makeACopy": {
+    "message": "Make a copy"
+  },
+  "orgDoesNotAllowTextSends": {
+    "message": "Text Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "orgDoesNotAllowFileSends": {
+    "message": "File Sends are not allowed for your organization",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
+  "sendWillAutomaticallyExpire": {
+    "message": "This Send will automatically expire at the set deletion date",
+    "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
+  },
   "errorImportingMyItemsMultiCollection": {
     "message": "You cannot import items into My Items that are part of multiple collections"
+  },
+  "cannotSaveItemNoConfirmedOrgs": {
+    "message": "Unable to save item. You must be confirmed to the organization to save items."
+  },
+  "duplicateAttachmentNameError": {
+    "message": "Items cannot have multiple attachments with the same file name"
+  },
+  "sendDeletionDateSetByOrg": {
+    "message": "$ORGNAME$ has set this deletion date",
+    "placeholders": {
+      "orgname": {
+        "content": "$1",
+        "example": "Unknown organization"
+      }
+    }
+  },
+  "health": {
+    "message": "Health"
+  },
+  "scanMyVault": {
+    "message": "Scan my vault"
+  },
+  "introducingHealth": {
+    "message": "Introducing Health"
+  },
+  "healthIntroDescription": {
+    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+  },
+  "yourVaultIsHealthy": {
+    "message": "Your vault is healthy",
+    "description": "Heading shown when none of the user's passwords are at risk."
+  },
+  "yourVaultRiskIsHigh": {
+    "message": "Your vault risk is high",
+    "description": "Heading shown when at least one of the user's passwords is at risk."
+  },
+  "passwordsNeedFixing": {
+    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
+    "placeholders": {
+      "at_risk": {
+        "content": "$1",
+        "example": "63"
+      },
+      "total": {
+        "content": "$2",
+        "example": "200"
+      }
+    }
+  },
+  "exposedPasswordsNone": {
+    "message": "No exposed passwords",
+    "description": "Title of the exposed risk category row when no passwords are exposed."
+  },
+  "exposedPassword": {
+    "message": "1 exposed password",
+    "description": "Title of the exposed risk category row when exactly one password is exposed."
+  },
+  "exposedPasswordsPlural": {
+    "message": "$COUNT$ exposed passwords",
+    "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsDesc": {
+    "message": "Exposed in data breaches",
+    "description": "Explains what makes a password count as exposed."
+  },
+  "exposedPasswordsNoneDesc": {
+    "message": "None of your passwords were found in data breaches",
+    "description": "Description of the exposed risk category row when no passwords are exposed."
+  },
+  "weakPasswordsNone": {
+    "message": "No weak passwords",
+    "description": "Title of the weak risk category row when no passwords are weak."
+  },
+  "weakPassword": {
+    "message": "1 weak password",
+    "description": "Title of the weak risk category row when exactly one password is weak."
+  },
+  "weakPasswordsPlural": {
+    "message": "$COUNT$ weak passwords",
+    "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "22"
+      }
+    }
+  },
+  "weakPasswordsDesc": {
+    "message": "Too short or simple",
+    "description": "Explains what makes a password count as weak."
+  },
+  "weakPasswordsNoneDesc": {
+    "message": "All your passwords are strong",
+    "description": "Description of the weak risk category row when no passwords are weak."
+  },
+  "reusedPasswordsNone": {
+    "message": "No reused passwords",
+    "description": "Title of the reused risk category row when no passwords are reused."
+  },
+  "reusedPassword": {
+    "message": "1 reused password",
+    "description": "Title of the reused risk category row when exactly one password is reused."
+  },
+  "reusedPasswordsPlural": {
+    "message": "$COUNT$ reused passwords",
+    "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "35"
+      }
+    }
+  },
+  "reusedPasswordsDesc": {
+    "message": "Reused for several logins",
+    "description": "Explains what makes a password count as reused."
+  },
+  "reusedPasswordsNoneDesc": {
+    "message": "All your passwords are unique",
+    "description": "Description of the reused risk category row when no passwords are reused."
+  },
+  "risksIdentified": {
+    "message": "Risks identified",
+    "description": "Section heading above the list of risk categories on the Health Overview."
+  },
+  "categoryHealthy": {
+    "message": "No items need attention",
+    "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   }
 }

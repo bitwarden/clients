@@ -17,7 +17,7 @@
   </button>
 </bit-no-items>
 
-<bit-table *ngIf="tokens?.length >= 1">
+<bit-table *ngIf="tokens?.length >= 1" [dataSource]="dataSource">
   <ng-container header>
     <tr>
       <th bitCell class="tw-w-0">
@@ -29,9 +29,10 @@
           [attr.aria-label]="'selectAll' | i18n"
         />
       </th>
-      <th bitCell>{{ "name" | i18n }}</th>
-      <th bitCell>{{ "expires" | i18n }}</th>
-      <th bitCell>{{ "lastEdited" | i18n }}</th>
+      <th bitCell bitSortable="name" default>{{ "name" | i18n }}</th>
+      <th bitCell bitSortable="status" [fn]="sortByStatus">{{ "status" | i18n }}</th>
+      <th bitCell bitSortable="expireAt" [fn]="sortByExpireAt">{{ "expires" | i18n }}</th>
+      <th bitCell bitSortable="revisionDate">{{ "lastEdited" | i18n }}</th>
       <th bitCell class="tw-w-0">
         <button
           type="button"
@@ -43,8 +44,8 @@
       </th>
     </tr>
   </ng-container>
-  <ng-template body>
-    <tr bitRow *ngFor="let token of tokens">
+  <ng-template body let-rows$>
+    <tr bitRow *ngFor="let token of rows$ | async">
       <td bitCell>
         <input
           type="checkbox"
@@ -53,8 +54,19 @@
         />
       </td>
       <td bitCell>{{ token.name }}</td>
+      <td bitCell [ngSwitch]="getTokenStatus(token)">
+        <bit-badge *ngSwitchCase="'expired'" variant="danger" size="small">
+          {{ "expired" | i18n }}
+        </bit-badge>
+        <bit-badge *ngSwitchCase="'expiringSoon'" variant="warning" size="small">
+          {{ "expiringSoon" | i18n }}
+        </bit-badge>
+        <bit-badge *ngSwitchDefault variant="success" size="small">
+          {{ "tokenActive" | i18n }}
+        </bit-badge>
+      </td>
       <td bitCell>
-        {{ token.expireAt === null ? ("never" | i18n) : (token.expireAt | date: "medium") }}
+        {{ token.expireAt == null ? ("never" | i18n) : (token.expireAt | date: "medium") }}
       </td>
       <td bitCell>{{ token.revisionDate | date: "medium" }}</td>
       <td bitCell>

@@ -7,6 +7,7 @@ import {
   map,
   merge,
   Observable,
+  pairwise,
   ReplaySubject,
   skip,
   Subject,
@@ -23,13 +24,16 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { getOptionalUserId, getUserId } from "@bitwarden/common/auth/services/account.service";
 import {
   AutofillOverlayVisibility,
+  AutofillTargetingRuleTypes,
   SHOW_AUTOFILL_BUTTON,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { parseYearMonthExpiry } from "@bitwarden/common/autofill/utils";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   Fido2ActiveRequestEvents,
@@ -52,6 +56,7 @@ import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-c
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { SshKeyView } from "@bitwarden/common/vault/models/view/ssh-key.view";
 import { CredentialGeneratorService, GenerateRequest, Type } from "@bitwarden/generator-core";
 import { GeneratorHistoryService } from "@bitwarden/generator-history";
 
@@ -86,6 +91,7 @@ import {
   specialCharacterToKeyMap,
 } from "../utils";
 import { trackGeneratedCredential } from "../utils/credential-history-utils";
+import { getSubFrameUrlVariations } from "../utils/url-variations";
 
 import { ModifyLoginCipherFormData } from "./abstractions/overlay-notifications.background";
 import {
@@ -114,7 +120,12 @@ import {
   PasswordGenerateRequestSource,
 } from "./abstractions/overlay.background";
 
-const cardAndIdentityCipherType: CipherType[] = [CipherType.Card, CipherType.Identity];
+// Non-login cipher types that are fetched and cached for the inline menu regardless of URL match.
+const nonLoginInlineCipherType: CipherType[] = [
+  CipherType.Card,
+  CipherType.Identity,
+  CipherType.SshKey,
+];
 
 export class OverlayBackground implements OverlayBackgroundInterface {
   // Assigned as members so jest.spyOn can intercept them in tests
@@ -186,6 +197,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       ),
     getInlineMenuCardsVisibility: () => this.getInlineMenuCardsVisibility(),
     getInlineMenuIdentitiesVisibility: () => this.getInlineMenuIdentitiesVisibility(),
+    getInlineMenuSshKeysVisibility: () => this.getInlineMenuSshKeysVisibility(),
     closeAutofillInlineMenu: ({ message, sender }) =>
       void this.withSenderTab(sender, () => this.closeInlineMenu(sender, message)),
     checkAutofillInlineMenuFocused: ({ sender }) =>
@@ -262,9 +274,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private accountService: AccountService,
     private generatorHistoryService: GeneratorHistoryService,
     private generatorService: CredentialGeneratorService,
+    private configService: ConfigService,
   ) {
     this.initOverlayEventObservables();
   }
+
+  useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuComponents,
+  );
 
   /**
    * Sets up the extension message listeners and gets the settings for the
@@ -364,6 +381,22 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     merge(this.startInlineMenuFadeIn$.pipe(debounceTime(150)), this.cancelInlineMenuFadeIn$)
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
+
+    // Dump targeting rules' cached page details when Fill Assist becomes
+    // disabled, and signal content scripts to drop their own targeting-rules
+    // caches so the next page-details collection re-evaluates which strategy
+    // to use (targeted vs heuristic). Only act on a `true` -> `false`
+    // transition so service-worker cold starts (where the replayed initial
+    // value is `false`) don't broadcast.
+    this.domainSettingsService.resolvedEnableFillAssist$
+      .pipe(
+        pairwise(),
+        filter(([previous, current]) => previous && !current),
+      )
+      .subscribe(() => {
+        this.clearCachedTargetedPageDetails();
+        void this.broadcastTargetingRulesCacheInvalidation();
+      });
   }
 
   /**
@@ -384,6 +417,42 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.clearGeneratedPassword$.next();
     this.focusedFieldData = null;
+  }
+
+  /**
+   * Removes cached page-detail entries that were produced by the
+   * targeting-rules path.
+   */
+  private clearCachedTargetedPageDetails() {
+    for (const tabIdKey of Object.keys(this.pageDetailsForTab)) {
+      const tabId = Number(tabIdKey);
+      const frameMap = this.pageDetailsForTab[tabId];
+      if (!frameMap) {
+        continue;
+      }
+      for (const [frameId, entry] of frameMap) {
+        // `targeted` fields are mutually-exclusive from heuristically-gathered fields
+        // and should not appear in the same pageDetails
+        if (entry.details?.fields?.some((field) => field.targeted === true)) {
+          frameMap.delete(frameId);
+        }
+      }
+      if (frameMap.size === 0) {
+        delete this.pageDetailsForTab[tabId];
+      }
+    }
+  }
+
+  /**
+   * Notifies all tab content scripts to drop any per-frame targeting-rules
+   * cache so the next page-details collection re-evaluates the gate. Tabs
+   * without a content script (e.g. chrome:// pages) will silently no-op.
+   */
+  private async broadcastTargetingRulesCacheInvalidation(): Promise<void> {
+    const tabs = await BrowserApi.tabsQuery({});
+    for (const tab of tabs) {
+      void BrowserApi.tabSendMessage(tab, { command: "clearTargetingRulesCache" });
+    }
   }
 
   /**
@@ -525,6 +594,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       await this.cipherService.getAllDecryptedForUrl(currentTab.url || "", userId, [
         CipherType.Card,
         CipherType.Identity,
+        CipherType.SshKey,
       ])
     ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
 
@@ -536,7 +606,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const cipherView = cipherViews[cipherIndex];
       if (
         !this.cardAndIdentityCiphers.has(cipherView) &&
-        cardAndIdentityCipherType.includes(cipherView.type)
+        nonLoginInlineCipherType.includes(cipherView.type)
       ) {
         this.cardAndIdentityCiphers.add(cipherView);
       }
@@ -679,6 +749,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
           if (
             areKeyValuesNull(cipher.login, ["username", "password", "totp", "fido2Credentials"])
           ) {
+            continue;
+          }
+          break;
+
+        case CipherType.SshKey:
+          if (areKeyValuesNull(cipher.sshKey, ["publicKey"])) {
             continue;
           }
           break;
@@ -830,6 +906,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (cipher.type === CipherType.Card) {
       inlineMenuData.card = cipher.card.subTitle;
+      return inlineMenuData;
+    }
+
+    if (cipher.type === CipherType.SshKey) {
       return inlineMenuData;
     }
 
@@ -1104,10 +1184,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Routes targeted fields to the content script running in the iframe identified
-   * by `message.iframeSrc`. Looks up the matching frame via webNavigation and
-   * dispatches `applyTargetedFields` so the iframe's own content script can build
-   * its AutofillFields and report back with the correct sub-frame `frameId`.
+   * Routes targeted fields to the iframe identified by `message.iframeSrc`.
+   * Looks up the frame via webNavigation and dispatches `applyTargetedFields`
+   * to its content script.
+   *
+   * Matching uses a URL variation set so normalization differences between
+   * the iframe's `src` and the URL webNavigation reports don't prevent a match.
+   * Ambiguous matches are dropped. Send failures are logged; the destination
+   * frame is expected to self-gate.
    *
    * @param tab - The tab the message originated from
    * @param message - The message containing `iframeSrc` and `iframeTargetedFields`
@@ -1126,15 +1210,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const targetFrame = frames.find((f) => f.url === iframeSrc);
-    if (!targetFrame) {
+    const variations = getSubFrameUrlVariations(iframeSrc);
+    const candidates = variations
+      ? frames.filter((f) => variations.has(f.url))
+      : frames.filter((f) => f.url === iframeSrc);
+
+    if (candidates.length === 0) {
+      this.logService.debug(
+        `[OverlayBackground] No frame matched iframeSrc for targeted field routing: ${iframeSrc}`,
+      );
+      return;
+    }
+
+    if (candidates.length > 1) {
+      this.logService.debug(
+        `[OverlayBackground] Ambiguous frame match for targeted field routing: ${iframeSrc}`,
+      );
       return;
     }
 
     await BrowserApi.tabSendMessage(
       tab,
       { command: "applyTargetedFields", iframeTargetedFields },
-      { frameId: targetFrame.frameId },
+      { frameId: candidates[0].frameId },
+    ).catch((error) =>
+      this.logService.debug(
+        `[OverlayBackground] Failed to send applyTargetedFields to frame: ${(error as Error)?.message ?? error}`,
+      ),
     );
   }
 
@@ -1389,7 +1491,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       );
     }
 
-    const totpCode = await this.autofillService.doAutoFill({
+    const result = await this.autofillService.doAutoFill({
       tab,
       cipher,
       pageDetails,
@@ -1400,8 +1502,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       inlineMenuFillType: this.focusedFieldData?.inlineMenuFillType,
     });
 
-    if (totpCode) {
-      this.platformUtilsService.copyToClipboard(totpCode);
+    // A no-fill leaves nothing to copy and no use to record; the prior throw aborted here.
+    if (!result.didAutofill) {
+      return;
+    }
+
+    if (result.totp) {
+      this.platformUtilsService.copyToClipboard(result.totp);
     }
 
     this.updateLastUsedInlineMenuCipher(inlineMenuCipherId, cipher);
@@ -1864,20 +1971,25 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return {};
     }
 
-    let elementOffset = height * 0.37;
-    if (height >= 35) {
-      elementOffset = height >= 50 ? height * 0.47 : height * 0.42;
+    // Cap the height used for sizing the button so tall fields (e.g. textareas for SSH public
+    // keys) produce a button comparable to a normal single-line input rather than scaling the
+    // icon up. Typical single-line inputs are under this cap and unaffected.
+    const sizingHeight = Math.min(height, 40);
+
+    let elementOffset = sizingHeight * 0.37;
+    if (sizingHeight >= 35) {
+      elementOffset = sizingHeight >= 50 ? sizingHeight * 0.47 : sizingHeight * 0.42;
     }
 
     const fieldPaddingRight = parseInt(paddingRight ?? "", 10);
     const fieldPaddingLeft = parseInt(paddingLeft ?? "", 10);
-    const elementHeight = height - elementOffset;
+    const elementHeight = sizingHeight - elementOffset;
 
     const elementTopPosition = subFrameTopOffset + top + elementOffset / 2;
     const elementLeftPosition =
       fieldPaddingRight > fieldPaddingLeft
-        ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
-        : subFrameLeftOffset + left + width - height + elementOffset / 2;
+        ? subFrameLeftOffset + left + width - sizingHeight - (fieldPaddingRight - elementOffset + 2)
+        : subFrameLeftOffset + left + width - sizingHeight + elementOffset / 2;
 
     const button = {
       top: Math.round(elementTopPosition),
@@ -2172,10 +2284,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       // If our currently focused field is for a login form, we want to fill the current password field.
       // Otherwise, map over all page details and filter out fields that are not new password fields.
+      // Targeted fields qualified as `newPassword` by targeting rules bypass the heuristic
+      // check; the rules represent an explicit assertion that the field is a new-password
+      // field, and heuristic keyword tokenization can miss compact names like `confirmPassword`.
       if (!this.focusedFieldMatchesFillType(CipherType.Login)) {
         pageDetails = this.getFilteredPageDetails(
           pageDetails,
-          this.inlineMenuFieldQualificationService.isNewPasswordField,
+          (field) =>
+            (field.targeted === true &&
+              field.fieldQualifier === AutofillTargetingRuleTypes.newPassword) ||
+            this.inlineMenuFieldQualificationService.isNewPasswordField(field),
         );
       }
 
@@ -2186,7 +2304,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         uri: "",
       });
 
-      await this.autofillService.doAutoFill({
+      const { didAutofill } = await this.autofillService.doAutoFill({
         tab: senderTab,
         cipher,
         pageDetails,
@@ -2197,8 +2315,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         inlineMenuFillType: InlineMenuFillTypes.PasswordGeneration,
       });
 
+      // The follow-on modify-login message only makes sense when a password was actually filled;
+      // gate on the outcome so a no-fill does not arm it (a no-fill previously aborted here by throw).
       const frameId = this.focusedFieldData?.frameId;
-      if (frameId !== null && frameId !== undefined) {
+      if (didAutofill && frameId !== null && frameId !== undefined) {
         globalThis.setTimeout(() => {
           BrowserApi.tabSendMessage(
             senderTab,
@@ -2230,10 +2350,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
+    // On password-generation fields the save prompt should only fire once a
+    // new password has actually been entered. Gating on `loginData.password`
+    // here would surface the prompt as soon as the *current* password field
+    // on an update form is filled, which isn't a "save new login" signal.
+    const hasAnyPassword = !!(loginData.password || loginData.newPassword);
+    const hasNewPassword = !!loginData.newPassword;
+
     return (
-      (this.shouldShowInlineMenuAccountCreation() ||
-        this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration)) &&
-      !!(loginData.password || loginData.newPassword)
+      (hasAnyPassword && this.shouldShowInlineMenuAccountCreation()) ||
+      (hasNewPassword && this.focusedFieldMatchesFillType(InlineMenuFillTypes.PasswordGeneration))
     );
   }
 
@@ -2396,6 +2522,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async getInlineMenuIdentitiesVisibility(): Promise<boolean> {
     return await firstValueFrom(this.autofillSettingsService.showInlineMenuIdentities$);
+  }
+
+  /**
+   * Gets the inline menu's visibility setting for SSH keys from the settings service.
+   */
+  private async getInlineMenuSshKeysVisibility(): Promise<boolean> {
+    return await firstValueFrom(this.autofillSettingsService.showInlineMenuSshKeys$);
   }
 
   /**
@@ -2667,6 +2800,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Identifies if the current add new item data is for adding a new identity.
+   */
+  private isAddingNewSshKey() {
+    return this.currentAddNewItemData?.addNewCipherType === CipherType.SshKey;
+  }
+
+  /**
    * Updates the current add new item data with the provided login data. If the
    * login data is already present, the data will be merged with the existing data.
    *
@@ -2805,6 +2945,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       login,
       card,
       identity,
+      addNewCipherType,
     });
 
     if (!cipherView) {
@@ -2848,6 +2989,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     login,
     card,
     identity,
+    addNewCipherType,
   }: OverlayAddNewItemMessage): CipherView | undefined {
     if (login && this.isAddingNewLogin()) {
       return this.buildLoginCipherView(login);
@@ -2860,6 +3002,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (identity && this.isAddingNewIdentity()) {
       return this.buildIdentityCipherView(identity);
     }
+
+    if (this.isAddingNewSshKey()) {
+      return this.buildSshKeyCipherView();
+    }
+  }
+
+  /**
+   * Builds a new, empty SSH key cipher view. SSH keys cannot be captured from the page, so
+   * the add/edit popout is opened with a blank item for the user to fill in.
+   */
+  private buildSshKeyCipherView() {
+    const cipherView = new CipherView();
+    cipherView.name = "";
+    cipherView.folderId = undefined;
+    cipherView.type = CipherType.SshKey;
+    cipherView.sshKey = new SshKeyView();
+
+    return cipherView;
   }
 
   /**
@@ -3366,6 +3526,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
+      useLitComponents: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(

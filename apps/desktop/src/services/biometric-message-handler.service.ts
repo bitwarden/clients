@@ -1,23 +1,25 @@
 import { Injectable } from "@angular/core";
-import { concatMap, firstValueFrom } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsCommands, BiometricsStatus } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
 import { DesktopBiometricsService } from "../key-management/biometrics/desktop.biometrics.service";
 import { LegacyMessage, LegacyMessageWrapper } from "../models/native-messaging";
-import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 const MessageValidTimeout = 10 * 1000;
 const HashAlgorithmForAsymmetricEncryption = "sha1";
@@ -71,23 +73,10 @@ export class BiometricMessageHandlerService {
     private cryptoFunctionService: CryptoFunctionService,
     private encryptService: EncryptService,
     private logService: LogService,
-    private desktopSettingService: DesktopSettingsService,
     private biometricsService: DesktopBiometricsService,
     private accountService: AccountService,
     private authService: AuthService,
-    private configService: ConfigService,
-  ) {
-    this.desktopSettingService.browserIntegrationEnabled$
-      .pipe(
-        concatMap(async (browserIntegrationEnabled) => {
-          if (!browserIntegrationEnabled) {
-            this.logService.info("[Native Messaging IPC] Clearing connected apps");
-            await this.connectedApps.clear();
-          }
-        }),
-      )
-      .subscribe();
-  }
+  ) {}
 
   private connectedApps: ConnectedApps = new ConnectedApps();
 
@@ -95,11 +84,6 @@ export class BiometricMessageHandlerService {
     this.logService.debug(
       "[BiometricMessageHandlerService] Initializing biometric message handler",
     );
-
-    const linuxV2Enabled = await this.configService.getFeatureFlag(FeatureFlag.LinuxBiometricsV2);
-    if (linuxV2Enabled) {
-      await this.biometricsService.enableLinuxV2Biometrics();
-    }
   }
 
   async handleMessage(msg: LegacyMessageWrapper) {
@@ -268,14 +252,15 @@ export class BiometricMessageHandlerService {
     remotePublicKey: Uint8Array,
     appId: string,
   ) {
-    const secret = await this.cryptoFunctionService.randomBytes(64);
+    await SdkLoadService.Ready;
+    const secret = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
 
-    connectedApp.sessionSecret = new SymmetricCryptoKey(secret).keyB64;
+    connectedApp.sessionSecret = secret.keyB64;
     await this.connectedApps.set(appId, connectedApp);
 
     this.logService.info("[Native Messaging IPC] Setting up secure channel");
     const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
-      secret,
+      secret.toEncoded(),
       remotePublicKey,
       HashAlgorithmForAsymmetricEncryption,
     );
