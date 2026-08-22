@@ -117,6 +117,8 @@ export {
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
+export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
+
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
 

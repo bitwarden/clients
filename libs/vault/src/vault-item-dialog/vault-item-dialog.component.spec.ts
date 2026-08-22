@@ -221,6 +221,39 @@ describe("VaultItemDialogComponent", () => {
     });
   });
 
+  describe("partial-data (gated) ciphers", () => {
+    beforeEach(() => {
+      component.setTestParams({ mode: "view" });
+      component["canEdit"] = true;
+      component["canDelete"] = true;
+    });
+
+    it("isPartialData is false for a normal cipher", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["isPartialData"]).toBe(false);
+    });
+
+    it("isPartialData is true when the cipher is partial", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
+
+      expect(component["isPartialData"]).toBe(true);
+    });
+
+    it("hides Edit for a partial-data cipher even when the user could otherwise edit", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login, partial: true } as any);
+
+      // Saving a partial cipher would clobber the server-suppressed fields.
+      expect(component["showEdit"]).toBe(false);
+    });
+
+    it("shows Edit for the same cipher once it is no longer partial", () => {
+      component.setTestCipher({ id: "c1", type: CipherType.Login } as any);
+
+      expect(component["showEdit"]).toBe(true);
+    });
+  });
+
   describe("submitButtonText$", () => {
     it("returns 'unArchiveAndSave' when user has no premium and cipher is archived", async () => {
       Object.defineProperty(component, "userHasPremium$", {
