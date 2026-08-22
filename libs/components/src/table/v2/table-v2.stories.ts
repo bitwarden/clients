@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from "@angular/common";
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, FormRecord, ReactiveFormsModule } from "@angular/forms";
@@ -128,11 +129,16 @@ const COLLECTION_ORGS = [
   {
     name: "Acme corporation",
     collections: [
-      { id: "eng", name: "Engineering" },
+      {
+        id: "eng",
+        name: "Engineering",
+        children: [
+          { id: "monitoring", name: "Monitoring" },
+          { id: "infra", name: "Infrastructure", children: [{ id: "ci", name: "CI/CD" }] },
+        ],
+      },
       { id: "ops", name: "Operations" },
       { id: "pm", name: "Project management" },
-      { id: "infra", name: "Infrastructure" },
-      { id: "monitoring", name: "Monitoring" },
       { id: "security", name: "Security" },
       { id: "design", name: "Design" },
       { id: "marketing", name: "Marketing" },
@@ -181,6 +187,7 @@ type VaultFilters = {
     SearchModule,
     ButtonModule,
     LayoutComponent,
+    NgTemplateOutlet,
   ],
   template: `
     <bit-layout>
@@ -213,6 +220,16 @@ type VaultFilters = {
                 @for (collection of org.collections; track collection.id) {
                   <bit-filter-option [value]="collection.id">
                     {{ collection.name }}
+                    @for (child of collection.children ?? []; track child.id) {
+                      <bit-filter-option [value]="child.id">
+                        {{ child.name }}
+                        @for (grandchild of child.children ?? []; track grandchild.id) {
+                          <bit-filter-option [value]="grandchild.id">
+                            {{ grandchild.name }}
+                          </bit-filter-option>
+                        }
+                      </bit-filter-option>
+                    }
                   </bit-filter-option>
                 }
               </bit-filter-section>
