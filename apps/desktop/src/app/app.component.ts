@@ -10,7 +10,7 @@ import {
   ViewChild,
   ViewContainerRef,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { filter, firstValueFrom, lastValueFrom, map, Subject, takeUntil, timeout } from "rxjs";
 
@@ -97,7 +97,7 @@ const SyncInterval = 6 * 60 * 60 * 1000; // 6 hours
   template: `
     <ng-template #settings></ng-template>
     @if (showHeader$ | async) {
-      <div class="header"></div>
+      <div class="header" [class.vfo1]="vfo1Enabled()"></div>
     }
 
     <div id="container">
@@ -185,6 +185,12 @@ export class AppComponent implements OnInit, OnDestroy {
     const langSubscription = this.documentLangSetter.start();
     this.destroyRef.onDestroy(() => langSubscription.unsubscribe());
   }
+
+  // remove when VFO1 flag is removed
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   ngOnInit() {
     this.accountService.activeAccount$.pipe(takeUntil(this.destroy$)).subscribe((account) => {
