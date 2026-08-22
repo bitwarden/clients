@@ -138,83 +138,161 @@
       <bit-search [ngModel]="searchTerm()" (ngModelChange)="setSearchTerm($event)"></bit-search>
     </div>
   }
-  <div
-    role="group"
-    [attr.aria-label]="placeholderText()"
-    class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
-  >
-    <!-- Single-select always offers "All" at the top; selecting it clears the chip. -->
-    @if (!multiple()) {
-      @let allSelected = isSelected(clearValue);
-      <label [class]="optionRowClasses">
-        <input
-          class="tw-sr-only"
-          type="radio"
-          [attr.name]="radioName"
-          [checked]="allSelected"
-          (change)="toggle(clearValue)"
-        />
-        <ng-container
-          *ngTemplateOutlet="indicator; context: { $implicit: allSelected }"
-        ></ng-container>
-        <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ unsetLabel() ?? ("all" | i18n) }}</span>
-        @if (unsetCount() != null) {
-          <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
-            unsetCount()
-          }}</span>
-        }
-      </label>
-    }
-
-    @for (entry of entries(); track $index) {
-      @if (asSection(entry); as section) {
-        @if (sectionVisible(section)) {
-          @if (section.collapsible()) {
-            <button
-              type="button"
-              class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-border-none tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-start tw-text-sm tw-font-semibold tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-z-10 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
-              [attr.aria-expanded]="section.open()"
-              (click)="section.toggle()"
+  @if (multiple()) {
+    <!--
+      Multi-select is a tree: rows are selectable, rows can own rows, and a parent can
+      be partly selected — `treeitem` is the only role carrying expansion and a mixed
+      checked state at once. Presented flat, with each row declaring its own level and
+      sibling position, and navigated as one tab stop by `onTreeKeydown`.
+    -->
+    <div
+      #tree
+      role="tree"
+      aria-multiselectable="true"
+      [attr.aria-label]="placeholderText()"
+      class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+      (keydown)="onTreeKeydown($event)"
+    >
+      @for (node of treeNodes(); track $index; let i = $index) {
+        @let expandable = nodeExpandable(node);
+        @let checked = nodeChecked(node);
+        <div
+          role="treeitem"
+          [class]="optionRowClasses"
+          [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.25"
+          [attr.aria-level]="node.level"
+          [attr.aria-setsize]="node.setsize"
+          [attr.aria-posinset]="node.posinset"
+          [attr.aria-expanded]="expandable ? nodeExpanded(node) : null"
+          [attr.aria-checked]="checked"
+          [attr.aria-disabled]="nodeDisabled(node) ? true : null"
+          [tabindex]="i === activeIndex() ? 0 : -1"
+          (focus)="setActiveIndex(i)"
+          (click)="nodeDisabled(node) ? null : activateNode(node)"
+        >
+          @if (expandable) {
+            <!-- Driven by the row's own Left/Right keys, so it isn't a tab stop of its own. -->
+            <span
+              class="tw-flex tw-size-4 tw-flex-none tw-items-center tw-justify-center tw-text-fg-body-subtle"
+              aria-hidden="true"
+              (click)="toggleNodeExpanded(node); $event.stopPropagation()"
             >
               <bit-icon
-                [name]="section.open() ? 'bwi-angle-up' : 'bwi-angle-down'"
-                class="tw-flex-none tw-text-muted"
-                aria-hidden="true"
+                [name]="nodeExpanded(node) ? 'bwi-angle-down' : 'bwi-angle-right'"
+                class="tw-text-xs"
               ></bit-icon>
-              <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
-              <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
-            </button>
-          } @else {
-            <div
-              class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-semibold tw-text-muted"
-            >
-              <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
-              <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
-            </div>
+            </span>
+          } @else if (hasNesting()) {
+            <span class="tw-size-4 tw-flex-none" aria-hidden="true"></span>
           }
-          @if (section.open()) {
-            @for (option of section.options(); track option.value()) {
-              @if (optionVisible(option)) {
-                <ng-container
-                  *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
-                ></ng-container>
+          @if (checked !== null) {
+            <ng-container
+              *ngTemplateOutlet="
+                indicator;
+                context: { $implicit: checked === 'true', partial: checked === 'mixed' }
+              "
+            ></ng-container>
+          }
+          <span
+            class="tw-min-w-0 tw-flex-1 tw-truncate"
+            [class.tw-font-semibold]="node.kind === 'section'"
+            >{{ nodeLabel(node) }}</span
+          >
+          @if (node.kind === "section") {
+            <bit-berry [value]="sectionSelectedCount(node.section)"></bit-berry>
+          } @else {
+            @let count = optionCounts().get(node.option);
+            @if (count != null) {
+              <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+                count
+              }}</span>
+            }
+          }
+        </div>
+      }
+      @if (noResults()) {
+        <div class="tw-px-3 tw-py-2 tw-text-sm tw-text-muted">{{ "noMatchingItems" | i18n }}</div>
+      }
+    </div>
+  } @else {
+    <div
+      role="group"
+      [attr.aria-label]="placeholderText()"
+      class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
+    >
+      <!-- Single-select always offers "All" at the top; selecting it clears the chip. -->
+      @if (!multiple()) {
+        @let allSelected = isSelected(clearValue);
+        <label [class]="optionRowClasses">
+          <input
+            class="tw-sr-only"
+            type="radio"
+            [attr.name]="radioName"
+            [checked]="allSelected"
+            (change)="toggle(clearValue)"
+          />
+          <ng-container
+            *ngTemplateOutlet="indicator; context: { $implicit: allSelected }"
+          ></ng-container>
+          <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ unsetLabel() ?? ("all" | i18n) }}</span>
+          @if (unsetCount() != null) {
+            <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
+              unsetCount()
+            }}</span>
+          }
+        </label>
+      }
+
+      @for (entry of entries(); track $index) {
+        @if (asSection(entry); as section) {
+          @if (sectionVisible(section)) {
+            @if (section.collapsible()) {
+              <button
+                type="button"
+                class="tw-flex tw-w-full tw-items-center tw-gap-2 tw-border-none tw-bg-transparent tw-px-3 tw-py-1.5 tw-text-start tw-text-sm tw-font-semibold tw-text-main hover:tw-bg-secondary-100 focus-visible:tw-z-10 focus-visible:tw-outline-none focus-visible:tw-ring-2 focus-visible:tw-ring-inset focus-visible:tw-ring-border-focus"
+                [attr.aria-expanded]="section.open()"
+                (click)="section.toggle()"
+              >
+                <bit-icon
+                  [name]="section.open() ? 'bwi-angle-up' : 'bwi-angle-down'"
+                  class="tw-flex-none tw-text-muted"
+                  aria-hidden="true"
+                ></bit-icon>
+                <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
+                <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
+              </button>
+            } @else {
+              <div
+                class="tw-flex tw-items-center tw-gap-2 tw-px-3 tw-py-1.5 tw-text-sm tw-font-semibold tw-text-muted"
+              >
+                <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ section.label() }}</span>
+                <bit-berry [value]="sectionSelectedCount(section)"></bit-berry>
+              </div>
+            }
+            @if (section.open()) {
+              @for (option of section.options(); track option.value()) {
+                @if (optionVisible(option)) {
+                  <ng-container
+                    *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
+                  ></ng-container>
+                }
               }
             }
           }
-        }
-      } @else if (asOption(entry); as option) {
-        @if (optionVisible(option)) {
-          <ng-container
-            *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
-          ></ng-container>
+        } @else if (asOption(entry); as option) {
+          @if (optionVisible(option)) {
+            <ng-container
+              *ngTemplateOutlet="optionRow; context: { $implicit: option, depth: 0 }"
+            ></ng-container>
+          }
         }
       }
-    }
 
-    @if (noResults()) {
-      <div class="tw-px-3 tw-py-2 tw-text-sm tw-text-muted">{{ "noMatchingItems" | i18n }}</div>
-    }
-  </div>
+      @if (noResults()) {
+        <div class="tw-px-3 tw-py-2 tw-text-sm tw-text-muted">{{ "noMatchingItems" | i18n }}</div>
+      }
+    </div>
+  }
 </ng-template>
 
 <bit-menu #menu ariaRole="dialog" [ariaLabel]="placeholderText()" (closed)="onMenuClosed()">
