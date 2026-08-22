@@ -49,6 +49,9 @@ import {
 /** Show the in-menu search once the menu has more than this many options. */
 const SEARCH_THRESHOLD = 10;
 
+/** Source of unique radio-group names — see {@link FilterMenuComponent.radioName}. */
+let nextRadioGroupId = 0;
+
 /**
  * Sentinel value for the auto-injected "All" option on a single-select chip:
  * selecting it clears the chip, and it reads as selected while nothing else is.
@@ -154,7 +157,28 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     "tw-gap-2",
     ...menuItemBaseStyles,
     ...menuItemPrimaryStyles,
+    // The row is a `label` wrapping a visually hidden input, so focus and disabled
+    // land on the input rather than the row. Mirror both onto the row, and drop the
+    // margin a bare `label` would otherwise carry.
+    "tw-mb-0",
+    "has-[:focus-visible]:tw-z-50",
+    "has-[:focus-visible]:tw-rounded-lg",
+    "has-[:focus-visible]:tw-ring-2",
+    "has-[:focus-visible]:tw-ring-inset",
+    "has-[:focus-visible]:tw-ring-border-focus",
+    "has-[:focus-visible]:tw-bg-bg-brand-softer",
+    "has-[:focus-visible]:tw-text-fg-heading",
+    "has-[:disabled]:tw-cursor-default",
+    "has-[:disabled]:hover:tw-bg-background",
+    "has-[:disabled]:!tw-text-fg-inactive",
   ];
+
+  /**
+   * Shared `name` for a single-select menu's radios. Radios only behave as one group
+   * — arrow keys moving between them, one tab stop for the set — when they share a
+   * name, and it must be unique per chip so two menus don't merge into one group.
+   */
+  protected readonly radioName = `bit-filter-menu-${nextRadioGroupId++}`;
 
   /** The chip's value, read by the host bridge. */
   readonly value = computed<unknown>(() => this._value());
