@@ -20,7 +20,7 @@ import { OverflowItemDirective } from "../overflow-list";
   host: {
     role: "separator",
     "aria-orientation": "vertical",
-    class: "tw-mx-1 tw-inline-block tw-h-6 tw-w-px tw-bg-secondary-500",
+    class: "tw-mx-2 tw-inline-block tw-h-6 tw-w-px tw-bg-border-base",
   },
   // Lets a `bitOverflowList` ancestor measure the divider; inert with no such ancestor.
   hostDirectives: [OverflowItemDirective],

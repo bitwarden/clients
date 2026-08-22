@@ -3,8 +3,11 @@ import {
   Component,
   ElementRef,
   booleanAttribute,
+  computed,
+  contentChildren,
   forwardRef,
   input,
+  linkedSignal,
   viewChild,
 } from "@angular/core";
 
@@ -16,10 +19,25 @@ import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
  * text — it renders no visible UI of its own. The chip draws the actual row (indicator,
  * label, count) and handles selection, so the same options render independently in the
  * popover and the responsive filter dialog without sharing one set of projected nodes.
+ *
+ * Options nest: project `bit-filter-option`s inside one to make it an expandable
+ * parent (e.g. a collection and the collections beneath it). Selecting a parent
+ * selects everything under it, and a parent renders partially selected while only
+ * some of its subtree is.
+ *
+ * @example
+ * ```html
+ * <bit-filter-option [value]="'engineering'">
+ *   Engineering
+ *   <bit-filter-option [value]="'monitoring'">Monitoring</bit-filter-option>
+ * </bit-filter-option>
+ * ```
  */
 @Component({
   selector: "bit-filter-option",
-  template: `<span #label><ng-content></ng-content></span>`,
+  // Child options are projected past the label so they don't land in its text.
+  template: `<span #label><ng-content></ng-content></span
+    ><ng-content select="bit-filter-option"></ng-content>`,
   changeDetection: ChangeDetectionStrategy.OnPush,
   // Never shown directly; the chip renders the visible row from this declaration.
   host: { class: "tw-hidden" },
@@ -32,19 +50,37 @@ export class FilterOptionComponent<T = unknown> implements FilterEntry {
   readonly value = input.required<T>();
 
   /**
-   * Optional trailing count. Overrides the host's automatic faceted count (how many
-   * rows match this option given the other active filters) — set it for server-side
-   * filtering, where the host can't compute the count itself.
+   * Optional trailing count. Overrides the host's automatic count (how many rows match
+   * this option) — set it for server-side filtering, where the host can't compute the
+   * count itself.
    */
   readonly count = input<number>();
 
   /** Whether the option is selectable. */
   readonly disabled = input(false, { transform: booleanAttribute });
 
+  /** Whether a parent option starts expanded. Ignored when it has no children. */
+  readonly expanded = input(false, { transform: booleanAttribute });
+
+  /** Directly nested options — a non-empty list makes this row an expandable parent. */
+  readonly children = contentChildren<FilterOptionComponent>(
+    forwardRef(() => FilterOptionComponent),
+  );
+
+  /** Whether this option has anything nested under it. */
+  readonly hasChildren = computed(() => this.children().length > 0);
+
+  /** Expansion state, seeded from `expanded` and thereafter driven by the chip's row. */
+  readonly open = linkedSignal(() => this.expanded());
+
   private readonly labelEl = viewChild<ElementRef<HTMLElement>>("label");
 
   /** The projected label text — the chip renders it, and reads it for search and the summary. */
   label(): string {
     return this.labelEl()?.nativeElement.textContent?.trim() ?? "";
+  }
+
+  toggleOpen(): void {
+    this.open.update((isOpen) => !isOpen);
   }
 }

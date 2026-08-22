@@ -1,5 +1,7 @@
 import { InjectionToken, Signal, TemplateRef } from "@angular/core";
 
+import { BitwardenIcon } from "../shared/icon";
+
 /**
  * What a chip exposes to a host bridge: a keyed, aggregated value. A filterable
  * host (e.g. `bit-table-v2`) collects these into a `{ key: value }` object, the
@@ -34,9 +36,10 @@ export interface FilterHost {
   registerFilter(control: FilterControl): void;
   unregisterFilter(control: FilterControl): void;
   /**
-   * Faceted count for one of a chip's options: how many rows match if the chip's
-   * `key` is pinned to `value`, with every other active filter still applied.
-   * Returns `undefined` when the host can't compute it (e.g. server-side, with no
+   * Count for one of a chip's options: how many rows match if the chip's `key` is
+   * pinned to `value`, ignoring every other filter — an absolute count, not a
+   * faceted one, so it doesn't shift as unrelated filters change. Returns
+   * `undefined` when the host can't compute it (e.g. server-side, with no
    * client-side predicate), so the chip falls back to an option's explicit `count`.
    * Optional — a host that can't count omits it.
    */
@@ -80,10 +83,17 @@ export interface FilterPresenter {
   readonly key: Signal<string>;
   /** Row + drill-in title — the chip's `placeholderText` or the toggle's `label`. */
   readonly label: Signal<string>;
+  /** Leading icon for the filter's row, when the consumer supplies one. */
+  readonly icon: Signal<BitwardenIcon | undefined>;
   /** Whether the filter has a selection (drives the row's active dot and the applied count). */
   readonly active: Signal<boolean>;
   /** Selected-options summary for the row, e.g. "Login"; empty when none. */
   readonly summary: Signal<string>;
+  /**
+   * The same selection as {@link summary}, unjoined, so a surface that has to fit it
+   * into a fixed width can measure and drop labels individually.
+   */
+  readonly summaryLabels: Signal<readonly string[]>;
   /**
    * The options to stamp on a drill-in page. `undefined` means the filter has no
    * drill-in (a toggle), so its row flips it in place via {@link flip}.
