@@ -1,0 +1,56 @@
+/**
+ * End slot children get a margin on both sides, keyed by content type: 8px for text and links, 4px
+ * for buttons, badges and chips, 0 for icon buttons. Margins never collapse, so the space between
+ * two neighbors is the sum of the two. The outer edges belong to the parent flex `gap` and the
+ * slot's own `pe-*`, so the first and last child drop theirs.
+ *
+ * Global because these selectors must reach projected content, which is often wrapped several
+ * components deep (e.g. `app-item-copy-actions > vault-item-copy-actions > bit-item-action >
+ * button`) — hence `:is(x, :has(x))`, matching a child that is `x` or merely contains one.
+ */
+
+/* Tiers only set the custom property, so they can't out-specify the edge overrides below. */
+[data-bit-item-end-slot] > * {
+  --bit-end-slot-gutter: 0.5rem; /* Text, links, and anything unrecognized. */
+
+  margin-inline: var(--bit-end-slot-gutter);
+}
+
+[data-bit-item-end-slot] > *:first-child {
+  margin-inline-start: 0;
+}
+
+[data-bit-item-end-slot] > *:last-child {
+  margin-inline-end: 0;
+}
+
+/* Buttons, badges, and chips. Bare `button` covers the chip and `bitButton` button forms; links
+ * stay at 8px even when rendered as a button. */
+[data-bit-item-end-slot]
+  > *:is(button:not([bitLink]), a[bitButton], a[bit-chip-action], [bitBadge], bit-badge, bit-chip),
+[data-bit-item-end-slot]
+  > *:has(
+    button:not([bitLink]),
+    a[bitButton],
+    a[bit-chip-action],
+    [bitBadge],
+    bit-badge,
+    bit-chip
+  ) {
+  --bit-end-slot-gutter: 0.25rem;
+}
+
+/* Icon buttons tie the tier above on specificity, so keep this rule last. */
+[data-bit-item-end-slot] > *:is(button[bitIconButton], :has(button[bitIconButton])) {
+  --bit-end-slot-gutter: 0px;
+}
+
+/* Wrappers like `vault-item-copy-actions` ship spacing for standalone use; in here the tiers own it. */
+[data-bit-item-end-slot] > *:has(button[bitIconButton]),
+[data-bit-item-end-slot] > *:has(button[bitIconButton]) * {
+  gap: 0;
+}
+
+[data-bit-item-end-slot] > *:has(button[bitIconButton]) button[bitIconButton] {
+  margin-inline: 0;
+}
