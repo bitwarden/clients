@@ -183,7 +183,10 @@ export class MemberActionsService {
         );
 
         if (resendUsers.length > 0) {
-          await this.bulkReinvite(organization, resendUsers);
+          const retry = await this.bulkReinvite(organization, resendUsers);
+          const retriedIds = new Set<string>(resendUsers.map((u) => u.id));
+          result.successful = [...result.successful, ...retry.successful];
+          result.failed = [...result.failed.filter((f) => !retriedIds.has(f.id)), ...retry.failed];
         }
       }
     } catch (error) {

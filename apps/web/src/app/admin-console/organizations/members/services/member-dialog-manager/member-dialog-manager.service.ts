@@ -1,10 +1,8 @@
 import { Injectable, WritableSignal } from "@angular/core";
 import { firstValueFrom, lastValueFrom, map, Observable } from "rxjs";
 
-import { OrganizationUserBulkResponse } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { ProviderUserBulkResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-user-bulk.response";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationBillingMetadataResponse } from "@bitwarden/common/billing/models/response/organization-billing-metadata.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -29,7 +27,6 @@ import { BulkProgressDialogComponent } from "../../components/bulk/bulk-progress
 import { BulkReinviteFailureDialogComponent } from "../../components/bulk/bulk-reinvite-failure-dialog.component";
 import { BulkRemoveDialogComponent } from "../../components/bulk/bulk-remove-dialog.component";
 import { BulkRestoreRevokeComponent } from "../../components/bulk/bulk-restore-revoke.component";
-import { BulkStatusComponent } from "../../components/bulk/bulk-status.component";
 import { EditMemberDialogComponent } from "../../components/edit-member-dialog";
 import { InviteMembersDialogComponent } from "../../components/invite-members-dialog";
 import { openUserAddEditDialog } from "../../components/member-dialog";
@@ -253,24 +250,6 @@ export class MemberDialogManagerService {
     const dialogRef = BulkEnablePrivilegedControlsDialogComponent.open(this.dialogService, {
       orgId: organization.id,
       users: eligibleUsers,
-    });
-
-    await lastValueFrom(dialogRef.closed);
-  }
-
-  async openBulkStatusDialog(
-    users: OrganizationUserView[],
-    filteredUsers: OrganizationUserView[],
-    request: Promise<OrganizationUserBulkResponse[] | ProviderUserBulkResponse[]>,
-    successMessage: string,
-  ): Promise<void> {
-    const dialogRef = BulkStatusComponent.open(this.dialogService, {
-      data: {
-        users: users,
-        filteredUsers: filteredUsers,
-        request: request,
-        successfulMessage: successMessage,
-      },
     });
 
     await lastValueFrom(dialogRef.closed);
