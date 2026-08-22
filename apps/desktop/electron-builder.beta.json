@@ -71,6 +71,7 @@
       "CFBundleDevelopmentRegion": "en"
     },
     "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "icon": "icon.beta.icns",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
     "extraFiles": [
@@ -93,7 +94,7 @@
     "artifactName": "Bitwarden-${version}-${arch}-mac.${ext}"
   },
   "dmg": {
-    "icon": "dmg.icns",
+    "icon": "dmg.beta.icns",
     "background": "resources/background.png",
     "sign": false,
     "contents": [
@@ -117,6 +118,7 @@
   },
   "win": {
     "electronUpdaterCompatibility": ">=0.0.1",
+    "icon": "icon.beta.ico",
     "target": ["portable", "nsis-web", "appx"],
     "signExts": [".dll", ".node"],
     "signtoolOptions": {
