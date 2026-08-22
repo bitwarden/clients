@@ -50,11 +50,50 @@ import { FilterMenuModule } from "./filter-menu.module";
 })
 class FilterMenuDemoComponent {}
 
+/**
+ * Options nest by projection: put `bit-filter-option`s inside one to make it an
+ * expandable parent.
+ *
+ * Projection and content queries are both static relative to where a template is
+ * declared, so nesting is spelled out in markup (literally, or with an inline
+ * `@for` per level) rather than recursed through `ngTemplateOutlet` — depth is
+ * whatever the template writes out.
+ */
+@Component({
+  selector: "filter-menu-nested-demo",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [FilterMenuModule],
+  template: `
+    <div class="tw-flex tw-flex-wrap tw-items-start tw-gap-2 tw-p-4">
+      <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+        <bit-filter-option [value]="'eng'" [count]="15" expanded>
+          Engineering
+          <bit-filter-option [value]="'monitoring'" [count]="20">Monitoring</bit-filter-option>
+          <bit-filter-option [value]="'infra'" [count]="6">
+            Infrastructure
+            <bit-filter-option [value]="'cicd'" [count]="2">CI/CD</bit-filter-option>
+          </bit-filter-option>
+        </bit-filter-option>
+        <bit-filter-option [value]="'ops'" [count]="3">Operations</bit-filter-option>
+      </bit-filter-menu>
+
+      <bit-filter-menu key="folder" placeholderText="My folders" multiple>
+        <bit-filter-option [value]="'work'" [count]="9">
+          Work
+          <bit-filter-option [value]="'clients'" [count]="4">Clients</bit-filter-option>
+        </bit-filter-option>
+        <bit-filter-option [value]="'personal'" [count]="5">Personal</bit-filter-option>
+      </bit-filter-menu>
+    </div>
+  `,
+})
+class FilterMenuNestedDemoComponent {}
+
 export default {
   title: "Component Library/Filter Menu",
   decorators: [
     moduleMetadata({
-      imports: [FilterMenuDemoComponent, FilterMenuModule],
+      imports: [FilterMenuDemoComponent, FilterMenuNestedDemoComponent, FilterMenuModule],
       providers: [
         {
           provide: I18nService,
@@ -103,5 +142,20 @@ export const IconTiles: Story = {
         </bit-filter-menu>
       </div>
     `,
+  }),
+};
+
+/**
+ * Nested options. Selecting a parent selects everything beneath it; clearing it
+ * clears the same set. A parent whose subtree is only partly selected draws
+ * indeterminate, and that propagates up through every level — uncheck CI/CD and
+ * both Infrastructure and Engineering go indeterminate.
+ *
+ * Searching keeps a parent visible while anything beneath it matches, so a nested
+ * match is reachable through its ancestors instead of being hidden with them.
+ */
+export const NestedOptions: Story = {
+  render: () => ({
+    template: `<filter-menu-nested-demo></filter-menu-nested-demo>`,
   }),
 };
