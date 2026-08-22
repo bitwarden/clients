@@ -1,15 +1,20 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
-import { DialogService, NavigationModule } from "@bitwarden/components";
+import { UserId } from "@bitwarden/common/types/guid";
+import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
+import { DialogService, NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { VaultNavItemType, VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
@@ -55,36 +60,84 @@ Object.defineProperty(window, "matchMedia", {
 describe("DesktopLayoutComponent", () => {
   let component: DesktopLayoutComponent;
   let fixture: ComponentFixture<DesktopLayoutComponent>;
+  let router: Router;
 
+  const userId = "user-id" as UserId;
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
+  const flag$ = new BehaviorSubject<boolean>(false);
+  const viewModel$ = new BehaviorSubject<VaultsNavViewModel>({
+    vaults: [
+      {
+        id: userId,
+        label: "myVault",
+        color: "brand",
+        icon: "bwi-user",
+        type: VaultNavItemType.Personal,
+      },
+      {
+        id: "org-id",
+        label: "Acme",
+        color: "purple",
+        icon: "bwi-business",
+        type: VaultNavItemType.Organization,
+      },
+    ],
+    organizationDataOwnership: false,
+  });
+  const canArchive$ = new BehaviorSubject<boolean>(true);
+  const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
+
+  const i18nService = mock<I18nService>();
+  const vaultNavService = mock<VaultNavService>();
+  const cipherArchiveService = mock<CipherArchiveService>();
+  const premiumUpgradePromptService = mock<PremiumUpgradePromptService>();
+
+  /** Trimmed text of every rendered nav item, group, and section heading, in document order. */
+  const navText = () =>
+    Array.from(
+      fixture.nativeElement.querySelectorAll("bit-nav-item, bit-nav-group, bit-nav-section"),
+    )
+      .map((el) => {
+        const element = el as HTMLElement;
+        // Sections render their heading as a sibling of the projected items, so read the heading directly.
+        if (element.tagName.toLowerCase() === "bit-nav-section") {
+          return element.querySelector("[id^='bit-nav-section-']")?.textContent?.trim();
+        }
+        // A group composes its own row from a nav item; the group already reports that text.
+        if (element.parentElement?.tagName.toLowerCase() === "bit-nav-group") {
+          return undefined;
+        }
+        return element.textContent?.trim().split("\n")[0].trim();
+      })
+      .filter((text) => text !== undefined);
+
   beforeEach(async () => {
+    jest.clearAllMocks();
+    flag$.next(false);
+    canArchive$.next(true);
+    archivedCiphers$.next([]);
+
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockReturnValue(of(false));
+    configService.getFeatureFlag$.mockReturnValue(flag$);
+
+    i18nService.t.mockImplementation((key: string) => key);
+    cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
+    cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
+    Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
 
     await TestBed.configureTestingModule({
       imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],
       providers: [
-        {
-          provide: I18nService,
-          useValue: mock<I18nService>(),
-        },
-        {
-          provide: GlobalStateProvider,
-          useValue: fakeGlobalStateProvider,
-        },
-        {
-          provide: DialogService,
-          useValue: mock<DialogService>(),
-        },
-        {
-          provide: SendPolicyService,
-          useValue: { disableSend$: of(false) },
-        },
-        {
-          provide: ConfigService,
-          useValue: configService,
-        },
+        { provide: I18nService, useValue: i18nService },
+        { provide: GlobalStateProvider, useValue: fakeGlobalStateProvider },
+        { provide: DialogService, useValue: mock<DialogService>() },
+        { provide: SendPolicyService, useValue: { disableSend$: of(false) } },
+        { provide: ConfigService, useValue: configService },
+        { provide: VaultNavService, useValue: vaultNavService },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: userId }) } },
+        { provide: CipherArchiveService, useValue: cipherArchiveService },
+        { provide: PremiumUpgradePromptService, useValue: premiumUpgradePromptService },
       ],
     })
       .overrideComponent(DesktopLayoutComponent, {
@@ -92,6 +145,12 @@ describe("DesktopLayoutComponent", () => {
         add: { imports: [MockSendFiltersNavComponent, MockVaultFiltersNavComponent] },
       })
       .compileComponents();
+
+    router = TestBed.inject(Router);
+    jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+    // Nav items only render their text when the side nav is expanded.
+    TestBed.inject(SideNavService).open.set(true);
 
     fixture = TestBed.createComponent(DesktopLayoutComponent);
     component = fixture.componentInstance;
@@ -116,17 +175,40 @@ describe("DesktopLayoutComponent", () => {
     expect(ngContent).toBeTruthy();
   });
 
-  it("renders send filters navigation component", () => {
-    const compiled = fixture.nativeElement;
-    const sendFiltersNav = compiled.querySelector("app-send-filters-nav");
-
-    expect(sendFiltersNav).toBeTruthy();
+  describe("flag off", () => {
+    it("renders the current navigation unchanged", () => {
+      expect(fixture.nativeElement.querySelector("app-vault-filter")).toBeTruthy();
+      expect(fixture.nativeElement.querySelector("app-send-filters-nav")).toBeTruthy();
+      expect(navText()).toEqual(["generator", "importNoun", "exportNoun"]);
+    });
   });
 
-  it("renders vault filters navigation component", () => {
-    const compiled = fixture.nativeElement;
-    const vaultFiltersNav = compiled.querySelector("app-vault-filter");
+  describe("flag on", () => {
+    beforeEach(() => {
+      flag$.next(true);
+      fixture.detectChanges();
+    });
 
-    expect(vaultFiltersNav).toBeTruthy();
+    it("drops the old vault filter and renders the new sections", () => {
+      expect(fixture.nativeElement.querySelector("app-vault-filter")).toBeNull();
+      expect(navText()).toEqual([
+        "allItems",
+        "vaults",
+        "myVault",
+        "Acme",
+        "tools",
+        "generator",
+        "importNoun",
+        "exportNoun",
+        "manage",
+        "myFolders",
+        "archiveNoun",
+        "trash",
+      ]);
+    });
+
+    it("keeps Send in Tools", () => {
+      expect(fixture.nativeElement.querySelector("app-send-filters-nav")).toBeTruthy();
+    });
   });
 });

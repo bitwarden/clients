@@ -14,6 +14,7 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { ChangePasswordComponent } from "@bitwarden/angular/auth/password-management/change-password";
 import { SetInitialPasswordComponent } from "@bitwarden/angular/auth/password-management/set-initial-password/set-initial-password.component";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import {
   DevicesIcon,
   RegistrationUserAddIcon,
@@ -39,13 +40,14 @@ import {
   TwoFactorAuthGuard,
   NewDeviceVerificationComponent,
 } from "@bitwarden/auth/angular";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import {
   LockComponent,
   ConfirmKeyConnectorDomainComponent,
   RemovePasswordComponent,
 } from "@bitwarden/key-management-ui";
-import { vaultFilterLegacyRedirectGuard } from "@bitwarden/vault";
+import { vaultFilterLegacyRedirectGuard, vaultScopeGuard } from "@bitwarden/vault";
 
 import { AccountSwitcherV2Component } from "../auth/components/account-switcher/account-switcher-v2.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
@@ -448,9 +450,22 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
-        component: VaultComponent,
         canActivate: [vaultFilterLegacyRedirectGuard],
         data: { pageTitle: { key: "vault" } } satisfies RouteDataProperties,
+        children: [
+          {
+            path: "",
+            component: VaultComponent,
+          },
+          {
+            path: ":vaultId",
+            component: VaultComponent,
+            canActivate: [
+              canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
+              vaultScopeGuard,
+            ],
+          },
+        ],
       },
       {
         path: "send",
