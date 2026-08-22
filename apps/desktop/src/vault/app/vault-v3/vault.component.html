@@ -19,6 +19,18 @@
     </app-header>
   </div>
   @if (vfo1Foundation()) {
+    <!--
+      The grid renders nothing when the folder in view has no children, so the surrounding padding is
+      guarded too — otherwise it would leave a gap above the table.
+    -->
+    @if (sharedFolderChildren().length !== 0) {
+      <div class="tw-px-8 tw-pb-6">
+        <vault-shared-folder-card-grid
+          [folders]="sharedFolderChildren()"
+          [parentName]="sharedFolderName()"
+        />
+      </div>
+    }
     <app-vault-list-table
       class="tw-flex-1 tw-min-h-0"
       [ciphers]="ciphers"
