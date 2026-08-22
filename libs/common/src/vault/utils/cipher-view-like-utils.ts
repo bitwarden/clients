@@ -167,7 +167,7 @@ export class CipherViewLikeUtils {
     switch (this.getType(cipher)) {
       case CipherType.BankAccount: {
         const bankAccountSubtitle = this.bankAccountSubtitle(cipher, i18nService);
-        return bankAccountSubtitle ?? baseSubtitle;
+        return bankAccountSubtitle ?? "";
       }
       default:
         return baseSubtitle;
