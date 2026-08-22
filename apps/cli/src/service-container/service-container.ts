@@ -25,6 +25,7 @@ import {
   DefaultAuthRequestApiService,
   DefaultLogoutService,
 } from "@bitwarden/auth/common";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
@@ -1201,6 +1202,16 @@ export class ServiceContainer {
 
     await this.migrationRunner.run();
     this.containerService.attachToGlobal(global);
+
+    AutomationDriver.attachToGlobalIfDev(
+      global,
+      this.platformUtilsService,
+      this.configService,
+      this.stateProvider,
+      this.messagingService,
+      { logService: this.logService },
+    );
+
     await this.i18nService.init();
     this.twoFactorService.init();
 

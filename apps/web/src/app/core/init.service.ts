@@ -3,6 +3,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
@@ -14,11 +15,14 @@ import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/sh
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
@@ -54,6 +58,9 @@ export class InitService {
     private sharedUnlockFollowerService: SharedUnlockFollowerService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
+    private platformUtilsService: PlatformUtilsService,
+    private stateProvider: StateProvider,
+    private messagingService: MessagingService,
     private logService: LogService,
   ) {}
 
@@ -109,6 +116,18 @@ export class InitService {
         this.legacyCompatKeyService,
       );
       containerService.attachToGlobal(this.win);
+
+      AutomationDriver.attachToGlobalIfDev(
+        this.win,
+        this.platformUtilsService,
+        this.configService,
+        this.stateProvider,
+        this.messagingService,
+        {
+          reloadProcess: () => this.win.location.reload(),
+          logService: this.logService,
+        },
+      );
     };
   }
 }
