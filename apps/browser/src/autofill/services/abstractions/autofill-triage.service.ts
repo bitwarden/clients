@@ -1,8 +1,15 @@
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
-import { AutofillTriageFieldResult } from "../../types/autofill-triage";
+import { AutofillTriageEngineInfo, AutofillTriageFieldResult } from "../../types/autofill-triage";
 
 export interface AutofillTriageService {
+  /**
+   * Identity of the qualification engine behind this service, when there is
+   * one. Absent only where the service was constructed without an engine —
+   * every engine, the legacy bridge included, reports itself here.
+   */
+  readonly engineInfo?: AutofillTriageEngineInfo;
+
   /**
    * Analyzes a single field to determine why it was qualified (or not qualified) for autofill.
    * Returns a detailed result with all qualification checks performed.

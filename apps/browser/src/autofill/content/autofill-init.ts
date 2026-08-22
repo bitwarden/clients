@@ -1,8 +1,10 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
+import { QualificationEngineCommand } from "../enums/autofill-message.enums";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { OverlayNotificationsContentService } from "../overlay/notifications/abstractions/overlay-notifications-content.service";
+import { QualificationEngineId, toQualificationEngineId } from "../qualification/types/engine-id";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "../services/abstractions/dom-element-visibility.service";
 import { DomQueryService } from "../services/abstractions/dom-query.service";
@@ -38,6 +40,7 @@ class AutofillInit implements AutofillInitInterface {
     clearTargetingRulesCache: () => this.handleClearTargetingRulesCache(),
     startAutofillMonitors: () => this.startMonitoring(),
     stopAutofillMonitors: () => this.stopMonitoring(),
+    updateQualificationEngineId: ({ message }) => this.applyQualificationEngineId(message.engineId),
   };
 
   /**
@@ -49,6 +52,10 @@ class AutofillInit implements AutofillInitInterface {
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
    * @param autofillInlineMenuContentService - The inline menu content service, potentially undefined.
    * @param overlayNotificationsContentService - The overlay notifications content service, potentially undefined.
+   * @param swapQualificationEngine - Replaces the qualification engine this frame's
+   *   services classify through. The bootstrap builds at the default because a
+   *   content script cannot read the feature flag; this is how the background's
+   *   answer arrives. Omitted by callers that don't qualify fields.
    */
   constructor(
     domQueryService: DomQueryService,
@@ -56,6 +63,7 @@ class AutofillInit implements AutofillInitInterface {
     private autofillOverlayContentService?: AutofillOverlayContentService,
     private autofillInlineMenuContentService?: AutofillInlineMenuContentService,
     private overlayNotificationsContentService?: OverlayNotificationsContentService,
+    private swapQualificationEngine?: (id: QualificationEngineId) => void,
   ) {
     this.collectAutofillContentService = new CollectAutofillContentService(
       domElementVisibilityService,
@@ -75,6 +83,52 @@ class AutofillInit implements AutofillInitInterface {
    */
   init() {
     this.setupExtensionMessageListeners();
+    this.requestQualificationEngineId();
+  }
+
+  /**
+   * Asks the background which engine this frame should be qualifying through.
+   *
+   * The bootstrap has already built at the default by the time this runs, and
+   * deliberately so. The round trip happens either way — what waiting for it
+   * would add is holding every frame's content script at `document_start`
+   * until the background answers. Fields are qualified on focus and on
+   * mutation, so a correction arriving a few milliseconds later still lands
+   * before anything is classified. A failed or unanswered request leaves the
+   * default in place, which is the pre-existing behavior.
+   */
+  private requestQualificationEngineId() {
+    if (!this.swapQualificationEngine) {
+      return;
+    }
+
+    void this.sendExtensionMessage(QualificationEngineCommand.request)
+      .then((response: { engineId?: unknown } | null) =>
+        this.applyQualificationEngineId(response?.engineId),
+      )
+      .catch(() => {
+        // Swallowed rather than logged. This runs at `document_start` in every
+        // frame, before the background is guaranteed to be listening, and the
+        // WebExtension `browser.runtime.sendMessage` used on Firefox *rejects*
+        // when nothing receives — where the Chrome path checks
+        // `chrome.runtime.lastError` and resolves null. Without this, a missed
+        // request is one unhandled rejection per frame per page load. The
+        // default engine stays in place, which is the documented outcome.
+      });
+  }
+
+  /**
+   * Swaps the engine, ignoring anything that isn't a recognized id.
+   *
+   * The value crosses a message boundary, so it is narrowed rather than cast.
+   * An unrecognized id leaves the current engine running — selection must never
+   * be able to break qualification outright.
+   */
+  private applyQualificationEngineId(engineId: unknown) {
+    const id = toQualificationEngineId(engineId);
+    if (id) {
+      this.swapQualificationEngine?.(id);
+    }
   }
 
   /**

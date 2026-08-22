@@ -25,6 +25,8 @@ export type AutofillExtensionMessage = {
   addNewCipherType?: CipherType;
   ignoreFieldFocus?: boolean;
   iframeTargetedFields?: { selector: string; fieldType: string; formCategory?: string }[];
+  /** A `QualificationEngineId`, narrowed on receipt rather than trusted as typed. */
+  engineId?: unknown;
   data?: {
     direction?: "previous" | "next" | "current";
     forceCloseInlineMenu?: boolean;
@@ -43,6 +45,7 @@ export type AutofillExtensionMessageHandlers = {
   clearTargetingRulesCache: () => void;
   startAutofillMonitors: () => void;
   stopAutofillMonitors: () => void;
+  updateQualificationEngineId: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
 export interface AutofillInit extends AutofillMonitor {

@@ -26,7 +26,7 @@ import {
   AutofillService,
   PageDetail,
 } from "../../../autofill/services/abstractions/autofill.service";
-import { InlineMenuFieldQualificationService } from "../../../autofill/services/inline-menu-field-qualification.service";
+import { InlineMenuFieldQualificationService } from "../../../autofill/services/abstractions/inline-menu-field-qualifications.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/browser/browser-popup-utils";
 import { devFlagEnabled } from "../../../platform/flags";

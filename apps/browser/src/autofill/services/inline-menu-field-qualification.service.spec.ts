@@ -6,18 +6,18 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import { createAutofillFormMock } from "../spec/autofill-mocks";
 
 import { AutoFillConstants } from "./autofill-constants";
-import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
+import { LegacyInlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
 
 describe("InlineMenuFieldQualificationService", () => {
   let pageDetails: MockProxy<AutofillPageDetails>;
-  let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  let inlineMenuFieldQualificationService: LegacyInlineMenuFieldQualificationService;
 
   beforeEach(() => {
     pageDetails = mock<AutofillPageDetails>({
       forms: {},
       fields: [],
     });
-    inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    inlineMenuFieldQualificationService = new LegacyInlineMenuFieldQualificationService();
   });
 
   describe("isFieldForLoginForm", () => {

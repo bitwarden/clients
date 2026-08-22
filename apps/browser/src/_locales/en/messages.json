@@ -1244,6 +1244,15 @@
     "message": "Automatically clear copied values from your clipboard.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
+  "qualificationEngine": {
+    "message": "Field detection engine"
+  },
+  "qualificationEngineDesc": {
+    "message": "Choose how Bitwarden identifies fields on a page. The change takes effect right away."
+  },
+  "qualificationEngineFollowFlag": {
+    "message": "Default (follow rollout)"
+  },
   "clipboardSettingUpdated": {
     "message": "Clipboard setting updated"
   },

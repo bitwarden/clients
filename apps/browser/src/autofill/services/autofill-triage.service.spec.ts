@@ -2,6 +2,12 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
+import {
+  PageQualification,
+  QualificationEngine,
+} from "../qualification/abstractions/qualification-engine";
+import { FieldRole } from "../qualification/types/field-role";
+import { FormCategory } from "../qualification/types/form-category";
 
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutofillTriageService } from "./autofill-triage.service";
@@ -232,6 +238,90 @@ describe("AutofillTriageService", () => {
       expect(result.ariaLabel).toBeUndefined();
       expect(result.autocomplete).toBeUndefined();
       expect(result.formIndex).toBeUndefined();
+    });
+  });
+
+  describe("engine detail", () => {
+    let engine: MockProxy<QualificationEngine>;
+    let qualification: MockProxy<PageQualification>;
+
+    beforeEach(() => {
+      engine = mock<QualificationEngine>();
+      Object.defineProperty(engine, "id", { value: "scoring" });
+      Object.defineProperty(engine, "name", { value: "Scoring Qualification Engine" });
+      Object.defineProperty(engine, "version", { value: "0.2.0" });
+      // The auto-mocked property would be a truthy jest.fn, and a
+      // legacy-mirroring engine is deliberately not interrogated for detail.
+      Object.defineProperty(engine, "mirrorsLegacy", { value: undefined, configurable: true });
+      qualification = mock<PageQualification>();
+      engine.classify.mockReturnValue(qualification);
+    });
+
+    it("omits engineDetail and engineInfo when no engine is supplied", () => {
+      const legacyOnly = new AutofillTriageService(qualificationService);
+
+      expect(legacyOnly.engineInfo).toBeUndefined();
+      expect(legacyOnly.triageField(mockField, mockPageDetails).engineDetail).toBeUndefined();
+    });
+
+    it("reports the engine identity", () => {
+      const withEngine = new AutofillTriageService(qualificationService, engine);
+
+      expect(withEngine.engineInfo).toEqual({
+        id: "scoring",
+        name: "Scoring Qualification Engine",
+        version: "0.2.0",
+      });
+    });
+
+    it("records roles, contexts and score for a classified field", () => {
+      qualification.fieldFor.mockReturnValue({
+        matchedRoles: new Set([FieldRole.Username]),
+        matchedFormContexts: new Set([FormCategory.Login]),
+        topRole: FieldRole.Username,
+        confidence: "high",
+        score: 0.87,
+        allScores: [],
+      });
+      const withEngine = new AutofillTriageService(qualificationService, engine);
+
+      expect(withEngine.triageField(mockField, mockPageDetails).engineDetail).toEqual({
+        classified: true,
+        topRole: FieldRole.Username,
+        confidence: "high",
+        score: 0.87,
+        matchedRoles: [FieldRole.Username],
+        matchedFormContexts: [FormCategory.Login],
+      });
+    });
+
+    // The case the booleans cannot express: scored-and-rejected looks exactly
+    // like never-scored unless the report says so.
+    it("marks a field the engine never classified", () => {
+      qualification.fieldFor.mockReturnValue(null);
+      const withEngine = new AutofillTriageService(qualificationService, engine);
+
+      expect(withEngine.triageField(mockField, mockPageDetails).engineDetail).toEqual({
+        classified: false,
+        matchedRoles: [],
+        matchedFormContexts: [],
+      });
+    });
+
+    // Its verdict restates the booleans already in the report, and producing it
+    // costs the eager whole-page pass. The stamp still has to be there, or the
+    // report is ambiguous about what ran.
+    it("stamps a legacy-mirroring engine but does not classify through it", () => {
+      Object.defineProperty(engine, "mirrorsLegacy", { value: true });
+      const withEngine = new AutofillTriageService(qualificationService, engine);
+
+      expect(withEngine.engineInfo).toEqual({
+        id: "scoring",
+        name: "Scoring Qualification Engine",
+        version: "0.2.0",
+      });
+      expect(withEngine.triageField(mockField, mockPageDetails).engineDetail).toBeUndefined();
+      expect(engine.classify).not.toHaveBeenCalled();
     });
   });
 });

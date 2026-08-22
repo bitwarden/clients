@@ -1,4 +1,8 @@
 import AutofillPageDetails from "../models/autofill-page-details";
+import { ConfidenceBand } from "../qualification/types/classification";
+import { QualificationEngineId } from "../qualification/types/engine-id";
+import { FieldRole } from "../qualification/types/field-role";
+import { FormCategory } from "../qualification/types/form-category";
 
 export const TriageQualification = Object.freeze({
   Login: "login",
@@ -8,6 +12,37 @@ export const TriageQualification = Object.freeze({
   Ineligible: "ineligible",
 } as const);
 export type TriageQualification = (typeof TriageQualification)[keyof typeof TriageQualification];
+
+/**
+ * Identity of the qualification engine that produced a triage result.
+ *
+ * Recorded per report because engine selection varies by build and by flag: a
+ * report with no engine stamp is ambiguous about what actually ran, which is
+ * the first thing to establish when a field did not qualify.
+ */
+export interface AutofillTriageEngineInfo {
+  id: QualificationEngineId;
+  name: string;
+  version: string;
+}
+
+/**
+ * What the engine decided about one field, beyond the booleans.
+ *
+ * The boolean predicates collapse two very different outcomes into `false`:
+ * a field the engine never classified (hidden, submit, outside its coverage)
+ * and one it classified and rejected. `classified` separates them, and the
+ * scores explain the rejection.
+ */
+export interface AutofillTriageEngineFieldDetail {
+  /** False when the engine returned no classification for this field at all. */
+  classified: boolean;
+  topRole?: FieldRole;
+  confidence?: ConfidenceBand;
+  score?: number;
+  matchedRoles: FieldRole[];
+  matchedFormContexts: FormCategory[];
+}
 
 /**
  * Response returned by the content script after collecting page details for triage.
@@ -123,6 +158,12 @@ export interface AutofillTriagePageResult {
    * Browser name and version.
    */
   browserInfo: AutofillTriageBrowserInfo;
+
+  /**
+   * The qualification engine that produced these results, when the reporting
+   * context had one to name.
+   */
+  engine?: AutofillTriageEngineInfo;
 }
 
 /**
@@ -338,4 +379,10 @@ export interface AutofillTriageFieldResult {
    * Whether the field has ARIA has-popup attribute.
    */
   ariaHasPopup?: boolean;
+
+  /**
+   * The engine's own view of this field. Absent when triage ran against the
+   * legacy service, which has no engine behind it.
+   */
+  engineDetail?: AutofillTriageEngineFieldDetail;
 }

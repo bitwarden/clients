@@ -345,6 +345,7 @@ import ContextMenusBackground from "../autofill/background/context-menus.backgro
 import NotificationBackground from "../autofill/background/notification.background";
 import { OverlayNotificationsBackground } from "../autofill/background/overlay-notifications.background";
 import { OverlayBackground } from "../autofill/background/overlay.background";
+import { QualificationEngineBackground } from "../autofill/background/qualification-engine.background";
 import TabsBackground from "../autofill/background/tabs.background";
 import WebRequestBackground from "../autofill/background/web-request.background";
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
@@ -360,12 +361,21 @@ import {
 } from "../autofill/fido2/services/browser-fido2-user-interface.service";
 import { AutofillLifecycleService } from "../autofill/services/abstractions/autofill-lifecycle.service";
 import { AutofillService as AutofillServiceAbstraction } from "../autofill/services/abstractions/autofill.service";
+import { InlineMenuFieldQualificationService } from "../autofill/services/abstractions/inline-menu-field-qualifications.service";
 import { AutofillBadgeUpdaterService } from "../autofill/services/autofill-badge-updater.service";
 import { DefaultAutofillLifecycleService } from "../autofill/services/autofill-lifecycle.service";
 import { AutofillTriageService } from "../autofill/services/autofill-triage.service";
 import AutofillService from "../autofill/services/autofill.service";
 import { ClipboardNotificationBadgeUpdaterService } from "../autofill/services/clipboard-notification-badge-updater.service";
-import { InlineMenuFieldQualificationService } from "../autofill/services/inline-menu-field-qualification.service";
+import { QualificationEngineOverrideState } from "../autofill/services/qualification/engine-override.state";
+import {
+  logEngineSelection,
+  resolveEngineId,
+} from "../autofill/services/qualification/engine-registry";
+import {
+  QualificationStack,
+  buildQualificationStack,
+} from "../autofill/services/qualification/qualification-service.factory";
 import { TargetingRulesDataService } from "../autofill/services/targeting-rules-data.service";
 import { WebmapperDraftService } from "../autofill/services/webmapper-draft.service";
 import { trackGeneratedCredential } from "../autofill/utils/credential-history-utils";
@@ -553,6 +563,8 @@ export default class MainBackground {
   cipherAuthorizationService: CipherAuthorizationService;
   endUserNotificationService: EndUserNotificationService;
   inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
+  private qualificationStack: QualificationStack;
+  qualificationEngineBackground: QualificationEngineBackground;
   autofillTriageService: AutofillTriageService;
   taskService: TaskService;
   cipherEncryptionService: CipherEncryptionService;
@@ -1289,6 +1301,16 @@ export default class MainBackground {
       this.authService,
       this.logService,
     );
+    // Built ahead of the autofill services that consume it. Background
+    // construction is synchronous and every consumer captures the reference
+    // where it is built, so the id can't be awaited here — the stack starts on
+    // whatever `resolveEngineId` answers without config (the dev flag, or the
+    // default), and `QualificationEngineBackground` swaps it in place once the
+    // feature flag resolves. See `autofill/qualification/engine-selection.design.md`.
+    this.qualificationStack = buildQualificationStack(resolveEngineId());
+    logEngineSelection(this.qualificationStack.engine, "background");
+    this.inlineMenuFieldQualificationService = this.qualificationStack.service;
+
     this.autofillService = new AutofillService(
       this.cipherService,
       this.autofillSettingsService,
@@ -1305,6 +1327,7 @@ export default class MainBackground {
       messageListener,
       this.animationControlService,
       this.autofillLifecycleService,
+      this.qualificationStack.engine,
     );
     this.autofillOrchestrator = new AutofillOrchestrator(
       this.autofillLifecycleService,
@@ -1635,9 +1658,18 @@ export default class MainBackground {
       this.accountService,
     );
 
-    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    // Triage gets the engine as well as the boolean service so a report can say
+    // what the engine scored, not just which predicates came back false. Both
+    // sides of the stack share one memoized classify pass per snapshot.
     this.autofillTriageService = new AutofillTriageService(
       this.inlineMenuFieldQualificationService,
+      this.qualificationStack.engine,
+    );
+
+    this.qualificationEngineBackground = new QualificationEngineBackground(
+      this.qualificationStack,
+      new QualificationEngineOverrideState(this.stateProvider, this.configService),
+      this.logService,
     );
 
     const contextMenuClickedHandler = new ContextMenuClickedHandler(
@@ -1843,6 +1875,7 @@ export default class MainBackground {
     this.overlayNotificationsBackground.init();
     this.commandsBackground.init();
     this.contextMenusBackground?.init();
+    this.qualificationEngineBackground.init();
     // Disable the side panel globally on startup so Bitwarden does not appear in
     // Chrome's side panel picker. It is enabled per-tab on demand when the user
     // triggers autofill triage via the context menu.
