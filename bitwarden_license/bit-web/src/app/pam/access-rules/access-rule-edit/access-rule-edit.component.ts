@@ -1,24 +1,39 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { ActivatedRoute, CanDeactivateFn, Router, RouterLink } from "@angular/router";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  AutofocusDirective,
   BreadcrumbsModule,
   ButtonModule,
+  CalloutModule,
   CardComponent,
   CheckboxModule,
+  DialogService,
   FormFieldModule,
   HeaderComponent,
+  LinkModule,
   MultiSelectModule,
   SectionComponent,
   SectionHeaderComponent,
@@ -36,9 +51,14 @@ import {
   AccessRuleView,
   AccessCondition,
   ACCESS_RULE_DURATION_PRESETS,
-  accessRuleErrorMessage,
+  ACCESS_RULE_NAME_MAX_LENGTH,
+  accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
   accessRuleToFormValue,
   AccessRuleSdkService,
+  AccessRuleErrorField,
+  AccessRuleErrorOutcome,
+  classifyAccessRuleError,
   DEFAULT_MAX_EXTENSION_DURATION_SECONDS,
   EXTENSION_DURATION_OPTIONS,
   formValueToRequest,
@@ -60,8 +80,6 @@ import {
   IpAllowlistEditorComponent,
 } from "./ip-allowlist/ip-allowlist-editor.component";
 
-const NAME_MAX_LENGTH = 256;
-
 /**
  * Routed page for creating or editing a PAM access rule. Edit mode is entered via the
  * `accessRuleId` route param and fetches the rule with {@link AccessRuleSdkService.getAccessRule}
@@ -77,14 +95,18 @@ const NAME_MAX_LENGTH = 256;
     CommonModule,
     ReactiveFormsModule,
     AsyncActionsModule,
+    AutofocusDirective,
     BreadcrumbsModule,
     ButtonModule,
+    CalloutModule,
     CardComponent,
     CheckboxModule,
     FormFieldModule,
     HeaderComponent,
     IpAllowlistEditorComponent,
+    LinkModule,
     MultiSelectModule,
+    RouterLink,
     SectionComponent,
     SectionHeaderComponent,
     SelectModule,
@@ -103,11 +125,21 @@ export class AccessRuleEditComponent {
   private readonly i18nService = inject(I18nService);
   private readonly accountService = inject(AccountService);
   private readonly collectionAdminService = inject(CollectionAdminService);
+  private readonly organizationService = inject(OrganizationService);
   private readonly cidrValidation = inject(CidrValidationService);
+  private readonly dialogService = inject(DialogService);
+
+  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
 
   private readonly organizationId = this.route.snapshot.params.organizationId as OrganizationId;
   private readonly accessRuleId = this.route.snapshot.params.accessRuleId as
     AccessRuleId | undefined;
+  /**
+   * Set by the list's "Make a copy": the rule was just created from another one and its name
+   * still carries the "(copy)" suffix, so the admin's first act is almost certainly to rename it.
+   * Drives the name field's autofocus-and-select; presence is the signal, the value is not read.
+   */
+  protected readonly renaming = this.route.snapshot.queryParams.renaming != null;
 
   protected readonly editing = this.accessRuleId != null;
   protected readonly durationOptions = ACCESS_RULE_DURATION_PRESETS;
@@ -117,12 +149,59 @@ export class AccessRuleEditComponent {
   /** The rule being edited, loaded in edit mode; null while loading or in create mode. */
   protected readonly existing = signal<AccessRuleView | null>(null);
   protected readonly loading = signal(true);
-  protected readonly titleText = computed(() =>
-    this.i18nService.t(this.editing ? "pamAccessRuleEditTitle" : "pamAccessRuleCreateTitle"),
+
+  /**
+   * The inline save-failure callout; null while there is nothing to report. A failed save must not
+   * toast — the notice has to persist alongside the entered values so the admin can retry without
+   * re-keying the form. Only a `generic` outcome offers a retry: a mapped failure needs the admin
+   * to change something first, so re-sending the same values would fail identically.
+   */
+  protected readonly saveError = signal<AccessRuleErrorOutcome | null>(null);
+
+  protected readonly saveErrorMessage = computed(() => {
+    const error = this.saveError();
+    return error == null
+      ? null
+      : this.i18nService.t(
+          error.kind === "mapped" ? error.messageKey : "pamAccessRuleSaveErrorGeneric",
+        );
+  });
+
+  private readonly saveErrorCallout = viewChild("saveErrorCallout", {
+    read: ElementRef<HTMLElement>,
+  });
+
+  protected readonly pageTypeKey = this.editing
+    ? "pamAccessRuleEditTitle"
+    : "pamAccessRuleCreateTitle";
+
+  /**
+   * The page heading. Edit mode shows the rule's own name, per the design; it falls back to
+   * the page-type label until the rule has loaded. Create mode keeps the page-type label,
+   * since there is no name yet and a blank heading would be worse.
+   */
+  protected readonly titleText = computed(
+    () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
+  );
+
+  protected readonly eventLogRoute = ["/organizations", this.organizationId, "reporting", "events"];
+
+  /**
+   * Gates the footer notice. `canManageAccessRules` (this page's guard) does not imply access to
+   * event logs: `canAccessEventLogs` also requires the organization's `useEvents` entitlement, and
+   * without it the reporting route bounces the admin straight back out.
+   */
+  protected readonly canAccessEventLogs = toSignal(
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(this.organizationId),
+      map((organization) => organization?.canAccessEventLogs ?? false),
+    ),
+    { initialValue: false },
   );
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
-    name: ["", [Validators.required, Validators.maxLength(NAME_MAX_LENGTH)]],
+    name: ["", [Validators.required, Validators.maxLength(ACCESS_RULE_NAME_MAX_LENGTH)]],
     description: [""],
     collections: [[] as SelectItemView[], [Validators.required]],
     defaultLeaseDurationSeconds: [
@@ -173,6 +252,15 @@ export class AccessRuleEditComponent {
   );
 
   constructor() {
+    // `bit-callout` is not a live region and the callout renders above three sections of form
+    // while Save sits below them, so without moving focus a failed save is silent for a screen
+    // reader and off-screen for everyone else.
+    effect(() => {
+      if (this.saveError() == null) {
+        return;
+      }
+      this.saveErrorCallout()?.nativeElement.focus();
+    });
     this.coupleDurationBounds();
     this.coupleIpAllowlistEnabled();
     void this.initialize();
@@ -180,11 +268,11 @@ export class AccessRuleEditComponent {
 
   private async initialize(): Promise<void> {
     try {
-      const rule = this.editing ? await this.loadRule() : null;
-      if (this.editing && rule == null) {
-        return; // loadRule already toasted + navigated away
-      }
-      if (rule != null) {
+      if (this.editing) {
+        const rule = await this.loadRule();
+        if (rule == null) {
+          return; // loadRule already toasted + navigated away
+        }
         this.existing.set(rule);
         this.applyRule(rule);
       } else {
@@ -206,7 +294,7 @@ export class AccessRuleEditComponent {
     } catch (e) {
       const message = isAccessRuleNotFound(e)
         ? this.i18nService.t("pamAccessRuleNotFound")
-        : (accessRuleErrorMessage(e) ?? this.i18nService.t("pamAccessRuleNotFound"));
+        : this.i18nService.t(accessRuleErrorMessageKey(e));
       this.toastService.showToast({ variant: "error", message });
       await this.navigateToList();
       return null;
@@ -238,7 +326,7 @@ export class AccessRuleEditComponent {
 
   private async loadCollections(rule: AccessRuleView | null): Promise<void> {
     try {
-      const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
+      const userId = await firstValueFrom(this.activeUserId$);
       const collections = await firstValueFrom(
         this.collectionAdminService.collectionAdminViews$(this.organizationId, userId),
       );
@@ -327,7 +415,20 @@ export class AccessRuleEditComponent {
     array.updateValueAndValidity({ emitEvent: false });
   }
 
+  /**
+   * Report a rejected save that names a specific field on that field, where the fix is, rather than
+   * in the callout above the form. The error is set directly rather than through a validator so it
+   * clears the moment the admin edits the control — the next `updateValueAndValidity` recomputes
+   * from the validators alone.
+   */
+  private showFieldSaveError(field: AccessRuleErrorField, messageKey: string): void {
+    const control = this.formGroup.controls[field];
+    control.setErrors({ serverError: { message: this.i18nService.t(messageKey) } });
+    control.markAsTouched();
+  }
+
   protected readonly submit = async (): Promise<void> => {
+    this.saveError.set(null);
     this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
@@ -352,15 +453,92 @@ export class AccessRuleEditComponent {
       }
       await this.navigateToList();
     } catch (e) {
-      const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
-      this.toastService.showToast({ variant: "error", message });
+      const outcome = classifyAccessRuleError(e);
+      if (outcome.kind === "mapped" && outcome.field != null) {
+        this.showFieldSaveError(outcome.field, outcome.messageKey);
+        return;
+      }
+      this.saveError.set(outcome);
     }
   };
 
-  protected readonly cancel = (): Promise<boolean> => this.navigateToList();
+  /**
+   * Confirm before unsaved edits are thrown away. Called both by Cancel and by the route's
+   * CanDeactivate guard, which covers the breadcrumb and browser back/forward. A pristine form
+   * has nothing to lose, so it skips the dialog rather than asking about an empty page.
+   */
+  async confirmDiscard(): Promise<boolean> {
+    if (!this.formGroup.dirty) {
+      return true;
+    }
+
+    // Creating: the design names the thing being abandoned, the rule itself. Editing: the rule
+    // already exists and only the edits are lost, so the repo's shared wording is the true one.
+    const copy = this.editing
+      ? {
+          title: { key: "discardEditsTitle" },
+          content: { key: "discardEditsConfirmation" },
+          acceptButtonText: { key: "discardEdits" },
+          cancelButtonText: { key: "keepEditing" },
+        }
+      : {
+          title: { key: "pamAccessRuleDiscardTitle" },
+          content: { key: "pamAccessRuleDiscardContent" },
+          acceptButtonText: { key: "pamAccessRuleDiscardConfirm" },
+          cancelButtonText: { key: "cancel" },
+        };
+
+    return await this.dialogService.openSimpleDialog({ ...copy, type: "warning" });
+  }
+
+  protected readonly cancel = async (): Promise<void> => {
+    if (!(await this.confirmDiscard())) {
+      return;
+    }
+
+    await this.navigateToList();
+  };
+
+  /**
+   * Delete the rule under edit, after confirmation. Edit mode only — there is nothing
+   * to delete before the rule exists on the server.
+   */
+  protected readonly remove = async (): Promise<void> => {
+    const existing = this.existing();
+    if (existing == null) {
+      return;
+    }
+
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(existing.name),
+    );
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      await this.pamApi.deleteAccessRule(this.organizationId, existing.id);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamAccessRuleDeleted"),
+      });
+      await this.navigateToList();
+    } catch (e) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      });
+    }
+  };
 
   /** Return to the access-rules list (the parent of both the `new` and `:id` routes). */
   private navigateToList(): Promise<boolean> {
+    // A save, delete, or confirmed discard is an exit the admin has already agreed to, so the
+    // form has nothing left to lose and the CanDeactivate guard must not ask a second time.
+    this.formGroup.markAsPristine();
     return this.router.navigate([".."], { relativeTo: this.route });
   }
 }
+
+export const accessRuleEditDiscardGuard: CanDeactivateFn<AccessRuleEditComponent> = (component) =>
+  component.confirmDiscard();

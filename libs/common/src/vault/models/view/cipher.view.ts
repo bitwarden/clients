@@ -34,6 +34,24 @@ import { PasswordHistoryView } from "./password-history.view";
 import { SecureNoteView } from "./secure-note.view";
 import { SshKeyView } from "./ssh-key.view";
 
+/**
+ * `SdkCipherView` plus the PAM gating marker. `sdk-internal` does not declare `partial` on
+ * `CipherView` yet, so the field is bridged here to keep {@link CipherView.fromSdkCipherView}
+ * able to read it. The extra member is optional, so a plain `SdkCipherView` remains assignable
+ * and no caller needs to change.
+ *
+ * The Rust side is done but unpublished: `CipherView::partial` was added by sdk-internal commit
+ * b19f4d40 ("decrypt server-restricted (PAM-gated) partial ciphers") in
+ * `crates/bitwarden-vault/src/cipher/cipher.rs`, and generates as `partial?: boolean`, identical
+ * to this alias. That commit declares it on `CipherListView` too, which is what lets
+ * `CipherViewLikeUtils.isPartial` report gating for vault list rows rather than always returning
+ * false. The field is not on `main`, only on `pam/uat`, so no `main.*` build carries it. Collapse
+ * this into `SdkCipherView` once it ships.
+ *
+ * See the sibling bridge in `domain/cipher.ts` for the migration the SDK bump also requires.
+ */
+type SdkCipherViewWithPartial = SdkCipherView & { partial?: boolean };
+
 export class CipherView implements View, InitializerMetadata {
   readonly initializerKey = InitializerKey.CipherView;
 
@@ -81,8 +99,9 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Client-only, transient companion to {@link partial}: set on a full cipher served under an
    * active PAM lease (full data, so `partial` is false). Never sent by the server, persisted,
-   * or serialized — its producer (the leased-cipher fetcher) stamps it directly on the view.
-   * Lets gating surfaces keep rendering lease state once a lease lands.
+   * or serialized — the vault-item dialog stamps it directly on the view when it swaps in the
+   * cipher supplied by `GATED_CIPHER_RELOADER`. Lets gating surfaces keep rendering lease state
+   * once a lease lands.
    */
   leaseGated?: boolean;
 
@@ -322,7 +341,10 @@ export class CipherView implements View, InitializerMetadata {
   /**
    * Creates a CipherView from the SDK CipherView.
    */
-  static fromSdkCipherView(obj: SdkCipherView, sdk?: CiphersClient): CipherView | undefined {
+  static fromSdkCipherView(
+    obj: SdkCipherViewWithPartial,
+    sdk?: CiphersClient,
+  ): CipherView | undefined {
     if (obj == null) {
       return undefined;
     }

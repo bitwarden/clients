@@ -11,7 +11,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
-  AsyncActionsModule,
   BadgeModule,
   BulkActionComponent,
   BulkActionsBarComponent,
@@ -29,6 +28,7 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
+  TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
@@ -37,19 +37,23 @@ import {
   AccessRuleId,
   AccessRuleView,
   AccessRuleStatusFilter,
-  accessRuleErrorMessage,
+  accessRuleDeactivateConfirmOptions,
+  accessRuleDeleteConfirmOptions,
+  accessRuleErrorMessageKey,
   accessRuleMatchesFilter,
+  classifyAccessRuleError,
+  copyRuleName,
   resolveCollectionNames,
+  rulesChangingEnabled,
 } from "..";
-import { DurationShortPipe } from "../date/duration-short.pipe";
+import { DurationLongPipe } from "../date/duration-long.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
 import { AccessRulesService } from "../services/access-rules.service";
 
 import { AccessRuleCollectionBadgesComponent } from "./access-rule-collection-badges.component";
-import { AccessRuleTemplateKey } from "./access-rule-templates";
-import { AccessRuleWindowPipe } from "./access-rule-window.pipe";
+import { ACCESS_RULE_TEMPLATES, AccessRuleTemplateKey } from "./access-rule-templates";
 import { AccessRulesEmptyStateComponent } from "./access-rules-empty-state/access-rules-empty-state.component";
-import { ConditionBadgesPipe } from "./condition-badges.pipe";
+import { ApprovalMethodPipe } from "./approval-method.pipe";
 
 @Component({
   templateUrl: "./access-rules.component.html",
@@ -60,7 +64,6 @@ import { ConditionBadgesPipe } from "./condition-badges.pipe";
     ReactiveFormsModule,
     AccessRuleCollectionBadgesComponent,
     AccessRulesEmptyStateComponent,
-    AsyncActionsModule,
     BadgeModule,
     BulkActionComponent,
     BulkActionsBarComponent,
@@ -74,11 +77,11 @@ import { ConditionBadgesPipe } from "./condition-badges.pipe";
     MenuModule,
     SearchModule,
     TableModule,
+    TypographyModule,
     I18nPipe,
     RelativeTimePipe,
-    DurationShortPipe,
-    ConditionBadgesPipe,
-    AccessRuleWindowPipe,
+    DurationLongPipe,
+    ApprovalMethodPipe,
   ],
 })
 export class AccessRulesComponent {
@@ -96,6 +99,9 @@ export class AccessRulesComponent {
   protected readonly rules = toSignal(this.accessRules.rules$, {
     initialValue: [] as AccessRuleView[],
   });
+
+  /** Starter templates offered by the header's create menu, next to the blank "Custom" option. */
+  protected readonly templates = ACCESS_RULE_TEMPLATES;
 
   protected readonly dataSource = new TableDataSource<AccessRuleView>();
   /**
@@ -124,11 +130,15 @@ export class AccessRulesComponent {
 
   protected readonly statusOptions: ChipFilterOption<AccessRuleStatusFilter>[] = [
     {
-      label: this.i18nService.t("pamAccessRuleEnabled"),
+      label: this.i18nService.t("pamAccessRuleActive"),
       value: "enabled",
       icon: "bwi-check-circle",
     },
-    { label: this.i18nService.t("disabled"), value: "disabled", icon: "bwi-circle" },
+    {
+      label: this.i18nService.t("pamAccessRuleInactive"),
+      value: "disabled",
+      icon: "bwi-subtract-circle",
+    },
   ];
 
   protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
@@ -205,14 +215,85 @@ export class AccessRulesComponent {
   protected readonly openEdit = (rule: AccessRuleView): Promise<boolean> =>
     this.router.navigate([rule.id], { relativeTo: this.route });
 
+  /**
+   * Copy a rule and open the copy for editing.
+   *
+   * The copy is created straight away, without a confirmation step: it carries no collections
+   * (a collection can only be governed by one rule), so until the admin assigns some there is
+   * nothing for it to govern and nothing to undo. That is also why the edit page is where the
+   * admin lands — the copy is unfinished, and its required collections are the thing to finish.
+   * Backing out of that page leaves the copy in the table rather than discarding it.
+   */
+  protected readonly makeCopy = async (rule: AccessRuleView): Promise<void> => {
+    let created: AccessRuleView;
+    try {
+      created = await this.createCopy(rule);
+    } catch (e) {
+      this.showError(e);
+      return;
+    }
+
+    // Announced only once the copy is definitely persisted, and outside the try: a failed
+    // navigation must not follow a success toast with an error one about a rule that exists.
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("pamAccessRuleCopyCreated"),
+    });
+    // `renaming` tells the edit page to put the cursor in the name field with the suffixed
+    // name selected, so the admin can type over it.
+    await this.router.navigate([created.id], {
+      relativeTo: this.route,
+      queryParams: { renaming: true },
+    });
+  };
+
+  /**
+   * Create the copy, retrying once against a refreshed list if the name turned out to be taken.
+   *
+   * {@link copyRuleName} picks a free name from the rules this page loaded, which another admin
+   * (or another tab) can have moved on from since. Without the refresh that rejection is a dead
+   * end: the admin is on the table with no field to correct, and clicking again recomputes the
+   * same name from the same stale list and fails identically.
+   */
+  private async createCopy(rule: AccessRuleView): Promise<AccessRuleView> {
+    try {
+      return await this.accessRules.copy(rule, this.copyNameFor(rule));
+    } catch (e) {
+      const outcome = classifyAccessRuleError(e);
+      if (outcome.kind !== "mapped" || outcome.messageKey !== "pamAccessRuleErrorNameTaken") {
+        throw e;
+      }
+      await this.accessRules.load(this.organizationId());
+      return await this.accessRules.copy(rule, this.copyNameFor(rule));
+    }
+  }
+
+  private copyNameFor(rule: AccessRuleView): string {
+    return copyRuleName(
+      rule.name,
+      this.rules().map((r) => r.name),
+      (key, name, count) => this.i18nService.t(key, name, count),
+    );
+  }
+
   protected readonly toggleEnabled = async (rule: AccessRuleView): Promise<void> => {
     const nextEnabled = !rule.enabled;
+    // Deactivating is the direction that changes who can get in, so it asks first. Activating
+    // stays one click: it only ever adds gating back.
+    if (!nextEnabled) {
+      const confirmed = await this.dialogService.openSimpleDialog(
+        accessRuleDeactivateConfirmOptions(),
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
     try {
       await this.accessRules.setEnabled(rule, nextEnabled);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
-          nextEnabled ? "pamAccessRuleEnableSuccess" : "pamAccessRuleDisableSuccess",
+          nextEnabled ? "pamAccessRuleActivateSuccess" : "pamAccessRuleDeactivateSuccess",
         ),
       });
     } catch (e) {
@@ -221,16 +302,9 @@ export class AccessRulesComponent {
   };
 
   protected readonly remove = async (rule: AccessRuleView): Promise<void> => {
-    const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "pamAccessRuleDeleteConfirmTitle" },
-      content: {
-        key: "pamAccessRuleDeleteConfirmContent",
-        placeholders: [rule.name],
-      },
-      acceptButtonText: { key: "delete" },
-      cancelButtonText: { key: "cancel" },
-      type: "warning",
-    });
+    const confirmed = await this.dialogService.openSimpleDialog(
+      accessRuleDeleteConfirmOptions(rule.name),
+    );
     if (!confirmed) {
       return;
     }
@@ -257,10 +331,10 @@ export class AccessRulesComponent {
 
   // --- Bulk actions ---
 
-  protected readonly bulkEnable = (): void => {
+  protected readonly bulkActivate = (): void => {
     void this.bulkSetEnabled(true);
   };
-  protected readonly bulkDisable = (): void => {
+  protected readonly bulkDeactivate = (): void => {
     void this.bulkSetEnabled(false);
   };
   protected readonly bulkDelete = (): void => {
@@ -268,8 +342,21 @@ export class AccessRulesComponent {
   };
 
   private async bulkSetEnabled(enabled: boolean): Promise<void> {
+    const selected = this.selectedRules();
+    // Same speedbump as the row menu, over only the rules that will actually move — confirming
+    // the raw selection would overstate it. Nothing to move means no question at all: fall
+    // through to the existing no-op rather than asking about zero rules.
+    const deactivating = enabled ? [] : rulesChangingEnabled(selected, false);
+    if (deactivating.length > 0) {
+      const confirmed = await this.dialogService.openSimpleDialog(
+        accessRuleDeactivateConfirmOptions(deactivating.length),
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
     try {
-      const changed = await this.accessRules.setManyEnabled(this.selectedRules(), enabled);
+      const changed = await this.accessRules.setManyEnabled(selected, enabled);
       this.clearSelection();
       if (changed > 0) {
         this.toastService.showToast({
@@ -318,9 +405,15 @@ export class AccessRulesComponent {
     return this.processedRows().filter((r) => this.selection.isSelected(r.id));
   }
 
+  /**
+   * Toast a rejected mutation. Routed through the classifier so the SDK's own message — the
+   * server's serialized response, filesystem paths and all — never reaches the toast.
+   */
   private showError(e: unknown): void {
-    const message = accessRuleErrorMessage(e) ?? this.i18nService.t("unexpectedError");
-    this.toastService.showToast({ variant: "error", message });
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+    });
   }
 }
 
