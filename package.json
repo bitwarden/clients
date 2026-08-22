@@ -190,7 +190,7 @@
     "braintree-web-drop-in": "1.46.0",
     "buffer": "6.0.3",
     "bufferutil": "4.1.0",
-    "chalk": "4.1.2",
+    "chalk": "6.0.0",
     "chart.js": "4.5.1",
     "chartjs-adapter-date-fns": "3.0.0",
     "commander": "14.0.0",
