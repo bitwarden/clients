@@ -12,7 +12,7 @@
     "message": "收藏夹"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "将项目标记为收藏以在此处筛选它们。"
   },
   "unfavorite": {
     "message": "取消收藏"
@@ -120,7 +120,7 @@
     "message": "我的文件夹"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "将文件夹添加到项目以在此处筛选它们。"
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
@@ -525,17 +525,8 @@
   "launch": {
     "message": "前往"
   },
-  "launchWebsiteForName": {
-    "message": "前往 $ITEMNAME$ 的网站",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "打开网站"
   },
   "copyValue": {
     "message": "复制值",
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "复制验证码 (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "复制私钥"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "在密码库中显示快速复制操作"
   },
-  "copyNoteTitle": {
-    "message": "复制备注 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "没有可复制的详细信息"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "没有安全码"
   },
-  "copyDetailsTitle": {
-    "message": "复制 $ITEMNAME$ 的详细信息",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "复制用户名"
   },
@@ -2179,9 +2136,6 @@
     "message": "复制安全码",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "卡号"
-  },
   "premiumMembership": {
     "message": "高级版成员资格"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "您可以在 bitwarden.com 网页密码库管理您的成员资格。现在要访问此网站吗？"
   },
-  "premiumRefresh": {
-    "message": "刷新成员资格"
-  },
-  "premiumNotCurrentMember": {
-    "message": "您目前不是高级版成员。"
-  },
-  "premiumSignUpAndGet": {
-    "message": "注册高级版成员资格并获得："
-  },
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ 文件附件加密存储空间。",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "专有的两步登录选项，例如 YubiKey 和 Duo。"
-  },
-  "premiumSignUpReports": {
-    "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
-  },
-  "premiumSignUpTotp": {
-    "message": "用于密码库中登录项目的 TOTP 验证码 (2FA) 生成器。"
-  },
-  "premiumSignUpSupport": {
-    "message": "优先客户支持。"
-  },
-  "premiumSignUpFuture": {
-    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
     "message": "购买高级版"
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 网页 App 的账户设置中购买高级版。"
-  },
-  "premiumCurrentMember": {
-    "message": "您是高级版成员！"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "感谢您支持 Bitwarden。"
-  },
-  "premiumPrice": {
-    "message": "所有功能仅需 $PRICE$ /年！",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "月"
@@ -2386,7 +2292,7 @@
     "message": "跳转至..."
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "/ $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3553,7 +3459,7 @@
     "message": "更多选项"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ 的选项",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3468,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "没有共享文件夹"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "筛选为 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4602,7 +4508,7 @@
     "message": "未选择文件"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "已选择文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4611,7 +4517,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "已添加文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4620,7 +4526,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "已添加 $COUNT$ 个文件：$FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4633,7 +4539,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "已移除文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4654,10 +4560,10 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "已上传文件"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "点击上传或拖放至此"
   },
   "chooseFiles": {
     "message": "选择文件"
@@ -5267,10 +5173,17 @@
     "message": "更改账户电子邮箱"
   },
   "passkeyLogin": {
-    "message": "使用通行密钥登录吗？"
+    "message": "使用通行密钥登录吗？",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "保存通行密钥吗？"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "保存为新的登录"
@@ -5282,7 +5195,11 @@
     "message": "没有匹配此站点的登录"
   },
   "overwritePasskey": {
-    "message": "覆盖通行密钥吗？"
+    "message": "覆盖通行密钥吗？",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "无法保存通行密钥"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "为 $USERNAME$ 创建新的通行密钥 $RPID$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "覆盖 $USERNAME$ 的通行密钥 $RPID$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "使用您的通行密钥 $RPID$，以 $USERNAME$ 身份登录",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "验证是您本人以为 $USERNAME$ 创建新的通行密钥 $RPID$。",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "验证是您本人以覆盖 $USERNAME$ 的通行密钥 $RPID$。",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "验证是您本人以使用您的通行密钥 $RPID$，以 $USERNAME$ 身份登录。",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

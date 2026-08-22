@@ -12,7 +12,7 @@
     "message": "Kedvencek"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Elemek megjelölése kedvencként az itteni szűréshez."
   },
   "unfavorite": {
     "message": "Nem kedvenc"
@@ -120,7 +120,7 @@
     "message": "Saját mappák"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Adjunk hozzá mappákat az elemekhez az itteni szűréshez."
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
@@ -525,17 +525,8 @@
   "launch": {
     "message": "Megnyitás"
   },
-  "launchWebsiteForName": {
-    "message": "$ITEMNAME$ webhely elindítása",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Webhely indítása"
   },
   "copyValue": {
     "message": "Érték másolása",
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Ellenőrző kód másolása (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ másolása",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Személyes kulcs másolása"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Gyors másolási műveletek megjelenítése a széfben"
   },
-  "copyNoteTitle": {
-    "message": "Jegyzet másolása - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "Nincsenek másolandó adatok."
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "Nincs biztonsági kód"
   },
-  "copyDetailsTitle": {
-    "message": "Adatok másolása: $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "Felhasználónév másolása"
   },
@@ -2179,9 +2136,6 @@
     "message": "Biztonsági kód másolása",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "kártya szám"
-  },
   "premiumMembership": {
     "message": "Prémium tagság"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Prémium tagság a bitwarden.com webes széfben kezelhető. Szeretnénk most felkeresni a webhelyet?"
   },
-  "premiumRefresh": {
-    "message": "Előfizetés ellenőrzése"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Jelenleg nincs prémium tagság."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Regisztráció a prémium tagságra az alábbi funkciókért:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB titkosított fájlmelléklet tárhely."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ titkosított tárhely a fájlmellékletekhez.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Saját kétlépcsős bejelentkezési lehetőségek mint a YubiKey és a Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Jelszó higiénia, felhasználói fiók biztonsága, és adatszivárgási jelentések a széf biztonsága érdekében."
-  },
-  "premiumSignUpTotp": {
-    "message": "Egyszeri időalapú TOTP ellenőrző kód (2FA) generátor a széfbe bejelentkezésekhez."
-  },
-  "premiumSignUpSupport": {
-    "message": "Elsőbbségi ügyfél támogatás."
-  },
-  "premiumSignUpFuture": {
-    "message": "Minden jövőbeli prémium funkció. Hamarosan jön még több."
   },
   "premiumPurchase": {
     "message": "Prémium verzió megvásárlása"
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémium szolgáltatást vásárolhatunk a Bitwarden webalkalmazás fiókbeállításai között."
-  },
-  "premiumCurrentMember": {
-    "message": "Jelenleg a prémium tagság érvényben van."
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Köszönjük a Bitwarden támogatását."
-  },
-  "premiumPrice": {
-    "message": "Mindez csak $PRICE$ /év.",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "hónap"
@@ -3553,7 +3459,7 @@
     "message": "További opciók"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ opciók",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3468,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Nincs megosztott mappa."
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ szűrő",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5267,10 +5173,17 @@
     "message": "Fiók email cím megváltoztatása"
   },
   "passkeyLogin": {
-    "message": "Bejelentkezés belépőkulccsal?"
+    "message": "Bejelentkezés belépőkulccsal?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Bejelentkezés hozzáférési kulccsal"
   },
   "savePasskeyQuestion": {
     "message": "Belépőkulcs mentése?"
+  },
+  "savePasskey": {
+    "message": "Hozzáférési kulcs mentése"
   },
   "saveNewPasskey": {
     "message": "Mentés új bejelentkezésként"
@@ -5282,7 +5195,11 @@
     "message": "Nincsenek egyező bejelentkezések ehhez a webhelyhez."
   },
   "overwritePasskey": {
-    "message": "Belépőkulcs felülírása?"
+    "message": "Belépőkulcs felülírása?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Hozzáférési kulcs felülírása"
   },
   "unableToSavePasskey": {
     "message": "Nem lehet menteni a belépőkulcsot."
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "hozzunk létre egy új $RPID$ belépőkulcsot $USERNAME$ email címhez.",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "írjunk felül egy $RPID$ belépőkulcsot $USERNAME$ email címhez.",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "jelentkezzünk be $USERNAME$ email címmel $RPID$ belépőkulcs segítségével.",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Új $RPID$ belépőkulcs létrehozása $USERNAME$ felhasználó számára a személyazonosság igazolásával.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Új $RPID$ belépőkulcs felülírása $USERNAME$ felhasználónál a személyazonosság igazolásával.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Ellenőrizzük a személyazonosságot, mielőtt $USERNAME$ néven jelentkezünk be $RPID$ belépőkulccsal.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

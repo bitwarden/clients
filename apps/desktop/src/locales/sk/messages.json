@@ -12,7 +12,7 @@
     "message": "Obľúbené"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Označte položky ako obľúbené a filtrujte ich tu."
   },
   "unfavorite": {
     "message": "Odstrániť z obľúbených"
@@ -120,7 +120,7 @@
     "message": "Moje priečinky"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Pridajte priečinky k položkám a filtrujte ich tu."
   },
   "addSharedFolder": {
     "message": "Pridať zdieľaný priečinok"
@@ -525,17 +525,8 @@
   "launch": {
     "message": "Spustiť"
   },
-  "launchWebsiteForName": {
-    "message": "Otvoriť stránku pre $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Otvoriť stránku"
   },
   "copyValue": {
     "message": "Kopírovať hodnotu",
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Kopírovať overovací kód (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Kopírovať $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Kopírovať súkromný kľúč"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Zobraziť v trezore rýchle akcie kopírovania"
   },
-  "copyNoteTitle": {
-    "message": "Skopírovať poznámku – $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "Žiadne podrobnosti na kopírovanie"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "Žiadny bezpečnostný kód"
   },
-  "copyDetailsTitle": {
-    "message": "Kopírovať podrobnosti o položke $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "Kopírovať používateľské meno"
   },
@@ -2179,9 +2136,6 @@
     "message": "Kopírovať bezpečnostný kód",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "číslo karty"
-  },
   "premiumMembership": {
     "message": "Prémiové členstvo"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Svoje členstvo môžete spravovať vo webovom trezore bitwarden.com. Chcete navštíviť túto stránku teraz?"
   },
-  "premiumRefresh": {
-    "message": "Obnoviť členstvo"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Momentálne nie ste prémiovým členom."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Zaregistrujte sa na prémiové členstvo a získajte:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiska."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ šifrovaného úložiska na prílohy.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Proprietárne možnosti dvojstupňového prihlásenia ako napríklad YubiKey a Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Správy o sile hesla, zabezpečení účtov a únikoch dát ktoré vám pomôžu udržať vaše kontá v bezpečí."
-  },
-  "premiumSignUpTotp": {
-    "message": "Generátor TOTP verifikačného kódu (2FA) pre kontá vo vašom trezore."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioritná zákaznícka podpora."
-  },
-  "premiumSignUpFuture": {
-    "message": "Všetky budúce prémiové funkcie. Viac už čoskoro!"
   },
   "premiumPurchase": {
     "message": "Zakúpiť Prémium"
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémiové členstvo si môžete zakúpiť v nastaveniach svojho účtu vo webovej aplikácii Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Ste prémiovým členom!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Ďakujeme za podporu Bitwardenu."
-  },
-  "premiumPrice": {
-    "message": "Všetko len za $PRICE$/rok!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "mesiac"
@@ -3553,7 +3459,7 @@
     "message": "Ďalšie možnosti"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Možnosti pre $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3468,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Žiadny zdieľaný priečinok"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrovať podľa $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5267,10 +5173,17 @@
     "message": "Zmeniť e-mail účtu"
   },
   "passkeyLogin": {
-    "message": "Prihlásiť sa s prístupovým kľúčom?"
+    "message": "Prihlásiť sa s prístupovým kľúčom?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Prihlásiť sa s prístupovým kľúčom"
   },
   "savePasskeyQuestion": {
     "message": "Uložiť prístupový kľúč?"
+  },
+  "savePasskey": {
+    "message": "Uložiť prístupový kľúč"
   },
   "saveNewPasskey": {
     "message": "Uložiť ako nové prihlasovacie údaje"
@@ -5282,7 +5195,11 @@
     "message": "Pre túto stránku sa nenašli prihlasovacie údaje"
   },
   "overwritePasskey": {
-    "message": "Prepísať prístupový kľúč?"
+    "message": "Prepísať prístupový kľúč?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Prepísať prístupový kľúč"
   },
   "unableToSavePasskey": {
     "message": "Prístupový kľúč sa nepodarilo uložiť"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "vytvoriť nový prístupový kľúč $RPID$ pre $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "prepísať prístupový kľúč $RPID$ pre $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "prihlásiť sa ako $USERNAME$ pomocou prístupového kľúča $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Potvrďte, že ste to vy, kto chce vytvoriť nový prístupový kľúč $RPID$ pre $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Potvrďte, že ste to vy, kto chce prepísať prístupový kľúč $RPID$ pre $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Potvrďte, že ste to vy, kto sa chce prihlásiť s prístupovým kľúčom $RPID$ pre $USERNAME$.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

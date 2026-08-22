@@ -525,15 +525,6 @@
   "launch": {
     "message": "தொடங்கு"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
     "message": "Launch website"
   },
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "சரிபார்ப்புக் குறியீட்டை நகலெடு (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "நகலெடு $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Copy private key"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Show quick copy actions in vault"
   },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "No details to copy"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "No security code"
   },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "பயனர் பெயரை நகலெடுக்கவும்"
   },
@@ -2179,9 +2136,6 @@
     "message": "பாதுகாப்பு குறியீட்டை நகலெடுக்கவும்",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "அட்டை எண்"
-  },
   "premiumMembership": {
     "message": "பிரீமியம் உறுப்பினர்"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "bitwarden.com இணைய பெட்டகத்தில் உங்கள் உறுப்பினர் நிலையை நிர்வகிக்கலாம். இப்போது இணையதளத்திற்குச் செல்ல விரும்புகிறீர்களா?"
   },
-  "premiumRefresh": {
-    "message": "உறுப்பினர் நிலையை புதுப்பிக்கவும்"
-  },
-  "premiumNotCurrentMember": {
-    "message": "நீங்கள் தற்போது பிரீமியம் உறுப்பினர் அல்ல."
-  },
-  "premiumSignUpAndGet": {
-    "message": "பிரீமியம் உறுப்பினர் நிலைக்குப் பதிவுசெய்து பெறவும்:"
-  },
   "premiumSignUpStorage": {
     "message": "கோப்பு இணைப்புகளுக்கு 1 GB குறியாக்கப்பட்ட சேமிப்பகம்."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "YubiKey மற்றும் Duo போன்ற பிரத்யேக இரண்டு-படி உள்நுழைவு விருப்பங்கள்."
-  },
-  "premiumSignUpReports": {
-    "message": "உங்கள் பெட்டகத்தைப் பாதுகாப்பாக வைத்திருக்க கடவுச்சொல் சுகாதாரம், கணக்கு ஆரோக்கியம், மற்றும் தரவு மீறல் அறிக்கைகள்."
-  },
-  "premiumSignUpTotp": {
-    "message": "உங்கள் பெட்டகத்தில் உள்நுழைவுகளுக்கான TOTP சரிபார்ப்புக் குறியீடு (2FA) உருவாக்குபவர்."
-  },
-  "premiumSignUpSupport": {
-    "message": "முன்னுரிமை வாடிக்கையாளர் ஆதரவு."
-  },
-  "premiumSignUpFuture": {
-    "message": "எதிர்கால பிரீமியம் அம்சங்கள் அனைத்தும். மேலும் பல விரைவில் வரவுள்ளன!"
   },
   "premiumPurchase": {
     "message": "பிரீமியத்தை வாங்கவும்"
   },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden இணைய செயலியில் உங்கள் கணக்கு அமைப்புகளில் இருந்து பிரீமியத்தை வாங்கலாம்."
-  },
-  "premiumCurrentMember": {
-    "message": "நீங்கள் ஒரு பிரீமியம் உறுப்பினர்!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Bitwarden-ஐ ஆதரித்ததற்கு நன்றி."
-  },
-  "premiumPrice": {
-    "message": "ஆண்டுக்கு வெறும் $PRICE$க்கு அனைத்தும்!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "month"
@@ -5267,10 +5173,17 @@
     "message": "Change account email"
   },
   "passkeyLogin": {
-    "message": "Log in with passkey?"
+    "message": "Log in with passkey?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "Save passkey?"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "Save as new login"
@@ -5282,7 +5195,11 @@
     "message": "No matching logins for this site"
   },
   "overwritePasskey": {
-    "message": "Overwrite passkey?"
+    "message": "Overwrite passkey?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "Unable to save passkey"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

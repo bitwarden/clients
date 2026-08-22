@@ -525,15 +525,6 @@
   "launch": {
     "message": "열기"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
     "message": "Launch website"
   },
@@ -542,10 +533,10 @@
     "description": "Copy value to clipboard"
   },
   "copyWebsite": {
-    "message": "Copy website"
+    "message": "웹사이트 복사"
   },
   "copyCustomField": {
-    "message": "Copy $FIELD$",
+    "message": "$FIELD$ 복사",
     "placeholders": {
       "field": {
         "content": "$1",
@@ -597,37 +588,37 @@
     "message": "성별"
   },
   "copySex": {
-    "message": "Copy sex"
+    "message": "성별 복사"
   },
   "birthPlace": {
-    "message": "Birth place"
+    "message": "출생지"
   },
   "copyBirthPlace": {
-    "message": "Copy birth place"
+    "message": "출생지 복사"
   },
   "nationality": {
-    "message": "Nationality"
+    "message": "국적"
   },
   "copyNationality": {
-    "message": "Copy nationality"
+    "message": "국적 복사"
   },
   "copyIssuingCountry": {
-    "message": "Copy issuing country"
+    "message": "발급 국가 복사"
   },
   "passportType": {
-    "message": "Passport type"
+    "message": "여권 유형"
   },
   "copyPassportType": {
-    "message": "Copy passport type"
+    "message": "여권 유형 복사"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "주민등록번호 복사"
   },
   "nationalIdentificationNumber": {
-    "message": "National identification number"
+    "message": "주민등록번호"
   },
   "copyIssuingAuthority": {
-    "message": "Copy issuing authority / office"
+    "message": "발급 기관 / 사무소 복사"
   },
   "licenseNumber": {
     "message": "면허 번호"
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "인증 코드 (TOTP) 복사"
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ 복사",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "개인 키 복사"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Show quick copy actions in vault"
   },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "No details to copy"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "No security code"
   },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "사용자 이름 복사"
   },
@@ -2179,9 +2136,6 @@
     "message": "보안 코드 복사",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "카드 번호"
-  },
   "premiumMembership": {
     "message": "프리미엄 멤버십"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "bitwarden.com 웹 보관함에서 멤버십을 관리할 수 있습니다. 지금 웹 사이트를 방문하시겠습니까?"
   },
-  "premiumRefresh": {
-    "message": "멤버십 새로 고침"
-  },
-  "premiumNotCurrentMember": {
-    "message": "프리미엄 사용자가 아닙니다."
-  },
-  "premiumSignUpAndGet": {
-    "message": "프리미엄 멤버십에 가입하면 얻을 수 있는 것:"
-  },
   "premiumSignUpStorage": {
     "message": "1GB의 암호화된 파일 저장소."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "보관함을 안전하게 유지하기 위한 암호 위생, 계정 상태, 데이터 유출 보고서"
-  },
-  "premiumSignUpTotp": {
-    "message": "보관함에 등록된 로그인 항목을 위한 TOTP 인증 코드(2FA) 생성기."
-  },
-  "premiumSignUpSupport": {
-    "message": "고객 지원 우선 순위 제공."
-  },
-  "premiumSignUpFuture": {
-    "message": "앞으로 추가될 모든 프리미엄 기능을 사용할 수 있습니다. 기대하세요!"
   },
   "premiumPurchase": {
     "message": "프리미엄 멤버십 구입"
   },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
-  },
-  "premiumCurrentMember": {
-    "message": "프리미엄 사용자입니다!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Bitwarden을 지원해 주셔서 감사합니다."
-  },
-  "premiumPrice": {
-    "message": "이 모든 기능을 연 $PRICE$에 이용하실 수 있습니다!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "월"
@@ -5267,10 +5173,17 @@
     "message": "계정 이메일 변경"
   },
   "passkeyLogin": {
-    "message": "패스키로 로그인하시겠어요?"
+    "message": "패스키로 로그인하시겠어요?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "패스키를 저장합니까?"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "새 로그인으로 저장"
@@ -5282,7 +5195,11 @@
     "message": "No matching logins for this site"
   },
   "overwritePasskey": {
-    "message": "패스키를 덮어쓰시겠습니까?"
+    "message": "패스키를 덮어쓰시겠습니까?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "패스키를 저장할 수 없음"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }
