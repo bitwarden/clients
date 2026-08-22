@@ -9,6 +9,7 @@ export * from "./generator-constraints";
 export * from "./generated-credential";
 export * from "./generator-options";
 export * from "./credential-preference";
+export * from "./login-email-generator-options";
 export * from "./no-policy";
 export * from "./passphrase-generation-options";
 export * from "./passphrase-generator-policy";
