@@ -9,7 +9,7 @@
       <div
         [ngClass]="{
           'tw-truncate': truncate(),
-          'tw-text-wrap tw-overflow-auto tw-break-words': !truncate(),
+          'tw-text-wrap tw-break-words': !truncate(),
         }"
       >
         <ng-content></ng-content>
@@ -23,7 +23,7 @@
       class="tw-text-muted tw-w-full"
       [ngClass]="{
         'tw-truncate': truncate(),
-        'tw-text-wrap tw-overflow-auto tw-break-words': !truncate(),
+        'tw-text-wrap tw-break-words': !truncate(),
       }"
     >
       <ng-content select="[slot=secondary]"></ng-content>
