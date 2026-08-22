@@ -21,7 +21,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   LinkModule,
-  NoItemsModule,
   PopoverModule,
   SearchModule,
   TableDataSource,
@@ -54,7 +53,6 @@ import {
     ReportLoadingComponent,
     LinkModule,
     SearchModule,
-    NoItemsModule,
     PipesModule,
     PopoverModule,
     SharedModule,
