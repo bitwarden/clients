@@ -509,7 +509,7 @@
     "message": "Optionen"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Optionen für $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Kein geteilter Ordner"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Nach $NAME$ filtern",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Markiere Einträge als Favoriten, um sie hier zu filtern."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Füge Ordner zu Einträgen hinzu, um sie hier zu filtern."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Eintrag bearbeiten - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Keine Einträge im Tresor"
   },
   "length": {
     "message": "Länge"
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Website öffnen"
-  },
-  "launchWebsiteForName": {
-    "message": "Website aus $ITEMNAME$ öffnen",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Website"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Mitgliedschaft erneuern"
   },
-  "premiumNotCurrentMember": {
-    "message": "Du bist derzeit kein Premium-Mitglied."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Melde dich für eine Premium-Mitgliedschaft an und erhalte dafür:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB verschlüsselter Speicherplatz für Dateianhänge."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Du kannst Premium über deine Kontoeinstellungen in der Bitwarden Web-App kaufen."
-  },
-  "premiumCurrentMember": {
-    "message": "Du bist jetzt Premium-Mitglied!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Vielen Dank, dass du Bitwarden unterstützt."
   },
   "premiumFeatures": {
     "message": "Upgrade auf Premium und erhalte:"
@@ -2008,7 +1987,7 @@
     "message": "Karten als Vorschläge anzeigen"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "SSH-Schlüssel als Vorschläge anzeigen"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Vorschläge anzeigen, wenn Symbol ausgewählt ist"
@@ -2212,9 +2191,6 @@
   },
   "securityCode": {
     "message": "Sicherheitscode"
-  },
-  "cardNumber": {
-    "message": "Kartennummer"
   },
   "ex": {
     "message": "Bsp."
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ Sammlungen",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ freigegebene Ordner",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Entferne die Filter oder versuche einen anderen Suchbegriff"
   },
-  "copyDetailsTitle": {
-    "message": "Details aus $ITEMNAME$ kopieren",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Notiz kopieren - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Weitere Optionen, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ kopieren",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7632,15 +7583,15 @@
     "message": "Überwache und verbessere den Gesundheitszustand deines Passwort-Tresors, indem du Passwörter änderst, die kompromittiert, schwach oder wiederholt verwendet werden."
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "Dein Tresor ist gesund",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "Dein Tresor-Risiko ist hoch",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$AT_RISK$ von $TOTAL$ Passwörter müssen korrigiert werden",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7654,15 +7605,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "Keine kompromittierten Passwörter",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 kompromittiertes Passwort",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ kompromittierte Passwörter",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7672,23 +7623,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "Durch Datendiebstähle kompromittiert",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "Keines deiner Passwörter wurde bei Datendiebstählen gefunden",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "Keine schwachen Passwörter",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 schwaches Passwort",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ schwache Passwörter",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7698,23 +7649,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "Zu kurz oder zu einfach",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "Alle deine Passwörter sind stark",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "Keine wiederverwendeten Passwörter",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 wiederverwendetes Passwort",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ wiederverwendete Passwörter",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7724,19 +7675,69 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "Wiederverwendet für mehrere Zugangsdaten",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "Alle deine Passwörter sind einzigartig",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "Risiken erkannt",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "Keine Einträge benötigen Aufmerksamkeit",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Kompromittierte Passwörter"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Die Passwörter für diese Zugangsdaten sind bei Datendiebstählen kompromittiert worden. Ändere sie umgehend, um deine Konten zu schützen."
+  },
+  "weakPasswordsTitle": {
+    "message": "Schwache Passwörter"
+  },
+  "weakPasswordsDescription": {
+    "message": "Diese Passwörter lassen sich leicht erraten, da sie zu kurz oder zu einfach sind. Sorge für mehr Sicherheit, indem du sie komplexer gestaltest."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Wiederverwendete Passwörter"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Bei diesen Zugangsdaten wird dasselbe Passwort verwendet. Lege für jedes Konto ein einzigartiges Passwort fest, um zu verhindern, dass jemand mit einem einzigen Passwort auf mehrere Konten zugreifen kann."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Durch das Löschen dieser Zugangsdaten werden diese aus deinem Tresor entfernt, das Risiko wird dadurch jedoch nicht beseitigt. Um dein Konto zu schützen, ändere bitte zunächst dein Passwort."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Dieses Passwort hat zusätzliche Risiken:"
+  },
+  "reused": {
+    "message": "Wiederverwendet",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ mal",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Keines deiner Passwörter wurde bei Datendiebstählen gefunden."
+  },
+  "weakPasswordEmpty": {
+    "message": "Alle deine Passwörter sind stark."
+  },
+  "reusedPasswordEmpty": {
+    "message": "Alle deine Passwörter sind einzigartig."
+  },
+  "youreAllSet": {
+    "message": "Du bist bereit!"
   }
 }

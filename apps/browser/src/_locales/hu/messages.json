@@ -509,7 +509,7 @@
     "message": "Beállítások"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ opciók",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Nincs megosztott mappa."
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ szűrő",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Elemek megjelölése kedvencként az itteni szűréshez."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Adjunk hozzá mappákat az elemekhez az itteni szűréshez."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Elem szerkesztése - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Nincsenek elemek a széfben."
   },
   "length": {
     "message": "Hossz"
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Webhely indítása"
-  },
-  "launchWebsiteForName": {
-    "message": "$ITEMNAME$ webhely elindítása",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Weboldal"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Tagság frissítése"
   },
-  "premiumNotCurrentMember": {
-    "message": "Jelenleg nem vagyunk prémium tag."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Regisztráció a prémium tagságra az alábbi funkciókért:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Prémium szolgáltatást vásárolhatunk a Bitwarden webalkalmazás fiókbeállításai között."
-  },
-  "premiumCurrentMember": {
-    "message": "Prémium tag vagyunk!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Köszönjük a Bitwarden támogatását."
   },
   "premiumFeatures": {
     "message": "Áttérés prémium verzióra és fogadás:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Biztonsági Kód"
   },
-  "cardNumber": {
-    "message": "kártya szám"
-  },
   "ex": {
     "message": "példa:"
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ gyűjtemény",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ megosztott mappa",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Töröljük a szűrőket vagy próbálkozzunk másik keresési kifejezéssel."
   },
-  "copyDetailsTitle": {
-    "message": "Adatok másolása: $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Jegyzet másolása - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "További opciók, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ másolása",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "Egyik elem sem igényel figyelmet.",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Kitett jelszavak"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Ezen bejelentkezések jelszavai adatszivárgásnak lettek kitéve. Azonnal módosítsuk ezeket a fiókok védelme érdekében."
+  },
+  "weakPasswordsTitle": {
+    "message": "Gyenge jelszavak"
+  },
+  "weakPasswordsDescription": {
+    "message": "Ezek a jelszavak könnyen kitalálhatók, mert túl rövidek vagy egyszerűek. Összetetté alakítással tegyük erősebbé ezeket."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Újrahasznált jelszavak"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Ezek a bejelentkezések újrafelhasznált jelszóval rendelkeznek. Hozzunk létre egy egyedi jelszót minden fiókhoz, hogy megakadályozza, hogy valaki több fiókhoz férjen hozzá egy jelszóval."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Ezen bejelentkezés törlése ezt eltávolítja a széfből, de nem javítja a kockázatot. A fiók védelme érdekében először változtassuk meg jelszót."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Ez a jelszó további kockázatokkal jár:"
+  },
+  "reused": {
+    "message": "Újrafelhasznált",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ alkalommal",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Egyik jelszó sem kitett adatszivárgásnak."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "Készen is vagyunk!"
   }
 }

@@ -751,15 +751,6 @@
   "launchWebsite": {
     "message": "開啟網站"
   },
-  "launchWebsiteForName": {
-    "message": "開啟 $ITEMNAME$ 的網站",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "website": {
     "message": "網站"
   },
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "重新整理會員資格"
   },
-  "premiumNotCurrentMember": {
-    "message": "您目前不是進階會員。"
-  },
-  "premiumSignUpAndGet": {
-    "message": "升級為進階會員即可獲得："
-  },
   "premiumSignUpStorage": {
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 網頁 App 的帳號設定中購買進階版。"
-  },
-  "premiumCurrentMember": {
-    "message": "您目前為進階會員！"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "感謝您支持 Bitwarden 。"
   },
   "premiumFeatures": {
     "message": "升級到進階版並接收："
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "安全碼"
   },
-  "cardNumber": {
-    "message": "卡號"
-  },
   "ex": {
     "message": "例如"
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ 個集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "清除過濾器或更換另一個搜尋條件"
   },
-  "copyDetailsTitle": {
-    "message": "複製 $ITEMNAME$ 的詳細資訊",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "複製備註 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "更多選項, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "複製 $FIELD$，$CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Exposed passwords"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+  },
+  "weakPasswordsTitle": {
+    "message": "Weak passwords"
+  },
+  "weakPasswordsDescription": {
+    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Reused passwords"
+  },
+  "reusedPasswordsDescription": {
+    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "This password has additional risks:"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ times",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "None of your passwords were found in data breaches."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "You're all set!"
   }
 }

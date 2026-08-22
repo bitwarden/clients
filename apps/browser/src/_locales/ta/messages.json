@@ -751,15 +751,6 @@
   "launchWebsite": {
     "message": "வலைத்தளத்தைத் தொடங்கு"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "website": {
     "message": "வலைத்தளம்"
   },
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "மெம்பர்ஷிப்பை ரெஃப்ரெஷ் செய்"
   },
-  "premiumNotCurrentMember": {
-    "message": "நீங்கள் தற்போது பிரீமியம் மெம்பர் இல்லை."
-  },
-  "premiumSignUpAndGet": {
-    "message": "ஒரு பிரீமியம் மெம்பர்ஷிப்பிற்கு சைன் அப் செய்து பெறுங்கள்:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden வலை செயலியில் உங்கள் கணக்கு அமைப்புகளிலிருந்து பிரீமியம் வாங்கலாம்."
-  },
-  "premiumCurrentMember": {
-    "message": "நீங்கள் ஒரு பிரீமியம் மெம்பர்!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Bitwarden-ஐ ஆதரித்ததற்கு நன்றி."
   },
   "premiumFeatures": {
     "message": "பிரீமியத்திற்கு மேம்படுத்திப் பெறுங்கள்:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "பாதுகாப்புக் குறியீடு"
   },
-  "cardNumber": {
-    "message": "அட்டை எண்"
-  },
   "ex": {
     "message": "உதா."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ சேகரிப்புகள்",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "ஃபில்ட்டர்களை அகற்றுங்கள் அல்லது வேறு தேடல் சொல்லை முயற்சிக்கவும்"
   },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "குறிப்பை நகலெடு - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "மேலும் விருப்பத்தேர்வுகள், $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "நகலெடு $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Exposed passwords"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+  },
+  "weakPasswordsTitle": {
+    "message": "Weak passwords"
+  },
+  "weakPasswordsDescription": {
+    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Reused passwords"
+  },
+  "reusedPasswordsDescription": {
+    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "This password has additional risks:"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ times",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "None of your passwords were found in data breaches."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "You're all set!"
   }
 }

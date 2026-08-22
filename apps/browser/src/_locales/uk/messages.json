@@ -120,7 +120,7 @@
     "message": "Сховище"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "Сховища"
   },
   "myVault": {
     "message": "Моє сховище"
@@ -509,7 +509,7 @@
     "message": "Додатково"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Параметри для $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Спільна тека відсутня"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Фільтрувати за $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Додайте записи до обраного, щоб відфільтрувати їх тут."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Додайте теки до записів, щоб відфільтрувати їх тут."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Редагувати запис - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "У сховищі немає записів"
   },
   "length": {
     "message": "Довжина"
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Відкрити вебсайт"
-  },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Вебсайт"
@@ -1410,16 +1401,16 @@
     "message": "Додаткові налаштування"
   },
   "fillAssistActiveNotice": {
-    "message": "Autofill is using Fill Assist on this page."
+    "message": "Автозаповнення використовує Fill Assist на цій сторінці."
   },
   "activateFillAssist": {
-    "message": "Turn on Fill Assist"
+    "message": "Увімкнути функцію «Помічник заповнення»"
   },
   "activateFillAssistDescription": {
-    "message": "Fill Assist improves autofill accuracy on supported sites by using site specific rules. No data is collected or saved when you use this feature."
+    "message": "Функція «Fill Assist» підвищує точність автозаповнення на підтримуваних сайтах завдяки застосуванню правил, специфічних для кожного сайту. Під час використання цієї функції дані не збираються та не зберігаються."
   },
   "aboutFillAssistLabel": {
-    "message": "About Fill Assist"
+    "message": "Про Fill Assist"
   },
   "enableContextMenuItem": {
     "message": "Показувати в контекстному меню"
@@ -1539,10 +1530,10 @@
     "message": "Мої теки"
   },
   "addSharedFolder": {
-    "message": "Add shared folder"
+    "message": "Додати спільну теку"
   },
   "newSharedFolder": {
-    "message": "New shared folder"
+    "message": "Нова спільна тека"
   },
   "bitwardenForBusinessPageDesc": {
     "message": "Bitwarden для бізнесу дозволяє доступ до записів сховища спільно з іншими користувачами за допомогою організації. Дізнайтеся більше про це на вебсайті bitwarden.com."
@@ -1600,19 +1591,19 @@
     "message": "Копіювати код підтвердження"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Немає імені користувача"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Немає пароля"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Немає коду підтвердження"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Немає числа"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "Немає коду безпеки"
   },
   "attachments": {
     "message": "Вкладення"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Оновити стан передплати"
   },
-  "premiumNotCurrentMember": {
-    "message": "Зараз у вас немає передплати Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Передплатіть Premium і отримайте:"
-  },
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для вкладених файлів."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Ви можете придбати Premium у налаштуваннях облікового запису вебпрограми Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Ви користуєтеся передплатою Premium!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Дякуємо за підтримку Bitwarden."
   },
   "premiumFeatures": {
     "message": "Передплатіть Premium та отримайте:"
@@ -2008,7 +1987,7 @@
     "message": "Показувати картки як пропозиції"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "Показувати ключі SSH як пропозиції"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "Показувати пропозиції, якщо вибрано піктограму"
@@ -2212,9 +2191,6 @@
   },
   "securityCode": {
     "message": "Код безпеки"
-  },
-  "cardNumber": {
-    "message": "номер картки"
   },
   "ex": {
     "message": "зразок"
@@ -2632,6 +2608,15 @@
       }
     }
   },
+  "nSharedFolders": {
+    "message": "$COUNT$ спільних тек",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "favorites": {
     "message": "Обране"
   },
@@ -2661,13 +2646,13 @@
     "description": "To clear something out. example: To clear browser history."
   },
   "selectAllRows": {
-    "message": "Select all rows"
+    "message": "Вибрати усі рядки"
   },
   "selectRow": {
-    "message": "Select row"
+    "message": "Обрати рядок"
   },
   "showingItemRange": {
-    "message": "Showing $START$ - $END$ of $TOTAL$",
+    "message": "Показано $START$ – $END$ із $TOTAL$",
     "placeholders": {
       "start": {
         "content": "$1",
@@ -2684,10 +2669,10 @@
     }
   },
   "rowsPerPage": {
-    "message": "Rows per page"
+    "message": "Рядки на сторінку"
   },
   "rowsPerPageOption": {
-    "message": "$COUNT$ rows per page",
+    "message": "$COUNT$ рядків на сторінку",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2696,7 +2681,7 @@
     }
   },
   "itemCount": {
-    "message": "$COUNT$ items",
+    "message": "$COUNT$ записів",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2705,19 +2690,19 @@
     }
   },
   "all": {
-    "message": "All"
+    "message": "Усі"
   },
   "clearAll": {
-    "message": "Clear all"
+    "message": "Очистити все"
   },
   "done": {
-    "message": "Done"
+    "message": "Готово"
   },
   "filter": {
-    "message": "Filter"
+    "message": "Фільтр"
   },
   "filtersSelected": {
-    "message": "$COUNT$ selected",
+    "message": "$COUNT$ вибрано",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2726,16 +2711,16 @@
     }
   },
   "previousPage": {
-    "message": "Previous page"
+    "message": "Попередня сторінка"
   },
   "nextPage": {
-    "message": "Next page"
+    "message": "Наступна сторінка"
   },
   "goToPage": {
-    "message": "Go to page"
+    "message": "Перейти на сторінку"
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "з $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2744,7 +2729,7 @@
     }
   },
   "noMatchingItems": {
-    "message": "No matching items"
+    "message": "Немає відповідних записів"
   },
   "selected": {
     "message": "Вибрано"
@@ -3339,7 +3324,7 @@
     "message": "Ризиковані паролі"
   },
   "atRisk": {
-    "message": "at risk",
+    "message": "у групі ризику",
     "description": "Status label indicating items (e.g. passwords) that need attention because they are weak, reused, or exposed."
   },
   "atRiskPasswordDescSingleOrg": {
@@ -4185,11 +4170,11 @@
     }
   },
   "forwarderWebsitePrefix": {
-    "message": "Add website prefix",
+    "message": "Додати префікс вебсайту",
     "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
   },
   "forwarderWebsitePrefixHint": {
-    "message": "When enabled, the current website's domain will be used as a prefix for the generated email address",
+    "message": "Якщо цю опцію увімкнути, домен поточного вебсайту буде використовуватися як префікс для згенерованої адреси е-пошти",
     "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
@@ -4964,7 +4949,7 @@
     }
   },
   "importPartialErrorTitleSingular": {
-    "message": "$COUNT$ item will be skipped",
+    "message": "$COUNT$ запис буде пропущено",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4976,16 +4961,16 @@
     "message": "Не вдалося прочитати зазначені записи, тому вони не будуть включені до вашого імпорту:"
   },
   "importSkipReasonSshKeyParse": {
-    "message": "This SSH key could not be imported"
+    "message": "Цей ключ SSH не вдалося імпортувати"
   },
   "importSkipReasonUnsupportedType": {
-    "message": "Unsupported item type"
+    "message": "Непідтримуваний тип запису"
   },
   "importSkipReasonGeneric": {
-    "message": "This item could not be imported"
+    "message": "Цей запис не можна імпортувати"
   },
   "identifier": {
-    "message": "Identifier"
+    "message": "Ідентифікатор"
   },
   "contact": {
     "message": "Контакт"
@@ -5063,10 +5048,10 @@
     "message": "Файл не вибрано"
   },
   "noFileSelected": {
-    "message": "No file selected"
+    "message": "Файл не вибрано"
   },
   "fileChosen": {
-    "message": "File chosen: $FILE_NAME$",
+    "message": "Вибрано файл: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5075,7 +5060,7 @@
     }
   },
   "fileAdded": {
-    "message": "File added: $FILE_NAME$",
+    "message": "Файл додано: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5084,7 +5069,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ files added: $FILE_NAMES$",
+    "message": "$COUNT$ файлів додано: $FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5097,7 +5082,7 @@
     }
   },
   "fileRemoved": {
-    "message": "File removed: $FILE_NAME$",
+    "message": "Файл вилучено: $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5106,10 +5091,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1 file uploaded"
+    "message": "1 файл вивантажено"
   },
   "filesUploaded": {
-    "message": "$COUNT$ files uploaded",
+    "message": "$COUNT$ файлів вивантажено",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5118,16 +5103,16 @@
     }
   },
   "uploadedFiles": {
-    "message": "Uploaded files"
+    "message": "Вивантажені файли"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "Click to upload or drag and drop"
+    "message": "Натисніть, щоб вивантажити, або перетягніть файл"
   },
   "chooseFiles": {
-    "message": "Choose files"
+    "message": "Вибрати файли"
   },
   "maxFileSizeParam": {
-    "message": "Max. file size: $SIZE$ MB",
+    "message": "Макс. розмір файлу: $SIZE$ МБ",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -5725,10 +5710,10 @@
     "message": "Вилучити ключ доступу"
   },
   "deletePasskey": {
-    "message": "Delete passkey"
+    "message": "Видалити ключ доступу"
   },
   "deletePasskeyConfirmation": {
-    "message": "This passkey will be permanently deleted from your login item. This can't be undone."
+    "message": "Цей ключ доступу буде назавжди видалено з вашого запису входу. Цю дію неможливо скасувати."
   },
   "passkeyRemoved": {
     "message": "Ключ доступу вилучено"
@@ -5750,26 +5735,6 @@
   },
   "clearFiltersOrTryAnother": {
     "message": "Скиньте фільтри або спробуйте іншу умову пошуку"
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Копіювати нотатку – $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
   },
   "moreOptionsLabel": {
     "message": "Інші можливості, $ITEMNAME$",
@@ -5842,35 +5807,21 @@
       }
     }
   },
-  "copyFieldCipherName": {
-    "message": "Копіювати $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Значення не введено",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Немає деталей для копіювання"
   },
   "assignToCollections": {
     "message": "Призначити до збірок"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "Додати до спільної теки"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "Перенести й додати"
   },
   "copyEmail": {
     "message": "Копіювати е-пошту"
@@ -6016,7 +5967,7 @@
     "message": "Власник"
   },
   "sharedFolderAriaLabel": {
-    "message": "Shared folder $NAME$",
+    "message": "Спільна тека $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6025,7 +5976,7 @@
     }
   },
   "collectionAriaLabel": {
-    "message": "Collection $NAME$",
+    "message": "Колекція $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6034,7 +5985,7 @@
     }
   },
   "myFolderAriaLabel": {
-    "message": "My folder $NAME$",
+    "message": "Моя тека $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6043,7 +5994,7 @@
     }
   },
   "folderAriaLabel": {
-    "message": "Folder $NAME$",
+    "message": "Тека $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6052,7 +6003,7 @@
     }
   },
   "ownerAriaLabel": {
-    "message": "Owner $NAME$",
+    "message": "Власник $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6061,7 +6012,7 @@
     }
   },
   "vaultAriaLabel": {
-    "message": "Vault $NAME$",
+    "message": "Сховище $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6340,13 +6291,13 @@
     "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати запис."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "Переглянути цей запис зможуть лише учасники сховища, які мають доступ до цих спільних тек."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Лише учасники організації з доступом до цих збірок зможуть переглядати записи."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "Переглядати ці записи зможуть лише учасники сховища, які мають доступ до цих спільних тек."
   },
   "bulkCollectionAssignmentWarning": {
     "message": "Ви вибрали $TOTAL_COUNT$ записів. Ви не можете оновити $READONLY_COUNT$ записів, тому що у вас немає дозволу на редагування.",
@@ -6453,7 +6404,7 @@
     "message": "1 запис буде остаточно перенесено до вибраної організації. Ви більше не будете власником цього запису."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 запис буде остаточно перенесено до вибраного сховища. Ви більше не будете володіти цим записом."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ записів будуть остаточно перенесені до вибраної організації. Ви більше не будете власником цих записів.",
@@ -6465,7 +6416,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ записів буде назавжди перенесено до обраного сховища. Ви більше не будете володіти цими записами.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -6499,31 +6450,31 @@
     "message": "Збірки успішно призначено"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "Спільні теки успішно додано"
   },
   "itemMovedToCollection": {
     "message": "Запис переміщено до збірки"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "Запис додано до спільної теки"
   },
   "itemMovedToCollections": {
     "message": "Запис переміщено до збірки"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "Запис додано до спільних тек"
   },
   "itemsMovedToCollection": {
     "message": "Записи переміщено до збірки"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "Записи додано до спільної теки"
   },
   "itemsMovedToCollections": {
     "message": "Записи переміщено до збірок"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "Записи додано до спільних тек"
   },
   "itemAssignedToCollections": {
     "message": "Запис призначено збіркам"
@@ -6581,7 +6532,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "itemSends": {
-    "message": "Item Sends",
+    "message": "Відправлення запису",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "accountActions": {
@@ -6603,7 +6554,7 @@
     }
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "Показати дії швидкого копіювання у сховищі"
   },
   "systemDefault": {
     "message": "Типово (система)"
@@ -6918,7 +6869,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "Неможливо вилучити спільні теки з правами доступу «Тільки перегляд»: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -7109,7 +7060,7 @@
     "message": "Bitwarden використовуватиме збережені URI-адреси записів для визначення піктограм вебсайтів або URL-адрес для зміни паролів, щоб вдосконалити вашу роботу. Під час використання цієї послуги ваша інформація не збирається і не зберігається."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Додайте 3 кнопки швидкого копіювання поруч із записами, щоб скопіювати своє ім’я користувача, пароль або код підтвердження в буфер обміну."
   },
   "noPermissionsViewPage": {
     "message": "У вас немає дозволу переглядати цю сторінку. Спробуйте ввійти з іншим обліковим записом."
@@ -7410,7 +7361,7 @@
     "message": "Якщо ввімкнено, стан розблокування буде спільним з вебсховищами Bitwarden."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
-    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+    "message": "Функція спільного розблокування недоступна, оскільки ви вирішили не зберігати цей пристрій у пам’яті. Щоб увімкнути цю функцію, спробуйте увійти ще раз."
   },
   "newPermissionNeeded": {
     "message": "Потрібен новий дозвіл"
@@ -7620,27 +7571,27 @@
     }
   },
   "health": {
-    "message": "Health"
+    "message": "Здоров'я"
   },
   "scanMyVault": {
-    "message": "Scan my vault"
+    "message": "Сканувати моє сховище"
   },
   "introducingHealth": {
-    "message": "Introducing Health"
+    "message": "Представляємо Здоров'я"
   },
   "healthIntroDescription": {
-    "message": "Monitor and improve your vault health by fixing passwords that are exposed, weak, and reused."
+    "message": "Стежте за станом свого сховища та покращуйте його, виправляючи паролі, які стали загальнодоступними, є слабкими або використовуються повторно."
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "Ваше сховище здорове",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "Рівень ризику вашого сховища є високим",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$AT_RISK$ із $TOTAL$ паролів потребують виправлення",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7654,15 +7605,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "Немає викритих паролів",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 викритий пароль",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ викритих паролів",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7672,23 +7623,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "Викриті внаслідок витоків даних",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "Жодного з ваших паролів не було виявлено в базах даних, що зазнали витоку",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "Немає слабких паролів",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 слабкий пароль",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ слабких паролів",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7698,23 +7649,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "Занадто короткий або простий",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "Усі ваші паролі міцні",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "Немає повторюваних паролів",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 перевикористаний пароль",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ повторно використаних паролів",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7724,19 +7675,69 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "Повторно використовується для декількох входів",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "Усі ваші паролі унікальні",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "Визначено ризики",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "Немає потреби в записах",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Викриті паролі"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Паролі для цих облікових записів стали відомими внаслідок витоків даних. Негайно змініть їх, щоб захистити свої облікові записи."
+  },
+  "weakPasswordsTitle": {
+    "message": "Слабкі паролі"
+  },
+  "weakPasswordsDescription": {
+    "message": "Ці паролі легко вгадати, оскільки вони занадто короткі або прості. Зробіть їх надійнішими, зробивши їх складнішими."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Повторювані паролі"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Для цих облікових записів використовується один і той самий пароль. Створіть унікальний пароль для кожного облікового запису, щоб ніхто не зміг отримати доступ до кількох облікових записів за допомогою одного пароля."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Видалення цього запису вилучить його з вашого сховища, але не усуне ризик. Щоб захистити свій обліковий запис, спочатку змініть пароль."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Цей пароль має додаткові ризики:"
+  },
+  "reused": {
+    "message": "Повторно використано",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ разів",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Жодного з ваших паролів не було виявлено в базах даних, що зазнали витоку."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "Усе налаштовано!"
   }
 }

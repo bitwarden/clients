@@ -509,7 +509,7 @@
     "message": "オプション"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ のオプション",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "共有フォルダーがありません"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ でフィルター",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "アイテムをお気に入りとしてマークすると、ここで絞り込めます。"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "フォルダーを追加すると、ここで絞り込めます。"
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "アイテムを編集 - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "保管庫にアイテムがありません"
   },
   "length": {
     "message": "長さ"
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "ウェブサイトを開く"
-  },
-  "launchWebsiteForName": {
-    "message": "$ITEMNAME$ のウェブサイトを開く",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "ウェブサイト"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "会員情報の更新"
   },
-  "premiumNotCurrentMember": {
-    "message": "あなたは現在プレミアム会員ではありません。"
-  },
-  "premiumSignUpAndGet": {
-    "message": "プレミアム会員に登録すると以下の特典を得られます："
-  },
   "premiumSignUpStorage": {
     "message": "添付ファイル用の 1GB の暗号化されたファイルストレージ。"
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden ウェブアプリでアカウント設定からプレミアムを購入できます。"
-  },
-  "premiumCurrentMember": {
-    "message": "あなたはプレミアム会員です！"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Bitwarden を支援いただき、ありがとうございます。"
   },
   "premiumFeatures": {
     "message": "プレミアムにアップグレードして受け取る："
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "セキュリティコード"
   },
-  "cardNumber": {
-    "message": "カード番号"
-  },
   "ex": {
     "message": "例:"
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ 個のコレクション",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ 個の共有フォルダー",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "フィルタをクリアするか、別の検索ワードをお試しください"
   },
-  "copyDetailsTitle": {
-    "message": "$ITEMNAME$ の詳細をコピー",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "メモをコピー - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "$ITEMNAME$ のその他のオプション",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$ ($CIPHERNAME$) をコピー",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "注意が必要なアイテムはありません",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "流出済みパスワード"
+  },
+  "exposedPasswordsDescription": {
+    "message": "これらのログイン情報のパスワードはデータ漏洩にさらされました。アカウントを保護するためにすぐに変更してください。"
+  },
+  "weakPasswordsTitle": {
+    "message": "脆弱なパスワード"
+  },
+  "weakPasswordsDescription": {
+    "message": "これらのパスワードは短すぎるか簡単すぎるため、簡単に推測できます。パスワードを複雑にして強化してください。"
+  },
+  "reusedPasswordsTitle": {
+    "message": "再利用されたパスワード"
+  },
+  "reusedPasswordsDescription": {
+    "message": "これらのログイン情報には再利用されたパスワードがあります。誰かが1つのパスワードで複数のアカウントにアクセスできないように、各アカウントに固有のパスワードを作成してください。"
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "このログインを削除すると保管庫から削除されますが、リスクは解決されません。アカウントを保護するには、まずパスワードを変更してください。"
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "このパスワードには追加のリスクがあります："
+  },
+  "reused": {
+    "message": "再利用",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ 回",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "データ漏洩であなたのパスワードは見つかりませんでした。"
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "準備完了です！"
   }
 }
