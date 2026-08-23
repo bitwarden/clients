@@ -292,7 +292,10 @@ export class AccessRuleEditComponent {
 
   /** Fetch the rule under edit; on a stale/inaccessible id (or any other failure), toast and route back. */
   private async loadRule(): Promise<AccessRuleView | null> {
-    if (!isGuid(this.accessRuleId!)) {
+    // `accessRuleId` is the raw route param branded as an `AccessRuleId` at the field, so it is
+    // only a *claimed* id until checked. `uuidAsString` unwraps the brand (a no-op at runtime) to
+    // hand `isGuid` the plain string it takes.
+    if (!isGuid(uuidAsString(this.accessRuleId!))) {
       return await this.ruleNotFound();
     }
     try {
