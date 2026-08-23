@@ -34,20 +34,31 @@ pub(crate) fn start_impersonating() -> Result<HANDLE> {
     // so try several.
     let (token, pid, name) = find_system_process_with_token(get_system_pid_list())?;
 
-    // Impersonate the SYSTEM process
-    unsafe {
-        ImpersonateLoggedOnUser(token)?;
-    };
+    impersonate_with_token(token)?;
     debug!("Impersonating system process '{}' (PID: {})", name, pid);
 
     Ok(token)
 }
 
+pub(crate) fn start_impersonating_token(token: HANDLE) -> Result<()> {
+    impersonate_with_token(token)
+}
+
+fn impersonate_with_token(token: HANDLE) -> Result<()> {
+    if let Err(error) = unsafe { ImpersonateLoggedOnUser(token) } {
+        unsafe {
+            _ = CloseHandle(token);
+        }
+        return Err(error.into());
+    }
+    Ok(())
+}
+
 pub(crate) fn stop_impersonating(token: HANDLE) -> Result<()> {
-    unsafe {
-        RevertToSelf()?;
-        CloseHandle(token)?;
-    };
+    let revert_result = unsafe { RevertToSelf() };
+    let close_result = unsafe { CloseHandle(token) };
+    revert_result?;
+    close_result?;
     Ok(())
 }
 
@@ -55,7 +66,7 @@ fn find_system_process_with_token(
     pids: Vec<(u32, &'static str)>,
 ) -> Result<(HANDLE, u32, &'static str)> {
     for (pid, name) in pids {
-        match get_system_token_from_pid(pid) {
+        match get_process_token_from_pid(pid) {
             Err(_) => {
                 debug!(
                     "Failed to open process handle '{}' (PID: {}), skipping",
@@ -71,34 +82,50 @@ fn find_system_process_with_token(
     Err(anyhow!("Failed to get system token from any process"))
 }
 
-fn get_system_token_from_pid(pid: u32) -> Result<HANDLE> {
-    let handle = get_process_handle(pid)?;
-    let token = get_system_token(handle)?;
-    unsafe {
-        CloseHandle(handle)?;
-    };
-    Ok(token)
+fn get_process_token_from_pid(pid: u32) -> Result<HANDLE> {
+    let process = get_process_handle(pid)?;
+    let token_result = duplicate_process_token(process);
+    let close_result = unsafe { CloseHandle(process) };
+
+    match (token_result, close_result) {
+        (Ok(token), Ok(())) => Ok(token),
+        (Err(error), _) => Err(error),
+        (Ok(token), Err(error)) => {
+            unsafe {
+                _ = CloseHandle(token);
+            }
+            Err(error.into())
+        }
+    }
 }
 
-fn get_system_token(handle: HANDLE) -> Result<HANDLE> {
+pub(crate) fn duplicate_process_token(handle: HANDLE) -> Result<HANDLE> {
     let token_handle = unsafe {
         let mut token_handle = HANDLE::default();
         OpenProcessToken(handle, TOKEN_DUPLICATE | TOKEN_QUERY, &mut token_handle)?;
         token_handle
     };
 
-    let duplicate_token = unsafe {
-        let mut duplicate_token = HANDLE::default();
+    let mut duplicate_token = HANDLE::default();
+    let duplicate_result = unsafe {
         DuplicateToken(
             token_handle,
             Security::SECURITY_IMPERSONATION_LEVEL(2),
             &mut duplicate_token,
-        )?;
-        CloseHandle(token_handle)?;
-        duplicate_token
+        )
     };
+    let close_result = unsafe { CloseHandle(token_handle) };
 
-    Ok(duplicate_token)
+    match (duplicate_result, close_result) {
+        (Ok(()), Ok(())) => Ok(duplicate_token),
+        (Err(error), _) => Err(error.into()),
+        (Ok(()), Err(error)) => {
+            unsafe {
+                _ = CloseHandle(duplicate_token);
+            }
+            Err(error.into())
+        }
+    }
 }
 
 fn get_system_pid_list() -> Vec<(u32, &'static str)> {
