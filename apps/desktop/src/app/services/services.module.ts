@@ -109,8 +109,6 @@ import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/f
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { DefaultSdkClientFactory } from "@bitwarden/common/platform/services/sdk/default-sdk-client-factory";
 import { DefaultSdkLoadService } from "@bitwarden/common/platform/services/sdk/default-sdk-load.service";
-import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
-import { NoopSdkLoadService } from "@bitwarden/common/platform/services/sdk/noop-sdk-load.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -172,7 +170,6 @@ import { RendererBiometricsService } from "../../key-management/biometrics/rende
 import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
-import { flagEnabled } from "../../platform/flags";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
 import {
@@ -569,12 +566,12 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: SdkClientFactory,
-    useClass: flagEnabled("sdk") ? DefaultSdkClientFactory : NoopSdkClientFactory,
+    useClass: DefaultSdkClientFactory,
     deps: [],
   }),
   safeProvider({
     provide: SdkLoadService,
-    useClass: flagEnabled("sdk") ? DefaultSdkLoadService : NoopSdkLoadService,
+    useClass: DefaultSdkLoadService,
     deps: [],
   }),
   safeProvider({
