@@ -3,11 +3,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
-  LOCALE_ID,
   NgZone,
   OnInit,
   computed,
-  effect,
   inject,
   input,
   signal,
@@ -53,7 +51,6 @@ import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
-import { formatDuration } from "../date/format-duration";
 import { formatRemaining } from "../date/format-remaining";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
@@ -92,7 +89,6 @@ import {
     AsyncActionsModule,
     ButtonModule,
     CalloutModule,
-    DatePipe,
     FormFieldModule,
     ReactiveFormsModule,
     TypographyModule,
@@ -120,7 +116,6 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
-  private readonly locale = inject(LOCALE_ID);
 
   /** Ticks once a second so the live countdown and a scheduled window's opening stay current. */
   private readonly nowMs = signal(Date.now());
@@ -326,35 +321,6 @@ export class CipherViewBannerComponent implements OnInit {
     this.humanForm.valueChanges.pipe(map(() => this.humanForm.errors)),
     { initialValue: null },
   );
-
-  constructor() {
-    // The window validator lives on the form group, not on `end`, so `bit-form-field`'s automatic
-    // error slot (which reads `end`'s own control status) never sees it. Setting it on `end`
-    // directly is the same technique `access-rule-edit.component.ts`'s `showFieldSaveError` uses.
-    effect(() => {
-      const end = this.humanForm.controls.end;
-      if (this.windowEndBeforeStart()) {
-        end.setErrors({
-          [REQUEST_WINDOW_ERROR_KEY]: {
-            message: this.i18nService.t("requestAccessModalEndBeforeStart"),
-          },
-        });
-        end.markAsTouched();
-      } else if (this.windowExceedsMax()) {
-        end.setErrors({
-          [REQUEST_WINDOW_ERROR_KEY]: {
-            message: this.i18nService.t(
-              "requestAccessModalWindowExceedsMax",
-              formatDuration(this.locale, this.maxWindowSeconds(), "long"),
-            ),
-          },
-        });
-        end.markAsTouched();
-      } else if (end.hasError(REQUEST_WINDOW_ERROR_KEY)) {
-        end.setErrors(null);
-      }
-    });
-  }
 
   ngOnInit(): void {
     // Kept outside the Angular zone: a periodic in-zone timer never lets NgZone settle, which would

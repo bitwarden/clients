@@ -492,15 +492,13 @@ describe("CipherViewBannerComponent", () => {
 
       expect(component["windowExceedsMax"]()).toBe(true);
       expect(component["humanForm"].invalid).toBe(true);
-      const end = component["humanForm"].controls.end;
-      expect(end.touched).toBe(true);
+      // Asserted on what the requester actually sees. The error lives on the form GROUP, so
+      // `bit-form-field`'s slot (which reads `end`'s own status) never renders it; the visible
+      // paragraph is the only thing that does.
       const maxWindow = formatDuration("en-US", 1800, "long");
-      expect(end.errors?.["requestWindow"]?.message).toBe(
-        ["requestAccessModalWindowExceedsMax", maxWindow].join(" "),
-      );
-      expect(query('[data-testid="request-window-end-field"] bit-error')?.textContent).toContain(
-        maxWindow,
-      );
+      const error = query('[data-testid="window-exceeds-max"]');
+      expect(error).not.toBeNull();
+      expect(error?.textContent).toContain(maxWindow);
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -617,7 +615,7 @@ describe("CipherViewBannerComponent", () => {
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
     });
 
-    it("shows the window error on the End time field once the requester inverts the window", async () => {
+    it("shows the window error once the requester inverts the window", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
@@ -630,10 +628,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(component["windowEndBeforeStart"]()).toBe(true);
-      const end = component["humanForm"].controls.end;
-      expect(end.touched).toBe(true);
-      expect(end.errors?.["requestWindow"]?.message).toBe("requestAccessModalEndBeforeStart");
-      const error = query('[data-testid="request-window-end-field"] bit-error');
+      const error = query('[data-testid="window-end-before-start"]');
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
     });
