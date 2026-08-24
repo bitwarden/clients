@@ -751,15 +751,6 @@
   "launchWebsite": {
     "message": "Посещаване на уеб сайта"
   },
-  "launchWebsiteForName": {
-    "message": "Отваряне на уеб сайта за $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "website": {
     "message": "Сайт"
   },
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Опресняване на абонамента"
   },
-  "premiumNotCurrentMember": {
-    "message": "В момента ползвате безплатен абонамент."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Платеният абонамент дава следните предимства:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB пространство за файлове, които се шифрират."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Можете да закупите платената версия от настройките на регистрацията си, в приложението по уеб на Битуорден."
-  },
-  "premiumCurrentMember": {
-    "message": "Честито, ползвате платен абонамент!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Благодарим ви за подкрепата на Bitwarden."
   },
   "premiumFeatures": {
     "message": "Преминете към платената версия и ще получите:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Код за сигурност"
   },
-  "cardNumber": {
-    "message": "номер на карта"
-  },
   "ex": {
     "message": "напр."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ колекции",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ споделени папки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Изчистете филтрите или опитайте да търсите нещо друго"
   },
-  "copyDetailsTitle": {
-    "message": "Копиране на подробностите за $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Копиране на бележката – $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Още опции, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Копиране на $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "Няма нуждаещи се от внимание елементи",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Разобличени пароли"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Паролите за тези запаси са били открити в познати изтичания на данни. Сменете ги незабавно, за да защитите акаунтите си."
+  },
+  "weakPasswordsTitle": {
+    "message": "Слаби пароли"
+  },
+  "weakPasswordsDescription": {
+    "message": "Тези пароли могат лесно да бъдат отгатнати, тъй като са прекалено кратки или прости. Подсилете ги, като ги направите по-сложни."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Преизползвани пароли"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Тези записи имате преизползвани пароли. Създайте уникална парола за всеки акаунт, за да не може някой да получи достъп до няколко Ваши акаунта с една разкрита парола."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Изтриването на този елемент го премахва от трезора, но не премахва риска. За да защитите акаунта си, първо сменете паролата му."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Тази парола има допълнителни рискове:"
+  },
+  "reused": {
+    "message": "Преизползвана",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ пъти",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Нито една от паролите Ви не е намерена в известни изтичания на данни."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "Всичко е готово!"
   }
 }
