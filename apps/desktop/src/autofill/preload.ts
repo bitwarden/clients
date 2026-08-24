@@ -73,6 +73,9 @@ const autotypeMvp = {
       },
     );
   },
+  stopListeningRequest: () => {
+    ipcRenderer.removeAllListeners(AUTOTYPE_MVP_IPC_CHANNELS.LISTEN);
+  },
 };
 
 export default {

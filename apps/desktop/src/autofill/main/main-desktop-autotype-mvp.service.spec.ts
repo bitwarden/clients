@@ -237,6 +237,8 @@ describe("MainDesktopAutotypeMvpService", () => {
 
   describe("EXECUTE handler", () => {
     it("should execute autotype with valid vault data", async () => {
+      (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
+
       const vaultData: AutotypeVaultData = {
         username: "testuser",
         password: "testpass",
@@ -257,6 +259,8 @@ describe("MainDesktopAutotypeMvpService", () => {
     });
 
     it("should not execute autotype with empty username", () => {
+      (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
+
       const vaultData: AutotypeVaultData = {
         username: "",
         password: "testpass",
@@ -269,6 +273,8 @@ describe("MainDesktopAutotypeMvpService", () => {
     });
 
     it("should not execute autotype with empty password", () => {
+      (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
+
       const vaultData: AutotypeVaultData = {
         username: "testuser",
         password: "",
@@ -281,6 +287,8 @@ describe("MainDesktopAutotypeMvpService", () => {
     });
 
     it("should format input with tab separator", () => {
+      (globalShortcut.isRegistered as jest.Mock).mockReturnValue(true);
+
       const mockNewShortcut = {
         set: jest.fn().mockReturnValue(true),
         getElectronFormat: jest.fn().mockReturnValue("Control+Alt+B"),
@@ -302,6 +310,69 @@ describe("MainDesktopAutotypeMvpService", () => {
       const expectedArray = Array.from(expectedPattern).map((c) => c.charCodeAt(0));
 
       expect(autotype_mvp.typeInput).toHaveBeenCalledWith(expectedArray, ["Control", "Alt", "B"]);
+    });
+
+    it("should not execute autotype when the shortcut is not currently registered (autotype disabled)", () => {
+      // beforeEach already defaults globalShortcut.isRegistered to false.
+      const vaultData: AutotypeVaultData = {
+        username: "testuser",
+        password: "testpass",
+      };
+
+      const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
+      executeHandler({}, vaultData);
+
+      expect(autotype_mvp.typeInput).not.toHaveBeenCalled();
+    });
+
+    it("should gate on the currently configured shortcut, not a stale one", () => {
+      const config: AutotypeConfig = {
+        keyboardShortcut: ["Control", "Alt", "A"],
+      };
+      const mockNewShortcut = {
+        set: jest.fn().mockReturnValue(true),
+        getElectronFormat: jest.fn().mockReturnValue("Control+Alt+A"),
+        getArrayFormat: jest.fn().mockReturnValue(["Control", "Alt", "A"]),
+      };
+      (AutotypeKeyboardShortcut as jest.Mock).mockReturnValue(mockNewShortcut);
+
+      const configureHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.CONFIGURE);
+      configureHandler({}, config);
+
+      // Only the OLD accelerator is registered at the OS level; the new one isn't.
+      (globalShortcut.isRegistered as jest.Mock).mockImplementation(
+        (accelerator: string) => accelerator === "Control+Alt+B",
+      );
+
+      const vaultData: AutotypeVaultData = {
+        username: "testuser",
+        password: "testpass",
+      };
+      const executeHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.EXECUTE);
+      executeHandler({}, vaultData);
+
+      expect(autotype_mvp.typeInput).not.toHaveBeenCalled();
+
+      // Now the NEW accelerator is the one registered - EXECUTE should proceed.
+      (globalShortcut.isRegistered as jest.Mock).mockImplementation(
+        (accelerator: string) => accelerator === "Control+Alt+A",
+      );
+      executeHandler({}, vaultData);
+
+      expect(autotype_mvp.typeInput).toHaveBeenCalledWith(expect.any(Array), [
+        "Control",
+        "Alt",
+        "A",
+      ]);
+
+      // Restore the default mock implementation - `mockReturnValue` above persists across
+      // tests (jest.clearAllMocks() doesn't undo it), which would otherwise leak this test's
+      // "Control+Alt+A" shortcut into every subsequent test's freshly-constructed service.
+      (AutotypeKeyboardShortcut as jest.Mock).mockImplementation(() => ({
+        set: jest.fn().mockReturnValue(true),
+        getElectronFormat: jest.fn().mockReturnValue("Control+Alt+B"),
+        getArrayFormat: jest.fn().mockReturnValue(["Control", "Alt", "B"]),
+      }));
     });
   });
 

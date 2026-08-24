@@ -143,6 +143,7 @@ describe("DesktopAutotypeMvpService", () => {
       autofill: {
         autotypeMvp: {
           listenRequest: jest.fn(),
+          stopListeningRequest: jest.fn(),
           configure: jest.fn(),
           toggle: jest.fn(),
         },
@@ -187,10 +188,13 @@ describe("DesktopAutotypeMvpService", () => {
   });
 
   describe("init", () => {
-    it("should register autotype request listener on Windows", async () => {
-      await service.init();
+    it("should register autotype request listener when already enabled at boot", async () => {
+      autotypeEnabledSubject.next(true);
 
-      expect(global.ipc.autofill.autotypeMvp.listenRequest).toHaveBeenCalled();
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).toHaveBeenCalledTimes(1);
     });
 
     it("should not initialize on non-Windows platforms", async () => {
@@ -199,6 +203,84 @@ describe("DesktopAutotypeMvpService", () => {
       await service.init();
 
       expect(global.ipc.autofill.autotypeMvp.listenRequest).not.toHaveBeenCalled();
+    });
+
+    it("should not register the request listener when disabled at boot", async () => {
+      // autotypeEnabledSubject defaults to null -> false, so autotypeFeatureEnabled$ is false.
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).not.toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledWith(false);
+    });
+
+    it("should stop listening and toggle off when the flag flips off after being on", async () => {
+      autotypeEnabledSubject.next(true);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).toHaveBeenCalledTimes(1);
+
+      featureFlagSubject.next(false);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.autotypeMvp.stopListeningRequest).toHaveBeenCalledTimes(1);
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenLastCalledWith(false);
+    });
+
+    it("should register the listener when the flag flips on live, mid-session", async () => {
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).not.toHaveBeenCalled();
+
+      autotypeEnabledSubject.next(true);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).toHaveBeenCalledTimes(1);
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenLastCalledWith(true);
+    });
+
+    it("should register and unregister exactly once per transition across repeated enable/disable cycles, with no accumulation", async () => {
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      // Clear the initial "disabled at boot" call before measuring the cycles below.
+      jest.clearAllMocks();
+
+      for (let cycle = 0; cycle < 3; cycle++) {
+        autotypeEnabledSubject.next(true);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        autotypeEnabledSubject.next(false);
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).toHaveBeenCalledTimes(3);
+      expect(global.ipc.autofill.autotypeMvp.stopListeningRequest).toHaveBeenCalledTimes(3);
+    });
+
+    it("should log and resubscribe rather than permanently dying if a transition throws", async () => {
+      const testError = new Error("boom");
+      (global.ipc.autofill.autotypeMvp.listenRequest as jest.Mock).mockImplementationOnce(() => {
+        throw testError;
+      });
+
+      autotypeEnabledSubject.next(true);
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(mockLogService.error).toHaveBeenCalledWith(
+        "Unexpected error in Autotype enable/disable pipeline",
+        testError,
+      );
+
+      // catchError's `return source` resubscribes immediately, re-evaluating the still-true
+      // current state — proving the pipeline survives the throw instead of dying permanently.
+      expect(global.ipc.autofill.autotypeMvp.listenRequest).toHaveBeenCalledTimes(2);
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenCalledTimes(1);
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenLastCalledWith(true);
     });
 
     it("should configure autotype when keyboard shortcut changes", async () => {
@@ -359,6 +441,28 @@ describe("DesktopAutotypeMvpService", () => {
       service.ngOnDestroy();
 
       expect(destroySpy).toHaveBeenCalled();
+    });
+
+    it("should stop listening and toggle off after having been enabled", async () => {
+      autotypeEnabledSubject.next(true);
+
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      service.ngOnDestroy();
+
+      expect(global.ipc.autofill.autotypeMvp.stopListeningRequest).toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenLastCalledWith(false);
+    });
+
+    it("should stop listening and toggle off even if never enabled", async () => {
+      await service.init();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(() => service.ngOnDestroy()).not.toThrow();
+
+      expect(global.ipc.autofill.autotypeMvp.stopListeningRequest).toHaveBeenCalled();
+      expect(global.ipc.autofill.autotypeMvp.toggle).toHaveBeenLastCalledWith(false);
     });
   });
 });
