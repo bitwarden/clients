@@ -148,7 +148,10 @@ import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-share
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
-import { VAULT_GATED_COLLECTION_BANNER } from "./vault-gated-collection-banner.token";
+import {
+  VaultGatedCollectionBanner,
+  VAULT_GATED_COLLECTION_BANNER,
+} from "./vault-gated-collection-banner.token";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -193,7 +196,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  protected readonly gatedCollectionBanner: Type<unknown> | null = inject(
+  protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
     VAULT_GATED_COLLECTION_BANNER,
     { optional: true },
   );
