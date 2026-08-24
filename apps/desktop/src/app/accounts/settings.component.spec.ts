@@ -602,6 +602,7 @@ describe("SettingsComponent", () => {
       beforeEach(async () => {
         await component.ngOnInit();
         component.supportsBiometric = true;
+        keyService.userKey$.mockReturnValue(of(mockUserKey));
       });
 
       it("calls services to clear biometrics when supportsBiometric is false", async () => {
@@ -658,6 +659,10 @@ describe("SettingsComponent", () => {
         );
         expect(component.form.controls.biometric.value).toBe(true);
         expect(keyService.refreshAdditionalKeys).toHaveBeenCalledWith(mockUserId);
+        expect(desktopBiometricsService.setBiometricProtectedUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+          mockUserKey,
+        );
         expect(messagingService.send).toHaveBeenCalledWith("redrawMenu");
       });
 

@@ -66,6 +66,13 @@ export abstract class BiometricsService {
    */
   abstract hasPersistentKey(userId: UserId): Promise<boolean>;
 
+  /**
+   * Deletes the biometrics-protected copy of the user key. No-op on platforms that do not store
+   * one.
+   * @param userId the user whose biometric unlock key should be deleted
+   */
+  abstract deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void>;
+
   // Cannot be DI injected because of circular dependency
   async setUnlockService(service: UnlockService): Promise<void> {
     this.unlockService = service;
