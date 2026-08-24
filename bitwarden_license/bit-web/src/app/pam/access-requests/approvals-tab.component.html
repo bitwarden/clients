@@ -1,5 +1,5 @@
 @if (loading() && totalRows() === 0) {
-  <bit-spinner class="tw-mt-2" />
+  <p bitTypography="body2" class="tw-mt-2">{{ "loading" | i18n }}</p>
 } @else if (totalRows() === 0) {
   <bit-no-items class="tw-mt-2 tw-block" data-testid="approvals-empty">
     <span slot="title" class="tw-mt-4 tw-block">{{ "pamInboxEmptyTitle" | i18n }}</span>

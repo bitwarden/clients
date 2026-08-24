@@ -105,12 +105,12 @@ describe("ApprovalsTabComponent", () => {
   });
 
   describe("rendering", () => {
-    it("shows a spinner while loading and nothing has arrived yet", () => {
+    it("shows the loading message while loading and nothing has arrived yet", () => {
       inbox.loading$.next(true);
 
       create();
 
-      expect(query("bit-spinner")).not.toBeNull();
+      expect(query('[bitTypography="body2"]')?.textContent).toContain("loading");
       expect(query('[data-testid="approvals-empty"]')).toBeNull();
     });
 
