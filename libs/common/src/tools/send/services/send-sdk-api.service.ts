@@ -197,11 +197,19 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     return Promise.reject(new Error("SendSdkApiService.getSend: use SendApiService."));
   }
 
-  async postSendAccess(accessToken: SendAccessToken, apiUrl?: string): Promise<SendAccessResponse> {
-    return await this.withAccessClient(apiUrl, async (sdk) => {
-      const view = await sdk.sends().access_send(accessToken.token);
-      return new SendAccessResponse(view);
-    });
+  /**
+   * `apiUrl` is part of the shared `SendApiService` contract for cross-instance receive (the CLI
+   * opening a Send hosted on another Bitwarden instance) — legacy honours it, but
+   * `SendApiServiceSelector` always routes those calls to legacy regardless of the flag, since the
+   * SDK client only targets its own configured environment. It never reaches here.
+   */
+  async postSendAccess(
+    accessToken: SendAccessToken,
+    _apiUrl?: string,
+  ): Promise<SendAccessResponse> {
+    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+    const view = await sdk.sends().access_send(accessToken.token);
+    return new SendAccessResponse(view);
   }
 
   /**
@@ -243,37 +251,15 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
     );
   }
 
+  /** See {@link postSendAccess} — `apiUrl` never reaches here either. */
   async getSendFileDownloadData(
     send: SendAccessView,
     accessToken: SendAccessToken,
-    apiUrl?: string,
+    _apiUrl?: string,
   ): Promise<SendFileDownloadDataResponse> {
-    return await this.withAccessClient(apiUrl, async (sdk) => {
-      const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
-      return new SendFileDownloadDataResponse(data);
-    });
-  }
-
-  /**
-   * Runs an anonymous send-access operation against the server hosting the send.
-   *
-   * With no `apiUrl` this uses the shared client for the app's own environment. With one — the
-   * CLI receiving a send hosted on another Bitwarden instance — it builds a one-off client
-   * targeting that instance and disposes of it afterwards, since the shared client is pinned to
-   * the app's single configured environment. Only the API endpoint is overridden: these calls are
-   * already authenticated by a send access token, so no identity endpoint is involved.
-   */
-  private async withAccessClient<T>(
-    apiUrl: string | undefined,
-    operation: (sdk: PasswordManagerClient) => Promise<T>,
-  ): Promise<T> {
-    if (apiUrl == null) {
-      const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
-      return await operation(sdk);
-    }
-
-    using crossInstanceClient = await this.sdkService.createEphemeralClient({ apiUrl });
-    return await operation(crossInstanceClient);
+    const sdk: PasswordManagerClient = await firstValueFrom(this.sdkService.client$);
+    const data = await sdk.sends().get_file_download_data(accessToken.token, send.file.id);
+    return new SendFileDownloadDataResponse(data);
   }
 
   private async mutateSend(

@@ -209,54 +209,34 @@ describe("SendSdkApiService", () => {
   describe("send access", () => {
     const accessToken = { token: "access-token" } as SendAccessToken;
     let sharedAccessClient: { sends: jest.Mock };
-    let crossInstanceAccessClient: { sends: jest.Mock; [Symbol.dispose]: jest.Mock };
 
-    function accessClient() {
-      return {
+    beforeEach(() => {
+      sharedAccessClient = {
         sends: jest.fn().mockReturnValue({
           access_send: jest.fn().mockResolvedValue({}),
           get_file_download_data: jest.fn().mockResolvedValue({}),
         }),
       };
-    }
-
-    beforeEach(() => {
-      sharedAccessClient = accessClient();
-      crossInstanceAccessClient = { ...accessClient(), [Symbol.dispose]: jest.fn() };
       (sdkService as { client$: unknown }).client$ = of(sharedAccessClient);
-      (sdkService.createEphemeralClient as jest.Mock).mockResolvedValue(crossInstanceAccessClient);
     });
 
-    it("uses the shared client when no apiUrl is supplied", async () => {
-      await service.postSendAccess(accessToken);
-
-      expect(sharedAccessClient.sends).toHaveBeenCalled();
-      expect(sdkService.createEphemeralClient).not.toHaveBeenCalled();
-    });
-
+    // `apiUrl` is part of the shared SendApiService contract (legacy honours it for
+    // cross-instance receive); SendApiServiceSelector always routes those calls to legacy, so it
+    // never reaches here. These calls always use the shared client regardless.
     it.each([
-      [
-        "postSendAccess",
-        (s: SendSdkApiService, apiUrl: string) => s.postSendAccess(accessToken, apiUrl),
-      ],
+      ["postSendAccess", (s: SendSdkApiService) => s.postSendAccess(accessToken)],
       [
         "getSendFileDownloadData",
-        (s: SendSdkApiService, apiUrl: string) =>
+        (s: SendSdkApiService) =>
           s.getSendFileDownloadData(
             { id: "id", file: { id: "file-id" } } as SendAccessView,
             accessToken,
-            apiUrl,
           ),
       ],
-    ])("%s targets the hosting instance and disposes the client", async (_name, invoke) => {
-      await invoke(service, "https://api.other.example");
+    ])("%s uses the shared client", async (_name, invoke) => {
+      await invoke(service);
 
-      expect(sdkService.createEphemeralClient).toHaveBeenCalledWith({
-        apiUrl: "https://api.other.example",
-      });
-      expect(crossInstanceAccessClient.sends).toHaveBeenCalled();
-      expect(sharedAccessClient.sends).not.toHaveBeenCalled();
-      expect(crossInstanceAccessClient[Symbol.dispose]).toHaveBeenCalled();
+      expect(sharedAccessClient.sends).toHaveBeenCalled();
     });
   });
 
