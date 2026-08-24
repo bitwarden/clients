@@ -5,6 +5,12 @@
 
 <app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
+<vault-shared-folder-card-grid
+  [folders]="childSharedFolders()"
+  [parentName]="sharedFolderName()"
+  (folderSelected)="drillIntoSharedFolder($event)"
+></vault-shared-folder-card-grid>
+
 <vault-items-table
   [ciphers]="ciphers()"
   [loading]="loading()"
@@ -15,6 +21,7 @@
   [organizationId]="scopedOrganizationId()"
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
+  (sharedFolderFilterChange)="trackSharedFolderFilter($event)"
 >
   <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
     @if (showItemCreation()) {

@@ -8,14 +8,12 @@ import {
   inject,
   input,
   linkedSignal,
+  output,
   untracked,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { Params, QueryParamsHandling, RouterLink } from "@angular/router";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { CollectionId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import {
   IconComponent,
@@ -26,9 +24,6 @@ import {
   AccordionComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-
-import { RoutedVaultFilterModel } from "../../models/routed-vault-filter.model";
-import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
 
 /**
  * The grid never grows past three columns, and nine cards — three full rows at that width — stay
@@ -59,23 +54,14 @@ const COUNT_TOKEN = "\uFFFC";
 // The toggle sits below the grid it controls, so `aria-controls` has to point at the list by id.
 let nextId = 0;
 
-/** A single child folder, resolved to the route its card links to. */
-type SharedFolderCard = {
-  id: string;
-  name: string;
-  commands: unknown[];
-  queryParams?: Params | null;
-  queryParamsHandling?: QueryParamsHandling | null;
-  state?: Record<string, unknown>;
-};
-
 /**
  * Renders the direct child folders of the shared folder currently in view as a responsive card
- * grid. Each card is an anchor built from the host-provided {@link RoutedVaultFilterService}, so
- * activation, middle-click, and right-click all behave like ordinary links.
+ * grid. Activating a card emits {@link folderSelected} rather than navigating: the host owns what
+ * drilling in means, since the filter it narrows lives in the vault items table this grid sits
+ * above, not in the URL.
  *
- * The component is presentational: it fetches nothing and has no loading state. Hosts pass the
- * children they have already derived, and an empty list renders nothing.
+ * The component is presentational: it fetches nothing, navigates nowhere, and has no loading state.
+ * Hosts pass the children they have already derived, and an empty list renders nothing.
  */
 @Component({
   selector: "vault-shared-folder-card-grid",
@@ -88,7 +74,6 @@ type SharedFolderCard = {
     ItemModule,
     LinkModule,
     NgTemplateOutlet,
-    RouterLink,
     TypographyModule,
     AccordionComponent,
   ],
@@ -96,7 +81,6 @@ type SharedFolderCard = {
 export class SharedFolderCardGridComponent {
   private readonly i18nService = inject(I18nService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
-  private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
 
   /**
    * Direct children of the shared folder in view, as already derived by the host. An empty array
@@ -106,6 +90,12 @@ export class SharedFolderCardGridComponent {
 
   /** Name of the shared folder in view, used to title the section. */
   readonly parentName = input.required<string>();
+
+  /**
+   * Emits the child folder whose card was activated. The host narrows its own view to that folder,
+   * which is what feeds this grid its next set of children.
+   */
+  readonly folderSelected = output<CollectionView>();
 
   protected readonly gridTemplateColumns = GRID_TEMPLATE_COLUMNS;
 
@@ -124,33 +114,13 @@ export class SharedFolderCardGridComponent {
     computation: () => false,
   });
 
-  private readonly filter = toSignal(this.routedVaultFilterService.filter$, {
-    initialValue: {} as RoutedVaultFilterModel,
-  });
-
-  private readonly cards = computed<SharedFolderCard[]>(() => {
-    const filter = this.filter();
-
-    return this.folders().map((child) => {
-      // Mirrors how the vault filter selects a collection: keep the surrounding filter, swap in the
-      // child, and clear the filters that cannot apply alongside it.
-      const [commands, extras] = this.routedVaultFilterService.createRoute({
-        ...filter,
-        collectionId: child.node.id as CollectionId,
-        folderId: undefined,
-        type: undefined,
-      });
-
-      return {
-        id: child.node.id,
-        name: child.node.name,
-        commands,
-        queryParams: extras?.queryParams,
-        queryParamsHandling: extras?.queryParamsHandling,
-        state: extras?.state,
-      };
-    });
-  });
+  /**
+   * The child collections themselves, unwrapped from their tree nodes. The tree names each node by
+   * its own path segment rather than its full path, so a card shows the folder's own name.
+   */
+  private readonly cards = computed<CollectionView[]>(() =>
+    this.folders().map((child) => child.node),
+  );
 
   protected readonly count = computed(() => this.cards().length);
 

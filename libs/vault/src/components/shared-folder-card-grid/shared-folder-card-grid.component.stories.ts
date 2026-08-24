@@ -1,6 +1,4 @@
-import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
-import { BehaviorSubject } from "rxjs";
 import { getByRole, userEvent } from "storybook/test";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -8,9 +6,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { I18nMockService } from "@bitwarden/components";
-
-import { RoutedVaultFilterModel } from "../../models/routed-vault-filter.model";
-import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
 
 import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
 
@@ -71,21 +66,7 @@ export default {
   component: SharedFolderCardGridComponent,
   decorators: [
     moduleMetadata({
-      imports: [RouterTestingModule],
       providers: [
-        {
-          provide: RoutedVaultFilterService,
-          useValue: {
-            filter$: new BehaviorSubject<RoutedVaultFilterModel>({}),
-            createRoute: (filter: RoutedVaultFilterModel) => [
-              ["/vault"],
-              {
-                queryParams: { sharedFolderId: filter.collectionId ?? null },
-                queryParamsHandling: "merge",
-              },
-            ],
-          },
-        },
         {
           provide: I18nService,
           useFactory: () =>

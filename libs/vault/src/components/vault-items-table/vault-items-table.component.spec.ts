@@ -961,6 +961,72 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
+  /** The two-way seam a host renders its own folder navigation beside the table through. */
+  describe("shared folder filter, for a host outside the table", () => {
+    let reported: string[][];
+
+    beforeEach(() => {
+      reported = [];
+      component.sharedFolderFilterChange.subscribe((selected) => reported.push(selected));
+      fixture.componentRef.setInput("collections", [
+        { id: "col-1", name: "Operations" } as CollectionView,
+        { id: "col-2", name: "Engineering" } as CollectionView,
+      ]);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ organizationId: "org-1" as never, collectionIds: ["col-2"] as never }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("narrows the chip to the collection a host drills into", () => {
+      component.setSharedFolderFilter("col-2");
+
+      expect(filterControl("sharedFolder").value()).toEqual(["col-2"]);
+    });
+
+    it("replaces whatever the chip held, as activating a row's chip does", () => {
+      filterControl("sharedFolder").setValue(["col-1"]);
+
+      component.setSharedFolderFilter("col-2");
+
+      expect(filterControl("sharedFolder").value()).toEqual(["col-2"]);
+    });
+
+    it("reports the chip's selection however it was made", () => {
+      filterControl("sharedFolder").setValue(["col-1"]);
+      fixture.detectChanges();
+
+      component.setSharedFolderFilter("col-2");
+      fixture.detectChanges();
+
+      expect(reported.at(-2)).toEqual(["col-1"]);
+      expect(reported.at(-1)).toEqual(["col-2"]);
+    });
+
+    // Every chip shares one `filterValues()` record, so an unrelated edit rebuilds this chip's
+    // array — a host following the report shouldn't see that as a drill-in.
+    it("stays quiet when an unrelated chip changes", () => {
+      component.setSharedFolderFilter("col-2");
+      fixture.detectChanges();
+      const reportsBefore = reported.length;
+
+      filterControl("type").setValue(CipherType.Login);
+      fixture.detectChanges();
+
+      expect(reported).toHaveLength(reportsBefore);
+    });
+
+    it("reports the chip clearing, so a host can follow it back out", () => {
+      component.setSharedFolderFilter("col-2");
+      fixture.detectChanges();
+
+      filterControl("sharedFolder").setValue(undefined);
+      fixture.detectChanges();
+
+      expect(reported.at(-1)).toEqual([]);
+    });
+  });
+
   describe("multi-select chip seeding from a scalar (URL param normalization)", () => {
     // When a multi-select chip is seeded from a single URL query param, the router decodes
     // it as a scalar string rather than an array. setValue() must normalize it so the chip

@@ -14,6 +14,7 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -527,6 +528,78 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
 
       expect(component().copyPresentation()).toBe("expanded");
+    });
+  });
+
+  describe("shared folder card grid", () => {
+    const collection = (id: string, name: string) =>
+      new CollectionView({ id: id as CollectionId, organizationId, name });
+
+    // Nesting is carried in the name, so the tree is derived rather than declared.
+    const departments = collection("departments", "Departments");
+    const design = collection("design", "Departments/Design");
+    const engineering = collection("engineering", "Departments/Engineering");
+    const platform = collection("platform", "Departments/Engineering/Platform");
+
+    beforeEach(() => {
+      collections$.next([departments, design, engineering, platform]);
+      organizations$.next([buildOrganization(organizationId, "Acme corporation")]);
+      fixture.detectChanges();
+    });
+
+    /** Stands in for the table reporting its Shared folders chip selection. */
+    const filterTo = (...collectionIds: string[]) => {
+      component().trackSharedFolderFilter(collectionIds);
+      fixture.detectChanges();
+    };
+
+    const childNames = () =>
+      component()
+        .childSharedFolders()
+        .map((child: TreeNode<CollectionView>) => child.node.name);
+
+    it("has nothing to show until the chip narrows to a folder", () => {
+      expect(childNames()).toEqual([]);
+      expect(component().sharedFolderName()).toBe("");
+    });
+
+    it("shows the direct children of the folder the chip names", () => {
+      filterTo("departments");
+
+      expect(childNames()).toEqual(["Design", "Engineering"]);
+      expect(component().sharedFolderName()).toBe("Departments");
+    });
+
+    it("titles a nested folder by its own name and shows only its own children", () => {
+      filterTo("engineering");
+
+      expect(childNames()).toEqual(["Platform"]);
+      expect(component().sharedFolderName()).toBe("Engineering");
+    });
+
+    it("shows no children for a leaf folder", () => {
+      filterTo("platform");
+
+      expect(childNames()).toEqual([]);
+      expect(component().sharedFolderName()).toBe("Platform");
+    });
+
+    // Several selected folders name no single parent for the grid to title itself with.
+    it("stays away while the chip holds more than one folder", () => {
+      filterTo("departments", "engineering");
+
+      expect(childNames()).toEqual([]);
+      expect(component().sharedFolderName()).toBe("");
+    });
+
+    // The grid resolves against the scoped collections, the same set the chip offers, so it can
+    // never surface a child the chip couldn't have selected.
+    it("resolves nothing for a folder outside the scoped vault", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      filterTo("departments");
+
+      expect(childNames()).toEqual([]);
+      expect(component().sharedFolderName()).toBe("");
     });
   });
 

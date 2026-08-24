@@ -1,16 +1,11 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { NavigationExtras, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-
-import { RoutedVaultFilterModel } from "../../models/routed-vault-filter.model";
-import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
 
 import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
 
@@ -22,9 +17,7 @@ const TRIGGER_SELECTOR = "#shared-folder-card-grid_button_toggle-overflow";
 describe("SharedFolderCardGridComponent", () => {
   let fixture: ComponentFixture<SharedFolderCardGridComponent>;
   let liveAnnouncer: MockProxy<LiveAnnouncer>;
-
-  const filter$ = new BehaviorSubject<RoutedVaultFilterModel>({});
-  const createRoute = jest.fn<[unknown[], NavigationExtras], [RoutedVaultFilterModel]>();
+  let selected: CollectionView[];
 
   function folderNode(id: string, name: string): TreeNode<CollectionView> {
     const collection = new CollectionView({
@@ -44,6 +37,7 @@ describe("SharedFolderCardGridComponent", () => {
     fixture = TestBed.createComponent(SharedFolderCardGridComponent);
     fixture.componentRef.setInput("folders", folders);
     fixture.componentRef.setInput("parentName", parentName);
+    fixture.componentInstance.folderSelected.subscribe((folder) => selected.push(folder));
     fixture.detectChanges();
   }
 
@@ -59,8 +53,9 @@ describe("SharedFolderCardGridComponent", () => {
       ?.textContent?.trim();
   }
 
-  function cardLinks(): HTMLAnchorElement[] {
-    return Array.from(fixture.nativeElement.querySelectorAll("a[bit-item-content]"));
+  /** The cards themselves, distinguished from the overflow trigger by their `bit-item-content`. */
+  function cards(): HTMLButtonElement[] {
+    return Array.from(fixture.nativeElement.querySelectorAll("button[bit-item-content]"));
   }
 
   function trigger(): HTMLButtonElement | null {
@@ -68,23 +63,12 @@ describe("SharedFolderCardGridComponent", () => {
   }
 
   beforeEach(async () => {
-    filter$.next({});
     liveAnnouncer = mock<LiveAnnouncer>();
-
-    createRoute.mockReset();
-    createRoute.mockImplementation((filter) => [
-      ["/vault"],
-      {
-        queryParams: { sharedFolderId: filter.collectionId ?? null },
-        queryParamsHandling: "merge",
-        state: { focusAfterNav: false },
-      },
-    ]);
+    selected = [];
 
     await TestBed.configureTestingModule({
       imports: [SharedFolderCardGridComponent],
       providers: [
-        provideRouter([]),
         {
           provide: I18nService,
           useValue: {
@@ -96,7 +80,6 @@ describe("SharedFolderCardGridComponent", () => {
           },
         },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
-        { provide: RoutedVaultFilterService, useValue: { filter$, createRoute } },
       ],
     }).compileComponents();
   });
@@ -105,11 +88,10 @@ describe("SharedFolderCardGridComponent", () => {
     it("renders each child as a card with a folder icon, name, and trailing chevron", () => {
       createComponent(folderNodes(2));
 
-      const cards = cardLinks();
-      expect(cards).toHaveLength(2);
-      expect(cards.map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
+      expect(cards()).toHaveLength(2);
+      expect(cards().map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
 
-      cards.forEach((card) => {
+      cards().forEach((card) => {
         expect(card.querySelector("bit-icon-tile i")?.classList).toContain("bwi-shared-folder");
         expect(card.querySelector(".bwi-angle-right")).not.toBeNull();
       });
@@ -131,7 +113,7 @@ describe("SharedFolderCardGridComponent", () => {
       createComponent([]);
 
       expect(fixture.nativeElement.querySelector("bit-accordion")).toBeNull();
-      expect(cardLinks()).toHaveLength(0);
+      expect(cards()).toHaveLength(0);
     });
 
     it("caps the grid at three columns, each at least 240px wide, with 12px spacing", () => {
@@ -145,41 +127,36 @@ describe("SharedFolderCardGridComponent", () => {
     });
   });
 
-  describe("card links", () => {
-    it("builds each href from RoutedVaultFilterService.createRoute for that child", () => {
-      createComponent(folderNodes(1));
+  describe("card activation", () => {
+    it("emits the child collection whose card was activated", () => {
+      createComponent(folderNodes(2));
 
-      expect(createRoute).toHaveBeenCalledWith(
-        expect.objectContaining({ collectionId: "folder-0" }),
-      );
-      expect(cardLinks()[0].getAttribute("href")).toBe("/vault?sharedFolderId=folder-0");
+      cards()[1].click();
+
+      expect(selected.map((folder) => folder.id)).toEqual(["folder-1"]);
     });
 
-    it("keeps the surrounding filter and clears the filters a collection cannot combine with", () => {
-      filter$.next({
-        organizationId: "org-1" as OrganizationId,
-        organizationIdParamType: "query",
-        folderId: "folder-to-clear",
-        type: "login",
-      });
-
+    // The drill-in it stands for lives in the host's filter rather than the URL, so there is no
+    // href to give these — they submit nothing either, hence the explicit type.
+    it("renders cards as plain buttons rather than links", () => {
       createComponent(folderNodes(1));
 
-      expect(createRoute).toHaveBeenCalledWith({
-        organizationId: "org-1",
-        organizationIdParamType: "query",
-        collectionId: "folder-0",
-        folderId: undefined,
-        type: undefined,
-      });
+      const card = cards()[0];
+      expect(card.tagName).toBe("BUTTON");
+      expect(card.type).toBe("button");
+      expect(fixture.nativeElement.querySelector("a")).toBeNull();
     });
 
-    it("renders cards as anchors so click, Enter, and right/middle-click all navigate", () => {
+    it("gives each card an id naming the folder it opens", () => {
       createComponent(folderNodes(1));
 
-      const card = cardLinks()[0];
-      expect(card.tagName).toBe("A");
-      expect(card.getAttribute("href")).not.toBeNull();
+      expect(cards()[0].id).toBe("shared-folder-card-grid_button_folder-folder-0");
+    });
+
+    it("emits nothing until a card is activated", () => {
+      createComponent(folderNodes(2));
+
+      expect(selected).toEqual([]);
     });
   });
 
@@ -187,20 +164,20 @@ describe("SharedFolderCardGridComponent", () => {
     it("renders no trigger when the children fit in the first three rows", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT));
 
-      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT);
+      expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT);
       expect(trigger()).toBeNull();
     });
 
     it("withholds the overflow cards until the trigger is used", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT + 3));
 
-      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT);
+      expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT);
       expect(trigger()?.textContent?.trim()).toBe("showAll");
 
       trigger()?.click();
       fixture.detectChanges();
 
-      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT + 3);
+      expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT + 3);
       expect(trigger()?.textContent?.trim()).toBe("showLess");
     });
 
@@ -214,7 +191,7 @@ describe("SharedFolderCardGridComponent", () => {
       // in the last row of the collapsed grid permanently blank.
       const grids = fixture.nativeElement.querySelectorAll("ul");
       expect(grids).toHaveLength(1);
-      expect(grids[0].querySelectorAll("a[bit-item-content]")).toHaveLength(
+      expect(grids[0].querySelectorAll("button[bit-item-content]")).toHaveLength(
         COLLAPSED_CARD_COUNT + 3,
       );
     });
@@ -317,7 +294,7 @@ describe("SharedFolderCardGridComponent", () => {
     it("counts every child, not just the rows on show", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT + 7));
 
-      expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT);
+      expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT);
       expect(countLabel()).toBe(`sharedFolderCount:${COLLAPSED_CARD_COUNT + 7}`);
     });
 
@@ -328,7 +305,7 @@ describe("SharedFolderCardGridComponent", () => {
       const accordionTrigger = fixture.nativeElement.querySelector("[data-accordion-trigger]");
 
       expect(region.getAttribute("aria-labelledby")).toBe(accordionTrigger.id);
-      expect(region.querySelector("a[bit-item-content]")).not.toBeNull();
+      expect(region.querySelector("button[bit-item-content]")).not.toBeNull();
     });
   });
 });

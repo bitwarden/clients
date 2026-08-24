@@ -1,16 +1,26 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
+import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
@@ -24,6 +34,7 @@ import {
   DEFAULT_COPY_PRESENTATION,
   DefaultCipherFormConfigService,
   NewCipherMenuComponent,
+  SharedFolderCardGridComponent,
   VaultCopyButtonsService,
   VaultItemsTableComponent,
   VaultItemsTableCopyPresentation,
@@ -71,6 +82,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
+    SharedFolderCardGridComponent,
   ],
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
@@ -197,6 +209,63 @@ export class VaultNextComponent {
     const scope = this.vaultScope();
     return scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
   });
+
+  private readonly vaultTable = viewChild(VaultItemsTableComponent);
+
+  /**
+   * The table's Shared folders chip selection, as the table reports it. Mirrored here rather than
+   * held as this page's own drill-in state, so the grid can't disagree with the chip after the user
+   * edits it directly.
+   */
+  private readonly sharedFolderFilter = signal<string[]>([]);
+
+  /**
+   * The shared folder the page has drilled into: the one folder the chip is narrowed to. A chip
+   * holding several names no single parent, so the grid has nothing to render for it.
+   */
+  private readonly sharedFolderInView = computed(() => {
+    const selected = this.sharedFolderFilter();
+    return selected.length === 1 ? selected[0] : undefined;
+  });
+
+  /**
+   * {@link scopedCollections} as a tree — the same collections the chip offers, so the grid can
+   * never surface a child the chip couldn't select.
+   */
+  private readonly collectionTree = computed(() =>
+    getNestedCollectionTree(this.scopedCollections()),
+  );
+
+  private readonly sharedFolderNode = computed(() => {
+    const collectionId = this.sharedFolderInView();
+    if (collectionId == null) {
+      return undefined;
+    }
+    // Predates strict null checks: a miss comes back as `null` despite the signature.
+    return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
+  });
+
+  /** The direct children of the shared folder in view — the cards the grid renders. */
+  protected readonly childSharedFolders = computed(() => this.sharedFolderNode()?.children ?? []);
+
+  /**
+   * The name of the shared folder in view, titling the grid. The tree names each node by its own
+   * path segment, so this is the folder's own name rather than its full path.
+   */
+  protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
+
+  /** Follows the table's Shared folders chip — see {@link sharedFolderFilter}. */
+  protected trackSharedFolderFilter(selected: string[]): void {
+    this.sharedFolderFilter.set(selected);
+  }
+
+  /**
+   * Drills into a child shared folder by narrowing the table's own chip to it, which re-derives
+   * both the rows and this grid's next set of children.
+   */
+  protected drillIntoSharedFolder(folder: CollectionView): void {
+    this.vaultTable()?.setSharedFolderFilter(folder.id);
+  }
 
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created

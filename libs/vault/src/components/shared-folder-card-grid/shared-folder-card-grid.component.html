@@ -51,17 +51,16 @@
 <ng-template #card let-folder>
   <li>
     <bit-item size="lg" class="!tw-mb-0">
-      <a
+      <button
         bit-item-content
-        [routerLink]="folder.commands"
-        [queryParams]="folder.queryParams"
-        [queryParamsHandling]="folder.queryParamsHandling"
-        [state]="folder.state"
+        type="button"
+        [id]="'shared-folder-card-grid_button_folder-' + folder.id"
+        (click)="folderSelected.emit(folder)"
       >
         <bit-icon-tile slot="start" icon="bwi-shared-folder"></bit-icon-tile>
         {{ folder.name }}
         <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
-      </a>
+      </button>
     </bit-item>
   </li>
 </ng-template>
