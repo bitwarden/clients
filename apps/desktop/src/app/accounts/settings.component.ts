@@ -2,6 +2,7 @@
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
 import { BehaviorSubject, Observable, Subject, firstValueFrom, of } from "rxjs";
@@ -50,18 +51,25 @@ import {
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
 import { SshAgentPromptType } from "../../autofill/models/ssh-agent-setting";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
-import { DesktopAutotypeService } from "../../autofill/services/desktop-autotype.service";
+import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
+import { DesktopPremiumUpgradePromptService } from "../../billing/services/desktop-premium-upgrade-prompt.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
-import { DesktopPremiumUpgradePromptService } from "../../services/desktop-premium-upgrade-prompt.service";
 import { NativeMessagingManifestService } from "../services/native-messaging-manifest.service";
 
+/**
+ * @deprecated - In process of being migrated to `settings-dialog.component.ts`. Ensure both are updated.
+ */
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
@@ -93,18 +101,16 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
   ],
 })
 export class SettingsComponent implements OnInit, OnDestroy {
-  showMinToTray = false;
   localeOptions: any[];
   themeOptions: any[];
   clearClipboardOptions: any[];
   sshAgentPromptBehaviorOptions: any[];
   supportsBiometric: boolean;
   private timerId: any;
-  showAlwaysShowDock = false;
-  requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   showEnableAutotype = false;
   autotypeShortcut: string;
@@ -113,14 +119,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   isLinux: boolean;
   isMac: boolean;
 
-  enableTrayText: string;
-  enableTrayDescText: string;
-  enableMinToTrayText: string;
-  enableMinToTrayDescText: string;
-  enableCloseToTrayText: string;
-  enableCloseToTrayDescText: string;
-  startToTrayText: string;
-  startToTrayDescText: string;
+  runInBackgroundText: string;
+  runInBackgroundDescText: string;
 
   showSecurity = true;
   showAccountPreferences = true;
@@ -134,6 +134,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   pinEnabled$: Observable<boolean> = of(true);
 
+  /** Controls whether the quick copy actions setting is shown */
+  protected readonly showQuickCopyActionsSetting = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
   form = this.formBuilder.group({
     // Security
     pin: [null as boolean | null],
@@ -145,22 +151,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
     // App Settings
-    enableTray: false,
-    enableMinToTray: false,
-    enableCloseToTray: false,
-    startToTray: false,
+    runInBackground: false,
     openAtLogin: false,
-    alwaysShowDock: false,
-    enableBrowserIntegration: false,
-    enableBrowserIntegrationFingerprint: this.formBuilder.control<boolean>({
-      value: false,
-      disabled: true,
-    }),
     enableHardwareAcceleration: true,
     enableSshAgent: false,
     sshAgentPromptBehavior: SshAgentPromptType.Always,
     allowScreenshots: false,
     enableDuckDuckGoBrowserIntegration: false,
+    showQuickCopyActions: false,
     enableAutotype: this.formBuilder.control<boolean>({
       value: false,
       disabled: true,
@@ -189,7 +187,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
     private desktopSettingsService: DesktopSettingsService,
-    private desktopAutotypeService: DesktopAutotypeService,
+    private desktopAutotypeMvpService: DesktopAutotypeMvpService,
     private biometricStateService: BiometricStateService,
     private biometricsService: DesktopBiometricsService,
     private desktopAutofillSettingsService: DesktopAutofillSettingsService,
@@ -199,31 +197,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private configService: ConfigService,
     private validationService: ValidationService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private vaultCopyButtonsService: VaultCopyButtonsService,
   ) {
     this.isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.isLinux = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
     this.isWindows = this.platformUtilsService.getDevice() === DeviceType.WindowsDesktop;
 
-    // Workaround to avoid ghosting trays https://github.com/electron/electron/issues/17622
-    this.requireEnableTray = this.platformUtilsService.getDevice() === DeviceType.LinuxDesktop;
+    this.runInBackgroundText = this.i18nService.t("runInBackground");
+    this.runInBackgroundDescText = this.i18nService.t(
+      this.isMac ? "runInBackgroundDescMac" : "runInBackgroundDesc",
+    );
 
-    const trayKey = this.isMac ? "enableMenuBar" : "enableTray";
-    this.enableTrayText = this.i18nService.t(trayKey);
-    this.enableTrayDescText = this.i18nService.t(trayKey + "Desc");
-
-    const minToTrayKey = this.isMac ? "enableMinToMenuBar" : "enableMinToTray";
-    this.enableMinToTrayText = this.i18nService.t(minToTrayKey);
-    this.enableMinToTrayDescText = this.i18nService.t(minToTrayKey + "Desc");
-
-    const closeToTrayKey = this.isMac ? "enableCloseToMenuBar" : "enableCloseToTray";
-    this.enableCloseToTrayText = this.i18nService.t(closeToTrayKey);
-    this.enableCloseToTrayDescText = this.i18nService.t(closeToTrayKey + "Desc");
-
-    const startToTrayKey = this.isMac ? "startToMenuBar" : "startToTray";
-    this.startToTrayText = this.i18nService.t(startToTrayKey);
-    this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
-
-    this.showOpenAtLoginOption = !ipc.platform.isWindowsStore;
+    this.showOpenAtLoginOption = this.showAutostartSetting();
 
     // DuckDuckGo browser is only for macos initially
     this.showDuckDuckGoIntegrationOption = this.isMac;
@@ -307,24 +292,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
       requireMasterPasswordOnAppRestart: !(await this.biometricsService.hasPersistentKey(
         activeAccount.id,
       )),
-      autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
+      autoPromptBiometrics: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$(activeAccount.id),
+      ),
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
-      enableTray: await firstValueFrom(this.desktopSettingsService.trayEnabled$),
-      enableMinToTray: await firstValueFrom(this.desktopSettingsService.minimizeToTray$),
-      enableCloseToTray: await firstValueFrom(this.desktopSettingsService.closeToTray$),
-      startToTray: await firstValueFrom(this.desktopSettingsService.startToTray$),
+      runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
-      alwaysShowDock: await firstValueFrom(this.desktopSettingsService.alwaysShowDock$),
-      enableBrowserIntegration: await firstValueFrom(
-        this.desktopSettingsService.browserIntegrationEnabled$,
-      ),
-      enableBrowserIntegrationFingerprint: await firstValueFrom(
-        this.desktopSettingsService.browserIntegrationFingerprintEnabled$,
-      ),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
         this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
+      ),
+      showQuickCopyActions: await firstValueFrom(
+        this.vaultCopyButtonsService.showQuickCopyActions$,
       ),
       enableHardwareAcceleration: await firstValueFrom(
         this.desktopSettingsService.hardwareAcceleration$,
@@ -334,22 +314,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
         this.desktopSettingsService.sshAgentPromptBehavior$,
       ),
       allowScreenshots: !(await firstValueFrom(this.desktopSettingsService.preventScreenshots$)),
-      enableAutotype: await firstValueFrom(this.desktopAutotypeService.autotypeEnabledUserSetting$),
+      enableAutotype: await firstValueFrom(
+        this.desktopAutotypeMvpService.autotypeEnabledUserSetting$,
+      ),
       autotypeShortcut: this.getFormattedAutotypeShortcutText(
-        (await firstValueFrom(this.desktopAutotypeService.autotypeKeyboardShortcut$)) ?? [],
+        (await firstValueFrom(this.desktopAutotypeMvpService.autotypeKeyboardShortcut$)) ?? [],
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
-
-    if (this.form.value.enableBrowserIntegration) {
-      this.form.controls.enableBrowserIntegrationFingerprint.enable();
-    }
-
-    // Non-form values
-    this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
-    this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
     if (isWindows) {
       this.billingAccountProfileStateService
@@ -391,16 +365,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
-
-    this.form.controls.enableBrowserIntegration.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((enabled) => {
-        if (enabled) {
-          this.form.controls.enableBrowserIntegrationFingerprint.enable();
-        } else {
-          this.form.controls.enableBrowserIntegrationFingerprint.disable();
-        }
-      });
 
     this.supportsBiometric = await this.biometricsService.canEnableBiometricUnlock();
     this.timerId = setInterval(async () => {
@@ -470,7 +434,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     if (!enabled || !this.supportsBiometric) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
       await this.keyService.refreshAdditionalKeys(activeUserId);
       return;
     }
@@ -491,11 +455,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.biometricStateService.setBiometricUnlockEnabled(true);
+    await this.biometricStateService.setBiometricUnlockEnabled(true, activeUserId);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
 
       // If the user doesn't have a MP or PIN then they have to use biometrics on app restart.
       if (!this.userHasMasterPassword && !this.userHasPinSet) {
@@ -507,8 +471,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     } else if (this.isLinux) {
       // Similar to Windows
       this.form.controls.autoPromptBiometrics.setValue(false);
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
     // Validate the key is stored in case biometrics fail.
@@ -517,7 +483,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       BiometricsStatus.Available;
     this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
     if (!biometricSet) {
-      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
     }
   }
 
@@ -554,9 +520,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   async updateAutoPromptBiometrics() {
     if (this.form.value.autoPromptBiometrics) {
-      await this.biometricStateService.setPromptAutomatically(true);
+      await this.biometricStateService.setPromptAutomatically(true, this.currentUserId);
     } else {
-      await this.biometricStateService.setPromptAutomatically(false);
+      await this.biometricStateService.setPromptAutomatically(false, this.currentUserId);
     }
   }
 
@@ -565,55 +531,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.messagingService.send("refreshCiphers");
   }
 
-  async saveMinToTray() {
-    await this.desktopSettingsService.setMinimizeToTray(this.form.value.enableMinToTray);
+  async saveQuickCopyActions() {
+    await this.vaultCopyButtonsService.setShowQuickCopyActions(
+      this.form.value.showQuickCopyActions,
+    );
   }
 
-  async saveCloseToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
-  }
-
-  async saveTray() {
-    if (
-      this.requireEnableTray &&
-      !this.form.value.enableTray &&
-      (this.form.value.startToTray || this.form.value.enableCloseToTray)
-    ) {
-      const confirm = await this.dialogService.openSimpleDialog({
-        title: { key: "confirmTrayTitle" },
-        content: { key: "confirmTrayDesc" },
-        type: "warning",
-      });
-
-      if (confirm) {
-        this.form.controls.startToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
-        this.form.controls.enableCloseToTray.setValue(false, { emitEvent: false });
-        await this.desktopSettingsService.setCloseToTray(this.form.value.enableCloseToTray);
-      } else {
-        this.form.controls.enableTray.setValue(true);
-      }
-
-      return;
-    }
-
-    await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    // TODO: Ideally the DesktopSettingsService.trayEnabled$ could be subscribed to instead of using messaging.
-    this.messagingService.send(this.form.value.enableTray ? "showTray" : "removeTray");
-  }
-
-  async saveStartToTray() {
-    if (this.requireEnableTray) {
-      this.form.controls.enableTray.setValue(true);
-      await this.desktopSettingsService.setTrayEnabled(this.form.value.enableTray);
-    }
-
-    await this.desktopSettingsService.setStartToTray(this.form.value.startToTray);
+  async saveRunInBackground() {
+    await this.desktopSettingsService.setRunInBackground(this.form.value.runInBackground);
   }
 
   async saveLocale() {
@@ -635,8 +560,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
     await this.autofillSettingsService.setClearClipboardDelay(this.form.value.clearClipboard);
   }
 
-  async saveAlwaysShowDock() {
-    await this.desktopSettingsService.setAlwaysShowDock(this.form.value.alwaysShowDock);
+  private showAutostartSetting(): boolean {
+    // Windows store does not support autostart.
+    // Dev mode should not show auto-start, because it would result in an empty electron window starting on login.
+    return !ipc.platform.isWindowsStore && !ipc.platform.isDev;
   }
 
   async saveOpenAtLogin() {
@@ -645,64 +572,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.messagingService.send(
       this.form.value.openAtLogin ? "addOpenAtLogin" : "removeOpenAtLogin",
     );
-  }
-
-  async saveBrowserIntegration() {
-    const skipSupportedPlatformCheck =
-      ipc.platform.allowBrowserintegrationOverride || ipc.platform.isDev;
-
-    if (!skipSupportedPlatformCheck) {
-      if (ipc.platform.isWindowsStore) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationWindowsStoreDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
-
-      if (ipc.platform.isSnapStore || ipc.platform.isFlatpak) {
-        await this.dialogService.openSimpleDialog({
-          title: { key: "browserIntegrationUnsupportedTitle" },
-          content: { key: "browserIntegrationLinuxDesc" },
-          acceptButtonText: { key: "ok" },
-          cancelButtonText: null,
-          type: "warning",
-        });
-
-        this.form.controls.enableBrowserIntegration.setValue(false);
-        return;
-      }
-    }
-
-    await this.desktopSettingsService.setBrowserIntegrationEnabled(
-      this.form.value.enableBrowserIntegration,
-    );
-
-    const errorResult = await this.nativeMessagingManifestService.generate(
-      this.form.value.enableBrowserIntegration,
-    );
-    if (errorResult !== null) {
-      this.logService.error("Error in browser integration: " + errorResult);
-      await this.dialogService.openSimpleDialog({
-        title: { key: "browserIntegrationErrorTitle" },
-        content: { key: "browserIntegrationErrorDesc" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "danger",
-      });
-    }
-
-    if (!this.form.value.enableBrowserIntegration) {
-      this.form.controls.enableBrowserIntegrationFingerprint.setValue(false);
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.saveBrowserIntegrationFingerprint();
-    }
   }
 
   async saveDdgBrowserIntegration() {
@@ -715,22 +584,12 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form.value.enableDuckDuckGoBrowserIntegration,
     );
 
-    if (!this.form.value.enableBrowserIntegration) {
-      await this.stateService.setDuckDuckGoSharedKey(null);
-    }
-
     const errorResult = await this.nativeMessagingManifestService.generateDuckDuckGo(
       this.form.value.enableDuckDuckGoBrowserIntegration,
     );
     if (errorResult !== null) {
       this.logService.error("Error in DDG browser integration: " + errorResult);
     }
-  }
-
-  async saveBrowserIntegrationFingerprint() {
-    await this.desktopSettingsService.setBrowserIntegrationFingerprintEnabled(
-      this.form.value.enableBrowserIntegrationFingerprint,
-    );
   }
 
   async saveHardwareAcceleration() {
@@ -766,7 +625,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       } catch {
         enabled = false;
       } finally {
-        dialogRef.close();
+        await dialogRef.close();
       }
 
       if (!enabled) {
@@ -777,9 +636,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async saveEnableAutotype() {
-    await this.desktopAutotypeService.setAutotypeEnabledState(this.form.value.enableAutotype);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(this.form.value.enableAutotype);
     const currentShortcut = await firstValueFrom(
-      this.desktopAutotypeService.autotypeKeyboardShortcut$,
+      this.desktopAutotypeMvpService.autotypeKeyboardShortcut$,
     );
     if (currentShortcut) {
       this.form.controls.autotypeShortcut.setValue(
@@ -792,16 +651,16 @@ export class SettingsComponent implements OnInit, OnDestroy {
     // disable the shortcut so that the user can't re-enter the existing
     // shortcut and trigger the feature during the settings menu.
     // it is not necessary to check if it's already enabled, because
-    // the edit shortcut is only avaialble if the feature is enabled
+    // the edit shortcut is only available if the feature is enabled
     // in the settings.
-    await this.desktopAutotypeService.setAutotypeEnabledState(false);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(false);
 
     const dialogRef = AutotypeShortcutComponent.open(this.dialogService);
 
     const newShortcutArray = await firstValueFrom(dialogRef.closed);
 
     // re-enable
-    await this.desktopAutotypeService.setAutotypeEnabledState(true);
+    await this.desktopAutotypeMvpService.setAutotypeEnabledState(true);
 
     if (!newShortcutArray) {
       return;
@@ -810,7 +669,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.form.controls.autotypeShortcut.setValue(
       this.getFormattedAutotypeShortcutText(newShortcutArray),
     );
-    await this.desktopAutotypeService.setAutotypeKeyboardShortcutState(newShortcutArray);
+    await this.desktopAutotypeMvpService.setAutotypeKeyboardShortcutState(newShortcutArray);
   }
 
   ngOnDestroy() {

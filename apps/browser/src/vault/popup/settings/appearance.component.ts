@@ -21,14 +21,17 @@ import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import {
-  BadgeModule,
   CardComponent,
   CheckboxModule,
   FormFieldModule,
   Option,
   SelectModule,
 } from "@bitwarden/components";
-import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { PopupWidthOption } from "../../../platform/browser/browser-popup-utils";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -36,7 +39,6 @@ import { PopupCompactModeService } from "../../../platform/popup/layout/popup-co
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
-import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -53,13 +55,13 @@ import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-butto
     SelectModule,
     ReactiveFormsModule,
     CheckboxModule,
-    BadgeModule,
     PermitCipherDetailsPopoverComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
   ],
 })
 export class AppearanceComponent implements OnInit {
   private compactModeService = inject(PopupCompactModeService);
-  private copyButtonsService = inject(VaultPopupCopyButtonsService);
+  private copyButtonsService = inject(VaultCopyButtonsService);
   private popupSizeService = inject(PopupSizeService);
   private i18nService = inject(I18nService);
   private configService = inject(ConfigService);

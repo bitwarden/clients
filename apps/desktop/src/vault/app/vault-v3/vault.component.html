@@ -1,21 +1,45 @@
-<div class="vault tw-flex tw-h-full">
-  <div class="tw-flex tw-flex-col tw-w-6/12">
-    <div class="tw-pt-6 tw-px-6">
-      <app-header>
+<div
+  class="vault tw-flex tw-flex-col tw-h-full tw-overflow-x-hidden"
+  attr.aria-hidden="{{ showingModal }}"
+>
+  <div [ngClass]="vfo1Foundation() ? 'tw-pt-6 tw-px-8' : 'tw-pt-6 tw-px-6'">
+    <vault-organization-user-notifications></vault-organization-user-notifications>
+    <app-header>
+      @if (!vfo1Foundation()) {
         <vault-new-cipher-menu
-          [canCreateCipher]="true"
+          [canCreateCipher]="(canCreateCipher$ | async) ?? true"
           [canCreateFolder]="true"
           [canCreateSshKey]="true"
+          [disabled]="!((canCreateCipher$ | async) ?? true)"
           (cipherAdded)="addCipher($event)"
           (folderAdded)="addFolder()"
+          (onAddItemDialog)="openAddItemDialog()"
         />
-      </app-header>
-    </div>
+      }
+    </app-header>
+  </div>
+  @if (vfo1Foundation()) {
+    <app-vault-list-table
+      class="tw-flex-1 tw-min-h-0"
+      [ciphers]="ciphers"
+      [folders]="folders()"
+      [collections]="allCollections"
+      [organizations]="allOrganizations"
+      [loading]="refreshing || performingInitialLoad"
+      [canCreateCipher]="(canCreateCipher$ | async) ?? true"
+      [showAddCipherBtn]="(showAddCipherBtn$ | async) ?? true"
+      [showPremiumCallout]="(showPremiumCallout$ | async) ?? false"
+      (onEvent)="onVaultItemsEvent($event)"
+      (onAddCipher)="addCipher($event)"
+      (onAddFolder)="addFolder()"
+      (onAddItemDialog)="openAddItemDialog()"
+    />
+  } @else {
     <bit-search
       class="tw-mb-4 tw-px-6"
       [ngModel]="currentSearchText$ | async"
       (ngModelChange)="filterSearchText($event)"
-      [placeholder]="searchPlaceholderText"
+      [placeholder]="searchPlaceholderText()"
       appAutofocus
     />
     <app-vault-list
@@ -26,10 +50,9 @@
       [allOrganizations]="allOrganizations"
       [disabled]="refreshing"
       [showOwner]="true"
-      [showPremiumFeatures]="userHasPremium()"
       [userCanArchive]="userCanArchive$ | async"
       [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy$ | async"
-      [placeholderText]="searchPlaceholderText"
+      [placeholderText]="searchPlaceholderText()"
       [isEmpty]="isEmpty && !performingInitialLoad"
       [showAddCipherBtn]="showAddCipherBtn$ | async"
       [emptyStateItem]="emptyState$ | async"
@@ -37,78 +60,10 @@
       (onEvent)="onVaultItemsEvent($event)"
       (onAddCipher)="addCipher($event)"
       (onAddFolder)="addFolder()"
+      (onAddItemDialog)="openAddItemDialog()"
     />
-  </div>
-  @if (!!action()) {
-    <div class="details">
-      <div class="content">
-        <div class="inner-content">
-          <div class="box">
-            @if (action() === "view") {
-              <app-cipher-view [cipher]="cipher()" [collections]="collections" />
-            }
-            @if (action() === "add" || action() === "edit" || action() === "clone") {
-              <vault-cipher-form
-                #vaultForm
-                formId="cipherForm"
-                [config]="config"
-                (cipherSaved)="savedCipher($event)"
-                [submitBtn]="footer?.submitBtn"
-                (formStatusChange$)="formStatusChanged($event)"
-              >
-                <bit-item slot="attachment-button">
-                  <button
-                    bit-item-content
-                    type="button"
-                    (click)="openAttachmentsDialog()"
-                    [disabled]="formDisabled"
-                  >
-                    <div class="tw-flex tw-items-center tw-gap-2">
-                      {{ "attachments" | i18n }}
-                      <app-premium-badge />
-                    </div>
-                    <i slot="end" class="bwi bwi-angle-right" aria-hidden="true"></i>
-                  </button>
-                </bit-item>
-              </vault-cipher-form>
-            }
-          </div>
-        </div>
-      </div>
-      <app-vault-item-footer
-        id="footer"
-        #footer
-        [cipher]="cipher()"
-        [action]="action()"
-        (onEdit)="editCipher($event)"
-        (onRestore)="restoreCipher()"
-        (onClone)="cloneCipher($event)"
-        (onDelete)="deleteCipher()"
-        (onCancel)="cancelCipher($event)"
-        (onArchiveToggle)="refreshCurrentCipher()"
-        [masterPasswordAlreadyPrompted]="cipherRepromptId === cipherId"
-        [submitButtonText]="submitButtonText()"
-      />
-    </div>
   }
-  @if (!["add", "edit", "view", "clone"].includes(action())) {
-    <div id="logo" class="logo">
-      <div class="content">
-        <div class="inner-content">
-          @if (activeFilter.isArchived && !(hasArchivedCiphers$ | async)) {
-            <bit-no-items [icon]="itemTypesIcon">
-              <div slot="title">
-                {{ "noItemsInArchive" | i18n }}
-              </div>
-              <p slot="description" bitTypography="body2" class="tw-max-w-md tw-text-center">
-                {{ "noItemsInArchiveDesc" | i18n }}
-              </p>
-            </bit-no-items>
-          } @else {
-            <img class="logo-image" alt="Bitwarden" aria-hidden="true" />
-          }
-        </div>
-      </div>
-    </div>
+  @if (vaultBatchBarFeatureFlag()) {
+    <bit-vault-batch-action />
   }
 </div>

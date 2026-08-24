@@ -1,9 +1,10 @@
 import { Opaque } from "type-fest";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { CipherId, OrganizationReportId } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import { ExposedPasswordDetail, WeakPasswordDetail } from "./password-health";
 
@@ -108,6 +109,7 @@ export const ReportStatus = Object.freeze({
   Loading: 2,
   Complete: 3,
   Error: 4,
+  LoadError: 5,
 } as const);
 
 export type ReportStatus = (typeof ReportStatus)[keyof typeof ReportStatus];

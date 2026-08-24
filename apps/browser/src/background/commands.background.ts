@@ -1,14 +1,14 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
-import { LockService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ExtensionCommand, ExtensionCommandType } from "@bitwarden/common/autofill/constants";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 // FIXME (PM-22628): Popup imports are forbidden in background
 // eslint-disable-next-line no-restricted-imports
@@ -25,7 +25,7 @@ export default class CommandsBackground {
     private main: MainBackground,
     private platformUtilsService: PlatformUtilsService,
     private authService: AuthService,
-    private generatePasswordToClipboard: () => Promise<void>,
+    private generatePasswordToClipboard: () => Observable<string>,
     private accountService: AccountService,
     private lockService: LockService,
   ) {
@@ -52,8 +52,8 @@ export default class CommandsBackground {
 
   private async processCommand(command: string, sender?: chrome.runtime.MessageSender) {
     switch (command) {
-      case "generate_password":
-        await this.generatePasswordToClipboard();
+      case ExtensionCommand.GeneratePassword:
+        await firstValueFrom(this.generatePasswordToClipboard(), { defaultValue: undefined });
         break;
       case ExtensionCommand.AutofillLogin:
         await this.triggerAutofillCommand(
@@ -73,12 +73,12 @@ export default class CommandsBackground {
           ExtensionCommand.AutofillIdentity,
         );
         break;
-      case "open_popup":
+      case ExtensionCommand.OpenPopup:
         await this.openPopup();
         break;
-      case "lock_vault": {
+      case ExtensionCommand.LockVault: {
         const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-        await this.lockService.lock(activeUserId);
+        await this.lockService.lock(activeUserId, LockSource.Manual);
         break;
       }
       default:

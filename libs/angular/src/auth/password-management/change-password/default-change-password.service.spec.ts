@@ -4,11 +4,16 @@ import { of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import {
+  OrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -18,11 +23,12 @@ import {
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { makeSymmetricCryptoKey, mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { UserKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 
 import {
   ChangePasswordService,
@@ -35,6 +41,8 @@ describe("DefaultChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let policyService: MockProxy<PolicyService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
 
   let sut: ChangePasswordService;
 
@@ -49,40 +57,22 @@ describe("DefaultChangePasswordService", () => {
     }),
   };
 
-  const passwordInputResult: PasswordInputResult = {
-    currentMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-    currentServerMasterKeyHash: "currentServerMasterKeyHash",
-
-    newPassword: "newPassword",
-    newPasswordHint: "newPasswordHint",
-    newMasterKey: new SymmetricCryptoKey(new Uint8Array(32)) as MasterKey,
-    newServerMasterKeyHash: "newServerMasterKeyHash",
-
-    kdfConfig: new PBKDF2KdfConfig(),
-    newApisWithInputPasswordFlagEnabled: false,
-  };
-
-  const decryptedUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-  const newMasterKeyEncryptedUserKey: [UserKey, EncString] = [
-    decryptedUserKey,
-    { encryptedString: "newMasterKeyEncryptedUserKey" } as EncString,
-  ];
-
   beforeEach(() => {
     keyService = mock<KeyService>();
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    policyService = mock<PolicyService>();
+    organizationInviteService = mock<OrganizationInviteService>();
 
     sut = new DefaultChangePasswordService(
       keyService,
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
+      policyService,
+      organizationInviteService,
     );
-
-    masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(decryptedUserKey);
-    keyService.encryptUserKeyWithMasterKey.mockResolvedValue(newMasterKeyEncryptedUserKey);
   });
 
   describe("changePasswordAndRotateUserKey()", () => {
@@ -97,7 +87,6 @@ describe("DefaultChangePasswordService", () => {
         newPasswordHint: "new-password-hint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         salt: "salt" as MasterPasswordSalt,
-        newApisWithInputPasswordFlagEnabled: true,
       };
     });
 
@@ -112,7 +101,7 @@ describe("DefaultChangePasswordService", () => {
     });
   });
 
-  describe("changePassword() and changePasswordForAccountRecovery() [PM27086_UpdateAuthenticationApisForInputPassword flag ENABLED]", () => {
+  describe("changePassword() and changePasswordForAccountRecovery()", () => {
     // Mock method params
     let passwordInputResult: PasswordInputResult;
 
@@ -129,22 +118,21 @@ describe("DefaultChangePasswordService", () => {
         newPasswordHint: "new-password-hint",
         kdfConfig: DEFAULT_KDF_CONFIG,
         salt: "salt" as MasterPasswordSalt,
-        newApisWithInputPasswordFlagEnabled: true,
       };
 
       // Mock method data
       userKey = makeSymmetricCryptoKey(64) as UserKey;
 
       newAuthenticationData = {
-        salt: passwordInputResult.salt,
-        kdf: passwordInputResult.kdfConfig,
+        salt: passwordInputResult.salt!,
+        kdf: passwordInputResult.kdfConfig!,
         masterPasswordAuthenticationHash:
           "newMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
       };
 
       newUnlockData = {
-        salt: passwordInputResult.salt,
-        kdf: passwordInputResult.kdfConfig,
+        salt: passwordInputResult.salt!,
+        kdf: passwordInputResult.kdfConfig!,
         masterKeyWrappedUserKey: "newMasterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
       } as MasterPasswordUnlockData;
 
@@ -160,17 +148,17 @@ describe("DefaultChangePasswordService", () => {
 
       beforeEach(() => {
         currentAuthenticationData = {
-          salt: passwordInputResult.salt,
-          kdf: passwordInputResult.kdfConfig,
+          salt: passwordInputResult.salt!,
+          kdf: passwordInputResult.kdfConfig!,
           masterPasswordAuthenticationHash:
             "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
         };
 
-        request = PasswordRequest.newConstructor(
+        request = new PasswordRequest(
           currentAuthenticationData.masterPasswordAuthenticationHash,
           newAuthenticationData,
           newUnlockData,
-          passwordInputResult.newPasswordHint,
+          passwordInputResult.newPasswordHint!,
         );
 
         masterPasswordService.makeMasterPasswordAuthenticationData
@@ -285,7 +273,7 @@ describe("DefaultChangePasswordService", () => {
         request = UpdateTempPasswordRequest.newConstructorWithHint(
           newAuthenticationData,
           newUnlockData,
-          passwordInputResult.newPasswordHint,
+          passwordInputResult.newPasswordHint!,
         );
 
         masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
@@ -402,165 +390,108 @@ describe("DefaultChangePasswordService", () => {
     });
   });
 
-  /**
-   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
-   * in the test setup above that are now un-used and can also be removed.
-   */
-  describe("changePassword() [PM27086_UpdateAuthenticationApisForInputPassword flag DISABLED]", () => {
-    it("should call the postPassword() API method with a the correct PasswordRequest credentials", async () => {
-      // Act
-      await sut.changePassword(passwordInputResult, userId);
+  describe("resolveMasterPasswordPolicyOptions()", () => {
+    const stateOptions = { minLength: 10 } as MasterPasswordPolicyOptions;
+    const inviteOptions = { minLength: 14 } as MasterPasswordPolicyOptions;
+    const combinedOptions = { minLength: 14 } as MasterPasswordPolicyOptions;
+    const invite = { token: "tok" } as OrganizationInvite;
 
-      // Assert
-      expect(masterPasswordApiService.postPassword).toHaveBeenCalledWith(
-        expect.objectContaining({
-          masterPasswordHash: passwordInputResult.currentServerMasterKeyHash,
-          masterPasswordHint: passwordInputResult.newPasswordHint,
-          newMasterPasswordHash: passwordInputResult.newServerMasterKeyHash,
-          key: newMasterKeyEncryptedUserKey[1].encryptedString,
-        }),
+    it("returns the combined options when both state and invite contribute MP requirements", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        inviteOptions,
+      );
+      policyService.combineMasterPasswordPolicyOptions.mockReturnValue(combinedOptions);
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(combinedOptions);
+      expect(policyService.masterPasswordPolicyOptions$).toHaveBeenCalledWith(userId);
+      expect(
+        organizationInviteService.getMasterPasswordPolicyOptionsForInvite,
+      ).toHaveBeenCalledWith(invite);
+      expect(policyService.combineMasterPasswordPolicyOptions).toHaveBeenCalledWith(
+        stateOptions,
+        inviteOptions,
       );
     });
 
-    it("should call decryptUserKeyWithMasterKey and encryptUserKeyWithMasterKey", async () => {
-      // Act
-      await sut.changePassword(passwordInputResult, userId);
-
-      // Assert
-      expect(masterPasswordService.decryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        passwordInputResult.currentMasterKey,
-        userId,
+    it("returns undefined when both sources contribute and the combiner returns undefined", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        inviteOptions,
       );
-      expect(keyService.encryptUserKeyWithMasterKey).toHaveBeenCalledWith(
-        passwordInputResult.newMasterKey,
-        decryptedUserKey,
-      );
+      policyService.combineMasterPasswordPolicyOptions.mockReturnValue(undefined);
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBeUndefined();
     });
 
-    it("should throw if a userId was not found", async () => {
-      // Arrange
-      const userId: null = null;
-
-      // Act
-      const testFn = sut.changePassword(passwordInputResult, userId);
-
-      // Assert
-      await expect(testFn).rejects.toThrow("userId not found");
-    });
-
-    it("should throw if a currentMasterKey was not found", async () => {
-      // Arrange
-      const incorrectPasswordInputResult = { ...passwordInputResult };
-      incorrectPasswordInputResult.currentMasterKey = undefined;
-
-      // Act
-      const testFn = sut.changePassword(incorrectPasswordInputResult, userId);
-
-      // Assert
-      await expect(testFn).rejects.toThrow(
-        "invalid PasswordInputResult credentials, could not change password",
-      );
-    });
-
-    it("should throw if a currentServerMasterKeyHash was not found", async () => {
-      // Arrange
-      const incorrectPasswordInputResult = { ...passwordInputResult };
-      incorrectPasswordInputResult.currentServerMasterKeyHash = undefined;
-
-      // Act
-      const testFn = sut.changePassword(incorrectPasswordInputResult, userId);
-
-      // Assert
-      await expect(testFn).rejects.toThrow(
-        "invalid PasswordInputResult credentials, could not change password",
-      );
-    });
-
-    it("should throw an error if user key decryption fails", async () => {
-      // Arrange
-      masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(null);
-
-      // Act
-      const testFn = sut.changePassword(passwordInputResult, userId);
-
-      // Assert
-      await expect(testFn).rejects.toThrow("Could not decrypt user key");
-    });
-
-    it("should throw an error if postPassword() fails", async () => {
-      // Arrange
-      masterPasswordApiService.postPassword.mockRejectedValueOnce(new Error("error"));
-
-      // Act
-      const testFn = sut.changePassword(passwordInputResult, userId);
-
-      // Assert
-      await expect(testFn).rejects.toThrow("Could not change password");
-      expect(masterPasswordApiService.postPassword).toHaveBeenCalled();
-    });
-  });
-
-  /**
-   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
-   * in the test setup above that are now un-used and can also be removed.
-   */
-  describe("rotateUserKeyMasterPasswordAndEncryptedData()", () => {
-    it("should throw an error (the method is only implemented in Web)", async () => {
-      // Act
-      const promise = sut.rotateUserKeyMasterPasswordAndEncryptedData(
-        "currentPassword",
-        "newPassword",
-        user,
-        "newPasswordHint",
+    it("returns the invite options when state has no MP policy", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        inviteOptions,
       );
 
-      // Assert
-      await expect(promise).rejects.toThrow(
-        "rotateUserKeyMasterPasswordAndEncryptedData() is only implemented in Web",
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(inviteOptions);
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns the state options when there is no stashed invite", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(stateOptions);
+      expect(
+        organizationInviteService.getMasterPasswordPolicyOptionsForInvite,
+      ).not.toHaveBeenCalled();
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns the state options when the invite has no MP policy", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        undefined,
       );
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(stateOptions);
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
     });
-  });
 
-  /**
-   * @deprecated To be removed in PM-28143. When you remove this, check also if there are any imports/properties
-   * in the test setup above that are now un-used and can also be removed.
-   */
-  describe("changePasswordForAccountRecovery() [PM27086_UpdateAuthenticationApisForInputPassword flag DISABLED]", () => {
-    it("should call the putUpdateTempPassword() API method with the correct UpdateTempPasswordRequest credentials", async () => {
-      // Act
-      await sut.changePasswordForAccountRecovery(passwordInputResult, userId);
-
-      // Assert
-      expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalledWith(
-        expect.objectContaining({
-          newMasterPasswordHash: passwordInputResult.newServerMasterKeyHash,
-          masterPasswordHint: passwordInputResult.newPasswordHint,
-          key: newMasterKeyEncryptedUserKey[1].encryptedString,
-        }),
+    it("returns undefined when state has no MP policy and the stashed invite's org also has none", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        undefined,
       );
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBeUndefined();
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
     });
 
-    it("should throw an error if user key decryption fails", async () => {
-      // Arrange
-      masterPasswordService.decryptUserKeyWithMasterKey.mockResolvedValue(null);
+    it("returns undefined when neither state nor invite contribute any MP policy", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
 
-      // Act
-      const testFn = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
 
-      // Assert
-      await expect(testFn).rejects.toThrow("Could not decrypt user key");
-    });
-
-    it("should throw an error if putUpdateTempPassword() fails", async () => {
-      // Arrange
-      masterPasswordApiService.putUpdateTempPassword.mockRejectedValueOnce(new Error("error"));
-
-      // Act
-      const testFn = sut.changePasswordForAccountRecovery(passwordInputResult, userId);
-
-      // Assert
-      await expect(testFn).rejects.toThrow("Could not change password");
-      expect(masterPasswordApiService.putUpdateTempPassword).toHaveBeenCalled();
+      expect(result).toBeUndefined();
+      expect(
+        organizationInviteService.getMasterPasswordPolicyOptionsForInvite,
+      ).not.toHaveBeenCalled();
     });
   });
 });

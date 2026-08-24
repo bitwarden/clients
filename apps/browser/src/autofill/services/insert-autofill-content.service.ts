@@ -10,8 +10,7 @@ import {
   currentlyInSandboxedIframe,
   elementIsFillableFormField,
   elementIsInputElement,
-  elementIsSelectElement,
-  elementIsTextAreaElement,
+  isReadonlyOrDisabledFormFieldElement,
 } from "../utils";
 
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
@@ -204,18 +203,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       return;
     }
 
-    const elementCanBeReadonly =
-      elementIsInputElement(element) || elementIsTextAreaElement(element);
-    const elementCanBeFilled = elementCanBeReadonly || elementIsSelectElement(element);
     const elementValue = (element as HTMLInputElement)?.value || element?.innerText || "";
-
     const elementAlreadyHasTheValue = !!(elementValue?.length && elementValue === value);
 
-    if (
-      elementAlreadyHasTheValue ||
-      (elementCanBeReadonly && element.readOnly) ||
-      (elementCanBeFilled && element.disabled)
-    ) {
+    if (elementAlreadyHasTheValue || isReadonlyOrDisabledFormFieldElement(element)) {
       return;
     }
 

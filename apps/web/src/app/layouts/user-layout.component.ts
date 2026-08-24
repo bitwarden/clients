@@ -6,15 +6,21 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { map, Observable, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
-import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  canAccessEmergencyAccess,
+  singleOrganizationPolicyApplies$,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { PopoverModule, SvgModule } from "@bitwarden/components";
+import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
+import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/vault";
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -30,9 +36,11 @@ import { WebLayoutModule } from "./web-layout.module";
   imports: [
     CommonModule,
     RouterModule,
-    JslibModule,
+    I18nPipe,
     WebLayoutModule,
     SvgModule,
+    VaultManageNavComponent,
+    VaultNavSectionComponent,
     BillingFreeFamiliesNavItemComponent,
     PopoverModule,
     CoachmarkComponent,
@@ -47,6 +55,20 @@ export class UserLayoutComponent implements OnInit {
   protected subscriptionRoute$: Observable<string | null>;
 
   protected readonly coachmarkService = inject(CoachmarkService);
+  protected readonly sideNavService = inject(SideNavService);
+
+  protected readonly vfo1Enabled: Signal<boolean> = toSignal(
+    inject(ConfigService).getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected readonly singleOrgPolicyApplies = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
+    ),
+    { initialValue: true },
+  );
 
   protected readonly importCoachmarkOpen = computed(
     () => this.coachmarkService.activeStepId() === "importData",

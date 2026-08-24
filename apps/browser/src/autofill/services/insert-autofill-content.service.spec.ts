@@ -482,7 +482,7 @@ describe("InsertAutofillContentService", () => {
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
-      ).toBeCalledWith("__1");
+      ).toHaveBeenCalledWith("__1");
       expect((insertAutofillContentService as any)["triggerClickOnElement"]).toHaveBeenCalledWith(
         textInput,
       );
@@ -547,7 +547,7 @@ describe("InsertAutofillContentService", () => {
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
-      ).toBeCalledWith("__0");
+      ).toHaveBeenCalledWith("__0");
       expect(targetInput.blur).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["simulateUserMouseClickAndFocusEventInteractions"],
@@ -691,6 +691,18 @@ describe("InsertAutofillContentService", () => {
         insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
       ).not.toHaveBeenCalled();
       expect(element.value).toBe(value);
+    });
+
+    it("does not insert when aria-readonly is set", () => {
+      document.body.innerHTML = `<input type="text" id="username" aria-readonly="true" />`;
+      const element = document.getElementById("username") as HTMLInputElement;
+      jest.spyOn(insertAutofillContentService as any, "handleInsertValueAndTriggerSimulatedEvents");
+
+      insertAutofillContentService["insertValueIntoField"](element, "new-value");
+
+      expect(
+        insertAutofillContentService["handleInsertValueAndTriggerSimulatedEvents"],
+      ).not.toHaveBeenCalled();
     });
   });
 

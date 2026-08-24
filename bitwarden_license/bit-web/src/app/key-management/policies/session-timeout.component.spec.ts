@@ -6,6 +6,7 @@ import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -15,7 +16,8 @@ import {
 } from "@bitwarden/common/key-management/session-timeout";
 import { VaultTimeoutAction } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { DialogRef, DialogService } from "@bitwarden/components";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
+import { DialogCloseRef, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { SessionTimeoutConfirmationNeverComponent } from "./session-timeout-confirmation-never.component";
@@ -23,7 +25,12 @@ import { SessionTimeoutPolicyComponent } from "./session-timeout.component";
 
 // Mock DialogRef, so we can mock "readonly closed" property.
 class MockDialogRef extends DialogRef {
-  close(result: unknown | undefined, options: DialogCloseOptions | undefined): void {}
+  async close(
+    result: unknown | undefined,
+    options: DialogCloseOptions | undefined,
+  ): Promise<DialogCloseRef> {
+    return { closed: true };
+  }
 
   closed: Observable<unknown | undefined> = of();
   componentInstance: unknown | null;
@@ -48,12 +55,16 @@ describe("SessionTimeoutPolicyComponent", () => {
 
     mockI18nService.t.mockImplementation((key) => `${key}-used-i18n`);
 
+    const mockOrganizationService = mock<OrganizationService>();
+    mockOrganizationService.organizations$.mockReturnValue(of([]));
+
     const testBed = TestBed.configureTestingModule({
       imports: [SessionTimeoutPolicyComponent, ReactiveFormsModule],
       providers: [
         FormBuilder,
         { provide: I18nService, useValue: mockI18nService },
-        { provide: AccountService, useValue: mock<AccountService>() },
+        { provide: AccountService, useValue: mockAccountServiceWith("user1" as any) },
+        { provide: OrganizationService, useValue: mockOrganizationService },
         { provide: KeyService, useValue: mock<KeyService>() },
         { provide: PolicyApiServiceAbstraction, useValue: mock<PolicyApiServiceAbstraction>() },
       ],

@@ -100,7 +100,7 @@ export class AddEditMemberDialogComponent {
       message: this.i18nService.t("removedUserId", userName),
     });
 
-    this.dialogRef.close(AddEditMemberDialogResultType.Deleted);
+    await this.dialogRef.close(AddEditMemberDialogResultType.Deleted);
   };
 
   submit = async (): Promise<void> => {
@@ -127,7 +127,7 @@ export class AddEditMemberDialogComponent {
       message: this.i18nService.t(this.editing ? "editedUserId" : "invitedUsers", userName),
     });
 
-    this.dialogRef.close(AddEditMemberDialogResultType.Saved);
+    await this.dialogRef.close(AddEditMemberDialogResultType.Saved);
   };
 
   static open(dialogService: DialogService, dialogConfig: DialogConfig<AddEditMemberDialogParams>) {

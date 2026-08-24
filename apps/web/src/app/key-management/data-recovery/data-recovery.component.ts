@@ -6,17 +6,19 @@ import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/cor
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { ButtonModule, DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { SharedModule } from "../../shared";
 
+import { DownloadEventLogsComponent } from "./download-event-logs.component";
 import { LogRecorder } from "./log-recorder";
 import {
   SyncStep,
@@ -46,7 +48,7 @@ interface StepState {
   selector: "app-data-recovery",
   templateUrl: "data-recovery.component.html",
   standalone: true,
-  imports: [JslibModule, ButtonModule, CommonModule, SharedModule],
+  imports: [JslibModule, ButtonModule, CommonModule, SharedModule, DownloadEventLogsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataRecoveryComponent {
@@ -60,7 +62,7 @@ export class DataRecoveryComponent {
   private cipherEncryptService = inject(CipherEncryptionService);
   private dialogService = inject(DialogService);
   private privateKeyRegenerationService = inject(UserAsymmetricKeysRegenerationService);
-  private cryptoFunctionService = inject(CryptoFunctionService);
+  private encryptService = inject(EncryptService);
   private logService = inject(LogService);
   private fileDownloadService = inject(FileDownloadService);
 
@@ -68,13 +70,14 @@ export class DataRecoveryComponent {
   private recoverySteps: RecoveryStep[] = [
     new UserInfoStep(this.accountService, this.keyService),
     new SyncStep(this.apiService),
-    new PrivateKeyStep(
-      this.privateKeyRegenerationService,
-      this.dialogService,
-      this.cryptoFunctionService,
-    ),
+    new PrivateKeyStep(this.privateKeyRegenerationService, this.dialogService),
     new FolderStep(this.folderApiService, this.dialogService),
-    new CipherStep(this.apiService, this.cipherEncryptService, this.dialogService),
+    new CipherStep(
+      this.apiService,
+      this.cipherEncryptService,
+      this.dialogService,
+      this.encryptService,
+    ),
   ];
   private workingData: RecoveryWorkingData | null = null;
 
@@ -104,7 +107,6 @@ export class DataRecoveryComponent {
       userId: null,
       userKey: null,
       isPrivateKeyCorrupt: false,
-      encryptedPrivateKey: null,
       ciphers: [],
       folders: [],
     };

@@ -191,6 +191,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.totpService,
           this.serviceContainer.auditService,
           this.serviceContainer.keyService,
+          this.serviceContainer.legacyCompatKeyService,
           this.serviceContainer.encryptService,
           this.serviceContainer.searchService,
           this.serviceContainer.apiService,
@@ -199,6 +200,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.billingAccountProfileStateService,
           this.serviceContainer.accountService,
           this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, id, cmd);
         this.processResponse(response);
@@ -245,6 +247,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationService,
           this.serviceContainer.accountService,
           this.serviceContainer.cliRestrictedItemTypesService,
+          this.serviceContainer.configService,
         );
         const response = await command.run(object, encodedJson, cmd);
         this.processResponse(response);
@@ -295,6 +298,7 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.cliRestrictedItemTypesService,
           this.serviceContainer.policyService,
           this.serviceContainer.billingAccountProfileStateService,
+          this.serviceContainer.cipherAuthorizationService,
         );
         const response = await command.run(object, id, encodedJson, cmd);
         this.processResponse(response);
@@ -438,6 +442,8 @@ export class VaultProgram extends BaseProgram {
         const command = new ShareCommand(
           this.serviceContainer.cipherService,
           this.serviceContainer.accountService,
+          this.serviceContainer.collectionService,
+          this.serviceContainer.organizationService,
         );
         const response = await command.run(id, organizationId, encodedJson);
         this.processResponse(response);
@@ -486,6 +492,15 @@ export class VaultProgram extends BaseProgram {
       .description("Import vault data from a file.")
       .option("--formats", "List formats")
       .option("--organizationid <organizationid>", "ID of the organization to import to.")
+      .option("--keyfile <keyfile>", "Path to a key file used to unlock a KeePass (kdbx) database.")
+      .option(
+        "--passwordenv <passwordenv>",
+        "Environment variable storing the import file password.",
+      )
+      .option(
+        "--passwordfile <passwordfile>",
+        "Path to a file containing the import file password as its first line.",
+      )
       .on("--help", () => {
         writeLn("\n Examples:");
         writeLn("");
@@ -503,6 +518,8 @@ export class VaultProgram extends BaseProgram {
           this.serviceContainer.organizationService,
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
+          this.serviceContainer.logService,
+          this.serviceContainer.i18nService,
         );
         const response = await command.run(format, filepath, options);
         this.processResponse(response);

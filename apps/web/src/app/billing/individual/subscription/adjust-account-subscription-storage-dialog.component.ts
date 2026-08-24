@@ -167,7 +167,7 @@ export class AdjustAccountSubscriptionStorageDialogComponent {
       message: this.i18nService.t("adjustedStorage", amount),
     });
 
-    this.dialogRef.close("submitted");
+    await this.dialogRef.close("submitted");
   };
 
   static readonly open = (

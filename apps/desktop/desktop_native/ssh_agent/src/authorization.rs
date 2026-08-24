@@ -1,12 +1,9 @@
 //! Bitwarden's auth policy for SSH agent operations.
 
-use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    Arc,
-};
+use std::sync::Arc;
 
 use thiserror::Error;
-use tracing::debug;
+use tracing::{error, info};
 
 use crate::{
     approval::{ApprovalError, ApprovalRequester, SignApprovalRequest},
@@ -31,16 +28,9 @@ pub enum AuthError {
     KeystoreError(#[source] anyhow::Error),
 }
 
-/// Represents the vault's lock state.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LockState {
-    Locked,
-    Unlocked,
-}
-
 /// Bitwarden's SSH operation authorization policy:
 ///
-/// - Allows listing keys after first unlock
+/// - Allows listing keys when the keystore is initialized and otherwise requests approval.
 /// - Always requires approval for signing operations
 /// - Delegates approval decisions to the provided handler
 pub struct BitwardenAuthPolicy<K, H>
@@ -50,7 +40,6 @@ where
 {
     keystore: Arc<K>,
     approval_handler: H,
-    is_locked: AtomicBool,
 }
 
 impl<K, H> BitwardenAuthPolicy<K, H>
@@ -62,19 +51,7 @@ where
         Self {
             keystore,
             approval_handler,
-            is_locked: AtomicBool::new(true),
         }
-    }
-
-    /// Sets the lock state of the vault to the provided `state`.
-    ///
-    /// When locked, operations will require approval.
-    /// When unlocked, list operations are allowed without approval.
-    pub fn set_lock_state(&self, state: LockState) {
-        debug!(?state, "Setting lock state.");
-
-        let is_locked = matches!(state, LockState::Locked);
-        self.is_locked.store(is_locked, Ordering::Relaxed);
     }
 }
 
@@ -87,23 +64,22 @@ where
     async fn authorize(&self, request: &AuthRequest) -> Result<bool, AuthError> {
         match request {
             AuthRequest::List => {
-                // if already unlocked, allow
-                if !self.is_locked.load(Ordering::Relaxed) {
-                    debug!("Already unlocked, allowing list request.");
-                    return Ok(true);
+                // The keystore being initialized means that the vault has been unlocked and keys
+                // received from the vault. The before keystore initialization is a case that arises
+                // in BFU (Before First Unlock)- where the vault state is logged into but hasn't
+                // yet been unlocked during the app's runtime.
+                if !self.keystore.is_initialized() {
+                    info!(
+                        "Keystore not yet initialized on list request, requesting list approval."
+                    );
+                    self.approval_handler
+                        .request_list_approval()
+                        .await
+                        .map_err(Into::into)
+                } else {
+                    info!("Allowing list request.");
+                    Ok(true)
                 }
-
-                // otherwise request unlock from approval handler
-                debug!("Locked, requesting unlock approval.");
-                let unlock_approved = self.approval_handler.request_unlock().await?;
-
-                debug!(unlock_approved, "Unlock response received.");
-
-                if unlock_approved {
-                    self.set_lock_state(LockState::Unlocked);
-                }
-
-                Ok(unlock_approved)
             }
             AuthRequest::Sign(sign_request) => {
                 let cipher_id = match self.keystore.get(&sign_request.public_key) {
@@ -115,7 +91,7 @@ where
                         return Err(AuthError::KeystoreError(error));
                     }
                 };
-                debug!(?sign_request, ?cipher_id, "Requesting sign approval.");
+                info!(?sign_request, "Requesting sign approval.");
 
                 self.approval_handler
                     .request_sign_approval(SignApprovalRequest {
@@ -124,6 +100,12 @@ where
                     })
                     .await
                     .map_err(Into::into)
+                    .inspect(|&is_approved| {
+                        info!(public_key = %sign_request.public_key, is_approved, "Sign approval response.");
+                    })
+                    .inspect_err(|error| {
+                        error!(%error, public_key = %sign_request.public_key, "Sign request authorization error.");
+                    })
             }
         }
     }
@@ -137,7 +119,7 @@ mod tests {
     use super::*;
     use crate::{
         approval::{ApprovalError, MockApprovalRequester},
-        server::SIGNamespace,
+        server::{ConnectionContext, SIGNamespace, SessionBindContext},
         storage::{keydata::MockQueryableKeyData, keystore::MockKeyStore},
     };
 
@@ -150,14 +132,12 @@ mod tests {
 
     fn create_test_sign_request(
         public_key: crate::crypto::PublicKey,
-        process_name: Option<&str>,
-        is_forwarding: bool,
+        connection: ConnectionContext,
         namespace: Option<SIGNamespace>,
     ) -> AuthRequest {
         AuthRequest::Sign(crate::server::SignRequest {
             public_key,
-            process_name: process_name.map(|s| s.to_string()),
-            is_forwarding,
+            connection,
             namespace,
         })
     }
@@ -165,8 +145,10 @@ mod tests {
     fn create_default_test_sign_request(public_key: crate::crypto::PublicKey) -> AuthRequest {
         create_test_sign_request(
             public_key,
-            Some(TEST_PROCESS_NAME),
-            TEST_IS_FORWARDING,
+            ConnectionContext {
+                process_name: Some(TEST_PROCESS_NAME.to_string()),
+                session_bind: None,
+            },
             None,
         )
     }
@@ -191,100 +173,61 @@ mod tests {
     }
 
     const TEST_PROCESS_NAME: &str = "ssh";
-    const TEST_IS_FORWARDING: bool = false;
 
     #[tokio::test]
-    async fn test_authorize_list_when_unlocked_returns_true() {
-        let keystore = Arc::new(MockKeyStore::new());
+    async fn test_authorize_list_initialized_keystore_allows_without_callback() {
+        let mut keystore = MockKeyStore::new();
+        keystore.expect_is_initialized().once().returning(|| true);
+        // Approval handler must NOT be called when keystore is already initialized.
         let approval_handler = MockApprovalRequester::new();
 
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-        policy.set_lock_state(LockState::Unlocked);
+        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
+        let result = policy.authorize(&AuthRequest::List).await;
 
         assert!(
             matches!(result, Ok(true)),
-            "Should allow list when unlocked"
+            "Initialized keystore should allow without callback"
         );
     }
 
     #[tokio::test]
-    async fn test_authorize_list_when_locked_requests_unlock() {
-        let keystore = Arc::new(MockKeyStore::new());
+    async fn test_authorize_list_uninitialized_keystore_calls_callback_and_allows() {
+        let mut keystore = MockKeyStore::new();
+        keystore.expect_is_initialized().once().returning(|| false);
         let mut approval_handler = MockApprovalRequester::new();
-
-        // Expect unlock request and deny it
         approval_handler
-            .expect_request_unlock()
-            .times(1)
+            .expect_request_list_approval()
+            .once()
+            .returning(|| Ok(true));
+
+        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
+
+        let result = policy.authorize(&AuthRequest::List).await;
+
+        assert!(
+            matches!(result, Ok(true)),
+            "Uninitialized keystore + approved callback should return Ok(true)"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_authorize_list_uninitialized_keystore_callback_denied_returns_false() {
+        let mut keystore = MockKeyStore::new();
+        keystore.expect_is_initialized().once().returning(|| false);
+        let mut approval_handler = MockApprovalRequester::new();
+        approval_handler
+            .expect_request_list_approval()
+            .once()
             .returning(|| Ok(false));
 
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-        // Don't call set_lock_state - should remain locked by default
+        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
 
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
+        let result = policy.authorize(&AuthRequest::List).await;
 
         assert!(
             matches!(result, Ok(false)),
-            "Should deny list when unlock is denied"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_list_when_locked_unlock_approved() {
-        let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        // Expect unlock request and approve it
-        approval_handler
-            .expect_request_unlock()
-            .times(1)
-            .returning(|| Ok(true));
-
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-        // Don't call set_lock_state - should remain locked by default
-
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(result, Ok(true)),
-            "Should allow list when unlock is approved"
-        );
-
-        // Verify that the state was actually unlocked
-        assert!(
-            !policy.is_locked.load(Ordering::Relaxed),
-            "Policy should be unlocked after approval"
-        );
-    }
-
-    #[tokio::test]
-    async fn test_authorize_list_when_locked_unlock_handler_error() {
-        let keystore = Arc::new(MockKeyStore::new());
-        let mut approval_handler = MockApprovalRequester::new();
-
-        approval_handler
-            .expect_request_unlock()
-            .times(1)
-            .returning(|| Err(ApprovalError::HandlerFailed(anyhow!("Handler failed"))));
-
-        let policy = BitwardenAuthPolicy::new(keystore, approval_handler);
-
-        let request = AuthRequest::List;
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(
-                result,
-                Err(AuthError::ApprovalUnresolved(ApprovalError::HandlerFailed(
-                    _
-                )))
-            ),
-            "Should return ApprovalUnresolved error when unlock handler fails"
+            "Uninitialized keystore + denied callback should return Ok(false)"
         );
     }
 
@@ -418,34 +361,6 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn test_authorize_sign_when_unlocked_still_requires_approval() {
-        let mut keystore = MockKeyStore::new();
-        let mut approval_handler = MockApprovalRequester::new();
-
-        let test_pub_key = create_stub_public_key();
-
-        setup_keystore_with_key(&mut keystore, test_pub_key.clone(), "cipher-123");
-
-        approval_handler
-            .expect_request_sign_approval()
-            .withf(|req| req.cipher_id.as_deref() == Some("cipher-123"))
-            .times(1)
-            .returning(|_| Ok(true));
-
-        let policy = BitwardenAuthPolicy::new(Arc::new(keystore), approval_handler);
-        // Unlock the vault - Sign should still require approval
-        policy.set_lock_state(LockState::Unlocked);
-
-        let request = create_default_test_sign_request(test_pub_key);
-        let result = policy.authorize(&request).await;
-
-        assert!(
-            matches!(result, Ok(true)),
-            "Sign should always require approval, even when unlocked"
-        );
-    }
-
-    #[tokio::test]
     async fn test_authorize_sign_context_passed_correctly() {
         let mut keystore = MockKeyStore::new();
         let mut approval_handler = MockApprovalRequester::new();
@@ -463,8 +378,13 @@ mod tests {
         approval_handler
             .expect_request_sign_approval()
             .withf(|req| {
-                req.sign_request.process_name == Some("test-process".to_string())
-                    && req.sign_request.is_forwarding
+                req.sign_request.connection.process_name == Some("test-process".to_string())
+                    && req
+                        .sign_request
+                        .connection
+                        .session_bind
+                        .as_ref()
+                        .is_some_and(|s| s.is_forwarding)
                     && req.sign_request.namespace == Some(SIGNamespace::Unsupported)
             })
             .times(1)
@@ -474,8 +394,13 @@ mod tests {
 
         let request = create_test_sign_request(
             test_pub_key,
-            Some("test-process"),
-            true,
+            ConnectionContext {
+                process_name: Some("test-process".to_string()),
+                session_bind: Some(SessionBindContext {
+                    is_forwarding: true,
+                    host_fingerprint: "test-fingerprint".to_string(),
+                }),
+            },
             Some(SIGNamespace::Unsupported),
         );
         let result = policy.authorize(&request).await;

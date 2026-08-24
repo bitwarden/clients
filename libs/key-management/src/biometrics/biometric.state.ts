@@ -1,10 +1,11 @@
-import { EncryptedString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   KeyDefinition,
   BIOMETRIC_SETTINGS_DISK,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString } from "@bitwarden/legacy-crypto";
 
 /**
  * Indicates whether the user elected to store a biometric key to unlock their vault.
@@ -66,6 +67,19 @@ export const FINGERPRINT_VALIDATED = new KeyDefinition<boolean>(
   "fingerprintValidated",
   {
     deserializer: (obj) => obj,
+  },
+);
+
+/**
+ * Stores the key ID of the user key that was last enrolled in the biometric system.
+ * Used to detect when the user key has changed and biometric keys need re-enrollment.
+ */
+export const BIOMETRIC_ENROLLED_KEY_ID = new UserKeyDefinition<string | null>(
+  BIOMETRIC_SETTINGS_DISK,
+  "biometricEnrolledKeyId",
+  {
+    deserializer: (obj) => obj,
+    clearOn: [],
   },
 );
 

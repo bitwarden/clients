@@ -7,4 +7,7 @@ export const mockLayoutI18n = {
   loading: "Loading",
   resizeSideNavigation: "Resize side navigation",
   close: "Close",
+  sideNavigation: "Side navigation",
+  skipLink: "Skip Link",
+  callout: "Callout",
 };

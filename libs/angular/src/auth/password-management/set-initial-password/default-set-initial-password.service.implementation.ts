@@ -17,8 +17,6 @@ import { SetPasswordRequest } from "@bitwarden/common/auth/models/request/set-pa
 import { UpdateTdeOffboardingPasswordRequest } from "@bitwarden/common/auth/models/request/update-tde-offboarding-password.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
@@ -30,23 +28,26 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
+  EncryptService,
+  EncString,
   fromSdkKdfConfig,
   KdfConfig,
-  KdfConfigService,
-  KeyService,
-} from "@bitwarden/key-management";
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { OrganizationId as SdkOrganizationId, UserId as SdkUserId } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import {
   InitializeJitPasswordCredentials,
   SetInitialPasswordCredentials,
   SetInitialPasswordService,
   SetInitialPasswordUserType,
-  SetInitialPasswordTdeOffboardingCredentialsOld,
   SetInitialPasswordTdeOffboardingCredentials,
   SetInitialPasswordTdeUserWithPermissionCredentials,
 } from "./set-initial-password.service.abstraction";
@@ -58,6 +59,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -65,11 +67,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected accountCryptographicStateService: AccountCryptographicStateService,
     protected registerSdkService: RegisterSdkService,
+    protected unlockService: UnlockService,
   ) {}
 
   /**
-   * @deprecated To be removed in PM-28143. When you remove this, also check for any objects/methods
-   * in this default service that are now un-used and can also be removed.
+   * @deprecated use `initializePasswordJitPasswordUserV2Encryption()` instead
    */
   async setInitialPassword(
     credentials: SetInitialPasswordCredentials,
@@ -144,7 +146,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
         ];
       } else {
         // New key pair
-        keyPair = await this.keyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
+        keyPair = await this.legacyCompatKeyService.makeKeyPair(masterKeyEncryptedUserKey[0]);
       }
 
       if (keyPair == null) {
@@ -211,6 +213,11 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       );
     }
 
+    // Unlocking initializes the SDK from state, so it has to run after the account cryptographic
+    // state above has been persisted. handleResetPasswordAutoEnrollOld below reads the user key back
+    // out of state, so it has to run after this.
+    await this.unlockService.unlockWithDecryptedUserKey(userId, masterKeyEncryptedUserKey[0]);
+
     if (resetPasswordAutoEnroll) {
       await this.handleResetPasswordAutoEnrollOld(newServerMasterKeyHash, orgId, userId);
     }
@@ -261,49 +268,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
 
     // TODO: investigate removing this call to clear forceSetPasswordReason in https://bitwarden.atlassian.net/browse/PM-32660
-    // Clear force set password reason to allow navigation back to vault.
-    await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
-  }
-
-  /**
-   * @deprecated To be removed in PM-28143
-   */
-  async setInitialPasswordTdeOffboardingOld(
-    credentials: SetInitialPasswordTdeOffboardingCredentialsOld,
-    userId: UserId,
-  ) {
-    const { newMasterKey, newServerMasterKeyHash, newPasswordHint } = credentials;
-    for (const [key, value] of Object.entries(credentials)) {
-      if (value == null) {
-        throw new Error(`${key} not found. Could not set password.`);
-      }
-    }
-
-    if (userId == null) {
-      throw new Error("userId not found. Could not set password.");
-    }
-
-    const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-    if (userKey == null) {
-      throw new Error("userKey not found. Could not set password.");
-    }
-
-    const newMasterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
-      newMasterKey,
-      userKey,
-    );
-
-    if (!newMasterKeyEncryptedUserKey[1].encryptedString) {
-      throw new Error("newMasterKeyEncryptedUserKey not found. Could not set password.");
-    }
-
-    const request = new UpdateTdeOffboardingPasswordRequest();
-    request.key = newMasterKeyEncryptedUserKey[1].encryptedString;
-    request.newMasterPasswordHash = newServerMasterKeyHash;
-    request.masterPasswordHint = newPasswordHint;
-
-    await this.masterPasswordApiService.putUpdateTdeOffboardingPassword(request);
-
     // Clear force set password reason to allow navigation back to vault.
     await this.masterPasswordService.setForceSetPasswordReason(ForceSetPasswordReason.None, userId);
   }
@@ -359,7 +323,8 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       throw new Error("Unexpected V2 account cryptographic state");
     }
 
-    // Note: When SDK state management matures, these should be moved into post_keys_for_tde_registration
+    // Note: When SDK state management matures, the state writes and the unlock below should all be
+    // moved into post_keys_for_jit_password_registration
     // Set account cryptography state
     await this.accountCryptographicStateService.setAccountCryptographicState(
       registerResult.account_cryptographic_state,
@@ -374,17 +339,19 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     );
     await this.masterPasswordService.setMasterPasswordUnlockData(masterPasswordUnlockData, userId);
 
-    await this.keyService.setUserKey(
-      SymmetricCryptoKey.fromString(registerResult.user_key) as UserKey,
-      userId,
-    );
-
     await this.updateLegacyState(
       newPassword,
       fromSdkKdfConfig(registerResult.master_password_unlock.kdf),
       new EncString(registerResult.master_password_unlock.masterKeyWrappedUserKey),
       userId,
       masterPasswordUnlockData,
+    );
+
+    // Unlocking initializes the SDK from state, so it has to run after the state written above -
+    // in particular the new KDF config - has been persisted.
+    await this.unlockService.unlockWithDecryptedUserKey(
+      userId,
+      SymmetricCryptoKey.fromString(registerResult.user_key),
     );
   }
 
@@ -469,7 +436,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated along with `setInitialPassword()` deprecation
    */
   private async makeMasterKeyEncryptedUserKey(
     masterKey: MasterKey,
@@ -480,9 +447,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     const userKey = await firstValueFrom(this.keyService.userKey$(userId));
 
     if (userKey == null) {
-      masterKeyEncryptedUserKey = await this.keyService.makeUserKey(masterKey);
+      masterKeyEncryptedUserKey = await this.legacyCompatKeyService.makeUserKey(masterKey);
     } else {
-      masterKeyEncryptedUserKey = await this.keyService.encryptUserKeyWithMasterKey(
+      masterKeyEncryptedUserKey = await this.legacyCompatKeyService.encryptUserKeyWithMasterKey(
         masterKey,
         userKey,
       );
@@ -491,6 +458,9 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
     return masterKeyEncryptedUserKey;
   }
 
+  /**
+   * @deprecated along with `setInitialPassword()` deprecation
+   */
   private async updateAccountDecryptionProperties(
     masterKey: MasterKey,
     kdfConfig: KdfConfig,
@@ -513,7 +483,6 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
       masterKeyEncryptedUserKey[1],
       userId,
     );
-    await this.keyService.setUserKey(masterKeyEncryptedUserKey[0], userId);
   }
 
   // Deprecated legacy support - to be removed in future
@@ -548,7 +517,7 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated along with `setInitialPassword()` deprecation
    *
    * As part of [PM-28494], adding this setting path to accommodate the changes that are
    * emerging with pm-23246-unlock-with-master-password-unlock-data.
@@ -574,13 +543,13 @@ export class DefaultSetInitialPasswordService implements SetInitialPasswordServi
   }
 
   /**
-   * @deprecated To be removed in PM-28143
+   * @deprecated
    *
    * This method is now deprecated because it is used with the deprecated `setInitialPassword()` method,
    * which handles both JIT MP and TDE + Permission user flows.
    *
    * Since these methods can handle the JIT MP flow - which creates a new user key and sets it to state - we
-   * must retreive that user key here in this method.
+   * must retrieve that user key here in this method.
    *
    * But the new handleResetPasswordAutoEnroll() method is only used in the TDE + Permission user case, in which
    * case we already have the user key and can simply pass it through via method parameter ( @see handleResetPasswordAutoEnroll )

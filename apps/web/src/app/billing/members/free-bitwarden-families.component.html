@@ -1,6 +1,11 @@
 <app-header>
-  <button type="button" (click)="addSponsorship()" bitButton buttonType="primary">
-    <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
+  <button
+    type="button"
+    (click)="addSponsorship()"
+    bitButton
+    buttonType="primary"
+    startIcon="bwi-plus"
+  >
     {{ "addSponsorship" | i18n }}
   </button>
 </app-header>
@@ -8,17 +13,24 @@
 <bit-container>
   <ng-container>
     <p bitTypography="body1">
-      {{ "sponsorshipFreeBitwardenFamilies" | i18n }}
+      {{ "sponsorshipFreeBitwardenFamilies" | vfo1I18n: "sponsorshipFreeBitwardenFamiliesV2" }}
     </p>
     <div bitTypography="body1">
-      {{ "sponsoredFamiliesIncludeMessage" | i18n }}:
+      {{ "sponsoredFamiliesIncludeMessage" | vfo1I18n: "sponsoredFamiliesIncludeMessageV2" }}:
       <ul class="tw-list-outside">
         <li>{{ "sponsoredFamiliesPremiumAccess" | i18n }}</li>
-        <li>{{ "sponsoredFamiliesSharedCollectionsForFamilyMembers" | i18n }}</li>
+        <li>
+          {{
+            "sponsoredFamiliesSharedCollectionsForFamilyMembers"
+              | vfo1I18n: "sponsoredFamiliesSharedFoldersForFamilyMembers"
+          }}
+        </li>
       </ul>
     </div>
 
-    <h2 bitTypography="h2" class="">{{ "sponsoredBitwardenFamilies" | i18n }}</h2>
+    <h2 bitTypography="h2" class="">
+      {{ "sponsoredBitwardenFamilies" | vfo1I18n: "sponsoredBitwardenFamiliesV2" }}
+    </h2>
 
     @if (loading()) {
       <ng-container>
@@ -75,11 +87,12 @@
                       <button
                         type="button"
                         bitMenuItem
+                        variant="danger"
                         [attr.aria-label]="'revokeAccountMessage' | i18n"
                         (click)="removeSponsorship(sponsoredFamily)"
                       >
-                        <i aria-hidden="true" class="bwi bwi-close tw-text-danger"></i>
-                        <span class="tw-text-danger tw-pl-1">{{ "remove" | i18n }}</span>
+                        <bit-icon name="bwi-close" slot="start" />
+                        {{ "remove" | i18n }}
                       </button>
                     </bit-menu>
                   </td>
@@ -91,11 +104,14 @@
         <hr class="tw-mt-0" />
       </ng-container>
     } @else if (!loading()) {
-      <div class="tw-my-5 tw-py-5 tw-flex tw-flex-col tw-items-center">
-        <img class="tw-w-32" src="./../../../images/search.svg" alt="Search" />
-        <h4 class="tw-mt-3" bitTypography="h4">{{ "noSponsoredFamiliesMessage" | i18n }}</h4>
-        <p bitTypography="body2">{{ "nosponsoredFamiliesDetails" | i18n }}</p>
-      </div>
+      <bit-no-items>
+        <div slot="title">
+          {{ "noSponsoredFamiliesMessage" | vfo1I18n: "noSponsoredFamiliesMessageV2" }}
+        </div>
+        <p slot="description" bitTypography="body2">
+          {{ "noSponsoredFamiliesDetails" | vfo1I18n: "noSponsoredFamiliesDetailsV2" }}
+        </p>
+      </bit-no-items>
     }
 
     @if (!loading() && sponsoredFamilies.length > 0) {

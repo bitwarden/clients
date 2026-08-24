@@ -3,17 +3,16 @@ import { CdkScrollable } from "@angular/cdk/scrolling";
 import { CommonModule } from "@angular/common";
 import {
   Component,
+  contentChild,
   effect,
   inject,
   viewChild,
   input,
   booleanAttribute,
   ElementRef,
-  DestroyRef,
   computed,
   signal,
   AfterViewInit,
-  NgZone,
 } from "@angular/core";
 import { toObservable } from "@angular/core/rxjs-interop";
 import { combineLatest, switchMap } from "rxjs";
@@ -27,10 +26,11 @@ import { SpinnerComponent } from "../../spinner";
 import { TypographyDirective } from "../../typography/typography.directive";
 import { hasScrollableContent$ } from "../../utils/";
 import { hasScrolledFrom } from "../../utils/has-scrolled-from";
-import { DialogRef } from "../dialog.service";
+import { DialogRef } from "../dialog-ref";
 import { DialogCloseDirective } from "../directives/dialog-close.directive";
 import { DialogTitleContainerDirective } from "../directives/dialog-title-container.directive";
 import { DrawerService } from "../drawer.service";
+import { DialogFooterDirective } from "../simple-dialog/simple-dialog.component";
 
 type DialogSize = "small" | "default" | "large";
 
@@ -77,9 +77,6 @@ export const drawerSizeToWidthRem: Record<string, number> = {
   hostDirectives: [{ directive: AutofocusFallbackDirective }],
 })
 export class DialogComponent implements AfterViewInit {
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
-  private readonly el = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly drawerService = inject(DrawerService);
   private readonly autofocusFallback = inject(AutofocusFallbackDirective, { host: true });
 
@@ -101,7 +98,6 @@ export class DialogComponent implements AfterViewInit {
 
   protected dialogRef = inject(DialogRef, { optional: true });
   protected bodyHasScrolledFrom = hasScrolledFrom(this.scrollableBody);
-
   private scrollableBody$ = toObservable(this.scrollableBody);
   private scrollBottom$ = toObservable(this.scrollBottom);
 
@@ -110,6 +106,9 @@ export class DialogComponent implements AfterViewInit {
       hasScrollableContent$(body.getElementRef().nativeElement, bottom.nativeElement),
     ),
   );
+
+  private readonly footerDirective = contentChild(DialogFooterDirective);
+  protected readonly hasFooter = computed(() => !!this.footerDirective());
 
   /** Background color */
   readonly background = input<"default" | "alt">("default");
@@ -128,11 +127,6 @@ export class DialogComponent implements AfterViewInit {
    * Subtitle to show in the dialog's header
    */
   readonly subtitle = input<string>();
-
-  /**
-   * Disable the built-in padding on the dialog, for use with tabbed dialogs.
-   */
-  readonly disablePadding = input(false, { transform: booleanAttribute });
 
   /**
    * Disable animations for the dialog.
@@ -181,11 +175,31 @@ export class DialogComponent implements AfterViewInit {
     return [...baseClasses, this.width(), ...sizeClasses, ...animationClasses];
   });
 
-  handleEsc(event: Event) {
-    if (!this.dialogRef?.disableClose) {
-      this.dialogRef?.close();
-      event.stopPropagation();
+  /** True when this dialog is a drawer and there is a previous entry in the stack to go back to. */
+  protected readonly isStacked = computed(
+    () => this.dialogRef?.isDrawer === true && this.drawerService.stackDepth() > 1,
+  );
+
+  protected async closeDialog(): Promise<void> {
+    if (this.dialogRef?.isDrawer) {
+      await this.drawerService.closeAll();
+    } else {
+      void this.dialogRef?.close();
     }
+  }
+
+  handleEsc(event: Event) {
+    if (this.dialogRef?.disableClose) {
+      return;
+    }
+    // For drawers, Esc mirrors the back button — pop only the top entry.
+    // The X button still calls closeDialog() to tear down the whole stack.
+    if (this.dialogRef?.isDrawer) {
+      void this.dialogRef.close();
+    } else {
+      void this.closeDialog();
+    }
+    event.stopPropagation();
   }
 
   onAnimationEnd() {

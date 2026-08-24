@@ -2,9 +2,6 @@
 // @ts-strict-ignore
 import { combineLatest, map, Observable, switchMap } from "rxjs";
 
-import { CipherType } from "@bitwarden/common/vault/enums";
-import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
-
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -18,6 +15,8 @@ import {
   StateProvider,
   UserKeyDefinition,
 } from "../../platform/state";
+import { CipherType } from "../../vault/enums";
+import { RestrictedItemTypesService } from "../../vault/services/restricted-item-types.service";
 import { ClearClipboardDelay, AutofillOverlayVisibility } from "../constants";
 import { ClearClipboardDelaySetting, InlineMenuVisibilitySetting } from "../types";
 
@@ -84,6 +83,15 @@ const SHOW_INLINE_MENU_CARDS = new UserKeyDefinition(
   },
 );
 
+const SHOW_INLINE_MENU_SSH_KEYS = new UserKeyDefinition(
+  AUTOFILL_SETTINGS_DISK,
+  "showInlineMenuSshKeys",
+  {
+    deserializer: (value: boolean) => value ?? true,
+    clearOn: [],
+  },
+);
+
 const ENABLE_CONTEXT_MENU = new KeyDefinition(AUTOFILL_SETTINGS_DISK, "enableContextMenu", {
   deserializer: (value: boolean) => value ?? true,
 });
@@ -133,6 +141,8 @@ export abstract class AutofillSettingsServiceAbstraction {
   setShowInlineMenuIdentities: (newValue: boolean) => Promise<void>;
   showInlineMenuCards$: Observable<boolean>;
   setShowInlineMenuCards: (newValue: boolean) => Promise<void>;
+  showInlineMenuSshKeys$: Observable<boolean>;
+  setShowInlineMenuSshKeys: (newValue: boolean) => Promise<void>;
   enableContextMenu$: Observable<boolean>;
   setEnableContextMenu: (newValue: boolean) => Promise<void>;
   clearClipboardDelay$: Observable<ClearClipboardDelaySetting>;
@@ -169,6 +179,9 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   private showInlineMenuCardsState: ActiveUserState<boolean>;
   readonly showInlineMenuCards$: Observable<boolean>;
+
+  private showInlineMenuSshKeysState: ActiveUserState<boolean>;
+  readonly showInlineMenuSshKeys$: Observable<boolean>;
 
   private enableContextMenuState: GlobalState<boolean>;
   readonly enableContextMenu$: Observable<boolean>;
@@ -244,6 +257,18 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
       ),
     );
 
+    this.showInlineMenuSshKeysState = this.stateProvider.getActive(SHOW_INLINE_MENU_SSH_KEYS);
+    this.showInlineMenuSshKeys$ = combineLatest([
+      this.showInlineMenuSshKeysState.state$.pipe(map((x) => x ?? true)),
+      this.restrictedItemTypesService.restricted$,
+    ]).pipe(
+      map(
+        ([enabled, restrictions]) =>
+          // If enabled, show SSH keys inline menu unless the SSH key type is restricted
+          enabled && !restrictions.some((r) => r.cipherType === CipherType.SshKey),
+      ),
+    );
+
     this.enableContextMenuState = this.stateProvider.getGlobal(ENABLE_CONTEXT_MENU);
     this.enableContextMenu$ = this.enableContextMenuState.state$.pipe(map((x) => x ?? true));
 
@@ -309,6 +334,10 @@ export class AutofillSettingsService implements AutofillSettingsServiceAbstracti
 
   async setShowInlineMenuCards(newValue: boolean): Promise<void> {
     await this.showInlineMenuCardsState.update(() => newValue);
+  }
+
+  async setShowInlineMenuSshKeys(newValue: boolean): Promise<void> {
+    await this.showInlineMenuSshKeysState.update(() => newValue);
   }
 
   async setEnableContextMenu(newValue: boolean): Promise<void> {

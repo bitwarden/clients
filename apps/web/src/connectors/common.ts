@@ -1,3 +1,41 @@
+/**
+ * Returns true when the connector page is served from a Bitwarden-managed domain.
+ * Determined by window.location.hostname, which reflects the actual serving domain.
+ */
+export function isKnownCloudOrigin(): boolean {
+  // https://bitwarden.atlassian.net/browse/PM-32091
+  const managedSuffixes = [
+    ".bitwarden.com",
+    ".bitwarden.eu",
+    ".bitwarden.pw",
+    ".bitwarden-gov.com",
+  ];
+  const hostname = window.location.hostname || "";
+  return managedSuffixes.some((suffix) => hostname.endsWith(suffix));
+}
+
+/**
+ * Determines the targetOrigin for postMessage calls from the connector.
+ *
+ * Desktop (file:// parent): preserves the provided parentUrl for Electron compatibility.
+ */
+export function resolvePostMessageOrigin(parentUrl: string | null): string | null {
+  if (parentUrl) {
+    try {
+      if (new URL(parentUrl).protocol === "file:") {
+        return parentUrl;
+      }
+    } catch {
+      // Invalid URL — fall through
+    }
+  }
+
+  if (isKnownCloudOrigin()) {
+    return window.location.origin;
+  }
+  return parentUrl;
+}
+
 export function getQsParam(name: string) {
   const url = window.location.href;
   // eslint-disable-next-line
@@ -38,6 +76,9 @@ function appLinkHost(): string {
   const hostName = window.location.hostname || "";
   if (hostName.endsWith("bitwarden.eu")) {
     return "bitwarden.eu";
+  }
+  if (hostName.endsWith("bitwarden-gov.com")) {
+    return "bitwarden-gov.com";
   }
   if (hostName.endsWith("bitwarden.pw")) {
     return "bitwarden.pw";

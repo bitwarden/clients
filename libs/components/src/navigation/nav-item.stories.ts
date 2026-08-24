@@ -1,8 +1,10 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { StoryObj, Meta, moduleMetadata, applicationConfig } from "@storybook/angular";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { GlobalStateProvider } from "@bitwarden/state";
+import { enabledFlags } from "@bitwarden/storybook";
 
 import { IconButtonModule } from "../icon-button";
 import { LayoutComponent } from "../layout";
@@ -34,6 +36,8 @@ export default {
               skipToContent: "Skip to content",
               loading: "Loading",
               resizeSideNavigation: "Resize side navigation",
+              sideNavigation: "Side navigation",
+              skipLink: "Skip link",
             });
           },
         },
@@ -145,4 +149,9 @@ export const ForceActiveStyles: Story = {
       <bit-nav-item text="Third Nav" icon="bwi-collection-shared"></bit-nav-item>
     `,
   }),
+};
+
+export const ForceActiveStylesVfo1: Story = {
+  ...ForceActiveStyles,
+  globals: enabledFlags(FeatureFlag.VFO1Foundation),
 };

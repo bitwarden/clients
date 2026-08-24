@@ -5,6 +5,7 @@ import { Component, inject, OnInit, output, computed, signal } from "@angular/co
 import { toSignal } from "@angular/core/rxjs-interop";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { singleOrganizationPolicyApplies$ } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -20,9 +21,11 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   AddEditFolderDialogComponent,
   RoutedVaultFilterBridgeService,
+  Vfo1I18nPipe,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
-import { DesktopPremiumUpgradePromptService } from "../../../../services/desktop-premium-upgrade-prompt.service";
+import { DesktopPremiumUpgradePromptService } from "../../../../billing/services/desktop-premium-upgrade-prompt.service";
 
 import { CollectionFilterComponent } from "./filters/collection-filter.component";
 import { FolderFilterComponent } from "./filters/folder-filter.component";
@@ -45,6 +48,8 @@ import { TypeFilterComponent } from "./filters/type-filter.component";
     CollectionFilterComponent,
     FolderFilterComponent,
     A11yTitleDirective,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
   providers: [
     {
@@ -103,7 +108,7 @@ export class VaultFilterComponent implements OnInit {
       ),
     );
     this.activeSingleOrganizationPolicy = await firstValueFrom(
-      this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, this.activeUserId),
+      singleOrganizationPolicyApplies$(this.activeUserId, this.policyService),
     );
   }
 

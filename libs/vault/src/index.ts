@@ -1,7 +1,10 @@
+export { VaultFabComponent } from "./components/fab/fab.component";
 export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
 } from "./services/at-risk-password-callout.service";
+export { CipherRowMenuHandlers, CipherRowMenuService } from "./services/cipher-row-menu.service";
+export { CipherActionService } from "./services/cipher-action.service";
 export { PasswordRepromptService } from "./services/password-reprompt.service";
 export {
   CopyCipherFieldService,
@@ -9,7 +12,11 @@ export {
   CopyFieldAction,
 } from "./services/copy-cipher-field.service";
 export { CopyCipherFieldDirective } from "./components/copy-cipher-field.directive";
-export { OrgIconDirective } from "./components/org-icon.directive";
+export {
+  VaultCopyButtonsService,
+  CopyButtonDisplayMode,
+} from "./services/vault-copy-buttons.service";
+export { OrgIconDirective, getOrgIconForTier } from "./components/org-icon.directive";
 export { CanDeleteCipherDirective } from "./components/can-delete-cipher.directive";
 export { DarkImageSourceDirective } from "./components/dark-image-source.directive";
 export { GetOrgNameFromIdPipe } from "./pipes/get-organization-name.pipe";
@@ -23,25 +30,38 @@ export {
 } from "./components/assign-collections.component";
 
 export { DownloadAttachmentComponent } from "./components/download-attachment/download-attachment.component";
+export { TruncatedFilenameComponent } from "./components/truncated-filename";
+export { truncateFilename } from "./components/truncated-filename/truncate-filename";
+export { TruncateFilenamePipe } from "./components/truncated-filename/truncate-filename.pipe";
 export { PasswordHistoryViewComponent } from "./components/password-history-view/password-history-view.component";
 export { DecryptionFailureDialogComponent } from "./components/decryption-failure-dialog/decryption-failure-dialog.component";
+export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
+export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
+export * from "./components/my-folders/my-folders.component";
+export * from "./components/add-item-grid/add-item-grid.component";
+export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
+export * from "./components/show-quick-copy-actions-details-popover/show-quick-copy-actions-details-popover.component";
 export * from "./components/vault-items-transfer";
-export { VaultItem } from "./components/vault-item";
+export { VaultItem, compareVaultItems } from "./components/vault-item";
+export { VaultOrganizationUserNotificationsComponent } from "./components/vault-organization-user-notifications/vault-organization-user-notifications.component";
+export {
+  VaultOrganizationUserNotificationsService,
+  OrganizationUserNotificationBannerData,
+} from "./services/vault-organization-user-notifications.service";
 export { VaultItemEvent } from "./components/vault-item-event";
+export * from "./components/vault-items-table";
 export * from "./components/organization-name-badge/organization-name-badge.component";
 
 export { DefaultSshImportPromptService } from "./services/default-ssh-import-prompt.service";
 export { SshImportPromptService } from "./services/ssh-import-prompt.service";
 
-export * from "./abstractions/change-login-password.service";
 export * from "./abstractions/vault-items-transfer.service";
 export * from "./services/default-vault-items-transfer.service";
-export * from "./services/default-change-login-password.service";
 export * from "./services/archive-cipher-utilities.service";
 
 export * from "./models/vault-filter.type";
@@ -50,7 +70,58 @@ export * from "./models/routed-vault-filter.model";
 export * from "./models/routed-vault-filter-bridge.model";
 export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
+export * from "./models/vault-nav-view-model";
+export * from "./models/folder-table-row";
+export * from "./models/vault-scope";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
 export * from "./services/routed-vault-filter-bridge.service";
+export * from "./services/bulk-delete.service";
+export { VaultNavService } from "./services/vault-nav.service";
+export { DefaultVaultNavService } from "./services/default-vault-nav.service";
+export { VaultNavSectionComponent } from "./components/vault-nav-section/vault-nav-section.component";
+export { VaultManageNavComponent } from "./components/vault-manage-nav/vault-manage-nav.component";
+export {
+  VaultItemDialogComponent,
+  VaultItemDialogParams,
+  VaultItemDialogResult,
+  VaultItemDialogMode,
+} from "./vault-item-dialog/vault-item-dialog.component";
+
+export {
+  ASSIGN_COLLECTIONS_DIALOG,
+  AssignCollectionsDialogRef,
+  AssignCollectionsParams,
+  AssignCollectionsResult,
+} from "./tokens/assign-collections-dialog.token";
+
+export { BulkDialogsModule } from "./components/bulk-action-dialogs/bulk-dialogs.module";
+export {
+  BulkMoveDialogComponent,
+  BulkMoveDialogParams,
+  BulkMoveDialogResult,
+  openBulkMoveDialog,
+} from "./components/bulk-action-dialogs/bulk-move-dialog/bulk-move-dialog.component";
+export {
+  BULK_DELETE_DIALOG,
+  BulkDeleteDialogRef,
+  BulkDeleteDialogParams,
+  BulkDeleteDialogResult,
+} from "./tokens/bulk-delete-dialog.token";
+
+export {
+  BULK_EDIT_COLLECTION_ACCESS_DIALOG,
+  BulkEditCollectionAccessDialogRef,
+  BulkEditCollectionAccessParams,
+  BulkEditCollectionAccessResult,
+} from "./tokens/bulk-edit-collection-access-dialog.token";
+
+export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
+export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
+
+export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
+export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
+export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
+export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
+export { vaultScopeGuard } from "./routing/vault-scope.guard";

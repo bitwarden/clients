@@ -16,21 +16,16 @@ import {
 import {
   canAccessOrgAdmin,
   OrganizationService,
+  singleOrganizationPolicyApplies$,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
-import {
-  OrganizationUserType,
-  PolicyType,
-  ProviderType,
-} from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType, ProviderType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -117,7 +112,6 @@ export class ProductSwitcherService {
     private policyService: PolicyService,
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
-    private configService: ConfigService,
   ) {
     this.pollUntilSynced();
   }
@@ -134,15 +128,12 @@ export class ProductSwitcherService {
 
   userHasSingleOrgPolicy$ = this.accountService.activeAccount$.pipe(
     getUserId,
-    switchMap((userId) => this.policyService.policyAppliesToUser$(PolicyType.SingleOrg, userId)),
+    switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
-  shouldShowPremiumUpgradeButton$: Observable<boolean> = combineLatest([
-    this.configService.getFeatureFlag$(FeatureFlag.PM24032_NewNavigationPremiumUpgradeButton),
-    this.accountService.activeAccount$,
-  ]).pipe(
-    switchMap(([featureFlag, account]) => {
-      if (!featureFlag || !account) {
+  shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
+    switchMap((account) => {
+      if (!account) {
         return of(false);
       }
       return this.billingAccountProfileStateService

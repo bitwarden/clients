@@ -2,13 +2,13 @@ import { Component, Input } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BadgeSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { FeatureFlag, FeatureFlagValueType } from "@bitwarden/common/enums/feature-flag.enum";
 import { AnimationControlService } from "@bitwarden/common/platform/abstractions/animation-control.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -17,12 +17,12 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
+import { VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { PopupCompactModeService } from "../../../platform/popup/layout/popup-compact-mode.service";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
 import { PopupSizeService } from "../../../platform/popup/layout/popup-size.service";
-import { VaultPopupCopyButtonsService } from "../services/vault-popup-copy-buttons.service";
 
 import { AppearanceComponent } from "./appearance.component";
 
@@ -88,12 +88,14 @@ describe("AppearanceComponent", () => {
     setShowAtRiskPasswordNotifications.mockClear();
 
     const configService = mock<ConfigService>();
-    configService.getFeatureFlag$.mockImplementation((flag: FeatureFlag) => {
-      if (flag === FeatureFlag.PM31039ItemActionInExtension) {
-        return featureFlag$.asObservable();
-      }
-      return of(false);
-    });
+    configService.getFeatureFlag$.mockImplementation(
+      <Flag extends FeatureFlag>(flag: Flag): Observable<FeatureFlagValueType<Flag>> => {
+        if (flag === FeatureFlag.PM31039ItemActionInExtension) {
+          return featureFlag$.asObservable() as Observable<FeatureFlagValueType<Flag>>;
+        }
+        return of(false) as Observable<FeatureFlagValueType<Flag>>;
+      },
+    );
 
     await TestBed.configureTestingModule({
       imports: [AppearanceComponent],
@@ -117,11 +119,11 @@ describe("AppearanceComponent", () => {
           useValue: { enabled$: enableCompactMode$, setEnabled: setEnableCompactMode },
         },
         {
-          provide: VaultPopupCopyButtonsService,
+          provide: VaultCopyButtonsService,
           useValue: {
             showQuickCopyActions$,
             setShowQuickCopyActions,
-          } as Partial<VaultPopupCopyButtonsService>,
+          } as Partial<VaultCopyButtonsService>,
         },
         {
           provide: PopupSizeService,

@@ -20,23 +20,22 @@ import {
   GetSendAccessTokenError,
   SendAccessDomainCredentials,
 } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
-import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  EncArrayBuffer,
+  EncryptService,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { DownloadCommand } from "../../../commands/download.command";
@@ -46,10 +45,9 @@ import { SendAccessResponse } from "../models/send-access.response";
 export class SendReceiveCommand extends DownloadCommand {
   private canInteract: boolean;
   private decKey: SymmetricCryptoKey;
-  private sendAccessRequest: SendAccessRequest;
 
   constructor(
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     encryptService: EncryptService,
     private cryptoFunctionService: CryptoFunctionService,
     private platformUtilsService: PlatformUtilsService,
@@ -57,7 +55,6 @@ export class SendReceiveCommand extends DownloadCommand {
     private sendApiService: SendApiService,
     apiService: ApiService,
     private sendTokenService: SendTokenService,
-    private configService: ConfigService,
   ) {
     super(encryptService, apiService);
   }
@@ -83,13 +80,7 @@ export class SendReceiveCommand extends DownloadCommand {
 
     const keyArray = Utils.fromUrlB64ToArray(key);
 
-    const sendEmailOtpEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-
-    if (sendEmailOtpEnabled) {
-      return await this.attemptV2Access(apiUrl, id, keyArray, options);
-    } else {
-      return await this.attemptV1Access(apiUrl, id, keyArray, options);
-    }
+    return await this.attemptAccess(apiUrl, id, keyArray, options);
   }
 
   private getIdAndKey(url: URL): [string, string] {
@@ -100,9 +91,16 @@ export class SendReceiveCommand extends DownloadCommand {
   private async getApiUrl(url: URL) {
     const env = await firstValueFrom(this.environmentService.environment$);
     const urls = env.getUrls();
-    if (url.origin === "https://send.bitwarden.com") {
-      return "https://api.bitwarden.com";
-    } else if (url.origin === urls.api) {
+
+    // Check if the URL origin matches any known region's send domain
+    const matchingRegion = this.environmentService
+      .availableRegions()
+      .find((r) => r.urls.send != null && r.urls.send === url.origin);
+    if (matchingRegion != null) {
+      return matchingRegion.urls.api;
+    }
+
+    if (url.origin === urls.api) {
       return url.origin;
     } else if (this.platformUtilsService.isDev() && url.origin === urls.webVault) {
       return urls.api;
@@ -121,66 +119,7 @@ export class SendReceiveCommand extends DownloadCommand {
     return Utils.fromBufferToB64(passwordHash);
   }
 
-  private async attemptV1Access(
-    apiUrl: string,
-    id: string,
-    keyArray: Uint8Array,
-    options: OptionValues,
-  ): Promise<Response> {
-    this.sendAccessRequest = new SendAccessRequest();
-
-    let password = options.password;
-    if (password == null || password === "") {
-      if (options.passwordfile) {
-        password = await NodeUtils.readFirstLine(options.passwordfile);
-      } else if (options.passwordenv && process.env[options.passwordenv]) {
-        password = process.env[options.passwordenv];
-      }
-    }
-
-    if (password != null && password !== "") {
-      this.sendAccessRequest.password = await this.getUnlockedPassword(password, keyArray);
-    }
-
-    const response = await this.sendRequest(apiUrl, id, keyArray);
-
-    if (response instanceof Response) {
-      return response;
-    }
-
-    if (options.obj != null) {
-      return Response.success(new SendAccessResponse(response));
-    }
-
-    switch (response.type) {
-      case SendType.Text:
-        process.stdout.write(response?.text?.text);
-        return Response.success();
-      case SendType.File: {
-        const downloadData = await this.sendApiService.getSendFileDownloadData(
-          response,
-          this.sendAccessRequest,
-          apiUrl,
-        );
-
-        const decryptBufferFn = async (resp: globalThis.Response) => {
-          const encBuf = await EncArrayBuffer.fromResponse(resp);
-          return this.encryptService.decryptFileData(encBuf, this.decKey);
-        };
-
-        return await this.saveAttachmentToFile(
-          downloadData.url,
-          path.basename(response?.file?.fileName ?? `BitwardenSendFile-${Date.now()}`),
-          decryptBufferFn,
-          options.output,
-        );
-      }
-      default:
-        return Response.success(new SendAccessResponse(response));
-    }
-  }
-
-  private async attemptV2Access(
+  private async attemptAccess(
     apiUrl: string,
     id: string,
     keyArray: Uint8Array,
@@ -405,10 +344,10 @@ export class SendReceiveCommand extends DownloadCommand {
     options: OptionValues,
   ): Promise<Response> {
     try {
-      const sendResponse = await this.sendApiService.postSendAccessV2(accessToken, apiUrl);
+      const sendResponse = await this.sendApiService.postSendAccess(accessToken, apiUrl);
 
       const sendAccess = new SendAccess(sendResponse);
-      this.decKey = await this.keyService.makeSendKey(keyArray);
+      this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
       const decryptedView = await sendAccess.decrypt(this.decKey);
 
       if (options.obj != null) {
@@ -421,7 +360,7 @@ export class SendReceiveCommand extends DownloadCommand {
           return Response.success();
 
         case SendType.File: {
-          const downloadData = await this.sendApiService.getSendFileDownloadDataV2(
+          const downloadData = await this.sendApiService.getSendFileDownloadData(
             decryptedView,
             accessToken,
             apiUrl,
@@ -446,49 +385,6 @@ export class SendReceiveCommand extends DownloadCommand {
     } catch (e) {
       if (e instanceof ErrorResponse) {
         if (e.statusCode === 404) {
-          return Response.notFound();
-        }
-      }
-      return Response.error(e);
-    }
-  }
-
-  private async sendRequest(
-    url: string,
-    id: string,
-    key: Uint8Array,
-  ): Promise<Response | SendAccessView> {
-    try {
-      const sendResponse = await this.sendApiService.postSendAccess(
-        id,
-        this.sendAccessRequest,
-        url,
-      );
-
-      const sendAccess = new SendAccess(sendResponse);
-      this.decKey = await this.keyService.makeSendKey(key);
-      return await sendAccess.decrypt(this.decKey);
-    } catch (e) {
-      if (e instanceof ErrorResponse) {
-        if (e.statusCode === 401) {
-          if (this.canInteract) {
-            const answer: inquirer.Answers = await inquirer.createPromptModule({
-              output: process.stderr,
-            })({
-              type: "password",
-              name: "password",
-              message: "Send password:",
-            });
-
-            // reattempt with new password
-            this.sendAccessRequest.password = await this.getUnlockedPassword(answer.password, key);
-            return await this.sendRequest(url, id, key);
-          }
-
-          return Response.badRequest("Incorrect or missing password");
-        } else if (e.statusCode === 405) {
-          return Response.badRequest("Bad Request");
-        } else if (e.statusCode === 404) {
           return Response.notFound();
         }
       }

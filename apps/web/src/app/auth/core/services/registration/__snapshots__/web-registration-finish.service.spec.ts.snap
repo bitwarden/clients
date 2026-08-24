@@ -1,237 +1,105 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is OFF (old API) it registers the user with org invite when given an org invite 1`] = `
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow forwards the emergency-access fields when both invite token and access id are provided 1`] = `
+{
+  "accept_emergency_access_id": "00000000-0000-0000-0000-000000000001",
+  "accept_emergency_access_invite_token": "acceptEmergencyAccessInviteToken",
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "open_org_invite": undefined,
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": undefined,
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow forwards the org-sponsored free family plan token 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "open_org_invite": undefined,
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": "orgSponsoredFreeFamilyPlanToken",
+  "organization_user_id": undefined,
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow forwards the provider-invite fields when both token and user id are provided 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "open_org_invite": undefined,
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": undefined,
+  "provider_invite_token": "providerInviteToken",
+  "provider_user_id": "00000000-0000-0000-0000-000000000002",
+  "sales_assisted_token": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow populates direct-invite fields on the request when a direct org invite is stashed 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "open_org_invite": undefined,
+  "org_invite_token": "orgInviteToken",
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": "00000000-0000-0000-0000-000000000003",
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - SDK flow populates open-org-invite fields and skips direct-invite fields when a stashed open org invite is active 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": undefined,
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "open_org_invite": {
+    "code": "00000000-0000-0000-0000-000000000011",
+    "organization_id": "00000000-0000-0000-0000-000000000010",
+  },
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": undefined,
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - legacy flow forwards the emergency-access fields when both invite token and access id are provided 1`] = `
 RegisterFinishRequest {
-  "acceptEmergencyAccessId": undefined,
-  "acceptEmergencyAccessInviteToken": undefined,
-  "email": "test@email.com",
-  "emailVerificationToken": undefined,
-  "kdf": 0,
-  "kdfIterations": 600000,
-  "kdfMemory": undefined,
-  "kdfParallelism": undefined,
-  "masterPasswordHash": "newServerMasterKeyHash",
-  "masterPasswordHint": "newPasswordHint",
-  "orgInviteToken": "orgInviteToken",
-  "orgSponsoredFreeFamilyPlanToken": undefined,
-  "organizationUserId": "organizationUserId",
-  "providerInviteToken": undefined,
-  "providerUserId": undefined,
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-  "userSymmetricKey": "userKeyEncrypted",
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is OFF (old API) registers the user when given a provider invite token 1`] = `
-RegisterFinishRequest {
-  "acceptEmergencyAccessId": undefined,
-  "acceptEmergencyAccessInviteToken": undefined,
-  "email": "test@email.com",
-  "emailVerificationToken": undefined,
-  "kdf": 0,
-  "kdfIterations": 600000,
-  "kdfMemory": undefined,
-  "kdfParallelism": undefined,
-  "masterPasswordHash": "newServerMasterKeyHash",
-  "masterPasswordHint": "newPasswordHint",
-  "orgInviteToken": undefined,
-  "orgSponsoredFreeFamilyPlanToken": undefined,
-  "organizationUserId": undefined,
-  "providerInviteToken": "providerInviteToken",
-  "providerUserId": "providerUserId",
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-  "userSymmetricKey": "userKeyEncrypted",
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is OFF (old API) registers the user when given an emergency access invite token 1`] = `
-RegisterFinishRequest {
-  "acceptEmergencyAccessId": "emergencyAccessId",
-  "acceptEmergencyAccessInviteToken": "acceptEmergencyAccessInviteToken",
-  "email": "test@email.com",
-  "emailVerificationToken": undefined,
-  "kdf": 0,
-  "kdfIterations": 600000,
-  "kdfMemory": undefined,
-  "kdfParallelism": undefined,
-  "masterPasswordHash": "newServerMasterKeyHash",
-  "masterPasswordHint": "newPasswordHint",
-  "orgInviteToken": undefined,
-  "orgSponsoredFreeFamilyPlanToken": undefined,
-  "organizationUserId": undefined,
-  "providerInviteToken": undefined,
-  "providerUserId": undefined,
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-  "userSymmetricKey": "userKeyEncrypted",
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is OFF (old API) registers the user when given an org sponsored free family plan token 1`] = `
-RegisterFinishRequest {
-  "acceptEmergencyAccessId": undefined,
-  "acceptEmergencyAccessInviteToken": undefined,
-  "email": "test@email.com",
-  "emailVerificationToken": undefined,
-  "kdf": 0,
-  "kdfIterations": 600000,
-  "kdfMemory": undefined,
-  "kdfParallelism": undefined,
-  "masterPasswordHash": "newServerMasterKeyHash",
-  "masterPasswordHint": "newPasswordHint",
-  "orgInviteToken": undefined,
-  "orgSponsoredFreeFamilyPlanToken": "orgSponsoredFreeFamilyPlanToken",
-  "organizationUserId": undefined,
-  "providerInviteToken": undefined,
-  "providerUserId": undefined,
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-  "userSymmetricKey": "userKeyEncrypted",
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is OFF (old API) registers the user with KDF fields when given valid email verification input 1`] = `
-RegisterFinishRequest {
-  "acceptEmergencyAccessId": undefined,
-  "acceptEmergencyAccessInviteToken": undefined,
-  "email": "test@email.com",
-  "emailVerificationToken": "emailVerificationToken",
-  "kdf": 0,
-  "kdfIterations": 600000,
-  "kdfMemory": undefined,
-  "kdfParallelism": undefined,
-  "masterPasswordHash": "newServerMasterKeyHash",
-  "masterPasswordHint": "newPasswordHint",
-  "orgInviteToken": undefined,
-  "orgSponsoredFreeFamilyPlanToken": undefined,
-  "organizationUserId": undefined,
-  "providerInviteToken": undefined,
-  "providerUserId": undefined,
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-  "userSymmetricKey": "userKeyEncrypted",
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is ON (new API) derives the master key and registers the user with new data types 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
-  "acceptEmergencyAccessId": undefined,
-  "acceptEmergencyAccessInviteToken": undefined,
-  "email": "test@email.com",
-  "emailVerificationToken": "emailVerificationToken",
-  "masterPasswordAuthentication": {
-    "kdf": PBKDF2KdfConfig {
-      "iterations": 600000,
-      "kdfType": 0,
-    },
-    "masterPasswordAuthenticationHash": "authHash",
-    "salt": "salt",
-  },
-  "masterPasswordHint": "newPasswordHint",
-  "masterPasswordUnlock": {
-    "kdf": PBKDF2KdfConfig {
-      "iterations": 600000,
-      "kdfType": 0,
-    },
-    "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
-    "salt": "salt",
-  },
-  "orgInviteToken": undefined,
-  "orgSponsoredFreeFamilyPlanToken": undefined,
-  "organizationUserId": undefined,
-  "providerInviteToken": undefined,
-  "providerUserId": undefined,
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is ON (new API) it registers the user with org invite when given an org invite 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
-  "acceptEmergencyAccessId": undefined,
-  "acceptEmergencyAccessInviteToken": undefined,
-  "email": "test@email.com",
-  "emailVerificationToken": undefined,
-  "masterPasswordAuthentication": {
-    "kdf": PBKDF2KdfConfig {
-      "iterations": 600000,
-      "kdfType": 0,
-    },
-    "masterPasswordAuthenticationHash": "authHash",
-    "salt": "salt",
-  },
-  "masterPasswordHint": "newPasswordHint",
-  "masterPasswordUnlock": {
-    "kdf": PBKDF2KdfConfig {
-      "iterations": 600000,
-      "kdfType": 0,
-    },
-    "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
-    "salt": "salt",
-  },
-  "orgInviteToken": "orgInviteToken",
-  "orgSponsoredFreeFamilyPlanToken": undefined,
-  "organizationUserId": "organizationUserId",
-  "providerInviteToken": undefined,
-  "providerUserId": undefined,
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is ON (new API) registers the user when given a provider invite token 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
-  "acceptEmergencyAccessId": undefined,
-  "acceptEmergencyAccessInviteToken": undefined,
-  "email": "test@email.com",
-  "emailVerificationToken": undefined,
-  "masterPasswordAuthentication": {
-    "kdf": PBKDF2KdfConfig {
-      "iterations": 600000,
-      "kdfType": 0,
-    },
-    "masterPasswordAuthenticationHash": "authHash",
-    "salt": "salt",
-  },
-  "masterPasswordHint": "newPasswordHint",
-  "masterPasswordUnlock": {
-    "kdf": PBKDF2KdfConfig {
-      "iterations": 600000,
-      "kdfType": 0,
-    },
-    "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
-    "salt": "salt",
-  },
-  "orgInviteToken": undefined,
-  "orgSponsoredFreeFamilyPlanToken": undefined,
-  "organizationUserId": undefined,
-  "providerInviteToken": "providerInviteToken",
-  "providerUserId": "providerUserId",
-  "userAsymmetricKeys": KeysRequest {
-    "encryptedPrivateKey": "privateKey",
-    "publicKey": "publicKey",
-  },
-}
-`;
-
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is ON (new API) registers the user when given an emergency access invite token 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
   "acceptEmergencyAccessId": "emergencyAccessId",
   "acceptEmergencyAccessInviteToken": "acceptEmergencyAccessInviteToken",
   "email": "test@email.com",
@@ -253,11 +121,13 @@ RegisterFinishRequestWithAuthUnlockDataTypes {
     "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
     "salt": "salt",
   },
+  "openOrgInvite": undefined,
   "orgInviteToken": undefined,
   "orgSponsoredFreeFamilyPlanToken": undefined,
   "organizationUserId": undefined,
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",
@@ -265,8 +135,8 @@ RegisterFinishRequestWithAuthUnlockDataTypes {
 }
 `;
 
-exports[`WebRegistrationFinishService finishRegistration() when feature flag is ON (new API) registers the user when given an org sponsored free family plan token 1`] = `
-RegisterFinishRequestWithAuthUnlockDataTypes {
+exports[`WebRegistrationFinishService finishRegistration() - legacy flow forwards the org-sponsored free family plan token 1`] = `
+RegisterFinishRequest {
   "acceptEmergencyAccessId": undefined,
   "acceptEmergencyAccessInviteToken": undefined,
   "email": "test@email.com",
@@ -288,11 +158,183 @@ RegisterFinishRequestWithAuthUnlockDataTypes {
     "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
     "salt": "salt",
   },
+  "openOrgInvite": undefined,
   "orgInviteToken": undefined,
   "orgSponsoredFreeFamilyPlanToken": "orgSponsoredFreeFamilyPlanToken",
   "organizationUserId": undefined,
   "providerInviteToken": undefined,
   "providerUserId": undefined,
+  "salesAssistedToken": undefined,
+  "userAsymmetricKeys": KeysRequest {
+    "encryptedPrivateKey": "privateKey",
+    "publicKey": "publicKey",
+  },
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - legacy flow forwards the provider-invite fields when both token and user id are provided 1`] = `
+RegisterFinishRequest {
+  "acceptEmergencyAccessId": undefined,
+  "acceptEmergencyAccessInviteToken": undefined,
+  "email": "test@email.com",
+  "emailVerificationToken": undefined,
+  "masterPasswordAuthentication": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterPasswordAuthenticationHash": "authHash",
+    "salt": "salt",
+  },
+  "masterPasswordHint": "newPasswordHint",
+  "masterPasswordUnlock": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
+    "salt": "salt",
+  },
+  "openOrgInvite": undefined,
+  "orgInviteToken": undefined,
+  "orgSponsoredFreeFamilyPlanToken": undefined,
+  "organizationUserId": undefined,
+  "providerInviteToken": "providerInviteToken",
+  "providerUserId": "providerUserId",
+  "salesAssistedToken": undefined,
+  "userAsymmetricKeys": KeysRequest {
+    "encryptedPrivateKey": "privateKey",
+    "publicKey": "publicKey",
+  },
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - legacy flow populates direct-invite fields on the request when a direct org invite is stashed 1`] = `
+RegisterFinishRequest {
+  "acceptEmergencyAccessId": undefined,
+  "acceptEmergencyAccessInviteToken": undefined,
+  "email": "test@email.com",
+  "emailVerificationToken": undefined,
+  "masterPasswordAuthentication": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterPasswordAuthenticationHash": "authHash",
+    "salt": "salt",
+  },
+  "masterPasswordHint": "newPasswordHint",
+  "masterPasswordUnlock": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
+    "salt": "salt",
+  },
+  "openOrgInvite": undefined,
+  "orgInviteToken": "orgInviteToken",
+  "orgSponsoredFreeFamilyPlanToken": undefined,
+  "organizationUserId": "organizationUserId",
+  "providerInviteToken": undefined,
+  "providerUserId": undefined,
+  "salesAssistedToken": undefined,
+  "userAsymmetricKeys": KeysRequest {
+    "encryptedPrivateKey": "privateKey",
+    "publicKey": "publicKey",
+  },
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() - legacy flow populates open-org-invite fields and skips direct-invite fields when a stashed open org invite is active 1`] = `
+RegisterFinishRequest {
+  "acceptEmergencyAccessId": undefined,
+  "acceptEmergencyAccessInviteToken": undefined,
+  "email": "test@email.com",
+  "emailVerificationToken": undefined,
+  "masterPasswordAuthentication": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterPasswordAuthenticationHash": "authHash",
+    "salt": "salt",
+  },
+  "masterPasswordHint": "newPasswordHint",
+  "masterPasswordUnlock": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
+    "salt": "salt",
+  },
+  "openOrgInvite": OpenOrgInviteRequest {
+    "code": "00000000-0000-0000-0000-000000000011",
+    "organizationId": "00000000-0000-0000-0000-000000000010",
+  },
+  "orgInviteToken": undefined,
+  "orgSponsoredFreeFamilyPlanToken": undefined,
+  "organizationUserId": undefined,
+  "providerInviteToken": undefined,
+  "providerUserId": undefined,
+  "salesAssistedToken": undefined,
+  "userAsymmetricKeys": KeysRequest {
+    "encryptedPrivateKey": "privateKey",
+    "publicKey": "publicKey",
+  },
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() — SDK flow only delegates to the SDK's post_keys_for_user_password_registration and does not exercise the legacy path 1`] = `
+{
+  "accept_emergency_access_id": undefined,
+  "accept_emergency_access_invite_token": undefined,
+  "email": "test@email.com",
+  "email_verification_token": "emailVerificationToken",
+  "master_password": "newPassword",
+  "master_password_hint": "newPasswordHint",
+  "open_org_invite": undefined,
+  "org_invite_token": undefined,
+  "org_sponsored_free_family_plan_token": undefined,
+  "organization_user_id": undefined,
+  "provider_invite_token": undefined,
+  "provider_user_id": undefined,
+  "sales_assisted_token": undefined,
+  "salt": "salt",
+}
+`;
+
+exports[`WebRegistrationFinishService finishRegistration() — legacy flow only derives the master key + user key + key pair and posts a RegisterFinishRequest 1`] = `
+RegisterFinishRequest {
+  "acceptEmergencyAccessId": undefined,
+  "acceptEmergencyAccessInviteToken": undefined,
+  "email": "test@email.com",
+  "emailVerificationToken": "emailVerificationToken",
+  "masterPasswordAuthentication": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterPasswordAuthenticationHash": "authHash",
+    "salt": "salt",
+  },
+  "masterPasswordHint": "newPasswordHint",
+  "masterPasswordUnlock": {
+    "kdf": PBKDF2KdfConfig {
+      "iterations": 600000,
+      "kdfType": 0,
+    },
+    "masterKeyWrappedUserKey": "masterKeyWrappedUserKey",
+    "salt": "salt",
+  },
+  "openOrgInvite": undefined,
+  "orgInviteToken": undefined,
+  "orgSponsoredFreeFamilyPlanToken": undefined,
+  "organizationUserId": undefined,
+  "providerInviteToken": undefined,
+  "providerUserId": undefined,
+  "salesAssistedToken": undefined,
   "userAsymmetricKeys": KeysRequest {
     "encryptedPrivateKey": "privateKey",
     "publicKey": "publicKey",

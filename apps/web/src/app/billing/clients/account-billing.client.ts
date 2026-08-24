@@ -58,6 +58,7 @@ export class AccountBillingClient {
     paymentMethod: TokenizedPaymentMethod | NonTokenizedPaymentMethod,
     billingAddress: Pick<BillingAddress, "country" | "postalCode">,
     coupons?: string[],
+    fromMarketing?: string | null,
   ): Promise<void> => {
     const path = `${this.endpoint}/subscription`;
 
@@ -70,6 +71,7 @@ export class AccountBillingClient {
     const request = {
       ...base,
       ...(coupons?.length ? { coupons } : {}),
+      ...(fromMarketing ? { fromMarketing } : {}),
     };
 
     await this.apiService.send("POST", path, request, true, true);

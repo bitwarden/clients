@@ -55,10 +55,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Verify
         run: |
@@ -68,7 +69,7 @@ jobs:
           if [[ "$PACKAGE_VERSION" == "$ELECTRON_BUILDER_VERSION"  ]]; then
             echo "Versions matches"
           else
-            echo "Version missmatch, package.json: $PACKAGE_VERSION, electron-builder.json: $ELECTRON_BUILDER_VERSION"
+            echo "Version mismatch, package.json: $PACKAGE_VERSION, electron-builder.json: $ELECTRON_BUILDER_VERSION"
             exit 1
           fi
 
@@ -77,6 +78,7 @@ jobs:
     runs-on: ubuntu-22.04
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
+      beta_package_version: ${{ steps.retrieve-version.outputs.beta_package_version }}
       release_channel: ${{ steps.release-channel.outputs.channel }}
       build_number: ${{ steps.increment-version.outputs.build_number }}
       rc_branch_exists: ${{ steps.branch-check.outputs.rc_branch_exists }}
@@ -88,10 +90,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: true
+          allow-unsafe-pr-checkout: true
 
       - name: Get Package Version
         id: retrieve-version
@@ -99,6 +102,19 @@ jobs:
           PKG_VERSION=$(jq -r .version src/package.json)
           echo "Setting version number to $PKG_VERSION"
           echo "package_version=$PKG_VERSION" >> "$GITHUB_OUTPUT"
+
+          # beta-release.json holds the beta ordinal, which is bumped on rc for a
+          # second beta off the same base version. electron-updater only serves a beta
+          # that out-ranks the installed one.
+          BETA_NUMBER=$(jq -r '.betaNumber' beta-release.json)
+          if [[ ! "$BETA_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "[!] Invalid beta ordinal '$BETA_NUMBER'; expected a positive integer"
+            exit 1
+          fi
+
+          BETA_PKG_VERSION="$PKG_VERSION-beta.$BETA_NUMBER"
+          echo "Setting beta version number to $BETA_PKG_VERSION"
+          echo "beta_package_version=$BETA_PKG_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Increment Version
         id: increment-version
@@ -173,11 +189,12 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Free disk space
         uses: bitwarden/gh-actions/free-disk-space@main
@@ -202,7 +219,7 @@ jobs:
           sudo apt-get -y install pkg-config libxss-dev rpm flatpak flatpak-builder
 
       - name: Set up Snap
-        run: sudo snap install snapcraft --classic
+        run: sudo snap install snapcraft --classic --channel=8.x/stable
 
       - name: Print environment
         run: |
@@ -236,7 +253,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache
         with:
           path: |
@@ -244,7 +261,7 @@ jobs:
             apps/desktop/desktop_native/dist/*
             ${{ env.RUNNER_TEMP }}/.cargo/registry
             ${{ env.RUNNER_TEMP }}/.cargo/git
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -261,42 +278,42 @@ jobs:
         run: npm run dist:lin
 
       - name: Upload tar.gz artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_x64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_x64.tar.gz
           if-no-files-found: error
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-amd64.deb
           if-no-files-found: error
 
       - name: Upload .rpm artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.rpm
           if-no-files-found: error
 
       - name: Upload .snap artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_amd64.snap
           if-no-files-found: error
 
       - name: Upload .AppImage artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x86_64.AppImage
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ needs.setup.outputs.release_channel }}-linux.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-linux.yml
@@ -309,7 +326,7 @@ jobs:
           sudo npm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: com.bitwarden.desktop.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
@@ -333,10 +350,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -359,7 +377,7 @@ jobs:
           sudo gem install --no-document fpm
 
       - name: Set up Snap
-        run: sudo snap install snapcraft --classic
+        run: sudo snap install snapcraft --classic --channel=8.x/stable
 
       - name: Install snaps required by snapcraft in destructive mode
         run: |
@@ -399,7 +417,7 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache
         with:
           path: |
@@ -407,7 +425,7 @@ jobs:
             apps/desktop/desktop_native/dist/*
             ${{ env.RUNNER_TEMP }}/.cargo/registry
             ${{ env.RUNNER_TEMP }}/.cargo/git
-          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -437,14 +455,14 @@ jobs:
         run: npm run dist:lin:arm64
 
       - name: Upload .snap artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           path: apps/desktop/dist/bitwarden_${{ env._PACKAGE_VERSION }}_arm64.snap
           if-no-files-found: error
 
       - name: Upload tar.gz artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden_${{ env._PACKAGE_VERSION }}_arm64.tar.gz
           path: apps/desktop/dist/bitwarden_desktop_arm64.tar.gz
@@ -457,7 +475,7 @@ jobs:
           sudo npm run pack:lin:flatpak
 
       - name: Upload flatpak artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: com.bitwarden.desktop-arm64.flatpak
           path: apps/desktop/dist/com.bitwarden.desktop.flatpak
@@ -481,10 +499,11 @@ jobs:
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -562,13 +581,13 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache
         with:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -634,7 +653,7 @@ jobs:
             -NewName bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
@@ -642,7 +661,7 @@ jobs:
 
       - name: Upload installer exe artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
@@ -650,7 +669,7 @@ jobs:
 
       - name: Upload appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32.appx
@@ -658,7 +677,7 @@ jobs:
 
       - name: Upload store appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-ia32-store.appx
@@ -666,7 +685,7 @@ jobs:
 
       - name: Upload NSIS ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -674,7 +693,7 @@ jobs:
 
       - name: Upload appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64.appx
@@ -682,7 +701,7 @@ jobs:
 
       - name: Upload store appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-x64-store.appx
@@ -690,7 +709,7 @@ jobs:
 
       - name: Upload NSIS x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
@@ -698,7 +717,7 @@ jobs:
 
       - name: Upload appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64.appx
@@ -706,7 +725,7 @@ jobs:
 
       - name: Upload store appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-arm64-store.appx
@@ -714,7 +733,7 @@ jobs:
 
       - name: Upload NSIS ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
@@ -722,7 +741,7 @@ jobs:
 
       - name: Upload nupkg artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
           path: apps/desktop/dist/chocolatey/bitwarden.${{ env._PACKAGE_VERSION }}.nupkg
@@ -730,7 +749,7 @@ jobs:
 
       - name: Upload auto-update artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ needs.setup.outputs.release_channel }}.yml
           path: apps/desktop/dist/nsis-web/${{ needs.setup.outputs.release_channel }}.yml
@@ -748,15 +767,16 @@ jobs:
         shell: pwsh
         working-directory: apps/desktop
     env:
-      _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.beta_package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       NODE_OPTIONS: --max_old_space_size=4096
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -831,13 +851,13 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache
         with:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -847,15 +867,23 @@ jobs:
         run: node build.js cross-platform "$env:MODE"
 
       - name: Build
+        env:
+          CHANNEL: beta
         run: npm run build
 
+      # pack:win:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
+      # electron-builder reads for artifact names and the channel file. The `-beta.N`
+      # tag selects beta.yml over latest.yml.
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' }}
+        env:
+          BETA_PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
         run: npm run pack:win:beta
 
       - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         env:
+          BETA_PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
           ELECTRON_BUILDER_SIGN: 1
           SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
           SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
@@ -868,15 +896,57 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: ./scripts/validate-chromium-importer-thumbprint.ps1
 
+      # The Appx built above keeps the Microsoft-assigned publisher and stays unsigned,
+      # which is what the Store requires.
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
+            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
+            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
+            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64-store.appx"
+
+      # An Appx can only be signed when its manifest publisher matches the certificate
+      # subject, so read the subject from the signed binary.
+      - name: Read signing certificate subject
+        id: cert-subject
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $signature = Get-AuthenticodeSignature "./dist/win-unpacked/Bitwarden Beta.exe"
+          if ($null -eq $signature.SignerCertificate) {
+            Write-Error "Expected a signed exe, got status '$($signature.Status)': $($signature.StatusMessage)"
+            exit 1
+          }
+          $subject = $signature.SignerCertificate.Subject
+          Write-Host "Signing certificate subject: $subject"
+          "publisher=$subject" >> $env:GITHUB_OUTPUT
+
+      # Packs and signs the Appx with the CI signing certificate and publisher.
+      # Reuses the compiled Rust and webpack builds from above, so we only need
+      # to swap out the manifest, recompress and sign.
+      - name: Pack & sign appx for direct download
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          ELECTRON_BUILDER_SIGN: 1
+          ELECTRON_BUILDER_SIGN_APPX: 1
+          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
+          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
+          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
+          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
+          _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
+        run: node ./scripts/pack-signed-appx.mts --config electron-builder.beta.json --publisher $env:_APPX_PUBLISHER
+
+      # A signed Store package is rejected at ingestion and an unsigned direct download
+      # installs for nobody, so confirm each package ended up as intended before we
+      # upload any of them.
+      - name: Verify appx signing state and publishers
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
+        run: ./scripts/validate-appx-signatures.ps1 -Config electron-builder.beta.json -SignedPublisher $env:_APPX_PUBLISHER
 
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -887,11 +957,9 @@ jobs:
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-x64.nsis.7z
           Rename-Item -Path .\dist\nsis-web\Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.nsis.7z `
             -NewName bitwarden-beta-$env:_PACKAGE_VERSION-arm64.nsis.7z
-          Rename-Item -Path .\dist\nsis-web\latest.yml `
-            -NewName latest-beta.yml
 
       - name: Upload portable exe artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Beta-Portable-${{ env._PACKAGE_VERSION }}.exe
@@ -899,7 +967,7 @@ jobs:
 
       - name: Upload installer exe artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Beta-Installer-${{ env._PACKAGE_VERSION }}.exe
@@ -907,7 +975,7 @@ jobs:
 
       - name: Upload appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32.appx
@@ -915,7 +983,7 @@ jobs:
 
       - name: Upload store appx ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-ia32-store.appx
@@ -923,7 +991,7 @@ jobs:
 
       - name: Upload NSIS ia32 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-ia32.nsis.7z
@@ -931,7 +999,7 @@ jobs:
 
       - name: Upload appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64.appx
@@ -939,7 +1007,7 @@ jobs:
 
       - name: Upload store appx x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-x64-store.appx
@@ -947,7 +1015,7 @@ jobs:
 
       - name: Upload NSIS x64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-x64.nsis.7z
@@ -955,7 +1023,7 @@ jobs:
 
       - name: Upload appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64.appx
@@ -963,7 +1031,7 @@ jobs:
 
       - name: Upload store appx ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
           path: apps/desktop/dist/Bitwarden-Beta-${{ env._PACKAGE_VERSION }}-arm64-store.appx
@@ -971,7 +1039,7 @@ jobs:
 
       - name: Upload NSIS ARM64 artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
           path: apps/desktop/dist/nsis-web/bitwarden-beta-${{ env._PACKAGE_VERSION }}-arm64.nsis.7z
@@ -979,10 +1047,10 @@ jobs:
 
       - name: Upload auto-update artifact
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: latest-beta.yml
-          path: apps/desktop/dist/nsis-web/latest-beta.yml
+          name: beta.yml
+          path: apps/desktop/dist/nsis-web/beta.yml
           if-no-files-found: error
 
   macos-build:
@@ -1002,10 +1070,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -1040,14 +1109,14 @@ jobs:
 
       - name: Cache Build
         id: build-cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Cache Safari
         id: safari-cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1059,14 +1128,6 @@ jobs:
           subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Get Azure Key Vault secrets
-        id: get-kv-secrets
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: gh-clients
-          secrets: "KEYCHAIN-PASSWORD"
 
       - name: Download Provisioning Profiles secrets
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1091,9 +1152,6 @@ jobs:
         run: |
           mkdir -p "$HOME/certificates"
 
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > "$HOME/certificates/bitwarden-desktop-key.p12"
-
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
             jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
 
@@ -1115,16 +1173,13 @@ jobs:
 
       - name: Set up keychain
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
-        env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
-
-          security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
@@ -1193,13 +1248,13 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache
         with:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -1242,10 +1297,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -1280,14 +1336,14 @@ jobs:
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1304,7 +1360,7 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -1327,9 +1383,6 @@ jobs:
         run: |
           mkdir -p "$HOME/certificates"
 
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > "$HOME/certificates/bitwarden-desktop-key.p12"
-
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
             jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
 
@@ -1342,23 +1395,17 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
             jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
 
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
-
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
-
-          security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
@@ -1417,13 +1464,13 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache
         with:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -1437,7 +1484,7 @@ jobs:
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1453,48 +1500,271 @@ jobs:
           cp -r "$GITHUB_WORKSPACE/browser-build-artifacts/Safari/dmg/build/Release/safari.appex" PlugIns/safari.appex
 
       - name: Set up private auth key
+        id: setup-auth-key
         env:
-          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          $_APP_STORE_CONNECT_AUTH_KEY
+          KEY_PATH="$HOME/private_keys/auth_key.p8"
+          cat << EOF > "$KEY_PATH"
+          $APP_STORE_CONNECT_AUTH_KEY
           EOF
+          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
       - name: Build application (dist)
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           CSC_FOR_PULL_REQUEST: true
         run: npm run pack:mac
 
       - name: Upload .zip artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
           if-no-files-found: error
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
           if-no-files-found: error
 
       - name: Upload .dmg blockmap artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg.blockmap
           if-no-files-found: error
 
       - name: Upload auto-update artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ needs.setup.outputs.release_channel }}-mac.yml
           path: apps/desktop/dist/${{ needs.setup.outputs.release_channel }}-mac.yml
+          if-no-files-found: error
+
+  macos-beta:
+    name: MacOS Beta Build
+    runs-on: macos-15
+    if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+    needs:
+      - setup
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      _PACKAGE_VERSION: ${{ needs.setup.outputs.beta_package_version }}
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      NODE_OPTIONS: --max_old_space_size=4096
+    defaults:
+      run:
+        working-directory: apps/desktop
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
+          allow-unsafe-pr-checkout: true
+
+      - name: Set up Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        with:
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+          node-version: ${{ env._NODE_VERSION }}
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: '3.14.2'
+
+      - name: Set up Node-gyp
+        run: python -m pip install setuptools
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
+        with:
+          workspaces: |
+            apps/desktop/desktop_native -> target
+          cache-targets: "true"
+
+      - name: Print environment
+        run: |
+          node --version
+          npm --version
+          rustup show
+          echo "GitHub ref: $GITHUB_REF"
+          echo "GitHub event: $GITHUB_EVENT"
+          xcodebuild -showsdks
+
+      - name: Log in to Azure
+        uses: bitwarden/gh-actions/azure-login@main
+        with:
+          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          client_id: ${{ secrets.AZURE_CLIENT_ID }}
+
+      - name: Get Azure Key Vault secrets
+        id: get-kv-secrets
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: gh-clients
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
+
+      - name: Download Provisioning Profiles secrets
+        env:
+          ACCOUNT_NAME: bitwardenci
+          CONTAINER_NAME: profiles
+        run: |
+          mkdir -p "$HOME/secrets"
+
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name bitwarden_desktop_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            --output none
+
+          az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
+            --name bitwarden_desktop_autofill_developer_id.provisionprofile \
+            --file "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
+            --output none
+
+      - name: Get certificates
+        run: |
+          mkdir -p "$HOME/certificates"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-app-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-app-cert.p12"
+
+          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
+            jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
+
+      - name: Log out from Azure
+        uses: bitwarden/gh-actions/azure-logout@main
+
+      - name: Set up keychain
+        run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 1200 build.keychain
+
+          security import "$HOME/certificates/devid-app-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security import "$HOME/certificates/devid-installer-cert.p12" -k build.keychain -P "" \
+            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
+
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+
+      - name: Set up provisioning profiles
+        run: |
+          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile"
+
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+
+          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
+          cp "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
+            "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"
+
+      - name: Install Node dependencies
+        run: npm ci
+        working-directory: ./
+
+      - name: Download SDK Artifacts
+        if: ${{ inputs.sdk_branch != '' }}
+        uses: bitwarden/gh-actions/download-artifacts@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build-wasm-internal.yml
+          workflow_conclusion: success
+          branch: ${{ inputs.sdk_branch }}
+          artifacts: sdk-internal
+          repo: bitwarden/sdk-internal
+          path: ../sdk-internal
+          if_no_artifact_found: fail
+
+      - name: Override SDK
+        if: ${{ inputs.sdk_branch != '' }}
+        working-directory: ./
+        run: |
+          ls -l ../
+          npm link ../sdk-internal
+
+      - name: Cache Native Module
+        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        id: cache
+        with:
+          path: |
+            apps/desktop/desktop_native/napi/*.node
+            apps/desktop/desktop_native/dist/*
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
+
+      - name: Build Native Module
+        if: steps.cache.outputs.cache-hit != 'true'
+        working-directory: apps/desktop/desktop_native
+        env:
+          MODE: ${{ github.event_name == 'workflow_call' && '--release' || '' }}
+        run: node build.js cross-platform "$MODE"
+
+      - name: Build
+        env:
+          CHANNEL: beta
+        run: npm run build
+
+      - name: Set up private auth key
+        id: setup-auth-key
+        env:
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+        run: |
+          mkdir ~/private_keys
+          KEY_PATH="$HOME/private_keys/auth_key.p8"
+          cat << EOF > "$KEY_PATH"
+          $APP_STORE_CONNECT_AUTH_KEY
+          EOF
+          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
+
+      # pack:mac:beta stamps BETA_PACKAGE_VERSION into the built package.json, which
+      # electron-builder reads for artifact names and the channel file. The `-beta.N`
+      # tag selects beta-mac.yml over latest-mac.yml.
+      - name: Build application (beta dist)
+        env:
+          BETA_PACKAGE_VERSION: ${{ env._PACKAGE_VERSION }}
+          APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
+          CSC_FOR_PULL_REQUEST: true
+        run: npm run pack:mac:beta
+
+      - name: Upload .zip artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
+          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal-mac.zip
+          if-no-files-found: error
+
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          path: apps/desktop/dist/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.dmg
+          if-no-files-found: error
+
+      - name: Upload auto-update artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: beta-mac.yml
+          path: apps/desktop/dist/beta-mac.yml
           if-no-files-found: error
 
   macos-package-mas:
@@ -1517,10 +1787,11 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Set up Node
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
@@ -1555,14 +1826,14 @@ jobs:
 
       - name: Get Build Cache
         id: build-cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/desktop/build
           key: ${{ runner.os }}-${{ github.run_id }}-build
 
       - name: Setup Safari Cache
         id: safari-cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: apps/browser/dist/Safari
           key: ${{ runner.os }}-${{ github.run_id }}-safari-extension
@@ -1579,14 +1850,14 @@ jobs:
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: gh-clients
-          secrets: "KEYCHAIN-PASSWORD,APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-TEAM-ISSUER"
+          secrets: "APP-STORE-CONNECT-AUTH-KEY,APP-STORE-CONNECT-AUTH-ID,APP-STORE-CONNECT-TEAM-ISSUER"
 
       - name: Retrieve Slack secret
         id: retrieve-slack-secret
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: bitwarden-ci
-          secrets: "slack-bot-token"
+          secrets: "slack-webhook-alerts-deploy-qa"
 
       - name: Download Provisioning Profiles secrets
         env:
@@ -1609,9 +1880,6 @@ jobs:
         run: |
           mkdir -p "$HOME/certificates"
 
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/bitwarden-desktop-key |
-            jq -r .value | base64 -d > "$HOME/certificates/bitwarden-desktop-key.p12"
-
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/appstore-app-cert |
             jq -r .value | base64 -d > "$HOME/certificates/appstore-app-cert.p12"
 
@@ -1624,23 +1892,17 @@ jobs:
           az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/devid-installer-cert |
             jq -r .value | base64 -d > "$HOME/certificates/devid-installer-cert.p12"
 
-          az keyvault secret show --id https://bitwarden-ci.vault.azure.net/certificates/macdev-cert |
-            jq -r .value | base64 -d > "$HOME/certificates/macdev-cert.p12"
-
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Set up keychain
-        env:
-          KEYCHAIN_PASSWORD: ${{ steps.get-kv-secrets.outputs.KEYCHAIN-PASSWORD }}
         run: |
+          KEYCHAIN_PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$KEYCHAIN_PASSWORD"
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security default-keychain -s build.keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
           security set-keychain-settings -lut 1200 build.keychain
-
-          security import "$HOME/certificates/bitwarden-desktop-key.p12" -k build.keychain -P "" \
-            -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
 
           security import "$HOME/certificates/appstore-app-cert.p12" -k build.keychain -P "" \
             -T /usr/bin/codesign -T /usr/bin/security -T /usr/bin/productbuild
@@ -1700,13 +1962,13 @@ jobs:
           npm link ../sdk-internal
 
       - name: Cache Native Module
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         id: cache
         with:
           path: |
             apps/desktop/desktop_native/napi/*.node
             apps/desktop/desktop_native/dist/*
-          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*') }}
+          key: rust-${{ runner.os }}-${{ hashFiles('apps/desktop/desktop_native/**/*', 'package-lock.json') }}
 
       - name: Build Native Module
         if: steps.cache.outputs.cache-hit != 'true'
@@ -1720,7 +1982,7 @@ jobs:
         run: npm run build
 
       - name: Download Browser artifact
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: ${{ github.workspace }}/browser-build-artifacts
 
@@ -1736,19 +1998,22 @@ jobs:
           cp -r "$GITHUB_WORKSPACE/browser-build-artifacts/Safari/mas/build/Release/safari.appex" "PlugIns/safari.appex"
 
       - name: Set up private auth key
+        id: setup-auth-key
         env:
-          _APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
+          APP_STORE_CONNECT_AUTH_KEY: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-KEY }}
         run: |
           mkdir ~/private_keys
-          cat << EOF > ~/private_keys/AuthKey_6TV9MKN3GP.p8
-          $_APP_STORE_CONNECT_AUTH_KEY
+          KEY_PATH="$HOME/private_keys/auth_key.p8"
+          cat << EOF > "$KEY_PATH"
+          $APP_STORE_CONNECT_AUTH_KEY
           EOF
+          echo "auth-key-path=$KEY_PATH" >> $GITHUB_OUTPUT
 
       - name: Build application for App Store
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
-          APP_STORE_CONNECT_AUTH_KEY_PATH: ~/private_keys/AuthKey_6TV9MKN3GP.p8
+          APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           CSC_FOR_PULL_REQUEST: true
         run: npm run pack:mac:mas
 
@@ -1763,14 +2028,14 @@ jobs:
           $buildInfo | ConvertTo-Json | Set-Content -Path dist/macos-build-number.json
 
       - name: Upload MacOS App Store build number artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: macos-build-number.json
           path: apps/desktop/dist/macos-build-number.json
           if-no-files-found: error
 
       - name: Upload .pkg artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
           path: apps/desktop/dist/mas-universal/Bitwarden-${{ env._PACKAGE_VERSION }}-universal.pkg
@@ -1782,15 +2047,17 @@ jobs:
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
           _APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
+          _APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
+          APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
         run: |
           brew install gsed
 
-          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' ~/private_keys/AuthKey_6TV9MKN3GP.p8)
+          KEY_WITHOUT_NEWLINES=$(gsed -E ':a;N;$!ba;s/\r{0,1}\n/\\n/g' "$APP_STORE_CONNECT_AUTH_KEY_PATH")
 
           cat << EOF > ~/secrets/appstoreconnect-fastlane.json
           {
             "issuer_id": "$_APP_STORE_CONNECT_TEAM_ISSUER",
-            "key_id": "6TV9MKN3GP",
+            "key_id": "$_APP_STORE_CONNECT_AUTH_KEY_ID",
             "key": "$KEY_WITHOUT_NEWLINES"
           }
           EOF
@@ -1802,7 +2069,7 @@ jobs:
           && (inputs.testflight_distribute || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
         env:
           APP_STORE_CONNECT_TEAM_ISSUER: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-TEAM-ISSUER }}
-          APP_STORE_CONNECT_AUTH_KEY: 6TV9MKN3GP
+          APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           BRANCH: ${{ github.ref }}
         run: |
 
@@ -1823,11 +2090,10 @@ jobs:
         if: |
           github.event_name != 'pull_request_target'
           && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
         with:
-          channel-id: C074F5UESQ0
-          method: chat.postMessage
-          token: ${{ steps.retrieve-slack-secret.outputs.slack-bot-token }}
+          webhook: ${{ steps.retrieve-slack-secret.outputs.slack-webhook-alerts-deploy-qa }}
+          webhook-type: incoming-webhook
           payload: |
             {
               "blocks": [
@@ -1858,10 +2124,11 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Log in to Azure
         uses: bitwarden/gh-actions/azure-login@main
@@ -1874,17 +2141,17 @@ jobs:
         id: retrieve-secrets
         uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
-          keyvault: "bitwarden-ci"
-          secrets: "crowdin-api-token"
+          keyvault: "gh-clients"
+          secrets: "CROWDIN-API-TOKEN"
 
       - name: Log out from Azure
         uses: bitwarden/gh-actions/azure-logout@main
 
       - name: Upload Sources
-        uses: crowdin/github-action@8818ff65bfc4322384f983ea37e3926948c11745 # v2.15.0
+        uses: crowdin/github-action@8868a33591d21088edfc398968173a3b98d51706 # v2.16.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
+          CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.CROWDIN-API-TOKEN }}
           CROWDIN_PROJECT_ID: "299360"
         with:
           config: apps/desktop/crowdin.yml
@@ -1902,11 +2169,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download deb artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -1946,11 +2214,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -1988,11 +2257,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download appimage artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2044,11 +2314,12 @@ jobs:
       - linux-arm64
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download flatpak artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2097,11 +2368,12 @@ jobs:
       _CPU_ARCH: ${{ matrix.os == 'ubuntu-22.04' && 'amd64' || 'arm64' }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download snap artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2142,11 +2414,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download dmg artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2187,11 +2460,12 @@ jobs:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 1
           ref: ${{ github.event.pull_request.head.sha }}
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Download portable artifact
         uses: bitwarden/gh-actions/download-artifacts@main
@@ -2212,62 +2486,3 @@ jobs:
             echo "Bitwarden is not running."
             exit 1
           fi
-
-  check-failures:
-    name: Check for failures
-    if: always()
-    runs-on: ubuntu-22.04
-    needs:
-      - electron-verify
-      - browser-build
-      - setup
-      - linux
-      - windows
-      - macos-build
-      - macos-package-github
-      - macos-package-mas
-      - crowdin-push
-      - validate-linux-x64-deb
-      - validate-linux-x64-appimage
-      - validate-linux-flatpak
-      - validate-linux-snap
-      - validate-linux-wayland
-      - validate-macos-dmg
-      - validate-windows-portable
-    permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Check if any job failed
-        if: |
-          github.event_name != 'pull_request_target'
-          && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc-desktop')
-          && contains(needs.*.result, 'failure')
-        run: exit 1
-
-      - name: Log in to Azure
-        if: failure()
-        uses: bitwarden/gh-actions/azure-login@main
-        with:
-          subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          client_id: ${{ secrets.AZURE_CLIENT_ID }}
-
-      - name: Retrieve secrets
-        id: retrieve-secrets
-        if: failure()
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "devops-alerts-slack-webhook-url"
-
-      - name: Log out from Azure
-        uses: bitwarden/gh-actions/azure-logout@main
-
-      - name: Notify Slack on failure
-        uses: act10ns/slack@44541246747a30eb3102d87f7a4cc5471b0ffb7d # v2.1.0
-        if: failure()
-        env:
-          SLACK_WEBHOOK_URL: ${{ steps.retrieve-secrets.outputs.devops-alerts-slack-webhook-url }}
-        with:
-          status: ${{ job.status }}

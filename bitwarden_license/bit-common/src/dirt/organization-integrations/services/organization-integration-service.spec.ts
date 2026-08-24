@@ -252,7 +252,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-404 errors", async () => {
+    it("should rethrow non-404 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationApiService.createOrganizationIntegration.mockRejectedValue(error);
 
@@ -420,7 +420,7 @@ describe("OrganizationIntegrationService", () => {
       });
     });
 
-    it("should rethrow non-404 errors", async () => {
+    it("should rethrow non-404 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationApiService.updateOrganizationIntegration.mockRejectedValue(error);
 
@@ -564,10 +564,14 @@ describe("OrganizationIntegrationService", () => {
 
       const result = await service.delete(orgId, integrationId, configurationId);
 
-      expect(result).toEqual({ mustBeOwner: true, success: false });
+      expect(result).toEqual({
+        mustBeOwner: true,
+        success: false,
+        organizationIntegrationResult: undefined,
+      });
     });
 
-    it("should rethrow non-404 errors", async () => {
+    it("should rethrow non-404 and non-409 errors", async () => {
       const error = new Error("Server error");
       integrationConfigurationApiService.deleteOrganizationIntegrationConfiguration.mockRejectedValue(
         error,
@@ -591,7 +595,11 @@ describe("OrganizationIntegrationService", () => {
 
       const result = await service.delete(orgId, integrationId, configurationId);
 
-      expect(result).toEqual({ mustBeOwner: true, success: false });
+      expect(result).toEqual({
+        mustBeOwner: true,
+        success: false,
+        organizationIntegrationResult: undefined,
+      });
     });
   });
 

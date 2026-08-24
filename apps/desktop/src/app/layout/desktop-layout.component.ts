@@ -1,8 +1,13 @@
 import { Component, inject } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
+import { map } from "rxjs";
 
 import { PasswordManagerLogo } from "@bitwarden/assets/svg";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { DialogService, LayoutComponent, NavigationModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
@@ -30,8 +35,20 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
 })
 export class DesktopLayoutComponent {
   private dialogService = inject(DialogService);
+  private sendPolicyService = inject(SendPolicyService);
+  private configService = inject(ConfigService);
 
   protected readonly logo = PasswordManagerLogo;
+
+  protected readonly sendEnabled = toSignal(
+    this.sendPolicyService.disableSend$.pipe(map((disableSend) => !disableSend)),
+    { initialValue: true },
+  );
+
+  protected readonly vfo1Foundation = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
 
   protected openGenerator() {
     this.dialogService.open(CredentialGeneratorComponent);

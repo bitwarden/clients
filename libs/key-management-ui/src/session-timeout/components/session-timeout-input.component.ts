@@ -243,8 +243,12 @@ export class SessionTimeoutInputComponent implements ControlValueAccessor, Valid
     // Empty
   }
 
-  setDisabledState?(_isDisabled: boolean): void {
-    // Empty
+  setDisabledState?(isDisabled: boolean): void {
+    if (isDisabled) {
+      this.form.disable({ emitEvent: false });
+    } else {
+      this.form.enable({ emitEvent: false });
+    }
   }
 
   validate(_: AbstractControl): ValidationErrors | null {

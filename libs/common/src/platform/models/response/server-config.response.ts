@@ -3,7 +3,6 @@
 import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
 import { BaseResponse } from "../../../models/response/base.response";
 import { Region } from "../../abstractions/environment.service";
-import { ServerSettings } from "../domain/server-settings";
 
 export class ServerConfigResponse extends BaseResponse {
   version: string;
@@ -12,7 +11,7 @@ export class ServerConfigResponse extends BaseResponse {
   environment: EnvironmentServerConfigResponse;
   featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
   push: PushSettingsConfigResponse;
-  settings: ServerSettings;
+  settings: ServerSettingsResponse;
   communication: CommunicationServerConfigResponse;
 
   constructor(response: any) {
@@ -28,10 +27,27 @@ export class ServerConfigResponse extends BaseResponse {
     this.environment = new EnvironmentServerConfigResponse(this.getResponseProperty("Environment"));
     this.featureStates = this.getResponseProperty("FeatureStates");
     this.push = new PushSettingsConfigResponse(this.getResponseProperty("Push"));
-    this.settings = new ServerSettings(this.getResponseProperty("Settings"));
+    this.settings = new ServerSettingsResponse(this.getResponseProperty("Settings"));
     this.communication = new CommunicationServerConfigResponse(
       this.getResponseProperty("Communication"),
     );
+  }
+}
+
+export class ServerSettingsResponse extends BaseResponse {
+  disableUserRegistration: boolean = false;
+  suppressOnboardingInterstitials: boolean = false;
+
+  constructor(response: any) {
+    super(response);
+
+    if (response == null) {
+      return;
+    }
+
+    this.disableUserRegistration = this.getResponseProperty("DisableUserRegistration") ?? false;
+    this.suppressOnboardingInterstitials =
+      this.getResponseProperty("SuppressOnboardingInterstitials") ?? false;
   }
 }
 
@@ -58,6 +74,7 @@ export class EnvironmentServerConfigResponse extends BaseResponse {
   identity: string;
   notifications: string;
   sso: string;
+  fillAssistRules: string;
 
   constructor(data: any = null) {
     super(data);
@@ -72,6 +89,7 @@ export class EnvironmentServerConfigResponse extends BaseResponse {
     this.identity = this.getResponseProperty("Identity");
     this.notifications = this.getResponseProperty("Notifications");
     this.sso = this.getResponseProperty("Sso");
+    this.fillAssistRules = this.getResponseProperty("FillAssistRules");
   }
 }
 

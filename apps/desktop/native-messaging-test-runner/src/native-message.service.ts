@@ -1,14 +1,18 @@
 /* eslint-disable no-console */
 import "module-alias/register";
 
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "crypto";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptServiceImplementation,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+// eslint-disable-next-line no-restricted-imports
+import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 
 // eslint-disable-next-line no-restricted-imports
 import { DecryptedCommandData } from "../../src/models/native-messaging/decrypted-command-data";
@@ -180,8 +184,7 @@ export default class NativeMessageService {
 
   private async sendMessage(
     message:
-      | Omit<UnencryptedMessage, keyof MessageCommon>
-      | Omit<EncryptedMessage, keyof MessageCommon>,
+      Omit<UnencryptedMessage, keyof MessageCommon> | Omit<EncryptedMessage, keyof MessageCommon>,
     options: IPCOptions,
   ): Promise<EncryptedMessageResponse | UnencryptedMessageResponse> {
     // Attempt to connect before sending any messages. If the connection has already
@@ -190,7 +193,7 @@ export default class NativeMessageService {
 
     const commonFields: MessageCommon = {
       // Create a messageId that can be used as a lookup when we get a response
-      messageId: uuidv4(),
+      messageId: randomUUID(),
       version: this.apiVersion,
     };
     const fullMessage: UnencryptedMessage | EncryptedMessage = {

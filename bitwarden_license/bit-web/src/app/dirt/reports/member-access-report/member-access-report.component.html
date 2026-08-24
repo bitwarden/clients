@@ -7,16 +7,21 @@
       [placeholder]="'searchMembers' | i18n"
       class="tw-grow"
     ></bit-search>
-    <button type="button" bitButton buttonType="primary" [bitAction]="exportReportAction">
-      <span>{{ "export" | i18n }}</span>
-      <bit-icon name="bwi-sign-in" class="bwi-fw" aria-hidden="true"></bit-icon>
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      endIcon="bwi-import"
+      [bitAction]="exportReportAction"
+    >
+      {{ "exportVerb" | i18n }}
     </button>
   }
 </app-header>
 
 <div class="tw-max-w-4xl">
   <p bitTypography="body1">
-    {{ "memberAccessReportPageDesc" | i18n }}
+    {{ "memberAccessReportPageDesc" | vfo1I18n: "memberAccessReportPageDescV3" }}
   </p>
 </div>
 
@@ -35,7 +40,7 @@
       <th bitCell bitSortable="email" default>{{ "members" | i18n }}</th>
       <th bitCell bitSortable="groupsCount" class="tw-w-[278px]">{{ "groups" | i18n }}</th>
       <th bitCell bitSortable="collectionsCount" class="tw-w-[278px]">
-        {{ "collections" | i18n }}
+        {{ "collections" | vfo1I18n: "sharedFolders" }}
       </th>
       <th bitCell bitSortable="itemsCount" class="tw-w-[278px]">{{ "items" | i18n }}</th>
     </ng-container>

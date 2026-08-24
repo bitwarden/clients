@@ -1,12 +1,19 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 
-import { ButtonModule, ButtonType, LinkModule, TypographyModule } from "@bitwarden/components";
+import {
+  BitwardenIcon,
+  ButtonModule,
+  ButtonType,
+  IconModule,
+  LinkModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
 @Component({
   selector: "dirt-activity-card",
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: "./activity-card.component.html",
-  imports: [TypographyModule, LinkModule, ButtonModule],
+  imports: [TypographyModule, LinkModule, ButtonModule, IconModule],
   host: {
     class:
       "tw-box-border tw-bg-background tw-block tw-text-main tw-border-solid tw-border-secondary-100 tw-border [&:not(bit-layout_*)]:tw-rounded-lg tw-rounded-lg tw-p-6 tw-min-h-56 tw-overflow-hidden",
@@ -40,7 +47,7 @@ export class ActivityCardComponent {
    * Icon class to display next to metrics (e.g., "bwi-exclamation-triangle").
    * If null, no icon is displayed.
    */
-  readonly iconClass = input<string | null>(null);
+  readonly iconClass = input<BitwardenIcon | null>(null);
 
   /**
    * CSS class for icon color (e.g., "tw-text-success", "tw-text-muted").

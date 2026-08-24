@@ -9,10 +9,10 @@ import { VaultComponent } from "./vault.component";
 
 const routes: Routes = [
   {
-    data: { titleId: "vaults" },
     path: "",
-    canActivate: [organizationPermissionsGuard(canAccessVaultTab)],
     component: VaultComponent,
+    data: { titleId: "vaults" },
+    canActivate: [organizationPermissionsGuard(canAccessVaultTab)],
   },
 ];
 

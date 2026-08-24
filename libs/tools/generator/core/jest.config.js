@@ -7,6 +7,7 @@ module.exports = {
   testMatch: ["**/+(*.)+(spec).+(ts)"],
   preset: "ts-jest",
   testEnvironment: "../../../shared/test.environment.ts",
+  setupFiles: ["<rootDir>/../../../shared/polyfill-node-globals.ts"],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
     prefix: "<rootDir>/../../../../",
   }),

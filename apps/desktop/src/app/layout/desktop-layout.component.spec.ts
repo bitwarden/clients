@@ -2,10 +2,13 @@ import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { DialogService, NavigationModule } from "@bitwarden/components";
+import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
@@ -28,6 +31,13 @@ class MockSendFiltersNavComponent {}
 })
 class MockVaultFiltersNavComponent {}
 
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 Object.defineProperty(window, "matchMedia", {
   writable: true,
   value: jest.fn().mockImplementation((query) => ({
@@ -49,6 +59,9 @@ describe("DesktopLayoutComponent", () => {
   const fakeGlobalStateProvider = new FakeGlobalStateProvider();
 
   beforeEach(async () => {
+    const configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
+
     await TestBed.configureTestingModule({
       imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],
       providers: [
@@ -63,6 +76,14 @@ describe("DesktopLayoutComponent", () => {
         {
           provide: DialogService,
           useValue: mock<DialogService>(),
+        },
+        {
+          provide: SendPolicyService,
+          useValue: { disableSend$: of(false) },
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
       ],
     })

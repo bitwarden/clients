@@ -2,11 +2,21 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
+  contentChild,
+  effect,
+  inject,
   input,
   output,
+  signal,
   viewChild,
 } from "@angular/core";
-import { QueryParamsHandling } from "@angular/router";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { NavigationEnd, QueryParamsHandling, Router, RouterLink, UrlTree } from "@angular/router";
+import { filter } from "rxjs";
+
+import { IconModule } from "../icon";
+import { IconTileComponent } from "../icon-tile";
+import { BitwardenIcon } from "../shared/icon";
 
 /**
  * Individual breadcrumb item used within the `bit-breadcrumbs` component.
@@ -18,18 +28,19 @@ import { QueryParamsHandling } from "@angular/router";
 @Component({
   selector: "bit-breadcrumb",
   templateUrl: "./breadcrumb.component.html",
+  imports: [IconModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BreadcrumbComponent {
   /**
    * Optional icon to display before the breadcrumb text.
    */
-  readonly icon = input<string>();
+  readonly icon = input<BitwardenIcon>();
 
   /**
    * Router link for the breadcrumb. Can be a string or an array of route segments.
    */
-  readonly route = input<string | any[]>();
+  readonly route = input<RouterLink["routerLink"]>();
 
   /**
    * Query parameters to include in the router link.
@@ -48,6 +59,62 @@ export class BreadcrumbComponent {
 
   /** Used by the BreadcrumbsComponent to access the breadcrumb content */
   readonly content = viewChild(TemplateRef);
+
+  /** An icon tile projected into the `start` slot, whose size we keep in sync with the container. */
+  private readonly startIconTile = contentChild(IconTileComponent);
+
+  /**
+   * The size of the crumb, set by the parent `bit-breadcrumbs`. Used to size a projected
+   * icon tile in step with the breadcrumbs `size`. Defaults to "base" for standalone use.
+   */
+  readonly size = signal<"small" | "base">("base");
+
+  private readonly router = inject(Router);
+
+  readonly isActiveRoute = signal(false);
+
+  checkActiveRoute() {
+    const route = this.route();
+
+    if (!route) {
+      return;
+    }
+
+    let routeStringOrUrlTree: string | UrlTree = "";
+
+    if (typeof route === "string" || route instanceof UrlTree) {
+      routeStringOrUrlTree = route;
+    } else {
+      routeStringOrUrlTree = this.router.createUrlTree(route);
+    }
+
+    const result = this.router.isActive(routeStringOrUrlTree, {
+      paths: "subset",
+      queryParams: "exact",
+      fragment: "ignored",
+      matrixParams: "ignored",
+    });
+
+    this.isActiveRoute.set(result);
+  }
+
+  constructor() {
+    this.router.events
+      .pipe(
+        takeUntilDestroyed(),
+        filter((event) => event instanceof NavigationEnd),
+      )
+      .subscribe((_) => this.checkActiveRoute());
+
+    // Drive the projected icon tile's size from the crumb size (pushed by the parent
+    // `bit-breadcrumbs`) so it stays in sync. Runs once the content query resolves.
+    effect(() => {
+      const tile = this.startIconTile();
+      if (tile) {
+        tile.size.set(this.size() === "small" ? "xs" : "sm");
+      }
+    });
+  }
 
   onClick(args: unknown) {
     this.click.emit(args);

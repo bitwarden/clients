@@ -6,21 +6,26 @@ import { Opaque } from "type-fest";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason, decodeJwtTokenToJson } from "@bitwarden/auth/common";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptedString,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
+import { PureCrypto } from "@bitwarden/sdk-internal";
 
-import { KeyGenerationService } from "../../key-management/crypto";
-import { EncryptService } from "../../key-management/crypto/abstractions/encrypt.service";
-import { EncString, EncryptedString } from "../../key-management/crypto/models/enc-string";
 import {
   VaultTimeout,
   VaultTimeoutAction,
   VaultTimeoutStringType,
 } from "../../key-management/vault-timeout";
 import { LogService } from "../../platform/abstractions/log.service";
+import { SdkLoadService } from "../../platform/abstractions/sdk/sdk-load.service";
 import { AbstractStorageService } from "../../platform/abstractions/storage.service";
 import { StorageLocation } from "../../platform/enums";
 import { Utils } from "../../platform/misc/utils";
 import { StorageOptions } from "../../platform/models/domain/storage-options";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import {
   GlobalState,
   GlobalStateProvider,
@@ -140,7 +145,6 @@ export class TokenService implements TokenServiceAbstraction {
     private globalStateProvider: GlobalStateProvider,
     private readonly platformSupportsSecureStorage: boolean,
     private secureStorageService: AbstractStorageService,
-    private keyGenerationService: KeyGenerationService,
     private encryptService: EncryptService,
     private logService: LogService,
     private logoutCallback: (logoutReason: LogoutReason, userId?: string) => Promise<void>,
@@ -242,7 +246,10 @@ export class TokenService implements TokenServiceAbstraction {
   }
 
   private async createAndSaveAccessTokenKey(userId: UserId): Promise<AccessTokenKey> {
-    const newAccessTokenKey = (await this.keyGenerationService.createKey(512)) as AccessTokenKey;
+    await SdkLoadService.Ready;
+    const newAccessTokenKey = SymmetricCryptoKey.fromSdk(
+      PureCrypto.make_aes256_cbc_hmac_key(),
+    ) as AccessTokenKey;
 
     await this.secureStorageService.save<AccessTokenKey>(
       `${userId}${this.accessTokenKeySecureStorageKey}`,
@@ -371,38 +378,46 @@ export class TokenService implements TokenServiceAbstraction {
           // so that the caller can use it immediately.
           decryptedAccessToken = accessToken;
 
-          // TODO: PM-6408
-          // 2024-02-20: Remove access token from memory so that we migrate to encrypt the access token over time.
-          // Remove this call to remove the access token from memory after 3 months.
-          await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
+          // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
+          await this.clearAccessTokenMemoryLocation(userId);
         } catch (error) {
           this.logService.error(
             `SetAccessToken: storing encrypted access token in secure storage failed. Falling back to disk storage.`,
             error,
           );
 
-          // Fall back to disk storage for unecrypted access token
+          // Fall back to disk storage for unencrypted access token
           decryptedAccessToken = await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
             .update((_) => accessToken, {
               shouldUpdate: (previousValue) => previousValue !== accessToken,
             });
+          // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
+          await this.clearAccessTokenMemoryLocation(userId);
         }
 
         return decryptedAccessToken;
       }
-      case TokenStorageLocation.Disk:
+      case TokenStorageLocation.Disk: {
         // Access token stored on disk unencrypted as platform does not support secure storage
-        return await this.singleUserStateProvider
+        const newAccessToken = await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
           .update((_) => accessToken, {
             shouldUpdate: (previousValue) => previousValue !== accessToken,
           });
-      case TokenStorageLocation.Memory:
+        // Then, we can clear the memory state location to enforce that a single location holds the access token at a time.
+        await this.clearAccessTokenMemoryLocation(userId);
+        return newAccessToken;
+      }
+      case TokenStorageLocation.Memory: {
         // Access token stored in memory due to vault timeout settings
-        return await this.singleUserStateProvider
+        const newAccessToken = await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_MEMORY)
           .update((_) => accessToken);
+        // Then, we can clear the disk state location to enforce that a single location holds the access token at a time.
+        await this.clearAccessTokenDiskLocation(userId);
+        return newAccessToken;
+      }
     }
   }
 
@@ -453,11 +468,19 @@ export class TokenService implements TokenServiceAbstraction {
       await this.clearAccessTokenKey(userId);
     }
 
-    // Clear tokens from disk storage (all platforms)
+    // Clear from disk and memory.
+    await this.clearAccessTokenDiskLocation(userId);
+    await this.clearAccessTokenMemoryLocation(userId);
+  }
+
+  private async clearAccessTokenMemoryLocation(userId: UserId): Promise<void> {
+    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
+  }
+
+  private async clearAccessTokenDiskLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).update((_) => null, {
       shouldUpdate: (previousValue) => previousValue !== null,
     });
-    await this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).update((_) => null);
   }
 
   async getAccessToken(userId: UserId): Promise<string | null> {
@@ -601,13 +624,8 @@ export class TokenService implements TokenServiceAbstraction {
           // so that the caller can use it immediately.
           decryptedRefreshToken = refreshToken;
 
-          // TODO: PM-6408
-          // 2024-02-20: Remove refresh token from memory and disk so that we migrate to secure storage over time.
-          // Remove these 2 calls to remove the refresh token from memory and disk after 3 months.
-          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
-            shouldUpdate: (previousValue) => previousValue !== null,
-          });
-          await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
+          await this.clearRefreshTokenDiskLocation(userId);
+          await this.clearRefreshTokenMemoryLocation(userId);
         } catch (error) {
           // This case could be hit for both Linux users who don't have secure storage configured
           // or for Windows users who have intermittent issues with secure storage.
@@ -622,21 +640,28 @@ export class TokenService implements TokenServiceAbstraction {
             .update((_) => refreshToken, {
               shouldUpdate: (previousValue) => previousValue !== refreshToken,
             });
+          await this.clearRefreshTokenMemoryLocation(userId);
         }
 
         return decryptedRefreshToken;
       }
-      case TokenStorageLocation.Disk:
-        return await this.singleUserStateProvider
+      case TokenStorageLocation.Disk: {
+        const newRefreshToken = await this.singleUserStateProvider
           .get(userId, REFRESH_TOKEN_DISK)
           .update((_) => refreshToken, {
             shouldUpdate: (previousValue) => previousValue !== refreshToken,
           });
+        await this.clearRefreshTokenMemoryLocation(userId);
+        return newRefreshToken;
+      }
 
-      case TokenStorageLocation.Memory:
-        return await this.singleUserStateProvider
+      case TokenStorageLocation.Memory: {
+        const newRefreshToken = await this.singleUserStateProvider
           .get(userId, REFRESH_TOKEN_MEMORY)
           .update((_) => refreshToken);
+        await this.clearRefreshTokenDiskLocation(userId);
+        return newRefreshToken;
+      }
     }
   }
 
@@ -708,7 +733,15 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     // Platform doesn't support secure storage, so use state provider implementation
+    await this.clearRefreshTokenMemoryLocation(userId);
+    await this.clearRefreshTokenDiskLocation(userId);
+  }
+
+  private async clearRefreshTokenMemoryLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
+  }
+
+  private async clearRefreshTokenDiskLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null, {
       shouldUpdate: (previousValue) => previousValue !== null,
     });
@@ -743,13 +776,17 @@ export class TokenService implements TokenServiceAbstraction {
     );
 
     if (storageLocation === TokenStorageLocation.Disk) {
-      return await this.singleUserStateProvider
+      const newClientId = await this.singleUserStateProvider
         .get(userId, API_KEY_CLIENT_ID_DISK)
         .update((_) => clientId);
+      await this.clearClientIdMemoryLocation(userId);
+      return newClientId;
     } else if (storageLocation === TokenStorageLocation.Memory) {
-      return await this.singleUserStateProvider
+      const newClientId = await this.singleUserStateProvider
         .get(userId, API_KEY_CLIENT_ID_MEMORY)
         .update((_) => clientId);
+      await this.clearClientIdDiskLocation(userId);
+      return newClientId;
     }
   }
 
@@ -784,8 +821,15 @@ export class TokenService implements TokenServiceAbstraction {
     // we can't determine storage location w/out vaultTimeoutAction and vaultTimeout
     // but we can simply clear both locations to avoid the need to require those parameters
 
-    // Platform doesn't support secure storage, so use state provider implementation
+    await this.clearClientIdMemoryLocation(userId);
+    await this.clearClientIdDiskLocation(userId);
+  }
+
+  private async clearClientIdMemoryLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, API_KEY_CLIENT_ID_MEMORY).update((_) => null);
+  }
+
+  private async clearClientIdDiskLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, API_KEY_CLIENT_ID_DISK).update((_) => null);
   }
 
@@ -817,13 +861,17 @@ export class TokenService implements TokenServiceAbstraction {
     );
 
     if (storageLocation === TokenStorageLocation.Disk) {
-      return await this.singleUserStateProvider
+      const newClientSecret = await this.singleUserStateProvider
         .get(userId, API_KEY_CLIENT_SECRET_DISK)
         .update((_) => clientSecret);
+      await this.clearClientSecretMemoryLocation(userId);
+      return newClientSecret;
     } else if (storageLocation === TokenStorageLocation.Memory) {
-      return await this.singleUserStateProvider
+      const newClientSecret = await this.singleUserStateProvider
         .get(userId, API_KEY_CLIENT_SECRET_MEMORY)
         .update((_) => clientSecret);
+      await this.clearClientSecretDiskLocation(userId);
+      return newClientSecret;
     }
   }
 
@@ -858,10 +906,17 @@ export class TokenService implements TokenServiceAbstraction {
     // we can't determine storage location w/out vaultTimeoutAction and vaultTimeout
     // but we can simply clear both locations to avoid the need to require those parameters
 
-    // Platform doesn't support secure storage, so use state provider implementation
+    await this.clearClientSecretMemoryLocation(userId);
+    await this.clearClientSecretDiskLocation(userId);
+  }
+
+  private async clearClientSecretMemoryLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider
       .get(userId, API_KEY_CLIENT_SECRET_MEMORY)
       .update((_) => null);
+  }
+
+  private async clearClientSecretDiskLocation(userId: UserId): Promise<void> {
     await this.singleUserStateProvider.get(userId, API_KEY_CLIENT_SECRET_DISK).update((_) => null);
   }
 
@@ -908,6 +963,15 @@ export class TokenService implements TokenServiceAbstraction {
       this.clearClientId(userId),
       this.clearClientSecret(userId),
     ]);
+  }
+
+  async cleanupTokenStorage(userIds: UserId[]): Promise<void> {
+    for (const userId of userIds) {
+      const accessToken = await this.getAccessToken(userId);
+      if (accessToken == null) {
+        await this.clearTokens(userId);
+      }
+    }
   }
 
   // jwthelper methods
@@ -1100,6 +1164,17 @@ export class TokenService implements TokenServiceAbstraction {
     return await firstValueFrom(this.singleUserStateProvider.get(userId, storageLocation).state$);
   }
 
+  /**
+   * Determines where tokens should be stored based on vault timeout settings.
+   *
+   * | Vault Timeout Action | Vault Timeout   | Token Storage        |
+   * |----------------------|-----------------|----------------------|
+   * | Lock                 | Any             | Disk / Secure Storage|
+   * | Log Out              | Never           | Disk / Secure Storage|
+   * | Log Out              | Any other value | Memory only          |
+   *
+   * Memory-only tokens are cleared when the app closes.
+   */
   private async determineStorageLocation(
     vaultTimeoutAction: VaultTimeoutAction,
     vaultTimeout: VaultTimeout,

@@ -3,7 +3,6 @@ import { Component, inject, ChangeDetectionStrategy } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { filter, firstValueFrom, map } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -18,6 +17,8 @@ import {
   IconButtonModule,
   ToastService,
 } from "@bitwarden/components";
+
+import { JslibModule } from "../../jslib.module";
 
 /**
  * This is a generic prompt to run encryption migrations that require the master password.
@@ -85,6 +86,6 @@ export class PromptMigrationPasswordComponent {
     }
 
     // Return the master password to the caller
-    this.dialogRef.close(masterPasswordControl.value);
+    await this.dialogRef.close(masterPasswordControl.value);
   };
 }

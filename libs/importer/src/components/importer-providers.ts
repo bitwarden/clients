@@ -7,12 +7,11 @@ import { safeProvider, SafeProvider } from "@bitwarden/angular/platform/utils/sa
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { KeyGenerationService } from "@bitwarden/common/key-management/crypto";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { KeyServiceLegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/key-service-legacy-encryptor-provider";
 import { LegacyEncryptorProvider } from "@bitwarden/common/tools/cryptography/legacy-encryptor-provider";
 import { ExtensionRegistry } from "@bitwarden/common/tools/extension/extension-registry.abstraction";
@@ -25,6 +24,8 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, KeyGenerationService } from "@bitwarden/legacy-crypto";
 import { StateProvider } from "@bitwarden/state";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
@@ -51,7 +52,7 @@ export const ImporterProviders: SafeProvider[] = [
   safeProvider({
     provide: LegacyEncryptorProvider,
     useClass: KeyServiceLegacyEncryptorProvider,
-    deps: [EncryptService, KeyService],
+    deps: [EncryptService, KeyService, SdkService],
   }),
   safeProvider({
     provide: ExtensionRegistry,
@@ -87,6 +88,7 @@ export const ImporterProviders: SafeProvider[] = [
       KeyGenerationService,
       AccountService,
       RestrictedItemTypesService,
+      SdkService,
     ],
   }),
 ];

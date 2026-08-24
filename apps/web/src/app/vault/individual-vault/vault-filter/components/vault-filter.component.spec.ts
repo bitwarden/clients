@@ -25,10 +25,11 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   CipherTypeFilter,
   VaultFilterSection,
+  Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
 
-import { VaultFilterComponent, VaultFilterComponent } from "./vault-filter.component";
+import { VaultFilterComponent } from "./vault-filter.component";
 
 const USER_ID = "user-1" as UserId;
 const ORG_ID_1 = "org-1" as OrganizationId;
@@ -51,6 +52,8 @@ describe("VaultFilterComponent", () => {
   let vaultFilterService: MockProxy<VaultFilterService>;
   let cipherService: MockProxy<CipherService>;
   let restrictedSubject: BehaviorSubject<RestrictedCipherType[]>;
+  let policyService: MockProxy<PolicyService>;
+  let vfo1Enabled: jest.Mock<boolean, []>;
 
   beforeEach(async () => {
     vaultFilterService = mock<VaultFilterService>();
@@ -62,10 +65,25 @@ describe("VaultFilterComponent", () => {
       });
       return of(headNode);
     });
+    vaultFilterService.cipherTypeFilters$ = of([
+      {
+        id: "favorites",
+        name: "favorites",
+        type: "favorites" as CipherTypeFilter["type"],
+        icon: "bwi-star",
+      },
+      { id: "login", name: "typeLogin", type: CipherType.Login, icon: "bwi-globe" },
+      { id: "card", name: "typeCard", type: CipherType.Card, icon: "bwi-credit-card" },
+      { id: "identity", name: "typeIdentity", type: CipherType.Identity, icon: "bwi-id-card" },
+      { id: "note", name: "typeSecureNote", type: CipherType.SecureNote, icon: "bwi-sticky-note" },
+      { id: "sshKey", name: "typeSshKey", type: CipherType.SshKey, icon: "bwi-key" },
+    ]);
 
-    const policyService = mock<PolicyService>();
+    policyService = mock<PolicyService>();
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
     policyService.policiesByType$.mockReturnValue(of([]));
+
+    vfo1Enabled = jest.fn<boolean, []>().mockReturnValue(false);
 
     const i18nService = mock<I18nService>();
     i18nService.t.mockImplementation((key: string) => key);
@@ -97,6 +115,7 @@ describe("VaultFilterComponent", () => {
         { provide: CipherArchiveService, useValue: mock<CipherArchiveService>() },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: OrganizationWarningsService, useValue: mock<OrganizationWarningsService>() },
+        { provide: Vfo1TerminologyService, useValue: { enabled: vfo1Enabled } },
       ],
     }).compileComponents();
 
@@ -264,6 +283,32 @@ describe("VaultFilterComponent", () => {
         const ids = await getTypeFilterIds(section);
 
         expect(ids).not.toContain("card");
+      });
+    });
+  });
+
+  describe("addOrganizationFilter", () => {
+    describe("add label", () => {
+      it('uses "newOrganization" when the VFO1 flag is off', async () => {
+        const section = await component.addOrganizationFilter();
+
+        expect(section.add?.text).toBe("newOrganization");
+      });
+
+      it('uses "newVault" when the VFO1 flag is on', async () => {
+        vfo1Enabled.mockReturnValue(true);
+
+        const section = await component.addOrganizationFilter();
+
+        expect(section.add?.text).toBe("newVault");
+      });
+
+      it("omits the add action when the SingleOrg policy applies", async () => {
+        policyService.policyAppliesToUser$.mockReturnValue(of(true));
+
+        const section = await component.addOrganizationFilter();
+
+        expect(section.add).toBeUndefined();
       });
     });
   });

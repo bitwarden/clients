@@ -1,19 +1,20 @@
 /**
  * include structuredClone in test environment.
- * @jest-environment ../../../../shared/test.environment.ts
+ * @jest-environment ../../libs/shared/test.environment.ts
  */
 import { mock } from "jest-mock-extended";
 import { of, firstValueFrom } from "rxjs";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
-import { CipherId, UserId } from "@bitwarden/common/types/guid";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherListView } from "@bitwarden/sdk-internal";
+
+import { ApiService } from "../../abstractions/api.service";
+import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { CipherId, UserId } from "../../types/guid";
+import { CipherService } from "../abstractions/cipher.service";
 import {
   CipherBulkArchiveRequest,
   CipherBulkUnarchiveRequest,
-} from "@bitwarden/common/vault/models/request/cipher-bulk-archive.request";
-import { CipherListView } from "@bitwarden/sdk-internal";
+} from "../models/request/cipher-bulk-archive.request";
 
 import { DefaultCipherArchiveService } from "./default-cipher-archive.service";
 

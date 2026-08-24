@@ -16,7 +16,7 @@ import {
 
 describe("Risk Insights Type Guards", () => {
   describe("validateApplicationHealthReportDetailArray", () => {
-    it("should validate valid ApplicationHealthReportDetail array", () => {
+    it("should return all elements with no errors when input is fully valid", () => {
       const validData = [
         {
           applicationName: "Test App",
@@ -45,8 +45,9 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateApplicationHealthReportDetailArray(validData)).not.toThrow();
-      expect(validateApplicationHealthReportDetailArray(validData)).toEqual(validData);
+      const result = validateApplicationHealthReportDetailArray(validData);
+      expect(result.data).toEqual(validData);
+      expect(result.errors).toEqual([]);
     });
 
     it("should throw error for non-array input", () => {
@@ -55,7 +56,7 @@ describe("Risk Insights Type Guards", () => {
       );
     });
 
-    it("should throw error for array with invalid elements", () => {
+    it("should drop invalid elements and report them in errors", () => {
       const invalidData = [
         {
           applicationName: "Test App",
@@ -63,34 +64,38 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
-        /Invalid report data: array contains 1 invalid ApplicationHealthReportDetail element\(s\)/,
-      );
+      const result = validateApplicationHealthReportDetailArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/element\[0\]/);
     });
 
-    it("should throw error for array with multiple invalid elements", () => {
+    it("should keep valid elements and drop invalid ones in a mixed array", () => {
+      const validElement = {
+        applicationName: "App 2",
+        passwordCount: 10,
+        atRiskPasswordCount: 2,
+        atRiskCipherIds: ["cipher-1"],
+        memberCount: 5,
+        atRiskMemberCount: 1,
+        memberDetails: [] as MemberDetails[],
+        atRiskMemberDetails: [] as MemberDetails[],
+        cipherIds: ["cipher-1"],
+      };
       const invalidData = [
         { applicationName: "App 1" }, // invalid
-        {
-          applicationName: "App 2",
-          passwordCount: 10,
-          atRiskPasswordCount: 2,
-          atRiskCipherIds: ["cipher-1"],
-          memberCount: 5,
-          atRiskMemberCount: 1,
-          memberDetails: [] as MemberDetails[],
-          atRiskMemberDetails: [] as MemberDetails[],
-          cipherIds: ["cipher-1"],
-        }, // valid
+        validElement,
         { applicationName: "App 3" }, // invalid
       ];
 
-      expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
-        /Invalid report data: array contains 2 invalid ApplicationHealthReportDetail element\(s\)/,
-      );
+      const result = validateApplicationHealthReportDetailArray(invalidData);
+      expect(result.data).toEqual([validElement]);
+      expect(result.errors).toHaveLength(2);
+      expect(result.errors[0]).toMatch(/element\[0\]/);
+      expect(result.errors[1]).toMatch(/element\[2\]/);
     });
 
-    it("should throw error for invalid memberDetails", () => {
+    it("should drop element with invalid memberDetails", () => {
       const invalidData = [
         {
           applicationName: "Test App",
@@ -105,12 +110,12 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
-        /Invalid report data/,
-      );
+      const result = validateApplicationHealthReportDetailArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
     });
 
-    it("should throw error for empty string in atRiskCipherIds", () => {
+    it("should drop element with empty string in atRiskCipherIds", () => {
       const invalidData = [
         {
           applicationName: "Test App",
@@ -125,12 +130,12 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
-        /Invalid report data/,
-      );
+      const result = validateApplicationHealthReportDetailArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
     });
 
-    it("should throw error for empty string in cipherIds", () => {
+    it("should drop element with empty string in cipherIds", () => {
       const invalidData = [
         {
           applicationName: "Test App",
@@ -145,14 +150,35 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateApplicationHealthReportDetailArray(invalidData)).toThrow(
-        /Invalid report data/,
-      );
+      const result = validateApplicationHealthReportDetailArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
+    });
+
+    it("should drop element with empty applicationName (the PM-37079 case)", () => {
+      const invalidData = [
+        {
+          applicationName: "", // empty — fails isBoundedString
+          passwordCount: 1,
+          atRiskPasswordCount: 0,
+          atRiskCipherIds: [] as string[],
+          memberCount: 1,
+          atRiskMemberCount: 0,
+          memberDetails: [] as MemberDetails[],
+          atRiskMemberDetails: [] as MemberDetails[],
+          cipherIds: ["cipher-1"],
+        },
+      ];
+
+      const result = validateApplicationHealthReportDetailArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/applicationName/);
     });
   });
 
   describe("validateOrganizationReportSummary", () => {
-    it("should validate valid OrganizationReportSummary", () => {
+    it("should return summary with no errors when input is fully valid", () => {
       const validData = {
         totalMemberCount: 10,
         totalApplicationCount: 5,
@@ -164,8 +190,9 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalAtRiskApplicationCount: 1,
       };
 
-      expect(() => validateOrganizationReportSummary(validData)).not.toThrow();
-      expect(validateOrganizationReportSummary(validData)).toMatchObject(validData);
+      const result = validateOrganizationReportSummary(validData);
+      expect(result.data).toMatchObject(validData);
+      expect(result.errors).toEqual([]);
     });
 
     it("should default missing password count fields to 0 for old blobs", () => {
@@ -182,10 +209,12 @@ describe("Risk Insights Type Guards", () => {
       };
 
       const result = validateOrganizationReportSummary(oldBlob);
-      expect(result.totalPasswordCount).toBe(0);
-      expect(result.totalAtRiskPasswordCount).toBe(0);
-      expect(result.totalCriticalPasswordCount).toBe(0);
-      expect(result.totalCriticalAtRiskPasswordCount).toBe(0);
+      expect(result.data.totalPasswordCount).toBe(0);
+      expect(result.data.totalAtRiskPasswordCount).toBe(0);
+      expect(result.data.totalCriticalPasswordCount).toBe(0);
+      expect(result.data.totalCriticalAtRiskPasswordCount).toBe(0);
+      // Missing optional fields are normalized silently — no errors recorded.
+      expect(result.errors).toEqual([]);
     });
 
     it("should preserve password count fields when present", () => {
@@ -205,13 +234,13 @@ describe("Risk Insights Type Guards", () => {
       };
 
       const result = validateOrganizationReportSummary(newBlob);
-      expect(result.totalPasswordCount).toBe(20);
-      expect(result.totalAtRiskPasswordCount).toBe(5);
-      expect(result.totalCriticalPasswordCount).toBe(10);
-      expect(result.totalCriticalAtRiskPasswordCount).toBe(3);
+      expect(result.data.totalPasswordCount).toBe(20);
+      expect(result.data.totalAtRiskPasswordCount).toBe(5);
+      expect(result.data.totalCriticalPasswordCount).toBe(10);
+      expect(result.data.totalCriticalAtRiskPasswordCount).toBe(3);
     });
 
-    it("should throw error for invalid field types", () => {
+    it("should default invalid field types to 0 and report them in errors", () => {
       const invalidData = {
         totalMemberCount: "10", // should be number
         totalApplicationCount: 5,
@@ -223,14 +252,24 @@ describe("Risk Insights Type Guards", () => {
         totalCriticalAtRiskApplicationCount: 1,
       };
 
-      expect(() => validateOrganizationReportSummary(invalidData)).toThrow(
+      const result = validateOrganizationReportSummary(invalidData);
+      expect(result.data.totalMemberCount).toBe(0);
+      expect(result.data.totalApplicationCount).toBe(5);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/totalMemberCount/);
+    });
+
+    it("should throw error for non-object input", () => {
+      expect(() => validateOrganizationReportSummary(null)).toThrow(/Invalid report summary/);
+      expect(() => validateOrganizationReportSummary("not an object")).toThrow(
         /Invalid report summary/,
       );
+      expect(() => validateOrganizationReportSummary([])).toThrow(/Invalid report summary/);
     });
   });
 
   describe("validateOrganizationReportApplicationArray", () => {
-    it("should validate valid OrganizationReportApplication array", () => {
+    it("should return all elements with no errors when input is fully valid", () => {
       const validData = [
         {
           applicationName: "Test App",
@@ -244,10 +283,10 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateOrganizationReportApplicationArray(validData)).not.toThrow();
       const result = validateOrganizationReportApplicationArray(validData);
-      expect(result[0].applicationName).toBe("Test App");
-      expect(result[1].reviewedDate).toBeInstanceOf(Date);
+      expect(result.data[0].applicationName).toBe("Test App");
+      expect(result.data[1].reviewedDate).toBeInstanceOf(Date);
+      expect(result.errors).toEqual([]);
     });
 
     it("should convert string dates to Date objects", () => {
@@ -260,11 +299,11 @@ describe("Risk Insights Type Guards", () => {
       ];
 
       const result = validateOrganizationReportApplicationArray(validData);
-      expect(result[0].reviewedDate).toBeInstanceOf(Date);
-      expect(result[0].reviewedDate?.toISOString()).toBe("2024-01-01T00:00:00.000Z");
+      expect(result.data[0].reviewedDate).toBeInstanceOf(Date);
+      expect(result.data[0].reviewedDate?.toISOString()).toBe("2024-01-01T00:00:00.000Z");
     });
 
-    it("should throw error for invalid date strings", () => {
+    it("should drop element with invalid date string", () => {
       const invalidData = [
         {
           applicationName: "Test App",
@@ -273,9 +312,9 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateOrganizationReportApplicationArray(invalidData)).toThrow(
-        /Invalid application data: array contains 1 invalid OrganizationReportApplication element\(s\)/,
-      );
+      const result = validateOrganizationReportApplicationArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
     });
 
     it("should throw error for non-array input", () => {
@@ -284,7 +323,7 @@ describe("Risk Insights Type Guards", () => {
       );
     });
 
-    it("should throw error for array with invalid elements", () => {
+    it("should drop element missing required field", () => {
       const invalidData = [
         {
           applicationName: "Test App",
@@ -293,12 +332,12 @@ describe("Risk Insights Type Guards", () => {
         } as any,
       ];
 
-      expect(() => validateOrganizationReportApplicationArray(invalidData)).toThrow(
-        /Invalid application data: array contains 1 invalid OrganizationReportApplication element\(s\)/,
-      );
+      const result = validateOrganizationReportApplicationArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
     });
 
-    it("should throw error for invalid field types", () => {
+    it("should drop element with invalid field types", () => {
       const invalidData = [
         {
           applicationName: 123 as any, // should be string
@@ -307,9 +346,24 @@ describe("Risk Insights Type Guards", () => {
         } as any,
       ];
 
-      expect(() => validateOrganizationReportApplicationArray(invalidData)).toThrow(
-        /Invalid application data/,
-      );
+      const result = validateOrganizationReportApplicationArray(invalidData);
+      expect(result.data).toEqual([]);
+      expect(result.errors).toHaveLength(1);
+    });
+
+    it("should keep valid elements and drop invalid ones in a mixed array", () => {
+      const mixedData = [
+        { applicationName: "Good App", isCritical: true, reviewedDate: null as Date | null },
+        { applicationName: "" as any, isCritical: true, reviewedDate: null as Date | null }, // empty name — bad
+        { applicationName: "Another Good", isCritical: false, reviewedDate: null as Date | null },
+      ];
+
+      const result = validateOrganizationReportApplicationArray(mixedData);
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0].applicationName).toBe("Good App");
+      expect(result.data[1].applicationName).toBe("Another Good");
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/element\[1\]/);
     });
 
     it("should accept null reviewedDate", () => {
@@ -321,9 +375,9 @@ describe("Risk Insights Type Guards", () => {
         },
       ];
 
-      expect(() => validateOrganizationReportApplicationArray(validData)).not.toThrow();
       const result = validateOrganizationReportApplicationArray(validData);
-      expect(result[0].reviewedDate).toBeNull();
+      expect(result.data[0].reviewedDate).toBeNull();
+      expect(result.errors).toEqual([]);
     });
   });
 
@@ -678,8 +732,9 @@ describe("Risk Insights Type Guards", () => {
     it("should validate valid V2 report data", () => {
       expect(() => validateAccessReportPayload(validV2Data)).not.toThrow();
       const result = validateAccessReportPayload(validV2Data);
-      expect(result.reports).toHaveLength(1);
-      expect(Object.keys(result.memberRegistry)).toHaveLength(2);
+      expect(result.data.reports).toHaveLength(1);
+      expect(Object.keys(result.data.memberRegistry)).toHaveLength(2);
+      expect(result.errors).toHaveLength(0);
     });
 
     it("should validate V2 data with empty reports and registry", () => {
@@ -699,30 +754,49 @@ describe("Risk Insights Type Guards", () => {
       );
     });
 
-    it("should throw for invalid reports array", () => {
+    it("should throw for non-array reports (structural failure)", () => {
       const invalidReports = { ...validV2Data, reports: "not an array" };
       expect(() => validateAccessReportPayload(invalidReports)).toThrow(
-        /reports array failed validation/,
+        /reports expected array, received non-array/,
       );
     });
 
-    it("should throw for missing memberRegistry", () => {
+    it("should throw for missing memberRegistry (structural failure)", () => {
       const noRegistry: unknown = { version: 2, reports: [] };
       expect(() => validateAccessReportPayload(noRegistry)).toThrow(
-        /memberRegistry failed validation/,
+        /memberRegistry expected object, received non-object/,
       );
     });
 
-    it("should throw for invalid memberRegistry entry", () => {
+    it("should drop a bad reports[] element and accumulate one error", () => {
+      const badReportElement = {
+        ...validV2Data,
+        reports: [
+          { applicationName: "" }, // empty name + missing fields — invalid
+          validV2Data.reports[0], // valid
+        ],
+      };
+      expect(() => validateAccessReportPayload(badReportElement)).not.toThrow();
+      const result = validateAccessReportPayload(badReportElement);
+      expect(result.data.reports).toHaveLength(1);
+      expect(result.data.reports[0].applicationName).toBe("github.com");
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/reports\[0\]/);
+    });
+
+    it("should drop a bad memberRegistry entry and accumulate one error", () => {
       const invalidEntry = {
         ...validV2Data,
         memberRegistry: {
-          u1: { id: "u1", userName: "Alice" }, // missing email
+          u1: { id: "u1", userName: "Alice", email: "alice@example.com" }, // valid
+          u2: { id: "u2", userName: "Bob" }, // missing email — invalid
         },
       };
-      expect(() => validateAccessReportPayload(invalidEntry)).toThrow(
-        /memberRegistry failed validation/,
-      );
+      expect(() => validateAccessReportPayload(invalidEntry)).not.toThrow();
+      const result = validateAccessReportPayload(invalidEntry);
+      expect(Object.keys(result.data.memberRegistry)).toEqual(["u1"]);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/memberRegistry\["u2"\]/);
     });
 
     it("should normalize empty userName to undefined for backwards compatibility", () => {
@@ -734,7 +808,8 @@ describe("Risk Insights Type Guards", () => {
         },
       };
       const result = validateAccessReportPayload(dataWithEmptyUserName);
-      expect(result.memberRegistry["u1"].userName).toBeUndefined();
+      expect(result.data.memberRegistry["u1"].userName).toBeUndefined();
+      expect(result.errors).toHaveLength(0);
     });
   });
 
@@ -793,64 +868,73 @@ describe("Risk Insights Type Guards", () => {
 
       expect(() => validateAccessReportSettingsDataArray(validData)).not.toThrow();
       const result = validateAccessReportSettingsDataArray(validData);
-      expect(result).toHaveLength(2);
-      expect(result[0].reviewedDate).toBe("2024-01-15T10:30:00.000Z");
-      expect(result[1].reviewedDate).toBeUndefined();
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0].reviewedDate).toBe("2024-01-15T10:30:00.000Z");
+      expect(result.data[1].reviewedDate).toBeUndefined();
+      expect(result.errors).toHaveLength(0);
     });
 
     it("should accept missing reviewedDate (undefined)", () => {
       const validData = [{ applicationName: "app.com", isCritical: false }];
       const result = validateAccessReportSettingsDataArray(validData);
-      expect(result[0].reviewedDate).toBeUndefined();
+      expect(result.data[0].reviewedDate).toBeUndefined();
     });
 
-    it("should throw for non-array input", () => {
+    it("should throw for non-array input (structural failure)", () => {
       expect(() => validateAccessReportSettingsDataArray("not an array")).toThrow(
         "Invalid application data: expected array of AccessReportSettingsData, received non-array",
       );
     });
 
-    it("should throw for array with invalid elements", () => {
-      const invalidData = [{ applicationName: "app.com" }]; // missing isCritical
-      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
-        /Invalid application data: array contains 1 invalid AccessReportSettingsData element\(s\)/,
-      );
+    it("should drop an element with empty applicationName and accumulate one error", () => {
+      const invalidData = [
+        { applicationName: "", isCritical: true }, // empty name — rejected by isBoundedString
+        { applicationName: "app.com", isCritical: false }, // valid
+      ];
+      expect(() => validateAccessReportSettingsDataArray(invalidData)).not.toThrow();
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].applicationName).toBe("app.com");
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/element\[0\]/);
     });
 
-    it("should throw for null reviewedDate", () => {
+    it("should drop an element missing isCritical and accumulate one error", () => {
+      const invalidData = [{ applicationName: "app.com" }]; // missing isCritical
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0]).toMatch(/element\[0\]/);
+    });
+
+    it("should drop an element with null reviewedDate", () => {
       const invalidData: unknown = [
         { applicationName: "app.com", isCritical: true, reviewedDate: null },
       ];
-      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
-        /Invalid application data/,
-      );
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
     });
 
-    it("should throw for invalid date string in reviewedDate", () => {
+    it("should drop an element with an invalid date string in reviewedDate", () => {
       const invalidData = [
         { applicationName: "app.com", isCritical: true, reviewedDate: "not-a-date" },
       ];
-      expect(() => validateAccessReportSettingsDataArray(invalidData)).toThrow(
-        /Invalid application data/,
-      );
+      const result = validateAccessReportSettingsDataArray(invalidData);
+      expect(result.data).toHaveLength(0);
+      expect(result.errors).toHaveLength(1);
     });
   });
 
   describe("field-level diagnostics", () => {
     describe("validateApplicationHealthReportDetailArray", () => {
-      it("should include element index and field name in error message", () => {
+      it("should include element index and field name in errors", () => {
         const invalidData = [{ applicationName: "Test App" }]; // missing many required fields
 
-        let caught: Error | null = null;
-        try {
-          validateApplicationHealthReportDetailArray(invalidData);
-        } catch (e) {
-          caught = e as Error;
-        }
-
-        expect(caught).not.toBeNull();
-        expect(caught!.message).toMatch(/element\[0\]/);
-        expect(caught!.message).toMatch(/field '/);
+        const result = validateApplicationHealthReportDetailArray(invalidData);
+        expect(result.errors).toHaveLength(1);
+        expect(result.errors[0]).toMatch(/element\[0\]/);
+        expect(result.errors[0]).toMatch(/field '/);
       });
 
       it("should identify memberDetails field failure when memberDetails has wrong shape", () => {
@@ -868,16 +952,10 @@ describe("Risk Insights Type Guards", () => {
           },
         ];
 
-        let caught: Error | null = null;
-        try {
-          validateApplicationHealthReportDetailArray(invalidData);
-        } catch (e) {
-          caught = e as Error;
-        }
-
-        expect(caught).not.toBeNull();
-        expect(caught!.message).toContain("element[0]");
-        expect(caught!.message).toContain("memberDetails");
+        const result = validateApplicationHealthReportDetailArray(invalidData);
+        expect(result.errors).toHaveLength(1);
+        expect(result.errors[0]).toContain("element[0]");
+        expect(result.errors[0]).toContain("memberDetails");
       });
 
       it("should list each failing element by index, skipping valid ones", () => {
@@ -897,17 +975,12 @@ describe("Risk Insights Type Guards", () => {
           { applicationName: "App 3" }, // invalid
         ];
 
-        let caught: Error | null = null;
-        try {
-          validateApplicationHealthReportDetailArray(invalidData);
-        } catch (e) {
-          caught = e as Error;
-        }
-
-        expect(caught).not.toBeNull();
-        expect(caught!.message).toContain("element[0]");
-        expect(caught!.message).toContain("element[2]");
-        expect(caught!.message).not.toContain("element[1]");
+        const result = validateApplicationHealthReportDetailArray(invalidData);
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0].applicationName).toBe("App 2");
+        expect(result.errors).toHaveLength(2);
+        expect(result.errors[0]).toContain("element[0]");
+        expect(result.errors[1]).toContain("element[2]");
       });
     });
 
@@ -921,16 +994,11 @@ describe("Risk Insights Type Guards", () => {
           },
         };
 
-        let caught: Error | null = null;
-        try {
-          validateAccessReportPayload(invalidPayload);
-        } catch (e) {
-          caught = e as Error;
-        }
-
-        expect(caught).not.toBeNull();
-        expect(caught!.message).toContain('"u1"');
-        expect(caught!.message).toContain("email");
+        const result = validateAccessReportPayload(invalidPayload);
+        expect(result.data.memberRegistry).toEqual({});
+        expect(result.errors).toHaveLength(1);
+        expect(result.errors[0]).toContain('"u1"');
+        expect(result.errors[0]).toContain("email");
       });
     });
   });

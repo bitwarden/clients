@@ -6,8 +6,12 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 export class LoginResponse extends LoginExport {
   passwordRevisionDate: Date;
 
-  constructor(o: LoginView) {
+  constructor(o: LoginView, viewPassword?: boolean) {
     super(o);
     this.passwordRevisionDate = o.passwordRevisionDate != null ? o.passwordRevisionDate : null;
+    if (viewPassword === false) {
+      this.password = null;
+      this.totp = null;
+    }
   }
 }

@@ -116,6 +116,7 @@ export class VaultPopupItemsService {
         ...(showIdentities ? [CipherType.Identity] : []),
       ];
     }),
+    distinctUntilChanged((a, b) => a.length === b.length && a.every((v, i) => v === b[i])),
   );
 
   /**
@@ -128,6 +129,7 @@ export class VaultPopupItemsService {
       filter((userId): userId is UserId => userId != null),
       switchMap((userId) =>
         merge(this.cipherService.ciphers$(userId), this.cipherService.localData$(userId)).pipe(
+          debounceTime(0),
           runInsideAngular(this.ngZone),
           tap(() => this._ciphersLoading$.next()),
           waitUntilSync(this.syncService),
@@ -172,24 +174,32 @@ export class VaultPopupItemsService {
         }),
       ),
     ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /**
+   * Observable that emits the search text when it's searchable, or an empty string when it's not.
+   * This prevents unnecessary re-renders when typing non-searchable text (e.g., single characters).
+   * @private
+   */
+  private _effectiveSearchText$ = this.searchText$.pipe(
+    switchMap(async (searchText) => {
+      const isSearchable = await this.searchService.isSearchable(searchText);
+      return isSearchable ? searchText : "";
+    }),
+    distinctUntilChanged(),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   /**
    * Observable that indicates whether there is search text present that is searchable.
    * @private
    */
-  private _hasSearchText = combineLatest([
-    this.searchText$,
-    getUserId(this.accountService.activeAccount$),
-  ]).pipe(
-    switchMap(([searchText, userId]) => {
-      return this.searchService.isSearchable(userId, searchText);
-    }),
-  );
+  private _hasSearchText = this._effectiveSearchText$.pipe(map((text) => text !== ""));
 
   private _filteredCipherList$: Observable<PopupCipherViewLike[]> = combineLatest([
     this._activeCipherList$,
-    this.searchText$,
+    this._effectiveSearchText$,
     this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
   ]).pipe(
@@ -202,7 +212,7 @@ export class VaultPopupItemsService {
     ),
     switchMap(
       ([ciphers, searchText, userId]) =>
-        this.searchService.searchCiphers(userId, searchText, undefined, ciphers) as Promise<
+        this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
           PopupCipherViewLike[]
         >,
     ),

@@ -1,14 +1,21 @@
+import { signal, Signal } from "@angular/core";
+import { FormGroup } from "@angular/forms";
+import { Observable } from "rxjs";
+
 import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+
+import { SendForm } from "../send-form-container";
 
 import { SendFormConfig } from "./send-form-config.service";
 
 /**
  * Service to save the send using the correct endpoint(s) and encapsulating the logic for decrypting the send.
- *
- * This service should only be used internally by the SendFormComponent.
  */
 export abstract class SendFormService {
+  constructor() {
+    this.originalSendView = signal(null);
+  }
   /**
    * Helper to decrypt a send and avoid the need to call the send service directly.
    * (useful for mocking tests/storybook).
@@ -16,11 +23,64 @@ export abstract class SendFormService {
   abstract decryptSend(send: Send): Promise<SendView>;
 
   /**
-   * Saves the new or modified send with the server.
+   * The form group for the Send. Starts empty and is populated by child components via the `registerChildForm` method.
    */
-  abstract saveSend(
-    send: SendView,
-    file: File | ArrayBuffer,
-    config: SendFormConfig,
-  ): Promise<SendView>;
+  readonly sendForm?: Signal<FormGroup>;
+
+  readonly submitting?: Observable<boolean>;
+
+  /** The configuration for the Send form */
+  sendFormConfig?: SendFormConfig;
+
+  /** The original SendView of the Send the form displays */
+  readonly originalSendView: Signal<SendView | null> = signal(null);
+
+  /** The updated state of the SendView shown in the form */
+  readonly updatedSendView: Signal<SendView | null> = signal(null);
+
+  /**
+   * Registers a child form group with the parent form group. Used by child components to add their form groups to
+   * the parent form for validation.
+   * @param name - The name of the form group.
+   * @param group - The form group to add.
+   */
+  abstract registerChildForm<K extends keyof SendForm>(
+    name: K,
+    group: Exclude<SendForm[K], undefined>,
+  ): void;
+
+  /**
+   * Method to update the sendView with the new values. This method should be called by the child form components
+   * @param updateFn - A function that takes the current sendView and returns the updated sendView
+   */
+  abstract patchSend(updateFn: (current: SendView) => SendView): void;
+
+  /**
+   * Initializes the Send form with a new original value and SendType
+   */
+  abstract initializeSendForm(sendFormConfig: SendFormConfig): Promise<void>;
+
+  /**
+   * Submits the Send form. This will return `undefined` if the Send form had errors preventing
+   * its submission, and throw any errors it receives from encryption, decryption, or the API call
+   */
+  abstract submitSendForm(): Promise<SendView>;
+
+  /** Returns whether the Send form currently has edits */
+  abstract sendFormHasEdits(): boolean;
+
+  /** Sets the file to attach to the Send */
+  abstract setFile(file: File): void;
+
+  /** A function that triggers a "Discard Edits?" dialog if there are any Send
+   * edits that have not yet been saved. Returns `true` if the user does
+   * not want to save the edits or there are no edits to save.
+   */
+  abstract promptForUnsavedEdits(): Promise<boolean>;
+
+  /** A function that removes the password from a Send, or returns immediately if
+   * the Send is not protected by password. Returns a boolean indicating whether
+   * the password was removed successfully or not
+   */
+  abstract removeSendPassword(): Promise<boolean>;
 }

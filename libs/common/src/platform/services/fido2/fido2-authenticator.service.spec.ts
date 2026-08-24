@@ -3,6 +3,8 @@ import { TextEncoder } from "util";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
+import { SdkRandomNumberClient } from "@bitwarden/sdk-internal";
+
 import { mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { Account } from "../../../auth/abstractions/account.service";
 import { CipherId, UserId } from "../../../types/guid";
@@ -25,6 +27,7 @@ import {
   Fido2UserInterfaceSession,
   NewCredentialParams,
 } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
+import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { Utils } from "../../misc/utils";
 
 import { CBOR } from "./cbor";
@@ -70,6 +73,13 @@ describe("FidoAuthenticatorService", () => {
     );
     windowReference = Utils.newGuid();
     accountService.activeAccount$ = activeAccountSubject;
+
+    // SdkRandomNumberClient is backed by WASM and is not initialized in jest. stub the
+    // GUID generator so createKeyView() can run without loading the module.
+    (SdkLoadService as any).Ready = jest.fn().mockResolvedValue(true);
+    jest
+      .spyOn(SdkRandomNumberClient.prototype, "gen_uuid")
+      .mockImplementation(() => Utils.newGuid());
   });
 
   describe("makeCredential", () => {
@@ -85,21 +95,21 @@ describe("FidoAuthenticatorService", () => {
         const result = async () =>
           await authenticator.makeCredential(invalidParams.unsupportedAlgorithm, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.NotSupported);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotSupported);
       });
 
       it("should throw error when requireResidentKey has invalid value", async () => {
         const result = async () =>
           await authenticator.makeCredential(invalidParams.invalidRk, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Unknown);
       });
 
       it("should throw error when requireUserVerification has invalid value", async () => {
         const result = async () =>
           await authenticator.makeCredential(invalidParams.invalidUv, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Unknown);
       });
 
       /**
@@ -112,7 +122,7 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.makeCredential(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Constraint);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Constraint);
       });
 
       it("should not request confirmation from user", async () => {
@@ -179,10 +189,10 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.makeCredential(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.NotAllowed);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
       });
 
-      /** Devation: Organization ciphers are not checked against excluded credentials, even if the user has access to them. */
+      /** Deviation: Organization ciphers are not checked against excluded credentials, even if the user has access to them. */
       it("should not inform user of duplication when the excluded credential belongs to an organization", async () => {
         userInterfaceSession.informExcludedCredential.mockResolvedValue();
         excludedCipher.organizationId = "someOrganizationId";
@@ -300,7 +310,7 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.makeCredential(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.NotAllowed);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
       });
 
       it("should throw error if user verification fails and cipher requires reprompt", async () => {
@@ -319,11 +329,11 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.makeCredential(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Unknown);
       });
 
       /** Spec: If any error occurred while creating the new credential object, return an error code equivalent to "UnknownError" and terminate the operation. */
-      it("should throw unkown error if creation fails", async () => {
+      it("should throw unknown error if creation fails", async () => {
         const encryptedCipher = Symbol();
         userInterfaceSession.confirmNewCredential.mockResolvedValue({
           cipherId: existingCipher.id,
@@ -334,7 +344,7 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.makeCredential(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Unknown);
       });
     });
 
@@ -472,7 +482,7 @@ describe("FidoAuthenticatorService", () => {
         const result = async () =>
           await authenticator.getAssertion(invalidParams.invalidUv, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Unknown);
       });
 
       /**
@@ -485,7 +495,7 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.getAssertion(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Constraint);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Constraint);
       });
     });
 
@@ -551,7 +561,7 @@ describe("FidoAuthenticatorService", () => {
       it("should throw error", async () => {
         const result = async () => await authenticator.getAssertion(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.NotAllowed);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
       });
     });
 
@@ -642,7 +652,7 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.getAssertion(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.NotAllowed);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
       });
 
       it("should throw error if user verification fails and cipher requires reprompt", async () => {
@@ -654,7 +664,7 @@ describe("FidoAuthenticatorService", () => {
 
         const result = async () => await authenticator.getAssertion(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.NotAllowed);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.NotAllowed);
       });
     });
 
@@ -781,12 +791,12 @@ describe("FidoAuthenticatorService", () => {
       });
 
       /** Spec: If any error occurred while generating the assertion signature, return an error code equivalent to "UnknownError" and terminate the operation. */
-      it("should throw unkown error if creation fails", async () => {
+      it("should throw unknown error if creation fails", async () => {
         cipherService.updateWithServer.mockRejectedValue(new Error("Internal error"));
 
         const result = async () => await authenticator.getAssertion(params, windowReference);
 
-        await expect(result).rejects.toThrowError(Fido2AuthenticatorErrorCode.Unknown);
+        await expect(result).rejects.toThrow(Fido2AuthenticatorErrorCode.Unknown);
       });
     });
 

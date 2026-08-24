@@ -4,7 +4,9 @@ import { sendExtensionMessage } from "../utils";
 import {
   fieldContainsKeyword,
   getSubmitButtonKeywordsSet,
-  isNonLoginFormContext,
+  isNonLoginUsernameField,
+  isAmbiguousFieldNonLogin,
+  KeywordMatchMode,
 } from "../utils/qualification";
 
 import {
@@ -15,9 +17,11 @@ import {
   AutoFillConstants,
   CreditCardAutoFillConstants,
   IdentityAutoFillConstants,
+  SshKeyAutoFillConstants,
   SubmitChangePasswordButtonNames,
   SubmitLoginButtonNames,
 } from "./autofill-constants";
+import AutofillService from "./autofill.service";
 
 export class InlineMenuFieldQualificationService implements InlineMenuFieldQualificationServiceInterface {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
@@ -47,6 +51,9 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       ...CreditCardAutoFillConstants.CardBrandFieldNames,
     ]),
   ];
+  private sshKeyPublicKeyFieldKeywords = [...SshKeyAutoFillConstants.PublicKeyFieldNames];
+  private sshKeyAlgorithmKeywords = [...SshKeyAutoFillConstants.PublicKeyAlgorithmPrefixes];
+  private sshKeyTitleFieldKeywords = [...SshKeyAutoFillConstants.TitleFieldNames];
   private creditCardNameAutocompleteValues = new Set([
     "cc-name",
     "cc-given-name,",
@@ -313,6 +320,72 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
   }
 
   /**
+   * Validates the provided field as a field for an SSH key form (e.g. GitHub/GitLab "add SSH
+   * key" forms). Qualifies the public key textarea directly, and the title input only when a
+   * public key field is co-present on the same form/page (to avoid matching generic title
+   * inputs on unrelated forms).
+   *
+   * @param field - The field to validate
+   * @param pageDetails - The details of the page that the field is on.
+   */
+  isFieldForSshKeyForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (this.isFieldForSshPublicKey(field)) {
+      return true;
+    }
+
+    if (this.isFieldForSshKeyTitle(field)) {
+      const fieldsToCheck = field.form
+        ? pageDetails.fields.filter((pageField) => pageField.form === field.form)
+        : pageDetails.fields;
+
+      return fieldsToCheck.some((pageField) => this.isFieldForSshPublicKey(pageField));
+    }
+
+    return false;
+  }
+
+  /**
+   * Validates the provided field as an SSH public key field. Requires a textarea (the shape
+   * used by SSH key forms) combined with an algorithm signal (e.g. "ssh-rsa") or a key
+   * keyword. Requiring the textarea avoids matching single-line inputs such as `api_key`.
+   *
+   * @param field - The field to validate
+   */
+  private isFieldForSshPublicKey(field: AutofillField): boolean {
+    if (field.tagName !== "textarea") {
+      return false;
+    }
+
+    if (fieldContainsKeyword(field, this.sshKeyAlgorithmKeywords)) {
+      return true;
+    }
+
+    return fieldContainsKeyword(
+      field,
+      this.sshKeyPublicKeyFieldKeywords,
+      KeywordMatchMode.MatchesToken,
+    );
+  }
+
+  /**
+   * Validates the provided field as an SSH key title field. Limited to non-textarea inputs
+   * whose keywords match a title field name.
+   *
+   * @param field - The field to validate
+   */
+  private isFieldForSshKeyTitle(field: AutofillField): boolean {
+    if (field.tagName === "textarea") {
+      return false;
+    }
+
+    return fieldContainsKeyword(
+      field,
+      this.sshKeyTitleFieldKeywords,
+      KeywordMatchMode.MatchesToken,
+    );
+  }
+
+  /**
    * Validates the provided field as a password field for a login form.
    *
    * @param field - The field to validate
@@ -439,11 +512,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
     }
     const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
 
-    /**
-     * If a field is part of a newsletter form, or other recognized non-login type forms, it isn't a username
-     * {@link AutoFillConstants.NonLoginFormKeywords}
-     */
-    if (isNonLoginFormContext(field, pageDetails)) {
+    if (isNonLoginUsernameField(field, pageDetails)) {
       return false;
     }
 
@@ -470,8 +539,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       if (passwordFieldsInPageDetails.length === 1) {
         return true;
       }
-
       // If the page does not contain any password fields, it might be part of a multistep login form.
+      // Before defaulting to login, consult the tie-breaker.
+      if (isAmbiguousFieldNonLogin(field, pageDetails)) {
+        return false;
+      }
       return true;
     }
 
@@ -487,6 +559,10 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
           this.usernameFieldTypes.has(pageDetailsField.type),
       );
       if (loginEligibleFieldsWithinForm.length === 1) {
+        // Before defaulting to login, consult the tie-breaker.
+        if (isAmbiguousFieldNonLogin(field, pageDetails)) {
+          return false;
+        }
         return true;
       }
 
@@ -529,7 +605,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CardHolderFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.CardHolderFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -542,7 +622,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CardNumberFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.CardNumberFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -557,7 +641,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CardExpiryFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.CardExpiryFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -572,7 +660,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.ExpiryMonthFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -587,7 +679,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.ExpiryYearFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.ExpiryYearFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -600,7 +696,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, CreditCardAutoFillConstants.CVVFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      CreditCardAutoFillConstants.CVVFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -615,7 +715,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.TitleFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.TitleFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -628,7 +732,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.FirstnameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.FirstnameFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -641,7 +749,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.MiddlenameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.MiddlenameFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -654,7 +766,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.LastnameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.LastnameFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -667,7 +783,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.FullNameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.FullNameFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -686,7 +806,7 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
         ...IdentityAutoFillConstants.AddressFieldNames,
         ...IdentityAutoFillConstants.Address1FieldNames,
       ],
-      false,
+      KeywordMatchMode.MatchesToken,
     );
   };
 
@@ -700,7 +820,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.Address2FieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.Address2FieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -713,7 +837,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.Address3FieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.Address3FieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -726,7 +854,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.CityFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.CityFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -739,7 +871,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.StateFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.StateFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -752,7 +888,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.PostalCodeFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.PostalCodeFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -765,7 +905,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.CountryFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.CountryFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -778,7 +922,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.CompanyFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.CompanyFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -791,7 +939,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.PhoneFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.PhoneFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -812,7 +964,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.EmailFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.EmailFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -825,7 +981,11 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return true;
     }
 
-    return fieldContainsKeyword(field, IdentityAutoFillConstants.UserNameFieldNames, false);
+    return fieldContainsKeyword(
+      field,
+      IdentityAutoFillConstants.UserNameFieldNames,
+      KeywordMatchMode.MatchesToken,
+    );
   };
 
   /**
@@ -854,6 +1014,10 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
    * @param field - The field to validate
    */
   isEmailField = (field: AutofillField): boolean => {
+    if (this.isTotpField(field)) {
+      return false;
+    }
+
     if (field.type === "email") {
       return true;
     }
@@ -1115,17 +1279,25 @@ export class InlineMenuFieldQualificationService implements InlineMenuFieldQuali
       return false;
     }
 
-    const autocompleteValueParts = fieldAutocompleteValue.split(" ");
     if (typeof compareValues === "string") {
-      return autocompleteValueParts.indexOf(compareValues) > -1;
+      return AutofillService.autoCompleteTypeIncludesToken(fieldAutocompleteValue, compareValues);
     }
 
-    for (let index = 0; index < autocompleteValueParts.length; index++) {
-      if (compareValues.has(autocompleteValueParts[index])) {
+    for (const token of compareValues) {
+      if (AutofillService.autoCompleteTypeIncludesToken(fieldAutocompleteValue, token)) {
         return true;
       }
     }
 
     return false;
   }
+
+  /**
+   * Validates the provided field has `current-password` attribute
+   *
+   * * @param field - The field to validate
+   */
+  hasCurrentPasswordAutocomplete = (field: AutofillField): boolean => {
+    return this.fieldContainsAutocompleteValues(field, this.currentPasswordAutocompleteValue);
+  };
 }

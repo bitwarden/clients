@@ -2,13 +2,11 @@ import { CommonModule } from "@angular/common";
 import {
   AfterContentChecked,
   booleanAttribute,
+  ChangeDetectionStrategy,
   Component,
-  ElementRef,
-  HostBinding,
-  HostListener,
-  signal,
+  computed,
+  contentChildren,
   input,
-  Input,
   contentChild,
   viewChild,
 } from "@angular/core";
@@ -17,106 +15,118 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitHintDirective } from "../form-control/hint.directive";
 import { BitLabelComponent } from "../form-control/label.component";
-import { inputBorderClasses } from "../input/input.directive";
 
+import { BitCustomInputDirective } from "./custom-input.directive";
 import { BitErrorComponent } from "./error.component";
-import { BitFormFieldControl } from "./form-field-control";
+import { BitFieldContainerDirective, FieldContainerSize } from "./field-container.directive";
+import { BitFormFieldControlDirective } from "./form-field-control.directive";
+import { BitPrefixDirective } from "./prefix.directive";
+import { BitSuffixDirective } from "./suffix.directive";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "bit-form-field",
   templateUrl: "./form-field.component.html",
-  imports: [CommonModule, BitErrorComponent, I18nPipe],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, BitErrorComponent, BitFieldContainerDirective, I18nPipe],
+  host: {
+    "[class]": "classList",
+  },
 })
 export class BitFormFieldComponent implements AfterContentChecked {
-  readonly input = contentChild.required(BitFormFieldControl);
-  readonly hint = contentChild(BitHintDirective);
-  readonly label = contentChild(BitLabelComponent);
+  private readonly projectedControl = contentChild(BitFormFieldControlDirective);
 
-  readonly prefixContainer = viewChild<ElementRef<HTMLDivElement>>("prefixContainer");
-  readonly suffixContainer = viewChild<ElementRef<HTMLDivElement>>("suffixContainer");
+  /**
+   * Lets a composing wrapper (e.g. `bit-file-upload`, `bit-file-dropzone`) supply the control
+   * directive it hosts, instead of projecting one into the content. Everything downstream reads
+   * the same `input()` regardless of the source.
+   */
+  readonly controlInput = input<BitFormFieldControlDirective | undefined>(undefined, {
+    alias: "control",
+  });
+
+  /** The control directive driving the field — from the wrapper input, else projected content. */
+  readonly input = computed(() => this.controlInput() ?? this.projectedControl());
+
+  // `descendants` so a hint a wrapper places inside its `[bitCustomInput]` slot is still found for
+  // the `aria-describedby` wiring below.
+  readonly hint = contentChild(BitHintDirective, { descendants: true });
+  readonly label = contentChild(BitLabelComponent);
 
   readonly error = viewChild(BitErrorComponent);
 
   readonly disableMargin = input(false, { transform: booleanAttribute });
 
-  /** If `true`, remove the bottom border for `readonly` inputs */
-  // TODO: Skipped for signal migration because:
-  //  Your application code writes to the input. This prevents migration.
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @Input({ transform: booleanAttribute })
-  disableReadOnlyBorder = false;
+  readonly size = input<FieldContainerSize>("base");
 
-  protected readonly prefixHasChildren = signal(false);
-  protected readonly suffixHasChildren = signal(false);
+  private readonly customInputChild = contentChild(BitCustomInputDirective);
 
-  get inputBorderClasses(): string {
-    const shouldFocusBorderAppear = this.defaultContentIsFocused();
+  private readonly prefixChildren = contentChildren(BitPrefixDirective);
+  private readonly suffixChildren = contentChildren(BitSuffixDirective);
 
-    const groupClasses = [
-      this.input().hasError
-        ? "group-hover/bit-form-field:tw-border-danger-700"
-        : "group-hover/bit-form-field:tw-border-primary-600",
-      // the next 2 selectors override the above hover selectors when the input (or text area) is non-interactive (i.e. readonly, disabled)
-      "group-has-[input:read-only]/bit-form-field:group-hover/bit-form-field:tw-border-secondary-500",
-      "group-has-[textarea:read-only]/bit-form-field:group-hover/bit-form-field:tw-border-secondary-500",
-      "group-focus-within/bit-form-field:tw-outline-none",
-      shouldFocusBorderAppear ? "group-focus-within/bit-form-field:tw-border-2" : "",
-      shouldFocusBorderAppear ? "group-focus-within/bit-form-field:tw-border-primary-600" : "",
-      shouldFocusBorderAppear
-        ? "group-focus-within/bit-form-field:group-hover/bit-form-field:tw-border-primary-600"
-        : "",
-    ];
-
-    const baseInputBorderClasses = inputBorderClasses(this.input().hasError);
-
-    const borderClasses = baseInputBorderClasses.concat(groupClasses);
-
-    return borderClasses.join(" ");
-  }
-
-  @HostBinding("class")
-  get classList() {
-    return ["tw-block"]
-      .concat(this.disableMargin() ? [] : ["tw-mb-4", "bit-compact:tw-mb-3"])
-      .concat(this.readOnly ? [] : "tw-pt-2");
-  }
+  protected readonly prefixHasChildren = computed(() => this.prefixChildren().length > 0);
+  protected readonly suffixHasChildren = computed(() => this.suffixChildren().length > 0);
 
   /**
-   * If the currently focused element is not part of the default content, then we don't want to show focus on the
-   * input field itself.
-   *
-   * This is necessary because the `tw-group/bit-form-field` wraps the input and any prefix/suffix
-   * buttons
+   * Whether a composing wrapper projected its own control into the `[bitCustomInput]` slot; when so
+   * the field-container chrome is not rendered.
    */
-  protected readonly defaultContentIsFocused = signal(false);
-  @HostListener("focusin", ["$event.target"])
-  onFocusIn(target: HTMLElement) {
-    this.defaultContentIsFocused.set(target.matches("[data-default-content] *:focus-visible"));
+  protected readonly customInput = computed(() => this.customInputChild() != null);
+
+  protected get labelAndFieldContainerClasses(): string {
+    return [
+      "tw-flex",
+      "tw-flex-col",
+      "has-[:is(input,textarea):disabled]:!tw-text-fg-inactive",
+      "[&_bit-hint]:tw-m-0",
+      "[&_bit-error]:tw-m-0",
+      // When the label is visually hidden, don't reserve the label/field gap so
+      // the field stays centered. Scoped to `bit-label` so the `sr-only`
+      // `(required)` span doesn't trigger it.
+      "has-[bit-label.tw-sr-only]:tw-gap-0",
+      ...(this.readOnly ? [] : ["tw-gap-2"]),
+    ].join(" ");
   }
-  @HostListener("focusout")
-  onFocusOut() {
-    this.defaultContentIsFocused.set(false);
+
+  protected get contentContainerClasses(): string {
+    return [
+      "tw-size-full",
+      "tw-min-w-0",
+      "tw-relative",
+      "[&>*]:tw-p-0",
+      "[&>*::selection]:tw-bg-bg-brand-medium",
+      "[&>*::selection]:tw-text-fg-heading",
+      "has-[bit-select]:tw-p-0",
+      "has-[bit-multi-select]:tw-p-0",
+      "has-[textarea]:tw-pe-0",
+      "has-[textarea]:!tw-py-3",
+      ...(this.readOnly ? [] : ["tw-px-3"]),
+    ].join(" ");
+  }
+
+  get classList() {
+    return ["tw-block"].concat(this.disableMargin() ? [] : ["tw-mb-4", "bit-compact:tw-mb-3"]);
   }
 
   protected get readOnly(): boolean {
-    return !!this.input().readOnly;
+    return !!this.input()?.readOnly();
   }
 
   ngAfterContentChecked(): void {
+    const input = this.input();
+    if (input == null) {
+      throw new Error(
+        "bit-form-field requires a BitFormFieldControlDirective, either projected into its " +
+          "content or supplied via the [control] input.",
+      );
+    }
     const error = this.error();
     const hint = this.hint();
     if (error) {
-      this.input().ariaDescribedBy = error.id;
+      input.ariaDescribedBy.set(error.id);
     } else if (hint) {
-      this.input().ariaDescribedBy = hint.id;
+      input.ariaDescribedBy.set(hint.id);
     } else {
-      this.input().ariaDescribedBy = undefined;
+      input.ariaDescribedBy.set(undefined);
     }
-
-    this.prefixHasChildren.set((this.prefixContainer()?.nativeElement.childElementCount ?? 0) > 0);
-    this.suffixHasChildren.set((this.suffixContainer()?.nativeElement.childElementCount ?? 0) > 0);
   }
 }

@@ -14,6 +14,11 @@ export class MenuAccount {
   userId: string;
   email: string;
   hasMasterPassword: boolean;
+  hasPremium: boolean;
   // TODO: PM-32419 - remove feature flag check once fully rolled out
   multiClientPasswordManagement: boolean;
+  // TODO: PM-34438 - remove desktopAddDevices from MenuAccount
+  desktopAddDevices: boolean;
+  // TODO: PM-34580 - remove pm32009NewItemTypes from MenuAccount once fully rolled out
+  pm32009NewItemTypes: boolean;
 }

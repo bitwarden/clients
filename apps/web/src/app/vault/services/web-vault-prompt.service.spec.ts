@@ -8,13 +8,16 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerSettings } from "@bitwarden/common/platform/models/domain/server-settings";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
 import { LogService } from "@bitwarden/logging";
 import { VaultItemsTransferService } from "@bitwarden/vault";
 
 import {
-  MultiStepPolicyEditDialogComponent,
+  AutoConfirmPolicy,
+  MultiStepPolicyEditModalComponent,
   PolicyEditDialogResult,
 } from "../../admin-console/organizations/policies";
 import { UnifiedUpgradePromptService } from "../../billing/individual/upgrade/services";
@@ -44,6 +47,7 @@ describe("WebVaultPromptService", () => {
   const logError = jest.fn();
   const conditionallyPromptUserForExtension = jest.fn().mockResolvedValue(false);
 
+  let serverSettings$: BehaviorSubject<ServerSettings | null>;
   let activeAccount$: BehaviorSubject<Account | null>;
 
   function createAccount(overrides: Partial<Account> = {}): Account {
@@ -58,6 +62,7 @@ describe("WebVaultPromptService", () => {
     jest.clearAllMocks();
 
     activeAccount$ = new BehaviorSubject<Account | null>(createAccount());
+    serverSettings$ = new BehaviorSubject<ServerSettings | null>(new ServerSettings());
 
     TestBed.configureTestingModule({
       providers: [
@@ -66,6 +71,7 @@ describe("WebVaultPromptService", () => {
         { provide: VaultItemsTransferService, useValue: { enforceOrganizationDataOwnership } },
         { provide: PolicyService, useValue: { policies$ } },
         { provide: AccountService, useValue: { activeAccount$ } },
+        { provide: ConfigService, useValue: { serverSettings$: serverSettings$.asObservable() } },
         {
           provide: AutomaticUserConfirmationService,
           useValue: { configuration$: configurationAutoConfirm$, upsert: upsertAutoConfirm },
@@ -111,6 +117,17 @@ describe("WebVaultPromptService", () => {
         service["webVaultExtensionPromptService"].conditionallyPromptUserForExtension,
       ).toHaveBeenCalledWith(mockUserId);
     });
+
+    it("skips onboarding prompts but not policy flows when suppressOnboardingInterstitials is enabled", async () => {
+      serverSettings$.next(new ServerSettings({ suppressOnboardingInterstitials: true }));
+
+      await service.conditionallyPromptUser();
+
+      expect(enforceOrganizationDataOwnership).toHaveBeenCalledWith(mockUserId);
+      expect(displayUpgradePromptConditionally).not.toHaveBeenCalled();
+      expect(conditionallyShowWelcomeDialog).not.toHaveBeenCalled();
+      expect(conditionallyPromptUserForExtension).not.toHaveBeenCalled();
+    });
   });
 
   describe("setupAutoConfirm", () => {
@@ -133,7 +150,7 @@ describe("WebVaultPromptService", () => {
       } as unknown as DialogRef<PolicyEditDialogResult>;
 
       const openSpy = jest
-        .spyOn(MultiStepPolicyEditDialogComponent, "open")
+        .spyOn(MultiStepPolicyEditModalComponent, "open")
         .mockReturnValue(dialogRefMock);
 
       void service.conditionallyPromptUser();
@@ -148,6 +165,7 @@ describe("WebVaultPromptService", () => {
       });
 
       const passedPolicy = openSpy.mock.calls[0][1].data.policy;
+      expect(passedPolicy).toBeInstanceOf(AutoConfirmPolicy);
       expect(passedPolicy.firstTimeDialog).toBe(true);
 
       dialogClosedSubject.next(null);
@@ -159,7 +177,7 @@ describe("WebVaultPromptService", () => {
       );
 
       const mockPolicy = {
-        type: PolicyType.AutoConfirm,
+        type: PolicyType.AutomaticUserConfirmation,
         enabled: true,
       } as Policy;
       policies$.mockReturnValueOnce(of([mockPolicy]));
@@ -169,7 +187,7 @@ describe("WebVaultPromptService", () => {
       } as Organization;
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -189,7 +207,7 @@ describe("WebVaultPromptService", () => {
       } as Organization;
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -205,7 +223,7 @@ describe("WebVaultPromptService", () => {
       policies$.mockReturnValueOnce(of([]));
       organizations$.mockReturnValueOnce(of([]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 
@@ -227,7 +245,7 @@ describe("WebVaultPromptService", () => {
 
       organizations$.mockReturnValueOnce(of([mockOrg]));
 
-      const openSpy = jest.spyOn(MultiStepPolicyEditDialogComponent, "open");
+      const openSpy = jest.spyOn(MultiStepPolicyEditModalComponent, "open");
 
       void service.conditionallyPromptUser();
 

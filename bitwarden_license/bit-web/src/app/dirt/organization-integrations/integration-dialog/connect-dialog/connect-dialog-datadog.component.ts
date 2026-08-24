@@ -81,7 +81,7 @@ export class ConnectDatadogDialogComponent implements OnInit {
     }
     const result = this.getDatadogConnectDialogResult(IntegrationDialogResultStatus.Edited);
 
-    this.dialogRef.close(result);
+    await this.dialogRef.close(result);
 
     return;
   };
@@ -97,7 +97,7 @@ export class ConnectDatadogDialogComponent implements OnInit {
 
     if (confirmed) {
       const result = this.getDatadogConnectDialogResult(IntegrationDialogResultStatus.Delete);
-      this.dialogRef.close(result);
+      await this.dialogRef.close(result);
     }
   };
 
@@ -118,7 +118,7 @@ export class ConnectDatadogDialogComponent implements OnInit {
 
 export function openDatadogConnectDialog(
   dialogService: DialogService,
-  config: DialogConfig<DatadogConnectDialogParams, DialogRef<DatadogConnectDialogResult>>,
+  config: DialogConfig<DatadogConnectDialogParams, DatadogConnectDialogResult>,
 ) {
   return dialogService.open<DatadogConnectDialogResult>(ConnectDatadogDialogComponent, config);
 }

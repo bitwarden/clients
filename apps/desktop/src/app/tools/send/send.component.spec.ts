@@ -7,6 +7,7 @@ import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -29,6 +30,7 @@ import {
   DefaultSendFormConfigService,
   SendAddEditDialogComponent,
   SendFormConfig,
+  SendFormService,
 } from "@bitwarden/send-ui";
 
 import { DesktopHeaderComponent } from "../../layout/header";
@@ -59,6 +61,7 @@ describe("SendComponent", () => {
   let toastService: MockProxy<ToastService>;
   let i18nService: MockProxy<I18nService>;
   let configService: MockProxy<ConfigService>;
+  let sendFormService: MockProxy<SendFormService>;
 
   beforeEach(async () => {
     sendService = mock<SendService>();
@@ -73,6 +76,7 @@ describe("SendComponent", () => {
     toastService = mock<ToastService>();
     i18nService = mock<I18nService>();
     configService = mock<ConfigService>();
+    sendFormService = mock<SendFormService>();
 
     // Setup configService mock - feature flag returns true to test the new drawer mode
     configService.getFeatureFlag$.mockReturnValue(of(true));
@@ -132,11 +136,16 @@ describe("SendComponent", () => {
         },
         { provide: MessagingService, useValue: mock<MessagingService>() },
         { provide: ConfigService, useValue: configService },
+        { provide: OrganizationService, useValue: mock<OrganizationService>() },
         {
           provide: ActivatedRoute,
           useValue: {
             data: of({}),
           },
+        },
+        {
+          provide: SendFormService,
+          useValue: sendFormService,
         },
       ],
     })
@@ -184,6 +193,7 @@ describe("SendComponent", () => {
       expect(openDrawerSpy).toHaveBeenCalled();
       expect(openDrawerSpy.mock.calls[0][1]).toEqual({
         formConfig: mockConfig,
+        closePredicate: expect.any(Function),
       });
     });
 
@@ -206,6 +216,7 @@ describe("SendComponent", () => {
       expect(openDrawerSpy).toHaveBeenCalled();
       expect(openDrawerSpy.mock.calls[0][1]).toEqual({
         formConfig: mockConfig,
+        closePredicate: expect.any(Function),
       });
     });
   });
@@ -230,6 +241,7 @@ describe("SendComponent", () => {
       expect(openDrawerSpy).toHaveBeenCalled();
       expect(openDrawerSpy.mock.calls[0][1]).toEqual({
         formConfig: mockConfig,
+        closePredicate: expect.any(Function),
       });
     });
   });

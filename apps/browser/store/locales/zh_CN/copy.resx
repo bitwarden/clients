@@ -172,13 +172,13 @@ Bitwarden 提供的端到端加密凭证管理解决方案使组织能够保护�
     <value>在多个设备间同步和访问您的密码库</value>
   </data>
   <data name="ScreenshotVault" xml:space="preserve">
-    <value>在一个安全的密码库中管理您所有的登录信息和密码</value>
+    <value>在一个安全的密码库中管理您所有的登录和密码</value>
   </data>
   <data name="ScreenshotAutofill" xml:space="preserve">
     <value>在您访问的任何网站中快速自动填充登录凭据</value>
   </data>
   <data name="ScreenshotMenu" xml:space="preserve">
-    <value>您也可以通过右击菜单快捷方便地访问密码库</value>
+    <value>还可以通过右键单击菜单方便地访问您的密码库</value>
   </data>
   <data name="ScreenshotPassword" xml:space="preserve">
     <value>自动生成强大、随机和安全的密码</value>

@@ -1,9 +1,9 @@
 import { MockProxy, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
-import { RegisterFinishRequestWithAuthUnlockDataTypes } from "@bitwarden/common/auth/models/request/registration/register-finish-request-with-auth-unlock-data.types";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
@@ -13,9 +13,15 @@ import {
   MasterKeyWrappedUserKey,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { MasterKey, UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KeyService, KdfType } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DEFAULT_KDF_CONFIG,
+  EncString,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { PasswordInputResult } from "../../input-password/password-input-result";
 
@@ -24,23 +30,28 @@ import { DefaultRegistrationFinishService } from "./default-registration-finish.
 describe("DefaultRegistrationFinishService", () => {
   let service: DefaultRegistrationFinishService;
 
-  let keyService: MockProxy<KeyService>;
+  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let accountApiService: MockProxy<AccountApiService>;
   let masterPasswordService: MockProxy<MasterPasswordServiceAbstraction>;
   let configService: MockProxy<ConfigService>;
+  let sdkService: MockProxy<SdkService>;
 
   beforeEach(() => {
-    keyService = mock<KeyService>();
+    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     accountApiService = mock<AccountApiService>();
     masterPasswordService = mock<MasterPasswordServiceAbstraction>();
     configService = mock<ConfigService>();
+    sdkService = mock<SdkService>();
 
     service = new DefaultRegistrationFinishService(
-      keyService,
+      legacyCompatKeyService,
       accountApiService,
       masterPasswordService,
       configService,
+      sdkService,
     );
+
+    configService.getFeatureFlag.mockResolvedValue(false);
   });
 
   it("instantiates", () => {
@@ -71,163 +82,289 @@ describe("DefaultRegistrationFinishService", () => {
     let userKey: UserKey;
     let userKeyEncString: EncString;
     let userKeyPair: [string, EncString];
+    let salt: MasterPasswordSalt;
+    let masterPasswordAuthentication: MasterPasswordAuthenticationData;
+    let masterPasswordUnlock: MasterPasswordUnlockData;
 
     beforeEach(() => {
       email = "test@email.com";
       emailVerificationToken = "emailVerificationToken";
       masterKey = new SymmetricCryptoKey(new Uint8Array(64)) as MasterKey;
+      salt = "test@email.com" as MasterPasswordSalt;
+
       passwordInputResult = {
-        newMasterKey: masterKey,
-        newServerMasterKeyHash: "newServerMasterKeyHash",
+        newPassword: "newPassword",
         kdfConfig: DEFAULT_KDF_CONFIG,
         newPasswordHint: "newPasswordHint",
-        newPassword: "newPassword",
+        salt: salt,
       };
 
       userKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
       userKeyEncString = new EncString("userKeyEncrypted");
-
       userKeyPair = ["publicKey", new EncString("privateKey")];
+
+      legacyCompatKeyService.makeMasterKey.mockResolvedValue(masterKey);
+
+      masterPasswordAuthentication = {
+        salt,
+        kdf: DEFAULT_KDF_CONFIG,
+        masterPasswordAuthenticationHash: "authHash" as MasterPasswordAuthenticationHash,
+      };
+      masterPasswordUnlock = new MasterPasswordUnlockData(
+        salt,
+        DEFAULT_KDF_CONFIG,
+        "wrappedUserKey" as MasterKeyWrappedUserKey,
+      );
+      masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
+        masterPasswordAuthentication,
+      );
+      masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
+    });
+
+    ["newPassword", "salt"].forEach((key) => {
+      it(`should throw if ${key} is an empty string (falsy) on the PasswordInputResult object`, async () => {
+        // Arrange
+        const invalidPasswordInputResult: PasswordInputResult = {
+          ...passwordInputResult,
+          [key]: "",
+        };
+
+        // Act
+        const promise = service.finishRegistration(email, invalidPasswordInputResult);
+
+        // Assert
+        await expect(promise).rejects.toThrow(`${key} is falsy. Could not finish registration.`);
+      });
+    });
+
+    it("should throw if kdfConfig is undefined on the PasswordInputResult object", async () => {
+      // Arrange
+      const invalidPasswordInputResult: PasswordInputResult = {
+        ...passwordInputResult,
+        kdfConfig: undefined,
+      };
+
+      // Act
+      const promise = service.finishRegistration(email, invalidPasswordInputResult);
+
+      // Assert
+      await expect(promise).rejects.toThrow(
+        "kdfConfig is null or undefined. Could not finish registration.",
+      );
     });
 
     it("throws an error if the user key cannot be created", async () => {
-      keyService.makeUserKey.mockResolvedValue([null, null]);
+      legacyCompatKeyService.makeUserKey.mockResolvedValue([null, null] as any);
 
       await expect(service.finishRegistration(email, passwordInputResult)).rejects.toThrow(
         "User key could not be created",
       );
     });
 
-    describe("when feature flag is OFF (old API)", () => {
-      it("registers the user with KDF fields when given valid email verification input", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
+    it("derives the master key and registers the user", async () => {
+      legacyCompatKeyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(userKeyPair);
+      accountApiService.registerFinish.mockResolvedValue();
 
-        await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
-        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            emailVerificationToken: emailVerificationToken,
-            masterPasswordHash: passwordInputResult.newServerMasterKeyHash,
-            masterPasswordHint: passwordInputResult.newPasswordHint,
-            userSymmetricKey: userKeyEncString.encryptedString,
-            userAsymmetricKeys: {
-              publicKey: userKeyPair[0],
-              encryptedPrivateKey: userKeyPair[1].encryptedString,
-            },
-            kdf: KdfType.PBKDF2_SHA256,
-            kdfIterations: DEFAULT_KDF_CONFIG.iterations,
-            kdfMemory: undefined,
-            kdfParallelism: undefined,
-          }),
-        );
+      expect(legacyCompatKeyService.makeMasterKey).toHaveBeenCalledWith(
+        passwordInputResult.newPassword,
+        passwordInputResult.salt,
+        passwordInputResult.kdfConfig,
+      );
+      expect(legacyCompatKeyService.makeUserKey).toHaveBeenCalledWith(masterKey);
+      expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(userKey);
+      expect(accountApiService.registerFinish).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email,
+          emailVerificationToken: emailVerificationToken,
+          masterPasswordHint: passwordInputResult.newPasswordHint,
+          userAsymmetricKeys: {
+            publicKey: userKeyPair[0],
+            encryptedPrivateKey: userKeyPair[1].encryptedString,
+          },
+          masterPasswordAuthentication: masterPasswordAuthentication,
+          masterPasswordUnlock: masterPasswordUnlock,
+        }),
+      );
 
-        // Verify makeMasterKey is NOT called — the master key comes from passwordInputResult directly
-        expect(keyService.makeMasterKey).not.toHaveBeenCalled();
+      const registerCall = accountApiService.registerFinish.mock.calls[0][0];
+      expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
+      expect((registerCall as RegisterFinishRequest).masterPasswordAuthentication).toBeDefined();
+      expect((registerCall as RegisterFinishRequest).masterPasswordUnlock).toBeDefined();
 
-        // Verify old API fields are present
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
-        expect(registerCall).toBeInstanceOf(RegisterFinishRequest);
-        expect((registerCall as RegisterFinishRequest).kdf).toBeDefined();
-        expect((registerCall as RegisterFinishRequest).kdfIterations).toBeDefined();
+      expect(registerCall).toMatchSnapshot();
+    });
 
-        // Verify new API fields are NOT present
-        expect((registerCall as any).masterPasswordAuthentication).toBeUndefined();
-        expect((registerCall as any).masterPasswordUnlock).toBeUndefined();
+    it("does not invoke the SDK flow when the feature flag is off", async () => {
+      legacyCompatKeyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
+      legacyCompatKeyService.makeKeyPair.mockResolvedValue(userKeyPair);
 
-        expect(registerCall).toMatchSnapshot();
+      const postKeysForUserPasswordRegistration: jest.Mock = jest.fn().mockResolvedValue(undefined);
+      const registrationClient: { post_keys_for_user_password_registration: jest.Mock } = {
+        post_keys_for_user_password_registration: postKeysForUserPasswordRegistration,
+      };
+      const authClient: { registration: jest.Mock } = {
+        registration: jest.fn().mockReturnValue(registrationClient),
+      };
+      const sdkClient: { auth: jest.Mock } = { auth: jest.fn().mockReturnValue(authClient) };
+
+      sdkService.client$ = of(sdkClient as any);
+
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
+      expect(accountApiService.registerFinish).toHaveBeenCalled();
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled(); // sdk is not called when ff is off
+    });
+  });
+
+  // SDK-based registration flow. This block is fully self-contained so it can stand alone once the
+  // legacy registration flow above is removed.
+  describe("finishRegistration() - SDK flow", () => {
+    let email: string;
+    let emailVerificationToken: string;
+    let salesAssistedToken: string;
+    let salt: MasterPasswordSalt;
+    let passwordInputResult: PasswordInputResult;
+
+    let postKeysForUserPasswordRegistration: jest.Mock;
+    let registrationClient: { post_keys_for_user_password_registration: jest.Mock };
+    let authClient: { registration: jest.Mock };
+    let sdkClient: { auth: jest.Mock };
+
+    // web-only tokens/ids exercised by the SDK register request
+    const orgSponsoredFreeFamilyPlanToken = "orgSponsoredFreeFamilyPlanToken";
+    const acceptEmergencyAccessInviteToken = "acceptEmergencyAccessInviteToken";
+    const emergencyAccessId = "00000000-0000-0000-0000-000000000001";
+    const providerInviteToken = "providerInviteToken";
+    const providerUserId = "00000000-0000-0000-0000-000000000002";
+
+    beforeEach(() => {
+      email = "test@email.com";
+      emailVerificationToken = "emailVerificationToken";
+      salesAssistedToken = "salesAssistedToken";
+      salt = "test@email.com" as MasterPasswordSalt;
+
+      passwordInputResult = {
+        newPassword: "newPassword",
+        kdfConfig: DEFAULT_KDF_CONFIG,
+        newPasswordHint: "newPasswordHint",
+        salt: salt,
+      };
+
+      configService.getFeatureFlag.mockImplementation((flag) =>
+        Promise.resolve(flag === FeatureFlag.EnableAccountEncryptionV2UserPasswordRegistration),
+      );
+
+      postKeysForUserPasswordRegistration = jest.fn().mockResolvedValue(undefined);
+      registrationClient = {
+        post_keys_for_user_password_registration: postKeysForUserPasswordRegistration,
+      };
+      authClient = { registration: jest.fn().mockReturnValue(registrationClient) };
+      sdkClient = { auth: jest.fn().mockReturnValue(authClient) };
+
+      sdkService.client$ = of(sdkClient as any);
+    });
+
+    ["newPassword", "salt"].forEach((key) => {
+      it(`should throw if ${key} is an empty string (falsy) on the PasswordInputResult object`, async () => {
+        const invalidPasswordInputResult: PasswordInputResult = {
+          ...passwordInputResult,
+          [key]: "",
+        };
+
+        const promise = service.finishRegistration(email, invalidPasswordInputResult);
+
+        await expect(promise).rejects.toThrow(`${key} is falsy. Could not finish registration.`);
+        expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
       });
     });
 
-    describe("when feature flag is ON (new API)", () => {
-      let salt: MasterPasswordSalt;
-      let masterPasswordAuthentication: MasterPasswordAuthenticationData;
-      let masterPasswordUnlock: MasterPasswordUnlockData;
+    it("should throw if kdfConfig is undefined on the PasswordInputResult object", async () => {
+      const invalidPasswordInputResult: PasswordInputResult = {
+        ...passwordInputResult,
+        kdfConfig: undefined,
+      };
 
-      beforeEach(() => {
-        salt = "test@email.com" as MasterPasswordSalt;
+      const promise = service.finishRegistration(email, invalidPasswordInputResult);
 
-        // When the Auth flag is ON, InputPasswordComponent emits newApisWithInputPasswordFlagEnabled: true
-        // and does NOT emit newMasterKey, newServerMasterKeyHash.
-        passwordInputResult = {
-          newPassword: "newPassword",
-          kdfConfig: DEFAULT_KDF_CONFIG,
-          newPasswordHint: "newPasswordHint",
-          newApisWithInputPasswordFlagEnabled: true,
-          salt: salt,
-        };
+      await expect(promise).rejects.toThrow(
+        "kdfConfig is null or undefined. Could not finish registration.",
+      );
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
 
-        // The service derives the master key internally when the Auth flag is ON
-        keyService.makeMasterKey.mockResolvedValue(masterKey);
+    it("throws an error if the SDK client is not available", async () => {
+      sdkService.client$ = of(null as any);
 
-        masterPasswordAuthentication = {
-          salt,
-          kdf: DEFAULT_KDF_CONFIG,
-          masterPasswordAuthenticationHash: "authHash" as MasterPasswordAuthenticationHash,
-        };
-        masterPasswordUnlock = new MasterPasswordUnlockData(
-          salt,
-          DEFAULT_KDF_CONFIG,
-          "wrappedUserKey" as MasterKeyWrappedUserKey,
-        );
-        masterPasswordService.makeMasterPasswordAuthenticationData.mockResolvedValue(
-          masterPasswordAuthentication,
-        );
-        masterPasswordService.makeMasterPasswordUnlockData.mockResolvedValue(masterPasswordUnlock);
-      });
+      await expect(
+        service.finishRegistration(email, passwordInputResult, emailVerificationToken),
+      ).rejects.toThrow("SDK not available");
 
-      it("derives the master key and registers the user with new data types", async () => {
-        keyService.makeUserKey.mockResolvedValue([userKey, userKeyEncString]);
-        keyService.makeKeyPair.mockResolvedValue(userKeyPair);
-        accountApiService.registerFinish.mockResolvedValue();
+      expect(postKeysForUserPasswordRegistration).not.toHaveBeenCalled();
+    });
 
-        await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
+    it("posts the user password registration keys via the SDK and does not use the legacy flow", async () => {
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
 
-        // Verify master key is derived internally (not from passwordInputResult)
-        expect(keyService.makeMasterKey).toHaveBeenCalledWith(
-          passwordInputResult.newPassword,
-          passwordInputResult.salt,
-          passwordInputResult.kdfConfig,
-        );
-        expect(keyService.makeUserKey).toHaveBeenCalledWith(masterKey);
-        expect(keyService.makeKeyPair).toHaveBeenCalledWith(userKey);
-        expect(accountApiService.registerFinish).toHaveBeenCalledWith(
-          expect.objectContaining({
-            email,
-            emailVerificationToken: emailVerificationToken,
-            masterPasswordHint: passwordInputResult.newPasswordHint,
-            userAsymmetricKeys: {
-              publicKey: userKeyPair[0],
-              encryptedPrivateKey: userKeyPair[1].encryptedString,
-            },
-            masterPasswordAuthentication: masterPasswordAuthentication,
-            masterPasswordUnlock: masterPasswordUnlock,
-          }),
-        );
+      expect(postKeysForUserPasswordRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email,
+          salt: passwordInputResult.salt,
+          master_password: passwordInputResult.newPassword,
+          master_password_hint: passwordInputResult.newPasswordHint,
+          email_verification_token: emailVerificationToken,
+        }),
+      );
 
-        // Verify new API fields are present
-        const registerCall = accountApiService.registerFinish.mock.calls[0][0];
-        expect(registerCall).toBeInstanceOf(RegisterFinishRequestWithAuthUnlockDataTypes);
-        expect(
-          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes)
-            .masterPasswordAuthentication,
-        ).toBeDefined();
-        expect(
-          (registerCall as RegisterFinishRequestWithAuthUnlockDataTypes).masterPasswordUnlock,
-        ).toBeDefined();
+      // The legacy (non-SDK) flow must not be exercised.
+      expect(legacyCompatKeyService.makeMasterKey).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.makeUserKey).not.toHaveBeenCalled();
+      expect(legacyCompatKeyService.makeKeyPair).not.toHaveBeenCalled();
+      expect(accountApiService.registerFinish).not.toHaveBeenCalled();
+    });
 
-        // Verify old API fields are NOT present (including masterPasswordHash which is in masterPasswordAuthentication)
-        expect((registerCall as any).masterPasswordHash).toBeUndefined();
-        expect((registerCall as any).userSymmetricKey).toBeUndefined();
-        expect((registerCall as any).kdf).toBeUndefined();
-        expect((registerCall as any).kdfIterations).toBeUndefined();
+    it("does not pass the web-only tokens and ids through to the SDK register request", async () => {
+      await service.finishRegistration(
+        email,
+        passwordInputResult,
+        emailVerificationToken,
+        orgSponsoredFreeFamilyPlanToken,
+        acceptEmergencyAccessInviteToken,
+        emergencyAccessId,
+        providerInviteToken,
+        providerUserId,
+        salesAssistedToken,
+      );
 
-        expect(registerCall).toMatchSnapshot();
-      });
+      expect(postKeysForUserPasswordRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email,
+          salt: passwordInputResult.salt,
+          master_password: passwordInputResult.newPassword,
+          master_password_hint: passwordInputResult.newPasswordHint,
+          email_verification_token: emailVerificationToken,
+          sales_assisted_token: undefined,
+          organization_user_id: undefined,
+          org_invite_token: undefined,
+          org_sponsored_free_family_plan_token: undefined,
+          accept_emergency_access_invite_token: undefined,
+          accept_emergency_access_id: undefined,
+          provider_invite_token: undefined,
+          provider_user_id: undefined,
+        }),
+      );
+    });
+
+    it("leaves the emergency access and provider ids undefined when not provided", async () => {
+      await service.finishRegistration(email, passwordInputResult, emailVerificationToken);
+
+      expect(postKeysForUserPasswordRegistration).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accept_emergency_access_id: undefined,
+          provider_user_id: undefined,
+        }),
+      );
     });
   });
 });

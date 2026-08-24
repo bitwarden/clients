@@ -35,7 +35,7 @@
         </bit-hint>
       </bit-form-field>
 
-      <bit-radio-group formControlName="memberDecryptionType">
+      <bit-radio-group formControlName="memberDecryptionType" [block]="true">
         <bit-label>{{ "memberDecryptionOption" | i18n }}</bit-label>
 
         <bit-radio-button
@@ -62,9 +62,8 @@
               href="https://bitwarden.com/help/about-key-connector/"
               slot="end"
               bitLink
-            >
-              <i class="bwi bwi-question-circle" aria-hidden="true"></i>
-            </a>
+              startIcon="bwi-question-circle"
+            ></a>
           </bit-label>
           <bit-hint>
             {{ "memberDecryptionKeyConnectorDescStart" | i18n }}
@@ -84,19 +83,35 @@
             {{ "trustedDevices" | i18n }}
           </bit-label>
           <bit-hint>
-            {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink1" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart2" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink2" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart3" | i18n }}
-            <a bitLink routerLink="../policies">
-              {{ "memberDecryptionOptionTdeDescLink3" | i18n }}
-            </a>
-            {{ "memberDecryptionOptionTdeDescPart4" | i18n }}
+            @if (vfo1Enabled()) {
+              {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link1" | i18n
+              }}</a
+              >{{ "memberDecryptionOptionTdeDescVfo1Part2" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link2" | i18n
+              }}</a
+              >{{ "memberDecryptionOptionTdeDescVfo1Part3" | i18n }}
+              <a bitLink routerLink="../policies">{{
+                "memberDecryptionOptionTdeDescVfo1Link3" | i18n
+              }}</a>
+              {{ "memberDecryptionOptionTdeDescVfo1Part4" | i18n }}
+            } @else {
+              {{ "memberDecryptionOptionTdeDescPart1" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink1" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart2" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink2" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart3" | i18n }}
+              <a bitLink routerLink="../policies">
+                {{ "memberDecryptionOptionTdeDescLink3" | i18n }}
+              </a>
+              {{ "memberDecryptionOptionTdeDescPart4" | i18n }}
+            }
           </bit-hint>
         </bit-radio-button>
       </bit-radio-group>
@@ -175,7 +190,7 @@
 
         <bit-form-field>
           <bit-label>{{ "callbackPath" | i18n }}</bit-label>
-          <input bitInput disabled [value]="callbackPath" />
+          <input bitInput readonly [value]="callbackPath" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -187,7 +202,7 @@
 
         <bit-form-field>
           <bit-label>{{ "signedOutCallbackPath" | i18n }}</bit-label>
-          <input bitInput disabled [value]="signedOutCallbackPath" />
+          <input bitInput readonly [value]="signedOutCallbackPath" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -265,16 +280,8 @@
             aria-controls="customizations"
             [attr.aria-expanded]="showOpenIdCustomizations"
             aria-labelledby="customizations-header"
-          >
-            <i
-              class="bwi"
-              aria-hidden="true"
-              [ngClass]="{
-                'bwi-angle-right': !showOpenIdCustomizations,
-                'bwi-angle-down': showOpenIdCustomizations,
-              }"
-            ></i>
-          </button>
+            [startIcon]="showOpenIdCustomizations ? 'bwi-angle-down' : 'bwi-angle-right'"
+          ></button>
         </div>
         <div id="customizations" [hidden]="!showOpenIdCustomizations">
           <bit-form-field>
@@ -337,7 +344,7 @@
 
         <bit-form-field *ngIf="ssoConfigForm.value.saml.spUniqueEntityId">
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spEntityId" />
+          <input bitInput readonly [value]="spEntityId" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -349,7 +356,7 @@
 
         <bit-form-field *ngIf="!ssoConfigForm.value.saml.spUniqueEntityId">
           <bit-label>{{ "spEntityId" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spEntityIdStatic" />
+          <input bitInput readonly [value]="spEntityIdStatic" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix
@@ -361,7 +368,7 @@
 
         <bit-form-field>
           <bit-label>{{ "spMetadataUrl" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spMetadataUrl" />
+          <input bitInput readonly [value]="spMetadataUrl" />
           <button
             bitIconButton="bwi-external-link"
             bitSuffix
@@ -380,7 +387,7 @@
 
         <bit-form-field>
           <bit-label>{{ "spAcsUrl" | i18n }}</bit-label>
-          <input bitInput disabled [value]="spAcsUrl" />
+          <input bitInput readonly [value]="spAcsUrl" />
           <button
             bitIconButton="bwi-clone"
             bitSuffix

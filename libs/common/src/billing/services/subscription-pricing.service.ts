@@ -1,6 +1,5 @@
 import {
   combineLatest,
-  combineLatestWith,
   from,
   map,
   Observable,
@@ -12,18 +11,18 @@ import {
 } from "rxjs";
 import { catchError } from "rxjs/operators";
 
-import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions";
-import { PlanType } from "@bitwarden/common/billing/enums";
-import { PlanResponse } from "@bitwarden/common/billing/models/response/plan.response";
-import { PremiumPlanResponse } from "@bitwarden/common/billing/models/response/premium-plan.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ListResponse } from "@bitwarden/common/models/response/list.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/logging";
 
+import { FeatureFlag } from "../../enums/feature-flag.enum";
+import { ListResponse } from "../../models/response/list.response";
+import { ConfigService } from "../../platform/abstractions/config/config.service";
+import { EnvironmentService } from "../../platform/abstractions/environment.service";
+import { I18nService } from "../../platform/abstractions/i18n.service";
+import { BillingApiServiceAbstraction } from "../abstractions";
 import { SubscriptionPricingServiceAbstraction } from "../abstractions/subscription-pricing.service.abstraction";
+import { PlanType } from "../enums";
+import { PlanResponse } from "../models/response/plan.response";
+import { PremiumPlanResponse } from "../models/response/premium-plan.response";
 import {
   BusinessSubscriptionPricingTier,
   BusinessSubscriptionPricingTierIds,
@@ -86,32 +85,45 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       }),
     );
 
-  private organizationPlansResponse$: Observable<ListResponse<PlanResponse>> =
-    this.environmentService.environment$.pipe(
-      take(1),
-      switchMap((environment) =>
-        !environment.isCloud()
-          ? of({ data: [] } as unknown as ListResponse<PlanResponse>)
-          : from(this.billingApiService.getPlans()),
-      ),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
+  // QA-only: lets a self-hosted-region client fetch cloud pricing so the
+  // premium checkout dialog can display prices. Off by default; only delivered
+  // by servers that enable it.
+  private bypassSelfHostPremiumCheck$ = this.configService.getFeatureFlag$(
+    FeatureFlag.DebugDisableSelfHostPremiumCheck,
+  );
 
-  private premiumPlanResponse$: Observable<PremiumPlanResponse> =
-    this.environmentService.environment$.pipe(
-      take(1),
-      switchMap((environment) =>
-        !environment.isCloud()
-          ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
-          : from(this.billingApiService.getPremiumPlan()).pipe(
-              catchError((error: unknown) => {
-                this.logService.error("Failed to fetch premium plan from API", error);
-                return throwError(() => error); // Re-throw to propagate to higher-level error handler
-              }),
-            ),
-      ),
-      shareReplay({ bufferSize: 1, refCount: false }),
-    );
+  private vfo1Enabled$ = this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation);
+
+  private organizationPlansResponse$: Observable<ListResponse<PlanResponse>> = combineLatest([
+    this.environmentService.environment$,
+    this.bypassSelfHostPremiumCheck$,
+  ]).pipe(
+    take(1),
+    switchMap(([environment, bypassSelfHostCheck]) =>
+      !environment.isCloud() && !bypassSelfHostCheck
+        ? of({ data: [] } as unknown as ListResponse<PlanResponse>)
+        : from(this.billingApiService.getPlans()),
+    ),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
+
+  private premiumPlanResponse$: Observable<PremiumPlanResponse> = combineLatest([
+    this.environmentService.environment$,
+    this.bypassSelfHostPremiumCheck$,
+  ]).pipe(
+    take(1),
+    switchMap(([environment, bypassSelfHostCheck]) =>
+      !environment.isCloud() && !bypassSelfHostCheck
+        ? of({ seat: undefined, storage: undefined } as unknown as PremiumPlanResponse)
+        : from(this.billingApiService.getPremiumPlan()).pipe(
+            catchError((error: unknown) => {
+              this.logService.error("Failed to fetch premium plan from API", error);
+              return throwError(() => error); // Re-throw to propagate to higher-level error handler
+            }),
+          ),
+    ),
+    shareReplay({ bufferSize: 1, refCount: false }),
+  );
 
   private premium$: Observable<PersonalSubscriptionPricingTier> = this.premiumPlanResponse$.pipe(
     map((premiumPlan) => ({
@@ -135,41 +147,41 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
     })),
   );
 
-  private families$: Observable<PersonalSubscriptionPricingTier> =
-    this.organizationPlansResponse$.pipe(
-      combineLatestWith(this.configService.getFeatureFlag$(FeatureFlag.PM26462_Milestone_3)),
-      map(([plans, milestone3FeatureEnabled]) => {
-        const familiesPlan = plans.data.find(
-          (plan) =>
-            plan.type ===
-            (milestone3FeatureEnabled ? PlanType.FamiliesAnnually : PlanType.FamiliesAnnually2025),
-        );
+  private families$: Observable<PersonalSubscriptionPricingTier> = combineLatest([
+    this.organizationPlansResponse$,
+    this.vfo1Enabled$,
+  ]).pipe(
+    map(([plans, vfo1Enabled]) => {
+      const familiesPlan = plans.data.find((plan) => plan.type === PlanType.FamiliesAnnually);
 
-        return {
-          id: PersonalSubscriptionPricingTierIds.Families,
-          name: this.i18nService.t("planNameFamilies"),
-          description: this.i18nService.t("planDescFamiliesV2"),
-          availableCadences: [SubscriptionCadenceIds.Annually],
-          passwordManager: {
-            type: "packaged",
-            users: familiesPlan?.PasswordManager?.baseSeats,
-            annualPrice: familiesPlan?.PasswordManager?.basePrice,
-            annualPricePerAdditionalStorageGB:
-              familiesPlan?.PasswordManager?.additionalStoragePricePerGb,
-            providedStorageGB: familiesPlan?.PasswordManager?.baseStorageGb,
-            features: [
-              this.featureTranslations.premiumAccounts(),
-              this.featureTranslations.familiesUnlimitedSharing(),
-              this.featureTranslations.familiesUnlimitedCollections(),
-              this.featureTranslations.familiesSharedStorage(),
-            ],
-          },
-        };
-      }),
-    );
+      return {
+        id: PersonalSubscriptionPricingTierIds.Families,
+        name: this.i18nService.t("planNameFamilies"),
+        description: this.i18nService.t("planDescFamiliesV2"),
+        availableCadences: [SubscriptionCadenceIds.Annually],
+        passwordManager: {
+          type: "packaged",
+          users: familiesPlan?.PasswordManager?.baseSeats,
+          annualPrice: familiesPlan?.PasswordManager?.basePrice,
+          annualPricePerAdditionalStorageGB:
+            familiesPlan?.PasswordManager?.additionalStoragePricePerGb,
+          providedStorageGB: familiesPlan?.PasswordManager?.baseStorageGb,
+          features: [
+            this.featureTranslations.premiumAccounts(),
+            this.featureTranslations.familiesUnlimitedSharing(),
+            this.featureTranslations.familiesUnlimitedCollections(vfo1Enabled),
+            this.featureTranslations.familiesSharedStorage(),
+          ],
+        },
+      };
+    }),
+  );
 
-  private free$: Observable<BusinessSubscriptionPricingTier> = this.organizationPlansResponse$.pipe(
-    map((plans): BusinessSubscriptionPricingTier => {
+  private free$: Observable<BusinessSubscriptionPricingTier> = combineLatest([
+    this.organizationPlansResponse$,
+    this.vfo1Enabled$,
+  ]).pipe(
+    map(([plans, vfo1Enabled]): BusinessSubscriptionPricingTier => {
       const freePlan = plans.data.find((plan) => plan.type === PlanType.Free);
 
       return {
@@ -183,6 +195,7 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
             this.featureTranslations.limitedUsersV2(freePlan?.PasswordManager?.maxSeats),
             this.featureTranslations.limitedCollectionsV2(
               freePlan?.PasswordManager?.maxCollections,
+              vfo1Enabled,
             ),
             this.featureTranslations.alwaysFree(),
           ],
@@ -281,22 +294,20 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
 
   private custom$: Observable<BusinessSubscriptionPricingTier> =
     this.organizationPlansResponse$.pipe(
-      map(
-        (): BusinessSubscriptionPricingTier => ({
-          id: BusinessSubscriptionPricingTierIds.Custom,
-          name: this.i18nService.t("planNameCustom"),
-          description: this.i18nService.t("planDescCustom"),
-          availableCadences: [],
-          passwordManager: {
-            type: "custom",
-            features: [
-              this.featureTranslations.strengthenCybersecurity(),
-              this.featureTranslations.boostProductivity(),
-              this.featureTranslations.seamlessIntegration(),
-            ],
-          },
-        }),
-      ),
+      map((): BusinessSubscriptionPricingTier => ({
+        id: BusinessSubscriptionPricingTierIds.Custom,
+        name: this.i18nService.t("planNameCustom"),
+        description: this.i18nService.t("planDescCustom"),
+        availableCadences: [],
+        passwordManager: {
+          type: "custom",
+          features: [
+            this.featureTranslations.strengthenCybersecurity(),
+            this.featureTranslations.boostProductivity(),
+            this.featureTranslations.seamlessIntegration(),
+          ],
+        },
+      })),
     );
 
   private featureTranslations = {
@@ -328,9 +339,11 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       key: "familiesUnlimitedSharing",
       value: this.i18nService.t("familiesUnlimitedSharing"),
     }),
-    familiesUnlimitedCollections: () => ({
-      key: "familiesUnlimitedCollections",
-      value: this.i18nService.t("familiesUnlimitedCollections"),
+    familiesUnlimitedCollections: (vfo1Enabled?: boolean) => ({
+      key: vfo1Enabled ? "familiesUnlimitedSharedFolders" : "familiesUnlimitedCollections",
+      value: this.i18nService.t(
+        vfo1Enabled ? "familiesUnlimitedSharedFolders" : "familiesUnlimitedCollections",
+      ),
     }),
     familiesSharedStorage: () => ({
       key: "familiesSharedStorage",
@@ -340,9 +353,12 @@ export class DefaultSubscriptionPricingService implements SubscriptionPricingSer
       key: "limitedUsersV2",
       value: this.i18nService.t("limitedUsersV2", users),
     }),
-    limitedCollectionsV2: (collections?: number) => ({
-      key: "limitedCollectionsV2",
-      value: this.i18nService.t("limitedCollectionsV2", collections),
+    limitedCollectionsV2: (collections?: number, vfo1Enabled?: boolean) => ({
+      key: vfo1Enabled ? "limitedSharedFoldersV2" : "limitedCollectionsV2",
+      value: this.i18nService.t(
+        vfo1Enabled ? "limitedSharedFoldersV2" : "limitedCollectionsV2",
+        collections,
+      ),
     }),
     alwaysFree: () => ({
       key: "alwaysFree",

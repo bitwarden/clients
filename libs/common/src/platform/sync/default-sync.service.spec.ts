@@ -13,13 +13,18 @@ import {
 } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
+import { CryptoSyncData } from "@bitwarden/sdk-internal";
 
 import { Matrix } from "../../../spec/matrix";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
+import { OrganizationUserStatusType } from "../../admin-console/enums";
 import { Account, AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AvatarService } from "../../auth/abstractions/avatar.service";
@@ -27,23 +32,18 @@ import { TokenService } from "../../auth/abstractions/token.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
-import { AccountCryptographicStateService } from "../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncString } from "../../key-management/crypto/models/enc-string";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
-import {
-  MasterKeyWrappedUserKey,
-  MasterPasswordSalt,
-  MasterPasswordUnlockData,
-} from "../../key-management/master-password/types/master-password.types";
-import { SecurityStateService } from "../../key-management/security-state/abstractions/security-state.service";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
+import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
+import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -61,6 +61,7 @@ describe("DefaultSyncService", () => {
   let collectionService: MockProxy<CollectionService>;
   let messageSender: MockProxy<MessageSender>;
   let policyService: MockProxy<InternalPolicyService>;
+  let newPolicyService: MockProxy<InternalNewPolicyService>;
   let sendService: MockProxy<InternalSendService>;
   let logService: MockProxy<LogService>;
   let keyConnectorService: MockProxy<KeyConnectorService>;
@@ -75,9 +76,9 @@ describe("DefaultSyncService", () => {
   let tokenService: MockProxy<TokenService>;
   let authService: MockProxy<AuthService>;
   let stateProvider: MockProxy<StateProvider>;
-  let securityStateService: MockProxy<SecurityStateService>;
-  let kdfConfigService: MockProxy<KdfConfigService>;
-  let accountCryptographicStateService: MockProxy<AccountCryptographicStateService>;
+  let configService: MockProxy<ConfigService>;
+  let sdkService: MockProxy<SdkService>;
+  let cryptoSyncHandler: { on_sync: jest.Mock<Promise<void>, [CryptoSyncData]> };
 
   let sut: DefaultSyncService;
 
@@ -92,6 +93,7 @@ describe("DefaultSyncService", () => {
     collectionService = mock();
     messageSender = mock();
     policyService = mock();
+    newPolicyService = mock();
     sendService = mock();
     logService = mock();
     keyConnectorService = mock();
@@ -107,9 +109,17 @@ describe("DefaultSyncService", () => {
     tokenService = mock();
     authService = mock();
     stateProvider = mock();
-    securityStateService = mock();
-    kdfConfigService = mock();
-    accountCryptographicStateService = mock();
+    configService = mock();
+    sdkService = mock();
+    cryptoSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
+    sdkService.userClient$.mockReturnValue(
+      of({
+        take: () => ({
+          value: { crypto_sync_handler: () => cryptoSyncHandler },
+          [Symbol.dispose]: jest.fn(),
+        }),
+      }) as unknown as ReturnType<typeof sdkService.userClient$>,
+    );
 
     sut = new DefaultSyncService(
       masterPasswordAbstraction,
@@ -122,6 +132,7 @@ describe("DefaultSyncService", () => {
       collectionService,
       messageSender,
       policyService,
+      newPolicyService,
       sendService,
       logService,
       keyConnectorService,
@@ -136,9 +147,8 @@ describe("DefaultSyncService", () => {
       tokenService,
       authService,
       stateProvider,
-      securityStateService,
-      kdfConfigService,
-      accountCryptographicStateService,
+      configService,
+      sdkService,
     );
   });
 
@@ -147,6 +157,12 @@ describe("DefaultSyncService", () => {
   const emptySyncResponse = new SyncResponse({
     profile: {
       id: user1,
+      accountKeys: {
+        publicKeyEncryptionKeyPair: {
+          wrappedPrivateKey: "wrappedPrivateKey",
+          publicKey: "publicKey",
+        },
+      },
     },
     folders: [],
     collections: [],
@@ -167,44 +183,141 @@ describe("DefaultSyncService", () => {
       stateProvider.getUser.mockReturnValue(mock());
     });
 
-    it("sets the correct keys for a V1 user with old response model", async () => {
-      const v1Profile = {
-        id: user1,
-        key: "encryptedUserKey",
-        privateKey: "privateKey",
-        providers: [] as any[],
-        organizations: [] as any[],
-        providerOrganizations: [] as any[],
-        avatarColor: "#fff",
-        securityStamp: "stamp",
-        emailVerified: true,
-        verifyDevices: false,
-        premiumPersonally: false,
-        premiumFromOrganization: false,
-        usesKeyConnector: false,
-      };
-      apiService.getSync.mockResolvedValue(
+    describe("key management sync handler", () => {
+      const syncResponseWithUserDecryption = (userDecryption: Record<string, unknown>) =>
         new SyncResponse({
-          profile: v1Profile,
+          profile: {
+            id: user1,
+            accountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
           folders: [],
           collections: [],
           ciphers: [],
           sends: [],
           domains: [],
           policies: [],
-        }),
-      );
-      await sut.fullSync(true);
-      expect(masterPasswordAbstraction.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
-        new EncString("encryptedUserKey"),
-        user1,
-      );
-      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
-        { V1: { private_key: "privateKey" } },
-        user1,
-      );
-      expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
-      expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
+          userDecryption,
+        });
+
+      it("passes an empty list of WebAuthn PRF options when the server reported none", async () => {
+        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([]);
+      });
+
+      it("passes the WebAuthn PRF options through", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            webAuthnPrfOptions: [
+              {
+                encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+                encryptedUserKey: "4.dXNlcktleQ==",
+                credentialId: "credential-id",
+                transports: ["internal", "hybrid"],
+              },
+            ],
+          }),
+        );
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([
+          {
+            encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+            encryptedUserKey: "4.dXNlcktleQ==",
+            credentialId: "credential-id",
+            transports: ["internal", "hybrid"],
+          },
+        ]);
+      });
+
+      it("drops WebAuthn PRF options that are missing a wrapped key", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            webAuthnPrfOptions: [
+              { credentialId: "no-keys", transports: [] },
+              {
+                encryptedPrivateKey: "2.aXY=|ZGF0YQ==|bWFj",
+                encryptedUserKey: "4.dXNlcktleQ==",
+                credentialId: "credential-id",
+                transports: [],
+              },
+            ],
+          }),
+        );
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.webAuthnPrfOptions).toEqual([
+          expect.objectContaining({ credentialId: "credential-id" }),
+        ]);
+      });
+
+      it("passes the master password unlock data and upgrade token through", async () => {
+        apiService.getSync.mockResolvedValue(
+          syncResponseWithUserDecryption({
+            masterPasswordUnlock: {
+              salt: "test@example.com",
+              kdf: { kdfType: 0, iterations: 600000 },
+              masterKeyEncryptedUserKey: "encryptedUserKey",
+            },
+            v2UpgradeToken: {
+              wrappedUserKey1: "wrappedUserKey1",
+              wrappedUserKey2: "wrappedUserKey2",
+            },
+          }),
+        );
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption?.masterPasswordUnlock).toEqual(
+          expect.objectContaining({ salt: "test@example.com" }),
+        );
+        // The SDK's V2UpgradeToken has no serde rename, so its fields stay snake_case.
+        expect(data.userDecryption?.v2UpgradeToken).toEqual({
+          wrapped_user_key_1: "wrappedUserKey1",
+          wrapped_user_key_2: "wrappedUserKey2",
+        });
+      });
+
+      it("leaves userDecryption undefined when the server reported none", async () => {
+        apiService.getSync.mockResolvedValue(emptySyncResponse);
+
+        await sut.fullSync(true);
+
+        const data = cryptoSyncHandler.on_sync.mock.calls[0][0];
+        expect(data.userDecryption).toBeUndefined();
+        // Current servers always return account keys.
+        expect(data.accountCryptographicState).toBeDefined();
+      });
+
+      it("fails the sync and skips the remaining sync handlers when the handler rejects the sync", async () => {
+        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
+        cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
+
+        await expect(sut.fullSync(true)).resolves.toBe(false);
+
+        expect(folderService.replace).not.toHaveBeenCalled();
+        expect(policyService.replace).not.toHaveBeenCalled();
+      });
+
+      it("throws when the handler rejects the sync and allowThrowOnError is set", async () => {
+        apiService.getSync.mockResolvedValue(syncResponseWithUserDecryption({}));
+        cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
+
+        await expect(sut.fullSync(true, { allowThrowOnError: true })).rejects.toThrow("boom");
+      });
     });
 
     it("sets the correct keys for a V1 user", async () => {
@@ -243,10 +356,6 @@ describe("DefaultSyncService", () => {
       await sut.fullSync(true);
       expect(masterPasswordAbstraction.setMasterKeyEncryptedUserKey).toHaveBeenCalledWith(
         new EncString("encryptedUserKey"),
-        user1,
-      );
-      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
-        { V1: { private_key: "wrappedPrivateKey" } },
         user1,
       );
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
@@ -299,7 +408,6 @@ describe("DefaultSyncService", () => {
         new EncString("encryptedUserKey"),
         user1,
       );
-      expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalled();
       expect(keyService.setProviderKeys).toHaveBeenCalledWith([], user1);
       expect(keyService.setOrgKeys).toHaveBeenCalledWith([], [], user1);
     });
@@ -389,56 +497,6 @@ describe("DefaultSyncService", () => {
 
         expect(sut["inFlightApiCalls"].refreshToken).toBeNull();
         expect(sut["inFlightApiCalls"].sync).toBeNull();
-      });
-    });
-
-    describe("syncUserDecryption", () => {
-      const salt = "test@example.com";
-      const kdf = new PBKDF2KdfConfig(600_000);
-      const encryptedUserKey = "testUserKey";
-
-      it("should set master password unlock when present in user decryption", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-          },
-          UserDecryption: {
-            MasterPasswordUnlock: {
-              Salt: salt,
-              Kdf: {
-                KdfType: kdf.kdfType,
-                Iterations: kdf.iterations,
-              },
-              MasterKeyEncryptedUserKey: encryptedUserKey,
-            },
-          },
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
-
-        await sut.fullSync(true, true);
-
-        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).toHaveBeenCalledWith(
-          new MasterPasswordUnlockData(
-            salt as MasterPasswordSalt,
-            kdf,
-            encryptedUserKey as MasterKeyWrappedUserKey,
-          ),
-          user1,
-        );
-      });
-
-      it("should not set master password unlock when not present in user decryption", async () => {
-        const syncResponse = new SyncResponse({
-          Profile: {
-            Id: user1,
-          },
-          UserDecryption: {},
-        });
-        apiService.getSync.mockResolvedValue(syncResponse);
-
-        await sut.fullSync(true, true);
-
-        expect(masterPasswordAbstraction.setMasterPasswordUnlockData).not.toHaveBeenCalled();
       });
     });
 
@@ -534,6 +592,328 @@ describe("DefaultSyncService", () => {
           expectUpdateCallCount(mockUserState, 0);
         });
       });
+    });
+
+    describe("policy sync", () => {
+      it("syncs policies from response.policies into policyService", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(policyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("does not call newPolicyService.replace when both policiesNew and policies are absent", async () => {
+        apiService.getSync.mockResolvedValue(emptySyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).not.toHaveBeenCalled();
+      });
+
+      it("calls newPolicyService.replace when policiesNew is present in the response", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
+          PoliciesNew: [{ Id: "policy-new-1", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ "policy-new-1": expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("routes policies and policiesNew to their respective services independently", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
+          Policies: [{ Id: "old-policy", OrganizationId: "org1", Type: 0, Enabled: true }],
+          PoliciesNew: [{ Id: "new-policy", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(policyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ "old-policy": expect.any(Object) }),
+          user1,
+        );
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ "new-policy": expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("falls back to policies when policiesNew is absent", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+
+      it("falls back to policies when policiesNew is an empty array", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+          },
+          Policies: [{ Id: "policy1", OrganizationId: "org1", Type: 0, Enabled: true }],
+          PoliciesNew: [],
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(newPolicyService.replace).toHaveBeenCalledWith(
+          expect.objectContaining({ policy1: expect.any(Object) }),
+          user1,
+        );
+      });
+    });
+
+    describe("account email sync", () => {
+      const newEmail = "new@example.com";
+
+      const emailSyncResponse = new SyncResponse({
+        Profile: { Id: user1, Email: newEmail },
+      });
+
+      it("sets the account email when the self-service change email flag is enabled", async () => {
+        configService.getFeatureFlag.mockResolvedValue(true);
+        apiService.getSync.mockResolvedValue(emailSyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(configService.getFeatureFlag).toHaveBeenCalledWith(
+          FeatureFlag.PM30806_SelfServiceChangeEmailCommand,
+        );
+        expect(accountService.setAccountEmail).toHaveBeenCalledWith(user1, newEmail);
+      });
+
+      it("does not set the account email when the self-service change email flag is disabled", async () => {
+        configService.getFeatureFlag.mockResolvedValue(false);
+        apiService.getSync.mockResolvedValue(emailSyncResponse);
+
+        await sut.fullSync(true);
+
+        expect(accountService.setAccountEmail).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("organization sync", () => {
+      it("syncs organizations from profile.organizations when organizationsNew is absent", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+            Organizations: [{ Id: "org1", Status: OrganizationUserStatusType.Confirmed }],
+            ProviderOrganizations: [] as any[],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            org1: expect.objectContaining({
+              id: "org1",
+              status: OrganizationUserStatusType.Confirmed,
+              isMember: true,
+              isProviderUser: false,
+            }),
+          },
+          user1,
+        );
+      });
+
+      it("prefers organizationsNew over organizations when both are present", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+            Organizations: [{ Id: "old-org", Status: OrganizationUserStatusType.Confirmed }],
+            OrganizationsNew: [{ Id: "new-org", Status: OrganizationUserStatusType.Accepted }],
+            ProviderOrganizations: [] as any[],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            "new-org": expect.objectContaining({
+              id: "new-org",
+              status: OrganizationUserStatusType.Accepted,
+              isMember: true,
+              isProviderUser: false,
+            }),
+          },
+          user1,
+        );
+      });
+
+      it("merges provider organizations regardless of source", async () => {
+        const syncResponse = new SyncResponse({
+          Profile: {
+            Id: user1,
+            AccountKeys: {
+              publicKeyEncryptionKeyPair: {
+                wrappedPrivateKey: "wrappedPrivateKey",
+                publicKey: "publicKey",
+              },
+            },
+            Organizations: [] as any[],
+            OrganizationsNew: [{ Id: "org1", Status: OrganizationUserStatusType.Accepted }],
+            ProviderOrganizations: [
+              { Id: "provider-org", Status: OrganizationUserStatusType.Confirmed },
+            ],
+          },
+        });
+        apiService.getSync.mockResolvedValue(syncResponse);
+
+        await sut.fullSync(true);
+
+        expect(organizationService.replace).toHaveBeenCalledWith(
+          {
+            org1: expect.objectContaining({
+              id: "org1",
+              status: OrganizationUserStatusType.Accepted,
+              isMember: true,
+              isProviderUser: false,
+            }),
+            "provider-org": expect.objectContaining({
+              id: "provider-org",
+              isMember: false,
+              isProviderUser: true,
+            }),
+          },
+          user1,
+        );
+      });
+    });
+  });
+
+  describe("SyncResponse", () => {
+    it("maps PoliciesNew from the server response", () => {
+      const response = new SyncResponse({
+        Profile: {
+          Id: user1,
+          AccountKeys: {
+            publicKeyEncryptionKeyPair: {
+              wrappedPrivateKey: "wrappedPrivateKey",
+              publicKey: "publicKey",
+            },
+          },
+        },
+        PoliciesNew: [{ Id: "policy1", OrganizationId: "org1", Type: 1, Enabled: true }],
+      });
+
+      expect(response.policiesNew).toHaveLength(1);
+      expect(response.policiesNew![0].id).toBe("policy1");
+      expect(response.policiesNew![0].organizationId).toBe("org1");
+    });
+
+    it("leaves policiesNew undefined when the property is absent from the server response", () => {
+      const response = new SyncResponse({
+        Profile: {
+          Id: user1,
+          AccountKeys: {
+            publicKeyEncryptionKeyPair: {
+              wrappedPrivateKey: "wrappedPrivateKey",
+              publicKey: "publicKey",
+            },
+          },
+        },
+      });
+
+      expect(response.policiesNew).toBeUndefined();
+    });
+
+    it("parses policies and policiesNew independently", () => {
+      const response = new SyncResponse({
+        Profile: {
+          Id: user1,
+          AccountKeys: {
+            publicKeyEncryptionKeyPair: {
+              wrappedPrivateKey: "wrappedPrivateKey",
+              publicKey: "publicKey",
+            },
+          },
+        },
+        Policies: [{ Id: "old", OrganizationId: "org1", Type: 0, Enabled: true }],
+        PoliciesNew: [{ Id: "new", OrganizationId: "org1", Type: 0, Enabled: false }],
+      });
+
+      expect(response.policies).toHaveLength(1);
+      expect(response.policies![0].id).toBe("old");
+      expect(response.policiesNew).toHaveLength(1);
+      expect(response.policiesNew![0].id).toBe("new");
     });
   });
 });

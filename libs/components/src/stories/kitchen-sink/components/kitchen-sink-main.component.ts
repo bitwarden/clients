@@ -1,14 +1,13 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
 
 import { DialogService } from "../../../dialog";
 import { KitchenSinkSharedModule } from "../kitchen-sink-shared.module";
 
 import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [KitchenSinkSharedModule],
   template: `
     <bit-dialog title="Dialog Title" dialogSize="small">
@@ -82,12 +81,11 @@ import { KitchenSinkTourService } from "./kitchen-sink-tour.service";
   `,
 })
 export class KitchenSinkDialogComponent {
-  constructor(public dialogRef: DialogRef) {}
+  protected readonly dialogRef = inject(DialogRef);
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <bit-dialog title="Dialog Title" dialogSize="small">
       <ng-container bitDialogContent>
@@ -107,48 +105,48 @@ export class KitchenSinkDialogComponent {
   imports: [KitchenSinkSharedModule],
 })
 export class KitchenSinkDialogWithAutofocusComponent {
-  constructor(public dialogRef: DialogRef) {}
+  protected readonly dialogRef = inject(DialogRef);
 }
 
-// FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
-// eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: "bit-tab-main",
   imports: [KitchenSinkSharedModule],
   template: `
-    <bit-header title="Kitchen Sink" icon="bwi-collection">
-      <bit-breadcrumbs slot="breadcrumbs">
-        @for (item of navItems; track item) {
-          <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
-            {{ item.name }}
-          </bit-breadcrumb>
-        }
-      </bit-breadcrumbs>
-      <bit-search
-        [bitPopoverAnchorFor]="tourStep1"
-        [popoverOpen]="tourService.tourStep() === 1"
-        [spotlight]="true"
-        [spotlightPadding]="12"
-        [position]="'below-center'"
-      />
-      <button
-        bitLink
-        [bitPopoverTriggerFor]="myPopover"
-        #triggerRef="popoverTrigger"
-        type="button"
-        aria-label="Popover trigger link"
-        slot="secondary"
-      >
-        <bit-icon name="bwi-question-circle" />
-      </button>
-      <bit-avatar text="BW"></bit-avatar>
-      <bit-tab-nav-bar slot="tabs">
-        <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
-        <bit-tab-link [route]="['empty']">Empty</bit-tab-link>
-      </bit-tab-nav-bar>
-    </bit-header>
+    <bit-page>
+      <bit-header title="Kitchen Sink" icon="bwi-collection">
+        <bit-breadcrumbs slot="breadcrumbs">
+          @for (item of navItems; track item) {
+            <bit-breadcrumb [icon]="item.icon" [route]="[item.route]">
+              {{ item.name }}
+            </bit-breadcrumb>
+          }
+        </bit-breadcrumbs>
+        <bit-search
+          [bitPopoverAnchorFor]="tourStep1"
+          [popoverOpen]="tourService.tourStep() === 1"
+          [spotlight]="true"
+          [position]="'below-center'"
+        />
+        <button
+          bitLink
+          [bitPopoverTriggerFor]="myPopover"
+          #triggerRef="popoverTrigger"
+          type="button"
+          aria-label="Popover trigger link"
+          slot="secondary"
+        >
+          <bit-icon name="bwi-question-circle" />
+        </button>
+        <bit-avatar text="BW"></bit-avatar>
+        <bit-tab-nav-bar slot="tabs">
+          <bit-tab-link [route]="['bitwarden']">Vault</bit-tab-link>
+          <bit-tab-link [route]="['empty']">Empty</bit-tab-link>
+        </bit-tab-nav-bar>
+      </bit-header>
 
-    <router-outlet></router-outlet>
+      <router-outlet></router-outlet>
+    </bit-page>
 
     <bit-popover title="Educational Popover" #myPopover>
       <div>You can learn more things at:</div>
@@ -176,8 +174,7 @@ export class KitchenSinkDialogWithAutofocusComponent {
   `,
 })
 export class KitchenSinkMainComponent {
-  constructor(public dialogService: DialogService) {}
-
+  protected readonly dialogService = inject(DialogService);
   protected readonly tourService = inject(KitchenSinkTourService);
 
   openDialog() {
@@ -185,10 +182,10 @@ export class KitchenSinkMainComponent {
   }
 
   openDrawer() {
-    this.dialogService.openDrawer(KitchenSinkDialogComponent);
+    void this.dialogService.openDrawer(KitchenSinkDialogComponent);
   }
 
-  navItems = [
+  protected readonly navItems = [
     { icon: "bwi-collection-shared", name: "Password Managers", route: "/" },
     { icon: "bwi-collection-shared", name: "Favorites", route: "/" },
   ];

@@ -31,50 +31,46 @@ type DialogParams = {
 };
 
 type DialogResult =
-  | { type: "cancelled" }
-  | { type: "error" }
-  | { type: "success"; billingAddress: BillingAddress };
+  { type: "cancelled" } | { type: "error" } | { type: "success"; billingAddress: BillingAddress };
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   template: `
-    <form [formGroup]="formGroup" [bitSubmit]="submit">
-      <bit-dialog>
-        <span bitDialogTitle class="tw-font-medium">
-          {{ "editBillingAddress" | i18n }}
-        </span>
-        <div bitDialogContent>
-          @let callout = taxIdWarningCallout;
-          @if (callout) {
-            <bit-callout [type]="callout.type" [title]="callout.title">
-              {{ callout.message }}
-            </bit-callout>
-          }
-          <app-enter-billing-address
-            [scenario]="{
-              type: 'update',
-              existing: dialogParams.billingAddress,
-              supportsTaxId,
-              taxIdWarning: dialogParams.taxIdWarning,
-            }"
-            [group]="formGroup"
-          ></app-enter-billing-address>
-        </div>
-        <ng-container bitDialogFooter>
-          <button bitButton bitFormButton buttonType="primary" type="submit">
-            {{ "save" | i18n }}
-          </button>
-          <button
-            bitButton
-            buttonType="secondary"
-            type="button"
-            [bitDialogClose]="{ type: 'cancelled' }"
-          >
-            {{ "cancel" | i18n }}
-          </button>
-        </ng-container>
-      </bit-dialog>
+    <form [formGroup]="formGroup" [bitSubmit]="submit" bit-dialog>
+      <span bitDialogTitle class="tw-font-medium">
+        {{ "editBillingAddress" | i18n }}
+      </span>
+      <div bitDialogContent>
+        @let callout = taxIdWarningCallout;
+        @if (callout) {
+          <bit-callout [type]="callout.type" [title]="callout.title">
+            {{ callout.message }}
+          </bit-callout>
+        }
+        <app-enter-billing-address
+          [scenario]="{
+            type: 'update',
+            existing: dialogParams.billingAddress,
+            supportsTaxId,
+            taxIdWarning: dialogParams.taxIdWarning,
+          }"
+          [group]="formGroup"
+        ></app-enter-billing-address>
+      </div>
+      <ng-container bitDialogFooter>
+        <button bitButton bitFormButton buttonType="primary" type="submit">
+          {{ "save" | i18n }}
+        </button>
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          [bitDialogClose]="{ type: 'cancelled' }"
+        >
+          {{ "cancel" | i18n }}
+        </button>
+      </ng-container>
     </form>
   `,
   standalone: true,
@@ -119,7 +115,7 @@ export class EditBillingAddressDialogComponent {
           title: "",
           message: this.i18nService.t("billingAddressUpdated"),
         });
-        this.dialogRef.close({
+        await this.dialogRef.close({
           type: "success",
           billingAddress: result.value,
         });
@@ -131,7 +127,7 @@ export class EditBillingAddressDialogComponent {
           title: "",
           message: result.message,
         });
-        this.dialogRef.close({
+        await this.dialogRef.close({
           type: "error",
         });
         break;

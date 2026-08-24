@@ -17,7 +17,7 @@ import { OrganizationsModule } from "./admin-console/organizations/organizations
 import { bitPolicyEditRegister } from "./admin-console/policies";
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
-import { AccessIntelligenceModule } from "./dirt/access-intelligence/access-intelligence.module";
+import { providePam } from "./pam/provide-pam";
 
 /**
  * This is the AppModule for the commercial version of Bitwarden.
@@ -38,7 +38,6 @@ import { AccessIntelligenceModule } from "./dirt/access-intelligence/access-inte
     AppRoutingModule,
     OssRoutingModule,
     OrganizationsModule, // Must be after OssRoutingModule for competing routes to resolve properly
-    AccessIntelligenceModule,
     RouterModule,
     WildcardRoutingModule, // Needs to be last to catch all non-existing routes
   ],
@@ -49,6 +48,7 @@ import { AccessIntelligenceModule } from "./dirt/access-intelligence/access-inte
       provide: POLICY_EDIT_REGISTER,
       useValue: bitPolicyEditRegister,
     }),
+    ...providePam(),
   ],
 })
 export class AppModule {}

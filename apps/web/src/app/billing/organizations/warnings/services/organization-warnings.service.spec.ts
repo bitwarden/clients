@@ -13,17 +13,24 @@ import { of } from "rxjs";
 
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogRef, DialogService } from "@bitwarden/components";
+import { StateProvider } from "@bitwarden/state";
 import { OrganizationBillingClient } from "@bitwarden/web-vault/app/billing/clients";
 import {
   ChangePlanDialogResultType,
   openChangePlanDialog,
 } from "@bitwarden/web-vault/app/billing/organizations/change-plan-dialog.component";
-import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services/organization-warnings.service";
+import {
+  OrganizationWarningsService,
+  TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
+} from "@bitwarden/web-vault/app/billing/organizations/warnings/services/organization-warnings.service";
 import { OrganizationWarningsResponse } from "@bitwarden/web-vault/app/billing/organizations/warnings/types";
 import {
   TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE,
@@ -34,12 +41,15 @@ import { TaxIdWarningTypes } from "@bitwarden/web-vault/app/billing/warnings/typ
 
 describe("OrganizationWarningsService", () => {
   let service: OrganizationWarningsService;
+  let accountService: MockProxy<AccountService>;
   let dialogService: MockProxy<DialogService>;
   let i18nService: MockProxy<I18nService>;
+  let logService: MockProxy<LogService>;
   let organizationApiService: MockProxy<OrganizationApiServiceAbstraction>;
   let organizationBillingClient: MockProxy<OrganizationBillingClient>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let router: MockProxy<Router>;
+  let stateProvider: MockProxy<StateProvider>;
 
   const organization = {
     id: "org-id-123",
@@ -55,17 +65,33 @@ describe("OrganizationWarningsService", () => {
       year: "numeric",
     });
 
+  const activeAccount: Account = {
+    id: "user-id-123" as UserId,
+    email: "test@example.com",
+    emailVerified: true,
+    name: undefined,
+    creationDate: undefined,
+  };
+
   beforeEach(() => {
+    accountService = mock<AccountService>();
     dialogService = mock<DialogService>();
     i18nService = mock<I18nService>();
+    logService = mock<LogService>();
     organizationApiService = mock<OrganizationApiServiceAbstraction>();
     organizationBillingClient = mock<OrganizationBillingClient>();
     platformUtilsService = mock<PlatformUtilsService>();
     router = mock<Router>();
+    stateProvider = mock<StateProvider>();
 
     (openChangePlanDialog as jest.Mock).mockReset();
 
     platformUtilsService.isSelfHost.mockReturnValue(false);
+    accountService.activeAccount$ = of(activeAccount);
+    stateProvider.getUserState$.mockReturnValue(of(null));
+    stateProvider.getUser.mockReturnValue({
+      update: jest.fn().mockResolvedValue(undefined),
+    } as any);
 
     i18nService.t.mockImplementation((key: string, ...args: any[]) => {
       switch (key) {
@@ -77,10 +103,14 @@ describe("OrganizationWarningsService", () => {
           return "Your free trial ends today.";
         case "resellerRenewalWarningMsg":
           return `Your subscription will renew soon. To ensure uninterrupted service, contact ${args[0]} to confirm your renewal before ${args[1]}.`;
+        case "resellerRenewalWarningMsgV2":
+          return `Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before ${args[0]}.`;
         case "resellerOpenInvoiceWarningMgs":
           return `An invoice for your subscription was issued on ${args[1]}. To ensure uninterrupted service, contact ${args[0]} to confirm your renewal before ${args[2]}.`;
         case "resellerPastDueWarningMsg":
           return `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact ${args[0]} to confirm your renewal before ${args[1]}.`;
+        case "resellerPastDueWarningMsgV2":
+          return `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before ${args[0]}.`;
         case "suspendedOrganizationTitle":
           return `${args[0]} subscription suspended`;
         case "close":
@@ -95,12 +125,15 @@ describe("OrganizationWarningsService", () => {
     TestBed.configureTestingModule({
       providers: [
         OrganizationWarningsService,
+        { provide: AccountService, useValue: accountService },
         { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: i18nService },
+        { provide: LogService, useValue: logService },
         { provide: OrganizationApiServiceAbstraction, useValue: organizationApiService },
         { provide: OrganizationBillingClient, useValue: organizationBillingClient },
         { provide: PlatformUtilsService, useValue: platformUtilsService },
         { provide: Router, useValue: router },
+        { provide: StateProvider, useValue: stateProvider },
       ],
     });
 
@@ -247,18 +280,17 @@ describe("OrganizationWarningsService", () => {
 
         expect(result).toEqual({
           type: "info",
-          message: `Your subscription will renew soon. To ensure uninterrupted service, contact Test Reseller Inc to confirm your renewal before ${expectedFormattedDate}.`,
+          message: `Your subscription will renew soon. To ensure uninterrupted service, contact your Bitwarden provider to confirm your renewal before ${expectedFormattedDate}.`,
         });
         expect(i18nService.t).toHaveBeenCalledWith(
-          "resellerRenewalWarningMsg",
-          "Test Reseller Inc",
+          "resellerRenewalWarningMsgV2",
           expectedFormattedDate,
         );
         done();
       });
     });
 
-    it("should return issued warning with correct type and message", (done) => {
+    it("should return null for issued warning type", (done) => {
       const issuedDate = new Date(2024, 10, 15);
       const dueDate = new Date(2024, 11, 15);
       const warning = {
@@ -270,19 +302,7 @@ describe("OrganizationWarningsService", () => {
       } as OrganizationWarningsResponse);
 
       service.getResellerRenewalWarning$(organization).subscribe((result) => {
-        const expectedIssuedDate = format(issuedDate);
-        const expectedDueDate = format(dueDate);
-
-        expect(result).toEqual({
-          type: "info",
-          message: `An invoice for your subscription was issued on ${expectedIssuedDate}. To ensure uninterrupted service, contact Test Reseller Inc to confirm your renewal before ${expectedDueDate}.`,
-        });
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "resellerOpenInvoiceWarningMgs",
-          "Test Reseller Inc",
-          expectedIssuedDate,
-          expectedDueDate,
-        );
+        expect(result).toBeNull();
         done();
       });
     });
@@ -301,14 +321,76 @@ describe("OrganizationWarningsService", () => {
         const expectedSuspensionDate = format(suspensionDate);
 
         expect(result).toEqual({
-          type: "warning",
-          message: `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact Test Reseller Inc to confirm your renewal before ${expectedSuspensionDate}.`,
+          type: "info",
+          message: `The invoice for your subscription has not been paid. To ensure uninterrupted service, contact your Bitwarden provider before ${expectedSuspensionDate}.`,
         });
         expect(i18nService.t).toHaveBeenCalledWith(
-          "resellerPastDueWarningMsg",
-          "Test Reseller Inc",
+          "resellerPastDueWarningMsgV2",
           expectedSuspensionDate,
         );
+        done();
+      });
+    });
+  });
+
+  describe("getScheduledPriceIncreaseWarning$", () => {
+    it("should return null when no scheduled price increase warning exists", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({} as OrganizationWarningsResponse);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        done();
+      });
+    });
+
+    it("should return null when platform is self-hosted", (done) => {
+      platformUtilsService.isSelfHost.mockReturnValue(true);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toBeNull();
+        expect(organizationBillingClient.getWarnings).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it("should return the warning view model when a monthly price increase is scheduled", (done) => {
+      const effectiveDate = new Date("2026-07-15T02:00:00Z");
+      const warning = {
+        seatPrice: 6,
+        effectiveDate,
+        cadence: "monthly" as const,
+      };
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        scheduledPriceIncrease: warning,
+      } as OrganizationWarningsResponse);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          seatPrice: 6,
+          effectiveDate,
+          cadence: "monthly",
+        });
+        done();
+      });
+    });
+
+    it("should return the warning view model when an annual price increase is scheduled", (done) => {
+      const effectiveDate = new Date("2026-07-15T02:00:00Z");
+      const warning = {
+        seatPrice: 6,
+        effectiveDate,
+        cadence: "annually" as const,
+      };
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        scheduledPriceIncrease: warning,
+      } as OrganizationWarningsResponse);
+
+      service.getScheduledPriceIncreaseWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          seatPrice: 6,
+          effectiveDate,
+          cadence: "annually",
+        });
         done();
       });
     });
@@ -707,6 +789,93 @@ describe("OrganizationWarningsService", () => {
       service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
         complete: () => {
           expect(refreshSpy).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
+
+    it("should not open dialog when already dismissed for the organization", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      stateProvider.getUserState$.mockReturnValue(of({ [organization.id]: true }));
+
+      const openSpy = jest.spyOn(TrialPaymentDialogComponent, "open");
+      openSpy.mockClear();
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(openSpy).not.toHaveBeenCalled();
+          done();
+        },
+      });
+    });
+
+    it("should persist dismissal when dialog is closed without submitting", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      organizationApiService.getSubscription.mockResolvedValue({
+        id: "sub-123",
+      } as OrganizationSubscriptionResponse);
+
+      jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.CLOSED),
+      } as DialogRef<TrialPaymentDialogResultType>);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(stateProvider.getUser).toHaveBeenCalledWith(
+            activeAccount.id,
+            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
+          );
+          done();
+        },
+      });
+    });
+
+    it("should persist dismissal when dialog is dismissed via X button or outside click", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      organizationApiService.getSubscription.mockResolvedValue({
+        id: "sub-123",
+      } as OrganizationSubscriptionResponse);
+
+      jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(undefined),
+      } as DialogRef<TrialPaymentDialogResultType>);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(stateProvider.getUser).toHaveBeenCalledWith(
+            activeAccount.id,
+            TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY,
+          );
+          done();
+        },
+      });
+    });
+
+    it("should not persist dismissal when dialog is submitted", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 2 },
+      } as OrganizationWarningsResponse);
+
+      organizationApiService.getSubscription.mockResolvedValue({
+        id: "sub-123",
+      } as OrganizationSubscriptionResponse);
+
+      jest.spyOn(TrialPaymentDialogComponent, "open").mockReturnValue({
+        closed: of(TRIAL_PAYMENT_METHOD_DIALOG_RESULT_TYPE.SUBMITTED),
+      } as DialogRef<TrialPaymentDialogResultType>);
+
+      service.showSubscribeBeforeFreeTrialEndsDialog$(organization).subscribe({
+        complete: () => {
+          expect(stateProvider.getUser).not.toHaveBeenCalled();
           done();
         },
       });

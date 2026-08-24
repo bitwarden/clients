@@ -1,3 +1,67 @@
+import {
+  AutofillTargetingRuleTypes,
+  FormPurposeCategories,
+} from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType, FormPurposeCategory } from "@bitwarden/common/autofill/types";
+import { CipherType } from "@bitwarden/common/vault/enums";
+
+/**
+ * Authoritative cipher-type mapping for targeting-rule form categories whose
+ * fields all belong to a single cipher type.
+ */
+export const targetedFormCategoryFillTypes: Partial<Record<FormPurposeCategory, CipherType>> = {
+  [FormPurposeCategories.AccountLogin]: CipherType.Login,
+  [FormPurposeCategories.PaymentCard]: CipherType.Card,
+  [FormPurposeCategories.Identity]: CipherType.Identity,
+  [FormPurposeCategories.Address]: CipherType.Identity,
+};
+
+export const loginQualifiers: AutofillTargetingRuleType[] = [
+  AutofillTargetingRuleTypes.username,
+  AutofillTargetingRuleTypes.password,
+  AutofillTargetingRuleTypes.newPassword,
+];
+
+export const cardQualifiers: AutofillTargetingRuleType[] = [
+  AutofillTargetingRuleTypes.cardholderName,
+  AutofillTargetingRuleTypes.cardNumber,
+  AutofillTargetingRuleTypes.cardExpirationMonth,
+  AutofillTargetingRuleTypes.cardExpirationYear,
+  AutofillTargetingRuleTypes.cardExpirationDate,
+  AutofillTargetingRuleTypes.cardCvv,
+  AutofillTargetingRuleTypes.cardType,
+];
+
+export const identityQualifiers: AutofillTargetingRuleType[] = [
+  AutofillTargetingRuleTypes.fullName,
+  AutofillTargetingRuleTypes.honorificPrefix,
+  AutofillTargetingRuleTypes.firstName,
+  AutofillTargetingRuleTypes.middleName,
+  AutofillTargetingRuleTypes.lastName,
+  AutofillTargetingRuleTypes.honorificSuffix,
+  AutofillTargetingRuleTypes.email,
+  AutofillTargetingRuleTypes.phone,
+  AutofillTargetingRuleTypes.phoneCountryCode,
+  AutofillTargetingRuleTypes.phoneAreaCode,
+  AutofillTargetingRuleTypes.phoneLocal,
+  AutofillTargetingRuleTypes.phoneExtension,
+  AutofillTargetingRuleTypes.organization,
+  AutofillTargetingRuleTypes.streetAddress,
+  AutofillTargetingRuleTypes.addressLine1,
+  AutofillTargetingRuleTypes.addressLine2,
+  AutofillTargetingRuleTypes.addressLine3,
+  AutofillTargetingRuleTypes.addressLevel1,
+  AutofillTargetingRuleTypes.addressLevel2,
+  AutofillTargetingRuleTypes.addressLevel3,
+  AutofillTargetingRuleTypes.addressLevel4,
+  AutofillTargetingRuleTypes.postalCode,
+  AutofillTargetingRuleTypes.country,
+  AutofillTargetingRuleTypes.birthdate,
+  AutofillTargetingRuleTypes.birthdateDay,
+  AutofillTargetingRuleTypes.birthdateMonth,
+  AutofillTargetingRuleTypes.birthdateYear,
+];
+
 export class AutoFillConstants {
   static readonly EmailFieldNames: string[] = [
     // English
@@ -28,23 +92,25 @@ export class AutoFillConstants {
   ];
 
   static readonly TotpFieldNames: string[] = [
-    "totp",
-    "totpcode",
     "2facode",
     "approvals_code",
     "mfacode",
-    "otc-code",
     "onetimecode",
+    "onetimepassword",
+    "otc-code",
     "otp-code",
     "otpcode",
-    "onetimepassword",
-    "security_code",
     "second-factor",
-    "twofactor",
+    "security_code",
+    "security code",
+    "totp",
+    "totpcode",
     "twofa",
+    "twofactor",
     "twofactorcode",
     "verificationcode",
     "verification code",
+    "otc-confirmation",
   ];
 
   static readonly RecoveryCodeFieldNames: string[] = ["backup", "recovery"];
@@ -106,18 +172,29 @@ export class AutoFillConstants {
   ];
 
   /**
-   * Form-level keywords indicating a non-login context such as newsletter signup or
-   * subscription forms. Used to exclude fields within these forms from login autofill.
+   * Non-login keywords with high enough confidence to disqualify a form for login on their own.
+   * Included by default in {@link ComprehensiveNonLoginKeywords}.
    */
-  static readonly NonLoginFormKeywords: string[] = [
-    "newsletter",
-    // @TODO expand list thoughtfully
-    // consider possible collisions with login forms
-    // consider using a "maybe" check
-    // "subscribe",
-    // "subscription",
-    // "unsubscribe",
-  ];
+  static readonly StrongNonLoginKeywords = ["newsletter"] as const;
+
+  /** Full lexicon of non-login keywords. */
+  static readonly ComprehensiveNonLoginKeywords = [
+    ...AutoFillConstants.StrongNonLoginKeywords,
+    "mailing list",
+    "subscribe",
+    "subscription",
+    "unsubscribe",
+  ] as const;
+
+  /** Login-positive heading text used to short-circuit ambiguous-case disqualification. */
+  static readonly StrongLoginHeadingKeywords = [
+    "sign in",
+    "signin",
+    "log in",
+    "login",
+    "log on",
+    "logon",
+  ] as const;
 
   static readonly FieldIgnoreList: string[] = ["captcha", "findanything", "forgot"];
 
@@ -150,9 +227,12 @@ export class AutoFillConstants {
   /** HTML elements for form fields */
   static readonly FieldElements: string[] = ["input", "select", "textarea"];
 
+  static readonly AutocompleteCurrentPassword = "current-password";
+  static readonly AutocompleteNewPassword = "new-password";
+
   static readonly ExcludedIdentityAutocompleteTypes: Set<string> = new Set([
-    "current-password",
-    "new-password",
+    AutoFillConstants.AutocompleteCurrentPassword,
+    AutoFillConstants.AutocompleteNewPassword,
   ]);
 }
 
@@ -941,6 +1021,41 @@ export class IdentityAutoFillConstants {
     quebec: "QC",
     saskatchewan: "SK",
   };
+}
+
+export class SshKeyAutoFillConstants {
+  /** Field attributes scanned to gather matching keywords. */
+  static readonly SshKeyAttributes: string[] = [
+    "htmlName",
+    "htmlID",
+    "htmlClass",
+    "label-tag",
+    "label-left",
+    "label-top",
+    "placeholder",
+    "title",
+  ];
+
+  /**
+   * Algorithm prefixes that appear in the public key value or the field placeholder
+   * (e.g. GitHub/GitLab "Begins with 'ssh-rsa', 'ecdsa-sha2-nistp256'..."). This is the
+   * strongest signal that a field is an SSH public key field.
+   */
+  static readonly PublicKeyAlgorithmPrefixes: string[] = [
+    "ssh-rsa",
+    "ssh-ed25519",
+    "ssh-dss",
+    "ecdsa-sha2-",
+    "sk-ssh-ed25519",
+    "sk-ecdsa-sha2-",
+  ];
+
+  static readonly PublicKeyFieldNames: string[] = ["public-key", "publickey", "ssh-key", "sshkey"];
+
+  static readonly TitleFieldNames: string[] = ["title", "label", "name", "description"];
+
+  /** Data attribute GitLab places on its public key textarea. */
+  static readonly SupportedAlgorithmsAttribute = "data-supported-algorithms";
 }
 
 export const SubmitLoginButtonNames: string[] = [

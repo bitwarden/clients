@@ -124,11 +124,11 @@ export class EmergencyAccessAddEditComponent implements OnInit {
         this.params.name,
       ),
     });
-    this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
+    await this.dialogRef.close(EmergencyAccessAddEditDialogResult.Saved);
   };
 
   delete = async () => {
-    this.dialogRef.close(EmergencyAccessAddEditDialogResult.Deleted);
+    await this.dialogRef.close(EmergencyAccessAddEditDialogResult.Deleted);
   };
   /**
    * Strongly typed helper to open a EmergencyAccessAddEditComponent

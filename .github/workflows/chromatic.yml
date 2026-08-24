@@ -43,11 +43,12 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{  github.event.pull_request.head.sha }}
           fetch-depth: 0
           persist-credentials: false
+          allow-unsafe-pr-checkout: true
 
       - name: Get changed files
         id: get-changed-files
@@ -61,6 +62,7 @@ jobs:
               - "package.json"
               - ".storybook/**"
               - "apps/browser/src/autofill/content/components/**"
+              - ".github/workflows/chromatic.yml"
 
       - name: Get Node version
         id: retrieve-node-version
@@ -78,7 +80,7 @@ jobs:
 
       - name: Cache NPM
         id: npm-cache
-        uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7 # v5.0.2
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: "~/.npm"
           key: ${{ runner.os }}-npm-chromatic-${{ hashFiles('**/package-lock.json') }}
@@ -112,7 +114,7 @@ jobs:
 
       - name: Publish to Chromatic for Autofill
         id: publish-chromatic-autofill
-        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # v13.3.5
+        uses: chromaui/action@94713c544284a14195de3b50ef24301579f1877e # v18.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
@@ -131,7 +133,7 @@ jobs:
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic for CL
-        uses: chromaui/action@07791f8243f4cb2698bf4d00426baf4b2d1cb7e0 # v13.3.5
+        uses: chromaui/action@94713c544284a14195de3b50ef24301579f1877e # v18.0.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}

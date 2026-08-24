@@ -9,11 +9,12 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/key-management/key-connector/abstractions/key-connector.service";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { AuthRequestServiceAbstraction } from "../abstractions";
 import { SsoLoginCredentials } from "../models/domain/login-credentials";
@@ -23,6 +24,8 @@ import { LoginStrategyData, LoginStrategy } from "./login.strategy";
 
 export class SsoLoginStrategyData implements LoginStrategyData {
   tokenRequest: SsoTokenRequest;
+  /** Whether unlock service should be used for Key Connector in this login flow. */
+  unlockServiceForKeyConnectorLogin = false;
   /**
    * User's entered email obtained pre-login. Present in most SSO flows, but not CLI + SSO Flow.
    */
@@ -69,9 +72,9 @@ export class SsoLoginStrategy extends LoginStrategy {
   constructor(
     data: SsoLoginStrategyData,
     private keyConnectorService: KeyConnectorService,
+    private unlockService: UnlockService,
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
-    private i18nService: I18nService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -84,6 +87,9 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   async logIn(credentials: SsoLoginCredentials): Promise<AuthResult> {
     const data = new SsoLoginStrategyData();
+    data.unlockServiceForKeyConnectorLogin = await this.configService.getFeatureFlag(
+      FeatureFlag.UnlockKeyConnectorWithSdk,
+    );
     data.orgId = credentials.orgId;
 
     data.userEnteredEmail = credentials.email;
@@ -136,7 +142,9 @@ export class SsoLoginStrategy extends LoginStrategy {
         );
       } else {
         const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-        await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
+        if (!this.cache.value.unlockServiceForKeyConnectorLogin) {
+          await this.keyConnectorService.setMasterKeyFromUrl(keyConnectorUrl, userId);
+        }
       }
     }
   }
@@ -167,7 +175,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
   // TODO: future passkey login strategy will need to support setting user key (decrypting via TDE or admin approval request)
   // so might be worth moving this logic to a common place (base login strategy or a separate service?)
-  protected override async setUserKey(
+  protected override async unlock(
     tokenResponse: IdentityTokenResponse,
     userId: UserId,
   ): Promise<void> {
@@ -187,6 +195,17 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
+    if (
+      tokenResponse.canUnlockWithKeyConnector() &&
+      this.cache.value.unlockServiceForKeyConnectorLogin
+    ) {
+      await this.unlockService.unlockWithKeyConnector(
+        userId,
+        tokenResponse.intoKeyConnectorUnlockData(),
+      );
+      return;
+    }
+
     // Note: TDE and key connector are mutually exclusive
     if (userDecryptionOptions?.trustedDeviceOption) {
       this.logService.info("Attempting to set user key with approved admin auth request.");
@@ -205,7 +224,8 @@ export class SsoLoginStrategy extends LoginStrategy {
       }
     } else if (
       masterKeyEncryptedUserKey != null &&
-      this.getKeyConnectorUrl(tokenResponse) != null
+      this.getKeyConnectorUrl(tokenResponse) != null &&
+      !this.cache.value.unlockServiceForKeyConnectorLogin
     ) {
       // Key connector enabled for user
       await this.trySetUserKeyWithMasterKey(userId);
@@ -302,7 +322,8 @@ export class SsoLoginStrategy extends LoginStrategy {
     );
 
     if (userKey) {
-      await this.keyService.setUserKey(userKey, userId);
+      // TDE unlock during SSO login; the user key comes from DeviceTrustService.decryptUserKeyWithDeviceKey.
+      await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
     }
   }
 
@@ -320,19 +341,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey, userId);
-    await this.keyService.setUserKey(userKey, userId);
-  }
-
-  protected override async setAccountCryptographicState(
-    tokenResponse: IdentityTokenResponse,
-    userId: UserId,
-  ): Promise<void> {
-    if (tokenResponse.accountKeysResponseModel) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        tokenResponse.accountKeysResponseModel.toWrappedAccountCryptographicState(),
-        userId,
-      );
-    }
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey);
   }
 
   exportCache(): CacheData {
@@ -381,7 +390,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     }
 
     // If a TDE org user in an offboarding state logs in on an untrusted device, then they will receive their existing userKeyEncryptedPrivateKey from the server, but
-    // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavilable here for TDE org users on untrusted devices.
+    // TDE would not have been able to decrypt their user key b/c we don't send down TDE as a valid decryption option, so the user key will be unavailable here for TDE org users on untrusted devices.
     // - UserDecryptionOptions.trustedDeviceOption is undefined -- device isn't trusted.
     // - UserDecryptionOptions.hasMasterPassword is false -- user doesn't have a master password.
     // - UserDecryptionOptions.UsesKeyConnector is undefined. -- they aren't using key connector

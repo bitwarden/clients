@@ -19,6 +19,7 @@ import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
   OrganizationUserDetailsResponse,
+  OrganizationUserPendingAutoConfirmResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
   OrganizationUserUserMiniResponse,
@@ -251,6 +252,16 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     );
   }
 
+  async putOrganizationUserBulkEnablePam(organizationId: string, ids: string[]): Promise<void> {
+    await this.apiService.send(
+      "PUT",
+      "/organizations/" + organizationId + "/users/enable-pam",
+      new OrganizationUserBulkRequest(ids),
+      true,
+      false,
+    );
+  }
+
   putOrganizationUser(
     organizationId: string,
     id: string,
@@ -273,20 +284,6 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
     return this.apiService.send(
       "PUT",
       "/organizations/" + organizationId + "/users/" + userId + "/reset-password-enrollment",
-      request,
-      true,
-      false,
-    );
-  }
-
-  putOrganizationUserResetPassword(
-    organizationId: string,
-    id: string,
-    request: OrganizationUserResetPasswordRequest,
-  ): Promise<void> {
-    return this.apiService.send(
-      "PUT",
-      "/organizations/" + organizationId + "/users/" + id + "/reset-password",
       request,
       true,
       false,
@@ -411,6 +408,33 @@ export class DefaultOrganizationUserApiService implements OrganizationUserApiSer
       "DELETE",
       "/organizations/" + organizationId + "/users/delete-account",
       new OrganizationUserBulkRequest(ids),
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserBulkResponse);
+  }
+
+  async getPendingAutoConfirmUsers(
+    organizationId: string,
+  ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/users/pending-auto-confirm",
+      null,
+      true,
+      true,
+    );
+    return new ListResponse(r, OrganizationUserPendingAutoConfirmResponse);
+  }
+
+  async postBulkOrganizationUserAutoConfirm(
+    organizationId: string,
+    request: OrganizationUserBulkConfirmRequest,
+  ): Promise<ListResponse<OrganizationUserBulkResponse>> {
+    const r = await this.apiService.send(
+      "POST",
+      "/organizations/" + organizationId + "/users/bulk-auto-confirm",
+      request,
       true,
       true,
     );

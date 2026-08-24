@@ -16,6 +16,7 @@ import {
   OrganizationUserBulkPublicKeyResponse,
   OrganizationUserBulkResponse,
   OrganizationUserDetailsResponse,
+  OrganizationUserPendingAutoConfirmResponse,
   OrganizationUserResetPasswordDetailsResponse,
   OrganizationUserUserDetailsResponse,
   OrganizationUserUserMiniResponse,
@@ -208,18 +209,6 @@ export abstract class OrganizationUserApiService {
   ): Promise<void>;
 
   /**
-   * Reset an organization user's password
-   * @param organizationId - Identifier for the organization the user belongs to
-   * @param id - Organization user identifier
-   * @param request - Reset password details
-   */
-  abstract putOrganizationUserResetPassword(
-    organizationId: string,
-    id: string,
-    request: OrganizationUserResetPasswordRequest,
-  ): Promise<void>;
-
-  /**
    * Recover an organization user's account (password and/or two-step login)
    * @param organizationId - Identifier for the organization the user belongs to
    * @param id - Organization user identifier
@@ -241,6 +230,13 @@ export abstract class OrganizationUserApiService {
     organizationId: string,
     ids: string[],
   ): Promise<void>;
+
+  /**
+   * Enable Privileged Controls for many users
+   * @param organizationId - Identifier for the organization the user belongs to
+   * @param ids - List of organization user identifiers to enable
+   */
+  abstract putOrganizationUserBulkEnablePam(organizationId: string, ids: string[]): Promise<void>;
 
   /**
    * Remove an organization user
@@ -324,5 +320,27 @@ export abstract class OrganizationUserApiService {
   abstract deleteManyOrganizationUsers(
     organizationId: string,
     ids: string[],
+  ): Promise<ListResponse<OrganizationUserBulkResponse>>;
+
+  /**
+   * Retrieve organization users in the Accepted status that are pending auto-confirmation.
+   * Used by the bulk auto-confirm on login sweep to find users that were not confirmed
+   * while the admin was offline.
+   * @param organizationId - Identifier for the organization
+   */
+  abstract getPendingAutoConfirmUsers(
+    organizationId: string,
+  ): Promise<ListResponse<OrganizationUserPendingAutoConfirmResponse>>;
+
+  /**
+   * Bulk automatically confirm multiple organization users that have accepted their invitations.
+   * Used by the bulk auto-confirm on login sweep.
+   * @param organizationId - Identifier for the organization
+   * @param request - Bulk request with encrypted org keys per user
+   * @return Per-user results indicating success or failure
+   */
+  abstract postBulkOrganizationUserAutoConfirm(
+    organizationId: string,
+    request: OrganizationUserBulkConfirmRequest,
   ): Promise<ListResponse<OrganizationUserBulkResponse>>;
 }

@@ -4,40 +4,31 @@ import { lastValueFrom, firstValueFrom, take } from "rxjs";
 import {
   OrganizationUserApiService,
   OrganizationUserBulkResponse,
+  OrganizationUserInviteRequest,
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-} from "@bitwarden/common/admin-console/enums";
+import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogService } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { OrganizationUserStatusType } from "@bitwarden/sdk-internal";
 import { ProviderUser } from "@bitwarden/web-vault/app/admin-console/common/people-table-data-source";
 
 import { OrganizationUserView } from "../../../core/views/organization-user.view";
 import { UserConfirmComponent } from "../../../manage/user-confirm.component";
 import { MemberDialogManagerService } from "../member-dialog-manager/member-dialog-manager.service";
 
-export const REQUESTS_PER_BATCH = 500;
-
-export interface MemberActionResult {
-  success: boolean;
-  error?: string;
-}
-
-export class BulkActionResult {
-  successful: OrganizationUserBulkResponse[] = [];
-  failed: { id: string; error: string }[] = [];
-}
+import { BulkActionResult, MemberActionResult, REQUESTS_PER_BATCH } from "./member-actions.types";
 
 @Injectable()
 export class MemberActionsService {
@@ -46,7 +37,7 @@ export class MemberActionsService {
   private organizationMetadataService = inject(OrganizationMetadataServiceAbstraction);
   private apiService = inject(ApiService);
   private dialogService = inject(DialogService);
-  private keyService = inject(KeyService);
+  private legacyCompatKeyService = inject(LegacyCompatKeyService);
   private logService = inject(LogService);
   private orgManagementPrefs = inject(OrganizationManagementPreferencesService);
   private userNamePipe = inject(UserNamePipe);
@@ -72,24 +63,13 @@ export class MemberActionsService {
 
   private readonly progressCount: WritableSignal<number> = signal(0);
 
-  async inviteUser(
-    organization: Organization,
-    email: string,
-    type: OrganizationUserType,
-    permissions?: any,
-    collections?: any[],
-    groups?: string[],
+  async invite(
+    organizationId: OrganizationId,
+    request: OrganizationUserInviteRequest,
   ): Promise<MemberActionResult> {
     this.startProcessing();
     try {
-      await this.organizationUserApiService.postOrganizationUserInvite(organization.id, {
-        emails: [email],
-        type,
-        accessSecretsManager: false,
-        collections: collections ?? [],
-        groups: groups ?? [],
-        permissions,
-      });
+      await this.organizationUserApiService.postOrganizationUserInvite(organizationId, request);
       return { success: true };
     } catch (error) {
       return { success: false, error: (error as Error).message ?? String(error) };
@@ -198,7 +178,13 @@ export class MemberActionsService {
       });
 
       if (result.failed.length > 0) {
-        this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result);
+        const resendUsers = await firstValueFrom(
+          this.memberDialogManager.openBulkReinviteFailureDialog(organization, users, result),
+        );
+
+        if (resendUsers.length > 0) {
+          await this.bulkReinvite(organization, resendUsers);
+        }
       }
     } catch (error) {
       result.failed = users.map((user) => ({
@@ -215,7 +201,6 @@ export class MemberActionsService {
     orgUser: OrganizationUserView,
     organization: Organization,
     resetPasswordEnabled: boolean,
-    adminResetTwoFactorEnabled: boolean,
   ): boolean {
     let callingUserHasPermission = false;
 
@@ -235,7 +220,8 @@ export class MemberActionsService {
 
     const statusAllowed =
       orgUser.status === OrganizationUserStatusType.Confirmed ||
-      (adminResetTwoFactorEnabled && orgUser.status === OrganizationUserStatusType.Revoked);
+      orgUser.status === OrganizationUserStatusType.Revoked ||
+      orgUser.status === OrganizationUserStatusType.Accepted;
 
     return (
       organization.canManageUsersPassword &&
@@ -322,7 +308,10 @@ export class MemberActionsService {
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
       if (autoConfirmFingerPrint == null || !autoConfirmFingerPrint) {
-        const fingerprint = await this.keyService.getFingerprint(user.userId, publicKey);
+        const fingerprint = await this.legacyCompatKeyService.getFingerprint(
+          user.userId,
+          publicKey,
+        );
         this.logService.info(`User's fingerprint: ${fingerprint.join("-")}`);
 
         const confirmed = UserConfirmComponent.open(this.dialogService, {

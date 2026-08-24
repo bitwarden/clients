@@ -1,8 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import * as fs from "fs";
-import * as path from "path";
-
 import { app, ipcMain } from "electron";
 import { firstValueFrom } from "rxjs";
 
@@ -10,11 +7,11 @@ import { autostart } from "@bitwarden/desktop-napi";
 
 import { Main } from "../main";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
-import { isFlatpak, isLinux, isSnapStore } from "../utils";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
 const SyncInterval = 5 * 60 * 1000; // 5 minutes
+export const AUTOSTART_FLAG = "--autostart";
 
 export class MessagingMain {
   private syncTimeout: NodeJS.Timeout;
@@ -26,15 +23,12 @@ export class MessagingMain {
 
   async init() {
     this.scheduleNextSync();
-    if (isLinux()) {
-      // Flatpak and snap don't have access to or use the startup file. On flatpak, the autostart portal is used
-      if (!isFlatpak() && !isSnapStore()) {
-        await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
-      }
-    } else {
-      const loginSettings = app.getLoginItemSettings();
-      await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
-    }
+
+    // On app start, regenerate the configurations needed to autostart or not auto-start
+    // depending on the setting provided in the settings file.
+    const openAtLogin = await firstValueFrom(this.desktopSettingsService.openAtLogin$);
+    this.setOpenAtLogin(openAtLogin);
+
     ipcMain.on(
       "messagingService",
       async (event: any, message: any) => await this.onMessage(message),
@@ -66,25 +60,17 @@ export class MessagingMain {
           }
         }
         break;
-      case "showTray":
-        this.main.trayMain.showTray();
-        break;
-      case "removeTray":
-        this.main.trayMain.removeTray();
-        break;
       case "hideToTray":
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.trayMain.hideToTray();
         break;
       case "addOpenAtLogin":
-        this.addOpenAtLogin();
+        this.setOpenAtLogin(true);
         break;
       case "removeOpenAtLogin":
-        this.removeOpenAtLogin();
+        this.setOpenAtLogin(false);
         break;
       case "setFocus":
-        this.setFocus();
+        await this.setFocus();
         break;
       case "getWindowIsFocused":
         this.windowIsFocused();
@@ -126,51 +112,26 @@ export class MessagingMain {
     this.main.trayMain.updateContextMenu();
   }
 
-  private addOpenAtLogin() {
+  // On Linux all the autostart setup (Flatpak portal, Snap, and plain-Linux .desktop file
+  // management) is handled by the Rust native module; here we only gather the values Electron
+  // knows and delegate. macOS/Windows use Electron's login-item API, which has no Rust equivalent.
+  private setOpenAtLogin(enabled: boolean) {
     if (process.platform === "linux") {
-      if (isFlatpak()) {
-        autostart.setAutostart(true, []).catch((e) => {});
-      } else {
-        const data = `[Desktop Entry]
-  Type=Application
-  Version=${app.getVersion()}
-  Name=Bitwarden
-  Comment=Bitwarden startup script
-  Exec=${app.getPath("exe")}
-  StartupNotify=false
-  Terminal=false`;
-
-        const dir = path.dirname(this.linuxStartupFile());
-        if (!fs.existsSync(dir)) {
-          fs.mkdirSync(dir);
-        }
-        fs.writeFileSync(this.linuxStartupFile(), data);
-      }
+      autostart
+        .setAutostart(enabled, {
+          execPath: app.getPath("exe"),
+          autostartFlag: AUTOSTART_FLAG,
+        })
+        .catch((e) => {
+          this.main.logService.error("Error setting autostart", e);
+        });
     } else {
-      app.setLoginItemSettings({ openAtLogin: true });
+      app.setLoginItemSettings({ openAtLogin: enabled, args: enabled ? [AUTOSTART_FLAG] : [] });
     }
   }
 
-  private removeOpenAtLogin() {
-    if (process.platform === "linux") {
-      if (isFlatpak()) {
-        autostart.setAutostart(false, []).catch((e) => {});
-      } else {
-        if (fs.existsSync(this.linuxStartupFile())) {
-          fs.unlinkSync(this.linuxStartupFile());
-        }
-      }
-    } else {
-      app.setLoginItemSettings({ openAtLogin: false });
-    }
-  }
-
-  private linuxStartupFile(): string {
-    return path.join(app.getPath("home"), ".config", "autostart", "bitwarden.desktop");
-  }
-
-  private setFocus() {
-    this.main.trayMain.restoreFromTray();
+  private async setFocus() {
+    await this.main.trayMain.restoreFromTray();
     this.main.windowMain.win.focusOnWebView();
   }
 

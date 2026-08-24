@@ -22,7 +22,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormGeneratorComponent } from "@bitwarden/vault";
 
 type CredentialGeneratorParams = {
-  /** @deprecated Prefer use of dialogRef.closed to retreive the generated value */
+  /** @deprecated Prefer use of dialogRef.closed to retrieve the generated value */
   onCredentialGenerated?: (value?: string) => void;
   type: "password" | "username";
   uri?: string;
@@ -80,7 +80,7 @@ export class CredentialGeneratorDialogComponent {
 
   applyCredentials = () => {
     this.data.onCredentialGenerated?.(this.credentialValue);
-    this.dialogRef.close({
+    void this.dialogRef.close({
       action: CredentialGeneratorDialogAction.Selected,
       generatedValue: this.credentialValue,
     });

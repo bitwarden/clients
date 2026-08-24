@@ -12,10 +12,9 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { AriaDisableDirective } from "../a11y";
 import { ariaDisableElement } from "../utils";
 
-export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
+import { AvatarColor, AvatarDefaultColors, getAvatarDefaultColor } from "./avatar-color";
 
-export const AvatarDefaultColors = ["teal", "coral", "brand", "green", "purple"] as const;
-export type AvatarColor = (typeof AvatarDefaultColors)[number];
+export type AvatarSize = "2xl" | "xl" | "lg" | "base" | "sm";
 
 const sizeClasses: Record<AvatarSize, string[]> = {
   "2xl": ["tw-size-16", "tw-min-w-16"],
@@ -32,11 +31,11 @@ const sizeClasses: Record<AvatarSize, string[]> = {
  * dark mode.
  */
 export const defaultAvatarColors: Record<AvatarColor, string> = {
-  teal: "var(--color-bg-avatar-teal)",
-  coral: "var(--color-bg-avatar-coral)",
-  brand: "var(--color-bg-avatar-brand)",
-  green: "var(--color-bg-avatar-green)",
-  purple: "var(--color-bg-avatar-purple)",
+  teal: "#007c95",
+  coral: "#c71800",
+  brand: "#175ddc",
+  green: "#008236",
+  purple: "#8200db",
 };
 
 /**
@@ -45,11 +44,11 @@ export const defaultAvatarColors: Record<AvatarColor, string> = {
  * dark mode.
  */
 export const defaultAvatarHoverColors: Record<AvatarColor, string> = {
-  teal: "var(--color-bg-avatar-teal-hover)",
-  coral: "var(--color-bg-avatar-coral-hover)",
-  brand: "var(--color-bg-avatar-brand-hover)",
-  green: "var(--color-bg-avatar-green-hover)",
-  purple: "var(--color-bg-avatar-purple-hover)",
+  teal: "#006278",
+  coral: "#a81400",
+  brand: "#0d43af",
+  green: "#016630",
+  purple: "#6e11b0",
 };
 
 // Typeguard to check if a given color is an AvatarColor
@@ -205,27 +204,8 @@ export class AvatarComponent {
     return characters != null ? characters.slice(0, count).join("") : "";
   }
 
-  /**
-   * Deterministically choose a default avatar color based on the given strings
-   *
-   * Based on the id first and the text second, choose a color from AvatarColors. This ensures that
-   * the user sees the same color for the same avatar input every time.
-   */
+  /** Deterministically choose a default avatar color based on the given strings. */
   protected getDefaultColorKey(id?: string, text?: string) {
-    let magicString = "";
-
-    if (!Utils.isNullOrWhitespace(id)) {
-      magicString = id!.toString();
-    } else {
-      magicString = text?.toUpperCase() ?? "";
-    }
-
-    let hash = 0;
-    for (const char of magicString) {
-      hash = char.charCodeAt(0) + ((hash << 5) - hash);
-    }
-
-    const index = Math.abs(hash) % AvatarDefaultColors.length;
-    return AvatarDefaultColors[index];
+    return getAvatarDefaultColor(id, text);
   }
 }

@@ -12,6 +12,8 @@ import {
 } from "rxjs";
 
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { buildCipherIcon, CipherIconDetails } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
@@ -64,6 +66,7 @@ export class IconComponent {
   constructor(
     private readonly environmentService: EnvironmentService,
     private readonly domainSettingsService: DomainSettingsService,
+    private readonly configService: ConfigService,
   ) {
     const iconSettings$ = combineLatest([
       this.environmentService.environment$.pipe(map((e) => e.getIconsUrl())),
@@ -74,8 +77,12 @@ export class IconComponent {
       distinctUntilChanged(),
     );
 
-    this.data$ = combineLatest([iconSettings$, toObservable(this.cipher)]).pipe(
-      map(([{ iconsUrl, showFavicon }, cipher]) => buildCipherIcon(iconsUrl, cipher, showFavicon)),
+    const newItemTypes$ = this.configService.getFeatureFlag$(FeatureFlag.PM32009NewItemTypes);
+
+    this.data$ = combineLatest([iconSettings$, toObservable(this.cipher), newItemTypes$]).pipe(
+      map(([{ iconsUrl, showFavicon }, cipher, newItemTypes]) =>
+        buildCipherIcon(iconsUrl, cipher, showFavicon, newItemTypes),
+      ),
       startWith(null),
       pairwise(),
       tap(([prev, next]) => {

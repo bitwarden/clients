@@ -3,6 +3,7 @@ import { TestBed } from "@angular/core/testing";
 import { of, Subject } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
@@ -10,7 +11,12 @@ import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/res
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuModule, TableModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { RoutedVaultFilterService, RoutedVaultFilterModel, VaultItem } from "@bitwarden/vault";
+import {
+  RoutedVaultFilterService,
+  RoutedVaultFilterModel,
+  VaultCopyButtonsService,
+  VaultItem,
+} from "@bitwarden/vault";
 
 import { VaultItemsComponent } from "./vault-items.component";
 
@@ -63,11 +69,37 @@ describe("VaultItemsComponent", () => {
             filter$: filterSelect,
           },
         },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag$: jest.fn().mockReturnValue(of(false)),
+          },
+        },
+        {
+          provide: VaultCopyButtonsService,
+          useValue: {
+            showQuickCopyActions$: of(false),
+          },
+        },
       ],
     });
 
     const fixture = TestBed.createComponent(VaultItemsComponent);
     component = fixture.componentInstance;
+  });
+
+  describe("optionsColumnWidthClass", () => {
+    it("reserves room for the quick copy icons when they are shown", () => {
+      expect(component["optionsColumnWidthClass"](true, true)).toBe("tw-w-48");
+    });
+
+    it("reserves room for the combined copy and launch actions", () => {
+      expect(component["optionsColumnWidthClass"](true, false)).toBe("tw-w-32");
+    });
+
+    it("only fits the options menu when there are no copy or launch actions", () => {
+      expect(component["optionsColumnWidthClass"](false, false)).toBe("tw-w-12");
+    });
   });
 
   describe("bulkArchiveAllowed", () => {
@@ -91,7 +123,18 @@ describe("VaultItemsComponent", () => {
       expect(component.bulkArchiveAllowed).toBe(false);
     });
 
-    it("returns false when selecting collections", () => {
+    it("returns false when selecting only collections (no ciphers)", () => {
+      component.userCanArchive = true;
+      const collection1 = { id: "col-1", name: "Collection 1" } as CollectionView;
+
+      const items: VaultItem<CipherView>[] = [{ collection: collection1 }];
+
+      component["selection"].select(...items);
+
+      expect(component.bulkArchiveAllowed).toBe(false);
+    });
+
+    it("returns true when selecting archivable ciphers alongside collections", () => {
       component.userCanArchive = true;
       const collection1 = { id: "col-1", name: "Collection 1" } as CollectionView;
 
@@ -102,7 +145,7 @@ describe("VaultItemsComponent", () => {
 
       component["selection"].select(...items);
 
-      expect(component.bulkArchiveAllowed).toBe(false);
+      expect(component.bulkArchiveAllowed).toBe(true);
     });
 
     it("returns true when selecting unarchived ciphers without organization", () => {
@@ -118,7 +161,7 @@ describe("VaultItemsComponent", () => {
       expect(component.bulkArchiveAllowed).toBe(true);
     });
 
-    it("returns false when any selected cipher has an organizationId", () => {
+    it("returns true when selecting org ciphers that are not archived", () => {
       component.userCanArchive = true;
 
       const personalCipher: Partial<CipherView> = {
@@ -138,7 +181,7 @@ describe("VaultItemsComponent", () => {
 
       component["selection"].select(...items);
 
-      expect(component.bulkArchiveAllowed).toBe(false);
+      expect(component.bulkArchiveAllowed).toBe(true);
     });
 
     it("returns false when any selected cipher is already archived", () => {
@@ -206,7 +249,7 @@ describe("VaultItemsComponent", () => {
       expect(component.bulkUnarchiveAllowed).toBe(true);
     });
 
-    it("returns false when any selected cipher has an organizationId", () => {
+    it("returns true when any selected cipher has an organizationId", () => {
       const archivedCipher1: Partial<CipherView> = {
         ...cipher1,
         archivedDate: new Date("2024-01-01"),
@@ -226,7 +269,7 @@ describe("VaultItemsComponent", () => {
 
       component["selection"].select(...items);
 
-      expect(component.bulkUnarchiveAllowed).toBe(false);
+      expect(component.bulkUnarchiveAllowed).toBe(true);
     });
 
     it("returns false when any selected cipher is not archived", () => {
@@ -238,6 +281,18 @@ describe("VaultItemsComponent", () => {
       component["selection"].select(...items);
 
       expect(component.bulkUnarchiveAllowed).toBe(false);
+    });
+  });
+
+  describe("selection identity", () => {
+    it("keeps checkmarks after ciphers input is re-set with new object references", () => {
+      const mockCipher = cipher1 as CipherView;
+      component.ciphers = [mockCipher];
+      component["selection"].select(component.dataSource.data[0]);
+
+      component.ciphers = [mockCipher];
+
+      expect(component["selection"].isSelected(component.dataSource.data[0])).toBe(true);
     });
   });
 

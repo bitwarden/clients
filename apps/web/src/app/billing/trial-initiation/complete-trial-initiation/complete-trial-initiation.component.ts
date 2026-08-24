@@ -2,7 +2,7 @@ import { StepperSelectionEvent } from "@angular/cdk/stepper";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom, map, Subject, switchMap, takeUntil } from "rxjs";
+import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import {
   InputPasswordFlow,
@@ -10,35 +10,30 @@ import {
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
 import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
-import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
-import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { OrganizationInviteService } from "@bitwarden/common/auth/services/organization-invite/organization-invite.service";
 import {
   OrganizationBillingServiceAbstraction as OrganizationBillingService,
   OrganizationInformation,
   PlanInformation,
 } from "@bitwarden/common/billing/abstractions/organization-billing.service";
-import { PlanType, ProductTierType, ProductType } from "@bitwarden/common/billing/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import {
+  InitiationPath,
+  PlanType,
+  ProductTierType,
+  ProductType,
+} from "@bitwarden/common/billing/enums";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { ToastService } from "@bitwarden/components";
 import { UserId } from "@bitwarden/user-core";
+import { DEFAULT_TRIAL_LENGTH_DAYS } from "@bitwarden/web-vault/app/billing/constants";
 import { Trial } from "@bitwarden/web-vault/app/billing/trial-initiation/trial-billing-step/trial-billing-step.service";
 
 import { RouterService } from "../../../core/router.service";
 import { OrganizationCreatedEvent } from "../trial-billing-step/trial-billing-step.component";
 import { VerticalStepperComponent } from "../vertical-stepper/vertical-stepper.component";
-
-export type InitiationPath =
-  | "Password Manager trial from marketing website"
-  | "Secrets Manager trial from marketing website";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -79,16 +74,18 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   orgId = "";
   orgLabel = "";
   billingSubLabel = "";
-  enforcedPolicyOptions?: MasterPasswordPolicyOptions;
 
   /** User's email address associated with the trial */
   email = "";
   /** Token from the backend associated with the email verification */
   emailVerificationToken?: string;
+  /** Present when the trial was set up by sales rather than self-serve email verification */
+  salesAssistedToken?: string;
   loading = false;
   productTierValue?: ProductTierType;
 
   trialLength!: number;
+  paymentOptional = false;
 
   orgInfoFormGroup = this.formBuilder.group({
     name: ["", { validators: [Validators.required, Validators.maxLength(50)], updateOn: "change" }],
@@ -97,21 +94,14 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
   protected readonly ProductType = ProductType;
-  protected trialPaymentOptional$ = this.configService.getFeatureFlag$(
-    FeatureFlag.TrialPaymentOptional,
-  );
 
   constructor(
     protected router: Router,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private logService: LogService,
-    private policyApiService: PolicyApiServiceAbstraction,
-    private policyService: PolicyService,
     private i18nService: I18nService,
     private routerService: RouterService,
     private organizationBillingService: OrganizationBillingService,
-    private organizationInviteService: OrganizationInviteService,
     private toastService: ToastService,
     private registrationFinishService: RegistrationFinishService,
     private validationService: ValidationService,
@@ -141,6 +131,10 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         this.emailVerificationToken = qParams.token;
       }
 
+      if (qParams.salesAssistedToken != null) {
+        this.salesAssistedToken = qParams.salesAssistedToken;
+      }
+
       const product = parseInt(qParams.product);
 
       // Get product from query params, default to password manager
@@ -163,46 +157,17 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         this.useTrialStepper = true;
       }
 
-      this.trialLength = qParams.trialLength ? parseInt(qParams.trialLength) : 7;
+      // We can assume the default trial length if the query param is not present or invalid
+      // Validation for trial length is done in the backend, to double-check this
+      this.trialLength = qParams.trialLength
+        ? parseInt(qParams.trialLength)
+        : DEFAULT_TRIAL_LENGTH_DAYS;
+      this.paymentOptional = qParams.paymentOptional === "true";
 
       // Are they coming from an email for sponsoring a families organization
       // After logging in redirect them to setup the families sponsorship
       this.setupFamilySponsorship(qParams.sponsorshipToken);
     });
-
-    const invite = await this.organizationInviteService.getOrganizationInvite();
-    let policies: Policy[] | undefined | null = null;
-
-    if (
-      invite != null &&
-      invite.organizationId &&
-      invite.token &&
-      invite.email &&
-      invite.organizationUserId
-    ) {
-      try {
-        policies = await this.policyApiService.getPoliciesByToken(
-          invite.organizationId,
-          invite.token,
-          invite.email,
-          invite.organizationUserId,
-        );
-      } catch (e) {
-        this.logService.error(e);
-      }
-    }
-
-    if (policies !== null) {
-      this.accountService.activeAccount$
-        .pipe(
-          getUserId,
-          switchMap((userId) => this.policyService.masterPasswordPolicyOptions$(userId, policies)),
-          takeUntil(this.destroy$),
-        )
-        .subscribe((enforcedPasswordPolicyOptions) => {
-          this.enforcedPolicyOptions = enforcedPasswordPolicyOptions;
-        });
-    }
 
     this.orgInfoFormGroup.controls.name.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -229,10 +194,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
 
   async orgNameEntrySubmit(): Promise<void> {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    const isTrialPaymentOptional = await firstValueFrom(this.trialPaymentOptional$);
 
-    /** Only skip payment if the flag is on AND trialLength > 0 */
-    if (isTrialPaymentOptional && this.trialLength > 0) {
+    /** Skip payment if paymentOptional from URL and trialLength > 0 */
+    if (this.paymentOptional && this.trialLength > 0) {
       await this.createOrganizationOnTrial(activeUserId);
     } else {
       await this.conditionallyCreateOrganization(activeUserId);
@@ -249,14 +213,15 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   /** create an organization on trial without payment method */
   async createOrganizationOnTrial(activeUserId: UserId) {
     this.loading = true;
-    let trialInitiationPath: InitiationPath = "Password Manager trial from marketing website";
+    let trialInitiationPath: InitiationPath =
+      InitiationPath.PasswordManagerTrialFromMarketingWebsite;
     let plan: PlanInformation = {
       type: await this.getPlanType(),
       passwordManagerSeats: 1,
     };
 
     if (this.product === ProductType.SecretsManager) {
-      trialInitiationPath = "Secrets Manager trial from marketing website";
+      trialInitiationPath = InitiationPath.SecretsManagerTrialFromMarketingWebsite;
       plan = {
         ...plan,
         subscribeToSecretsManager: true,
@@ -280,6 +245,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
         plan,
       },
       activeUserId,
+      this.trialLength,
     );
 
     this.orgId = response?.id;
@@ -293,21 +259,14 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     this.verticalStepper.previous();
   }
 
-  async getPlanType() {
-    const milestone3FeatureEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM26462_Milestone_3,
-    );
-    const familyPlan = milestone3FeatureEnabled
-      ? PlanType.FamiliesAnnually
-      : PlanType.FamiliesAnnually2025;
-
+  getPlanType() {
     switch (this.productTier) {
       case ProductTierType.Teams:
         return PlanType.TeamsAnnually;
       case ProductTierType.Enterprise:
         return PlanType.EnterpriseAnnually;
       case ProductTierType.Families:
-        return familyPlan;
+        return PlanType.FamiliesAnnually;
       case ProductTierType.Free:
         return PlanType.Free;
       default:
@@ -345,14 +304,9 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
     }
   }
 
-  readonly showBillingStep$ = this.trialPaymentOptional$.pipe(
-    map((trialPaymentOptional) => {
-      return (
-        (!trialPaymentOptional && !this.isSecretsManagerFree) ||
-        (trialPaymentOptional && this.trialLength === 0)
-      );
-    }),
-  );
+  get showBillingStep(): boolean {
+    return !this.paymentOptional && !this.isSecretsManagerFree;
+  }
 
   /** Create an organization unless the trial is for secrets manager */
   async conditionallyCreateOrganization(activeUserId: UserId): Promise<void> {
@@ -369,7 +323,7 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
             this.orgInfoFormGroup.value.billingEmail == null
               ? ""
               : this.orgInfoFormGroup.value.billingEmail,
-          initiationPath: "Password Manager trial from marketing website",
+          initiationPath: InitiationPath.PasswordManagerTrialFromMarketingWebsite,
         },
         plan: {
           type: 0,
@@ -426,7 +380,17 @@ export class CompleteTrialInitiationComponent implements OnInit, OnDestroy {
   async finishRegistration(passwordInputResult: PasswordInputResult) {
     this.submitting = true;
     return this.registrationFinishService
-      .finishRegistration(this.email, passwordInputResult, this.emailVerificationToken)
+      .finishRegistration(
+        this.email,
+        passwordInputResult,
+        this.emailVerificationToken,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        this.salesAssistedToken,
+      )
       .catch((e: unknown): null => {
         this.validationService.showError(e);
         this.submitting = false;

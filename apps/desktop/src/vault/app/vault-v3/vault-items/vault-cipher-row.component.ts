@@ -1,41 +1,40 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { NgClass } from "@angular/common";
-import { Component, HostListener, ViewChild, computed, inject, input, output } from "@angular/core";
+import { Component, HostListener, computed, inject, input, output, viewChild } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 
 import { PremiumBadgeComponent } from "@bitwarden/angular/billing/components/premium-badge/premium-badge.component";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import {
-  AriaDisableDirective,
   BitIconButtonComponent,
+  CheckboxModule,
   MenuModule,
   MenuTriggerForDirective,
-  TooltipDirective,
   TableModule,
   LinkModule,
+  IconModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
-  CopyAction,
-  CopyCipherFieldDirective,
   GetOrgNameFromIdPipe,
   OrganizationNameBadgeComponent,
+  VaultCopyButtonsService,
+  VaultItemCopyActionsComponent,
+  Vfo1I18nPipe,
+  Vfo1IconPipe,
 } from "@bitwarden/vault";
 
 import { VaultItemEvent } from "./vault-item-event";
-
-/** Configuration for a copyable field */
-interface CopyFieldConfig {
-  field: CopyAction;
-  title: string;
-}
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -46,29 +45,28 @@ interface CopyFieldConfig {
     NgClass,
     I18nPipe,
     TableModule,
-    AriaDisableDirective,
     OrganizationNameBadgeComponent,
-    TooltipDirective,
     BitIconButtonComponent,
     MenuModule,
-    CopyCipherFieldDirective,
+    VaultItemCopyActionsComponent,
     PremiumBadgeComponent,
     GetOrgNameFromIdPipe,
     IconComponent,
     LinkModule,
+    IconModule,
+    CheckboxModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
   ],
 })
 export class VaultCipherRowComponent<C extends CipherViewLike> {
-  protected RowHeightClass = `tw-h-[75px]`;
+  protected RowHeightClass = `tw-h-[76.5px]`;
 
-  // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
-  // eslint-disable-next-line @angular-eslint/prefer-signals
-  @ViewChild(MenuTriggerForDirective, { static: false }) menuTrigger: MenuTriggerForDirective;
+  protected readonly menuTrigger = viewChild<MenuTriggerForDirective>("optionsMenuTrigger");
 
   protected readonly disabled = input<boolean>();
   protected readonly cipher = input<C>();
   protected readonly showOwner = input<boolean>();
-  protected readonly showPremiumFeatures = input<boolean>();
   protected readonly useEvents = input<boolean>();
   protected readonly cloneable = input<boolean>();
   protected readonly organizations = input<Organization[]>();
@@ -91,15 +89,33 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
    * Enforce Org Data Ownership Policy Status
    */
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
+  protected readonly showBatchBar = input<boolean>(false);
+  protected readonly selected = input<boolean>(false);
+  protected readonly checkboxChange = output<void>();
   protected readonly onEvent = output<VaultItemEvent<C>>();
 
-  protected CipherType = CipherType;
-
   private platformUtilsService = inject(PlatformUtilsService);
+  private i18nService = inject(I18nService);
+  private vaultCopyButtonsService = inject(VaultCopyButtonsService);
+  private configService = inject(ConfigService);
+
+  private readonly quickCopyActionsSetting = toSignal(
+    this.vaultCopyButtonsService.showQuickCopyActions$,
+    { initialValue: false },
+  );
+
+  private readonly quickCopyIconFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
+  /** Whether copy actions render as individual quick-copy icons rather than a single menu. */
+  protected readonly showQuickCopyActions = computed(
+    () => this.quickCopyIconFeatureFlag() && this.quickCopyActionsSetting(),
+  );
 
   protected readonly showArchiveButton = computed(() => {
     return (
-      !this.cipher().organizationId &&
       !CipherViewLikeUtils.isArchived(this.cipher()) &&
       !CipherViewLikeUtils.isDeleted(this.cipher())
     );
@@ -139,7 +155,7 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
   }
 
   protected readonly subtitle = computed(() => {
-    return CipherViewLikeUtils.subtitle(this.cipher());
+    return CipherViewLikeUtils.subtitle(this.cipher(), this.i18nService);
   });
 
   protected readonly isDeleted = computed(() => {
@@ -182,64 +198,13 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
     return this.cloneable() && !CipherViewLikeUtils.isDeleted(this.cipher());
   });
 
-  protected readonly showMenuDivider = computed(() => this.showCopyButton() || this.canLaunch());
-
   /**
-   * Returns the list of copyable fields based on cipher type.
-   * Used to render copy menu items dynamically.
+   * Determines if the copy actions should be shown. Copy actions are hidden for deleted or
+   * archived items; the shared component decides which fields are copyable per cipher type.
    */
-  protected readonly copyFields = computed((): CopyFieldConfig[] => {
+  protected readonly showCopyActions = computed(() => {
     const cipher = this.cipher();
-
-    // No copy options for deleted or archived items
-    if (this.isDeleted() || CipherViewLikeUtils.isArchived(cipher)) {
-      return [];
-    }
-
-    const cipherType = CipherViewLikeUtils.getType(cipher);
-
-    switch (cipherType) {
-      case CipherType.Login: {
-        const fields: CopyFieldConfig[] = [{ field: "username", title: "copyUsername" }];
-        if (cipher.viewPassword) {
-          fields.push({ field: "password", title: "copyPassword" });
-        }
-        if (
-          CipherViewLikeUtils.getLogin(cipher).totp &&
-          (cipher.organizationUseTotp || this.showPremiumFeatures())
-        ) {
-          fields.push({ field: "totp", title: "copyVerificationCode" });
-        }
-        return fields;
-      }
-      case CipherType.Card:
-        return [
-          { field: "cardNumber", title: "copyNumber" },
-          { field: "securityCode", title: "copySecurityCode" },
-        ];
-      case CipherType.Identity:
-        return [
-          { field: "username", title: "copyUsername" },
-          { field: "email", title: "copyEmail" },
-          { field: "phone", title: "copyPhone" },
-          { field: "address", title: "copyAddress" },
-        ];
-      case CipherType.SecureNote:
-        return [{ field: "secureNote", title: "copyNote" }];
-      default:
-        return [];
-    }
-  });
-
-  /**
-   * Determines if the copy button should be shown.
-   * Returns true only if at least one field has a copyable value.
-   */
-  protected readonly showCopyButton = computed(() => {
-    const cipher = this.cipher();
-    return this.copyFields().some(({ field }) =>
-      CipherViewLikeUtils.hasCopyableValue(cipher, field),
-    );
+    return !this.isDeleted() && !CipherViewLikeUtils.isArchived(cipher);
   });
 
   protected clone() {
@@ -295,8 +260,8 @@ export class VaultCipherRowComponent<C extends CipherViewLike> {
       return;
     }
 
-    if (!this.disabled() && this.menuTrigger) {
-      this.menuTrigger.toggleMenuOnRightClick(event);
+    if (!this.disabled() && this.menuTrigger()) {
+      this.menuTrigger().toggleMenuOnRightClick(event);
     }
   }
 }

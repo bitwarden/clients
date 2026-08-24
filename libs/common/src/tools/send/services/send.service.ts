@@ -2,20 +2,23 @@
 // @ts-strict-ignore
 import { Observable, concatMap, distinctUntilChanged, firstValueFrom, map } from "rxjs";
 
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { PBKDF2KdfConfig, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncArrayBuffer,
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  PBKDF2KdfConfig,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { KeyGenerationService } from "../../../key-management/crypto";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
@@ -83,12 +86,9 @@ export class SendService implements InternalSendServiceAbstraction {
       model.cryptoKey = key.derivedKey;
     }
 
-    // Check feature flag for email OTP authentication
-    const sendEmailOTPEnabled = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-
     const hasEmails = (model.emails?.length ?? 0) > 0;
 
-    if (sendEmailOTPEnabled && hasEmails) {
+    if (hasEmails) {
       send.emails = model.emails
         .map((e) => e.trim())
         .join(",")
@@ -142,6 +142,14 @@ export class SendService implements InternalSendServiceAbstraction {
         } else {
           fileData = await this.parseFile(send, file, model.cryptoKey, userId);
         }
+      } else if (model.file.fileName) {
+        // When editing an existing File Send and using the SDK (`pm-30110-sdk-sends-api` feature flag is on)
+        // the `file.fileName` field is required for the edit to succeed (this is enforced both by the SDK and
+        // by `send-sdk-api.service` even though the server doesn't perform any edits with the field).
+        send.file.fileName = await this.encryptService.encryptString(
+          model.file.fileName,
+          model.cryptoKey,
+        );
       }
     }
 

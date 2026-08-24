@@ -20,13 +20,13 @@ import { HeaderComponent } from "../../header";
 import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
 import { AutofocusDirective, InputModule } from "../../input";
-import { LayoutComponent } from "../../layout";
+import { LayoutComponent, PageComponent } from "../../layout";
 import { LinkModule } from "../../link";
 import { MenuModule } from "../../menu";
 import { NavigationModule } from "../../navigation";
 import { NoItemsModule } from "../../no-items";
 import { PopoverModule } from "../../popover";
-import { ProgressModule } from "../../progress";
+import { ProgressBarComponent } from "../../progress";
 import { RadioButtonModule } from "../../radio-button";
 import { SearchModule } from "../../search";
 import { SectionComponent } from "../../section";
@@ -61,12 +61,13 @@ import { TypographyModule } from "../../typography";
     SvgModule,
     InputModule,
     LayoutComponent,
+    PageComponent,
     LinkModule,
     MenuModule,
     NavigationModule,
     NoItemsModule,
     PopoverModule,
-    ProgressModule,
+    ProgressBarComponent,
     RadioButtonModule,
     ReactiveFormsModule,
     RouterModule,
@@ -101,12 +102,13 @@ import { TypographyModule } from "../../typography";
     SvgModule,
     InputModule,
     LayoutComponent,
+    PageComponent,
     LinkModule,
     MenuModule,
     NavigationModule,
     NoItemsModule,
     PopoverModule,
-    ProgressModule,
+    ProgressBarComponent,
     RadioButtonModule,
     ReactiveFormsModule,
     RouterModule,

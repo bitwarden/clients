@@ -1,5 +1,11 @@
 #[napi]
 pub mod autofill {
+    use autofill_provider::{
+        BitwardenError, ExtensionRequest, ExtensionRequestMessage, LockStatusResponse,
+        NativeStatus, PasskeyAssertionRequest, PasskeyAssertionResponse,
+        PasskeyAssertionWithoutUserInterfaceRequest, PasskeyRegistrationRequest,
+        PasskeyRegistrationResponse, WindowHandleQueryResponse,
+    };
     use desktop_core::ipc::server::{Message, MessageType};
     use napi::{
         bindgen_prelude::FnArgs,
@@ -13,23 +19,6 @@ pub mod autofill {
         Ok(desktop_core::autofill::run_command(value).await?)
     }
 
-    #[derive(Debug, serde::Serialize, serde:: Deserialize)]
-    pub enum BitwardenError {
-        Internal(String),
-    }
-
-    #[napi(string_enum)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub enum UserVerification {
-        #[napi(value = "preferred")]
-        Preferred,
-        #[napi(value = "required")]
-        Required,
-        #[napi(value = "discouraged")]
-        Discouraged,
-    }
-
     #[derive(Serialize, Deserialize)]
     #[serde(bound = "T: Serialize + DeserializeOwned")]
     pub struct PasskeyMessage<T: Serialize + DeserializeOwned> {
@@ -37,87 +26,76 @@ pub mod autofill {
         pub value: Result<T, BitwardenError>,
     }
 
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct Position {
-        pub x: i32,
-        pub y: i32,
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyRegistrationRequest {
-        pub rp_id: String,
-        pub user_name: String,
-        pub user_handle: Vec<u8>,
-        pub client_data_hash: Vec<u8>,
-        pub user_verification: UserVerification,
-        pub supported_algorithms: Vec<i32>,
-        pub window_xy: Position,
-        pub excluded_credentials: Vec<Vec<u8>>,
-    }
-
-    #[napi(object)]
-    #[derive(Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyRegistrationResponse {
-        pub rp_id: String,
-        pub client_data_hash: Vec<u8>,
-        pub credential_id: Vec<u8>,
-        pub attestation_object: Vec<u8>,
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyAssertionRequest {
-        pub rp_id: String,
-        pub client_data_hash: Vec<u8>,
-        pub user_verification: UserVerification,
-        pub allowed_credentials: Vec<Vec<u8>>,
-        pub window_xy: Position,
-        //extension_input: Vec<u8>, TODO: Implement support for extensions
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyAssertionWithoutUserInterfaceRequest {
-        pub rp_id: String,
-        pub credential_id: Vec<u8>,
-        pub user_name: String,
-        pub user_handle: Vec<u8>,
-        pub record_identifier: Option<String>,
-        pub client_data_hash: Vec<u8>,
-        pub user_verification: UserVerification,
-        pub window_xy: Position,
-    }
-
-    #[napi(object)]
-    #[derive(Debug, Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct NativeStatus {
-        pub key: String,
-        pub value: String,
-    }
-
-    #[napi(object)]
-    #[derive(Serialize, Deserialize)]
-    #[serde(rename_all = "camelCase")]
-    pub struct PasskeyAssertionResponse {
-        pub rp_id: String,
-        pub user_handle: Vec<u8>,
-        pub signature: Vec<u8>,
-        pub client_data_hash: Vec<u8>,
-        pub authenticator_data: Vec<u8>,
-        pub credential_id: Vec<u8>,
-    }
-
     #[napi]
     pub struct AutofillIpcServer {
         server: desktop_core::ipc::server::Server,
+    }
+
+    // TODO(PM-40230): Investigate if we can define the response types on these
+    // callbacks directly.
+    #[napi(object, object_to_js = false)]
+    pub struct AutofillIpcCallbacks {
+        /// Function to execute when a passkey registration request is received.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub registration_callback:
+            ThreadsafeFunction<FnArgs<(u32, u32, PasskeyRegistrationRequest)>>,
+
+        /// Function to execute when a passkey assertion request is received.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
+        #[napi(ts_type = "{ \
+                    (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest): void; \
+                    (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+                }")]
+        pub assertion_callback: ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionRequest)>>,
+
+        /// Function to execute when a passkey assertion request is received and the UI must not be
+        /// shown.
+        ///
+        /// The `context` field should be stored, as the cancel_request_callback
+        /// will use the same value to identify the request to be cancelled.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub assertion_without_user_interface_callback:
+            ThreadsafeFunction<FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>>,
+
+        /// Function to execute when a notification of the autofill provider's status is received.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: NativeStatus): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub native_status_callback: ThreadsafeFunction<FnArgs<(u32, u32, NativeStatus)>>,
+
+        /// Function to execute to retrieve the lock status of the vault.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub lock_status_callback: ThreadsafeFunction<FnArgs<(u32, u32)>>,
+
+        /// Function to execute to retrieve the native OS window handle of the main application.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub window_handle_query_callback: ThreadsafeFunction<FnArgs<(u32, u32)>>,
+
+        /// Function to cancel a request. The `message` parameter is the context
+        /// string that was passed on the initial request.
+        #[napi(ts_type = "{ \
+            (error: null, clientId: number, sequenceNumber: number, message: string): void; \
+            (error: Error, clientId: number, sequenceNumber: number, message: null): void; \
+        }")]
+        pub cancel_request_callback: ThreadsafeFunction<FnArgs<(u32, u32, String)>>,
     }
 
     // FIXME: Remove unwraps! They panic and terminate the whole application.
@@ -128,36 +106,11 @@ pub mod autofill {
         ///
         /// @param name The endpoint name to listen on. This name uniquely identifies the IPC
         /// connection and must be the same for both the server and client. @param callback
-        /// This function will be called whenever a message is received from a client.
+        /// The functions that will be called whenever a message of the
+        /// corresponding type is received from a client.
         #[allow(clippy::unused_async)] // FIXME: Remove unused async!
         #[napi(factory)]
-        pub async fn listen(
-            name: String,
-            // Ideally we'd have a single callback that has an enum containing the request values,
-            // but NAPI doesn't support that just yet
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyRegistrationRequest) => void"
-            )]
-            registration_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyRegistrationRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionRequest) => void"
-            )]
-            assertion_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: PasskeyAssertionWithoutUserInterfaceRequest) => void"
-            )]
-            assertion_without_user_interface_callback: ThreadsafeFunction<
-                FnArgs<(u32, u32, PasskeyAssertionWithoutUserInterfaceRequest)>,
-            >,
-            #[napi(
-                ts_arg_type = "(error: null | Error, clientId: number, sequenceNumber: number, message: NativeStatus) => void"
-            )]
-            native_status_callback: ThreadsafeFunction<(u32, u32, NativeStatus)>,
-        ) -> napi::Result<Self> {
+        pub async fn listen(name: String, callbacks: AutofillIpcCallbacks) -> napi::Result<Self> {
             let (send, mut recv) = tokio::sync::mpsc::channel::<Message>(32);
             tokio::spawn(async move {
                 while let Some(Message {
@@ -175,96 +128,99 @@ pub mod autofill {
                                 continue;
                             };
 
-                            match serde_json::from_str::<PasskeyMessage<PasskeyAssertionRequest>>(
-                                &message,
-                            ) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-
-                                    assertion_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
+                            let msg =
+                                match serde_json::from_str::<ExtensionRequestMessage>(&message) {
+                                    Ok(msg) => msg,
+                                    Err(error) => {
+                                        error!(
+                                            %error,
+                                            %message,
+                                            "Received an unknown message from extension"
+                                        );
+                                        continue;
+                                    }
+                                };
+                            match msg.request {
+                                ExtensionRequest::CancelRequest(context) => {
+                                    let params = (client_id, msg.sequence_number, context);
+                                    callbacks.cancel_request_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
                                 }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing message1");
+                                ExtensionRequest::LockStatus => {
+                                    let params = (client_id, msg.sequence_number);
+                                    callbacks.lock_status_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
+                                ExtensionRequest::NativeStatus(native_status) => {
+                                    let params = (client_id, msg.sequence_number, native_status);
+                                    callbacks.native_status_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
+                                ExtensionRequest::PasskeyAssertion(assertion_request) => {
+                                    let params =
+                                        (client_id, msg.sequence_number, assertion_request);
+                                    callbacks.assertion_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
+                                ExtensionRequest::PasskeyAssertionWithoutUserInterface(
+                                    silent_assertion_request,
+                                ) => {
+                                    let params =
+                                        (client_id, msg.sequence_number, silent_assertion_request);
+                                    callbacks.assertion_without_user_interface_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
+                                ExtensionRequest::PasskeyRegistration(registration_request) => {
+                                    let params =
+                                        (client_id, msg.sequence_number, registration_request);
+                                    callbacks.registration_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
+                                }
+                                ExtensionRequest::WindowHandle => {
+                                    let params = (client_id, msg.sequence_number);
+                                    callbacks.window_handle_query_callback.call(
+                                        Ok(params.into()),
+                                        ThreadsafeFunctionCallMode::NonBlocking,
+                                    );
                                 }
                             }
-
-                            match serde_json::from_str::<
-                                PasskeyMessage<PasskeyAssertionWithoutUserInterfaceRequest>,
-                            >(&message)
-                            {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-
-                                    assertion_without_user_interface_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing message1");
-                                }
-                            }
-
-                            match serde_json::from_str::<PasskeyMessage<PasskeyRegistrationRequest>>(
-                                &message,
-                            ) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value).into())
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-                                    registration_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(e) => {
-                                    error!(error = %e, "Error deserializing message2");
-                                }
-                            }
-
-                            match serde_json::from_str::<PasskeyMessage<NativeStatus>>(&message) {
-                                Ok(msg) => {
-                                    let value = msg
-                                        .value
-                                        .map(|value| (client_id, msg.sequence_number, value))
-                                        .map_err(|e| napi::Error::from_reason(format!("{e:?}")));
-                                    native_status_callback
-                                        .call(value, ThreadsafeFunctionCallMode::NonBlocking);
-                                    continue;
-                                }
-                                Err(error) => {
-                                    error!(%error, "Unable to deserialze native status.");
-                                }
-                            }
-
-                            error!(message, "Received an unknown message2");
                         }
                     }
                 }
             });
 
-            let path = desktop_core::ipc::path(&name);
+            let paths = desktop_core::ipc::all_paths(&name);
 
-            let server = desktop_core::ipc::server::Server::start(&path, send).map_err(|e| {
-                napi::Error::from_reason(format!(
-                    "Error listening to server - Path: {path:?} - Error: {e:?}"
-                ))
-            })?;
+            let server =
+                desktop_core::ipc::server::Server::start(paths.clone(), send).map_err(|e| {
+                    napi::Error::from_reason(format!(
+                        "Error listening to server - Paths: {paths:?} - Error: {e:?}"
+                    ))
+                })?;
 
             Ok(AutofillIpcServer { server })
         }
 
         /// Return the path to the IPC server.
         #[napi]
-        pub fn get_path(&self) -> String {
-            self.server.path.to_string_lossy().to_string()
+        pub fn get_paths(&self) -> Vec<String> {
+            self.server
+                .paths
+                .iter()
+                .filter_map(|p| p.to_string_lossy().into_owned().into())
+                .collect()
         }
 
         /// Stop the IPC server.
@@ -294,6 +250,34 @@ pub mod autofill {
             client_id: u32,
             sequence_number: u32,
             response: PasskeyAssertionResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_lock_status(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: LockStatusResponse,
+        ) -> napi::Result<u32> {
+            let message = PasskeyMessage {
+                sequence_number,
+                value: Ok(response),
+            };
+            self.send(client_id, serde_json::to_string(&message).unwrap())
+        }
+
+        #[napi]
+        pub fn complete_window_handle_query(
+            &self,
+            client_id: u32,
+            sequence_number: u32,
+            response: WindowHandleQueryResponse,
         ) -> napi::Result<u32> {
             let message = PasskeyMessage {
                 sequence_number,

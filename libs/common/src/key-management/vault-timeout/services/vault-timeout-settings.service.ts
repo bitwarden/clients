@@ -31,8 +31,11 @@ import { getUserId } from "../../../auth/services/account.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { PinStateServiceAbstraction } from "../../pin/pin-state.service.abstraction";
 import { MaximumSessionTimeoutPolicyData, SessionTimeoutTypeService } from "../../session-timeout";
+import {
+  PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL,
+  PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT,
+} from "../../state-definitions";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../abstractions/vault-timeout-settings.service";
 import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import {
@@ -42,12 +45,15 @@ import {
   VaultTimeoutStringType,
 } from "../types/vault-timeout.type";
 
-import { VAULT_TIMEOUT, VAULT_TIMEOUT_ACTION } from "./vault-timeout-settings.state";
+import {
+  VAULT_TIMEOUT,
+  VAULT_TIMEOUT_ACTION,
+  VAULT_TIMEOUT_SUPPRESSED_UNTIL,
+} from "./vault-timeout-settings.state";
 
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {
   constructor(
     private accountService: AccountService,
-    private pinStateService: PinStateServiceAbstraction,
     private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private keyService: KeyService,
     private tokenService: TokenService,
@@ -97,7 +103,15 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
         combineLatest([
           this.userDecryptionOptionsService.hasMasterPasswordById$(userId),
           this.biometricStateService.biometricUnlockEnabled$(userId),
-          this.pinStateService.pinSet$(userId),
+          combineLatest([
+            this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_EPHEMERAL, userId),
+            this.stateProvider.getUserState$(PIN_PROTECTED_USER_KEY_ENVELOPE_PERSISTENT, userId),
+          ]).pipe(
+            map(
+              ([ephemeralEnvelope, persistentEnvelope]) =>
+                !!ephemeralEnvelope || !!persistentEnvelope,
+            ),
+          ),
         ]),
       ),
       map(([haveMasterPassword, biometricUnlockEnabled, isPinSet]) => {
@@ -257,11 +271,6 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     const clientId = await this.tokenService.getClientId(userId);
     const clientSecret = await this.tokenService.getClientSecret(userId);
 
-    if (timeout != VaultTimeoutStringType.Never && action === VaultTimeoutAction.LogOut) {
-      // Switching to LogOut: clear tokens from disk before re-storing in memory
-      await this.tokenService.clearTokens(userId);
-    }
-
     if (!accessToken) {
       return;
     }
@@ -392,5 +401,39 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
       getFirstPolicy,
       map((policy) => (policy?.data ?? null) as MaximumSessionTimeoutPolicyData | null),
     );
+  }
+
+  vaultTimeoutSuppressedUntil$(userId: UserId): Observable<number | null> {
+    if (!userId) {
+      throw new Error("User id required. Cannot get vault timeout suppressed until.");
+    }
+
+    return this.stateProvider.getUserState$(VAULT_TIMEOUT_SUPPRESSED_UNTIL, userId);
+  }
+
+  isVaultTimeoutSuppressed$(userId: UserId): Observable<boolean> {
+    return this.vaultTimeoutSuppressedUntil$(userId).pipe(
+      map((until) => until != null && Date.now() < until),
+    );
+  }
+
+  async isVaultTimeoutSuppressed(userId: UserId): Promise<boolean> {
+    return await firstValueFrom(this.isVaultTimeoutSuppressed$(userId));
+  }
+
+  async suppressVaultTimeout(until: number, userId: UserId): Promise<void> {
+    if (!userId) {
+      throw new Error("User id required. Cannot suppress vault timeout.");
+    }
+
+    await this.stateProvider.getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL).update(() => until);
+  }
+
+  async clearVaultTimeoutSuppression(userId: UserId): Promise<void> {
+    if (!userId) {
+      throw new Error("User id required. Cannot clear vault timeout suppression.");
+    }
+
+    await this.stateProvider.getUser(userId, VAULT_TIMEOUT_SUPPRESSED_UNTIL).update(() => null);
   }
 }

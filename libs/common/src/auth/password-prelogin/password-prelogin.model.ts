@@ -1,6 +1,6 @@
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { Argon2KdfConfig, KdfConfig, KdfType, PBKDF2KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { PasswordPreloginResponse } from "./password-prelogin.response";
 
@@ -19,7 +19,11 @@ export class PasswordPreloginData {
     const kdfConfig =
       response.kdf === KdfType.PBKDF2_SHA256
         ? new PBKDF2KdfConfig(response.kdfIterations)
-        : new Argon2KdfConfig(response.kdfIterations, response.kdfMemory, response.kdfParallelism);
+        : new Argon2KdfConfig(
+            response.kdfIterations,
+            response.kdfMemory!,
+            response.kdfParallelism!,
+          );
     kdfConfig.validateKdfConfigForPrelogin();
     return new PasswordPreloginData(kdfConfig);
   }

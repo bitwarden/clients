@@ -4,34 +4,32 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
   MasterPasswordSalt,
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  EncryptedString,
+  EncryptService,
+  EncString,
   KdfConfig,
-  PBKDF2KdfConfig,
-  KeyService,
   KdfType,
-  UserKeyRotationKeyRecoveryProvider,
-} from "@bitwarden/key-management";
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -61,11 +59,11 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private cipherService: CipherService,
     private logService: LogService,
     private masterPasswordService: MasterPasswordServiceAbstraction,
-    private configService: ConfigService,
   ) {}
 
   /**
@@ -200,7 +198,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     try {
       this.logService.debug(
         "User's fingerprint: " +
-          (await this.keyService.getFingerprint(granteeId, publicKey)).join("-"),
+          (await this.legacyCompatKeyService.getFingerprint(granteeId, publicKey)).join("-"),
       );
     } catch {
       // Ignore errors since it's just a debug message
@@ -270,7 +268,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     )) as UserKey;
 
     let ciphers: CipherView[] = [];
-    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(c));
+    const ciphersEncrypted = response.ciphers.map((c) => new Cipher(new CipherData(c)));
     ciphers = await Promise.all(ciphersEncrypted.map(async (c) => c.decrypt(grantorUserKey)));
     return ciphers.sort(this.cipherService.getLocaleSortingFunction());
   }
@@ -313,61 +311,39 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
       case KdfType.Argon2id:
         config = new Argon2KdfConfig(
           takeoverResponse.kdfIterations,
-          takeoverResponse.kdfMemory,
-          takeoverResponse.kdfParallelism,
+          takeoverResponse.kdfMemory!,
+          takeoverResponse.kdfParallelism!,
         );
         break;
     }
 
-    // When you unwind the flag in PM-28143, also remove the ConfigService if it is un-used.
-    const newApisWithInputPasswordFlagEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.PM27086_UpdateAuthenticationApisForInputPassword,
-    );
+    // Prefer server-provided salt from the takeover response.
+    // Falls back to email-derived salt for backward compatibility with servers
+    // that don't yet include Salt in the response (PM-31636).
+    //
+    // TODO: PM-32059 — When salt is fully disconnected from email (Stage 3),
+    // the email fallback will be removed and server salt becomes mandatory.
+    const salt: MasterPasswordSalt =
+      typeof takeoverResponse.salt === "string"
+        ? (takeoverResponse.salt as MasterPasswordSalt)
+        : this.masterPasswordService.emailToSalt(email);
 
-    if (newApisWithInputPasswordFlagEnabled) {
-      // Determine salt. In the Emergency Access Takeover flow, the grantee is setting a new
-      // master password for the grantor. The grantor's UserId is not available in this context
-      // (activeUserId is the grantee's), so salt is always derived from the grantor's email
-      // via emailToSalt().
-      //
-      // TODO: PM-32059 — When salt is disconnected from email (Stage 3), this will need
-      // a userId-independent salt for the grantor rather than email derivation.
-      const salt: MasterPasswordSalt = this.masterPasswordService.emailToSalt(email);
+    const authenticationData: MasterPasswordAuthenticationData =
+      await this.masterPasswordService.makeMasterPasswordAuthenticationData(
+        masterPassword,
+        config,
+        salt,
+      );
 
-      const authenticationData: MasterPasswordAuthenticationData =
-        await this.masterPasswordService.makeMasterPasswordAuthenticationData(
-          masterPassword,
-          config,
-          salt,
-        );
+    const unlockData: MasterPasswordUnlockData =
+      await this.masterPasswordService.makeMasterPasswordUnlockData(
+        masterPassword,
+        config,
+        salt,
+        grantorUserKey,
+      );
 
-      const unlockData: MasterPasswordUnlockData =
-        await this.masterPasswordService.makeMasterPasswordUnlockData(
-          masterPassword,
-          config,
-          salt,
-          grantorUserKey,
-        );
-
-      const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
-
-      await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
-
-      return; // EARLY RETURN for flagged logic
-    }
-
-    const masterKey = await this.keyService.makeMasterKey(masterPassword, email, config);
-    const masterKeyHash = await this.keyService.hashMasterKey(masterPassword, masterKey);
-
-    const encKey = await this.keyService.encryptUserKeyWithMasterKey(masterKey, grantorUserKey);
-
-    if (encKey == null || !encKey[1].encryptedString) {
-      throw new Error("masterKeyEncryptedUserKey not found");
-    }
-
-    const request = new EmergencyAccessPasswordRequest();
-    request.newMasterPasswordHash = masterKeyHash;
-    request.key = encKey[1].encryptedString;
+    const request = EmergencyAccessPasswordRequest.newConstructor(authenticationData, unlockData);
 
     await this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }

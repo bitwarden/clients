@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from "@angular/core";
+import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
@@ -13,6 +13,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { CipherFormConfigService, PasswordRepromptService } from "@bitwarden/vault";
 
@@ -99,8 +100,12 @@ describe("WeakPasswordsReportComponent", () => {
           provide: AdminConsoleCipherFormConfigService,
           useValue: adminConsoleCipherFormConfigServiceMock,
         },
+        {
+          provide: LogService,
+          useValue: mock<LogService>(),
+        },
       ],
-      schemas: [],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
   });
 

@@ -4,16 +4,15 @@ import { BehaviorSubject, firstValueFrom } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { makeEncString } from "../../../../spec";
 import { FakeAccountService, mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeSingleUserState } from "../../../../spec/fake-state";
 import { FakeStateProvider } from "../../../../spec/fake-state-provider";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { CipherService } from "../../abstractions/cipher.service";
@@ -114,7 +113,7 @@ describe("Folder Service", () => {
 
     encryptService.encryptString.mockResolvedValue(new EncString("ENC"));
 
-    const result = await folderService.encrypt(model, null);
+    const result = await folderService.encrypt(model, null as unknown as SymmetricCryptoKey);
 
     expect(result).toEqual({
       id: "2",
@@ -179,11 +178,25 @@ describe("Folder Service", () => {
     expect((await firstValueFrom(folderService.folders$(mockUserId))).length).toBe(0);
   });
 
+  it("re-assigns ciphers in every deleted folder to no folder", async () => {
+    const inFolder1 = { folderId: "1", toCipherData: () => ({ id: "c1" }) };
+    const inFolder2 = { folderId: "2", toCipherData: () => ({ id: "c2" }) };
+    const elsewhere = { folderId: "3", toCipherData: () => ({ id: "c3" }) };
+    cipherService.getAll.mockResolvedValue({ c1: inFolder1, c2: inFolder2, c3: elsewhere } as any);
+
+    await folderService.delete(["1", "2"], mockUserId);
+
+    expect(inFolder1.folderId).toBeNull();
+    expect(inFolder2.folderId).toBeNull();
+    expect(elsewhere.folderId).toBe("3");
+    expect(cipherService.upsert).toHaveBeenCalledWith([{ id: "c1" }, { id: "c2" }]);
+  });
+
   describe("clearDecryptedFolderState", () => {
     it("null userId", async () => {
-      await expect(folderService.clearDecryptedFolderState(null)).rejects.toThrow(
-        "User ID is required.",
-      );
+      await expect(
+        folderService.clearDecryptedFolderState(null as unknown as UserId),
+      ).rejects.toThrow("User ID is required.");
     });
 
     it("userId provided", async () => {
@@ -223,17 +236,27 @@ describe("Folder Service", () => {
       expect(result[0]).toMatchObject({ id: "1", name: "Re-encrypted Folder" });
     });
 
+    it("filters out 'No Folder' entries with null/empty id", async () => {
+      const result = await folderService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+      // folderViews$ includes the "No Folder" entry (with empty id) appended by decryptFolders,
+      // but getRotatedData should filter it out
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("1");
+      expect(result.find((f) => f.id === "" || f.id == null)).toBeUndefined();
+    });
+
     it("throws if the new user key is null", async () => {
-      await expect(folderService.getRotatedData(originalUserKey, null, mockUserId)).rejects.toThrow(
-        "New user key is required for rotation.",
-      );
+      await expect(
+        folderService.getRotatedData(originalUserKey, null as unknown as UserKey, mockUserId),
+      ).rejects.toThrow("New user key is required for rotation.");
     });
   });
 
   function folderData(id: string) {
     const data = new FolderData({} as any);
     data.id = id;
-    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString;
+    data.name = makeEncString("ENC_STRING_" + data.id).encryptedString!;
 
     return data;
   }

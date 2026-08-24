@@ -1,0 +1,19 @@
+name: Auto Bump Desktop Version - Signal
+
+on:
+  push:
+    tags:
+      - desktop-v**
+
+permissions: {}
+
+# Signal-only workflow. A `workflow_run` listener in version-auto-bump-desktop.yml picks
+# this completion up and runs the actual bump — but on `main` rather than the tag ref,
+# which is required for bitwarden/deploy's `update-repository` to accept the source run.
+jobs:
+  signal:
+    name: Signal desktop version bump
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Noop
+        run: echo "Desktop tag ${GITHUB_REF_NAME} pushed; version-auto-bump-desktop workflow_run listener will handle the bump on main."

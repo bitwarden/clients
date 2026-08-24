@@ -5,12 +5,18 @@ import { firstValueFrom, Observable } from "rxjs";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ChangeKdfService } from "@bitwarden/common/key-management/kdf/change-kdf.service.abstraction";
+import {
+  InternalMasterPasswordServiceAbstraction,
+  syncLegacyMasterKeyState,
+} from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
+import { withPasswordManagerSdk } from "@bitwarden/common/key-management/utils";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { DIALOG_DATA, DialogRef, ToastService } from "@bitwarden/components";
-import { KdfConfig, KdfType } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { KdfConfig, KdfType } from "@bitwarden/legacy-crypto";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -36,7 +42,8 @@ export class ChangeKdfConfirmationComponent {
     @Inject(DIALOG_DATA) params: { kdf: KdfType; kdfConfig: KdfConfig },
     private accountService: AccountService,
     private toastService: ToastService,
-    private changeKdfService: ChangeKdfService,
+    private sdkService: SdkService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private dialogRef: DialogRef<ChangeKdfConfirmationComponent>,
     configService: ConfigService,
   ) {
@@ -57,7 +64,7 @@ export class ChangeKdfConfirmationComponent {
         variant: "success",
         message: this.i18nService.t("encKeySettingsChanged"),
       });
-      this.dialogRef.close();
+      await this.dialogRef.close();
     } else {
       this.toastService.showToast({
         variant: "success",
@@ -77,10 +84,9 @@ export class ChangeKdfConfirmationComponent {
     // Ensure the KDF config is valid.
     this.kdfConfig.validateKdfConfigForSetting();
 
-    await this.changeKdfService.updateUserKdfParams(
-      masterPassword,
-      this.kdfConfig,
-      activeAccountId,
-    );
+    await withPasswordManagerSdk(activeAccountId, this.sdkService, async (sdk) => {
+      await sdk.user_crypto_management().change_kdf(masterPassword, this.kdfConfig.toSdkConfig());
+    });
+    await syncLegacyMasterKeyState(activeAccountId, masterPassword, this.masterPasswordService);
   }
 }

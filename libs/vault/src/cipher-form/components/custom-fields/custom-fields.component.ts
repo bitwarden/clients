@@ -163,6 +163,10 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
     );
   }
 
+  dragDisabled(type: FieldType): boolean {
+    return !this.canEdit(type) || this.fields.length <= 1;
+  }
+
   ngOnInit() {
     const linkedFieldsOptionsForCipher = this.getLinkedFieldsOptionsForCipher();
     const optionsArray = Array.from(linkedFieldsOptionsForCipher?.entries() ?? []);
@@ -263,18 +267,18 @@ export class CustomFieldsComponent implements OnInit, AfterViewInit {
   /** Updates label for an individual field */
   updateLabel(index: number, label: string) {
     this.fields.at(index).patchValue({ name: label });
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
   }
 
   /** Removes an individual field at a specific index */
   removeField(index: number) {
     this.fields.removeAt(index);
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
   }
 
   /** Adds a new field to the form */
   addField(type: FieldType, label: string) {
-    this.dialogRef?.close();
+    void this.dialogRef?.close();
 
     let value = null;
     let linkedId = null;

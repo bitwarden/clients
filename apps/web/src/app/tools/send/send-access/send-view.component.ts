@@ -11,15 +11,10 @@ import {
 } from "@angular/core";
 
 import { SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
-import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
@@ -28,7 +23,8 @@ import {
   SpinnerComponent,
   ToastService,
 } from "@bitwarden/components";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { LegacyCompatKeyService, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 
@@ -45,8 +41,6 @@ export class SendViewComponent implements OnInit {
   readonly id = input.required<string>();
   readonly key = input.required<string>();
   readonly accessToken = input<SendAccessToken | null>(null);
-  readonly sendResponse = input<SendAccessResponse | null>(null);
-  readonly accessRequest = input<SendAccessRequest>(new SendAccessRequest());
 
   authRequired = output<void>();
 
@@ -66,12 +60,11 @@ export class SendViewComponent implements OnInit {
   decKey!: SymmetricCryptoKey;
 
   constructor(
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private sendApiService: SendApiService,
     private toastService: ToastService,
     private i18nService: I18nService,
     private layoutWrapperDataService: AnonLayoutWrapperDataService,
-    private configService: ConfigService,
   ) {}
 
   ngOnInit() {
@@ -87,26 +80,15 @@ export class SendViewComponent implements OnInit {
     this.error.set(false);
 
     try {
-      const sendEmailOtp = await this.configService.getFeatureFlag(FeatureFlag.SendEmailOTP);
-      let response: SendAccessResponse;
-      if (sendEmailOtp) {
-        const accessToken = this.accessToken();
-        if (!accessToken) {
-          this.authRequired.emit();
-          return;
-        }
-        response = await this.sendApiService.postSendAccessV2(accessToken);
-      } else {
-        const sendResponse = this.sendResponse();
-        if (!sendResponse) {
-          this.authRequired.emit();
-          return;
-        }
-        response = sendResponse;
+      const accessToken = this.accessToken();
+      if (!accessToken) {
+        this.authRequired.emit();
+        return;
       }
+      const response = await this.sendApiService.postSendAccess(accessToken);
       const keyArray = Utils.fromUrlB64ToArray(this.key());
       const sendAccess = new SendAccess(response);
-      this.decKey = await this.keyService.makeSendKey(keyArray);
+      this.decKey = await this.legacyCompatKeyService.makeSendKey(keyArray);
       const decSend = await sendAccess.decrypt(this.decKey);
       this.send.set(decSend);
     } catch (e) {

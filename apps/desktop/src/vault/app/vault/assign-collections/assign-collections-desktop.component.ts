@@ -1,15 +1,16 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { Component, Inject } from "@angular/core";
 
 import { PluralizePipe } from "@bitwarden/angular/pipes/pluralize.pipe";
-import { ButtonModule, DialogModule, DialogService } from "@bitwarden/components";
+import { ButtonModule, DialogConfig, DialogModule, DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   AssignCollectionsComponent,
   CollectionAssignmentParams,
   CollectionAssignmentResult,
+  Vfo1I18nPipe,
 } from "@bitwarden/vault";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -17,10 +18,18 @@ import {
 @Component({
   standalone: true,
   templateUrl: "./assign-collections-desktop.component.html",
-  imports: [AssignCollectionsComponent, PluralizePipe, DialogModule, ButtonModule, I18nPipe],
+  imports: [
+    AssignCollectionsComponent,
+    PluralizePipe,
+    DialogModule,
+    ButtonModule,
+    I18nPipe,
+    Vfo1I18nPipe,
+  ],
 })
 export class AssignCollectionsDesktopComponent {
   protected editableItemCount: number;
+  protected submitButtonText: string;
 
   constructor(
     @Inject(DIALOG_DATA) public params: CollectionAssignmentParams,

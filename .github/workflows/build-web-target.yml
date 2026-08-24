@@ -42,4 +42,5 @@ jobs:
       id-token: write
       security-events: write
       packages: write
+      actions: write
 

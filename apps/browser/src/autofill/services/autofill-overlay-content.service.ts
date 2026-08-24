@@ -3,11 +3,13 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import {
-  EVENTS,
+  AutofillTargetingRuleTypes,
   AUTOFILL_OVERLAY_HANDLE_REPOSITION,
-  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
   AUTOFILL_OVERLAY_HANDLE_SCROLL,
+  AUTOFILL_TRIGGER_FORM_FIELD_SUBMIT,
+  EVENTS,
 } from "@bitwarden/common/autofill/constants";
+import { AutofillTargetingRuleType } from "@bitwarden/common/autofill/types";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { ModifyLoginCipherFormData } from "../background/abstractions/overlay-notifications.background";
@@ -37,28 +39,38 @@ import {
   elementIsFillableFormField,
   elementIsSelectElement,
   getAttributeBoolean,
-  nodeIsAnchorElement,
-  nodeIsButtonElement,
-  nodeIsTypeSubmitElement,
+  isReadonlyOrDisabledFormFieldElement,
+  isSubFramePositioningMessageData,
+  elementIsAnchorElement,
+  elementIsButtonElement,
+  elementIsTypeSubmitElement,
   sendExtensionMessage,
   throttle,
 } from "../utils";
 import { EventSecurity } from "../utils/event-security";
+import { getSubFrameUrlVariations } from "../utils/url-variations";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
-  SubFrameDataFromWindowMessage,
+  SubFrameOffsetWindowMessageData,
 } from "./abstractions/autofill-overlay-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
-import { AutoFillConstants } from "./autofill-constants";
+import {
+  AutoFillConstants,
+  loginQualifiers,
+  cardQualifiers,
+  identityQualifiers,
+  targetedFormCategoryFillTypes,
+} from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
   private showInlineMenuIdentities: boolean = false;
   private showInlineMenuCards: boolean = false;
+  private showInlineMenuSshKeys: boolean = false;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Map<ElementWithOpId<FormFieldElement>, AutofillField> = new Map();
@@ -154,6 +166,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.inlineMenuFieldQualificationService.isFieldForIdentityUsername,
   };
 
+  private isMonitoring = false;
+
   constructor(
     private domQueryService: DomQueryService,
     private domElementVisibilityService: DomElementVisibilityService,
@@ -162,12 +176,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ) {}
 
   /**
-   * Initializes the autofill overlay content service by setting up the mutation observers.
-   * The observers will be instantiated on DOMContentLoaded if the page is current loading.
+   * Attaches the global event listeners that drive inline menu placement and
+   * focus tracking. Defers attachment until DOMContentLoaded when the page
+   * is still loading. Idempotent.
    */
-  init() {
+  startMonitoring(): void {
+    if (this.isMonitoring) {
+      return;
+    }
+    this.isMonitoring = true;
     void this.getInlineMenuCardsVisibility();
     void this.getInlineMenuIdentitiesVisibility();
+    void this.getInlineMenuSshKeysVisibility();
 
     if (globalThis.document.readyState === "loading") {
       globalThis.document.addEventListener(EVENTS.DOMCONTENTLOADED, this.setupGlobalEventListeners);
@@ -175,6 +195,46 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.setupGlobalEventListeners();
+  }
+
+  /**
+   * Detaches global and per-field event listeners, clears monitoring-scoped
+   * timers and caches, and resets focus tracking so a future
+   * `startMonitoring()` begins fresh. Idempotent.
+   */
+  stopMonitoring(): void {
+    this.isMonitoring = false;
+    globalThis.document.removeEventListener(
+      EVENTS.DOMCONTENTLOADED,
+      this.setupGlobalEventListeners,
+    );
+    globalThis.removeEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
+    globalThis.document.removeEventListener(
+      EVENTS.VISIBILITYCHANGE,
+      this.handleVisibilityChangeEvent,
+    );
+    globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleWindowFocusOutEvent);
+    this.removeOverlayRepositionEventListeners();
+    this.removeRebuildSubFrameOffsetsListeners();
+    this.removeSubFrameFocusOutListeners();
+    this.formFieldElements.forEach((_autofillField, formFieldElement) => {
+      this.removeCachedFormFieldEventListeners(formFieldElement);
+      formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
+      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEventAsListener);
+    });
+    this.clearFocusInlineMenuListTimeout();
+    this.clearCloseInlineMenuOnRedirectTimeout();
+
+    // Clear caches so that message handlers that arrive while monitoring is stopped
+    // short-circuit on empty state instead of walking stale data.
+    this.formFieldElements.clear();
+    this.formElements.clear();
+    this.submitElements.clear();
+    this.focusableElements = [];
+    this.clearUserFilledFields();
+    this.mostRecentlyFocusedField = null;
+    this.focusedFieldData = null;
+    this.pageDetailsUpdateRequired = false;
   }
 
   /**
@@ -210,7 +270,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    if (this.isReadonlyOrDisabledElement(formFieldElement, autofillFieldData)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement, autofillFieldData)) {
       return;
     }
 
@@ -231,6 +291,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   refreshMenuLayerPosition = () => this.inlineMenuContentService?.refreshTopLayerPosition();
 
   getOwnedInlineMenuTagNames = () => this.inlineMenuContentService?.getOwnedTagNames() || [];
+
+  isElementInlineMenu = (element: Element): boolean =>
+    this.inlineMenuContentService?.isElementInlineMenu(element as HTMLElement) ?? false;
 
   getUnownedTopLayerItems = (includeCandidates?: boolean) =>
     this.inlineMenuContentService?.getUnownedTopLayerItems(includeCandidates);
@@ -310,6 +373,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       };
 
       await this.sendExtensionMessage(command, { addNewCipherType, identity });
+
+      return;
+    }
+
+    if (addNewCipherType === CipherType.SshKey) {
+      // SSH keys cannot be captured from the page, so open a blank add/edit item.
+      await this.sendExtensionMessage(command, { addNewCipherType });
     }
   }
 
@@ -533,7 +603,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const genericSubmitElement = await this.querySubmitButtonElement(
       element,
       "[type='submit']",
-      (node: Node) => nodeIsTypeSubmitElement(node),
+      (element) => elementIsTypeSubmitElement(element),
     );
     if (genericSubmitElement) {
       return genericSubmitElement;
@@ -542,15 +612,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const submitButtonElement = await this.querySubmitButtonElement(
       element,
       "button, [type='button']",
-      (node: Node) => nodeIsButtonElement(node),
+      (element) => elementIsButtonElement(element),
     );
     if (submitButtonElement) {
       return submitButtonElement;
     }
 
     // If the submit button is not a traditional button element, check for an anchor element that contains submission keywords.
-    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (node: Node) =>
-      nodeIsAnchorElement(node),
+    const submitAnchorElement = await this.querySubmitButtonElement(element, "a", (element) =>
+      elementIsAnchorElement(element),
     );
     if (submitAnchorElement) {
       return submitAnchorElement;
@@ -569,7 +639,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async querySubmitButtonElement(
     element: HTMLElement,
     selector: string,
-    treeWalkerFilter: CallableFunction,
+    treeWalkerFilter: (element: Element) => boolean,
   ) {
     const submitButtonElements = this.domQueryService.query<HTMLButtonElement>(
       element,
@@ -758,7 +828,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
-      if (this.isReadonlyOrDisabledElement(this.mostRecentlyFocusedField)) {
+      if (isReadonlyOrDisabledFormFieldElement(this.mostRecentlyFocusedField)) {
         return;
       }
       this.clearFocusInlineMenuListTimeout();
@@ -797,7 +867,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (!elementIsFillableFormField(formFieldElement)) {
       return;
     }
-    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement)) {
       return;
     }
 
@@ -889,9 +959,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     const clonedNode = formFieldElement.cloneNode(true) as FillableFormFieldElement;
-    const identityLoginFields: AutofillFieldQualifierType[] = [
+    // Identifier fields that double as the login username when saving a login.
+    // Heuristic (identity) and targeting-rule (email/phone) qualifiers both flow
+    // through here, so both namespaces are listed; targeting `username` already
+    // stores directly under the username key below.
+    const identityLoginFields: (AutofillFieldQualifierType | AutofillTargetingRuleType)[] = [
       AutofillFieldQualifier.identityUsername,
       AutofillFieldQualifier.identityEmail,
+      AutofillFieldQualifier.identityPhone,
+      AutofillTargetingRuleTypes.email,
+      AutofillTargetingRuleTypes.phone,
     ];
     if (!this.userFilledFields) {
       return;
@@ -922,7 +999,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - The form field element that triggered the click event.
    */
   private async triggerFormFieldClickedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
-    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement)) {
       return;
     }
 
@@ -956,7 +1033,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (await this.isFieldCurrentlyFilling()) {
       return;
     }
-    if (this.isReadonlyOrDisabledElement(formFieldElement)) {
+    if (isReadonlyOrDisabledFormFieldElement(formFieldElement)) {
       return;
     }
 
@@ -1105,6 +1182,25 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
+    /**
+     * This check comes first because a targeting rule is an
+     * authoritative override for subsequent checks
+     */
+    if (autofillFieldData.targeted) {
+      this.setTargetedFieldFillType(autofillFieldData);
+      return false;
+    }
+
+    // SSH key fields must be checked before the ignored-types early return, since the SSH
+    // public key field is a textarea (which is otherwise an ignored inline menu field type).
+    if (
+      this.showInlineMenuSshKeys &&
+      this.inlineMenuFieldQualificationService.isFieldForSshKeyForm(autofillFieldData, pageDetails)
+    ) {
+      autofillFieldData.inlineMenuFillType = CipherType.SshKey;
+      return false;
+    }
+
     if (autofillFieldData.type != null && this.ignoredFieldTypes.has(autofillFieldData.type)) {
       return true;
     }
@@ -1152,6 +1248,55 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
+   * Maps a targeted field's qualifier to the correct inline menu fill type,
+   * bypassing heuristic qualification.
+   */
+  private setTargetedFieldFillType(autofillFieldData: AutofillField): void {
+    // Targeted fields use AutofillTargetingRuleType values in fieldQualifier,
+    // which are distinct from the heuristic AutofillFieldQualifierType values.
+    const qualifier = autofillFieldData.fieldQualifier as AutofillTargetingRuleType;
+
+    if (qualifier === AutofillTargetingRuleTypes.newPassword) {
+      autofillFieldData.inlineMenuFillType = InlineMenuFillTypes.PasswordGeneration;
+      return;
+    }
+
+    // The form category is authoritative for single-cipher-type forms, so it
+    // takes precedence over inferring the cipher type from the individual field
+    // qualifier. This is what routes an account-login form's email/phone field
+    // to Login rather than Identity. Categories needing qualifier-level fill
+    // sub-types fall through to the qualifier checks below.
+    const categoryFillType =
+      autofillFieldData.formCategory != null
+        ? targetedFormCategoryFillTypes[autofillFieldData.formCategory]
+        : undefined;
+
+    if (categoryFillType != null) {
+      autofillFieldData.inlineMenuFillType = categoryFillType;
+      return;
+    }
+
+    if (loginQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Login;
+      return;
+    }
+
+    if (cardQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Card;
+      return;
+    }
+
+    if (identityQualifiers.includes(qualifier)) {
+      autofillFieldData.inlineMenuFillType = CipherType.Identity;
+      return;
+    }
+
+    // Fallback: default to Login to avoid inline menu re-render churn that
+    // occurs when `inlineMenuFillType` is left undefined.
+    autofillFieldData.inlineMenuFillType = CipherType.Login;
+  }
+
+  /**
    * Sets the autofill field data that indicates this field is part of a login form
    *
    * @param autofillFieldData - Autofill field data captured from the form field element.
@@ -1167,6 +1312,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     autofillFieldData.showPasskeys = (
       autofillFieldData.autoCompleteType || ([] as string[])
     ).includes("webauthn");
+
+    if (
+      this.inlineMenuFieldQualificationService.hasCurrentPasswordAutocomplete(autofillFieldData)
+    ) {
+      return;
+    }
 
     this.qualifyAccountCreationFieldType(autofillFieldData);
   }
@@ -1382,6 +1533,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
+   * Queries the background script for the autofill inline menu's SSH keys visibility setting.
+   * If the setting is not found, a default value of true will be used
+   * @private
+   */
+  private async getInlineMenuSshKeysVisibility() {
+    const inlineMenuSshKeysVisibility = await this.sendExtensionMessage(
+      "getInlineMenuSshKeysVisibility",
+    );
+    this.showInlineMenuSshKeys = inlineMenuSshKeysVisibility ?? true;
+  }
+
+  /**
    * Indicates whether the most recently focused field has a value.
    */
   private mostRecentlyFocusedFieldHasValue() {
@@ -1431,25 +1594,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Checks if a form field element is currently readonly or disabled.
-   *
-   * @param formFieldElement - The form field element to evaluate.
-   * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
-   */
-  private isReadonlyOrDisabledElement(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-    autofillFieldData?: AutofillField,
-  ): boolean {
-    return (
-      getAttributeBoolean(formFieldElement, "disabled") ||
-      Boolean((formFieldElement as HTMLInputElement | HTMLTextAreaElement).readOnly) ||
-      getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
-      autofillFieldData?.readonly === true ||
-      autofillFieldData?.disabled === true
-    );
-  }
-
-  /**
    * Queries all iframe elements within the document and returns the
    * sub frame offsets for each iframe element.
    *
@@ -1460,7 +1604,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ): Promise<SubFrameOffsetData | null> {
     const { subFrameUrl } = message;
 
-    const subFrameUrlVariations = subFrameUrl && this.getSubFrameUrlVariations(subFrameUrl);
+    const subFrameUrlVariations = subFrameUrl && getSubFrameUrlVariations(subFrameUrl);
     if (!subFrameUrlVariations) {
       return null;
     }
@@ -1489,73 +1633,24 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Returns a set of all possible URL variations for the sub frame URL.
-   *
-   * @param subFrameUrl - The URL of the sub frame.
-   */
-  private getSubFrameUrlVariations(subFrameUrl: string) {
-    try {
-      const url = new URL(subFrameUrl, globalThis.location.href);
-      const pathAndHash = url.pathname + url.hash;
-      const pathAndSearch = url.pathname + url.search;
-      const pathSearchAndHash = pathAndSearch + url.hash;
-      const pathNameWithoutTrailingSlash = url.pathname.replace(/\/$/, "");
-      const pathWithoutTrailingSlashAndHash = pathNameWithoutTrailingSlash + url.hash;
-      const pathWithoutTrailingSlashAndSearch = pathNameWithoutTrailingSlash + url.search;
-      const pathWithoutTrailingSlashSearchAndHash = pathWithoutTrailingSlashAndSearch + url.hash;
-
-      return new Set([
-        url.href,
-        url.href.replace(/\/$/, ""),
-        url.pathname,
-        pathAndHash,
-        pathAndSearch,
-        pathSearchAndHash,
-        pathNameWithoutTrailingSlash,
-        pathWithoutTrailingSlashAndHash,
-        pathWithoutTrailingSlashAndSearch,
-        pathWithoutTrailingSlashSearchAndHash,
-        url.hostname + url.pathname,
-        url.hostname + pathAndHash,
-        url.hostname + pathAndSearch,
-        url.hostname + pathSearchAndHash,
-        url.hostname + pathNameWithoutTrailingSlash,
-        url.hostname + pathWithoutTrailingSlashAndHash,
-        url.hostname + pathWithoutTrailingSlashAndSearch,
-        url.hostname + pathWithoutTrailingSlashSearchAndHash,
-        url.origin + url.pathname,
-        url.origin + pathAndHash,
-        url.origin + pathAndSearch,
-        url.origin + pathSearchAndHash,
-        url.origin + pathNameWithoutTrailingSlash,
-        url.origin + pathWithoutTrailingSlashAndHash,
-        url.origin + pathWithoutTrailingSlashAndSearch,
-        url.origin + pathWithoutTrailingSlashSearchAndHash,
-      ]);
-      // FIXME: Remove when updating file. Eslint update
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_error) {
-      return null;
-    }
-  }
-
-  /**
    * Posts a message to the parent frame to calculate the sub frame offset of the current frame.
    *
    * @param message - The message object from the extension.
    */
   private getSubFrameOffsetsFromWindowMessage(message: any) {
+    // `postMessage` accepts `any` message, which disables typechecking, so typecheck it early
+    const subFrameData: SubFrameOffsetWindowMessageData = {
+      frameId: message.subFrameId,
+      left: 0,
+      top: 0,
+      parentFrameIds: [0],
+      subFrameDepth: 0,
+    };
+
     globalThis.parent.postMessage(
       {
         command: "calculateSubFramePositioning",
-        subFrameData: {
-          url: window.location.href,
-          frameId: message.subFrameId,
-          left: 0,
-          top: 0,
-          parentFrameIds: [0],
-          subFrameDepth: 0,
-        } as SubFrameDataFromWindowMessage,
+        subFrameData,
       },
       "*",
     );
@@ -1600,8 +1695,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param event - The message event.
    */
-  private calculateSubFramePositioning = async (event: MessageEvent) => {
-    const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
+  private calculateSubFramePositioning = async (event: MessageEvent<unknown>) => {
+    if (!isSubFramePositioningMessageData(event.data)) {
+      return;
+    }
+    const { subFrameData } = event.data;
 
     subFrameData.subFrameDepth++;
     if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
@@ -1616,7 +1714,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
         const iframeElement = iframes[i];
         subFrameOffsets = this.calculateSubFrameOffsets(
           iframeElement,
-          subFrameData.url,
+          undefined,
           subFrameData.frameId,
         );
 
@@ -1892,28 +1990,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Destroys the autofill overlay content service. This method will
-   * disconnect the mutation observers and remove all event listeners.
+   * Stops monitoring (detaching listeners, clearing caches) and releases
+   * the userFilledFields reference for terminal disposal.
    */
   destroy() {
-    this.clearFocusInlineMenuListTimeout();
-    this.clearCloseInlineMenuOnRedirectTimeout();
-    this.formFieldElements.forEach((_autofillField, formFieldElement) => {
-      this.removeCachedFormFieldEventListeners(formFieldElement);
-      formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
-      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEventAsListener);
-      this.formFieldElements.delete(formFieldElement);
-    });
-    this.clearUserFilledFields();
+    this.stopMonitoring();
     this.userFilledFields = null;
-    globalThis.removeEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
-    globalThis.document.removeEventListener(
-      EVENTS.VISIBILITYCHANGE,
-      this.handleVisibilityChangeEvent,
-    );
-    globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.removeOverlayRepositionEventListeners();
-    this.removeRebuildSubFrameOffsetsListeners();
-    this.removeSubFrameFocusOutListeners();
   }
 }

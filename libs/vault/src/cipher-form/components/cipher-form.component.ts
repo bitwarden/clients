@@ -1,6 +1,5 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { NgIf } from "@angular/common";
 import {
   AfterViewInit,
   ChangeDetectorRef,
@@ -42,11 +41,14 @@ import { CipherForm, CipherFormContainer } from "../cipher-form-container";
 import { CipherFormCacheService } from "../services/default-cipher-form-cache.service";
 
 import { AdditionalOptionsSectionComponent } from "./additional-options/additional-options-section.component";
+import { BankAccountSectionComponent } from "./bank-account-section/bank-account-section.component";
 import { CardDetailsSectionComponent } from "./card-details-section/card-details-section.component";
+import { DriversLicenseSectionComponent } from "./drivers-license-section/drivers-license-section.component";
 import { IdentitySectionComponent } from "./identity/identity.component";
 import { ItemDetailsSectionComponent } from "./item-details/item-details-section.component";
 import { LoginDetailsSectionComponent } from "./login-details-section/login-details-section.component";
 import { NewItemNudgeComponent } from "./new-item-nudge/new-item-nudge.component";
+import { PassportSectionComponent } from "./passport-section/passport-section.component";
 import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -74,7 +76,9 @@ import { SshKeySectionComponent } from "./sshkey-section/sshkey-section.componen
     CardDetailsSectionComponent,
     IdentitySectionComponent,
     SshKeySectionComponent,
-    NgIf,
+    BankAccountSectionComponent,
+    DriversLicenseSectionComponent,
+    PassportSectionComponent,
     AdditionalOptionsSectionComponent,
     LoginDetailsSectionComponent,
     NewItemNudgeComponent,
@@ -357,11 +361,23 @@ export class CipherFormComponent implements AfterViewInit, OnInit, OnChanges, Ci
       if (control instanceof FormGroup) {
         return count + this.countInvalidFields(control);
       }
-      return count + (control.invalid ? 1 : 0);
+
+      // Complex child components may have multiple fields.
+      // They can pass `fieldCount` in the errors object to specify how many fields are invalid.
+      const fieldCount = control.invalid ? ((control.errors?.["fieldCount"] as number) ?? 1) : 0;
+      return count + fieldCount;
     }, 0);
   }
 
   submit = async () => {
+    if (!this.config.organizationDataOwnershipDisabled && this.config.organizations.length === 0) {
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("cannotSaveItemNoConfirmedOrgs"),
+      });
+      return;
+    }
+
     let successToast: string = "editedItem";
     if (this.cipherForm.invalid) {
       this.cipherForm.markAllAsTouched();

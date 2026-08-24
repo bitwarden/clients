@@ -1,16 +1,8 @@
 import { firstValueFrom } from "rxjs";
 
-import {
-  UserDecryptionOptions,
-  UserDecryptionOptionsServiceAbstraction,
-  WebAuthnPrfUserDecryptionOption,
-} from "@bitwarden/auth/common";
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { WEBAUTHN_PRF_OPTIONS } from "@bitwarden/common/key-management/state-definitions";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -18,7 +10,10 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { PrfKey, UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+import { WebAuthnPrfUnlockOption } from "@bitwarden/sdk-internal";
+import { StateProvider } from "@bitwarden/state";
 
 import { WebAuthnPrfUnlockService } from "./webauthn-prf-unlock.service";
 
@@ -27,28 +22,18 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
 
   constructor(
     private webAuthnLoginPrfKeyService: WebAuthnLoginPrfKeyServiceAbstraction,
-    private keyService: KeyService,
-    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private stateProvider: StateProvider,
     private encryptService: EncryptService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
     private window: Window,
     private logService: LogService,
-    private configService: ConfigService,
   ) {
     this.navigatorCredentials = this.window.navigator.credentials;
   }
 
   async isPrfUnlockAvailable(userId: UserId): Promise<boolean> {
     try {
-      // Check if feature flag is enabled
-      const passkeyUnlockEnabled = await this.configService.getFeatureFlag(
-        FeatureFlag.PasskeyUnlock,
-      );
-      if (!passkeyUnlockEnabled) {
-        return false;
-      }
-
       // Check if browser supports WebAuthn
       if (!this.navigatorCredentials || !this.navigatorCredentials.get) {
         return false;
@@ -80,14 +65,13 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
     userId: UserId,
   ): Promise<{ credentialId: string; transports: string[] }[]> {
     try {
-      const userDecryptionOptions = await this.getUserDecryptionOptions(userId);
-      if (!userDecryptionOptions?.webAuthnPrfOptions) {
-        return [];
-      }
-      return userDecryptionOptions.webAuthnPrfOptions.map((option) => ({
-        credentialId: option.credentialId,
-        transports: option.transports,
-      }));
+      const prfOptions = await this.getPrfOptions(userId);
+      return prfOptions
+        .filter((option) => option.credentialId != null)
+        .map((option) => ({
+          credentialId: option.credentialId as string,
+          transports: option.transports ?? [],
+        }));
     } catch (error) {
       this.logService.error("Error getting PRF unlock credentials:", error);
       return [];
@@ -210,26 +194,21 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
    * Gets the WebAuthn PRF option that matches the credential used in the response.
    *
    * @param credentialId Credential ID to match
-   * @param userId User ID to get decryption options for
-   * @returns Matching WebAuthnPrfUserDecryptionOption with encrypted keys
+   * @param userId User ID to get PRF options for
+   * @returns Matching WebAuthnPrfUnlockOption with encrypted keys
    * @throws Error if no PRF options exist or no matching option is found
    */
   private async getPrfOptionForCredential(
     credentialId: string,
     userId: UserId,
-  ): Promise<WebAuthnPrfUserDecryptionOption> {
-    const userDecryptionOptions = await this.getUserDecryptionOptions(userId);
+  ): Promise<WebAuthnPrfUnlockOption> {
+    const prfOptions = await this.getPrfOptions(userId);
 
-    if (
-      !userDecryptionOptions?.webAuthnPrfOptions ||
-      userDecryptionOptions.webAuthnPrfOptions.length === 0
-    ) {
+    if (prfOptions.length === 0) {
       throw new Error("No WebAuthn PRF option found for user - cannot perform PRF unlock");
     }
 
-    const prfOption = userDecryptionOptions.webAuthnPrfOptions.find(
-      (option) => option.credentialId === credentialId,
-    );
+    const prfOption = prfOptions.find((option) => option.credentialId === credentialId);
 
     if (!prfOption) {
       throw new Error("No matching WebAuthn PRF option found for this credential");
@@ -249,16 +228,17 @@ export class DefaultWebAuthnPrfUnlockService implements WebAuthnPrfUnlockService
   }
 
   /**
-   * Helper method to get user decryption options for a user
+   * Helper method to get the WebAuthn PRF unlock options for a user.
    */
-  private async getUserDecryptionOptions(userId: UserId): Promise<UserDecryptionOptions | null> {
+  private async getPrfOptions(userId: UserId): Promise<WebAuthnPrfUnlockOption[]> {
     try {
-      return (await firstValueFrom(
-        this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-      )) as UserDecryptionOptions;
+      const unlockData = await firstValueFrom(
+        this.stateProvider.getUserState$(WEBAUTHN_PRF_OPTIONS, userId),
+      );
+      return unlockData?.options ?? [];
     } catch (error) {
-      this.logService.error("Error getting user decryption options:", error);
-      return null;
+      this.logService.error("Error getting WebAuthn PRF unlock options:", error);
+      return [];
     }
   }
 

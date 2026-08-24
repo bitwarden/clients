@@ -13,10 +13,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { isCardExpired } from "@bitwarden/common/autofill/utils";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getByIds } from "@bitwarden/common/platform/misc";
 import { CipherId, EmergencyAccessId, UserId } from "@bitwarden/common/types/guid";
+import { ChangeLoginPasswordService } from "@bitwarden/common/vault/abstractions/change-login-password.service";
 import {
   CipherRiskService,
   isPasswordAtRisk,
@@ -34,16 +37,17 @@ import {
   LinkComponent,
 } from "@bitwarden/components";
 
-import { ChangeLoginPasswordService } from "../abstractions/change-login-password.service";
-
 import { AdditionalOptionsComponent } from "./additional-options/additional-options.component";
 import { AttachmentsV2ViewComponent } from "./attachments/attachments-v2-view.component";
 import { AutofillOptionsViewComponent } from "./autofill-options/autofill-options-view.component";
+import { BankAccountViewComponent } from "./bank-account-sections/bank-account-view.component";
 import { CardDetailsComponent } from "./card-details/card-details-view.component";
 import { CustomFieldV2Component } from "./custom-fields/custom-fields-v2.component";
+import { DriversLicenseViewComponent } from "./drivers-license-sections/drivers-license-view.component";
 import { ItemDetailsV2Component } from "./item-details/item-details-v2.component";
 import { ItemHistoryV2Component } from "./item-history/item-history-v2.component";
 import { LoginCredentialsViewComponent } from "./login-credentials/login-credentials-view.component";
+import { PassportViewComponent } from "./passport-sections/passport-view.component";
 import { SshKeyViewComponent } from "./sshkey-sections/sshkey-view.component";
 import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-identity-sections.component";
 
@@ -64,6 +68,9 @@ import { ViewIdentitySectionsComponent } from "./view-identity-sections/view-ide
     CustomFieldV2Component,
     CardDetailsComponent,
     SshKeyViewComponent,
+    BankAccountViewComponent,
+    DriversLicenseViewComponent,
+    PassportViewComponent,
     ViewIdentitySectionsComponent,
     LoginCredentialsViewComponent,
     AutofillOptionsViewComponent,
@@ -113,6 +120,7 @@ export class CipherViewComponent {
     private cipherRiskService: CipherRiskService,
     private billingAccountService: BillingAccountProfileStateService,
     private vaultSettingsService: VaultSettingsService,
+    private configService: ConfigService,
   ) {}
 
   readonly resolvedCollections = toSignal<CollectionView[] | undefined>(
@@ -237,6 +245,32 @@ export class CipherViewComponent {
     return !!cipher?.sshKey?.privateKey;
   });
 
+  readonly hasBankAccount = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+    return Array.from(Object.values(cipher.bankAccount)).some((value) => Boolean(value));
+  });
+
+  readonly hasDriversLicense = computed(() => {
+    const cipher = this.cipher();
+
+    if (!cipher) {
+      return false;
+    }
+
+    return Array.from(Object.values(cipher.driversLicense)).some((value) => Boolean(value));
+  });
+
+  readonly hasPassport = computed(() => {
+    const cipher = this.cipher();
+    if (!cipher) {
+      return false;
+    }
+    return Array.from(Object.values(cipher.passport ?? {})).some((value) => Boolean(value));
+  });
+
   readonly hasLoginUri = computed(() => {
     const cipher = this.cipher();
     return cipher?.login?.hasUris;
@@ -278,6 +312,11 @@ export class CipherViewComponent {
 
   readonly showAtRiskPasswordNotifications = toSignal(
     this.vaultSettingsService.showAtRiskPasswordNotifications$,
+  );
+
+  readonly removeAtRiskCallout = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM32016RemoveAtRiskCallout),
+    { initialValue: false },
   );
 
   protected readonly changePasswordUrl = resource({

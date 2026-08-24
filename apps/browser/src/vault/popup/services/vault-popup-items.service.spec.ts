@@ -102,7 +102,9 @@ describe("VaultPopupItemsService", () => {
       failedToDecryptCiphersSubject.asObservable(),
     );
 
-    searchService.searchCiphers.mockImplementation(async (userId, _, __, ciphers) => ciphers!);
+    searchService.searchCiphers.mockImplementation(
+      async (userId, _organizationId, _query, ciphers) => ciphers!,
+    );
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(uuidAsString(c.id))),
     );
@@ -271,12 +273,13 @@ describe("VaultPopupItemsService", () => {
         [CipherType.Identity]: 3,
         [CipherType.SecureNote]: 4,
         [CipherType.SshKey]: 5,
+        [CipherType.BankAccount]: 6,
+        [CipherType.DriversLicense]: 7,
+        [CipherType.Passport]: 8,
       };
 
       // Assume all ciphers are autofill ciphers to test sorting
-      cipherServiceMock.filterCiphersForUrl.mockImplementation(async () =>
-        Object.values(allCiphers),
-      );
+      cipherServiceMock.filterCiphersForUrl.mockResolvedValue(Object.values(allCiphers));
 
       service.autoFillCiphers$.subscribe((ciphers) => {
         expect(ciphers.length).toBe(10);
@@ -297,11 +300,13 @@ describe("VaultPopupItemsService", () => {
     it("should filter autoFillCiphers$ down to search term", (done) => {
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async (userId, q, _, ciphers) => {
-        return ciphers!.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
-      });
+      searchService.searchCiphers.mockImplementation(
+        async (userId, _organizationId, q, ciphers) => {
+          return ciphers!.filter((cipher) => {
+            return cipher.name.includes(searchText);
+          });
+        },
+      );
 
       // there is only 1 Login returned for filteredCiphers.
       service.autoFillCiphers$.subscribe((ciphers) => {
@@ -317,11 +322,10 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Login";
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
-          return cipher.name.includes(searchText);
-        });
+      const searchResult = cipherList.filter((cipher) => {
+        return cipher.name.includes(searchText);
       });
+      searchService.searchCiphers.mockResolvedValue(searchResult);
 
       service.filteredCiphers$.subscribe((ciphers) => {
         // There are 10 ciphers but only 3 with "Login" in the name
@@ -344,11 +348,10 @@ describe("VaultPopupItemsService", () => {
       const cipherList = Object.values(allCiphers);
       const searchText = "Card 2";
 
-      searchService.searchCiphers.mockImplementation(async () => {
-        return cipherList.filter((cipher) => {
-          return cipher.name === searchText;
-        });
+      const searchResult = cipherList.filter((cipher) => {
+        return cipher.name.includes(searchText);
       });
+      searchService.searchCiphers.mockResolvedValue(searchResult);
 
       service.favoriteCiphers$.subscribe((ciphers) => {
         // There are 2 favorite items but only one Card 2
@@ -404,7 +407,7 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should return true when there are zero filteredResults", (done) => {
-      searchService.searchCiphers.mockImplementation(async () => []);
+      searchService.searchCiphers.mockResolvedValue([]);
       service.noFilteredResults$.subscribe((noResults) => {
         expect(noResults).toBe(true);
         done();
@@ -429,6 +432,7 @@ describe("VaultPopupItemsService", () => {
   describe("hasFilterApplied$", () => {
     it("should return true if the search term provided is searchable", (done) => {
       searchService.isSearchable.mockImplementation(async () => true);
+      service.applyFilter("test");
       service.hasFilterApplied$.subscribe((canSearch) => {
         expect(canSearch).toBe(true);
         done();
@@ -460,12 +464,14 @@ describe("VaultPopupItemsService", () => {
     });
 
     it("should emit false once ciphers are available", async () => {
+      await trackedCiphers.expectEmission();
       expect(tracked.emissions.length).toBe(2);
       expect(tracked.emissions[0]).toBe(true);
       expect(tracked.emissions[1]).toBe(false);
     });
 
     it("should cycle when cipherService.ciphers$ emits", async () => {
+      await trackedCiphers.expectEmission();
       // Restart tracking
       tracked = new ObservableTracker(service.loading$);
       ciphersSubject.next({});
@@ -480,20 +486,16 @@ describe("VaultPopupItemsService", () => {
   });
 
   describe("applyFilter", () => {
-    it("should call search Service with the new search term", (done) => {
+    it("should call search Service with the new search term", async () => {
       const searchText = "Hello";
       const searchServiceSpy = jest.spyOn(searchService, "searchCiphers");
+      searchService.isSearchable.mockImplementation(async () => true);
 
       service.applyFilter(searchText);
-      service.favoriteCiphers$.subscribe(() => {
-        expect(searchServiceSpy).toHaveBeenCalledWith(
-          "UserId",
-          searchText,
-          undefined,
-          expect.anything(),
-        );
-        done();
-      });
+
+      await firstValueFrom(service.favoriteCiphers$.pipe(take(1)));
+
+      expect(searchServiceSpy).toHaveBeenCalledWith("UserId", null, searchText, expect.anything());
     });
   });
 

@@ -1,21 +1,25 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule, Location } from "@angular/common";
-import { Component, inject, viewChild } from "@angular/core";
+import { Component, inject, signal, viewChild } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Params, Router } from "@angular/router";
-import { map, switchMap } from "rxjs";
+import { firstValueFrom, map, switchMap } from "rxjs";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { SendDisabledReason } from "@bitwarden/common/tools/models/send-disabled-reason";
+import { WhoCanAccessType } from "@bitwarden/common/tools/models/send-who-can-access-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { SendId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
+  ButtonComponent,
   ButtonModule,
+  CalloutComponent,
   DialogService,
   IconButtonModule,
   SearchModule,
@@ -29,9 +33,11 @@ import {
   SendFormGenerationService,
   SendFormMode,
   SendFormModule,
+  SendFormService,
+  SendPolicyService,
 } from "@bitwarden/send-ui";
+import { I18nPipe } from "@bitwarden/ui-common";
 
-import { PopupBackBrowserDirective } from "../../../../platform/popup/layout/popup-back.directive";
 import { PopupFooterComponent } from "../../../../platform/popup/layout/popup-footer.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
@@ -79,7 +85,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
   imports: [
     CommonModule,
     SearchModule,
-    JslibModule,
+    I18nPipe,
     FormsModule,
     ButtonModule,
     IconButtonModule,
@@ -88,7 +94,7 @@ export type AddEditQueryParams = Partial<Record<keyof QueryParams, string>>;
     PopupFooterComponent,
     SendFormModule,
     AsyncActionsModule,
-    PopupBackBrowserDirective,
+    CalloutComponent,
   ],
 })
 export class SendAddEditComponent {
@@ -102,8 +108,20 @@ export class SendAddEditComponent {
    */
   config: SendFormConfig;
 
+  /**
+   * Whether the Send is actively being edited
+   */
+  protected readonly editing = signal(false);
+
   private sendFormGenerationService = inject(SendFormGenerationService);
   private readonly sendFormComponent = viewChild(SendFormComponent);
+  readonly submitBtn = viewChild<ButtonComponent>("submitBtn");
+
+  protected readonly disabledSendConfig = signal<{
+    title: string;
+    message: string;
+    showMakeCopyButton: boolean;
+  } | null>(null);
 
   constructor(
     private route: ActivatedRoute,
@@ -114,6 +132,8 @@ export class SendAddEditComponent {
     private toastService: ToastService,
     private dialogService: DialogService,
     private router: Router,
+    private sendFormService: SendFormService,
+    private sendPolicyService: SendPolicyService,
   ) {
     this.subscribeToParams();
   }
@@ -124,6 +144,7 @@ export class SendAddEditComponent {
   async onSendCreated(send: SendView) {
     await this.router.navigate(["/send-created"], {
       queryParams: { sendId: send.id },
+      replaceUrl: true,
     });
     return;
   }
@@ -131,8 +152,10 @@ export class SendAddEditComponent {
   /**
    * Handles the event when the send is updated.
    */
-  async onSendUpdated(_: SendView) {
-    await this.router.navigate(["/tabs/send"]);
+  async onSendUpdated(updatedSendView: SendView) {
+    await this.router.navigate(["/edit-send"], {
+      queryParams: { sendId: updatedSendView.id, type: updatedSendView.type },
+    });
   }
 
   deleteSend = async () => {
@@ -201,8 +224,47 @@ export class SendAddEditComponent {
       )
       .subscribe((config) => {
         this.config = config;
+        void this.setSendDisabledConfig();
+        this.editing.set(config.mode === "add");
         this.headerText = this.getHeaderText(config.mode, config.sendType);
       });
+  }
+
+  async setSendDisabledConfig() {
+    if (this.config.originalSend) {
+      const sendDisabledReason = await this.sendPolicyService.sendDisabledReason(
+        this.config.originalSend,
+      );
+      // We can make a copy of a disabled Send only if two conditions are met
+      // 1. The Send doesn't violate the SendType restriction of the policy (if
+      // Text Sends are disallowed we cannot make a new one for the copy)
+      // 2. The Send is a Text Send (we can't attach existing files to new Sends)
+      if (sendDisabledReason === SendDisabledReason.RestrictedType) {
+        this.disabledSendConfig.set({
+          title:
+            this.config.originalSend.type === SendType.Text
+              ? "orgDoesNotAllowTextSends"
+              : "orgDoesNotAllowFileSends",
+          message: "sendWillAutomaticallyExpire",
+          // This branch violates condition 1 so we never allow copying
+          showMakeCopyButton: false,
+        });
+      } else if (sendDisabledReason === SendDisabledReason.Other) {
+        // This branch meets condition 1, so all we need to check is condition 2
+        const showMakeCopyButton = this.config.originalSend?.type === SendType.Text;
+        this.disabledSendConfig.set({
+          title: "sendNotCompliantWithYourOrgsPolicy",
+          message: showMakeCopyButton
+            ? "sendDisabledNonCompliantBannerMessage"
+            : "sendWillAutomaticallyExpire",
+          showMakeCopyButton,
+        });
+      } else {
+        this.disabledSendConfig.set(null);
+      }
+    } else {
+      this.disabledSendConfig.set(null);
+    }
   }
 
   /**
@@ -212,11 +274,81 @@ export class SendAddEditComponent {
    * @returns The header text.
    */
   private getHeaderText(mode: SendFormMode, type: SendType) {
-    const isEditMode = mode === "edit" || mode === "partial-edit";
+    let sendAction: "view" | "edit" | "add" = "add";
+    if (!this.editing()) {
+      sendAction = "view";
+    } else if (mode === "edit" || mode === "partial-edit") {
+      sendAction = "edit";
+    }
     const translation = {
-      [SendType.Text]: isEditMode ? "editItemHeaderTextSend" : "newItemHeaderTextSend",
-      [SendType.File]: isEditMode ? "editItemHeaderFileSend" : "newItemHeaderFileSend",
+      [SendType.Text]: {
+        view: "viewTextSendHeader",
+        edit: "editItemHeaderTextSendV2",
+        add: "newItemHeaderTextSendV2",
+      },
+      [SendType.File]: {
+        view: "viewFileSendHeader",
+        edit: "editItemHeaderFileSendV2",
+        add: "newItemHeaderFileSendV2",
+      },
+      [SendType.Item]: {
+        view: "viewItem",
+        edit: "editItem",
+        add: "addItem",
+      },
     };
-    return this.i18nService.t(translation[type]);
+    return this.i18nService.t(translation[type][sendAction]);
+  }
+
+  protected editSend() {
+    this.editing.set(true);
+    this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+  }
+
+  protected async onCancelClick() {
+    if (this.config.mode === "add") {
+      await this.router.navigate(["tabs/send"]);
+    } else {
+      this.editing.set(false);
+      this.headerText = this.getHeaderText(this.config.mode, this.config.sendType);
+    }
+  }
+
+  protected async onBackClick() {
+    if (this.config.mode === "add" || !this.editing()) {
+      await this.router.navigate(["tabs/send"]);
+    } else {
+      await this.onCancelClick();
+    }
+  }
+
+  protected async makeCopy() {
+    const originalSendView = this.sendFormService.originalSendView();
+    if (!originalSendView) {
+      return;
+    }
+    const hideEmailDisabled = await firstValueFrom(this.sendPolicyService.disableHideEmail$);
+    const whoCanAccess = await firstValueFrom(this.sendPolicyService.whoCanAccess$);
+    this.config = {
+      areSendsAllowed: true,
+      mode: "add",
+      sendType: originalSendView.type,
+      originalSend: null,
+      presetSendFields: {
+        name: originalSendView.name,
+        text: originalSendView.text,
+        maxAccessCount: originalSendView.maxAccessCount,
+        hideEmail: !hideEmailDisabled && originalSendView.hideEmail,
+        notes: originalSendView.notes,
+        authType:
+          whoCanAccess === WhoCanAccessType.SpecificPeople
+            ? AuthType.Email
+            : whoCanAccess === WhoCanAccessType.PasswordProtected
+              ? AuthType.Password
+              : AuthType.None,
+      },
+    };
+    await this.setSendDisabledConfig();
+    this.editSend();
   }
 }

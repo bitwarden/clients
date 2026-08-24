@@ -1,4 +1,4 @@
-import { PublicKey } from "@bitwarden/sdk-internal";
+import { KeyRotationMethod, PublicKey, UpgradeTokenAction } from "@bitwarden/sdk-internal";
 import { UserId } from "@bitwarden/user-core";
 
 /**
@@ -31,11 +31,33 @@ export abstract class UserKeyRotationService {
   ): Promise<boolean>;
 
   /**
+   * Rotates the user key and associated encrypted data using the SDK without a master password change.
+   * For master password based key rotations the master password should be confirmed by proof of decryption prior to calling this method.
+   * @param keyRotationMethod The method to use for key rotation.
+   * @param upgradeTokenAction The action to take for creating an upgrade token if needed for the key rotation.
+   * For manual rotations the expected value is "Skip". "CreateIfNeeded" is expected for background migrations upgrading user from v1 to v2.
+   * @param userId The ID of the user.
+   * @returns True if the key rotation was successful, false if the user denied trust.
+   * @throws If the SDK call fails or the SDK is not available.
+   */
+  abstract rotateUserKey(
+    keyRotationMethod: KeyRotationMethod,
+    upgradeTokenAction: UpgradeTokenAction,
+    userId: UserId,
+  ): Promise<boolean>;
+
+  /**
    * Verifies the trust of organizations and emergency access users by prompting the user.
    * Since organizations and emergency access grantees are not signed, manual trust prompts
    * are required to verify that the server does not inject public keys.
-   * @param user The user account
+   * @param userId The user account
+   * @param upgradeTokenAction The action the accompanying key rotation takes for creating an upgrade token.
+   * When "CreateIfNeeded" is passed, the upgrade token covers account recovery, so no organizations
+   * require manual trust verification.
    * @returns TrustVerificationResult containing whether trust was denied and the trusted public keys
    */
-  abstract verifyTrust(userId: UserId): Promise<TrustVerificationResult>;
+  abstract verifyTrust(
+    userId: UserId,
+    upgradeTokenAction: UpgradeTokenAction,
+  ): Promise<TrustVerificationResult>;
 }

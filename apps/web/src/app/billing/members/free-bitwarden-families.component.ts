@@ -7,8 +7,6 @@ import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { OrganizationSponsorshipInvitesResponse } from "@bitwarden/common/billing/models/response/organization-sponsorship-invites.response";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -18,16 +16,21 @@ import { OrgKey } from "@bitwarden/common/types/key";
 import {
   ButtonModule,
   ContainerComponent,
-  DialogRef,
   DialogService,
   IconButtonModule,
   MenuModule,
+  NoItemsModule,
   TableModule,
   ToastService,
   TypographyModule,
+  IconComponent,
+  IconModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 
@@ -45,8 +48,12 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
     I18nPipe,
     IconButtonModule,
     MenuModule,
+    NoItemsModule,
     TableModule,
     TypographyModule,
+    IconComponent,
+    IconModule,
+    Vfo1I18nPipe,
   ],
 })
 export class FreeBitwardenFamiliesComponent implements OnInit {
@@ -141,15 +148,12 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
   }
 
   async addSponsorship() {
-    const addSponsorshipDialogRef: DialogRef = AddSponsorshipDialogComponent.open(
-      this.dialogService,
-      {
-        data: {
-          organizationId: this.organizationId,
-          organizationKey: await firstValueFrom(this.organizationKey$),
-        },
+    const addSponsorshipDialogRef = AddSponsorshipDialogComponent.open(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        organizationKey: await firstValueFrom(this.organizationKey$),
       },
-    );
+    });
 
     await firstValueFrom(addSponsorshipDialogRef.closed);
 

@@ -1,11 +1,17 @@
+// This file has been automatically migrated to valid ESM format by Storybook.
+import { createRequire } from "node:module";
 import { dirname, join } from "path";
 
 import { StorybookConfig } from "@storybook/angular";
 import remarkGfm from "remark-gfm";
 import TsconfigPathsPlugin from "tsconfig-paths-webpack-plugin";
 
+const require = createRequire(import.meta.url);
+
 const config: StorybookConfig = {
   stories: [
+    "../libs/storybook/src/**/*.mdx",
+    "../libs/storybook/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/auth/src/**/*.mdx",
     "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/dirt/card/src/**/*.mdx",
@@ -26,6 +32,8 @@ const config: StorybookConfig = {
     "../apps/browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../bitwarden_license/bit-web/src/**/*.mdx",
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../bitwarden_license/bit-browser/src/**/*.mdx",
+    "../bitwarden_license/bit-browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/angular/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
@@ -68,7 +76,14 @@ const config: StorybookConfig = {
     return config;
   },
   docs: {},
-  staticDirs: ["../apps/web/src/images"],
+  staticDirs: [
+    "../apps/web/src/images",
+    // Component templates reference images via relative paths like `../../../images/foo.png`,
+    // which the browser resolves against the iframe's root URL as `/images/foo.png`. The entry
+    // above only serves these files at the root (e.g. `/foo.png`), so this second entry mirrors
+    // the same directory under `/images` too.
+    { from: "../apps/web/src/images", to: "/images" },
+  ],
   refs: (config, { configType }) => {
     if (configType === "PRODUCTION") {
       const autofillUrl = process.env.AUTOFILL_CHROMATIC_URL;

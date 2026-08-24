@@ -1,5 +1,9 @@
+import { AUTOFILL_ATTRIBUTES } from "@bitwarden/common/autofill/constants";
+
 import { FieldRect } from "../background/abstractions/overlay.background";
 import { AutofillPort } from "../enums/autofill-port.enum";
+import type { AutofillFieldReadonlyDisabledState } from "../models/autofill-field";
+import type { SubFrameOffsetWindowMessageData } from "../services/abstractions/autofill-overlay-content.service";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 /**
@@ -298,38 +302,19 @@ export function nodeIsElement(node: Node): node is Element {
   return node?.nodeType === Node.ELEMENT_NODE;
 }
 
-/**
- * Identifies whether a node is an input element.
- *
- * @param node - The node to check.
- */
-export function nodeIsInputElement(node: Node): node is HTMLInputElement {
-  return nodeIsElement(node) && elementIsInputElement(node);
+export function elementIsTypeSubmitElement(element: Element): element is HTMLElement {
+  return getPropertyOrAttribute(element as HTMLElement, "type") === "submit";
 }
 
-/**
- * Identifies whether a node is a form element.
- *
- * @param node - The node to check.
- */
-export function nodeIsFormElement(node: Node): node is HTMLFormElement {
-  return nodeIsElement(node) && elementIsFormElement(node);
-}
-
-export function nodeIsTypeSubmitElement(node: Node): node is HTMLElement {
-  return nodeIsElement(node) && getPropertyOrAttribute(node as HTMLElement, "type") === "submit";
-}
-
-export function nodeIsButtonElement(node: Node): node is HTMLButtonElement {
+export function elementIsButtonElement(element: Element): element is HTMLButtonElement {
   return (
-    nodeIsElement(node) &&
-    (elementIsInstanceOf<HTMLButtonElement>(node, "button") ||
-      getPropertyOrAttribute(node as HTMLElement, "type") === "button")
+    elementIsInstanceOf<HTMLButtonElement>(element, "button") ||
+    getPropertyOrAttribute(element as HTMLElement, "type") === "button"
   );
 }
 
-export function nodeIsAnchorElement(node: Node): node is HTMLAnchorElement {
-  return nodeIsElement(node) && elementIsInstanceOf<HTMLAnchorElement>(node, "a");
+export function elementIsAnchorElement(element: Element): element is HTMLAnchorElement {
+  return elementIsInstanceOf<HTMLAnchorElement>(element, "a");
 }
 
 /**
@@ -349,6 +334,29 @@ export function getAttributeBoolean(
   }
 
   return Boolean(getPropertyOrAttribute(element, attributeName));
+}
+
+/**
+ * Checks if a form field element is currently readonly or disabled.
+ *
+ * @param formFieldElement - The form field element to evaluate.
+ * @param autofillFieldData - Optional cached autofill metadata for readonly or disabled state.
+ */
+export function isReadonlyOrDisabledFormFieldElement(
+  formFieldElement: FormFieldElement,
+  autofillFieldData?: AutofillFieldReadonlyDisabledState,
+): boolean {
+  const readOnlyByProperty =
+    (elementIsInputElement(formFieldElement) || elementIsTextAreaElement(formFieldElement)) &&
+    formFieldElement.readOnly;
+
+  return (
+    getAttributeBoolean(formFieldElement, AUTOFILL_ATTRIBUTES.DISABLED) ||
+    readOnlyByProperty ||
+    getAttributeBoolean(formFieldElement, "aria-readonly", true) ||
+    autofillFieldData?.readonly === true ||
+    autofillFieldData?.disabled === true
+  );
 }
 
 /**
@@ -556,4 +564,39 @@ export function areKeyValuesNull<T extends Record<string, any>>(
   const keysToCheck = keys && keys.length > 0 ? keys : (Object.keys(obj) as Array<keyof T>);
 
   return keysToCheck.every((key) => obj[key] == null);
+}
+
+/**
+ * Validates the shape of `subFrameData` and rejects any payload that carries a
+ * `url`. This is the *receive*-side counterpart to the *send*-side
+ * `SubFrameOffsetWindowMessageData` type: that type stops our own code from
+ * constructing a leaky payload at compile time, but any frame can post arbitrary
+ * data, so inbound messages must be validated at runtime before they are trusted.
+ *
+ * @param value - The untrusted `data` property of the window message event.
+ */
+export function isSubFramePositioningMessageData(
+  value: unknown,
+): value is { subFrameData: SubFrameOffsetWindowMessageData } {
+  if (typeof value !== "object" || value === null || !("subFrameData" in value)) {
+    return false;
+  }
+
+  const { subFrameData } = value as { subFrameData: unknown };
+  if (typeof subFrameData !== "object" || subFrameData === null || "url" in subFrameData) {
+    return false;
+  }
+
+  // Number.isFinite (not `typeof === "number"`) so NaN/Infinity are rejected: a
+  // non-finite subFrameDepth would defeat the MAX_SUB_FRAME_DEPTH relay guard.
+  const candidate = subFrameData as Record<string, unknown>;
+  return (
+    Number.isFinite(candidate.top) &&
+    Number.isFinite(candidate.left) &&
+    Number.isFinite(candidate.subFrameDepth) &&
+    (candidate.frameId === undefined || Number.isFinite(candidate.frameId)) &&
+    (candidate.parentFrameIds === undefined ||
+      (Array.isArray(candidate.parentFrameIds) &&
+        candidate.parentFrameIds.every((id) => Number.isFinite(id))))
+  );
 }

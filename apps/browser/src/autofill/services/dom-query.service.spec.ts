@@ -72,6 +72,7 @@ describe("DomQueryService", () => {
     });
 
     it("queries form field elements that are nested within multiple ShadowDOM elements", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const root = document.createElement("div");
       const shadowRoot1 = root.attachShadow({ mode: "open" });
       const root2 = document.createElement("div");
@@ -150,6 +151,7 @@ describe("DomQueryService", () => {
 
   describe("checkMutationsInShadowRoots", () => {
     it("returns true when a mutation occurred within a shadow root", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
       const input = document.createElement("input");
@@ -173,6 +175,7 @@ describe("DomQueryService", () => {
     });
 
     it("returns false when mutations occurred in the light DOM", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const div = document.createElement("div");
       document.body.appendChild(div);
 
@@ -194,6 +197,7 @@ describe("DomQueryService", () => {
     });
 
     it("returns true if any mutation in the array is in a shadow root", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
       const shadowInput = document.createElement("input");
@@ -230,46 +234,895 @@ describe("DomQueryService", () => {
 
       expect(result).toBe(true);
     });
+
+    it("returns false without walking targets when pageContainsShadowDom is false", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+      const target = document.createElement("div");
+      document.body.appendChild(target);
+      const getRootNodeSpy = jest.spyOn(target, "getRootNode");
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: NodeList.prototype,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: NodeList.prototype,
+        target,
+      };
+
+      const result = domQueryService.checkMutationsInShadowRoots([mutationRecord]);
+
+      expect(result).toBe(false);
+      expect(getRootNodeSpy).not.toHaveBeenCalled();
+    });
+
+    it("still detects shadow-root mutations once markShadowDomPresent flips the latch", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+      const customElement = document.createElement("custom-element");
+      const shadowRoot = customElement.attachShadow({ mode: "open" });
+      const shadowInput = document.createElement("input");
+      shadowRoot.appendChild(shadowInput);
+      const mutationRecord: MutationRecord = {
+        type: "childList",
+        addedNodes: NodeList.prototype,
+        attributeName: null,
+        attributeNamespace: null,
+        nextSibling: null,
+        oldValue: null,
+        previousSibling: null,
+        removedNodes: NodeList.prototype,
+        target: shadowInput,
+      };
+
+      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(false);
+
+      domQueryService["markShadowDomPresent"]();
+
+      expect(domQueryService.checkMutationsInShadowRoots([mutationRecord])).toBe(true);
+    });
+  });
+
+  describe("purgeDetachedShadowRoots", () => {
+    it("removes only entries whose host has left the document", () => {
+      const attachedHost = document.createElement("attached-host");
+      const attachedRoot = attachedHost.attachShadow({ mode: "open" });
+      document.body.appendChild(attachedHost);
+
+      const detachedHost = document.createElement("detached-host");
+      const detachedRoot = detachedHost.attachShadow({ mode: "open" });
+      // detachedHost is never appended to the document, so host.isConnected is false.
+
+      domQueryService["knownShadowRoots"].add(attachedRoot);
+      domQueryService["knownShadowRoots"].add(detachedRoot);
+
+      domQueryService.purgeDetachedShadowRoots();
+
+      expect(domQueryService["knownShadowRoots"].size).toBe(1);
+      expect(domQueryService["knownShadowRoots"].has(attachedRoot)).toBe(true);
+      expect(domQueryService["knownShadowRoots"].has(detachedRoot)).toBe(false);
+    });
+
+    it("leaves connected entries in place", () => {
+      const host = document.createElement("attached-host");
+      const root = host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+      domQueryService["knownShadowRoots"].add(root);
+
+      domQueryService.purgeDetachedShadowRoots();
+
+      expect(domQueryService["knownShadowRoots"].size).toBe(1);
+    });
+  });
+
+  describe("setOwnedShadowHostPredicate (excludes the extension's own injected UI by identity)", () => {
+    beforeEach(() => {
+      document.body.innerHTML = "";
+      domQueryService["knownShadowRoots"].clear();
+      domQueryService["pageContainsShadowDom"] = true;
+    });
+
+    it("does not detect an owned shadow host's root", () => {
+      const host = document.createElement("div");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
+
+      expect(domQueryService.checkForNewShadowRoots([host]).foundNewRoot).toBe(false);
+    });
+
+    it("detects a different host of the same tag — matched by identity, not tag name", () => {
+      const owned = document.createElement("div");
+      owned.attachShadow({ mode: "open" });
+      const pageHost = document.createElement("div");
+      pageHost.attachShadow({ mode: "open" });
+      document.body.append(owned, pageHost);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === owned);
+
+      expect(domQueryService.checkForNewShadowRoots([pageHost]).foundNewRoot).toBe(true);
+    });
+
+    it("ignores mutations inside an owned shadow host", () => {
+      const host = document.createElement("div");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate((el) => el === host);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(false);
+    });
+
+    it("still flags mutations inside a non-owned shadow host", () => {
+      const host = document.createElement("div");
+      const inner = host.attachShadow({ mode: "open" }).appendChild(document.createElement("span"));
+      document.body.appendChild(host);
+      domQueryService.setOwnedShadowHostPredicate(() => false);
+
+      const mutation = { target: inner } as unknown as MutationRecord;
+      expect(domQueryService.checkMutationsInShadowRoots([mutation])).toBe(true);
+    });
+  });
+
+  describe("getShadowRoot", () => {
+    it("returns null for a non-element node", () => {
+      const textNode = document.createTextNode("not an element");
+
+      expect(domQueryService["getShadowRoot"](textNode)).toBeNull();
+    });
   });
 
   describe("checkForNewShadowRoots", () => {
     beforeEach(() => {
-      // Clear any shadow roots from previous tests
       document.body.innerHTML = "";
-      // Reset the observed shadow roots set
-      domQueryService["observedShadowRoots"] = new WeakSet<ShadowRoot>();
+      domQueryService["knownShadowRoots"].clear();
     });
 
-    it("returns true when a shadow root is not in the observed set", () => {
+    it("returns true when a batched element hosts a root not in the observed set", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       customElement.attachShadow({ mode: "open" });
       document.body.appendChild(customElement);
 
-      const result = domQueryService.checkForNewShadowRoots();
+      const result = domQueryService.checkForNewShadowRoots([customElement]);
 
-      expect(result).toBe(true);
+      expect(result.foundNewRoot).toBe(true);
     });
 
-    it("returns false when all shadow roots are already observed", () => {
+    it("enrolls the discovered root when an observer is supplied (observe + known, paired)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const customElement = document.createElement("custom-element");
+      const shadowRoot = customElement.attachShadow({ mode: "open" });
+      document.body.appendChild(customElement);
+      const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+      const result = domQueryService.checkForNewShadowRoots([customElement], mutationObserver);
+
+      expect(result.foundNewRoot).toBe(true);
+      expect(domQueryService["knownShadowRoots"].has(shadowRoot)).toBe(true);
+      expect(observeSpy).toHaveBeenCalledWith(
+        shadowRoot,
+        expect.objectContaining({ attributes: true, childList: true, subtree: true }),
+      );
+    });
+
+    it("detects but does not enroll a discovered root when no observer is supplied", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const customElement = document.createElement("custom-element");
+      const shadowRoot = customElement.attachShadow({ mode: "open" });
+      document.body.appendChild(customElement);
+
+      const result = domQueryService.checkForNewShadowRoots([customElement]);
+
+      // Detection still fires, but without an observer to pair it with, the root stays unknown.
+      expect(result.foundNewRoot).toBe(true);
+      expect(domQueryService["knownShadowRoots"].has(shadowRoot)).toBe(false);
+    });
+
+    it("returns false when the batched element's root is already observed", () => {
+      domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
       document.body.appendChild(customElement);
 
       // Simulate the shadow root being observed by adding it to the tracked set
-      domQueryService["observedShadowRoots"].add(shadowRoot);
+      domQueryService["knownShadowRoots"].add(shadowRoot);
 
-      const result = domQueryService.checkForNewShadowRoots();
+      const result = domQueryService.checkForNewShadowRoots([customElement]);
 
-      expect(result).toBe(false);
+      expect(result.foundNewRoot).toBe(false);
     });
 
-    it("returns false when there are no shadow roots on the page", () => {
+    it("returns false when a batched element hosts no shadow root", () => {
       const div = document.createElement("div");
       document.body.appendChild(div);
 
-      const result = domQueryService.checkForNewShadowRoots();
+      const result = domQueryService.checkForNewShadowRoots([div]);
 
-      expect(result).toBe(false);
+      expect(result.foundNewRoot).toBe(false);
+    });
+
+    it("short-circuits to false on an empty batch even with an unobserved root present", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const customElement = document.createElement("custom-element");
+      customElement.attachShadow({ mode: "open" });
+      document.body.appendChild(customElement);
+
+      expect(domQueryService.checkForNewShadowRoots().foundNewRoot).toBe(false);
+      expect(domQueryService.checkForNewShadowRoots([]).foundNewRoot).toBe(false);
+    });
+
+    // Characterizes the service-level contract (no full-document fallback). Recovery
+    // for late-hydrating custom elements lives in CollectAutofillContentService via
+    // the unresolved-host sink; plain-element in-place attachShadow remains out of scope.
+    it("finds an in-place attachShadow root only via the candidate batch, not absent the host", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const host = document.createElement("div");
+      document.body.appendChild(host);
+      const root = host.attachShadow({ mode: "open" });
+      root.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+      const unrelated = document.createElement("span");
+      document.body.appendChild(unrelated);
+
+      expect(domQueryService.checkForNewShadowRoots([unrelated]).foundNewRoot).toBe(false);
+      expect(domQueryService.checkForNewShadowRoots([host]).foundNewRoot).toBe(true);
+    });
+
+    it("returns true via narrow-scan and does not flip pageContainsShadowDom when latch was already true", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const host = document.createElement("custom-element");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      const result = domQueryService.checkForNewShadowRoots([host]);
+
+      expect(result.foundNewRoot).toBe(true);
+      expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+    });
+
+    it("flips pageContainsShadowDom from false to true when narrow-scan discovers a root", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+      const host = document.createElement("custom-element");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      const result = domQueryService.checkForNewShadowRoots([host]);
+
+      expect(result.foundNewRoot).toBe(true);
+      expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+    });
+
+    it("refreshes the latch on user request only while false, preserving the ratchet", () => {
+      const host = document.createElement("late-host");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      domQueryService["pageContainsShadowDom"] = false;
+      domQueryService.refreshShadowDomStateForUserRequest();
+      expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+
+      // Latch already true: no rescan — a root-less moment must not flip it back.
+      document.body.removeChild(host);
+      domQueryService.refreshShadowDomStateForUserRequest();
+      expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+    });
+
+    it("preserves the cheap-page short-circuit when latch is false and addedElements is empty", () => {
+      domQueryService["pageContainsShadowDom"] = false;
+
+      const result = domQueryService.checkForNewShadowRoots([]);
+
+      expect(result.foundNewRoot).toBe(false);
+      expect(domQueryService["pageContainsShadowDom"]).toBe(false);
+    });
+
+    it("returns true when a new root is nested inside a known root (PM-29033)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const outerHost = document.createElement("outer-host");
+      const outerRoot = outerHost.attachShadow({ mode: "open" });
+      // Regression case: a single-level narrow scan would miss this.
+      domQueryService["knownShadowRoots"].add(outerRoot);
+      document.body.appendChild(outerHost);
+
+      const innerHost = document.createElement("inner-host");
+      innerHost.attachShadow({ mode: "open" });
+      outerRoot.appendChild(innerHost);
+
+      const result = domQueryService.checkForNewShadowRoots([outerHost]);
+
+      expect(result.foundNewRoot).toBe(true);
+    });
+
+    describe("unresolved host sink", () => {
+      it("collects shadow-less custom elements from the batch subtree", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const wrapper = document.createElement("div");
+        const lazyHost = document.createElement("lazy-host");
+        wrapper.appendChild(lazyHost);
+        document.body.appendChild(wrapper);
+
+        const { foundNewRoot, unresolvedHosts } = domQueryService.checkForNewShadowRoots([wrapper]);
+
+        expect(foundNewRoot).toBe(false);
+        expect(unresolvedHosts).toEqual(new Set([lazyHost]));
+      });
+
+      it("excludes the extension's own hyphenated hosts from the sink", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const wrapper = document.createElement("div");
+        // Owned inline-menu elements are hyphenated custom elements with no shadow root; without
+        // the ownership gate they would be re-scanned for their whole tracked lifetime.
+        const ownedHost = document.createElement("bw-inline-menu");
+        wrapper.appendChild(ownedHost);
+        document.body.appendChild(wrapper);
+        domQueryService.setOwnedShadowHostPredicate((el) => el === ownedHost);
+
+        const { unresolvedHosts } = domQueryService.checkForNewShadowRoots([wrapper]);
+
+        expect(unresolvedHosts.has(ownedHost)).toBe(false);
+      });
+
+      it("collects un-hydrated custom elements nested inside an already-known root", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const outerHost = document.createElement("global-login");
+        const outerRoot = outerHost.attachShadow({ mode: "open" });
+        domQueryService["knownShadowRoots"].add(outerRoot);
+        document.body.appendChild(outerHost);
+
+        const innerHost = document.createElement("sign-in-form");
+        outerRoot.appendChild(innerHost);
+
+        const { foundNewRoot, unresolvedHosts } = domQueryService.checkForNewShadowRoots([
+          outerHost,
+        ]);
+
+        expect(foundNewRoot).toBe(false);
+        expect(unresolvedHosts).toEqual(new Set([innerHost]));
+
+        // Lazy hydration attaches the inner root; a re-scan of the sink element finds it.
+        const innerRoot = innerHost.attachShadow({ mode: "open" });
+        innerRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+        expect(domQueryService.checkForNewShadowRoots([innerHost]).foundNewRoot).toBe(true);
+      });
+
+      it("keeps scanning after a new root is found so the sink stays complete", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const hydratedHost = document.createElement("hydrated-host");
+        hydratedHost.attachShadow({ mode: "open" });
+        document.body.appendChild(hydratedHost);
+
+        const lazyHost = document.createElement("lazy-host");
+        document.body.appendChild(lazyHost);
+
+        const { foundNewRoot, unresolvedHosts } = domQueryService.checkForNewShadowRoots([
+          hydratedHost,
+          lazyHost,
+        ]);
+
+        expect(foundNewRoot).toBe(true);
+        expect(unresolvedHosts).toEqual(new Set([lazyHost]));
+      });
+
+      it("collects un-hydrated hosts found inside a newly discovered root", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const outerHost = document.createElement("outer-host");
+        const outerRoot = outerHost.attachShadow({ mode: "open" });
+        document.body.appendChild(outerHost);
+
+        const innerHost = document.createElement("inner-host");
+        outerRoot.appendChild(innerHost);
+
+        const { foundNewRoot, unresolvedHosts } = domQueryService.checkForNewShadowRoots([
+          outerHost,
+        ]);
+
+        expect(foundNewRoot).toBe(true);
+        expect(unresolvedHosts).toEqual(new Set([innerHost]));
+      });
+
+      it("ignores plain elements and hosts whose roots are already known", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const plain = document.createElement("div");
+        plain.appendChild(document.createElement("span"));
+        document.body.appendChild(plain);
+
+        const knownHost = document.createElement("known-host");
+        domQueryService["knownShadowRoots"].add(knownHost.attachShadow({ mode: "open" }));
+        document.body.appendChild(knownHost);
+
+        const { foundNewRoot, unresolvedHosts } = domQueryService.checkForNewShadowRoots([
+          plain,
+          knownHost,
+        ]);
+
+        expect(foundNewRoot).toBe(false);
+        expect(unresolvedHosts.size).toBe(0);
+      });
+    });
+
+    describe("collection-walk unresolved host sink", () => {
+      it("collects un-hydrated custom elements during a treewalker query even with the latch false", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+        const pending = document.createElement("pre-existing-widget");
+        const hydrated = document.createElement("hydrated-widget");
+        hydrated.attachShadow({ mode: "open" });
+        const plain = document.createElement("div");
+        document.body.append(pending, hydrated, plain);
+
+        const { unresolvedHosts } = domQueryService.queryWithUnresolvedShadowHosts(
+          document.documentElement,
+          () => false,
+        );
+
+        expect(unresolvedHosts).toEqual(new Set([pending]));
+      });
+
+      it("registers hydrated roots and sinks only the pending hosts when the latch is true", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const pending = document.createElement("pending-widget");
+        const hydrated = document.createElement("ready-widget");
+        const hydratedRoot = hydrated.attachShadow({ mode: "open" });
+        document.body.append(pending, hydrated);
+        const observeSpy = jest.spyOn(mutationObserver, "observe");
+
+        const { unresolvedHosts } = domQueryService.queryWithUnresolvedShadowHosts(
+          document.documentElement,
+          () => false,
+          mutationObserver,
+        );
+
+        expect(unresolvedHosts).toEqual(new Set([pending]));
+        // A root is recorded as known only paired with an observer watching it.
+        expect(domQueryService["knownShadowRoots"].has(hydratedRoot)).toBe(true);
+        expect(observeSpy).toHaveBeenCalledWith(
+          hydratedRoot,
+          expect.objectContaining({ attributes: true, childList: true, subtree: true }),
+        );
+      });
+    });
+
+    it("returns true for a shadow host adopted from an iframe realm (PM-39772)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+
+      const iframe = document.createElement("iframe");
+      document.body.appendChild(iframe);
+      // Cross-realm host: constructor comes from the iframe's realm, so
+      // top-frame `host instanceof Element` returns false.
+      const host = iframe.contentDocument!.createElement("foreign-host");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      // Precondition: confirm the cross-realm condition — if this fails,
+      // jsdom didn't give us a foreign realm and the regression can't fire.
+      expect(host instanceof Element).toBe(false);
+
+      const result = domQueryService.checkForNewShadowRoots([host]);
+
+      expect(result.foundNewRoot).toBe(true);
+    });
+
+    it("bails at MAX_DEEP_QUERY_RECURSION_DEPTH without throwing on pathological nesting", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const root0 = document.createElement("host-0");
+      const shadow0 = root0.attachShadow({ mode: "open" });
+      domQueryService["knownShadowRoots"].add(shadow0);
+      document.body.appendChild(root0);
+
+      let parentShadow: ShadowRoot = shadow0;
+      // 6 observed nestings + a final unobserved root past the depth cap (4).
+      for (let i = 1; i <= 6; i++) {
+        const host = document.createElement(`host-${i}`);
+        const shadow = host.attachShadow({ mode: "open" });
+        if (i < 6) {
+          domQueryService["knownShadowRoots"].add(shadow);
+        }
+        parentShadow.appendChild(host);
+        parentShadow = shadow;
+      }
+
+      expect(() => domQueryService.checkForNewShadowRoots([root0])).not.toThrow();
+    });
+
+    it("handles a disconnected element in addedElements without crashing", () => {
+      // External callers may not filter by `isConnected`.
+      domQueryService["pageContainsShadowDom"] = false;
+      const host = document.createElement("disconnected-host");
+      host.attachShadow({ mode: "open" });
+      expect(host.isConnected).toBe(false);
+
+      expect(() => domQueryService.checkForNewShadowRoots([host])).not.toThrow();
+    });
+
+    it("handles duplicate entries in addedElements (defensive — Set-side dedup makes this rare)", () => {
+      domQueryService["pageContainsShadowDom"] = true;
+      const host = document.createElement("dup-host");
+      host.attachShadow({ mode: "open" });
+      document.body.appendChild(host);
+
+      const result = domQueryService.checkForNewShadowRoots([host, host]);
+
+      expect(result.foundNewRoot).toBe(true);
+    });
+
+    describe("batch gating", () => {
+      it("short-circuits with an empty result when no added elements are given", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+
+        const result = domQueryService.checkForNewShadowRoots();
+
+        expect(result).toEqual({ foundNewRoot: false, unresolvedHosts: new Set() });
+      });
+
+      it("scans a non-empty batch even with the latch false (sinks the un-hydrated host)", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+        const host = document.createElement("custom-element");
+        document.body.appendChild(host);
+
+        const result = domQueryService.checkForNewShadowRoots([host]);
+
+        // A scan (not a short-circuit) surfaces the bare custom-element host.
+        expect(result.unresolvedHosts).toEqual(new Set([host]));
+      });
+
+      it("short-circuits on an empty batch even with the latch true (no full-document walk)", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+
+        const result = domQueryService.checkForNewShadowRoots([]);
+
+        expect(result).toEqual({ foundNewRoot: false, unresolvedHosts: new Set() });
+      });
+
+      it("leaves the latch untouched when a scan finds no new root", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+        const host = document.createElement("custom-element");
+        document.body.appendChild(host);
+
+        domQueryService.checkForNewShadowRoots([host]);
+
+        expect(domQueryService["pageContainsShadowDom"]).toBe(false);
+      });
+    });
+
+    describe("markShadowDomPresent (named transition)", () => {
+      it("flips pageContainsShadowDom to true", () => {
+        domQueryService["pageContainsShadowDom"] = false;
+
+        domQueryService["markShadowDomPresent"]();
+
+        expect(domQueryService["pageContainsShadowDom"]).toBe(true);
+      });
+    });
+
+    describe("suppressDescendantsInBatch (ancestor coverage)", () => {
+      it("returns the array unchanged when fewer than two elements", () => {
+        const only = document.createElement("div");
+
+        expect(domQueryService["suppressDescendantsInBatch"]([])).toEqual([]);
+        expect(domQueryService["suppressDescendantsInBatch"]([only])).toEqual([only]);
+      });
+
+      it("drops descendants whose ancestor is also in the batch", () => {
+        const parent = document.createElement("section");
+        const child = document.createElement("div");
+        parent.appendChild(child);
+
+        const roots = domQueryService["suppressDescendantsInBatch"]([parent, child]);
+
+        expect(roots).toEqual([parent]);
+      });
+
+      it("keeps unrelated siblings", () => {
+        const a = document.createElement("section");
+        const b = document.createElement("article");
+
+        const roots = domQueryService["suppressDescendantsInBatch"]([a, b]);
+
+        expect(roots).toEqual([a, b]);
+      });
+    });
+
+    describe("ancestor suppression cuts redundant subtree walks in findNewShadowRootInBatch", () => {
+      it("only scans the ancestor when a descendant is also in the batch", () => {
+        domQueryService["pageContainsShadowDom"] = true;
+        const parent = document.createElement("section");
+        const child = document.createElement("div");
+        parent.appendChild(child);
+        document.body.appendChild(parent);
+        const scanSpy = jest.spyOn(
+          domQueryService as unknown as { scanForNewShadowRootInSubtree: jest.Mock },
+          "scanForNewShadowRootInSubtree",
+        );
+
+        domQueryService.checkForNewShadowRoots([parent, child]);
+
+        // First call is the parent at depth 0; without suppression we'd see
+        // a second top-level call for `child`.
+        const topLevelCalls = scanSpy.mock.calls.filter(([, depth]) => depth === 0);
+        expect(topLevelCalls.length).toBe(1);
+        expect(topLevelCalls[0][0]).toBe(parent);
+      });
+    });
+  });
+
+  describe("queryDeepSelector", () => {
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("returns null for an empty selector", () => {
+      expect(domQueryService.queryDeepSelector("")).toBeNull();
+    });
+
+    it("returns null when a selector segment is empty", () => {
+      expect(domQueryService.queryDeepSelector(">>> >>>")).toBeNull();
+    });
+
+    it("returns an element matching a simple selector", () => {
+      const input = document.createElement("input");
+      input.id = "username";
+      document.body.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#username")).toBe(input);
+    });
+
+    it("returns null when no element matches a simple selector", () => {
+      expect(domQueryService.queryDeepSelector("#nonexistent")).toBeNull();
+    });
+
+    it("traverses a shadow DOM boundary", () => {
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const input = document.createElement("input");
+      input.id = "shadow-input";
+      shadowRoot.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#shadow-host >>> #shadow-input")).toBe(input);
+    });
+
+    it("returns null when an intermediate element has no shadow root and is not an iframe", () => {
+      const div = document.createElement("div");
+      div.id = "plain-div";
+      document.body.appendChild(div);
+
+      expect(domQueryService.queryDeepSelector("#plain-div >>> #child")).toBeNull();
+    });
+
+    it("traverses a same-origin iframe boundary", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "test-iframe";
+      document.body.appendChild(iframe);
+      const input = iframe.contentDocument!.createElement("input");
+      input.id = "iframe-input";
+      iframe.contentDocument!.body.appendChild(input);
+
+      expect(domQueryService.queryDeepSelector("#test-iframe >>> #iframe-input")).toBe(input);
+    });
+
+    it("returns null when the iframe contentDocument is not accessible", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "cross-origin-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      expect(domQueryService.queryDeepSelector("#cross-origin-iframe >>> #some-input")).toBeNull();
+    });
+
+    it("returns null for an inaccessible iframe without falling back to shadow DOM", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "inaccessible-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      expect(domQueryService.queryDeepSelector("#inaccessible-iframe >>> #some-input")).toBeNull();
+    });
+
+    it("traverses multiple boundaries in sequence", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "outer-iframe";
+      document.body.appendChild(iframe);
+      const host = iframe.contentDocument!.createElement("div");
+      host.id = "shadow-host";
+      iframe.contentDocument!.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const input = document.createElement("input");
+      input.id = "deep-input";
+      shadowRoot.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector("#outer-iframe >>> #shadow-host >>> #deep-input"),
+      ).toBe(input);
+    });
+
+    it("traverses deeply nested shadow roots (four levels)", () => {
+      const host1 = document.createElement("div");
+      host1.id = "host-1";
+      document.body.appendChild(host1);
+      const shadow1 = host1.attachShadow({ mode: "open" });
+
+      const host2 = document.createElement("div");
+      host2.id = "host-2";
+      shadow1.appendChild(host2);
+      const shadow2 = host2.attachShadow({ mode: "open" });
+
+      const host3 = document.createElement("div");
+      host3.id = "host-3";
+      shadow2.appendChild(host3);
+      const shadow3 = host3.attachShadow({ mode: "open" });
+
+      const host4 = document.createElement("div");
+      host4.id = "host-4";
+      shadow3.appendChild(host4);
+      const shadow4 = host4.attachShadow({ mode: "open" });
+
+      const input = document.createElement("input");
+      input.id = "deeply-nested-input";
+      shadow4.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector(
+          "#host-1 >>> #host-2 >>> #host-3 >>> #host-4 >>> #deeply-nested-input",
+        ),
+      ).toBe(input);
+    });
+
+    it("traverses an iframe nested inside a shadow host", () => {
+      // jsdom only initializes contentDocument for iframes attached to the live
+      // document tree, so harvest a usable Document from a sibling iframe.
+      const docSource = document.createElement("iframe");
+      document.body.appendChild(docSource);
+      const iframeDoc = docSource.contentDocument!;
+
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+
+      const iframe = document.createElement("iframe");
+      iframe.id = "shadowed-iframe";
+      shadowRoot.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", {
+        value: iframeDoc,
+        configurable: true,
+      });
+
+      const input = iframeDoc.createElement("input");
+      input.id = "iframe-input";
+      iframeDoc.body.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector(
+          "#shadow-host >>> iframe#shadowed-iframe >>> input#iframe-input",
+        ),
+      ).toBe(input);
+    });
+
+    it("traverses an iframe nested inside another iframe", () => {
+      // jsdom does not auto-create contentDocument for iframes inside another
+      // iframe's document, so harvest one from a sibling iframe on the main doc.
+      const docSource = document.createElement("iframe");
+      document.body.appendChild(docSource);
+      const innerDoc = docSource.contentDocument!;
+
+      const outerIframe = document.createElement("iframe");
+      outerIframe.id = "outer-iframe";
+      document.body.appendChild(outerIframe);
+
+      // Create the inner iframe in the main document so it's an instance of the
+      // main window's HTMLIFrameElement, then place it inside the outer iframe's
+      // document body.
+      const innerIframe = document.createElement("iframe");
+      innerIframe.id = "inner-iframe";
+      outerIframe.contentDocument!.body.appendChild(innerIframe);
+      Object.defineProperty(innerIframe, "contentDocument", {
+        value: innerDoc,
+        configurable: true,
+      });
+
+      const input = innerDoc.createElement("input");
+      input.id = "nested-iframe-input";
+      innerDoc.body.appendChild(input);
+
+      expect(
+        domQueryService.queryDeepSelector(
+          "iframe#outer-iframe >>> iframe#inner-iframe >>> input#nested-iframe-input",
+        ),
+      ).toBe(input);
+    });
+  });
+
+  describe("findIframeCrossing", () => {
+    afterEach(() => {
+      document.body.innerHTML = "";
+    });
+
+    it("returns null for selectors without an iframe boundary", () => {
+      expect(domQueryService.findIframeCrossing("#username")).toBeNull();
+    });
+
+    it("returns null when no element matches the iframe segment", () => {
+      expect(domQueryService.findIframeCrossing("iframe#nonexistent >>> #username")).toBeNull();
+    });
+
+    it("returns the iframe element and inner selector for a single-hop boundary", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "login-iframe";
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing("iframe#login-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns the boundary even when iframe.contentDocument is null (cross-origin)", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "cross-origin-iframe";
+      document.body.appendChild(iframe);
+      Object.defineProperty(iframe, "contentDocument", { value: null, configurable: true });
+
+      const result = domQueryService.findIframeCrossing("iframe#cross-origin-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns the boundary even when iframe.src is empty (srcdoc / about:blank)", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "srcdoc-iframe";
+      // No src or srcdoc set — leaves iframe.src as empty string
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing("iframe#srcdoc-iframe >>> #username");
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.iframeElement.src).toBe("");
+    });
+
+    it("preserves the remaining selector for multi-hop chains", () => {
+      const iframe = document.createElement("iframe");
+      iframe.id = "outer";
+      document.body.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing(
+        "iframe#outer >>> iframe#inner >>> #username",
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("iframe#inner >>> #username");
+    });
+
+    it("walks shadow boundaries before reaching the iframe", () => {
+      const host = document.createElement("div");
+      host.id = "shadow-host";
+      document.body.appendChild(host);
+      const shadowRoot = host.attachShadow({ mode: "open" });
+      const iframe = document.createElement("iframe");
+      iframe.id = "inside-shadow";
+      shadowRoot.appendChild(iframe);
+
+      const result = domQueryService.findIframeCrossing(
+        "#shadow-host >>> iframe#inside-shadow >>> #username",
+      );
+
+      expect(result).not.toBeNull();
+      expect(result!.iframeElement).toBe(iframe);
+      expect(result!.innerSelector.trim()).toBe("#username");
+    });
+
+    it("returns null when a pre-iframe segment cannot traverse (no shadow root, no iframe)", () => {
+      const div = document.createElement("div");
+      div.id = "plain-div";
+      document.body.appendChild(div);
+
+      expect(domQueryService.findIframeCrossing("#plain-div >>> iframe#inner >>> #x")).toBeNull();
     });
   });
 });

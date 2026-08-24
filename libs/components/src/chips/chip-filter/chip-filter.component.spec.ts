@@ -229,12 +229,12 @@ describe("ChipFilterComponent", () => {
       await fixture.whenStable();
 
       const menu = component.menu();
-      expect(menu?.keyManager?.activeItemIndex).toBe(0);
+      expect(menu?.keyManager()?.activeItemIndex).toBe(0);
     });
 
     it("should not focus menu items during initialization (before menu opens)", () => {
       const menu = component.menu();
-      expect(menu?.keyManager?.activeItemIndex).toBe(-1);
+      expect(menu?.keyManager()?.activeItemIndex).toBe(-1);
     });
 
     it("should calculate and set menu width on open", () => {

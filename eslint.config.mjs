@@ -10,15 +10,66 @@ import eslintPluginTailwindCSS from "eslint-plugin-tailwindcss";
 import rxjs from "eslint-plugin-rxjs";
 import angularRxjs from "eslint-plugin-rxjs-angular";
 import storybook from "eslint-plugin-storybook";
+import jest from "eslint-plugin-jest";
 
 import platformPlugins from "./libs/eslint/platform/index.mjs";
 import componentPlugins from "./libs/eslint/components/index.mjs";
+
+/// @bitwarden/legacy-crypto is a holding pen for crypto primitives being retired in favour of the
+/// SDK
+const LEGACY_CRYPTO_RESTRICTED_PATTERN = {
+  group: ["@bitwarden/legacy-crypto", "@bitwarden/legacy-crypto/**"],
+  message:
+    "@bitwarden/legacy-crypto holds crypto primitives that are being retired in favour of the SDK. " +
+    "Do not add new imports if possible — implement the operation in the SDK and contact the Key Management team.",
+};
+
+// Common is at the base level - should not import from other libs except shared
+const COMMON_FORBIDDEN_PACKAGES = [
+  "@bitwarden/admin-console",
+  "@bitwarden/angular",
+  "@bitwarden/auth",
+  "@bitwarden/billing",
+  "@bitwarden/components",
+  "@bitwarden/importer",
+  "@bitwarden/key-management",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/node",
+  "@bitwarden/platform",
+  "@bitwarden/tools",
+  "@bitwarden/ui",
+  "@bitwarden/vault",
+];
+
+// Key management can depend on common, node, angular, components, eslint, platform, ui
+const KEY_MANAGEMENT_FORBIDDEN_PACKAGES = [
+  "@bitwarden/auth",
+  "@bitwarden/admin-console",
+  "@bitwarden/billing",
+  "@bitwarden/importer",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/tools",
+  "@bitwarden/vault",
+];
+
+// Node can depend on common, shared, auth
+const NODE_FORBIDDEN_PACKAGES = [
+  "@bitwarden/admin-console",
+  "@bitwarden/angular",
+  "@bitwarden/components",
+  "@bitwarden/importer",
+  "@bitwarden/key-management-ui",
+  "@bitwarden/platform",
+  "@bitwarden/tools",
+  "@bitwarden/ui",
+  "@bitwarden/vault",
+];
 
 export default tseslint.config(
   ...storybook.configs["flat/recommended"],
   {
     // Everything in this config object targets our TypeScript files (Components, Directives, Pipes etc)
-    files: ["**/*.ts", "**/*.js"],
+    files: ["**/*.ts", "**/*.mts", "**/*.js"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,
@@ -82,6 +133,7 @@ export default tseslint.config(
       "@bitwarden/platform/required-using": "error",
       "@bitwarden/platform/no-enums": "error",
       "@bitwarden/platform/no-page-script-url-leakage": "error",
+      "@bitwarden/platform/no-unawaited-using-return": "error",
       "@bitwarden/components/require-theme-colors-in-svg": "error",
 
       "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: "no-public" }],
@@ -203,6 +255,12 @@ export default tseslint.config(
     },
     rules: {
       "@angular-eslint/template/button-has-type": "error",
+      "@angular-eslint/template/elements-content": [
+        "error",
+        {
+          allowList: ["bitIconButton", "bit-chip-action", "appA11yTitle", "aria-labelledby"],
+        },
+      ],
       "tailwindcss/no-custom-classname": [
         "error",
         {
@@ -220,6 +278,7 @@ export default tseslint.config(
       ],
       "@bitwarden/components/no-bwi-class-usage": "warn",
       "@bitwarden/components/no-icon-children-in-bit-button": "warn",
+      "@bitwarden/components/no-bit-dialog-wrapper": "error",
     },
   },
 
@@ -389,22 +448,7 @@ export default tseslint.config(
   {
     files: ["libs/common/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Common is at the base level - should not import from other libs except shared
-        "@bitwarden/admin-console",
-        "@bitwarden/angular",
-        "@bitwarden/auth",
-        "@bitwarden/billing",
-        "@bitwarden/components",
-        "@bitwarden/importer",
-        "@bitwarden/key-management",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/node",
-        "@bitwarden/platform",
-        "@bitwarden/tools",
-        "@bitwarden/ui",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(COMMON_FORBIDDEN_PACKAGES),
     },
   },
   {
@@ -448,16 +492,7 @@ export default tseslint.config(
   {
     files: ["libs/key-management/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Key management can depend on common, node, angular, components, eslint, platform, ui
-        "@bitwarden/auth",
-        "@bitwarden/admin-console",
-        "@bitwarden/billing",
-        "@bitwarden/importer",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/tools",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(KEY_MANAGEMENT_FORBIDDEN_PACKAGES),
     },
   },
   {
@@ -616,18 +651,41 @@ export default tseslint.config(
   {
     files: ["libs/node/src/**/*.ts"],
     rules: {
-      "no-restricted-imports": buildNoRestrictedImports([
-        // Node can depend on common, shared, auth
-        "@bitwarden/admin-console",
-        "@bitwarden/angular",
-        "@bitwarden/components",
-        "@bitwarden/importer",
-        "@bitwarden/key-management-ui",
-        "@bitwarden/platform",
-        "@bitwarden/tools",
-        "@bitwarden/ui",
-        "@bitwarden/vault",
-      ]),
+      "no-restricted-imports": buildNoRestrictedImports(NODE_FORBIDDEN_PACKAGES),
+    },
+  },
+  {
+    files: ["libs/legacy-crypto/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": buildNoRestrictedImports(
+        [
+          // Legacy crypto can only depend on common, logging, key-management
+          "@bitwarden/admin-console",
+          "@bitwarden/angular",
+          "@bitwarden/auth",
+          "@bitwarden/billing",
+          "@bitwarden/components",
+          "@bitwarden/importer",
+          "@bitwarden/key-management-ui",
+          "@bitwarden/node",
+          "@bitwarden/platform",
+          "@bitwarden/tools",
+          "@bitwarden/ui",
+          "@bitwarden/vault",
+        ],
+        false,
+        true,
+      ),
+    },
+  },
+
+  // Within a package, import sibling code via relative paths rather than the package's own
+  // `@bitwarden/*` alias. Scoped to libs here; the rule self-limits to the file's owning package.
+  // https://contributing.bitwarden.com/contributing/code-style/web/typescript#imports-within-the-same-package
+  {
+    files: ["libs/**/*.ts", "bitwarden_license/bit-common/src/**/*.ts"],
+    rules: {
+      "@bitwarden/platform/no-self-package-import": "error",
     },
   },
 
@@ -677,6 +735,17 @@ export default tseslint.config(
     },
   },
 
+  // Jest test files configuration
+  {
+    files: ["**/*.spec.ts", "**/*.spec.js"],
+    plugins: {
+      jest,
+    },
+    rules: {
+      "jest/no-alias-methods": "error",
+    },
+  },
+
   // Keep ignores at the end
   {
     ignores: [
@@ -715,9 +784,15 @@ export default tseslint.config(
 /**
  * // Helper function for building no-restricted-imports rule
  * @param {string[]} additionalForbiddenPatterns
+ * @param {boolean} skipPlatform
+ * @param {boolean} allowLegacyCrypto Only the re-export shims listed above may set this.
  * @returns {any}
  */
-function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform = false) {
+function buildNoRestrictedImports(
+  additionalForbiddenPatterns = [],
+  skipPlatform = false,
+  allowLegacyCrypto = false,
+) {
   return [
     "error",
     {
@@ -727,10 +802,16 @@ function buildNoRestrictedImports(additionalForbiddenPatterns = [], skipPlatform
           message: "Use @bitwarden/sdk-internal instead.",
         },
       ],
+      // Object form rather than plain strings so the legacy-crypto group can carry its own message.
+      // ESLint requires every entry in `patterns` to be the same shape.
       patterns: [
-        ...(skipPlatform ? [] : ["**/platform/**/internal", "**/platform/messaging/**"]),
-        "**/src/**/*", // Prevent relative imports across libs.
-      ].concat(additionalForbiddenPatterns),
+        ...(skipPlatform
+          ? []
+          : [{ group: ["**/platform/**/internal", "**/platform/messaging/**"] }]),
+        { group: ["**/src/**/*"], message: "Prevent relative imports across libs." },
+        ...(additionalForbiddenPatterns.length > 0 ? [{ group: additionalForbiddenPatterns }] : []),
+        ...(allowLegacyCrypto ? [] : [LEGACY_CRYPTO_RESTRICTED_PATTERN]),
+      ],
     },
   ];
 }

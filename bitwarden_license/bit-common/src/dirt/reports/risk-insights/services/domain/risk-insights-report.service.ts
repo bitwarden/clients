@@ -1,6 +1,5 @@
-import { catchError, EMPTY, from, map, Observable, of, switchMap, throwError } from "rxjs";
+import { catchError, from, map, Observable, of, switchMap, throwError } from "rxjs";
 
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import {
   CipherId,
   OrganizationId,
@@ -8,7 +7,10 @@ import {
   UserId,
 } from "@bitwarden/common/types/guid";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
+import { LegacyRiskInsightsEncryptionService } from "../../../../access-intelligence/services";
 import { getUniqueMembers } from "../../helpers/risk-insights-data-mappers";
 import {
   isSaveRiskInsightsReportResponse,
@@ -25,12 +27,10 @@ import {
 } from "../../models/report-models";
 import { RiskInsightsApiService } from "../api/risk-insights-api.service";
 
-import { RiskInsightsEncryptionService } from "./risk-insights-encryption.service";
-
 export class RiskInsightsReportService {
   constructor(
     private riskInsightsApiService: RiskInsightsApiService,
-    private riskInsightsEncryptionService: RiskInsightsEncryptionService,
+    private riskInsightsEncryptionService: LegacyRiskInsightsEncryptionService,
   ) {}
 
   filterApplicationsByCritical(
@@ -151,13 +151,11 @@ export class RiskInsightsReportService {
     }
 
     // No previous applications, return all as non-critical with no review date
-    return reports.map(
-      (report): OrganizationReportApplication => ({
-        applicationName: report.applicationName,
-        isCritical: false,
-        reviewedDate: null,
-      }),
-    );
+    return reports.map((report): OrganizationReportApplication => ({
+      applicationName: report.applicationName,
+      isCritical: false,
+      reviewedDate: null,
+    }));
   }
 
   /**
@@ -297,9 +295,6 @@ export class RiskInsightsReportService {
             })),
           ),
       ),
-      catchError((error: unknown) => {
-        return EMPTY;
-      }),
       map((result) => {
         if (!isSaveRiskInsightsReportResponse(result.response)) {
           throw new Error("Invalid response from API");
