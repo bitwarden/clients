@@ -37,6 +37,14 @@ describe("EmptyVaultComponent", () => {
       expect(fixture.nativeElement.textContent).toContain("noItemsInVault");
     });
 
+    it("shows the My vault title when My vault is selected and the vault has no items", () => {
+      fixture.componentRef.setInput("hasItems", false);
+      fixture.componentRef.setInput("isMyVaultSelected", true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("noItemsInMyVault");
+    });
+
     it("shows the no-matching-items title when items exist but are all filtered out", () => {
       fixture.componentRef.setInput("hasItems", true);
       fixture.detectChanges();
@@ -51,6 +59,14 @@ describe("EmptyVaultComponent", () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain("emptyVaultDescription");
+    });
+
+    it("shows the My vault description when My vault is selected and the vault has no items", () => {
+      fixture.componentRef.setInput("hasItems", false);
+      fixture.componentRef.setInput("isMyVaultSelected", true);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("emptyMyVaultDescription");
     });
 
     it("shows the filter-hint description when items exist but are all filtered out", () => {

@@ -104,6 +104,7 @@
     slot="empty"
     [hasItems]="ciphers().length > 0"
     [hasActiveFilters]="hasActiveChipFilters(vaultTable)"
+    [isMyVaultSelected]="isMyVaultChipActive()"
     (clearFilters)="clearChipFilters(vaultTable)"
   ></vault-empty-vault>
 

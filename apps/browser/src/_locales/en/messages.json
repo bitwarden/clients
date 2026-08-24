@@ -554,6 +554,9 @@
   "noItemsInVault": {
     "message": "No items in the vault"
   },
+  "noItemsInMyVault": {
+    "message": "No items in My vault"
+  },
   "length": {
     "message": "Length"
   },
@@ -7119,6 +7122,9 @@
   },
   "emptyVaultDescription": {
     "message": "The vault protects more than just your passwords. Store secure logins, IDs, cards and notes securely here."
+  },
+  "emptyMyVaultDescription": {
+    "message": "Add logins, IDs, cards, and other items to get started."
   },
   "introCarouselLabel": {
     "message": "Welcome to Bitwarden"

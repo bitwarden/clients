@@ -628,6 +628,17 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
       (this.tableComponent()?.filterValues() as VaultItemsTableFilters | undefined)?.search ?? "",
   );
 
+  /**
+   * Whether the Vault chip is filtering to "My vault" exclusively. Passed to the empty-vault
+   * component so it can show the My vault copy when the chip is active; route-scope detection is
+   * handled inside the empty-vault component itself via {@link EmptyVaultService}.
+   */
+  protected readonly isMyVaultChipActive = computed(() => {
+    const vault = (this.tableComponent()?.filterValues() as VaultItemsTableFilters | undefined)
+      ?.vault;
+    return vault?.length === 1 && vault[0] === MY_VAULT;
+  });
+
   /** Reads the signals above, so all of them have to be declared before this. */
   private readonly searchMatches = cipherSearchMatches(
     this.ciphers,
