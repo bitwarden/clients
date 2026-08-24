@@ -95,6 +95,28 @@ export class TableSelectionModel<T> {
    */
   readonly full = computed(() => this.count() >= this.max);
 
+  /**
+   * Rows that are selected but no longer in scope — held from a previous filter or page.
+   *
+   * They still count toward the cap, since a consumer acts on the whole selection, not just what
+   * happens to be visible. Surfaced so the table can tell "you cannot select more" apart from
+   * "the budget is spent on rows you cannot see", which otherwise reads as a frozen view.
+   */
+  readonly selectedOutOfScope = computed(() => {
+    const inScope = this.rows();
+    return this._selected().filter((row) => !inScope.includes(row));
+  });
+
+  /**
+   * Whether more than one row may be selected at a time.
+   *
+   * Read by the table to decide whether to offer select-all: in single-select, `toggleAll` could
+   * only ever keep one row, so the header checkbox would sit permanently indeterminate.
+   */
+  get multiSelect(): boolean {
+    return this.multiple;
+  }
+
   /** Whether `row` is selected. Reads the selection signal, so callers react to changes. */
   isSelected(row: T): boolean {
     return this._selected().includes(row);

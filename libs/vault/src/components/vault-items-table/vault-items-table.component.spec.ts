@@ -1645,6 +1645,29 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
+     * Single-select has no working select-all — `toggleAll` could only keep one row, leaving the
+     * header permanently indeterminate with no way to clear it — so the checkbox is omitted while
+     * the header cell stays, keeping the column aligned with the rows.
+     */
+    it("omits the header select-all in single-select mode", () => {
+      (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
+        multiple: false,
+      };
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({ id: "a", name: "Amazon" }),
+        cipherView({ id: "b", name: "Apple ID" }),
+      ]);
+      fixture.detectChanges();
+
+      const all = fixture.debugElement.queryAll(By.css("input[type=checkbox]"));
+      const rowBoxes = fixture.debugElement.queryAll(By.css("input[data-selection-input]"));
+
+      expect(rowBoxes.length).toBe(2);
+      // Every checkbox present is a row's — none is the header's select-all.
+      expect(all.length).toBe(rowBoxes.length);
+    });
+
+    /**
      * The service is provided above the table, so a destroyed table must retract its source —
      * otherwise its selection outlives it and the bar acts on rows that are no longer displayed.
      */

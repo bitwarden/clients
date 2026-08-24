@@ -7,6 +7,94 @@ type Row = { id: number };
 const rows = (count: number): Row[] => Array.from({ length: count }, (_, id) => ({ id }));
 
 describe("TableSelectionModel", () => {
+  describe("single-select", () => {
+    /**
+     * `toggleAll` can only ever keep one row in single-select, so the header checkbox would sit
+     * permanently indeterminate and never clear. The table reads {@link multiSelect} to omit it.
+     */
+    it("reports multiSelect false so the table can omit select-all", () => {
+      const model = new TableSelectionModel<Row>({ multiple: false, rows: signal(rows(5)) });
+
+      expect(model.multiSelect).toBe(false);
+    });
+
+    it("reports multiSelect true when multiple is set", () => {
+      const model = new TableSelectionModel<Row>({ multiple: true, rows: signal(rows(5)) });
+
+      expect(model.multiSelect).toBe(true);
+    });
+
+    it("keeps only the last row selected", () => {
+      const all = rows(5);
+      const model = new TableSelectionModel<Row>({ multiple: false, rows: signal(all) });
+
+      model.select(all[0], all[1], all[2]);
+
+      expect(model.selected()).toEqual([all[2]]);
+    });
+
+    it("truncates an initial selection to one row", () => {
+      const all = rows(5);
+      const model = new TableSelectionModel<Row>({
+        multiple: false,
+        initial: all,
+        rows: signal(all),
+      });
+
+      expect(model.count()).toBe(1);
+    });
+  });
+
+  describe("rows leaving scope", () => {
+    /**
+     * A selection outlives the filter that made it — a consumer acts on every selected row, not
+     * just the visible ones — so out-of-scope rows keep counting toward the cap.
+     */
+    it("keeps selected rows that leave scope", () => {
+      const all = rows(10);
+      const scope = signal<readonly Row[]>(all);
+      const model = new TableSelectionModel<Row>({ multiple: true, rows: scope });
+
+      model.toggleAll();
+      scope.set(all.slice(0, 2));
+
+      expect(model.count()).toBe(10);
+      expect(model.selectedOutOfScope().length).toBe(8);
+    });
+
+    it("reports no out-of-scope rows when everything selected is visible", () => {
+      const all = rows(5);
+      const model = new TableSelectionModel<Row>({ multiple: true, rows: signal(all) });
+
+      model.select(all[0], all[1]);
+
+      expect(model.selectedOutOfScope()).toEqual([]);
+    });
+
+    /**
+     * With the budget spent on rows the filter hid, every visible checkbox disables. The header
+     * has to remain the way out, or the view reads as frozen.
+     */
+    it("lets the header recover a budget spent on out-of-scope rows", () => {
+      const all = rows(10);
+      const scope = signal<readonly Row[]>(all);
+      const model = new TableSelectionModel<Row>({ multiple: true, max: 5, rows: scope });
+
+      model.toggleAll();
+      scope.set(all.slice(8));
+      expect(model.full()).toBe(true);
+      // Nothing visible can be selected while the budget is held elsewhere.
+      model.select(all[8]);
+      expect(model.isSelected(all[8])).toBe(false);
+
+      model.toggleAll();
+
+      expect(model.full()).toBe(false);
+      model.select(all[8]);
+      expect(model.isSelected(all[8])).toBe(true);
+    });
+  });
+
   describe("max", () => {
     /**
      * The cap has to bind the selection itself. A consumer that instead caps some downstream view
