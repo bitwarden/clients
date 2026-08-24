@@ -437,6 +437,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     if (!enabled || !this.supportsBiometric) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
       await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
+      await this.biometricsService.deleteBiometricUnlockKeyForUser(activeUserId);
       await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
       return;
     }

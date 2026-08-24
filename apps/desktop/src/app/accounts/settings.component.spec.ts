@@ -601,6 +601,22 @@ describe("SettingsComponent", () => {
       },
     );
 
+    describe("when updating to false", () => {
+      it("deletes the stored biometric unlock key", async () => {
+        await component.ngOnInit();
+
+        await component.updateBiometricHandler(false);
+
+        expect(desktopBiometricsService.deleteBiometricUnlockKeyForUser).toHaveBeenCalledWith(
+          mockUserId,
+        );
+        expect(biometricStateService.setBiometricUnlockEnabled).toHaveBeenCalledWith(
+          false,
+          mockUserId,
+        );
+      });
+    });
+
     describe("when updating to true", () => {
       beforeEach(async () => {
         await component.ngOnInit();
