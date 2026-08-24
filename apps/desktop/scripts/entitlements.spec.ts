@@ -42,9 +42,17 @@ describe("reproducing the checked-in entitlements", () => {
   });
 
   it("matches entitlements.mac.plist", () => {
-    const generated = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
+    const generated = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: false, appGroup: true });
 
     expect(serializePlist(generated)).toBe(checkedIn("resources/entitlements.mac.plist"));
+  });
+
+  it("matches entitlements.mac.autofill-enabled.plist", () => {
+    const generated = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: true, appGroup: true });
+
+    expect(serializePlist(generated)).toBe(
+      checkedIn("resources/entitlements.mac.autofill-enabled.plist"),
+    );
   });
 
   it("matches entitlements.mas.plist", () => {
@@ -131,9 +139,9 @@ describe("composing entitlements", () => {
     expect(beta["com.apple.security.application-groups"]).toEqual([`${TEAM_ID}.${APP_IDS.beta}`]);
   });
 
-  /// The directly distributed app historically reached its socket through the cache directory, so
-  /// the group is opt-in: claiming an entitlement the provisioning profile does not authorize
-  /// fails the signature, and only beta's profile authorizes it for now.
+  /// Claiming an entitlement the provisioning profile does not authorize fails the signature, so
+  /// the group stays opt-in even though both channels now ask for it -- a build signed with a
+  /// profile that predates the App Group has to be able to leave it out.
   it("leaves the app group out of a directly distributed app unless it is asked for", () => {
     const without = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
 
