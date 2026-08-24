@@ -72,13 +72,17 @@
           </div>
         </td>
         <td bitCell>
-          <span
-            bitBadge
-            [variant]="row.statusVariant"
-            [attr.data-testid]="'my-access-history-status-' + row.id"
-          >
-            {{ row.statusLabelKey | i18n }}
-          </span>
+          @if (row.badgeState; as state) {
+            <app-pam-access-state-badge [state]="state" />
+          } @else if (row.statusBadge; as badge) {
+            <span
+              bitBadge
+              [variant]="badge.variant"
+              [attr.data-testid]="'my-access-history-status-' + row.id"
+            >
+              {{ badge.labelKey | i18n }}
+            </span>
+          }
         </td>
         <td bitCell>
           @if (row.resolverLabelKey) {

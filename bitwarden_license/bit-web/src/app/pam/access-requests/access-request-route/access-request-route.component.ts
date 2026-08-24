@@ -41,6 +41,7 @@ import {
   reasonText,
   relativeStart,
 } from "../..";
+import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
 import { emptyResolvedNames } from "../access-name-resolver.service";
 import { historyDisplayStatus } from "../my-access-row";
@@ -84,6 +85,7 @@ const DECISION_LABEL_KEYS = {
     RouterModule,
     I18nPipe,
     HeaderModule,
+    AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
     IconModule,
