@@ -8,7 +8,7 @@
         @if (organizations.length) {
           <bit-chip-filter
             fullWidth
-            formControlName="organization"
+            [formControl]="singleOrganization"
             placeholderIcon="bwi-vault"
             [placeholderText]="'vault' | vfo1I18n: 'vaults'"
             [options]="organizations"

@@ -42,7 +42,7 @@
         bitVaultFilterChip="organization"
         [filterOptions]="organizationOptions()"
         [placeholderText]="'vault' | vfo1I18n: 'vaults'"
-        [unsetLabel]="'all' | i18n"
+        multiple
       >
         @for (option of organizationOptions(); track option.value.id) {
           <bit-filter-option [value]="option.value" [count]="organizationCount(option.value)">{{

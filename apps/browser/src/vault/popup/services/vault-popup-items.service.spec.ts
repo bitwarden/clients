@@ -34,7 +34,11 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 import { VaultPopupAutofillService } from "./vault-popup-autofill.service";
 import { VaultPopupItemsService } from "./vault-popup-items.service";
-import { VaultPopupListFiltersService } from "./vault-popup-list-filters.service";
+import {
+  MY_VAULT_ID,
+  PopupListFilter,
+  VaultPopupListFiltersService,
+} from "./vault-popup-list-filters.service";
 
 describe("VaultPopupItemsService", () => {
   let testBed: TestBed;
@@ -426,6 +430,58 @@ describe("VaultPopupItemsService", () => {
 
       const deletedCiphers = await firstValueFrom(service.deletedCiphers$);
       expect(deletedCiphers.length).toBe(1);
+    });
+  });
+
+  /**
+   * The organization filter is multi-select, so the deactivated-org empty state only stands in for
+   * the whole list when every selected organization is suspended.
+   */
+  describe("showDeactivatedOrg$", () => {
+    const suspended = { id: "org-suspended", enabled: false } as Organization;
+    const active = { id: "org-active", enabled: true } as Organization;
+
+    const showDeactivatedOrgFor = async (
+      organization: Organization[],
+      memberOrgs: Organization[] = [suspended, active],
+    ) => {
+      organizationServiceMock.organizations$.mockReturnValue(new BehaviorSubject(memberOrgs));
+      (vaultPopupListFiltersServiceMock.filters$ as BehaviorSubject<Partial<PopupListFilter>>).next(
+        {
+          organization,
+          collection: [],
+          folder: [],
+          cipherType: null,
+        },
+      );
+
+      return firstValueFrom(testBed.inject(VaultPopupItemsService).showDeactivatedOrg$);
+    };
+
+    it("is false when no organization is selected", async () => {
+      expect(await showDeactivatedOrgFor([])).toBe(false);
+    });
+
+    it("is true when the only selected organization is suspended", async () => {
+      expect(await showDeactivatedOrgFor([suspended])).toBe(true);
+    });
+
+    it("is true when every selected organization is suspended", async () => {
+      const alsoSuspended = { id: "org-suspended-2", enabled: false } as Organization;
+
+      expect(
+        await showDeactivatedOrgFor([suspended, alsoSuspended], [suspended, alsoSuspended, active]),
+      ).toBe(true);
+    });
+
+    it("is false when one of the selected organizations is still active", async () => {
+      expect(await showDeactivatedOrgFor([suspended, active])).toBe(false);
+    });
+
+    it("is false when My vault is selected alongside a suspended organization", async () => {
+      expect(await showDeactivatedOrgFor([{ id: MY_VAULT_ID } as Organization, suspended])).toBe(
+        false,
+      );
     });
   });
 

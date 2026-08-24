@@ -18,11 +18,12 @@ import { VaultListFiltersComponent } from "./vault-list-filters.component";
 const WORK = { id: "folder-1", name: "Work" } as FolderView;
 const PERSONAL = { id: "folder-2", name: "Personal" } as FolderView;
 const ENGINEERING = { id: "col-1", name: "Engineering" } as CollectionView;
+const ACME = { id: "org-1" } as Organization;
 
 describe("VaultListFiltersComponent", () => {
   let fixture: ComponentFixture<VaultListFiltersComponent>;
   let filterForm: FormGroup<{
-    organization: FormControl<Organization | null>;
+    organization: FormControl<Organization[]>;
     collection: FormControl<CollectionView[]>;
     folder: FormControl<FolderView[]>;
     cipherType: FormControl<CipherType | null>;
@@ -45,7 +46,7 @@ describe("VaultListFiltersComponent", () => {
 
   beforeEach(async () => {
     filterForm = new FormGroup({
-      organization: new FormControl<Organization | null>(null),
+      organization: new FormControl<Organization[]>([], { nonNullable: true }),
       collection: new FormControl<CollectionView[]>([], { nonNullable: true }),
       folder: new FormControl<FolderView[]>([], { nonNullable: true }),
       cipherType: new FormControl<CipherType | null>(null),
@@ -59,7 +60,7 @@ describe("VaultListFiltersComponent", () => {
           provide: VaultPopupListFiltersService,
           useValue: {
             filterForm,
-            organizations$: of([{ value: { id: "org-1" } as Organization, label: "Acme" }]),
+            organizations$: of([{ value: ACME, label: "Acme" }]),
             collections$: of([{ value: ENGINEERING, label: "Engineering" }]),
             folders$: of([
               { value: WORK, label: "Work" },
@@ -140,5 +141,33 @@ describe("VaultListFiltersComponent", () => {
 
     expect(selectedOption("Folder")?.value).toBe(WORK);
     expect(filterForm.controls.folder.value).toEqual([WORK, PERSONAL]);
+  });
+
+  describe("organization", () => {
+    it("writes an organization selection as a single-item selection", () => {
+      selectOption("Vault", { value: ACME, label: "Acme" });
+      fixture.detectChanges();
+
+      expect(filterForm.controls.organization.value).toEqual([ACME]);
+    });
+
+    it("empties the control when the chip is cleared", () => {
+      filterForm.controls.organization.setValue([ACME]);
+      fixture.detectChanges();
+
+      clearChip("Vault");
+      fixture.detectChanges();
+
+      expect(filterForm.controls.organization.value).toEqual([]);
+    });
+
+    it("shows the first of several selections without narrowing the form", () => {
+      const zeta = { id: "org-2" } as Organization;
+      filterForm.controls.organization.setValue([ACME, zeta]);
+      fixture.detectChanges();
+
+      expect(selectedOption("Vault")?.value).toBe(ACME);
+      expect(filterForm.controls.organization.value).toEqual([ACME, zeta]);
+    });
   });
 });

@@ -6,6 +6,7 @@ import { combineLatest, map, shareReplay, startWith } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ChipFilterComponent } from "@bitwarden/components";
 import { Vfo1I18nPipe, Vfo1IconPipe } from "@bitwarden/vault";
@@ -36,11 +37,13 @@ export class VaultListFiltersComponent {
   protected cipherTypes$ = this.vaultPopupListFiltersService.cipherTypes$;
 
   /**
-   * Single-select stand-ins for the multi-select `collection` and `folder` filters, since
-   * `bit-chip-filter` holds one value and can't bind to those controls with `formControlName`.
-   * This header only renders while `VFO1Foundation` is off, so these narrow each filter to one
-   * selection for as long as the flag can be flipped back, and are dropped with the component.
+   * Single-select stand-ins for the multi-select `organization`, `collection`, and `folder`
+   * filters, since `bit-chip-filter` holds one value and can't bind to those controls with
+   * `formControlName`. This header only renders while `VFO1Foundation` is off, so these narrow
+   * each filter to one selection for as long as the flag can be flipped back, and are dropped
+   * with the component.
    */
+  protected readonly singleOrganization = new FormControl<Organization | null>(null);
   protected readonly singleCollection = new FormControl<CollectionView | null>(null);
   protected readonly singleFolder = new FormControl<FolderView | null>(null);
 
@@ -61,6 +64,7 @@ export class VaultListFiltersComponent {
   );
 
   constructor(private vaultPopupListFiltersService: VaultPopupListFiltersService) {
+    this.bindSingleSelect(this.singleOrganization, this.filterForm.controls.organization);
     this.bindSingleSelect(this.singleCollection, this.filterForm.controls.collection);
     this.bindSingleSelect(this.singleFolder, this.filterForm.controls.folder);
   }

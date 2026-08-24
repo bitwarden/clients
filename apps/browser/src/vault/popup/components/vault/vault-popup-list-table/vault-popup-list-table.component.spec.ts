@@ -130,8 +130,8 @@ describe("VaultPopupListTableComponent", () => {
   // A real `FormGroup`: the chips are bridged to it by `VaultFilterChipDirective`, so the two-way
   // sync is exercised through its actual value/`valueChanges` behavior.
   const filterForm = new FormGroup({
-    organization: new FormControl<Organization | null>(null),
-    // Collections and folders are multi-select, matching `PopupListFilter`.
+    // Every object filter is multi-select, matching `PopupListFilter`.
+    organization: new FormControl<Organization[]>([], { nonNullable: true }),
     collection: new FormControl<CollectionView[]>([], { nonNullable: true }),
     folder: new FormControl<FolderView[]>([], { nonNullable: true }),
     cipherType: new FormControl<CipherType | null>(null),
@@ -177,7 +177,7 @@ describe("VaultPopupListTableComponent", () => {
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
     compactModeEnabled$.next(false);
-    filterForm.reset({ organization: null, collection: [], folder: [], cipherType: null });
+    filterForm.reset({ organization: [], collection: [], folder: [], cipherType: null });
     cipherTypes$.next([]);
     organizations$.next([]);
     collections$.next([]);
@@ -634,13 +634,13 @@ describe("VaultPopupListTableComponent", () => {
         const option = { id: MY_VAULT_ID } as Organization;
         organizations$.next([{ value: option, label: "My vault" }]);
         // A distinct object with the same id — what `deserializeFilters` restores from the cache.
-        filterForm.controls.organization.setValue({ id: MY_VAULT_ID } as Organization);
+        filterForm.controls.organization.setValue([{ id: MY_VAULT_ID } as Organization]);
         fixture.detectChanges();
 
         const chip = chipFor("organization");
         expect(chip.active()).toBe(true);
         // Resolved onto the option's own instance, which is what drives the label and checkmark.
-        expect(chip.value()).toBe(option);
+        expect(chip.value()).toEqual([option]);
         expect(chip.isSelected(option)).toBe(true);
       });
 
@@ -745,6 +745,45 @@ describe("VaultPopupListTableComponent", () => {
         fixture.detectChanges();
 
         expect(filterForm.controls.folder.value).toEqual([]);
+      });
+
+      /**
+       * The vault filter is multi-select, so it offers no "All" row — clearing the chip is what
+       * widens it back to every vault. Only single-select chips render that row.
+       */
+      it("adds each toggled organization to the filterForm control", () => {
+        const acme = { id: "org-1" } as Organization;
+        const zeta = { id: "org-2" } as Organization;
+        organizations$.next([
+          { value: acme, label: "Acme" },
+          { value: zeta, label: "Zeta" },
+        ]);
+        fixture.detectChanges();
+
+        chipFor("organization").toggle(acme);
+        fixture.detectChanges();
+        chipFor("organization").toggle(zeta);
+        fixture.detectChanges();
+
+        expect(filterForm.controls.organization.value).toEqual([acme, zeta]);
+      });
+
+      /**
+       * `bit-filter-menu` renders its "All" row only for a single-select chip, so `multiple` is
+       * what removes it — and clearing the chip is then the way back to every vault.
+       */
+      it("offers no All option on the vault filter", () => {
+        const acme = { id: "org-1" } as Organization;
+        organizations$.next([{ value: acme, label: "Acme" }]);
+        filterForm.controls.organization.setValue([acme]);
+        fixture.detectChanges();
+
+        expect(chipFor("organization").multiple()).toBe(true);
+
+        chipFor("organization").clear();
+        fixture.detectChanges();
+
+        expect(filterForm.controls.organization.value).toEqual([]);
       });
     });
   });

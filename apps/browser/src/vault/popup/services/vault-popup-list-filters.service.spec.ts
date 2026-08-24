@@ -237,7 +237,7 @@ describe("VaultPopupListFiltersService", () => {
       });
 
       service.filterForm.patchValue({
-        organization: { id: "1234" } as Organization,
+        organization: [{ id: "1234" } as Organization],
         folder: [{ id: "folder11" } as FolderView],
       });
     });
@@ -430,7 +430,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it("filters out collections that do not belong to an organization", () => {
       service.filterForm.patchValue({
-        organization: { id: testCollection2.organizationId } as Organization,
+        organization: [{ id: testCollection2.organizationId } as Organization],
       });
 
       service.collections$.subscribe((collections) => {
@@ -494,7 +494,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it("returns all folders when MyVault is selected", (done) => {
       service.filterForm.patchValue({
-        organization: { id: MY_VAULT_ID } as Organization,
+        organization: [{ id: MY_VAULT_ID } as Organization],
       });
 
       folderViews$.next([
@@ -510,7 +510,7 @@ describe("VaultPopupListFiltersService", () => {
 
     it("sets folder icon", (done) => {
       service.filterForm.patchValue({
-        organization: { id: MY_VAULT_ID } as Organization,
+        organization: [{ id: MY_VAULT_ID } as Organization],
       });
 
       folderViews$.next([
@@ -531,7 +531,7 @@ describe("VaultPopupListFiltersService", () => {
       });
 
       service.filterForm.patchValue({
-        organization: { id: "1234" } as Organization,
+        organization: [{ id: "1234" } as Organization],
       });
 
       folderViews$.next([
@@ -595,8 +595,8 @@ describe("VaultPopupListFiltersService", () => {
     });
 
     /**
-     * Collections and folders filter to a set: selections within a filter are OR'd, and the
-     * filters are still AND'd against each other.
+     * Organizations, collections, and folders each filter to a set: selections within a filter are
+     * OR'd, and the filters are still AND'd against each other.
      */
     describe("multi-select filters", () => {
       /**
@@ -695,7 +695,7 @@ describe("VaultPopupListFiltersService", () => {
           done();
         });
 
-        service.filterForm.patchValue({ organization });
+        service.filterForm.patchValue({ organization: [organization] });
       });
 
       it("keeps ciphers with null and undefined for organizationId when MyVault is selected", (done) => {
@@ -717,7 +717,7 @@ describe("VaultPopupListFiltersService", () => {
           done();
         });
 
-        service.filterForm.patchValue({ organization });
+        service.filterForm.patchValue({ organization: [organization] });
       });
 
       it("filters out ciphers that do not belong to the selected organization", (done) => {
@@ -728,14 +728,49 @@ describe("VaultPopupListFiltersService", () => {
           done();
         });
 
-        service.filterForm.patchValue({ organization });
+        service.filterForm.patchValue({ organization: [organization] });
+      });
+
+      it("matches items in any of the selected organizations", (done) => {
+        const orgCipher = {
+          type: CipherType.Login,
+          collectionIds: [],
+          organizationId: "5555",
+        } as unknown as PopupCipherViewLike;
+
+        service.filterFunction$.subscribe((filterFunction) => {
+          expect(filterFunction([...ciphers, orgCipher])).toEqual([ciphers[1], orgCipher]);
+          done();
+        });
+
+        service.filterForm.patchValue({
+          organization: [{ id: "8978" } as Organization, { id: "5555" } as Organization],
+        });
+      });
+
+      it("matches organization-less items alongside an organization when MyVault is selected", (done) => {
+        const otherOrgCipher = {
+          type: CipherType.Login,
+          collectionIds: [],
+          organizationId: "5555",
+        } as unknown as PopupCipherViewLike;
+
+        service.filterFunction$.subscribe((filterFunction) => {
+          // Everything in "My vault" or org 8978 — which is every cipher but the one in org 5555.
+          expect(filterFunction([...ciphers, otherOrgCipher])).toEqual(ciphers);
+          done();
+        });
+
+        service.filterForm.patchValue({
+          organization: [{ id: MY_VAULT_ID } as Organization, { id: "8978" } as Organization],
+        });
       });
     });
   });
 
   /**
    * Changing the organization filter narrows which collections and folders are offered, so
-   * selections outside the new organization are dropped and the rest stay applied.
+   * selections outside the new organizations are dropped and the rest stay applied.
    */
   describe("organization change", () => {
     it("drops only the collections outside the new organization", () => {
@@ -743,9 +778,23 @@ describe("VaultPopupListFiltersService", () => {
       const dropped = { id: "col-2", organizationId: "org-2" } as CollectionView;
       service.filterForm.controls.collection.setValue([kept, dropped]);
 
-      service.filterForm.controls.organization.setValue({ id: "org-1" } as Organization);
+      service.filterForm.controls.organization.setValue([{ id: "org-1" } as Organization]);
 
       expect(service.filterForm.value.collection).toEqual([kept]);
+    });
+
+    it("keeps the collections of every selected organization", () => {
+      const org1 = { id: "col-1", organizationId: "org-1" } as CollectionView;
+      const org2 = { id: "col-2", organizationId: "org-2" } as CollectionView;
+      const dropped = { id: "col-3", organizationId: "org-3" } as CollectionView;
+      service.filterForm.controls.collection.setValue([org1, org2, dropped]);
+
+      service.filterForm.controls.organization.setValue([
+        { id: "org-1" } as Organization,
+        { id: "org-2" } as Organization,
+      ]);
+
+      expect(service.filterForm.value.collection).toEqual([org1, org2]);
     });
 
     it("keeps the folders the new organization has items in", () => {
@@ -761,7 +810,7 @@ describe("VaultPopupListFiltersService", () => {
       const dropped = { id: "personal" } as FolderView;
       service.filterForm.controls.folder.setValue([kept, dropped]);
 
-      service.filterForm.controls.organization.setValue({ id: "org-1" } as Organization);
+      service.filterForm.controls.organization.setValue([{ id: "org-1" } as Organization]);
 
       expect(service.filterForm.value.folder).toEqual([kept]);
       subscription.unsubscribe();
@@ -780,7 +829,7 @@ describe("VaultPopupListFiltersService", () => {
       const noFolder = { id: "" } as FolderView;
       service.filterForm.controls.folder.setValue([noFolder]);
 
-      service.filterForm.controls.organization.setValue({ id: "org-1" } as Organization);
+      service.filterForm.controls.organization.setValue([{ id: "org-1" } as Organization]);
 
       expect(service.filterForm.value.folder).toEqual([noFolder]);
       subscription.unsubscribe();
@@ -790,7 +839,7 @@ describe("VaultPopupListFiltersService", () => {
       const folders = [{ id: "shared" } as FolderView, { id: "personal" } as FolderView];
       service.filterForm.controls.folder.setValue(folders);
 
-      service.filterForm.controls.organization.setValue({ id: MY_VAULT_ID } as Organization);
+      service.filterForm.controls.organization.setValue([{ id: MY_VAULT_ID } as Organization]);
 
       expect(service.filterForm.value.folder).toEqual(folders);
     });
@@ -918,7 +967,7 @@ describe("VaultPopupListFiltersService", () => {
     });
 
     it("counts the whole vault regardless of which filters are applied", async () => {
-      service.filterForm.patchValue({ organization: { id: "org-1" } as Organization });
+      service.filterForm.patchValue({ organization: [{ id: "org-1" } as Organization] });
 
       const counts = await countsFor(countedCiphers);
 
@@ -954,7 +1003,7 @@ describe("VaultPopupListFiltersService", () => {
   describe("caching", () => {
     it("initializes form from cached state", fakeAsync(() => {
       const cachedState: CachedFilterState = {
-        organizationId: MY_VAULT_ID,
+        organizationIds: [MY_VAULT_ID],
         collectionIds: ["test-collection-id"],
         folderIds: ["test-folder-id"],
         cipherType: CipherType.Login,
@@ -986,7 +1035,7 @@ describe("VaultPopupListFiltersService", () => {
       tick();
 
       expect(service.filterForm.value).toEqual({
-        organization: { id: MY_VAULT_ID },
+        organization: [{ id: MY_VAULT_ID }],
         collection: [
           {
             id: "test-collection-id",
@@ -1006,6 +1055,7 @@ describe("VaultPopupListFiltersService", () => {
      */
     it("initializes form from the pre-multi-select cached state", fakeAsync(() => {
       const cachedState: CachedFilterState = {
+        organizationId: MY_VAULT_ID,
         collectionId: "test-collection-id",
         folderId: "test-folder-id",
       };
@@ -1030,6 +1080,7 @@ describe("VaultPopupListFiltersService", () => {
 
       tick();
 
+      expect(service.filterForm.value.organization).toEqual([{ id: MY_VAULT_ID }]);
       expect(service.filterForm.value.collection).toEqual(seededCollections);
       expect(service.filterForm.value.folder).toEqual(seededFolderViews);
       discardPeriodicTasks();
@@ -1065,7 +1116,7 @@ describe("VaultPopupListFiltersService", () => {
       const testFolder = { id: "test-folder-id", name: "Test Folder" } as FolderView;
 
       service.filterForm.patchValue({
-        organization: testOrg,
+        organization: [testOrg],
         collection: [testCollection],
         folder: [testFolder],
         cipherType: CipherType.Card,
@@ -1075,7 +1126,7 @@ describe("VaultPopupListFiltersService", () => {
 
       // force another emission by patching with the same value again. workaround for debounce times
       service.filterForm.patchValue({
-        organization: testOrg,
+        organization: [testOrg],
         collection: [testCollection],
         folder: [testFolder],
         cipherType: CipherType.Card,
@@ -1084,7 +1135,7 @@ describe("VaultPopupListFiltersService", () => {
       tick(300);
 
       expect(cachedSignal()).toEqual({
-        organizationId: "test-org-id",
+        organizationIds: ["test-org-id"],
         collectionIds: ["test-collection-id"],
         folderIds: ["test-folder-id"],
         cipherType: CipherType.Card,

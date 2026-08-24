@@ -4,7 +4,6 @@ import {
   combineLatest,
   debounceTime,
   distinctUntilChanged,
-  distinctUntilKeyChanged,
   filter,
   map,
   merge,
@@ -289,18 +288,33 @@ export class VaultPopupItemsService {
     map((ciphers) => !ciphers.length),
   );
 
-  /** Observable that indicates when the user should see the deactivated org state */
+  /**
+   * Observable that indicates when the user should see the deactivated org state. The organization
+   * filter is multi-select, so this holds only while every selected organization is suspended — one
+   * active selection still has items to list, which the deactivated copy would misrepresent.
+   */
   showDeactivatedOrg$: Observable<boolean> = combineLatest([
-    this.vaultPopupListFiltersService.filters$.pipe(distinctUntilKeyChanged("organization")),
+    this.vaultPopupListFiltersService.filters$.pipe(
+      distinctUntilChanged(
+        (previous, current) =>
+          (previous.organization ?? []).map((o) => o.id).join() ===
+          (current.organization ?? []).map((o) => o.id).join(),
+      ),
+    ),
     this.organizations$,
   ]).pipe(
     map(([filters, orgs]) => {
-      if (!filters.organization || filters.organization.id === MY_VAULT_ID) {
+      const selected = filters.organization ?? [];
+
+      // "My vault" is not an organization and can never be suspended.
+      if (!selected.length || selected.some((o) => o.id === MY_VAULT_ID)) {
         return false;
       }
 
-      const org = orgs.find((o) => o.id === filters?.organization?.id);
-      return org ? !org.enabled : false;
+      return selected.every((selectedOrg) => {
+        const org = orgs.find((o) => o.id === selectedOrg.id);
+        return org ? !org.enabled : false;
+      });
     }),
   );
 

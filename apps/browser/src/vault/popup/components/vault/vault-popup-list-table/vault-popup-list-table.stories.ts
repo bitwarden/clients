@@ -326,7 +326,9 @@ const buildProviders = (args: StoryArgs) => {
   // A real `FormGroup`, since the chips are bridged to it rather than owning their own state.
   // `appliedFilters` seeds it the way the view cache does on a real popup open.
   const filterForm = new FormGroup({
-    organization: new FormControl<Organization | null>(args.appliedFilters?.organization ?? null),
+    organization: new FormControl<Organization[]>(args.appliedFilters?.organization ?? [], {
+      nonNullable: true,
+    }),
     collection: new FormControl<CollectionView[]>(args.appliedFilters?.collection ?? [], {
       nonNullable: true,
     }),
@@ -679,7 +681,7 @@ export const ActiveFilters: Story = {
         loading: false,
         appliedFilters: {
           cipherType: CipherType.Login,
-          organization: ORGANIZATION_OPTIONS[1].value,
+          organization: [ORGANIZATION_OPTIONS[1].value],
           folder: [FOLDER_OPTIONS[0].value, FOLDER_OPTIONS[1].value],
         },
       }),
