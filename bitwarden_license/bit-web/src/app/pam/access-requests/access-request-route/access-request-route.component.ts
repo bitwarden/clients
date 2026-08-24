@@ -284,7 +284,7 @@ export class AccessRequestRouteComponent implements OnInit {
       await this.detail.cancel();
       this.toastService.showToast({
         variant: "success",
-        message: this.i18nService.t("pamMyRequestsCancelSuccess"),
+        message: this.i18nService.t("pamMyRequestsCanceledToast"),
       });
     } catch (e) {
       this.logService.error(e);

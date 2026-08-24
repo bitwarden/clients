@@ -243,7 +243,7 @@ entity AccessRequest {
     -- activation-window end, and moves the request to `activated`. An approved
     -- request left unactivated past its actionable_until bound transitions to
     -- `expired`. Single use: one approved request yields at most one lease.
-    status: pending | approved | activated | denied | cancelled | expired
+    status: pending | approved | activated | denied | canceled | expired
     -- Non-optional under its when-clause: every transition out of `pending` is
     -- structurally obliged to set it (and every resolution rule does).
     resolved_at: Timestamp when status != pending
@@ -275,13 +275,13 @@ entity AccessRequest {
     transitions status {
         pending -> approved
         pending -> denied
-        pending -> cancelled
+        pending -> canceled
         pending -> expired
         approved -> activated
         approved -> expired
         approved -> denied
-        approved -> cancelled
-        terminal: activated, denied, cancelled, expired
+        approved -> canceled
+        terminal: activated, denied, canceled, expired
     }
 }
 
@@ -612,7 +612,7 @@ rule MemberCancelsOwnRequest {
     when: MemberCancelsRequest(member, request)
     requires: request.status in {pending, approved}
     requires: request.requester = member
-    ensures: request.status = cancelled
+    ensures: request.status = canceled
     ensures: request.resolved_at = now
     -- No decision was made; approver fields are present (status != pending) but
     -- empty.

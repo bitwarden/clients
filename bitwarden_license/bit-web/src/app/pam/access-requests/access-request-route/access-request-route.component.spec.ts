@@ -305,7 +305,7 @@ describe("AccessRequestRouteComponent", () => {
       expect(detail.cancel).toHaveBeenCalled();
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "pamMyRequestsCancelSuccess",
+        message: "pamMyRequestsCanceledToast",
       });
     });
 
