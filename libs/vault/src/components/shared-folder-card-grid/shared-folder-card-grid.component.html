@@ -1,0 +1,67 @@
+@let overflow = overflowCards();
+
+@if (count() > 0) {
+  <bit-accordion
+    [title]="'sharedFoldersInParent' | i18n: parentName()"
+    variant="subtle"
+    [open]="true"
+  >
+    @let countText = countSegments();
+    <span bitTypography="body2" class="tw-shrink-0 tw-text-muted" slot="end"
+      >{{ countText.before }}<strong class="tw-text-main tw-font-bold">{{ countText.count }}</strong
+      >{{ countText.after }}</span
+    >
+    <div>
+      <!--
+        Revealed overflow cards join this same grid rather than a second one below it, so they fill
+        any empty slot left in the last row instead of starting a fresh row beneath it.
+      -->
+      <ul
+        [id]="listId"
+        class="tw-m-0 tw-grid tw-list-none tw-gap-3 tw-p-0"
+        [style.grid-template-columns]="gridTemplateColumns"
+      >
+        @for (folder of displayedCards(); track folder.id) {
+          <ng-container
+            [ngTemplateOutlet]="card"
+            [ngTemplateOutletContext]="{ $implicit: folder }"
+          ></ng-container>
+        }
+      </ul>
+
+      @if (overflow.length > 0) {
+        <button
+          id="shared-folder-card-grid_button_toggle-overflow"
+          type="button"
+          bitLink
+          linkType="default"
+          class="tw-text-sm tw-mt-3"
+          [endIcon]="expanded() ? 'bwi-angle-up' : 'bwi-angle-down'"
+          [attr.aria-expanded]="expanded()"
+          [attr.aria-controls]="listId"
+          (click)="toggleExpanded()"
+        >
+          {{ (expanded() ? "showLess" : "showAll") | i18n }}
+        </button>
+      }
+    </div>
+  </bit-accordion>
+}
+
+<ng-template #card let-folder>
+  <li>
+    <bit-item size="lg" class="!tw-mb-0">
+      <a
+        bit-item-content
+        [routerLink]="folder.commands"
+        [queryParams]="folder.queryParams"
+        [queryParamsHandling]="folder.queryParamsHandling"
+        [state]="folder.state"
+      >
+        <bit-icon-tile slot="start" icon="bwi-shared-folder"></bit-icon-tile>
+        {{ folder.name }}
+        <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
+      </a>
+    </bit-item>
+  </li>
+</ng-template>
