@@ -53,6 +53,7 @@ import {
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
+  SvgComponent,
   IconTileComponent,
   TypographyModule,
 } from "@bitwarden/components";
