@@ -71,6 +71,56 @@ class StoryLayoutFooterComponent {
   protected readonly footerPortal = inject(LayoutFooterService).portal;
 }
 
+/**
+ * The real service with only its action bodies replaced.
+ *
+ * Everything the stories actually demonstrate lives in the base class — the selection source, the
+ * `can*` permission signals, and which buttons the bar therefore offers — so this subclasses rather
+ * than fakes it. What can't work here is the *completion* of an action: each one ends in a dialog
+ * or a server call, and a story has neither, so the real `bulkArchive` and `bulkMoveToFolder` open
+ * a CDK dialog whose component was never imported and leave a bare overlay over the page.
+ *
+ * Each override logs through `action()` so the Storybook Actions panel shows what a client would
+ * have run, then clears the selection the way a completed action does, so the bar dismisses itself.
+ */
+class StoryVaultBatchBarService extends VaultBatchBarService<CipherView> {
+  /** Reports the action with the items it would have applied to, then ends the "action". */
+  private record(name: string): void {
+    action(name)(this.selected().map((item) => item.cipher?.name ?? item.collection?.name));
+    // Through the base class, so it clears the table's registered selection rather than the unused
+    // default CDK model — otherwise the rows stay checked and the bar never dismisses.
+    this.clearSelection();
+  }
+
+  override async bulkArchive(): Promise<void> {
+    this.record("bulkArchive");
+  }
+
+  override async bulkUnarchive(): Promise<void> {
+    this.record("bulkUnarchive");
+  }
+
+  override async bulkRestore(): Promise<void> {
+    this.record("bulkRestore");
+  }
+
+  override async bulkDelete(): Promise<void> {
+    this.record("bulkDelete");
+  }
+
+  override async bulkMoveToFolder(): Promise<void> {
+    this.record("bulkMoveToFolder");
+  }
+
+  override async bulkAssignToCollections(): Promise<void> {
+    this.record("bulkAssignToCollections");
+  }
+
+  override async bulkEditCollectionAccess(): Promise<void> {
+    this.record("bulkEditCollectionAccess");
+  }
+}
+
 const organizations = [
   { id: "org-1", name: "Acme corporation" },
   { id: "org-2", name: "Contoso" },
@@ -616,11 +666,11 @@ export default {
           provide: PremiumUpgradePromptService,
           useValue: { promptForPremium: () => action("PremiumUpgradePrompt") },
         },
-        // The real batch bar service, so checking rows drives the same `can*` permission signals and
+        // The batch bar service, so checking rows drives the same `can*` permission signals and
         // bulk-action bar a client gets. Its collaborators below are the ones its permission checks
-        // read; the dialog tokens resolve to no-ops, since a story can't complete a bulk action
-        // against a server.
-        VaultBatchBarService,
+        // read; the actions themselves report to the Actions panel — see
+        // {@link StoryVaultBatchBarService}.
+        { provide: VaultBatchBarService, useClass: StoryVaultBatchBarService },
         { provide: LogService, useFactory: () => new ConsoleLogService(true) },
         { provide: CipherArchiveService, useValue: { userCanArchive$: () => of(true) } },
         {
@@ -635,6 +685,8 @@ export default {
         { provide: ToastService, useValue: { showToast: (): void => undefined } },
         { provide: RoutedVaultFilterService, useValue: { filter$: of({}) } },
         { provide: RoutedVaultFilterBridgeService, useValue: { activeFilter$: of({}) } },
+        // Required by the base class's constructor even though the overridden actions never reach
+        // them — both are non-optional `inject()` calls.
         {
           provide: ASSIGN_COLLECTIONS_DIALOG,
           useValue: { open: () => Promise.resolve(undefined) },

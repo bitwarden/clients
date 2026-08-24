@@ -219,7 +219,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
    * Clears the selection at its source, whichever that is. Every bulk action funnels through this
    * rather than `selection.clear()` so a registered host's checkboxes clear with it.
    */
-  private clearSelection(): void {
+  protected clearSelection(): void {
     const source = this.source();
     if (source) {
       source.clear();
