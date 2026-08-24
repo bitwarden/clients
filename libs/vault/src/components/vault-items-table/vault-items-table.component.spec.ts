@@ -32,6 +32,7 @@ import {
   ButtonModule,
   DialogService,
   FilterControl,
+  SelectionConfig,
 } from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
@@ -1567,6 +1568,48 @@ describe("VaultItemsTableComponent", () => {
 
       expect(selectionModel().count()).toBe(0);
       expect(batchBar.selected().length).toBe(0);
+    });
+
+    /**
+     * At the cap, an enabled checkbox would silently reject the click while the browser had
+     * already flipped its `checked` property — and since the `[checked]` binding's value never
+     * changed, Angular would not write it back, leaving the row rendering as selected while no
+     * bulk action would touch it. Disabling unselected rows makes the click impossible instead.
+     */
+    it("disables unselected row checkboxes once the selection is full", () => {
+      // A cap small enough that a rejected row lands inside the virtual-scroll window.
+      (component as unknown as { selection: SelectionConfig<CipherViewLike> }).selection = {
+        multiple: true,
+        max: 2,
+      };
+      fixture.componentRef.setInput(
+        "ciphers",
+        Array.from({ length: 4 }, (_, i) => cipherView({ id: `cipher-${i}`, name: `Item ${i}` })),
+      );
+      fixture.detectChanges();
+
+      const boxes = () =>
+        fixture.debugElement
+          .queryAll(By.css("input[data-selection-input]"))
+          .map((d) => d.nativeElement as HTMLInputElement);
+
+      boxes()[0].click();
+      fixture.detectChanges();
+      boxes()[1].click();
+      fixture.detectChanges();
+      expect(selectionModel().count()).toBe(2);
+
+      // The still-unselected rows can no longer be clicked into a stale checked state...
+      expect(boxes()[2].disabled).toBe(true);
+      expect(boxes()[3].disabled).toBe(true);
+      // ...while the selected ones stay deselectable.
+      expect(boxes()[0].disabled).toBe(false);
+      expect(boxes()[1].disabled).toBe(false);
+
+      // Freeing a slot re-enables them.
+      boxes()[0].click();
+      fixture.detectChanges();
+      expect(boxes()[2].disabled).toBe(false);
     });
 
     /**

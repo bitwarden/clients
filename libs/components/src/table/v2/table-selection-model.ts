@@ -74,12 +74,26 @@ export class TableSelectionModel<T> {
     return rows.length > 0 && rows.every((row) => this.isSelected(row));
   });
 
-  /** Whether some but not all selectable in-scope rows are selected. */
-  readonly indeterminate = computed(() => {
-    const rows = this.selectableWithinMax();
-    const selected = rows.filter((row) => this.isSelected(row)).length;
-    return selected > 0 && selected < rows.length;
-  });
+  /**
+   * Whether some but not all selectable in-scope rows are selected.
+   *
+   * Measured over the *full* in-scope set, unlike {@link allSelected}: "some but not all" is well
+   * defined regardless of the cap, and bounding it would report an empty header while a row past
+   * the cap window sits visibly checked.
+   */
+  readonly indeterminate = computed(
+    () => this.selectable().some((row) => this.isSelected(row)) && !this.allSelected(),
+  );
+
+  /**
+   * Whether the cap is reached, so no further row may be selected.
+   *
+   * Bind row checkboxes' `disabled` to this (excluding already-selected rows, which must stay
+   * deselectable). A checkbox left enabled at the cap silently rejects the click while the browser
+   * has already flipped its `checked` property — and since the `[checked]` binding's value hasn't
+   * changed, Angular never writes it back, leaving the row rendering as selected when it isn't.
+   */
+  readonly full = computed(() => this.count() >= this.max);
 
   /** Whether `row` is selected. Reads the selection signal, so callers react to changes. */
   isSelected(row: T): boolean {

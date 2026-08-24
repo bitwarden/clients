@@ -137,6 +137,48 @@ describe("TableSelectionModel", () => {
       expect(model.allSelected()).toBe(true);
     });
 
+    /**
+     * A row past the cap window is still visibly checked, so the header has to reflect it.
+     * Bounding this to the capped set renders the header empty while a row shows as selected.
+     */
+    it("is indeterminate when only a row past the cap window is selected", () => {
+      const all = rows(600);
+      const model = new TableSelectionModel<Row>({ multiple: true, max: 500, rows: signal(all) });
+
+      model.select(all[550]);
+
+      expect(model.indeterminate()).toBe(true);
+      expect(model.allSelected()).toBe(false);
+    });
+
+    /**
+     * `full` is what row checkboxes bind `disabled` to. Left enabled at the cap, a click is
+     * silently rejected while the browser has already flipped `checked` — and because the
+     * `[checked]` binding's value never changed, Angular does not write it back, so the row keeps
+     * rendering as selected when it is not.
+     */
+    it("reports full at the cap and not below it", () => {
+      const all = rows(10);
+      const model = new TableSelectionModel<Row>({ multiple: true, max: 2, rows: signal(all) });
+
+      expect(model.full()).toBe(false);
+
+      model.select(all[0]);
+      expect(model.full()).toBe(false);
+
+      model.select(all[1]);
+      expect(model.full()).toBe(true);
+    });
+
+    it("is never full without a cap", () => {
+      const all = rows(50);
+      const model = new TableSelectionModel<Row>({ multiple: true, rows: signal(all) });
+
+      model.toggleAll();
+
+      expect(model.full()).toBe(false);
+    });
+
     it("leaves an uncapped model selecting everything", () => {
       const model = new TableSelectionModel<Row>({ multiple: true, rows: signal(rows(25)) });
 

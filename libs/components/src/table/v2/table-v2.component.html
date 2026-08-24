@@ -34,6 +34,7 @@
           data-selection-input
           [attr.aria-label]="'selectRow' | i18n"
           [checked]="sel.isSelected(row)"
+          [disabled]="sel.full() && !sel.isSelected(row)"
           (change)="sel.toggle(row)"
         />
       }
