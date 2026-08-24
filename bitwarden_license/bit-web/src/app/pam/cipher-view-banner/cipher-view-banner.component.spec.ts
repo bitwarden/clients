@@ -1,3 +1,4 @@
+import { formatDate } from "@angular/common";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, NEVER, of } from "rxjs";
@@ -39,7 +40,14 @@ function leaseView(overrides: Partial<AccessLeaseView> = {}): AccessLeaseView {
 }
 
 function requestView(overrides: Partial<AccessRequestView> = {}): AccessRequestView {
-  return { id: "request-1", ...overrides } as unknown as AccessRequestView;
+  return {
+    id: "request-1",
+    // The server resolves both bounds at submit, so every real response carries them; a fixture
+    // omitting them would render a window the SDK's own type makes unrepresentable.
+    leaseNotBefore: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    leaseNotAfter: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+    ...overrides,
+  } as unknown as AccessRequestView;
 }
 
 /**
@@ -273,6 +281,106 @@ describe("CipherViewBannerComponent", () => {
 
       expect(query('[data-testid="cipher-view-banner-active"]')).not.toBeNull();
       expect(query('[data-testid="cipher-view-banner-pending"]')).toBeNull();
+    });
+  });
+
+  describe("the absolute expiry beside the countdown", () => {
+    const NOW = Date.parse("2026-01-01T15:00:00.000Z");
+    const ENDS_AT = "2026-01-01T16:15:00.000Z";
+
+    // Pinned rather than faked with timers: the banner's countdown runs on a real `setInterval`,
+    // and replacing the timer implementation would stall `fixture.whenStable()`.
+    beforeEach(() => {
+      jest.spyOn(Date, "now").mockReturnValue(NOW);
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    // Both sides go through this: `formatDate` separates the meridiem with a narrow no-break space,
+    // which the template's own whitespace collapse would otherwise leave only on one side.
+    function collapseSpace(value: string | null | undefined): string {
+      return (value ?? "").replace(/\s+/g, " ").trim();
+    }
+
+    function until(iso: string): string {
+      return `pamWindowUntil ${formatDate(iso, "short", "en-US")}`;
+    }
+
+    // Real time, for the same reason the clock above is pinned rather than faked: the banner's
+    // interval is a real one, so a tick can only be observed by outlasting its second.
+    function waitForTick(): Promise<void> {
+      return new Promise((resolve) => setTimeout(resolve, 1_100));
+    }
+
+    it("pairs the active lease's countdown with the wall-clock time it ends", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ activeLease: leaseView({ notAfter: ENDS_AT }) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(text()).toContain("pamActiveLeaseBannerTitle 1h 15m");
+      expect(query('[data-testid="active-lease-ends-at"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
+      );
+    });
+
+    it("shows the end of the granted window on an approved request already inside its window", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          approvedRequest: requestView({
+            leaseNotBefore: "2026-01-01T14:00:00.000Z",
+            leaseNotAfter: ENDS_AT,
+          }),
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
+      );
+    });
+
+    it("shows the whole range for an approved request whose window has not opened yet", async () => {
+      const STARTS_AT = "2026-01-02T09:00:00.000Z";
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          approvedRequest: requestView({ leaseNotBefore: STARTS_AT, leaseNotAfter: ENDS_AT }),
+        }),
+      );
+
+      await create(gatedCipher());
+
+      expect(collapseSpace(query('[data-testid="approved-access-window"]')?.textContent)).toBe(
+        collapseSpace(
+          `${formatDate(STARTS_AT, "short", "en-US")} – ${formatDate(ENDS_AT, "short", "en-US")}`,
+        ),
+      );
+    });
+
+    it("switches an approved request to the opened form once its window arrives", async () => {
+      const STARTS_AT = new Date(NOW + 30 * 1000).toISOString();
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          approvedRequest: requestView({ leaseNotBefore: STARTS_AT, leaseNotAfter: ENDS_AT }),
+        }),
+      );
+
+      await create(gatedCipher());
+      expect(query('[data-testid="approved-access-window"]')?.textContent).not.toContain(
+        "pamWindowUntil",
+      );
+
+      jest.spyOn(Date, "now").mockReturnValue(NOW + 31 * 1000);
+      await waitForTick();
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
+        until(ENDS_AT),
+      );
     });
   });
 
