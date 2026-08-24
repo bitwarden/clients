@@ -35,7 +35,7 @@
     "darkModeSupport": true,
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
-    "entitlements": "resources/entitlements.mac.beta.plist",
+    "entitlements": "resources/entitlements.mac.autofill-enabled.beta.plist",
     "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
     "extendInfo": {
       "BitwardenAppGroupIdentifier": "LTZ2PFU5D6.com.8bit.bitwarden.beta",
@@ -88,7 +88,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/PlugIns/autofill-extension.appex",
+      "Contents/PlugIns/autofill-extension.beta.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
     "target": ["dmg", "zip"],

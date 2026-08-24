@@ -9,6 +9,13 @@
 /* Begin PBXBuildFile section */
 		3368DB392C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */; };
 		3368DB3B2C654F3800896B75 /* BitwardenMacosProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */; };
+		56EFC0D13038BF4A003337AD /* BitwardenMacosProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */; };
+		56EFC0D23038BF4A003337AD /* CredentialProviderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1DF71412B342F6900F29026 /* CredentialProviderViewController.swift */; };
+		56EFC0D43038BF4A003337AD /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1DF713E2B342F6900F29026 /* AuthenticationServices.framework */; };
+		56EFC0D53038BF4A003337AD /* BitwardenMacosProviderFFI.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */; };
+		56EFC0D73038BF4A003337AD /* CredentialProviderViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E1DF71432B342F6900F29026 /* CredentialProviderViewController.xib */; };
+		56EFC0D83038BF4A003337AD /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9AE2990D2DFB57A200AAE454 /* Localizable.strings */; };
+		56EFC0D93038BF4A003337AD /* bitwarden-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */; };
 		9AE299092DF9D82E00AAE454 /* bitwarden-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */; };
 		9AE299122DFB57A200AAE454 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9AE2990D2DFB57A200AAE454 /* Localizable.strings */; };
 		E1DF713F2B342F6900F29026 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E1DF713E2B342F6900F29026 /* AuthenticationServices.framework */; };
@@ -19,6 +26,11 @@
 /* Begin PBXFileReference section */
 		3368DB382C654B8100896B75 /* BitwardenMacosProviderFFI.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = BitwardenMacosProviderFFI.xcframework; path = ../desktop_native/autofill_provider/BitwardenMacosProviderFFI.xcframework; sourceTree = "<group>"; };
 		3368DB3A2C654F3800896B75 /* BitwardenMacosProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BitwardenMacosProvider.swift; sourceTree = "<group>"; };
+		56EFC0DE3038BF4A003337AD /* autofill-extension.beta.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "autofill-extension.beta.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		56EFC0E03038C3FC003337AD /* autofill_extension_enabled.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = autofill_extension_enabled.entitlements; sourceTree = "<group>"; };
+		56EFC0E13038C415003337AD /* autofill_extension_enabled.beta.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = autofill_extension_enabled.beta.entitlements; sourceTree = "<group>"; };
+		56EFC0E23038C415003337AD /* autofill_extension.beta.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = autofill_extension.beta.entitlements; sourceTree = "<group>"; };
+		56EFC0E33038C415003337AD /* Info.beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.beta.plist; sourceTree = "<group>"; };
 		968ED08A2C52A47200FFFEE6 /* ReleaseAppStore.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = ReleaseAppStore.xcconfig; sourceTree = "<group>"; };
 		9AE299082DF9D82E00AAE454 /* bitwarden-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "bitwarden-icon.png"; sourceTree = "<group>"; };
 		9AE2990C2DFB57A200AAE454 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Localizable.strings; sourceTree = "<group>"; };
@@ -33,6 +45,15 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		56EFC0D33038BF4A003337AD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				56EFC0D43038BF4A003337AD /* AuthenticationServices.framework in Frameworks */,
+				56EFC0D53038BF4A003337AD /* BitwardenMacosProviderFFI.xcframework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1DF71392B342F6900F29026 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -69,6 +90,7 @@
 			isa = PBXGroup;
 			children = (
 				E1DF713C2B342F6900F29026 /* autofill-extension.appex */,
+				56EFC0DE3038BF4A003337AD /* autofill-extension.beta.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -92,6 +114,10 @@
 				E1DF71432B342F6900F29026 /* CredentialProviderViewController.xib */,
 				E1DF71462B342F6900F29026 /* Info.plist */,
 				E1DF71472B342F6900F29026 /* autofill_extension.entitlements */,
+				56EFC0E03038C3FC003337AD /* autofill_extension_enabled.entitlements */,
+				56EFC0E33038C415003337AD /* Info.beta.plist */,
+				56EFC0E23038C415003337AD /* autofill_extension.beta.entitlements */,
+				56EFC0E13038C415003337AD /* autofill_extension_enabled.beta.entitlements */,
 			);
 			path = "autofill-extension";
 			sourceTree = "<group>";
@@ -99,6 +125,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		56EFC0CF3038BF4A003337AD /* autofill-extension.beta */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 56EFC0DA3038BF4A003337AD /* Build configuration list for PBXNativeTarget "autofill-extension.beta" */;
+			buildPhases = (
+				56EFC0D03038BF4A003337AD /* Sources */,
+				56EFC0D33038BF4A003337AD /* Frameworks */,
+				56EFC0D63038BF4A003337AD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "autofill-extension.beta";
+			productName = "autofill-extension";
+			productReference = 56EFC0DE3038BF4A003337AD /* autofill-extension.beta.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E1DF713B2B342F6900F29026 /* autofill-extension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = E1DF714E2B342F6900F29026 /* Build configuration list for PBXNativeTarget "autofill-extension" */;
@@ -124,7 +167,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1510;
-				LastUpgradeCheck = 1510;
+				LastUpgradeCheck = 2650;
 				TargetAttributes = {
 					E1DF713B2B342F6900F29026 = {
 						CreatedOnToolsVersion = 15.1;
@@ -146,11 +189,22 @@
 			projectRoot = "";
 			targets = (
 				E1DF713B2B342F6900F29026 /* autofill-extension */,
+				56EFC0CF3038BF4A003337AD /* autofill-extension.beta */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		56EFC0D63038BF4A003337AD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				56EFC0D73038BF4A003337AD /* CredentialProviderViewController.xib in Resources */,
+				56EFC0D83038BF4A003337AD /* Localizable.strings in Resources */,
+				56EFC0D93038BF4A003337AD /* bitwarden-icon.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1DF713A2B342F6900F29026 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -164,6 +218,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		56EFC0D03038BF4A003337AD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				56EFC0D13038BF4A003337AD /* BitwardenMacosProvider.swift in Sources */,
+				56EFC0D23038BF4A003337AD /* CredentialProviderViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1DF71382B342F6900F29026 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -195,6 +258,105 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		56EFC0DB3038BF4A003337AD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D83832AB2D67B9AE003FB9F8 /* Debug.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.beta.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = LTZ2PFU5D6;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = LTZ2PFU5D6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "autofill-extension/Info.beta.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bitwarden Beta";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.8bit.bitwarden.beta.autofill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = Beta_Bitwarden_Desktop_Autofill_Development;
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		56EFC0DC3038BF4A003337AD /* ReleaseAppStore */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 968ED08A2C52A47200FFFEE6 /* ReleaseAppStore.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension.beta.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = LTZ2PFU5D6;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = LTZ2PFU5D6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "autofill-extension/Info.beta.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bitwarden Beta";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.8bit.bitwarden.beta.autofill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = Beta_Bitwarden_Desktop_Autofill_App_Store;
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = ReleaseAppStore;
+		};
+		56EFC0DD3038BF4A003337AD /* ReleaseDeveloper */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D83832AD2D67B9D0003FB9F8 /* ReleaseDeveloper.xcconfig */;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = "autofill-extension/autofill_extension_enabled.beta.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = LTZ2PFU5D6;
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = LTZ2PFU5D6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "autofill-extension/Info.beta.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Bitwarden Beta";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.8bit.bitwarden.beta.autofill;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = Beta_Bitwarden_Desktop_Autofill_Developer_ID;
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = ReleaseDeveloper;
+		};
 		D83832AE2D67BA84003FB9F8 /* ReleaseDeveloper */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = D83832AD2D67B9D0003FB9F8 /* ReleaseDeveloper.xcconfig */;
@@ -470,6 +632,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		56EFC0DA3038BF4A003337AD /* Build configuration list for PBXNativeTarget "autofill-extension.beta" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				56EFC0DB3038BF4A003337AD /* Debug */,
+				56EFC0DC3038BF4A003337AD /* ReleaseAppStore */,
+				56EFC0DD3038BF4A003337AD /* ReleaseDeveloper */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = ReleaseAppStore;
+		};
 		E1DF71212B342E2800F29026 /* Build configuration list for PBXProject "desktop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

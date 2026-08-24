@@ -40,19 +40,26 @@ async function run(context) {
   // invalid ("a sealed resource is missing or invalid") and notarization rejects it unless the
   // whole package is signed a second time. electron-builder never signs anything under
   // Contents/PlugIns, so the extension keeps the signature and entitlements Xcode gave it.
+  //
+  // Each release channel builds its own extension target so that the bundle identifier and
+  // App Group match the app hosting it, so the channel decides which one to bundle and which
+  // entitlements the proxy is signed with.
+  const isBetaBuild = context.packager.appInfo.id.endsWith(".beta");
+  const extensionName = isBetaBuild ? "autofill-extension.beta.appex" : "autofill-extension.appex";
+
   const isMasDevBuild =
     context.electronPlatformName === "mas" && context.targets.at(0)?.name === "mas-dev";
   if (context.electronPlatformName === "darwin" || isMasDevBuild) {
     console.log("### Copying autofill extension");
     // cannot use extraFiles because it modifies the extension's .plist and makes it invalid
-    const extensionPath = path.join(__dirname, "../macos/dist/autofill-extension.appex");
+    const extensionPath = path.join(__dirname, `../macos/dist/${extensionName}`);
     if (!fse.existsSync(extensionPath)) {
       console.log("### Autofill extension not found - skipping");
     } else {
       const appName = context.packager.appInfo.productFilename;
       const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
       fse.mkdirSync(plugInsPath, { recursive: true });
-      fse.copySync(extensionPath, path.join(plugInsPath, "autofill-extension.appex"));
+      fse.copySync(extensionPath, path.join(plugInsPath, extensionName));
     }
   }
 
@@ -89,10 +96,6 @@ async function run(context) {
     const inheritProxyPath = path.join(appPath, "Contents", "MacOS", "desktop_proxy.inherit");
 
     const packageId = context.packager.appInfo.id;
-
-    // The proxy is scoped to the App Group it shares with the app, and that group is per
-    // release channel, so the entitlements have to follow the bundle identifier being built.
-    const isBetaBuild = packageId.endsWith(".beta");
 
     if (is_mas) {
       const entitlementsName = isBetaBuild
