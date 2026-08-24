@@ -7,9 +7,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { NoItemsModule, SearchModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
+import { activeUserIsGovMode$ } from "../../platform/gov-mode";
 import { SharedModule } from "../../shared/shared.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -25,10 +28,13 @@ export class SMLandingComponent implements OnInit {
   imageSrc: string = "../images/sm.webp";
   showSecretsManagerInformation: boolean = true;
   showGiveMembersAccessInstructions: boolean = false;
+  showTryItNow: boolean = true;
 
   constructor(
     private organizationService: OrganizationService,
     private accountService: AccountService,
+    private govModeService: GovModeService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -39,6 +45,15 @@ export class SMLandingComponent implements OnInit {
 
     if (enabledOrganizations.length > 0) {
       this.handleEnabledOrganizations(enabledOrganizations);
+    } else if (
+      await firstValueFrom(
+        activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+      )
+    ) {
+      // Organizations on the Gov cloud are sales-provisioned, so there is no self-serve flow to
+      // send this person to. RequestSMAccessComponent redirects no-org Gov users here, so this
+      // branch must never link back to /request-sm-access.
+      this.showTryItNow = false;
     } else {
       // Person is not part of any orgs they need to be in an organization in order to use SM
       this.tryItNowUrl = "/create-organization";

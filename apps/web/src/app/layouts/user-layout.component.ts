@@ -16,6 +16,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { PopoverModule, SideNavService, SvgModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
@@ -24,6 +26,7 @@ import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/va
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
+import { activeUserIsGovMode$ } from "../platform/gov-mode";
 import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { WebLayoutModule } from "./web-layout.module";
@@ -68,6 +71,18 @@ export class UserLayoutComponent implements OnInit {
       switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
     ),
     { initialValue: true },
+  );
+
+  private readonly govModeService = inject(GovModeService);
+  private readonly logService = inject(LogService);
+
+  /**
+   * Whether the active account is on the Gov cloud. Used to hide the self-serve "Add plan" entry
+   * point — organizations on the Gov cloud are sales-provisioned.
+   */
+  protected readonly isGovMode = toSignal(
+    activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+    { initialValue: false },
   );
 
   protected readonly importCoachmarkOpen = computed(

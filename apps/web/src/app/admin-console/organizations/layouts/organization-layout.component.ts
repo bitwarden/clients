@@ -24,6 +24,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { Provider } from "@bitwarden/common/admin-console/models/domain/provider";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { BannerModule, SvgModule } from "@bitwarden/components";
@@ -37,6 +39,7 @@ import { FreeFamiliesPolicyService } from "../../../billing/services/free-famili
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
+import { activeUserIsGovMode$ } from "../../../platform/gov-mode";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -64,6 +67,8 @@ export class OrganizationLayoutComponent {
   private readonly policyService = inject(PolicyService);
   private readonly providerService = inject(ProviderService);
   private readonly accountService = inject(AccountService);
+  private readonly govModeService = inject(GovModeService);
+  private readonly logService = inject(LogService);
   private readonly freeFamiliesPolicyService = inject(FreeFamiliesPolicyService);
   private readonly organizationWarningsService = inject(OrganizationWarningsService);
 
@@ -95,9 +100,14 @@ export class OrganizationLayoutComponent {
     ),
   );
 
-  readonly hideNewOrgButton$: Observable<boolean> = this.userId$.pipe(
-    switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
-  );
+  // Hidden when the single-org policy applies, or on the Gov cloud, where organizations are
+  // sales-provisioned (no self-serve creation).
+  readonly hideNewOrgButton$: Observable<boolean> = combineLatest([
+    this.userId$.pipe(
+      switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
+    ),
+    activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+  ]).pipe(map(([singleOrgPolicyApplies, isGovMode]) => singleOrgPolicyApplies || isGovMode));
 
   private readonly provider$: Observable<Provider | undefined> = combineLatest([
     this.organization$,

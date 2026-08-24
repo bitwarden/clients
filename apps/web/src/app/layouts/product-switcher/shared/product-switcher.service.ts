@@ -26,10 +26,14 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { BitwardenIcon } from "@bitwarden/components";
+
+import { activeUserIsGovMode$ } from "../../../platform/gov-mode";
 
 export type ProductSwitcherItem = {
   /**
@@ -112,6 +116,8 @@ export class ProductSwitcherService {
     private policyService: PolicyService,
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private govModeService: GovModeService,
+    private logService: LogService,
   ) {
     this.pollUntilSynced();
   }
@@ -131,6 +137,9 @@ export class ProductSwitcherService {
     switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
+  /** Whether the active user's environment is the Gov cloud. */
+  isGovMode$ = activeUserIsGovMode$(this.accountService, this.govModeService, this.logService);
+
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
       if (!account) {
@@ -149,13 +158,15 @@ export class ProductSwitcherService {
     this.organizations$,
     this.providers$,
     this.userHasSingleOrgPolicy$,
+    this.isGovMode$,
     this.route.paramMap,
     this.triggerProductUpdate$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, isGovMode, paramMap]: [
         Organization[],
         Provider[],
+        boolean,
         boolean,
         ParamMap,
         void,
@@ -278,7 +289,9 @@ export class ProductSwitcherService {
         if (acOrg) {
           bento.push(products.ac);
         } else {
-          if (!userHasSingleOrgPolicy) {
+          // Organizations on the Gov cloud are sales-provisioned, so self-serve creation is
+          // unavailable.
+          if (!userHasSingleOrgPolicy && !isGovMode) {
             other.push(products.orgs);
           }
         }
