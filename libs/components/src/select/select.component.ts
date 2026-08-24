@@ -23,7 +23,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 
 import { BitFormFieldControlDirective } from "../form-field";
 import { IconComponent } from "../icon";
-import { IconTileComponent, IconTileVariant } from "../icon-tile";
+import {
+  IconTileComponent,
+  IconTileVariant,
+  resolveIconTileColor,
+  resolveIconTileVariant,
+} from "../icon-tile";
 import { TypographyDirective } from "../typography/typography.directive";
 
 import { Option } from "./option";
@@ -152,17 +157,12 @@ export class SelectComponent<T> implements ControlValueAccessor {
     this.notifyOnTouched()?.();
   }
 
-  /**
-   * A disabled option's tile drops to the neutral `gray` family, so the leading visual reads as
-   * inactive alongside the muted label instead of staying fully saturated.
-   */
   protected tileVariant(option: Option<T>): IconTileVariant {
-    return option.disabled ? "gray" : (option.iconTile?.variant ?? "primary");
+    return resolveIconTileVariant(option.iconTile, option.disabled);
   }
 
-  /** A custom color is ignored while disabled, otherwise it would override the neutral variant. */
   protected tileColor(option: Option<T>): string | undefined {
-    return option.disabled ? undefined : option.iconTile?.color;
+    return resolveIconTileColor(option.iconTile, option.disabled);
   }
 
   private findSelectedOption(

@@ -23,7 +23,12 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import { ButtonModule } from "../../button";
 import { IconComponent } from "../../icon";
 import { IconButtonModule } from "../../icon-button";
-import { IconTileComponent, IconTileVariant } from "../../icon-tile";
+import {
+  IconTileComponent,
+  IconTileVariant,
+  resolveIconTileColor,
+  resolveIconTileVariant,
+} from "../../icon-tile";
 import { MenuComponent, MenuItemComponent, MenuModule, MenuTriggerForDirective } from "../../menu";
 import { Option } from "../../select/option";
 import { BitwardenIcon } from "../../shared/icon";
@@ -200,17 +205,12 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
     return this.selectedOption?.icon || this.placeholderIcon();
   }
 
-  /**
-   * A disabled option's tile drops to the neutral `gray` family, so the leading visual reads as
-   * inactive alongside the muted label instead of staying fully saturated.
-   */
   protected tileVariant(option: ChipFilterOption<T>): IconTileVariant {
-    return option.disabled ? "gray" : (option.iconTile?.variant ?? "primary");
+    return resolveIconTileVariant(option.iconTile, option.disabled);
   }
 
-  /** A custom color is ignored while disabled, otherwise it would override the neutral variant. */
   protected tileColor(option: ChipFilterOption<T>): string | undefined {
-    return option.disabled ? undefined : option.iconTile?.color;
+    return resolveIconTileColor(option.iconTile, option.disabled);
   }
 
   /**
