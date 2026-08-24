@@ -1,3 +1,6 @@
+import { readFileSync } from "fs";
+import { join } from "path";
+
 import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
@@ -69,7 +72,7 @@ describe("VaultBatchActionComponent", () => {
             canRestore,
             canDelete,
             inTrash,
-            selection: { clear: clearSpy },
+            clearSelection: clearSpy,
             bulkMoveToFolder: bulkMoveToFolderSpy,
             bulkAssignToCollections: bulkAssignToCollectionsSpy,
             bulkEditCollectionAccess: bulkEditCollectionAccessSpy,
@@ -220,6 +223,26 @@ describe("VaultBatchActionComponent", () => {
   });
 
   describe("action invocation", () => {
+    /**
+     * The Clear button has to go through `clearSelection()` rather than the CDK model directly:
+     * once a host registers a selection source, `selected()` stops consulting that model, so
+     * clearing it would leave the count unchanged, the bar up, and every row still checked.
+     */
+    /**
+     * The Clear button has to go through `clearSelection()` rather than `selection.clear()`: once a
+     * host registers a selection source, `selected()` stops consulting the CDK model, so clearing
+     * that directly would leave the count unchanged, the bar up, and every row still checked.
+     *
+     * Asserted against the template source because the bar renders through `LayoutFooterService`'s
+     * portal, which this spec provides no outlet for — so the binding never executes here.
+     */
+    it("binds the bar's (clear) to the service's clearSelection", () => {
+      const template = readFileSync(join(__dirname, "vault-batch-action.component.html"), "utf8");
+
+      expect(template).toContain('(clear)="service.clearSelection()"');
+      expect(template).not.toContain("service.selection.clear()");
+    });
+
     it("calls service.bulkMoveToFolder when move action is invoked", () => {
       canAddToFolder.set(true);
 

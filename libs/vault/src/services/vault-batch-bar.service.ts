@@ -216,10 +216,15 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly selectedCount = computed(() => this.selected().length);
 
   /**
-   * Clears the selection at its source, whichever that is. Every bulk action funnels through this
-   * rather than `selection.clear()` so a registered host's checkboxes clear with it.
+   * Clears the selection at its source, whichever that is — the registered source when there is
+   * one, otherwise the default CDK model.
+   *
+   * Every clear path funnels through this rather than `selection.clear()`, including the bar's own
+   * Clear button: with a source registered, {@link selected} never consults the CDK model, so
+   * clearing that directly would leave `selectedCount()` unchanged, the bar up, and every row
+   * checked.
    */
-  protected clearSelection(): void {
+  clearSelection(): void {
     const source = this.source();
     if (source) {
       source.clear();
