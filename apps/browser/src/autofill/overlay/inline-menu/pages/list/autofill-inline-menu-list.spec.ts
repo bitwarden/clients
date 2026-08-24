@@ -6,7 +6,11 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
 import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
-import { InlineMenuCipherList, InlineMenuPrompt } from "../../../../content/components/inline-menu";
+import {
+  InlineMenuCipherList,
+  InlineMenuPasswordGenerator,
+  InlineMenuPrompt,
+} from "../../../../content/components/inline-menu";
 import {
   createAutofillOverlayCipherDataMock,
   createInitAutofillInlineMenuListMessageMock,
@@ -21,10 +25,13 @@ jest.mock("@emotion/css", () => ({ css: jest.fn(() => "") }));
 jest.mock("../../../../content/components/inline-menu", () => ({
   InlineMenuPrompt: jest.fn(() => "prompt"),
   InlineMenuCipherList: jest.fn(() => "cipher-list"),
+  InlineMenuPasswordGenerator: jest.fn(() => "password-generator"),
 }));
 jest.mock("../../../../content/components/icons", () => ({
   Lock: jest.fn(),
   ExternalLink: jest.fn(),
+  Key: jest.fn(),
+  Refresh: jest.fn(),
 }));
 
 describe("AutofillInlineMenuList", () => {
@@ -463,6 +470,128 @@ describe("AutofillInlineMenuList", () => {
         expect(
           autofillInlineMenuList["inlineMenuListContainer"].querySelector(
             ".inline-menu-list-actions",
+          ),
+        ).not.toBeNull();
+      });
+    });
+
+    describe("Lit password generator rendering when useLitComponents is enabled", () => {
+      it("renders the Lit password generator instead of the legacy DOM", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            generatedPassword,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPasswordGenerator).toHaveBeenCalledWith(
+          expect.objectContaining({
+            password: generatedPassword,
+            handleFillPassword: expect.any(Function),
+            handleRefreshPassword: expect.any(Function),
+          }),
+        );
+        const [, listHost] = jest.mocked(render).mock.calls[0];
+        expect(listHost).toBe(autofillInlineMenuList["inlineMenuListContainer"].firstElementChild);
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            ".password-generator-container",
+          ),
+        ).toBeNull();
+      });
+
+      it("fills the generated password from the Lit password generator", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            generatedPassword,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleFillPassword } = (InlineMenuPasswordGenerator as jest.Mock).mock.calls[0][0];
+        handleFillPassword(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "fillGeneratedPassword", portKey, token: "test-token" },
+          expectedOrigin,
+        );
+      });
+
+      it("refreshes the generated password from the Lit password generator", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            generatedPassword,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+
+        const { handleRefreshPassword } = (InlineMenuPasswordGenerator as jest.Mock).mock
+          .calls[0][0];
+        handleRefreshPassword(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "refreshGeneratedPassword", portKey, token: "test-token" },
+          expectedOrigin,
+        );
+      });
+
+      it("re-renders the Lit password generator when the password is updated", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            generatedPassword,
+            portKey,
+            useLitComponents: true,
+          }),
+        );
+        await flushPromises();
+        jest.mocked(InlineMenuPasswordGenerator).mockClear();
+        jest.mocked(render).mockClear();
+
+        const updatedPassword = "updatedPassword!2";
+        postWindowMessage({
+          command: "updateAutofillInlineMenuGeneratedPassword",
+          generatedPassword: updatedPassword,
+          token: "test-token",
+        });
+        await flushPromises();
+
+        expect(InlineMenuPasswordGenerator).toHaveBeenCalledWith(
+          expect.objectContaining({ password: updatedPassword }),
+        );
+        expect(render).toHaveBeenCalledWith("password-generator", expect.any(HTMLElement));
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            ".password-generator-container",
+          ),
+        ).toBeNull();
+      });
+
+      it("keeps the legacy password generator DOM when useLitComponents is false", async () => {
+        postWindowMessage(
+          createInitAutofillInlineMenuListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            generatedPassword,
+            portKey,
+            useLitComponents: false,
+          }),
+        );
+        await flushPromises();
+
+        expect(InlineMenuPasswordGenerator).not.toHaveBeenCalled();
+        expect(autofillInlineMenuList["passwordGeneratorContainer"]).not.toBeNull();
+        expect(
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+            ".password-generator-container",
           ),
         ).not.toBeNull();
       });
