@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -11,18 +12,29 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
  * Cipher + collection display names (and the decrypted cipher views, for the item favicon)
  * resolved from local vault state, keyed by the raw (string) id. All three maps hold only what
  * this client could resolve; a missing entry means the id isn't in the caller's local vault (or
- * collection state wasn't warm), and callers fall back to the raw id / render no favicon.
+ * collection state wasn't warm), and callers substitute {@link ResolvedNames.unresolvedCipherName}
+ * / render no favicon.
  */
 export type ResolvedNames = {
   cipherNameById: Map<string, string>;
   collectionNameById: Map<string, string>;
   /** The decrypted cipher views themselves, keyed by id — the source for favicon rendering. */
   cipherById: Map<string, CipherView>;
+  /**
+   * Already-translated display text for a cipher this client could not resolve — the row builders
+   * substitute it for a missing `cipherNameById` entry. A raw id is never a name.
+   */
+  unresolvedCipherName: string;
 };
 
 /** An empty name lookup — the graceful default before a vault snapshot resolves. */
 export function emptyResolvedNames(): ResolvedNames {
-  return { cipherNameById: new Map(), collectionNameById: new Map(), cipherById: new Map() };
+  return {
+    cipherNameById: new Map(),
+    collectionNameById: new Map(),
+    cipherById: new Map(),
+    unresolvedCipherName: "",
+  };
 }
 
 /**
@@ -35,8 +47,8 @@ export function emptyResolvedNames(): ResolvedNames {
  *
  * The read MUST go through `getAllDecryptedForIdsIncludingPartials`. Every id this service is asked
  * about names a gated cipher, and the default accessors (`getAllDecryptedForIds`, `cipherViews$`)
- * strip partials — so using one of those resolves nothing at all and every row falls back to a raw
- * uuid.
+ * strip partials — so using one of those resolves nothing at all and every row falls back to the
+ * unresolved-name placeholder.
  *
  * Deliberately a plain one-shot `Promise` (not the poc's reactive/backfill machinery): both
  * callers re-resolve names on every fetch, so a live subscription buys nothing here.
@@ -46,17 +58,19 @@ export class AccessNameResolverService {
   private readonly accountService = inject(AccountService);
   private readonly cipherService = inject(CipherService);
   private readonly collectionService = inject(CollectionService);
+  private readonly i18nService = inject(I18nService);
 
   /**
    * Resolve cipher and collection display names (and cipher views) for the given refs from local
    * vault state. Unresolvable ids (not in the caller's vault, or collection state not yet warm)
-   * are simply absent from the returned maps — callers fall back to the raw id.
+   * are simply absent from the returned maps — callers substitute `unresolvedCipherName`.
    */
   async resolveNames(
     refs: ReadonlyArray<{ cipherId: string; collectionId: string }>,
   ): Promise<ResolvedNames> {
+    const unresolvedCipherName = this.i18nService.t("pamAccessRequestItemUnavailable");
     if (refs.length === 0) {
-      return emptyResolvedNames();
+      return { ...emptyResolvedNames(), unresolvedCipherName };
     }
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     const cipherIds = [...new Set(refs.map((ref) => ref.cipherId))];
@@ -70,6 +84,7 @@ export class AccessNameResolverService {
         collections.map((collection) => [collection.id, collection.name]),
       ),
       cipherById: new Map(cipherViews.map((view) => [view.id, view])),
+      unresolvedCipherName,
     };
   }
 }

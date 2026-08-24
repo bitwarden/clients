@@ -28,7 +28,10 @@ export type ApprovalRow = {
   request: AccessRequestView;
   cipherId: string;
   collectionId: string;
-  /** The gated cipher's display name, falling back to its raw id when it isn't in the local vault. */
+  /**
+   * The gated cipher's display name, falling back to the resolver's placeholder when it isn't in
+   * the local vault.
+   */
   cipherName: string;
   collectionName: string | null;
   /** The requester's name, falling back to their email, then empty when the server resolved neither. */
@@ -63,7 +66,8 @@ export function toApprovalRow(
 ): ApprovalRow {
   const cipherId = uuidAsString(request.cipherId);
   const collectionId = uuidAsString(request.collectionId);
-  const cipherName = names.cipherNameById.get(cipherId) ?? cipherId;
+  const resolvedCipherName = names.cipherNameById.get(cipherId);
+  const cipherName = resolvedCipherName ?? names.unresolvedCipherName;
   const collectionName = names.collectionNameById.get(collectionId) ?? null;
   const requester = request.requesterName || request.requesterEmail || "";
 
@@ -83,7 +87,9 @@ export function toApprovalRow(
     relativeStart: relativeStart(request, now),
     exactWindow: exactWindow(request),
     canDecide,
-    searchText: [cipherName, collectionName, request.requesterName, request.requesterEmail]
+    // The resolved name, never the placeholder: its words are English prose and would otherwise
+    // make every unresolved row match a filter typed against them.
+    searchText: [resolvedCipherName, collectionName, request.requesterName, request.requesterEmail]
       .filter((value): value is string => !!value)
       .join(" ")
       .toLowerCase(),

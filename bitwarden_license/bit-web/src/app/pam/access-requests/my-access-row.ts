@@ -22,11 +22,14 @@ export const MY_ACCESS_PAGE_LIMIT = 50;
 /** A row in the Pending or History table on the "My access" page. */
 export type MyAccessRequestRow = {
   id: AccessRequestId;
-  /** The gated cipher's raw id, for the favicon lookup and as the item name's fallback. */
+  /** The gated cipher's raw id, for the favicon lookup. */
   cipherId: string;
   collectionId: string;
-  /** The gated cipher's display name, or null when it isn't in the caller's local vault. */
-  cipherName: string | null;
+  /**
+   * The gated cipher's display name, or the resolver's placeholder when it isn't in the caller's
+   * local vault.
+   */
+  cipherName: string;
   /** The collection's display name, or null when it isn't in the caller's local vault. */
   collectionName: string | null;
   status: AccessRequestStatus;
@@ -44,7 +47,7 @@ export type MyAccessRequestRow = {
   leaseNotAfter: string;
   /** i18n key for a system / access-rule resolver; null when a human resolved (or still pending). */
   resolverLabelKey: string | null;
-  /** The human resolver's display name (name, falling back to email, then id); null otherwise. */
+  /** The human resolver's display name (name, falling back to email); null otherwise. */
   resolverName: string | null;
   approverComment: string | null;
   /**
@@ -70,7 +73,11 @@ export type MyAccessLeaseRow = {
   requestId: AccessRequestId;
   cipherId: string;
   collectionId: string;
-  cipherName: string | null;
+  /**
+   * The gated cipher's display name, or the resolver's placeholder when it isn't in the caller's
+   * local vault.
+   */
+  cipherName: string;
   collectionName: string | null;
   notBefore: string;
   notAfter: string;
@@ -168,12 +175,13 @@ function terminal(
  *
  * The API surfaces the request's decision log. A system / access-rule decision has an automatic
  * `decider` (no approver identity); a human decision carries the approver under `decider.human`
- * (name/email/id). For a human decision we show the name, falling back to the email, then the raw
- * id if the server could not resolve the user (e.g. a deleted account) — so the column is never
- * blank.
+ * (name/email/id). For a human decision we show the name, falling back to the email; when the
+ * server resolved neither (e.g. a deleted account) the column names the gap rather than printing
+ * the approver's raw id, so it is never blank and never a uuid.
  *
- * Returns an i18n key for system decisions (translated in the template) and a display name for
- * human decisions, keeping localization out of the row model. Exported for tests.
+ * Returns an i18n key for system decisions and for that unnamed-approver case (both translated in
+ * the template) and a display name for human decisions, keeping localization out of the row model.
+ * Exported for tests.
  */
 export function resolveResolver(
   status: AccessRequestStatus,
@@ -186,11 +194,10 @@ export function resolveResolver(
   if (approver == null) {
     return { resolverLabelKey: "pamResolverAccessRule", resolverName: null };
   }
-  return {
-    resolverLabelKey: null,
-    resolverName:
-      approver.name || approver.email || (approver.id == null ? "" : uuidAsString(approver.id)),
-  };
+  const name = approver.name || approver.email;
+  return name
+    ? { resolverLabelKey: null, resolverName: name }
+    : { resolverLabelKey: "pamResolverUnknownApprover", resolverName: null };
 }
 
 export function toRequestRow(request: AccessRequestView, names: ResolvedNames): MyAccessRequestRow {
@@ -201,7 +208,7 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
     id: request.id,
     cipherId,
     collectionId,
-    cipherName: names.cipherNameById.get(cipherId) ?? null,
+    cipherName: names.cipherNameById.get(cipherId) ?? names.unresolvedCipherName,
     collectionName: names.collectionNameById.get(collectionId) ?? null,
     status: request.status,
     ...historyDisplayStatus(request),
@@ -289,7 +296,7 @@ export function toLeaseRow(
     requestId: lease.requestId,
     cipherId,
     collectionId,
-    cipherName: names.cipherNameById.get(cipherId) ?? null,
+    cipherName: names.cipherNameById.get(cipherId) ?? names.unresolvedCipherName,
     collectionName: names.collectionNameById.get(collectionId) ?? null,
     notBefore: lease.notBefore,
     notAfter: lease.notAfter,

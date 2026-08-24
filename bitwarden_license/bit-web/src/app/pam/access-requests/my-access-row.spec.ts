@@ -199,17 +199,23 @@ describe("resolveResolver", () => {
     });
   });
 
-  it("falls back to email, then id, when the name is unresolved", () => {
+  it("falls back to email when the name is unresolved", () => {
     const byEmail = decision({ deciderKind: "human", name: undefined, email: "jane@example.com" });
     expect(resolveResolver("denied", byEmail).resolverName).toBe("jane@example.com");
+  });
 
+  it("labels an approver the server named neither way, rather than printing their id", () => {
     const byId = decision({
       deciderKind: "human",
       name: undefined,
       email: undefined,
       id: "user-9",
     });
-    expect(resolveResolver("denied", byId).resolverName).toBe("user-9");
+
+    expect(resolveResolver("denied", byId)).toEqual({
+      resolverLabelKey: "pamResolverUnknownApprover",
+      resolverName: null,
+    });
   });
 });
 
@@ -229,13 +235,23 @@ describe("toRequestRow", () => {
     expect(row.id).toBe("req-1");
   });
 
-  it("falls back to null when a name is unresolved", () => {
-    const row = toRequestRow(request("req-1"), emptyResolvedNames());
+  it("falls back to the resolver's placeholder when the item name is unresolved", () => {
+    const row = toRequestRow(request("req-1"), names({ unresolvedCipherName: "Item unavailable" }));
 
-    expect(row.cipherName).toBeNull();
+    expect(row.cipherName).toBe("Item unavailable");
     expect(row.collectionName).toBeNull();
     expect(row.cipherId).toBe("cipher-1");
     expect(row.collectionId).toBe("col-1");
+  });
+
+  it("never renders the raw cipher id as a display value", () => {
+    const row = toRequestRow(request("req-1"), names({ unresolvedCipherName: "Item unavailable" }));
+    // cipherId itself is exempt: it stays on the row for the favicon lookup, not for display.
+    const { cipherId, collectionId, ...displayed } = row;
+
+    expect(cipherId).toBe("cipher-1");
+    expect(collectionId).toBe("col-1");
+    expect(Object.values(displayed)).not.toContain("cipher-1");
   });
 
   it("carries reason/submittedAt/resolvedAt/producedLeaseId through", () => {
@@ -352,10 +368,10 @@ describe("toLeaseRow", () => {
     expect(row.extendedUntil).toBe(new Date(Date.parse("2024-01-01T02:00:00.000Z")).toISOString());
   });
 
-  it("falls back to the raw id when a name is unresolved", () => {
-    const row = toLeaseRow(lease("lease-1"), emptyResolvedNames());
+  it("falls back to the resolver's placeholder when a name is unresolved", () => {
+    const row = toLeaseRow(lease("lease-1"), names({ unresolvedCipherName: "Item unavailable" }));
 
-    expect(row.cipherName).toBeNull();
+    expect(row.cipherName).toBe("Item unavailable");
     expect(row.collectionName).toBeNull();
     expect(row.cipherId).toBe("cipher-1");
   });

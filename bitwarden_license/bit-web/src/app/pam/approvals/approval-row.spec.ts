@@ -40,12 +40,17 @@ describe("toApprovalRow", () => {
     expect(row.collectionName).toBe("Production");
   });
 
-  it("falls back to the raw cipher id when the item isn't in the caller's vault", () => {
+  it("falls back to the resolver's placeholder when the item isn't in the caller's vault", () => {
     // An approver often cannot see the item they are granting access to.
-    const row = toApprovalRow(request(), emptyResolvedNames(), NOW, true);
+    const row = toApprovalRow(
+      request(),
+      names({ cipherNameById: new Map(), unresolvedCipherName: "Item unavailable" }),
+      NOW,
+      true,
+    );
 
-    expect(row.cipherName).toBe("cipher-1");
-    expect(row.collectionName).toBeNull();
+    expect(row.cipherName).toBe("Item unavailable");
+    expect(row.collectionName).toBe("Production");
   });
 
   it("prefers the requester's name, falling back to their email", () => {
@@ -91,7 +96,20 @@ describe("toApprovalRow", () => {
       true,
     );
 
-    expect(row.searchText).toBe("cipher-1");
+    expect(row.searchText).toBe("");
+  });
+
+  it("keeps the unresolved placeholder out of the haystack", () => {
+    const row = toApprovalRow(
+      request({ requesterName: undefined, requesterEmail: undefined }),
+      names({ cipherNameById: new Map(), unresolvedCipherName: "Item unavailable" }),
+      NOW,
+      true,
+    );
+
+    expect(row.cipherName).toBe("Item unavailable");
+    expect(row.searchText).not.toContain("item");
+    expect(row.searchText).not.toContain("unavailable");
   });
 
   it("carries `canDecide` through from the caller", () => {

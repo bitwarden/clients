@@ -4,6 +4,7 @@ import { BehaviorSubject, of } from "rxjs";
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -38,6 +39,7 @@ describe("AccessNameResolverService", () => {
         { provide: AccountService, useValue: { activeAccount$: of({ id: USER_ID }) } },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: { decryptedCollections$: () => collections$ } },
+        { provide: I18nService, useValue: { t: (key: string) => key } },
       ],
     });
     service = TestBed.inject(AccessNameResolverService);
@@ -72,11 +74,18 @@ describe("AccessNameResolverService", () => {
   });
 
   it("leaves ids the caller cannot resolve absent rather than guessing a name", async () => {
-    // An approver often cannot see the item they are granting access to; callers fall back to the id.
+    // An approver often cannot see the item they are granting access to; callers substitute the
+    // translated placeholder rather than printing the id.
     const names = await service.resolveNames([{ cipherId: "cipher-9", collectionId: "col-9" }]);
 
     expect(names.cipherNameById.get("cipher-9")).toBeUndefined();
     expect(names.collectionNameById.get("col-9")).toBeUndefined();
+  });
+
+  it("carries the translated placeholder for callers whose cipher did not resolve", async () => {
+    const names = await service.resolveNames([{ cipherId: "cipher-9", collectionId: "col-9" }]);
+
+    expect(names.unresolvedCipherName).toBe("pamAccessRequestItemUnavailable");
   });
 
   it("dedupes cipher ids before decrypting", async () => {
@@ -94,7 +103,10 @@ describe("AccessNameResolverService", () => {
   it("does no work at all for an empty ref set", async () => {
     const names = await service.resolveNames([]);
 
-    expect(names).toEqual(emptyResolvedNames());
+    expect(names).toEqual({
+      ...emptyResolvedNames(),
+      unresolvedCipherName: "pamAccessRequestItemUnavailable",
+    });
     expect(cipherService.getAllDecryptedForIdsIncludingPartials).not.toHaveBeenCalled();
   });
 

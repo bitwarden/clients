@@ -17324,6 +17324,12 @@
   "pamResolverAccessRule": {
     "message": "Access rule"
   },
+  "pamResolverUnknownApprover": {
+    "message": "Unknown approver"
+  },
+  "pamAccessRequestItemUnavailable": {
+    "message": "Item unavailable"
+  },
   "pamInboxInCollection": {
     "message": "in $COLLECTION$",
     "placeholders": {
