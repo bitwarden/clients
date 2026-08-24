@@ -24,6 +24,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BerryComponent } from "../berry/berry.component";
 import { ButtonModule } from "../button";
+import { CheckboxModule } from "../checkbox";
 import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../chips/shared/chip-dismiss-button.component";
@@ -38,6 +39,7 @@ import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.com
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
 import { OverflowItemDirective } from "../overflow-list";
+import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
 
@@ -118,6 +120,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     I18nPipe,
     NgTemplateOutlet,
     IconComponent,
+    CheckboxModule,
     IconTileComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -242,6 +245,14 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
    * while the user toggles options in the open menu.
    */
   protected readonly committedCount = signal(0);
+
+  /**
+   * The design system's own radio rendering, applied to the row's plain radio. `bitRadio`
+   * itself can't be used here — it drives `checked` and `name` from a form control group
+   * this row doesn't have — but its classes are the same definition, so there's nothing
+   * to drift from.
+   */
+  protected readonly radioInputClasses = radioInputClasses;
 
   /** Sentinel value bound to the single-select "All" option; selecting it clears the chip. */
   protected readonly clearValue = CLEAR_FILTER;

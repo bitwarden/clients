@@ -36,40 +36,6 @@
 <div class="tw-hidden"><ng-content></ng-content></div>
 
 <!--
-  Selection indicator: a check for a checkbox, a filled dot for a radio. Purely
-  decorative — the row's own `input` carries the state and the semantics — so it's
-  hidden from assistive tech. Tokens mirror what `bitCheckbox`/`bitRadio` render.
--->
-<ng-template #indicator let-selected let-partial="partial">
-  <span
-    aria-hidden="true"
-    class="tw-flex tw-size-4 tw-flex-none tw-items-center tw-justify-center tw-border-solid"
-    [class.tw-rounded]="multiple()"
-    [class.tw-rounded-full]="!multiple()"
-    [class.tw-border]="!selected && !partial"
-    [class.tw-border-border-strong]="!selected && !partial"
-    [class.tw-bg-bg-brand]="multiple() && selected && !partial"
-    [class.tw-bg-bg-tertiary]="!(multiple() && selected) || partial"
-    [class.tw-border-2]="selected || partial"
-    [class.tw-border-border-brand]="selected || partial"
-  >
-    @if (partial) {
-      <span class="tw-h-0.5 tw-w-2 tw-rounded-full tw-bg-bg-brand"></span>
-    } @else if (selected) {
-      @if (multiple()) {
-        <bit-icon
-          name="bwi-check"
-          class="tw-text-xs tw-text-fg-contrast"
-          aria-hidden="true"
-        ></bit-icon>
-      } @else {
-        <span class="tw-size-2 tw-rounded-full tw-bg-bg-brand"></span>
-      }
-    }
-  </span>
-</ng-template>
-
-<!--
   One option row, drawn by the chip (data only) so it re-stamps cleanly per surface,
   and recursive so a parent renders the options nested under it. A `label` around a
   real checkbox/radio: the browser supplies the role, the checked state, the
@@ -101,17 +67,13 @@
     }
     <label class="tw-mb-0 tw-flex tw-min-w-0 tw-flex-1 tw-items-center tw-gap-2">
       <input
-        class="tw-sr-only"
-        [type]="multiple() ? 'checkbox' : 'radio'"
-        [attr.name]="multiple() ? null : radioName"
+        type="radio"
+        [class]="radioInputClasses"
+        [attr.name]="radioName"
         [checked]="selected"
-        [indeterminate]="partial"
         [disabled]="option.disabled()"
         (change)="toggleOption(option)"
       />
-      <ng-container
-        *ngTemplateOutlet="indicator; context: { $implicit: selected, partial: partial }"
-      ></ng-container>
       @if (option.iconTile(); as tile) {
         <!-- tw-flex on the host: its inner box is inline-flex, so an inline host would add a line
              box's worth of descender space below the tile and push it above the row's center. -->
@@ -198,12 +160,21 @@
             <span class="tw-size-4 tw-flex-none" aria-hidden="true"></span>
           }
           @if (checked !== null) {
-            <ng-container
-              *ngTemplateOutlet="
-                indicator;
-                context: { $implicit: checked === 'true', partial: checked === 'mixed' }
-              "
-            ></ng-container>
+            <!--
+              Draws the control, nothing more: the row owns the semantics through
+              `aria-checked` and its own click, so this is hidden from assistive tech and
+              kept out of the tab order rather than being a second control to operate.
+            -->
+            <input
+              type="checkbox"
+              bitCheckbox
+              class="tw-pointer-events-none"
+              aria-hidden="true"
+              tabindex="-1"
+              [checked]="checked === 'true'"
+              [indeterminate]="checked === 'mixed'"
+              [disabled]="nodeDisabled(node)"
+            />
           }
           <span
             class="tw-min-w-0 tw-flex-1 tw-truncate"
@@ -237,15 +208,12 @@
         @let allSelected = isSelected(clearValue);
         <label [class]="optionRowClasses">
           <input
-            class="tw-sr-only"
             type="radio"
+            [class]="radioInputClasses"
             [attr.name]="radioName"
             [checked]="allSelected"
             (change)="toggle(clearValue)"
           />
-          <ng-container
-            *ngTemplateOutlet="indicator; context: { $implicit: allSelected }"
-          ></ng-container>
           <span class="tw-min-w-0 tw-flex-1 tw-truncate">{{ unsetLabel() ?? ("all" | i18n) }}</span>
           @if (unsetCount() != null) {
             <span class="tw-flex-none tw-text-xs tw-font-normal tw-text-fg-body-subtle">{{
