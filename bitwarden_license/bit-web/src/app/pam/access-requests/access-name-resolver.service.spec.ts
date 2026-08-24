@@ -74,8 +74,7 @@ describe("AccessNameResolverService", () => {
   });
 
   it("leaves ids the caller cannot resolve absent rather than guessing a name", async () => {
-    // An approver often cannot see the item they are granting access to; callers substitute the
-    // translated placeholder rather than printing the id.
+    // An approver often cannot see the item they are granting access to.
     const names = await service.resolveNames([{ cipherId: "cipher-9", collectionId: "col-9" }]);
 
     expect(names.cipherNameById.get("cipher-9")).toBeUndefined();

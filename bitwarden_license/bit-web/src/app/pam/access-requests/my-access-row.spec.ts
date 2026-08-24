@@ -72,7 +72,7 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
 }
 
 function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
-  return { ...emptyResolvedNames(), ...overrides };
+  return { ...emptyResolvedNames(), unresolvedCipherName: "Item unavailable", ...overrides };
 }
 
 describe("terminalStatusBadge", () => {
@@ -236,7 +236,7 @@ describe("toRequestRow", () => {
   });
 
   it("falls back to the resolver's placeholder when the item name is unresolved", () => {
-    const row = toRequestRow(request("req-1"), names({ unresolvedCipherName: "Item unavailable" }));
+    const row = toRequestRow(request("req-1"), names());
 
     expect(row.cipherName).toBe("Item unavailable");
     expect(row.collectionName).toBeNull();
@@ -245,7 +245,7 @@ describe("toRequestRow", () => {
   });
 
   it("never renders the raw cipher id as a display value", () => {
-    const row = toRequestRow(request("req-1"), names({ unresolvedCipherName: "Item unavailable" }));
+    const row = toRequestRow(request("req-1"), names());
     // cipherId itself is exempt: it stays on the row for the favicon lookup, not for display.
     const { cipherId, collectionId, ...displayed } = row;
 
@@ -369,7 +369,7 @@ describe("toLeaseRow", () => {
   });
 
   it("falls back to the resolver's placeholder when a name is unresolved", () => {
-    const row = toLeaseRow(lease("lease-1"), names({ unresolvedCipherName: "Item unavailable" }));
+    const row = toLeaseRow(lease("lease-1"), names());
 
     expect(row.cipherName).toBe("Item unavailable");
     expect(row.collectionName).toBeNull();

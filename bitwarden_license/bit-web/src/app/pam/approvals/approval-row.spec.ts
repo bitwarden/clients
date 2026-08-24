@@ -28,6 +28,7 @@ function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
     ...emptyResolvedNames(),
     cipherNameById: new Map([["cipher-1", "Prod database"]]),
     collectionNameById: new Map([["col-1", "Production"]]),
+    unresolvedCipherName: "Item unavailable",
     ...overrides,
   };
 }
@@ -42,12 +43,7 @@ describe("toApprovalRow", () => {
 
   it("falls back to the resolver's placeholder when the item isn't in the caller's vault", () => {
     // An approver often cannot see the item they are granting access to.
-    const row = toApprovalRow(
-      request(),
-      names({ cipherNameById: new Map(), unresolvedCipherName: "Item unavailable" }),
-      NOW,
-      true,
-    );
+    const row = toApprovalRow(request(), names({ cipherNameById: new Map() }), NOW, true);
 
     expect(row.cipherName).toBe("Item unavailable");
     expect(row.collectionName).toBe("Production");
@@ -102,7 +98,7 @@ describe("toApprovalRow", () => {
   it("keeps the unresolved placeholder out of the haystack", () => {
     const row = toApprovalRow(
       request({ requesterName: undefined, requesterEmail: undefined }),
-      names({ cipherNameById: new Map(), unresolvedCipherName: "Item unavailable" }),
+      names({ cipherNameById: new Map() }),
       NOW,
       true,
     );
