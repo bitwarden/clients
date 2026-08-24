@@ -160,6 +160,7 @@ describe("CipherViewBannerComponent", () => {
           useValue: new AccessRequestCancelService(
             requestsApi,
             accessRefresh,
+            dialogService,
             toastService,
             i18nService,
             logService,
@@ -578,10 +579,11 @@ describe("CipherViewBannerComponent", () => {
       });
     });
 
-    it("cancels a pending request", async () => {
+    it("cancels a pending request once confirmed", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ pendingRequest: requestView({ id: "request-3" } as never) }),
       );
+      dialogService.openSimpleDialog.mockResolvedValue(true);
       await create(gatedCipher());
 
       await component["cancelRequest"]();
@@ -589,7 +591,7 @@ describe("CipherViewBannerComponent", () => {
       expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("request-3");
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "pendingStateCancelSuccess",
+        message: "pamCancelRequestCanceledToast",
       });
     });
 
@@ -597,11 +599,24 @@ describe("CipherViewBannerComponent", () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ approvedRequest: requestView({ id: "request-4" } as never) }),
       );
+      dialogService.openSimpleDialog.mockResolvedValue(true);
       await create(gatedCipher());
 
       await component["cancelRequest"]();
 
       expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("request-4");
+    });
+
+    it("leaves the request standing when the cancel confirmation is dismissed", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView({ id: "request-3" } as never) }),
+      );
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      await create(gatedCipher());
+
+      await component["cancelRequest"]();
+
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
     });
 
     it("ends an active lease once confirmed", async () => {

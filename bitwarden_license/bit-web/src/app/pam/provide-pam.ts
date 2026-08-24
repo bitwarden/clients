@@ -5,7 +5,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
 import { CIPHER_VIEW_BANNER, GATED_CIPHER_RELOADER } from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
@@ -161,7 +161,14 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: AccessRequestCancelService,
       useClass: AccessRequestCancelService,
-      deps: [AccessRequestSdkService, AccessRefreshService, ToastService, I18nService, LogService],
+      deps: [
+        AccessRequestSdkService,
+        AccessRefreshService,
+        DialogService,
+        ToastService,
+        I18nService,
+        LogService,
+      ],
     }),
     safeProvider({
       provide: VaultRowAccessActionsService,
