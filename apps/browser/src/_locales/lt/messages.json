@@ -29,16 +29,16 @@
     "message": "Prisijungti naudojant prieigos raktą"
   },
   "unlockWithPasskey": {
-    "message": "Unlock with passkey"
+    "message": "Atrakinti su passkey"
   },
   "useSingleSignOn": {
     "message": "Naudoti vieningo prisijungimo sistemą"
   },
   "yourOrganizationRequiresSingleSignOn": {
-    "message": "Your organization requires single sign-on."
+    "message": "Jūsų organizacija reikalauja vienkartinio prisijungimo."
   },
   "loginPageMasterPasswordEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Prisijungti"
   },
   "setAStrongPassword": {
     "message": "Nustatyti stiprų slaptažodį"
@@ -120,7 +120,7 @@
     "message": "Saugykla"
   },
   "vaults": {
-    "message": "Vaults"
+    "message": "Saugyklos"
   },
   "myVault": {
     "message": "Mano saugykla"
@@ -171,16 +171,16 @@
     "message": "Kopijuoti paso numerį"
   },
   "copyNationalIdentificationNumber": {
-    "message": "Copy national identification number"
+    "message": "Kopijuoti nacionalinį identifikavimo numerį"
   },
   "copyFirstName": {
-    "message": "Copy first name"
+    "message": "Kopijuoti vardą"
   },
   "copyMiddleName": {
-    "message": "Copy middle name"
+    "message": "Kopijuoti antrąjį vardą"
   },
   "copyLastName": {
-    "message": "Copy last name"
+    "message": "Kopijuoti pavardę"
   },
   "copyLicenseNumber": {
     "message": "Kopijuoti licencijos numerį"
@@ -218,11 +218,11 @@
     "description": "This string is used on the vault page to indicate autofilling. Horizontal space is limited in the interface here so try and keep translations as concise as possible."
   },
   "autofillNoun": {
-    "message": "Autofill",
+    "message": "Automatinis pildymas",
     "description": "Noun"
   },
   "autofillVerb": {
-    "message": "Autofill",
+    "message": "Užpildyti",
     "description": "Verb"
   },
   "autoFillLogin": {
@@ -293,7 +293,7 @@
     "message": "Įveskite savo paskyros el. pašą ir jūsų slaptažodžio užuomina bus atsiųsta jums"
   },
   "hint": {
-    "message": "Hint"
+    "message": "Užuomina"
   },
   "continue": {
     "message": "Tęsti"
@@ -397,7 +397,7 @@
     "message": "Išsaugoti"
   },
   "saveAndFill": {
-    "message": "Save and fill"
+    "message": "Išsaugoti ir užpildyti"
   },
   "move": {
     "message": "Perkelti"
@@ -427,16 +427,16 @@
     "message": "Aplanko vardas"
   },
   "folderHintText": {
-    "message": "Nest a folder by adding the parent folder's name followed by a “/”. Example: Social/Forums"
+    "message": "Sukurkite aplanką pridėdami pirminio aplanko pavadinimą ir po jo „/“. Pavyzdys: Social/Forums"
   },
   "noFoldersAdded": {
-    "message": "No folders added"
+    "message": "Nepridėta aplankų"
   },
   "createFoldersToOrganize": {
-    "message": "Create folders to organize your vault items"
+    "message": "Kurkite aplankus, kad galėtumėte tvarkyti saugyklos elementus"
   },
   "deleteFolderPermanently": {
-    "message": "Are you sure you want to permanently delete this folder?"
+    "message": "Ar tikrai norite visam laikui ištrinti šį aplanką?"
   },
   "deleteFolder": {
     "message": "Šalinti aplankalą"
@@ -463,7 +463,7 @@
     "message": "Sinchronizuoti"
   },
   "syncNow": {
-    "message": "Sync now"
+    "message": "Sinchronizuoti dabar"
   },
   "lastSync": {
     "message": "Paskutinis sinchronizavimas:"
@@ -488,19 +488,19 @@
     "message": "Sugeneruoti slaptažodį"
   },
   "generatePassphrase": {
-    "message": "Generate passphrase"
+    "message": "Generuoti prieigos slaptažodį"
   },
   "passwordGenerated": {
-    "message": "Password generated"
+    "message": "Slaptažodis sugeneruotas"
   },
   "passphraseGenerated": {
-    "message": "Passphrase generated"
+    "message": "Sukurtas slaptažodis"
   },
   "usernameGenerated": {
-    "message": "Username generated"
+    "message": "Sukurtas naudotojo vardas"
   },
   "emailGenerated": {
-    "message": "Email generated"
+    "message": "El. pašto adresas sugeneruotas"
   },
   "regeneratePassword": {
     "message": "Generuoti slaptažodį iš naujo"
@@ -509,7 +509,7 @@
     "message": "Pasirinkimai"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Galimybės $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Nėra bendrinamo aplanko"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtruoti pagal $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Pažymėkite elementus kaip mėgstamus, kad galėtumėte juos filtruoti čia."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Pridėkite aplankus prie elementų, kad juos čia filtruotumėte."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Redaguoti elementą - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,17 +545,17 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Saugykloje nieko nėra"
   },
   "length": {
     "message": "Ilgis"
   },
   "include": {
-    "message": "Include",
+    "message": "Įtraukti",
     "description": "Card header for password generator include block"
   },
   "uppercaseDescription": {
-    "message": "Include uppercase characters",
+    "message": "Įtraukti didžiąsias raides",
     "description": "Tooltip for the password generator uppercase character checkbox"
   },
   "uppercaseLabel": {
@@ -563,7 +563,7 @@
     "description": "Label for the password generator uppercase character checkbox"
   },
   "lowercaseDescription": {
-    "message": "Include lowercase characters",
+    "message": "Įtraukti mažąsias raides",
     "description": "Full description for the password generator lowercase character checkbox"
   },
   "lowercaseLabel": {
@@ -571,7 +571,7 @@
     "description": "Label for the password generator lowercase character checkbox"
   },
   "numbersDescription": {
-    "message": "Include numbers",
+    "message": "Įtraukti skaičius",
     "description": "Full description for the password generator numbers checkbox"
   },
   "numbersLabel": {
@@ -579,7 +579,7 @@
     "description": "Label for the password generator numbers checkbox"
   },
   "specialCharactersDescription": {
-    "message": "Include special characters",
+    "message": "Įtraukti specialiuosius simbolius",
     "description": "Full description for the password generator special characters checkbox"
   },
   "numWords": {
@@ -602,7 +602,7 @@
     "message": "Mažiausiai simbolių"
   },
   "avoidAmbiguous": {
-    "message": "Avoid ambiguous characters",
+    "message": "Venkite dviprasmiškų simbolių",
     "description": "Label for the avoid ambiguous characters checkbox."
   },
   "generatorPolicyInEffect": {
@@ -613,51 +613,51 @@
     "message": "Ieškoti saugykloje"
   },
   "resetSearch": {
-    "message": "Reset search"
+    "message": "Atstatyti paiešką"
   },
   "archiveNoun": {
-    "message": "Archive",
+    "message": "Archyvas",
     "description": "Noun"
   },
   "archiveVerb": {
-    "message": "Archive",
+    "message": "Archyvuoti",
     "description": "Verb"
   },
   "unArchive": {
-    "message": "Unarchive"
+    "message": "Išarchyvuoti"
   },
   "itemsInArchive": {
-    "message": "Items in archive"
+    "message": "Įrašai archyve"
   },
   "noItemsInArchive": {
-    "message": "No items in archive"
+    "message": "Archyvuose nėra jokių įrašų"
   },
   "noItemsInArchiveDesc": {
-    "message": "Archived items will appear here and will be excluded from general search results and autofill suggestions."
+    "message": "Archyvuoti elementai bus rodomi čia ir nebus įtraukti į bendrus paieškos rezultatus ir automatinio pildymo pasiūlymus."
   },
   "itemArchiveToast": {
-    "message": "Item archived"
+    "message": "Suarchyvuotas įrašas"
   },
   "itemUnarchivedToast": {
-    "message": "Item unarchived"
+    "message": "Išarchyvuotas įrašas"
   },
   "archiveItem": {
-    "message": "Archive item"
+    "message": "Suarchyvuoti įrašą"
   },
   "archiveItemDialogContent": {
-    "message": "Once archived, this item will be excluded from search results and autofill suggestions."
+    "message": "Kai archyvuosite šį elementą, jis bus pašalintas iš ieškos rezultatų ir automatinio pildymo pasiūlymų."
   },
   "archived": {
-    "message": "Archived"
+    "message": "Suarchyvuota"
   },
   "unarchiveAndSave": {
-    "message": "Unarchive and save"
+    "message": "Išarchyvuoti ir išsaugoti"
   },
   "upgradeToUseArchive": {
-    "message": "A premium membership is required to use Archive."
+    "message": "Norint naudotis Archive, reikalinga mokama premium narystė."
   },
   "archiveItemsPlural": {
-    "message": "Archive $NUM$ items",
+    "message": "Archyvuoti $NUM$ elementai",
     "description": "Title of the archive items dialog when multiple items are selected",
     "placeholders": {
       "num": {
@@ -667,14 +667,14 @@
     }
   },
   "archiveItemTitle": {
-    "message": "Archive item",
+    "message": "Archyvuoti elementą",
     "description": "Title of the archive items dialog when a single item is selected"
   },
   "archiveItemsPluralDescription": {
-    "message": "Once archived, these items will be excluded from search results and autofill suggestions."
+    "message": "Kai elementai bus archyvuoti, jie nebebus įtraukiami į paieškos rezultatus ir automatinio užbaigimo pasiūlymus."
   },
   "itemRestored": {
-    "message": "Item has been restored"
+    "message": "Elementas atkurtas"
   },
   "edit": {
     "message": "Keisti"
@@ -683,16 +683,16 @@
     "message": "Peržiūrėti"
   },
   "viewAll": {
-    "message": "View all"
+    "message": "Peržiūrėti viską"
   },
   "showAll": {
-    "message": "Show all"
+    "message": "Rodyti viską"
   },
   "viewLess": {
-    "message": "View less"
+    "message": "Rodyti mažiau"
   },
   "viewLogin": {
-    "message": "View login"
+    "message": "Peržiūrėti prisijungimą"
   },
   "noItemsInList": {
     "message": "Nėra rodytinų elementų."
@@ -751,15 +751,6 @@
   "launchWebsite": {
     "message": "Atidaryti svetainę"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "website": {
     "message": "Tinklapis"
   },
@@ -788,41 +779,41 @@
     "message": "Įvertinkite šį plėtinį"
   },
   "troubleshooting": {
-    "message": "Troubleshooting"
+    "message": "Trikčių šalinimas"
   },
   "experiencingAnIssue": {
-    "message": "Experiencing an issue?"
+    "message": "Susidūrėte su problema?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "Atsisiųskite ir bendrinkite diagnostikos ataskaitą su"
   },
   "bitwardenSupport": {
-    "message": "Bitwarden support",
+    "message": "Bitwarden palaikymas",
     "description": "Link text following the troubleshooting description sentence. 'Bitwarden' should not be translated."
   },
   "download": {
-    "message": "Download"
+    "message": "Atsisiųsti"
   },
   "browserNotSupportClipboard": {
     "message": "Jūsų žiniatinklio naršyklė nepalaiko automatinio kopijavimo. Vietoj to nukopijuokite rankiniu būdu."
   },
   "verifyYourIdentity": {
-    "message": "Verify your identity"
+    "message": "Patvirtinkite savo tapatybę"
   },
   "weDontRecognizeThisDevice": {
-    "message": "We don't recognize this device. Enter the code sent to your email to verify your identity."
+    "message": "Neatpažįstame šio įrenginio. Įveskite kodą, atsiųstą į jūsų el. paštą, kad patvirtintumėte savo tapatybę."
   },
   "continueLoggingIn": {
-    "message": "Continue logging in"
+    "message": "Tęsti prisijungimą"
   },
   "yourVaultIsLocked": {
     "message": "Jūsų saugykla užrakinta. Norėdami tęsti, patikrinkite pagrindinį slaptažodį."
   },
   "yourVaultIsLockedV2": {
-    "message": "Your vault is locked"
+    "message": "Jūsų saugykla užrakinta"
   },
   "yourAccountIsLocked": {
-    "message": "Your account is locked"
+    "message": "Jūsų paskyra užblokuota"
   },
   "or": {
     "message": "arba"
@@ -847,7 +838,7 @@
     "message": "Neteisingas pagrindinis slaptažodis"
   },
   "invalidMasterPasswordConfirmEmailAndHost": {
-    "message": "Invalid master password. Confirm your email is correct and your account was created on $HOST$.",
+    "message": "Neteisingas pagrindinis slaptažodis. Patvirtinkite, kad jūsų el. paštas teisingas ir jūsų paskyra buvo sukurta $HOST$.",
     "placeholders": {
       "host": {
         "content": "$1",
@@ -904,10 +895,10 @@
     "message": "Užrakinant sistemą"
   },
   "onIdle": {
-    "message": "On system idle"
+    "message": "Sistemai būnant neaktyviai"
   },
   "onSleep": {
-    "message": "On system sleep"
+    "message": "Sistemai užmigus"
   },
   "onRestart": {
     "message": "Paleidus iš naujo naršyklę"
@@ -986,7 +977,7 @@
     "message": "Neteisingas patvirtinimo kodas"
   },
   "invalidEmailOrVerificationCode": {
-    "message": "Invalid email or verification code"
+    "message": "Neteisingas el. pašto adresas arba patvirtinimo kodas"
   },
   "valueCopied": {
     "message": "Nukopijuota $VALUE$",
@@ -1014,13 +1005,13 @@
     "message": "Padaryti dviejų veiksnių patvirtinimą sklandų"
   },
   "totpHelper": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Copy and paste the key into this field."
+    "message": "Bitwarden gali saugoti ir užpildyti 2 žingsnių patvirtinimo kodus. Nukopijuokite ir įklijuokite raktą į šį lauką."
   },
   "totpHelperWithCapture": {
-    "message": "Bitwarden can store and fill 2-step verification codes. Select the camera icon to take a screenshot of this website's authenticator QR code, or copy and paste the key into this field."
+    "message": "Bitwarden gali saugoti ir užpildyti 2 žingsnių patvirtinimo kodus. Pasirinkite kameros piktogramą, kad padarytumėte šios svetainės autentifikatoriaus QR kodo ekrano kopiją, arba nukopijuokite ir įklijuokite raktą į šį lauką."
   },
   "learnMoreAboutAuthenticators": {
-    "message": "Learn more about authenticators"
+    "message": "Sužinokite daugiau apie autentifikatorius"
   },
   "copyTOTP": {
     "message": "Kopijuoti Autentifikatoriaus raktą (TOTP)"
@@ -1038,7 +1029,7 @@
     "message": "Prisijungti"
   },
   "loginPageEmailEntryScreenTitle": {
-    "message": "Log in"
+    "message": "Prisijungti"
   },
   "enterTheCodeSentToYourEmail": {
     "message": "Įveskite kodą išsiųstą jums el. paštu"
@@ -1053,22 +1044,22 @@
     "message": "„Duo“ dviejų veiksnių prisijungimas yra privalomas jūsų paskyrai. Sekite žingsnius žemiau, kad užbaigtumėte prisijungimą."
   },
   "followTheStepsBelowToFinishLoggingIn": {
-    "message": "Follow the steps below to finish logging in."
+    "message": "Norėdami baigti prisijungimą, atlikite toliau nurodytus veiksmus."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Follow the steps below to finish logging in with your security key."
+    "message": "Atlikite toliau nurodytus veiksmus, kad užbaigtumėte prisijungimą naudodami saugos raktą."
   },
   "restartRegistration": {
-    "message": "Restart registration"
+    "message": "Paleisti registraciją iš naujo"
   },
   "expiredLink": {
     "message": "Nebegaliojanti nuoroda"
   },
   "pleaseRestartRegistrationOrTryLoggingIn": {
-    "message": "Please restart registration or try logging in."
+    "message": "Prašome iš naujo paleisti registraciją arba bandyti prisijungti."
   },
   "youMayAlreadyHaveAnAccount": {
-    "message": "You may already have an account"
+    "message": "Galimai jau turite paskyrą"
   },
   "logOutConfirmation": {
     "message": "Ar tikrai norite atsijungti?"
@@ -1080,13 +1071,13 @@
     "message": "Ne"
   },
   "noAuth": {
-    "message": "Anyone with the link"
+    "message": "Visi, kas turi nuorodą"
   },
   "anyOneWithPassword": {
-    "message": "Anyone with a password set by you"
+    "message": "Visi, kas turi jūsų nustatytą slaptažodį"
   },
   "location": {
-    "message": "Location"
+    "message": "Vieta"
   },
   "unexpectedError": {
     "message": "Įvyko netikėta klaida."
@@ -1101,10 +1092,10 @@
     "message": "Prisijungus dviem veiksmais, jūsų paskyra tampa saugesnė, reikalaujant patvirtinti prisijungimą naudojant kitą įrenginį, pvz., saugos raktą, autentifikavimo programėlę, SMS, telefono skambutį ar el. paštą. Dviejų žingsnių prisijungimą galima įjungti „bitwarden.com“ interneto saugykloje. Ar norite dabar apsilankyti svetainėje?"
   },
   "twoStepLoginConfirmationContent": {
-    "message": "Make your account more secure by setting up two-step login in the Bitwarden web app."
+    "message": "Padarykite savo paskyrą saugesnę nustatydami dviejų žingsnių prisijungimą Bitwarden internetinėje programoje."
   },
   "twoStepLoginConfirmationTitle": {
-    "message": "Continue to web app?"
+    "message": "Tęsti į žiniatinklio programą?"
   },
   "editedFolder": {
     "message": "Katalogas atnaujintas"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Atnaujinti narystę"
   },
-  "premiumNotCurrentMember": {
-    "message": "Neturite Premium narystės."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Prisijunk prie Premium narystės ir gauk:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB encrypted storage for file attachments."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "You can purchase Premium from your account settings on the Bitwarden web app."
-  },
-  "premiumCurrentMember": {
-    "message": "Tu esi Premium narys!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Dėkojame, kad palaikote „Bitwarden“."
   },
   "premiumFeatures": {
     "message": "Upgrade to Premium and receive:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Apsaugos kodas"
   },
-  "cardNumber": {
-    "message": "card number"
-  },
   "ex": {
     "message": "pvz."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ collections",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ shared folders",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Clear filters or try another search term"
   },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "More options, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Copy $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Exposed passwords"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Passwords for these logins were exposed in data breaches. Change them immediately to protect your accounts."
+  },
+  "weakPasswordsTitle": {
+    "message": "Weak passwords"
+  },
+  "weakPasswordsDescription": {
+    "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Reused passwords"
+  },
+  "reusedPasswordsDescription": {
+    "message": "These logins have a reused password. Create a unique password for each account to prevent someone accessing multiple accounts with one password."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "This password has additional risks:"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ times",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "None of your passwords were found in data breaches."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "You're all set!"
   }
 }

@@ -1,3 +1,4 @@
+export { VaultFabComponent } from "./components/fab/fab.component";
 export {
   AtRiskPasswordCalloutService,
   AtRiskPasswordCalloutData,
@@ -37,6 +38,8 @@ export { DecryptionFailureDialogComponent } from "./components/decryption-failur
 export { VaultItemCopyActionsComponent } from "./components/item-copy-actions/item-copy-actions.component";
 export { openPasswordHistoryDialog } from "./components/password-history/password-history.component";
 export * from "./components/add-edit-folder-dialog/add-edit-folder-dialog.component";
+export * from "./components/delete-folder-dialog/delete-folder-dialog.component";
+export * from "./components/my-folders/my-folders.component";
 export * from "./components/add-item-grid/add-item-grid.component";
 export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";
@@ -68,6 +71,8 @@ export * from "./models/routed-vault-filter-bridge.model";
 export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
 export * from "./models/vault-nav-view-model";
+export * from "./models/folder-table-row";
+export * from "./models/vault-scope";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
@@ -75,6 +80,8 @@ export * from "./services/routed-vault-filter-bridge.service";
 export * from "./services/bulk-delete.service";
 export { VaultNavService } from "./services/vault-nav.service";
 export { DefaultVaultNavService } from "./services/default-vault-nav.service";
+export { VaultNavSectionComponent } from "./components/vault-nav-section/vault-nav-section.component";
+export { VaultManageNavComponent } from "./components/vault-manage-nav/vault-manage-nav.component";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,
@@ -117,3 +124,4 @@ export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
+export { vaultScopeGuard } from "./routing/vault-scope.guard";

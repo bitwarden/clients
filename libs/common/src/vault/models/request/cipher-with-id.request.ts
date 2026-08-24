@@ -5,8 +5,8 @@ import { CipherRequest } from "./cipher.request";
 export class CipherWithIdRequest extends CipherRequest {
   id: string;
 
-  constructor({ cipher, encryptedFor }: EncryptionContext) {
-    super({ cipher, encryptedFor });
-    this.id = cipher.id;
+  constructor(context: EncryptionContext) {
+    super(context);
+    this.id = context.cipher.id;
   }
 }
