@@ -41,6 +41,16 @@ export interface EntitlementsOptions {
   /// Whether this build claims the AutoFill credential provider entitlement, which is what
   /// lets macOS offer the app's passwords and passkeys to other applications.
   autofill: boolean;
+  /// Whether a directly distributed app claims the App Group, which is what gives it access to
+  /// `~/Library/Group Containers/<group>` where the autofill extension and the native messaging
+  /// proxy put their sockets.
+  ///
+  /// Only `macAppEntitlements` consults this. A sandboxed App Store app, the extension and the
+  /// sandboxed proxy always name the group, because it is the only way they can reach each other
+  /// at all. A directly distributed app is not sandboxed and reached its socket through the cache
+  /// directory historically, so the group is something it opts into -- and it can only opt in
+  /// where the provisioning profile authorizes it, which is per channel.
+  appGroup?: boolean;
 }
 
 /// Directories the sandboxed app is allowed to write a native messaging host manifest into, so
@@ -97,6 +107,9 @@ export function autofillExtensionEntitlements(options: EntitlementsOptions): Ent
 export function macAppEntitlements(options: EntitlementsOptions): Entitlements {
   return {
     ...identity(options),
+    ...(options.appGroup === true
+      ? { "com.apple.security.application-groups": [appGroup(options)] }
+      : {}),
     "com.apple.security.cs.allow-jit": true,
     ...whenAutofill(options),
   };

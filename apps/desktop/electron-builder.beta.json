@@ -4,7 +4,7 @@
     "name": "bitwarden-beta"
   },
   "productName": "Bitwarden Beta",
-  "appId": "com.bitwarden.desktop.beta",
+  "appId": "com.bitwarden.beta.desktop",
   "buildDependenciesFromSource": true,
   "copyright": "Copyright © 2015-2026 Bitwarden Inc.",
   "directories": {
@@ -35,9 +35,10 @@
     "darkModeSupport": true,
     "gatekeeperAssess": false,
     "hardenedRuntime": true,
-    "entitlements": "resources/entitlements.mac.plist",
-    "entitlementsInherit": "resources/entitlements.mac.inherit.plist",
+    "entitlements": "intermediates/entitlements/app.plist",
+    "entitlementsInherit": "intermediates/entitlements/app-inherit.plist",
     "extendInfo": {
+      "BitwardenAppGroupIdentifier": "LTZ2PFU5D6.com.bitwarden.beta.desktop",
       "ITSAppUsesNonExemptEncryption": false,
       "CFBundleLocalizations": [
         "en",
@@ -70,7 +71,7 @@
       ],
       "CFBundleDevelopmentRegion": "en"
     },
-    "provisioningProfile": "bitwarden_desktop_developer_id.provisionprofile",
+    "provisioningProfile": "Beta_Bitwarden_Desktop_Developer_ID.provisionprofile",
     "icon": "icon.beta.icns",
     "singleArchFiles": "node_modules/@bitwarden/desktop-napi/desktop_napi.darwin-*.node",
     "x64ArchFiles": "{**/desktop_napi.darwin-*.node,**/bufferutil/**/darwin-*/*.node}",
@@ -87,7 +88,7 @@
     "signIgnore": [
       "MacOS/desktop_proxy",
       "MacOS/desktop_proxy.inherit",
-      "Contents/Plugins/autofill-extension.appex",
+      "Contents/PlugIns/autofill-extension.appex",
       "Frameworks/Electron Framework.framework/(Electron Framework|Libraries|Resources|Versions/Current)/.*"
     ],
     "target": ["dmg", "zip"],

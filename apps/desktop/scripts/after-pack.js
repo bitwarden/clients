@@ -6,7 +6,28 @@ const path = require("path");
 const { flipFuses, FuseVersion, FuseV1Options } = require("@electron/fuses");
 const builder = require("electron-builder");
 const fse = require("fs-extra");
+
+const { channelForAppId } = require("./channel.js");
+
 exports.default = run;
+
+/// Where a build's entitlements live.
+///
+/// Beta generates them at pack time from the application identifier it is being built with, so its
+/// App Group follows its bundle identifier instead of naming stable's. Stable still signs with the
+/// checked-in plists, which scripts/entitlements.spec.ts pins to the generator's output byte for
+/// byte -- its build path deliberately does not change here, because it ships first. Both channels
+/// converge once the generator drives all of them.
+///
+/// @param {"stable" | "beta"} channel
+/// @param {string} generated file name under intermediates/entitlements
+/// @param {string} checkedIn file name under resources
+/// @returns {string}
+function entitlementsPath(channel, generated, checkedIn) {
+  return channel === "beta"
+    ? path.join(__dirname, "..", "intermediates", "entitlements", generated)
+    : path.join(__dirname, "..", "resources", checkedIn);
+}
 
 /**
  *
@@ -90,33 +111,43 @@ async function run(context) {
 
     const packageId = context.packager.appInfo.id;
 
+    // The proxy is scoped to the App Group it shares with the app, and that group is named after
+    // the app, so its entitlements have to follow the identifier actually being built. Resolved
+    // from the identifier rather than by testing for a suffix: `com.bitwarden.beta.desktop` does
+    // not end in `.beta`, and an identifier that is not one of ours should fail loudly.
+    const channel = channelForAppId(packageId);
+
     if (is_mas) {
-      const entitlementsName = "entitlements.desktop_proxy.plist";
-      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
+      const proxyEntitlements = entitlementsPath(
+        channel,
+        "desktop-proxy.plist",
+        "entitlements.desktop_proxy.plist",
+      );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${proxyPath}"`,
       );
 
-      const inheritEntitlementsName = "entitlements.desktop_proxy.inherit.plist";
-      const inheritEntitlementsPath = path.join(
-        __dirname,
-        "..",
-        "resources",
-        inheritEntitlementsName,
+      const inheritEntitlements = entitlementsPath(
+        channel,
+        "desktop-proxy-inherit.plist",
+        "entitlements.desktop_proxy.inherit.plist",
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlementsPath}" "${inheritProxyPath}"`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlements}" "${inheritProxyPath}"`,
       );
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
       // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
-      const entitlementsName = "entitlements.mac.inherit.plist";
-      const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
+      const proxyEntitlements = entitlementsPath(
+        channel,
+        "desktop-proxy.plist",
+        "entitlements.mac.inherit.plist",
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${inheritProxyPath}"`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${proxyPath}"`,
+      );
+      child_process.execSync(
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${inheritProxyPath}"`,
       );
     }
   }

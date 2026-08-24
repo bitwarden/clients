@@ -12,7 +12,7 @@
 /// output byte for byte. Only beta generates at pack time. That asymmetry is deliberate and
 /// temporary: it keeps the stable release's build path unchanged while beta takes a new identifier.
 ///
-///   node scripts/generate-entitlements.mts --channel beta --target mac --autofill \
+///   node scripts/generate-entitlements.mts --channel beta --target mac --autofill --app-group \
 ///     --out intermediates/entitlements
 
 import { mkdirSync, writeFileSync } from "fs";
@@ -55,6 +55,9 @@ interface Options {
   channel: Channel;
   target: Target;
   autofill: boolean;
+  /// Whether a directly distributed app claims the App Group. See EntitlementsOptions.appGroup:
+  /// the sandboxed targets always have it, so this only affects `--target mac`.
+  appGroup: boolean;
   out: string;
 }
 
@@ -70,7 +73,7 @@ interface Options {
 /// Developer ID proxy to match, is a separate change.
 function documents(options: Options): Partial<Record<keyof typeof FILES, Entitlements>> {
   const bundleId = APP_IDS[options.channel];
-  const entitlements = { bundleId, autofill: options.autofill };
+  const entitlements = { bundleId, autofill: options.autofill, appGroup: options.appGroup };
   const appStore = options.target !== "mac";
 
   return {
@@ -90,6 +93,7 @@ function parse(argv: string[]): Options {
       channel: { type: "string" },
       target: { type: "string" },
       autofill: { type: "boolean", default: false },
+      "app-group": { type: "boolean", default: false },
       out: { type: "string" },
     },
     strict: true,
@@ -113,6 +117,7 @@ function parse(argv: string[]): Options {
     channel: channel as Channel,
     target: target as Target,
     autofill: values.autofill,
+    appGroup: values["app-group"],
     // Resolved against apps/desktop rather than the caller's directory, because that is what
     // every path in the electron-builder configuration is relative to.
     out: isAbsolute(values.out) ? values.out : join(projectDir, values.out),

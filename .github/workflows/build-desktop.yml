@@ -1624,8 +1624,8 @@ jobs:
           mkdir -p "$HOME/secrets"
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
-            --name bitwarden_desktop_developer_id.provisionprofile \
-            --file "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+            --name Beta_Bitwarden_Desktop_Developer_ID.provisionprofile \
+            --file "$HOME/secrets/Beta_Bitwarden_Desktop_Developer_ID.provisionprofile" \
             --output none
 
           az storage blob download --account-name "$ACCOUNT_NAME" --container-name "$CONTAINER_NAME" \
@@ -1665,14 +1665,14 @@ jobs:
 
       - name: Set up provisioning profiles
         run: |
-          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
-            "$GITHUB_WORKSPACE/apps/desktop/bitwarden_desktop_developer_id.provisionprofile"
+          cp "$HOME/secrets/Beta_Bitwarden_Desktop_Developer_ID.provisionprofile" \
+            "$GITHUB_WORKSPACE/apps/desktop/Beta_Bitwarden_Desktop_Developer_ID.provisionprofile"
 
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
+          APP_UUID=$(grep UUID -A1 -a "$HOME/secrets/Beta_Bitwarden_Desktop_Developer_ID.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
           AUTOFILL_UUID=$(grep UUID -A1 -a "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" | grep -io "[-A-Z0-9]\{36\}")
 
-          cp "$HOME/secrets/bitwarden_desktop_developer_id.provisionprofile" \
+          cp "$HOME/secrets/Beta_Bitwarden_Desktop_Developer_ID.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$APP_UUID.provisionprofile"
           cp "$HOME/secrets/bitwarden_desktop_autofill_developer_id.provisionprofile" \
             "$HOME/Library/MobileDevice/Provisioning Profiles/$AUTOFILL_UUID.provisionprofile"

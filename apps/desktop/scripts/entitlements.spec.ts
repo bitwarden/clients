@@ -131,6 +131,29 @@ describe("composing entitlements", () => {
     expect(beta["com.apple.security.application-groups"]).toEqual([`${TEAM_ID}.${APP_IDS.beta}`]);
   });
 
+  /// The directly distributed app historically reached its socket through the cache directory, so
+  /// the group is opt-in: claiming an entitlement the provisioning profile does not authorize
+  /// fails the signature, and only beta's profile authorizes it for now.
+  it("leaves the app group out of a directly distributed app unless it is asked for", () => {
+    const without = macAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
+
+    expect(without["com.apple.security.application-groups"]).toBeUndefined();
+  });
+
+  it("adds the app group to a directly distributed app when asked for", () => {
+    const beta = macAppEntitlements({ bundleId: APP_IDS.beta, autofill: true, appGroup: true });
+
+    expect(beta["com.apple.security.application-groups"]).toEqual([`${TEAM_ID}.${APP_IDS.beta}`]);
+  });
+
+  /// The App Store app is sandboxed, so the group is the only way it can reach the extension --
+  /// there is nothing to opt into.
+  it("always gives the App Store app its group", () => {
+    const mas = masAppEntitlements({ bundleId: BUNDLE_ID, autofill: false });
+
+    expect(mas["com.apple.security.application-groups"]).toEqual([`${TEAM_ID}.${BUNDLE_ID}`]);
+  });
+
   /// The extension shares the *app's* group, so its own identifier never appears here -- which is
   /// what keeps a beta extension out of the stable app's container.
   it("puts the extension in the app's group, not one named after itself", () => {
