@@ -222,7 +222,7 @@ describe("MyAccessService", () => {
       expect(leases).toEqual([]);
       const history = await firstValueFrom(service.historyRows$);
       expect(history.map((r) => r.id)).toEqual(["req-1"]);
-      expect(history[0].statusBadge?.labelKey).toBe("pamStatusEndedByYou");
+      expect(history[0].statusBadge?.labelKey).toBe("pamStatusCanceled");
     });
 
     it("rolls back the optimistic patch and rethrows when the SDK call fails", async () => {

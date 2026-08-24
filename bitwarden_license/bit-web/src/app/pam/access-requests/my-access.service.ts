@@ -211,7 +211,7 @@ export class MyAccessService {
    * End the caller's own active lease early. Optimistically drops the lease from Active leases and
    * marks its originating request's produced lease `canceled` — the status the server records for a
    * self-service end, as against `revoked` for an operator ending it — so the grant reappears in
-   * History labelled "Cancelled" straight away; then calls the API and, on failure, restores both
+   * History labelled "Canceled" straight away; then calls the API and, on failure, restores both
    * and rethrows so the caller can toast.
    */
   async endLease(leaseId: AccessLeaseId): Promise<void> {
