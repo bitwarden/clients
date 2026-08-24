@@ -1,10 +1,7 @@
 /* eslint-disable @typescript-eslint/no-require-imports, no-console */
 require("dotenv").config();
-const path = require("path");
 
 const { notarize } = require("@electron/notarize");
-const { deepAssign } = require("builder-util");
-const fse = require("fs-extra");
 
 const { TEAM_ID } = require("./channel.js");
 
@@ -17,48 +14,6 @@ async function run(context) {
   const appName = context.packager.appInfo.productFilename;
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
-  const copySafariExtension = ["darwin", "mas"].includes(context.electronPlatformName);
-
-  let shouldResign = false;
-
-  if (copySafariExtension) {
-    console.log("### Copying safari extension");
-    // Copy Safari plugin to work-around https://github.com/electron-userland/electron-builder/issues/5552
-    const plugIn = path.join(__dirname, "../PlugIns");
-    if (!fse.existsSync(plugIn)) {
-      console.log("### Safari extension not found - skipping");
-    } else {
-      if (!fse.existsSync(path.join(appPath, "Contents/PlugIns"))) {
-        fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
-      }
-      fse.copySync(
-        path.join(plugIn, "safari.appex"),
-        path.join(appPath, "Contents/PlugIns/safari.appex"),
-      );
-      shouldResign = true;
-    }
-  }
-
-  if (shouldResign) {
-    // Resign to sign safari extension
-    if (context.electronPlatformName === "mas") {
-      const masBuildOptions = deepAssign(
-        {},
-        context.packager.platformSpecificBuildOptions,
-        context.packager.config.mas,
-      );
-      if (context.targets.some((e) => e.name === "mas-dev")) {
-        deepAssign(masBuildOptions, {
-          type: "development",
-        });
-      }
-      if (context.packager.packagerOptions.prepackaged == null) {
-        await context.packager.sign(appPath, context.appOutDir, masBuildOptions, context.arch);
-      }
-    } else {
-      await context.packager.signApp(context, true);
-    }
-  }
 
   if (macBuild) {
     console.log("### Notarizing " + appPath);
