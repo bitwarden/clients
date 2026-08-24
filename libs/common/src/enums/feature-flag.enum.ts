@@ -32,6 +32,7 @@ export enum FeatureFlag {
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
+  EnableBasicAuthResponse = "enable-basic-auth-response",
 
   /* Desktop Native */
   MacOsNativeCredentialSync = "macos-native-credential-sync",
@@ -153,6 +154,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.PM31039ItemActionInExtension]: FALSE,
+  [FeatureFlag.EnableBasicAuthResponse]: FALSE,
 
   /* Desktop Native */
   [FeatureFlag.MacOsNativeCredentialSync]: FALSE,

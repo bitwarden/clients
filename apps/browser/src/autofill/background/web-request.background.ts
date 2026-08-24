@@ -22,6 +22,11 @@ export default class WebRequestBackground {
     this.isFirefox = platformUtilsService.isFirefox();
   }
 
+  /**
+   * Registers the handler that answers HTTP auth challenges with a matching vault credential.
+   *
+   * While registered, `webRequest.onAuthRequired` fires for any request that receives a 401.
+   */
   startListening() {
     this.webRequest.onAuthRequired.addListener(
       (async (
