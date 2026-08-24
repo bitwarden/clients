@@ -249,6 +249,7 @@ import { CliProcessReloadService } from "../key-management/cli-process-reload.se
 import { CliUserKeyRotationService } from "../key-management/cli-user-key-rotation-service";
 import { CliSessionTimeoutTypeService } from "../key-management/session-timeout/services/cli-session-timeout-type.service";
 import { flagEnabled } from "../platform/flags";
+import { CliIpcService } from "../platform/services/cli-ipc.service";
 import { CliPlatformUtilsService } from "../platform/services/cli-platform-utils.service";
 import { CliSdkLoadService } from "../platform/services/cli-sdk-load.service";
 import { CliSystemService } from "../platform/services/cli-system.service";
@@ -379,6 +380,7 @@ export class ServiceContainer {
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
   unlockService: UnlockService;
+  biometricsService: CliBiometricsService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -753,6 +755,13 @@ export class ServiceContainer {
       this.collectionEncryptionService,
     );
 
+    this.biometricsService = new CliBiometricsService(
+      this.accountService,
+      this.keyService,
+      this.logService,
+      new CliIpcService(this.logService),
+    );
+
     this.unlockService = new DefaultUnlockService(
       this.registerSdkService,
       this.accountCryptographicStateService,
@@ -761,7 +770,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.stateProvider,
       this.logService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.platformUtilsService,
       this.stateService,
       this.biometricStateService,
@@ -985,17 +994,16 @@ export class ServiceContainer {
       this.userDecryptionOptionsService,
       this.pinService,
       this.kdfConfigService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.masterPasswordUnlockService,
     );
 
-    const biometricService = new CliBiometricsService();
     const logoutService = new DefaultLogoutService(this.messagingService);
     const processReloadService = new CliProcessReloadService();
     const systemService = new CliSystemService();
     this.lockService = new DefaultLockService(
       this.accountService,
-      biometricService,
+      this.biometricsService,
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
@@ -1161,7 +1169,7 @@ export class ServiceContainer {
       this.masterPasswordService,
       this.syncService,
       this.keyService,
-      new CliBiometricsService(),
+      this.biometricsService,
       this.biometricStateService,
       this.platformUtilsService,
       new CliUserKeyRotationService(),

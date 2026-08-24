@@ -9,6 +9,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { mockAccountInfoWith } from "@bitwarden/common/spec";
+import { UserKey } from "@bitwarden/common/types/key";
+import { BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray } from "@bitwarden/legacy-crypto";
 import { ConsoleLogService } from "@bitwarden/logging";
@@ -18,6 +20,8 @@ import { UserId } from "@bitwarden/user-core";
 
 import { MessageResponse } from "../../models/response/message.response";
 import { I18nService } from "../../platform/services/i18n.service";
+import { CliUtils } from "../../utils";
+import { CliBiometricsService } from "../cli-biometrics-service";
 import { ConvertToKeyConnectorCommand } from "../convert-to-key-connector.command";
 
 import { UnlockCommand } from "./unlock.command";
@@ -34,6 +38,7 @@ describe("UnlockCommand", () => {
   const i18nService = mock<I18nService>();
   const encryptedMigrator = mock<EncryptedMigrator>();
   const unlockService = mock<UnlockService>();
+  const biometricsService = mock<CliBiometricsService>();
 
   const mockMasterPassword = "testExample";
   const activeAccount: Account = {
@@ -62,7 +67,11 @@ describe("UnlockCommand", () => {
   expectedSuccessMessage.raw = b64sessionKey;
 
   beforeEach(async () => {
+    jest.restoreAllMocks();
     jest.clearAllMocks();
+    delete process.env.BW_NOINTERACTION;
+    delete process.env.BW_QUIET;
+    delete process.env.BW_RESPONSE;
 
     i18nService.t.mockImplementation((key: string) => key);
     accountService.activeAccount$ = of(activeAccount);
@@ -87,6 +96,7 @@ describe("UnlockCommand", () => {
       i18nService,
       encryptedMigrator,
       unlockService,
+      biometricsService,
     );
   });
 
@@ -133,6 +143,71 @@ describe("UnlockCommand", () => {
         activeAccount.id,
         mockMasterPassword,
       );
+      expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
+    });
+
+    it("unlocks with a desktop biometric user key when no password was provided", async () => {
+      process.env.BW_QUIET = "true";
+      const userKey = mock<UserKey>();
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+      biometricsService.unlockWithBiometricsForUser.mockResolvedValue(userKey);
+      unlockService.unlockWithDecryptedUserKey.mockResolvedValue(undefined);
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(true);
+      expect(biometricsService.unlockWithBiometricsForUser).toHaveBeenCalledWith(activeAccount.id);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+        activeAccount.id,
+        userKey,
+      );
+      expect(unlockService.unlockWithMasterPassword).not.toHaveBeenCalled();
+      expect(encryptedMigrator.runMigrations).not.toHaveBeenCalled();
+      expect(biometricsService.disconnect).toHaveBeenCalled();
+    });
+
+    it("falls back to the master password prompt when desktop biometrics is unavailable", async () => {
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(
+        BiometricsStatus.DesktopDisconnected,
+      );
+      jest.spyOn(CliUtils, "getPassword").mockResolvedValue(mockMasterPassword);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(true);
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
+        mockMasterPassword,
+      );
+      expect(biometricsService.unlockWithBiometricsForUser).not.toHaveBeenCalled();
+      expect(biometricsService.disconnect).toHaveBeenCalled();
+    });
+
+    it("falls back when desktop biometric unlock is cancelled", async () => {
+      process.env.BW_QUIET = "true";
+      biometricsService.getBiometricsStatusForUser.mockResolvedValue(BiometricsStatus.Available);
+      biometricsService.unlockWithBiometricsForUser.mockResolvedValue(null);
+      jest.spyOn(CliUtils, "getPassword").mockResolvedValue(mockMasterPassword);
+      unlockService.unlockWithMasterPassword.mockResolvedValue(undefined);
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(true);
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(
+        activeAccount.id,
+        mockMasterPassword,
+      );
+      expect(biometricsService.disconnect).toHaveBeenCalled();
+    });
+
+    it("does not attempt biometrics in non-interactive mode", async () => {
+      process.env.BW_NOINTERACTION = "true";
+
+      const response = await command.run(null, {});
+
+      expect(response.success).toEqual(false);
+      expect(biometricsService.getBiometricsStatusForUser).not.toHaveBeenCalled();
     });
 
     it("returns error response if unlockWithMasterPassword fails", async () => {
