@@ -185,7 +185,7 @@ export class HistoryTabComponent {
     if (!this.canCancelApproval(row) || this.isActing(row)) {
       return;
     }
-    await this.act(row, "pamInboxCancelApprovalToast", "pamInboxCancelApprovalFailed", () =>
+    await this.act(row, "pamInboxApprovalCanceledToast", "pamInboxCancelApprovalFailed", () =>
       this.inbox.cancelApproval(row.id as AccessRequestId),
     );
   }
