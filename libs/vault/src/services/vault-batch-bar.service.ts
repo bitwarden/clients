@@ -1,5 +1,5 @@
 import { SelectionModel } from "@angular/cdk/collections";
-import { computed, inject, Injectable, signal } from "@angular/core";
+import { computed, inject, Injectable, Signal, signal } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import {
   combineLatest,
@@ -60,6 +60,21 @@ import {
 import { PasswordRepromptService } from "./password-reprompt.service";
 import { RoutedVaultFilterBridgeService } from "./routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "./routed-vault-filter.service";
+
+/**
+ * A read-only view of some other component's selection state, registered via
+ * {@link VaultBatchBarService.registerSelection}.
+ *
+ * Deliberately two members. The batch bar only ever *reads* the selection and *clears* it after a
+ * completed action — it never selects, deselects, or toggles. Keeping the contract that narrow is
+ * what lets a host own its selection outright instead of keeping a second model in sync.
+ */
+export interface VaultSelectionSource<C extends CipherViewLike> {
+  /** The currently selected items. Read reactively, so the `can*` signals track it. */
+  readonly selected: Signal<readonly VaultItem<C>[]>;
+  /** Clears the selection at the source. Called after a completed bulk action. */
+  clear(): void;
+}
 
 /** Context provided by the host vault component to drive permission checks and action availability. */
 export interface VaultBatchBarConfig {
@@ -142,7 +157,14 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     { initialValue: false },
   );
 
-  /** The Angular CDK selection model. Add, remove, or clear items directly. */
+  /**
+   * The Angular CDK selection model. Add, remove, or clear items directly.
+   *
+   * This is the *default* selection source, kept for hosts that own their selection through this
+   * model — the legacy `vault-items.component` and anything reading `selection` directly. A host
+   * whose list already has its own selection state should call {@link registerSelection} instead
+   * of mirroring into this one, so the two can't disagree.
+   */
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
   private readonly _completed$ = new Subject<void>();
@@ -151,13 +173,60 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   private readonly selectionChanged = toSignal(this.selection.changed.pipe(startWith(null)));
 
-  /** Signal of all currently selected vault items. */
-  readonly selected = computed(() => {
+  /** The CDK model projected as a signal, used whenever no external source is registered. */
+  private readonly defaultSelection = computed<readonly VaultItem<C>[]>(() => {
     this.selectionChanged();
     return this.selection.selected;
   });
 
+  /**
+   * The active selection source. `undefined` means "use {@link defaultSelection}".
+   *
+   * Holding the source rather than a copy of its contents is the point: the bar can never report a
+   * selection the host's own UI doesn't show, because there is only ever one place the truth lives.
+   */
+  private readonly source = signal<VaultSelectionSource<C> | undefined>(undefined);
+
+  /**
+   * Registers an external selection source, making it the single source of truth for every
+   * `can*` signal and bulk action. Returns a teardown that restores the default CDK model.
+   *
+   * A host that renders a list with its own selection state (e.g. `bit-table-v2`'s
+   * `TableSelectionModel`) registers a read-only projection of it here, rather than copying items
+   * across on every change. Only one source is active at a time; registering again replaces it.
+   *
+   * Call the returned teardown when the registering component is destroyed — otherwise its
+   * selection outlives it, since this service is provided above the list it belongs to.
+   */
+  registerSelection(source: VaultSelectionSource<C>): () => void {
+    this.source.set(source);
+    return () => {
+      // Only retract if this source is still the active one — a later registration owns it now.
+      if (this.source() === source) {
+        this.source.set(undefined);
+      }
+    };
+  }
+
+  /** Signal of all currently selected vault items. */
+  readonly selected = computed<readonly VaultItem<C>[]>(
+    () => this.source()?.selected() ?? this.defaultSelection(),
+  );
+
   readonly selectedCount = computed(() => this.selected().length);
+
+  /**
+   * Clears the selection at its source, whichever that is. Every bulk action funnels through this
+   * rather than `selection.clear()` so a registered host's checkboxes clear with it.
+   */
+  private clearSelection(): void {
+    const source = this.source();
+    if (source) {
+      source.clear();
+      return;
+    }
+    this.selection.clear();
+  }
 
   private readonly batchBarFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
@@ -222,12 +291,11 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** True when all selected ciphers can be restored from trash. */
   readonly canRestore = toSignal(
     combineLatest([
-      this.selection.changed.pipe(startWith(null)),
+      toObservable(this.selected),
       toObservable(this.config),
       toObservable(this.inTrash),
     ]).pipe(
-      switchMap(([, config, inTrash]) => {
-        const selected = this.selection.selected;
+      switchMap(([selected, config, inTrash]) => {
         const ciphers = selected.filter((i) => i.cipher).map((i) => i.cipher as C);
 
         if (selected.length === 0) {
@@ -253,13 +321,11 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** True when all selected ciphers and collections can be deleted by the current user. */
   readonly canDelete = toSignal(
     combineLatest([
-      this.selection.changed.pipe(startWith(null)),
+      toObservable(this.selected),
       toObservable(this.config),
       toObservable(this.allOrganizations),
     ]).pipe(
-      switchMap(([, config, allOrganizations]) => {
-        const selected = this.selection.selected;
-
+      switchMap(([selected, config, allOrganizations]) => {
         if (selected.length === 0) {
           return of(true);
         }
@@ -378,7 +444,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         takeUntilDestroyed(),
       )
       .subscribe(() => {
-        this.selection.clear();
+        this.clearSelection();
       });
   }
 
@@ -419,7 +485,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         variant: "success",
         message: this.i18nService.t(successKey),
       });
-      this.selection.clear();
+      this.clearSelection();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error archiving ciphers", e);
@@ -448,7 +514,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
           ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems",
         ),
       });
-      this.selection.clear();
+      this.clearSelection();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error unarchiving ciphers", e);
@@ -534,7 +600,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       }
 
       this.toastService.showToast({ variant: "success", message: toastMessage });
-      this.selection.clear();
+      this.clearSelection();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error restoring ciphers", e);
@@ -552,7 +618,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
    */
   async bulkDelete(): Promise<void> {
     const { isOrgVault, organization: org } = this.config();
-    const selected = this.selection.selected;
+    const selected = this.selected();
     const ciphers = selected
       .filter((i) => i.collection === undefined && i.cipher !== undefined)
       .map((i) => i.cipher as C);
@@ -622,7 +688,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkDeleteDialogResult.Deleted) {
-      this.selection.clear();
+      this.clearSelection();
       this._completed$.next();
     }
   }
@@ -650,7 +716,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     const result = await lastValueFrom(dialog.closed);
     if (result === BulkMoveDialogResult.Moved) {
-      this.selection.clear();
+      this.clearSelection();
       this._completed$.next();
     }
   }
@@ -725,7 +791,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === AssignCollectionsResult.Saved) {
-      this.selection.clear();
+      this.clearSelection();
       this._completed$.next();
     }
   }
@@ -761,7 +827,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkEditCollectionAccessResult.Saved) {
-      this.selection.clear();
+      this.clearSelection();
       this._completed$.next();
     }
   }

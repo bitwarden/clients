@@ -1,3 +1,4 @@
+import { signal } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
@@ -185,6 +186,111 @@ describe("VaultBatchBarService", () => {
       service.setConfig(makeConfig({ hasCiphers: true, isOrgVault: true }));
       service.selection.select(makeCipherItem());
       expect(service.canAssignToCollections()).toBe(true);
+    });
+  });
+
+  describe("registerSelection()", () => {
+    /** A host-owned selection source, standing in for a list component's own selection model. */
+    function sourceDouble(initial: VaultItem<CipherView>[] = []) {
+      const selected = signal<readonly VaultItem<CipherView>[]>(initial);
+      return {
+        selected: selected.asReadonly(),
+        clear: jest.fn(() => selected.set([])),
+        set: (items: VaultItem<CipherView>[]) => selected.set(items),
+      };
+    }
+
+    it("reads the registered source instead of the CDK model", () => {
+      const item = makeCipherItem();
+      const source = sourceDouble([item]);
+
+      service.registerSelection(source);
+
+      expect(service.selected()).toEqual([item]);
+      expect(service.selectedCount()).toBe(1);
+    });
+
+    it("ignores the CDK model entirely while a source is registered", () => {
+      const source = sourceDouble([]);
+      service.registerSelection(source);
+
+      // The legacy model still accepts writes; they just aren't what the bar reports.
+      service.selection.select(makeCipherItem());
+
+      expect(service.selected()).toEqual([]);
+    });
+
+    it("tracks the source reactively, so permission signals follow it", () => {
+      const source = sourceDouble([]);
+      service.registerSelection(source);
+      expect(service.canAddToFolder()).toBe(false);
+
+      source.set([makeCipherItem()]);
+
+      expect(service.selectedCount()).toBe(1);
+      expect(service.canAddToFolder()).toBe(true);
+    });
+
+    /**
+     * `canDelete` and `canRestore` are async pipelines that used to key off the CDK model's
+     * `changed` observable. They have to follow a registered source instead, or the bar would
+     * authorize an action against a selection nobody made.
+     */
+    it("drives the async canDelete pipeline from the registered source", async () => {
+      const source = sourceDouble([]);
+      service.registerSelection(source);
+
+      // An unauthorized cipher appearing in the source has to flow through to canDelete; the
+      // pipeline is async, so let the switchMap settle before asserting.
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(false));
+      source.set([makeCipherItem()]);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(service.canDelete()).toBe(false);
+
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(true));
+      source.set([makeCipherItem({ id: "cipher-9" as unknown as CipherId })]);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
+      expect(service.canDelete()).toBe(true);
+    });
+
+    it("clears the source rather than the CDK model", async () => {
+      const source = sourceDouble([makeCipherItem()]);
+      service.registerSelection(source);
+      mockDialogService.open.mockReturnValue({
+        closed: of(BulkMoveDialogResult.Moved),
+      } as any);
+
+      await service.bulkMoveToFolder();
+
+      expect(source.clear).toHaveBeenCalled();
+      expect(service.selectedCount()).toBe(0);
+    });
+
+    it("restores the CDK model when the source is deregistered", () => {
+      const item = makeCipherItem();
+      const source = sourceDouble([item]);
+
+      const teardown = service.registerSelection(source);
+      expect(service.selected()).toEqual([item]);
+
+      teardown();
+
+      expect(service.selected()).toEqual([]);
+      service.selection.select(item);
+      expect(service.selected()).toEqual([item]);
+    });
+
+    it("does not let a stale teardown retract a newer source", () => {
+      const first = sourceDouble([]);
+      const second = sourceDouble([makeCipherItem()]);
+
+      const teardownFirst = service.registerSelection(first);
+      service.registerSelection(second);
+      teardownFirst();
+
+      expect(service.selectedCount()).toBe(1);
     });
   });
 

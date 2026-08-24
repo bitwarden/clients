@@ -117,7 +117,11 @@ export {
   BulkEditCollectionAccessResult,
 } from "./tokens/bulk-edit-collection-access-dialog.token";
 
-export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";
+export {
+  VaultBatchBarService,
+  VaultBatchBarConfig,
+  VaultSelectionSource,
+} from "./services/vault-batch-bar.service";
 export { VaultBatchActionComponent } from "./components/vault-batch-bar/vault-batch-action.component";
 
 export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";

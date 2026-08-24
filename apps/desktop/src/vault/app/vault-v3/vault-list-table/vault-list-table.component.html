@@ -17,7 +17,6 @@
     [loading]="loading()"
     [rowActions]="rowActions()"
     [itemAction]="itemAction"
-    (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {
       <vault-new-cipher-menu

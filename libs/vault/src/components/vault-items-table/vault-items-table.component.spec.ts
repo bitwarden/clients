@@ -1,6 +1,5 @@
-import { SelectionModel } from "@angular/cdk/collections";
 import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
-import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -37,10 +36,10 @@ import {
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
-import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
-import { compareVaultItems, VaultItem } from "../vault-item";
+import { VaultBatchBarService, VaultSelectionSource } from "../../services/vault-batch-bar.service";
 
 import {
+  MAX_SELECTION_COUNT,
   MY_VAULT,
   NO_FOLDER,
   VaultItemsTableColumn,
@@ -122,21 +121,30 @@ class BareToolbarHostComponent {
 }
 
 /**
- * A stand-in for the host-provided `VaultBatchBarService`, carrying only what the selection bridge
- * touches: the CDK selection model it writes into, and the `selectedCount` signal it reads back to
- * mirror clears. The real service would pull in the whole bulk-action dependency graph — dialogs,
- * authorization, archive — none of which the bridge exercises.
+ * A stand-in for the host-provided `VaultBatchBarService`, carrying only what the table touches:
+ * `registerSelection`, and enough of the service's own reading of the registered source to assert
+ * the two agree. The real service would pull in the whole bulk-action dependency graph — dialogs,
+ * authorization, archive — none of which registration exercises.
+ *
+ * `selected` mirrors the service's own `computed(() => source()?.selected() ?? ...)`, so a test
+ * reading it sees exactly what the `can*` signals and bulk actions would.
  */
 function batchBarDouble() {
-  const selection = new SelectionModel<VaultItem<CipherViewLike>>(
-    true,
-    [],
-    true,
-    compareVaultItems,
-  );
-  const selectedCount = signal(0);
-  selection.changed.subscribe(() => selectedCount.set(selection.selected.length));
-  return { selection, selectedCount };
+  const source = signal<VaultSelectionSource<CipherViewLike> | undefined>(undefined);
+  const selected = computed(() => source()?.selected() ?? []);
+  return {
+    source,
+    selected,
+    selectedCount: computed(() => selected().length),
+    registerSelection: (next: VaultSelectionSource<CipherViewLike>) => {
+      source.set(next);
+      return () => {
+        if (source() === next) {
+          source.set(undefined);
+        }
+      };
+    },
+  };
 }
 
 describe("VaultItemsTableComponent", () => {
@@ -1357,11 +1365,11 @@ describe("VaultItemsTableComponent", () => {
   });
 
   /**
-   * The bridge from the table's own `TableSelectionModel<C>` to the batch bar's CDK
-   * `SelectionModel<VaultItem<C>>`. What matters is that the two stay in agreement, since the
-   * batch bar's `can*` permission signals and every bulk action read off its side.
+   * The table registering its selection as the batch bar's source. What matters is that the bar
+   * always reports exactly what the checkboxes show, since its `can*` permission signals and every
+   * bulk action read off it.
    */
-  describe("batch bar selection bridge", () => {
+  describe("batch bar selection source", () => {
     /** The table's selection model, which the checkbox column drives. */
     function selectionModel() {
       const model = bitTable().selectionModel();
@@ -1371,10 +1379,16 @@ describe("VaultItemsTableComponent", () => {
       return model;
     }
 
-    /** The cipher ids the batch bar currently holds, in selection order. */
+    /** The cipher ids the batch bar currently reports, in selection order. */
     function batchBarIds(): (string | undefined)[] {
-      return batchBar.selection.selected.map((item) => item.cipher?.id as string | undefined);
+      return batchBar.selected().map((item) => item.cipher?.id as string | undefined);
     }
+
+    it("registers a source once the view initializes", () => {
+      fixture.detectChanges();
+
+      expect(batchBar.source()).toBeDefined();
+    });
 
     it("wraps a selected cipher as a VaultItem on the batch bar", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
@@ -1384,7 +1398,7 @@ describe("VaultItemsTableComponent", () => {
       selectionModel().select(amazon);
       fixture.detectChanges();
 
-      expect(batchBar.selection.selected).toEqual([{ cipher: amazon }]);
+      expect(batchBar.selected()).toEqual([{ cipher: amazon }]);
     });
 
     it("propagates every selected row, so bulk actions see the whole selection", () => {
@@ -1425,15 +1439,15 @@ describe("VaultItemsTableComponent", () => {
       selectionModel().clear();
       fixture.detectChanges();
 
-      expect(batchBar.selection.selected).toEqual([]);
+      expect(batchBar.selected()).toEqual([]);
     });
 
     /**
-     * The one inbound direction: the batch bar clears itself after a completed bulk action and on
-     * route-filter changes, and the checkboxes have to follow — otherwise rows stay checked against
-     * items that were just deleted or moved out of view.
+     * The bar clears its source after a completed bulk action and on route-filter changes, and the
+     * checkboxes have to follow — otherwise rows stay checked against items that were just deleted
+     * or moved out of view.
      */
-    it("clears the table's checkboxes when the batch bar clears its own selection", () => {
+    it("clears the table's checkboxes when the batch bar clears the source", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
       fixture.detectChanges();
@@ -1442,16 +1456,17 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
       expect(selectionModel().count()).toBe(1);
 
-      batchBar.selection.clear();
+      batchBar.source()!.clear();
       fixture.detectChanges();
 
       expect(selectionModel().count()).toBe(0);
+      expect(batchBar.selected()).toEqual([]);
     });
 
     /**
-     * The table's model is keyed by row reference, so a re-decrypt — same cipher, new object —
-     * leaves its selection holding a row that's no longer in the list. Whatever the table reports,
-     * the batch bar has to agree with it, or a bulk action would operate on a stale cipher.
+     * The whole point of registering a projection rather than copying items across: there is no
+     * second model that could fall out of step, so the bar reports the table's rows by construction
+     * even after a re-decrypt swaps every row reference.
      */
     it("keeps the batch bar in agreement after rows are re-emitted", () => {
       fixture.componentRef.setInput("ciphers", [cipherView({ id: "a", name: "Amazon" })]);
@@ -1466,14 +1481,9 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
 
       const selectedRows = selectionModel().selected();
-      expect(batchBar.selection.selected).toEqual(selectedRows.map((cipher) => ({ cipher })));
+      expect(batchBar.selected()).toEqual(selectedRows.map((cipher) => ({ cipher })));
     });
 
-    /**
-     * `syncFromBatchBar` treats an empty batch bar as "clear the checkboxes", and it also runs on
-     * the component's first pass, when the bar is legitimately empty. A fresh selection must
-     * survive that — otherwise checking a row would clear itself on the next render.
-     */
     it("does not clear a new selection on subsequent renders", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
@@ -1501,6 +1511,38 @@ describe("VaultItemsTableComponent", () => {
       fixture.detectChanges();
 
       expect(batchBarIds()).toEqual(["b"]);
+    });
+
+    /**
+     * Bulk actions turn each selected item into per-cipher permission checks and request payloads,
+     * so select-all over a very large vault is capped rather than unbounded — matching the cap the
+     * legacy vault-items component applies.
+     */
+    it("caps what it hands the batch bar at MAX_SELECTION_COUNT", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(many.length);
+      expect(batchBar.selected().length).toBe(MAX_SELECTION_COUNT);
+    });
+
+    /**
+     * The service is provided above the table, so a destroyed table must retract its source —
+     * otherwise its selection outlives it and the bar acts on rows that are no longer displayed.
+     */
+    it("deregisters its source when the table is destroyed", () => {
+      fixture.detectChanges();
+      expect(batchBar.source()).toBeDefined();
+
+      fixture.destroy();
+
+      expect(batchBar.source()).toBeUndefined();
     });
   });
 });

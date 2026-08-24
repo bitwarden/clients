@@ -9,7 +9,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { CipherRowMenuService, VaultBatchBarService } from "@bitwarden/vault";
+import { CipherRowMenuService } from "@bitwarden/vault";
 
 import { VaultListTableComponent } from "./vault-list-table.component";
 
@@ -81,45 +81,6 @@ describe("VaultListTableComponent", () => {
           assignToCollections: expect.any(Function),
         }),
       );
-    });
-  });
-
-  describe("handleSelectionChange without VaultBatchBarService", () => {
-    it("does not throw when no service is provided", () => {
-      expect(() => component["handleSelectionChange"]([cipherView()])).not.toThrow();
-    });
-  });
-
-  describe("handleSelectionChange with VaultBatchBarService", () => {
-    let mockSelection: { clear: jest.Mock; select: jest.Mock };
-
-    beforeEach(async () => {
-      mockSelection = { clear: jest.fn(), select: jest.fn() };
-      TestBed.resetTestingModule();
-      await setup([
-        {
-          provide: VaultBatchBarService,
-          useValue: { selection: mockSelection },
-        },
-      ]);
-    });
-
-    it("clears the selection then re-selects each item wrapped as { cipher }", () => {
-      const ciphers = [cipherView({ id: "a" }), cipherView({ id: "b" })];
-      component["handleSelectionChange"](ciphers);
-
-      expect(mockSelection.clear).toHaveBeenCalled();
-      expect(mockSelection.select).toHaveBeenCalledWith(
-        { cipher: ciphers[0] },
-        { cipher: ciphers[1] },
-      );
-    });
-
-    it("clears to empty when called with an empty list", () => {
-      component["handleSelectionChange"]([]);
-
-      expect(mockSelection.clear).toHaveBeenCalled();
-      expect(mockSelection.select).toHaveBeenCalledWith();
     });
   });
 
