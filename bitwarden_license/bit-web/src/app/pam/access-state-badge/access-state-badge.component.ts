@@ -5,6 +5,7 @@ import {
   effect,
   inject,
   input,
+  NgZone,
   signal,
 } from "@angular/core";
 
@@ -46,6 +47,7 @@ export class AccessStateBadgeComponent {
   readonly state = input.required<AccessBadgeState | null>();
 
   private readonly i18nService = inject(I18nService);
+  private readonly ngZone = inject(NgZone);
 
   /** Ticks once a second while an active-lease countdown is showing so the label stays live. */
   private readonly now = signal(Date.now());
@@ -87,8 +89,14 @@ export class AccessStateBadgeComponent {
       if (this.state()?.kind !== "active") {
         return;
       }
-      const id = setInterval(() => this.now.set(Date.now()), 1000);
-      onCleanup(() => clearInterval(id));
+      // Outside the Angular zone: a table can host dozens of these at once, and a periodic in-zone
+      // timer both triggers change detection per badge per second and never lets NgZone settle,
+      // which would hang `fixture.whenStable()` for any host embedding them. The signal write
+      // still drives change detection on its own.
+      this.ngZone.runOutsideAngular(() => {
+        const id = setInterval(() => this.now.set(Date.now()), 1000);
+        onCleanup(() => clearInterval(id));
+      });
     });
   }
 
