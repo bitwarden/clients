@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherRiskService } from "@bitwarden/common/vault/abstractions/cipher-risk.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -9,6 +10,11 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import type { CipherRiskResult } from "@bitwarden/sdk-internal";
 
 import { CipherHealthView } from "../../../access-intelligence/models/view/cipher-health.view";
+import {
+  VAULT_HEALTH_REPORT_IDLE,
+  VaultHealthReportState,
+} from "../../models/vault-health-report-state";
+import { VaultHealthReportStatus } from "../../models/vault-health-report-status";
 import { VaultHealthReportView } from "../../models/view/vault-health-report.view";
 
 import { DefaultVaultHealthReportService } from "./default-vault-health-report.service";
@@ -17,6 +23,7 @@ describe("DefaultVaultHealthReportService", () => {
   const userId = "test-user-id" as UserId;
 
   let cipherRiskService: ReturnType<typeof mock<CipherRiskService>>;
+  let logService: ReturnType<typeof mock<LogService>>;
   let service: DefaultVaultHealthReportService;
 
   // Per-test lookup so risk results are returned for exactly the ciphers passed,
@@ -28,6 +35,7 @@ describe("DefaultVaultHealthReportService", () => {
 
   beforeEach(() => {
     cipherRiskService = mock<CipherRiskService>();
+    logService = mock<LogService>();
     riskById = new Map();
     destroy$ = new Subject<void>();
 
@@ -36,7 +44,7 @@ describe("DefaultVaultHealthReportService", () => {
       ciphers.map((c) => riskById.get(c.id)!),
     );
 
-    service = new DefaultVaultHealthReportService(cipherRiskService);
+    service = new DefaultVaultHealthReportService(cipherRiskService, logService);
   });
 
   afterEach(() => {
@@ -88,8 +96,12 @@ describe("DefaultVaultHealthReportService", () => {
   /** Runs a scan and reads the report the service published for it. */
   const report = async (ciphers: CipherView[]): Promise<VaultHealthReportView> => {
     await service.buildVaultHealthReport(ciphers, userId);
-    return (await firstValueFrom(service.getVaultHealthReport$(userId)))!;
+    return (await firstValueFrom(service.getVaultHealthReport$(userId))).report!;
   };
+
+  /** The report currently published for a user, or null. */
+  const currentReport = async (id: UserId = userId): Promise<VaultHealthReportView | null> =>
+    (await firstValueFrom(service.getVaultHealthReport$(id))).report;
 
   /** The cipher ids bucketed into a category, in order. */
   const cipherIds = (items: CipherHealthView[]): string[] => items.map((item) => item.cipherId);
@@ -204,13 +216,64 @@ describe("DefaultVaultHealthReportService", () => {
     expect(passed.map((c) => c.id)).toEqual(["personal"]);
   });
 
-  it("propagates errors from the risk computation instead of swallowing them", async () => {
+  it("publishes an error state instead of rejecting when the risk computation fails", async () => {
+    // Failures come back as an error status, not a thrown error, so callers
+    // route to the failure view without each needing a catch.
     const ciphers = withRisks([{ cipher: login("a"), risk: risk("a") }]);
     cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(new Error("HIBP unavailable"));
 
-    await expect(service.buildVaultHealthReport(ciphers, userId)).rejects.toThrow(
-      "HIBP unavailable",
-    );
+    await expect(service.buildVaultHealthReport(ciphers, userId)).resolves.toBeUndefined();
+
+    await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toMatchObject({
+      status: VaultHealthReportStatus.Error,
+    });
+  });
+
+  it("logs the failure so a failed report is identifiable in a log dump", async () => {
+    // Asked for in review: the failure is logged where it happens, so it is
+    // captured for every caller rather than only the Health tab.
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a") }]);
+    const failure = new Error("HIBP unavailable");
+    cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(failure);
+
+    await service.buildVaultHealthReport(ciphers, userId);
+
+    expect(logService.error).toHaveBeenCalledWith("Vault health report generation failed", failure);
+  });
+
+  it("keeps the previous report readable when a rescan fails", async () => {
+    // A failed rescan keeps the last report so a category page reading it isn't
+    // ejected.
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+    await service.buildVaultHealthReport(ciphers, userId);
+    cipherRiskService.computeRiskForCiphers.mockRejectedValueOnce(new Error("HIBP unavailable"));
+
+    await service.buildVaultHealthReport(ciphers, userId);
+
+    await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toMatchObject({
+      status: VaultHealthReportStatus.Error,
+    });
+    const retained = await currentReport();
+    expect(cipherIds(retained!.categoryItems.exposed)).toEqual(["a"]);
+  });
+
+  it("does not blink the report to null while a rescan is in flight", async () => {
+    // The report stays put through a rescan; only its status changes. The detail
+    // view reads the report and must never see it go null.
+    const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+    await service.buildVaultHealthReport(ciphers, userId);
+    const reports: (VaultHealthReportView | null)[] = [];
+    service
+      .getVaultHealthReport$(userId)
+      .pipe(takeUntil(destroy$))
+      .subscribe((state) => reports.push(state.report));
+
+    await service.buildVaultHealthReport(ciphers, userId);
+
+    // The report is present the whole way through, same login before and after.
+    expect(reports.every((report) => report != null)).toBe(true);
+    expect(cipherIds(reports[0]!.categoryItems.exposed)).toEqual(["a"]);
+    expect(cipherIds(reports[reports.length - 1]!.categoryItems.exposed)).toEqual(["a"]);
   });
 
   it("enables the exposed check and passes the pre-built reuse map", async () => {
@@ -251,14 +314,43 @@ describe("DefaultVaultHealthReportService", () => {
     expect(cipherIds(result.categoryItems.reused)).toEqual(["c"]);
   });
 
-  // --- the published report ------------------------------------------------
+  // --- the published state and report --------------------------------------
 
   describe("getVaultHealthReport$", () => {
-    it("emits null before any scan has run", async () => {
-      // Null rather than an empty report, so the Health tab can tell "not scanned
-      // yet" from "scanned, nothing at risk" and avoid flashing a false healthy
-      // reading while the breach lookup is still in flight.
-      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toBeNull();
+    it("emits idle before any generation has started", async () => {
+      // Idle carries a null report so the tab can tell "not scanned yet" from
+      // "scanned, nothing at risk".
+      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toEqual(
+        VAULT_HEALTH_REPORT_IDLE,
+      );
+    });
+
+    it("publishes loading before the report resolves, then success", async () => {
+      // The Health tab renders its progress view off loading, so it has to be
+      // observable while the build is still in flight rather than only after.
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      const seen: VaultHealthReportState[] = [];
+      service
+        .getVaultHealthReport$(userId)
+        .pipe(takeUntil(destroy$))
+        .subscribe((state) => seen.push(state));
+
+      const build = service.buildVaultHealthReport(ciphers, userId);
+      expect(seen.map((state) => state.status)).toEqual(["idle", "loading"]);
+
+      await build;
+
+      expect(seen.map((state) => state.status)).toEqual(["idle", "loading", "success"]);
+    });
+
+    it("carries the report on the success state", async () => {
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
+
+      const state = await firstValueFrom(service.getVaultHealthReport$(userId));
+
+      expect(state.status).toBe(VaultHealthReportStatus.Success);
+      expect(cipherIds(state.report!.categoryItems.exposed)).toEqual(["a"]);
     });
 
     it("replays the latest report to a subscriber that arrives after the scan", async () => {
@@ -267,16 +359,21 @@ describe("DefaultVaultHealthReportService", () => {
       const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
       await service.buildVaultHealthReport(ciphers, userId);
 
-      const replayed = await firstValueFrom(service.getVaultHealthReport$(userId));
+      const replayed = await currentReport();
 
       expect(cipherIds(replayed!.categoryItems.exposed)).toEqual(["a"]);
     });
 
     it("pushes each rescan to existing subscribers", async () => {
       const emissions: (VaultHealthReportView | null)[] = [];
-      const subscription = service
+      service
         .getVaultHealthReport$(userId)
-        .subscribe((r) => emissions.push(r));
+        .pipe(takeUntil(destroy$))
+        .subscribe((state) => {
+          if (state.status === VaultHealthReportStatus.Success) {
+            emissions.push(state.report);
+          }
+        });
 
       await service.buildVaultHealthReport(
         withRisks([{ cipher: login("a"), risk: risk("a", { strength: 1 }) }]),
@@ -289,28 +386,27 @@ describe("DefaultVaultHealthReportService", () => {
         ]),
         userId,
       );
-      subscription.unsubscribe();
 
-      expect(emissions[0]).toBeNull();
-      expect(emissions[1]!.atRiskCount).toBe(1);
-      expect(emissions[2]!.atRiskCount).toBe(2);
+      expect(emissions[0]!.atRiskCount).toBe(1);
+      expect(emissions[1]!.atRiskCount).toBe(2);
     });
 
-    it("does not emit one user's report to another", async () => {
-      // The service outlives an account switch, and each item carries a
-      // decrypted CipherView, so the previous account's logins must not be
-      // served to the next one.
+    it("does not emit one user's state or report to another", async () => {
+      // The service outlives an account switch, so account B must never read
+      // account A's report.
       const otherUserId = "other-user-id" as UserId;
-      await service.buildVaultHealthReport(
-        withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
-        userId,
-      );
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+      await service.buildVaultHealthReport(ciphers, userId);
 
-      await expect(firstValueFrom(service.getVaultHealthReport$(otherUserId))).resolves.toBeNull();
-      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.not.toBeNull();
+      await expect(firstValueFrom(service.getVaultHealthReport$(otherUserId))).resolves.toEqual(
+        VAULT_HEALTH_REPORT_IDLE,
+      );
+      await expect(currentReport()).resolves.not.toBeNull();
     });
 
-    it("drops the previous user's report once a scan runs for another user", async () => {
+    it("keeps each user's report independent when another user scans", async () => {
+      // Each user has their own stream, so scanning for one leaves the other's
+      // report untouched.
       const otherUserId = "other-user-id" as UserId;
       await service.buildVaultHealthReport(
         withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]),
@@ -321,9 +417,40 @@ describe("DefaultVaultHealthReportService", () => {
         otherUserId,
       );
 
-      await expect(firstValueFrom(service.getVaultHealthReport$(userId))).resolves.toBeNull();
-      const other = await firstValueFrom(service.getVaultHealthReport$(otherUserId));
+      const mine = await currentReport();
+      expect(cipherIds(mine!.categoryItems.exposed)).toEqual(["a"]);
+      const other = await currentReport(otherUserId);
       expect(cipherIds(other!.categoryItems.weak)).toEqual(["b"]);
+    });
+
+    it("does not let a superseded build overwrite the state of the account that replaced it", async () => {
+      // Switching account mid-generation abandons the first build, but a promise
+      // cannot be cancelled, so it keeps running. If its late result were
+      // published it would reset the new account's state, and since only one
+      // build runs per Health tab open, nothing would publish again: the tab
+      // would sit on the progress view for good.
+      const otherUserId = "other-user-id" as UserId;
+      const ciphers = withRisks([{ cipher: login("a"), risk: risk("a", { exposed: 3 }) }]);
+
+      let releaseFirst!: () => void;
+      const firstHangs = new Promise<void>((resolve) => (releaseFirst = resolve));
+      const computeRisk = cipherRiskService.computeRiskForCiphers.getMockImplementation()!;
+      cipherRiskService.computeRiskForCiphers.mockImplementation(async (given, id, options) => {
+        if (id === userId) {
+          await firstHangs;
+        }
+        return computeRisk(given, id, options);
+      });
+
+      const abandoned = service.buildVaultHealthReport(ciphers, userId);
+      await service.buildVaultHealthReport(ciphers, otherUserId);
+      releaseFirst();
+      await abandoned;
+
+      await expect(firstValueFrom(service.getVaultHealthReport$(otherUserId))).resolves.toEqual(
+        expect.objectContaining({ status: VaultHealthReportStatus.Success }),
+      );
+      await expect(currentReport(otherUserId)).resolves.not.toBeNull();
     });
   });
 
@@ -334,9 +461,9 @@ describe("DefaultVaultHealthReportService", () => {
       service
         .getVaultHealthReport$(userId)
         .pipe(takeUntil(destroy$))
-        .subscribe((report) => {
-          if (report != null) {
-            emitted.push(report);
+        .subscribe((state) => {
+          if (state.report != null) {
+            emitted.push(state.report);
           }
         });
       return emitted;
@@ -351,7 +478,7 @@ describe("DefaultVaultHealthReportService", () => {
       await service.buildVaultHealthReport(ciphers, userId);
 
       service.deleteItemFromReport("a", "exposed", userId);
-      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+      const updated = await currentReport();
 
       expect(updated!.atRiskCount).toBe(2);
       expect(updated!.totalCount).toBe(2);
@@ -389,10 +516,10 @@ describe("DefaultVaultHealthReportService", () => {
         { cipher: login("d"), risk: risk("d") },
       ]);
       await service.buildVaultHealthReport(ciphers, userId);
-      expect((await firstValueFrom(service.getVaultHealthReport$(userId)))!.score).toBe(0.75);
+      expect((await currentReport())!.score).toBe(0.75);
 
       service.deleteItemFromReport("a", "exposed", userId);
-      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+      const updated = await currentReport();
 
       expect(updated!.score).toBeCloseTo(2 / 3);
     });
@@ -402,7 +529,7 @@ describe("DefaultVaultHealthReportService", () => {
       await service.buildVaultHealthReport(ciphers, userId);
 
       service.deleteItemFromReport("a", "exposed", userId);
-      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+      const updated = await currentReport();
 
       expect(updated!.totalCount).toBe(0);
       expect(updated!.score).toBe(0);
@@ -431,7 +558,7 @@ describe("DefaultVaultHealthReportService", () => {
       await service.buildVaultHealthReport(ciphers, userId);
 
       service.deleteItemFromReport("a", "exposed", "other-user-id" as UserId);
-      const updated = await firstValueFrom(service.getVaultHealthReport$(userId));
+      const updated = await currentReport();
 
       expect(updated!.atRiskCount).toBe(1);
       expect(updated!.totalCount).toBe(1);

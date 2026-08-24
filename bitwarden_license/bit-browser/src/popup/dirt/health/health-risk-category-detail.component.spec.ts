@@ -3,13 +3,14 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, map, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { BitSvg, ReportExposedPasswords, LockIcon, NoCredentialsIcon } from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import {
   RiskCategory,
+  VaultHealthReportStatus,
   VaultHealthReportView,
 } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -262,7 +263,16 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
     report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
     reportService = mock<VaultHealthReportService>();
-    reportService.getVaultHealthReport$.mockReturnValue(report$);
+    // The service emits { status, report }; wrap the report-only subject so a
+    // present report reads as success and a null one as idle.
+    reportService.getVaultHealthReport$.mockReturnValue(
+      report$.pipe(
+        map((report) => ({
+          status: report ? VaultHealthReportStatus.Success : VaultHealthReportStatus.Idle,
+          report,
+        })),
+      ),
+    );
 
     cipherViews$ = new BehaviorSubject<CipherView[]>([]);
     cipherService = mock<CipherService>();

@@ -7,7 +7,13 @@
   </popup-header>
   @if (!hasRunHealthScan()) {
     <health-intro (onTriggerHealthScan)="handleHealthScan()" />
+  } @else if (loading()) {
+    <dirt-health-scanning />
+  } @else if (scanFailed()) {
+    <dirt-health-scan-error />
+  } @else if (report(); as report) {
+    <dirt-health-overview [report]="report" />
   } @else {
-    <dirt-health-overview />
+    <dirt-health-scanning />
   }
 </popup-page>
