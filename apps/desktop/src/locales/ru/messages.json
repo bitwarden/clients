@@ -12,7 +12,7 @@
     "message": "Избранные"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Пометить элементы как избранные, чтобы отфильтровать их здесь."
   },
   "unfavorite": {
     "message": "Удалить из избранного"
@@ -120,7 +120,7 @@
     "message": "Мои папки"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Добавить папки к элементам, чтобы отфильтровать их здесь."
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
@@ -499,7 +499,7 @@
     "message": "Изменение элемента"
   },
   "editItemWithName": {
-    "message": "Редактирование элемента - $NAME$",
+    "message": "Изменить элемент - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -525,17 +525,8 @@
   "launch": {
     "message": "Перейти"
   },
-  "launchWebsiteForName": {
-    "message": "Открыть сайт для $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Открыть сайт"
   },
   "copyValue": {
     "message": "Скопировать значение",
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Скопировать код подтверждения (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Копировать $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Скопировать приватный ключ"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Показать быстрые действия копирования в хранилище"
   },
-  "copyNoteTitle": {
-    "message": "Скопировать заметку - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "Нет информации для копирования"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "Нет кода безопасности"
   },
-  "copyDetailsTitle": {
-    "message": "Скопировать информацию для $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "Скопировать имя пользователя"
   },
@@ -2179,9 +2136,6 @@
     "message": "Скопировать код безопасности",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "номер карты"
-  },
   "premiumMembership": {
     "message": "Премиум"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Вы можете управлять Премиум на bitwarden.com. Перейти на сайт сейчас?"
   },
-  "premiumRefresh": {
-    "message": "Обновить Премиум"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Сейчас у вас отсутствует Премиум."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Подпишитесь на Премиум и получите:"
-  },
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "Зашифрованного хранилища для вложенных файлов: $SIZE$",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
-  },
-  "premiumSignUpTotp": {
-    "message": "Генератор кода подтверждения TOTP (2ЭА) для входа в ваше хранилище."
-  },
-  "premiumSignUpSupport": {
-    "message": "Приоритетная поддержка."
-  },
-  "premiumSignUpFuture": {
-    "message": "Все будущие функции Премиум. Их будет больше!"
   },
   "premiumPurchase": {
     "message": "Купить Премиум"
   },
   "premiumPurchaseAlertV2": {
     "message": "Премиум можно приобрести в настройках аккаунта в веб-версии Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "У вас есть Премиум!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Благодарим вас за поддержку Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Всего лишь $PRICE$ в год!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "месяц"
@@ -3553,7 +3459,7 @@
     "message": "Больше опций"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Опции для $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3468,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Нет общей папки"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Фильтр по $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5267,10 +5173,17 @@
     "message": "Изменить email аккаунта"
   },
   "passkeyLogin": {
-    "message": "Войти с passkey?"
+    "message": "Войти с passkey?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Войти с passkey"
   },
   "savePasskeyQuestion": {
     "message": "Сохранить passkey?"
+  },
+  "savePasskey": {
+    "message": "Сохранить passkey"
   },
   "saveNewPasskey": {
     "message": "Сохранить как новый логин"
@@ -5282,7 +5195,11 @@
     "message": "Нет подходящих логинов для этого сайта"
   },
   "overwritePasskey": {
-    "message": "Перезаписать passkey?"
+    "message": "Перезаписать passkey?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Перезаписать passkey"
   },
   "unableToSavePasskey": {
     "message": "Не удалось сохранить passkey"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "создать новый passkey $RPID$ для $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "перезаписать passkey $RPID$ для $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "войти как $USERNAME$ с помощью вашего passkey $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

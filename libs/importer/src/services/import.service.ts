@@ -101,15 +101,14 @@ import {
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
-  featuredImportOptions,
+  importOptions,
+  importOptionsById,
   ImportOption,
   ImportType,
-  regularImportOptions,
 } from "../models/import-options";
 import { CollectionRelationship, FolderRelationship, ImportResult } from "../models/import-result";
 import {
   buildSdkImporterRegistry,
-  CredentialKind,
   SdkImportCredentials,
   SdkImporterRegistry,
   SdkImportSummary,
@@ -118,9 +117,7 @@ import { ImportApiServiceAbstraction } from "../services/import-api.service.abst
 import { ImportServiceAbstraction } from "../services/import.service.abstraction";
 
 export class ImportService implements ImportServiceAbstraction {
-  featuredImportOptions = featuredImportOptions as readonly ImportOption[];
-
-  regularImportOptions = regularImportOptions as readonly ImportOption[];
+  importOptions = importOptions;
 
   private readonly sdkImporters: SdkImporterRegistry = buildSdkImporterRegistry();
 
@@ -139,7 +136,12 @@ export class ImportService implements ImportServiceAbstraction {
   ) {}
 
   getImportOptions(): ImportOption[] {
-    return this.featuredImportOptions.concat(this.regularImportOptions);
+    return [...this.importOptions];
+  }
+
+  getImportOption(id: ImportType): ImportOption | undefined {
+    const option = importOptionsById[id];
+    return option ? { id, ...option } : undefined;
   }
 
   async import(
@@ -248,21 +250,6 @@ export class ImportService implements ImportServiceAbstraction {
     return importer;
   }
 
-  /** True when the format's parse/encrypt/submit is handled by an SDK importer strategy. */
-  isSdkImporter(format: ImportType): boolean {
-    return this.sdkImporters.has(format);
-  }
-
-  /** The credentials an SDK importer requires, so callers can collect them generically. */
-  credentialKindFor(format: ImportType): CredentialKind | undefined {
-    return this.sdkImporters.get(format)?.credentialKind;
-  }
-
-  /** Optional file-picker `accept` hint declared by an SDK importer. */
-  sdkFileTypeHint(format: ImportType): string | undefined {
-    return this.sdkImporters.get(format)?.fileTypeHint;
-  }
-
   /** Maps an SDK importer error to a localization key, or `undefined` to surface the raw error. */
   sdkErrorMessageKey(format: ImportType, error: unknown): string | undefined {
     return this.sdkImporters.get(format)?.errorMessageKey?.(error);
@@ -316,6 +303,8 @@ export class ImportService implements ImportServiceAbstraction {
     );
   }
 
+  // Intentionally redundant with respect to importOptions/SdkImporterRegistry because of heterogeneous
+  // constructor dependencies (e.g. BitwardenPasswordProtectedImporter needs 6 injected services)
   private getImporterInstance(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
