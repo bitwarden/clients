@@ -90,8 +90,14 @@ async function run(context) {
 
     const packageId = context.packager.appInfo.id;
 
+    // The proxy is scoped to the App Group it shares with the app, and that group is per
+    // release channel, so the entitlements have to follow the bundle identifier being built.
+    const isBetaBuild = packageId.endsWith(".beta");
+
     if (is_mas) {
-      const entitlementsName = "entitlements.desktop_proxy.plist";
+      const entitlementsName = isBetaBuild
+        ? "entitlements.desktop_proxy.beta.plist"
+        : "entitlements.desktop_proxy.plist";
       const entitlementsPath = path.join(__dirname, "..", "resources", entitlementsName);
       child_process.execSync(
         `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${entitlementsPath}" "${proxyPath}"`,
