@@ -227,11 +227,6 @@ describe("VaultBatchActionComponent", () => {
      * The Clear button has to go through `clearSelection()` rather than the CDK model directly:
      * once a host registers a selection source, `selected()` stops consulting that model, so
      * clearing it would leave the count unchanged, the bar up, and every row still checked.
-     */
-    /**
-     * The Clear button has to go through `clearSelection()` rather than `selection.clear()`: once a
-     * host registers a selection source, `selected()` stops consulting the CDK model, so clearing
-     * that directly would leave the count unchanged, the bar up, and every row still checked.
      *
      * Asserted against the template source because the bar renders through `LayoutFooterService`'s
      * portal, which this spec provides no outlet for — so the binding never executes here.
