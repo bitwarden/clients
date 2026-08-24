@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router, RouterModule } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -17,12 +17,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { NavigationModule, SideNavService } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
-import {
-  VaultNavItemType,
-  VaultNavItemViewModel,
-  VaultNavService,
-  VaultsNavViewModel,
-} from "@bitwarden/vault";
+import { VaultNavService, VaultsNavViewModel } from "@bitwarden/vault";
 
 import { PremiumSubscriptionRoutingService } from "../billing/individual/services/premium-subscription-routing.service";
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
@@ -65,37 +60,8 @@ class MockCoachmarkComponent {
 
 const userId = "user-id" as UserId;
 
-const personalItem: VaultNavItemViewModel = {
-  id: userId,
-  label: "My vault",
-  color: "coral",
-  icon: "bwi-user",
-  type: VaultNavItemType.Personal,
-};
-
 const emptyViewModel: VaultsNavViewModel = {
   vaults: [],
-  organizationDataOwnership: false,
-};
-
-const withOrgs: VaultsNavViewModel = {
-  vaults: [
-    personalItem,
-    {
-      id: "org-a",
-      label: "Acme corporation",
-      color: "purple",
-      icon: "bwi-business",
-      type: VaultNavItemType.Organization,
-    },
-    {
-      id: "org-b",
-      label: "Smith family",
-      color: "teal",
-      icon: "bwi-family",
-      type: VaultNavItemType.Family,
-    },
-  ],
   organizationDataOwnership: false,
 };
 
@@ -121,12 +87,11 @@ Object.defineProperty(window, "matchMedia", {
 
 describe("UserLayoutComponent", () => {
   let fixture: ComponentFixture<UserLayoutComponent>;
-  let router: Router;
 
   const flag$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(emptyViewModel);
 
-  const hasPremium$ = new BehaviorSubject<boolean>(true);
+  const canArchive$ = new BehaviorSubject<boolean>(true);
   const archivedCiphers$ = new BehaviorSubject<unknown[]>([]);
 
   const configService = mock<ConfigService>();
@@ -170,13 +135,13 @@ describe("UserLayoutComponent", () => {
 
     jest.clearAllMocks();
 
-    hasPremium$.next(true);
+    canArchive$.next(true);
     archivedCiphers$.next([]);
 
     i18nService.t.mockImplementation((key: string) => key);
     configService.getFeatureFlag$.mockReturnValue(flag$);
     policyService.policyAppliesToUser$.mockReturnValue(of(false));
-    cipherArchiveService.userHasPremium$.mockReturnValue(hasPremium$);
+    cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
     Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
 
@@ -215,9 +180,6 @@ describe("UserLayoutComponent", () => {
         },
       })
       .compileComponents();
-
-    router = TestBed.inject(Router);
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
 
     // Nav items only render their text when the side nav is expanded.
     TestBed.inject(SideNavService).open.set(true);
@@ -272,81 +234,6 @@ describe("UserLayoutComponent", () => {
       expect(children).toContain("addPlan");
       expect(children.indexOf("emergencyAccess")).toBeLessThan(children.indexOf("addPlan"));
       expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("exportNoun"));
-    });
-
-    describe("Archive upgrade path", () => {
-      const clickArchive = () => {
-        const archive = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
-          (el) => (el as HTMLElement).textContent?.includes("archiveNoun"),
-        ) as HTMLElement;
-        archive.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
-      };
-
-      it("prompts to upgrade when a non-premium user has nothing archived", () => {
-        hasPremium$.next(false);
-        fixture.detectChanges();
-
-        clickArchive();
-
-        expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
-        expect(router.navigate).not.toHaveBeenCalled();
-      });
-
-      it("still filters to the archive when a non-premium user has archived items", () => {
-        hasPremium$.next(false);
-        archivedCiphers$.next([{}]);
-        fixture.detectChanges();
-
-        clickArchive();
-
-        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: {
-            folderId: null,
-            sharedFolderId: null,
-            collectionId: null,
-            type: "archive",
-          },
-          queryParamsHandling: "merge",
-        });
-        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
-      });
-
-      it("badges Archive for a non-premium user", () => {
-        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
-
-        hasPremium$.next(false);
-        fixture.detectChanges();
-
-        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).not.toBeNull();
-      });
-    });
-
-    describe("account with organization vaults", () => {
-      beforeEach(() => {
-        viewModel$.next(withOrgs);
-        fixture.detectChanges();
-      });
-
-      /** Expands a vault group and clicks its "All vault items" child. */
-      const selectVaultItems = (label: string) => {
-        const group = expandGroup(label);
-        const allItems = Array.from(group.querySelectorAll("bit-nav-item")).find((el) =>
-          (el as HTMLElement).textContent?.includes("allVaultItems"),
-        ) as HTMLElement;
-        allItems.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
-      };
-
-      it("routes to the organization vault when an org is selected", () => {
-        selectVaultItems("Acme corporation");
-
-        expect(router.navigate).toHaveBeenCalledWith(["/vault", "org-a"]);
-      });
-
-      it("routes to the personal vault using the my-vault segment", () => {
-        selectVaultItems("My vault");
-
-        expect(router.navigate).toHaveBeenCalledWith(["/vault", "my-vault"]);
-      });
     });
   });
 });

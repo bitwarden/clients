@@ -3,10 +3,7 @@
     <bit-nav-logo [openIcon]="logo" route="." [label]="'passwordManager' | i18n"></bit-nav-logo>
 
     @if (vfo1Enabled()) {
-      <vault-nav-section
-        (allItemsSelected)="selectAllItems()"
-        (vaultSelected)="selectVault($event)"
-      />
+      <vault-nav-section />
 
       <bit-nav-section [label]="'tools' | i18n">
         <bit-nav-item icon="bwi-file-text" [text]="'reports' | i18n" route="reports"></bit-nav-item>
@@ -21,29 +18,7 @@
       </bit-nav-section>
 
       <bit-nav-section [label]="'manage' | i18n">
-        <bit-nav-item icon="bwi-folder" [text]="'myFolders' | i18n"></bit-nav-item>
-        <bit-nav-item
-          icon="bwi-archive"
-          [text]="'archiveNoun' | i18n"
-          (mainContentClicked)="selectArchive()"
-        >
-          @if (showArchivePremiumBadge()) {
-            <button
-              type="button"
-              slot="end"
-              bit-chip-action
-              startIcon="bwi-diamond"
-              [label]="'upgrade' | i18n"
-              size="small"
-              (click)="promptForPremium()"
-            ></button>
-          }
-        </bit-nav-item>
-        <bit-nav-item
-          icon="bwi-trash"
-          [text]="'trash' | i18n"
-          (mainContentClicked)="selectItemType('trash')"
-        ></bit-nav-item>
+        <vault-manage-nav />
         <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
           <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>

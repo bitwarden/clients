@@ -39,7 +39,6 @@ import {
   NewDeviceVerificationComponentService,
 } from "@bitwarden/auth/angular";
 import {
-  LockService,
   LoginEmailService,
   SsoUrlService,
   LogoutService,
@@ -184,6 +183,7 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
+import { ForegroundLockService, LockService } from "@bitwarden/unlock";
 import {
   DefaultSshImportPromptService,
   PasswordRepromptService,
@@ -191,7 +191,6 @@ import {
 } from "@bitwarden/vault";
 
 import { AccountSwitcherService } from "../../auth/popup/account-switching/services/account-switcher.service";
-import { ForegroundLockService } from "../../auth/popup/accounts/foreground-lock.service";
 import { ExtensionChangePasswordService } from "../../auth/popup/change-password/extension-change-password.service";
 import { ExtensionLoginComponentService } from "../../auth/popup/login/extension-login-component.service";
 import { ExtensionLoginViaWebAuthnComponentService } from "../../auth/popup/login/extension-login-via-webauthn-component.service";

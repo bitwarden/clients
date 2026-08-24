@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -81,7 +82,6 @@ Object.defineProperty(window, "matchMedia", {
 
 describe("VaultNavSectionComponent", () => {
   let fixture: ComponentFixture<VaultNavSectionComponent>;
-  let component: VaultNavSectionComponent;
 
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(personalOnly);
   const vaultNavService = mock<VaultNavService>();
@@ -108,11 +108,12 @@ describe("VaultNavSectionComponent", () => {
     return group.nativeElement as HTMLElement;
   };
 
-  const clickNavItem = (root: HTMLElement, text: string) => {
+  /** The `href` the nav item labelled `text` links to. */
+  const navItemHref = (root: HTMLElement, text: string) => {
     const item = Array.from(root.querySelectorAll("bit-nav-item")).find((el) =>
       (el as HTMLElement).textContent?.includes(text),
     ) as HTMLElement;
-    item.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
+    return item.querySelector("a")?.getAttribute("href");
   };
 
   beforeEach(async () => {
@@ -128,6 +129,7 @@ describe("VaultNavSectionComponent", () => {
         { provide: VaultNavService, useValue: vaultNavService },
         { provide: I18nService, useValue: i18nService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
+        provideRouter([]),
       ],
     }).compileComponents();
 
@@ -135,7 +137,6 @@ describe("VaultNavSectionComponent", () => {
     TestBed.inject(SideNavService).open.set(true);
 
     fixture = TestBed.createComponent(VaultNavSectionComponent);
-    component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
@@ -148,13 +149,15 @@ describe("VaultNavSectionComponent", () => {
       expect(text).not.toContain("vaults");
     });
 
-    it("emits vaultSelected when the lone vault is clicked", () => {
-      const selected = jest.fn();
-      component.vaultSelected.subscribe(selected);
+    it("links the lone vault to the unscoped vault, matching it exactly", () => {
+      expect(navItemHref(fixture.nativeElement, "My vault")).toBe("/vault");
 
-      clickNavItem(fixture.nativeElement, "My vault");
+      const loneVault = fixture.debugElement
+        .queryAll(By.css("bit-nav-item"))
+        .find((el) => el.componentInstance.text() === "My vault");
 
-      expect(selected).toHaveBeenCalledWith(personalItem);
+      // A subset match would leave it lit on the Trash and Archive routes nested beneath /vault.
+      expect(loneVault.componentInstance.routerLinkActiveOptions().paths).toBe("exact");
     });
   });
 
@@ -180,23 +183,21 @@ describe("VaultNavSectionComponent", () => {
       expect(vaultLabels).toEqual(["My vault", "Acme corporation", "Smith family"]);
     });
 
-    it("emits allItemsSelected when All items is clicked", () => {
-      const selected = jest.fn();
-      component.allItemsSelected.subscribe(selected);
+    it("links All items to the unscoped vault, matching it exactly", () => {
+      expect(navItemHref(fixture.nativeElement, "allItems")).toBe("/vault");
 
-      clickNavItem(fixture.nativeElement, "allItems");
+      const allItems = fixture.debugElement
+        .queryAll(By.css("bit-nav-item"))
+        .find((el) => el.componentInstance.text() === "allItems");
 
-      expect(selected).toHaveBeenCalled();
+      // A subset match would leave All items lit alongside whichever vault is scoped.
+      expect(allItems.componentInstance.routerLinkActiveOptions().paths).toBe("exact");
     });
 
-    it("emits vaultSelected with the vault when its All vault items is clicked", () => {
-      const selected = jest.fn();
-      component.vaultSelected.subscribe(selected);
-
+    it("links each organization vault to its own route", () => {
       const group = expandGroup("Acme corporation");
-      clickNavItem(group, "allVaultItems");
 
-      expect(selected).toHaveBeenCalledWith(orgA);
+      expect(navItemHref(group, "allVaultItems")).toBe("/vault/org-a");
     });
   });
 
