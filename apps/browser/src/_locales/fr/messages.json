@@ -509,7 +509,7 @@
     "message": "Options"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Options pour $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Aucun dossier partagé"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrer par $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Marquer les éléments comme favoris pour les filtrer ici."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Ajouter des dossiers aux éléments pour les filtrer ici."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Modifier l'élément - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Aucun élément dans le coffre"
   },
   "length": {
     "message": "Longueur"
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Ouvrir le site web"
-  },
-  "launchWebsiteForName": {
-    "message": "Lancer le site web de $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Site web"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Actualiser l'adhésion"
   },
-  "premiumNotCurrentMember": {
-    "message": "Vous n'êtes pas actuellement un membre Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Inscrivez-vous pour une adhésion Premium et obtenez :"
-  },
   "premiumSignUpStorage": {
     "message": "1 Go de stockage chiffré pour les fichiers joints."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Vous pouvez acheter la version Premium depuis les paramètres de votre compte dans l'application web Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Vous êtes un membre Premium !"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Merci de soutenir Bitwarden."
   },
   "premiumFeatures": {
     "message": "Mettre à niveau à la version Premium et recevez :"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Code de sécurité"
   },
-  "cardNumber": {
-    "message": "numéro de carte"
-  },
   "ex": {
     "message": "ex."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ collection(s)",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ dossiers partagés",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Effacer les filtres ou essayer un autre terme de recherche"
   },
-  "copyDetailsTitle": {
-    "message": "Copier les informations de $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copier la note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Plus d'options, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Copier $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7632,15 +7583,15 @@
     "message": "Surveillez et améliorez la santé de votre coffre en corrigeant les mots de passes exposé, faibles ou réutilisés."
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "Votre coffre-fort est sain",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "Le risque de votre coffre est élevé",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$AT_RISK$ de $TOTAL$ mots de passe doivent être corrigés",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7654,15 +7605,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "Aucun mot de passe exposé",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 mot de passe exposé",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ mots de passe exposés",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7672,23 +7623,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "Exposé dans des fuites de données",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "Aucun de vos mots de passe n'a été trouvé dans des fuites de données",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "Aucun mot de passe faible",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 mot de passe faible",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ mots de passe faibles",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7698,23 +7649,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "Trop court ou simple",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "Tous vos mots de passe sont forts",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "Aucun mot de passe réutilisé",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 mot de passe réutilisé",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ mots de passe réutilisés",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7724,19 +7675,69 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "Réutilisé dans plusieurs identifiants",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "Tous vos mots de passe sont uniques",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "Risques identifiés",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "Aucun élément ne nécessite d'attetion",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Mots de passe exposés"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Les mots de passe pour ces identifiants ont été exposés dans des fuites de données. Changez-les immédiatement pour protéger vos comptes."
+  },
+  "weakPasswordsTitle": {
+    "message": "Mots de passe faibles"
+  },
+  "weakPasswordsDescription": {
+    "message": "Ces mots de passe peuvent être facilement devinés car ils sont trop courts ou simples. Renforcez-les en les rendant plus complexes."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Mots de passe réutilisés"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Ces identifiants ont un mot de passe réutilisé. Créez un mot de passe unique pour chaque compte pour empêcher quelqu'un d'accéder à plusieurs comptes avec un seul mot de passe."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Supprimer cet identifiant le supprime de votre coffre mais ne corrige pas le risque. Pour protéger votre compte, changez d'abord votre mot de passe."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Ce mot de passe comporte des risques supplémentaires :"
+  },
+  "reused": {
+    "message": "Réutilisé",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ fois",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Aucun de vos mots de passe n'a été trouvé dans des fuites de données."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "Vous êtes prêt !"
   }
 }

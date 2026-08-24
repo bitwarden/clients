@@ -41,6 +41,7 @@ import {
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";
 
+import { BiometricsService } from "./biometrics/biometric.service";
 import { DefaultKeyService } from "./key.service";
 
 describe("keyService", () => {
@@ -52,6 +53,7 @@ describe("keyService", () => {
   const logService = mock<LogService>();
   const stateService = mock<StateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const biometricsService = mock<BiometricsService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -78,6 +80,7 @@ describe("keyService", () => {
       stateService,
       stateProvider,
       accountCryptographicStateService,
+      biometricsService,
     );
   });
 

@@ -1,6 +1,7 @@
 import { TestBed } from "@angular/core/testing";
 import {
   ActivatedRouteSnapshot,
+  Router,
   RouterStateSnapshot,
   UrlTree,
   convertToParamMap,
@@ -22,9 +23,11 @@ jest.mock("@angular/router", () => ({
 
 describe("vaultFilterLegacyRedirectGuard", () => {
   let configService: MockProxy<ConfigService>;
+  let router: MockProxy<Router>;
 
   const state = mock<RouterStateSnapshot>();
   const mockUrlTree = mock<UrlTree>();
+  const mockScopeUrlTree = mock<UrlTree>();
 
   function makeRoute(queryParams: Record<string, string | string[]>): ActivatedRouteSnapshot {
     // The param map is assigned after construction rather than passed as a partial:
@@ -40,10 +43,15 @@ describe("vaultFilterLegacyRedirectGuard", () => {
 
   beforeEach(() => {
     configService = mock<ConfigService>();
+    router = mock<Router>();
+    router.createUrlTree.mockReturnValue(mockScopeUrlTree);
     jest.mocked(createUrlTreeFromSnapshot).mockReturnValue(mockUrlTree);
 
     TestBed.configureTestingModule({
-      providers: [{ provide: ConfigService, useValue: configService }],
+      providers: [
+        { provide: ConfigService, useValue: configService },
+        { provide: Router, useValue: router },
+      ],
     });
   });
 
@@ -61,6 +69,13 @@ describe("vaultFilterLegacyRedirectGuard", () => {
 
       expect(result).toBe(true);
       expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+    });
+
+    it("returns true without redirecting a scope type", async () => {
+      const result = await runGuard(makeRoute({ type: "trash" }));
+
+      expect(result).toBe(true);
+      expect(router.createUrlTree).not.toHaveBeenCalled();
     });
 
     it("verifies the guard checked the correct feature flag", async () => {
@@ -131,19 +146,63 @@ describe("vaultFilterLegacyRedirectGuard", () => {
         expect(queryParams).toEqual(expect.objectContaining({ "vault.favorites": "true" }));
       });
 
-      it("returns true without redirecting for unmapped types like ?type=trash", async () => {
-        expect(await runGuard(makeRoute({ type: "trash" }))).toBe(true);
+      it("returns true without redirecting for unmapped types like ?type=all", async () => {
+        expect(await runGuard(makeRoute({ type: "all" }))).toBe(true);
         expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
-      });
-
-      it("returns true without redirecting for unmapped types like ?type=archive", async () => {
-        expect(await runGuard(makeRoute({ type: "archive" }))).toBe(true);
-        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+        expect(router.createUrlTree).not.toHaveBeenCalled();
       });
 
       it("returns true without redirecting for ?sharedFolderId=all (no filter needed)", async () => {
         expect(await runGuard(makeRoute({ sharedFolderId: "all" }))).toBe(true);
         expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+      });
+    });
+
+    describe("scope mapping", () => {
+      const SCOPE_CASES: [string, string][] = [
+        ["trash", "trash"],
+        ["archive", "archive"],
+      ];
+
+      SCOPE_CASES.forEach(([legacyType, segment]) => {
+        it(`redirects ?type=${legacyType} → /vault/${segment}`, async () => {
+          expect(await runGuard(makeRoute({ type: legacyType }))).toBe(mockScopeUrlTree);
+
+          expect(router.createUrlTree).toHaveBeenCalledWith(
+            ["/vault", segment],
+            expect.any(Object),
+          );
+        });
+
+        it(`strips ?type=${legacyType} from the redirect`, async () => {
+          await runGuard(makeRoute({ type: legacyType }));
+
+          const [, options] = router.createUrlTree.mock.calls[0];
+          expect(options?.queryParams?.["type"]).toBeUndefined();
+        });
+      });
+
+      it("does not build a param-only redirect for a scope type", async () => {
+        await runGuard(makeRoute({ type: "trash" }));
+
+        expect(createUrlTreeFromSnapshot).not.toHaveBeenCalled();
+      });
+
+      it("carries the other converted filters onto the scope route", async () => {
+        await runGuard(makeRoute({ type: "trash", vaultId: "org-123", search: "amazon" }));
+
+        const [, options] = router.createUrlTree.mock.calls[0];
+        expect(options?.queryParams).toEqual({
+          "vault.vault": "org-123",
+          "vault.search": "amazon",
+        });
+      });
+
+      it("preserves non-legacy params on the scope route", async () => {
+        await runGuard(makeRoute({ type: "archive", cipherId: "cipher-1", action: "view" }));
+
+        const [, options] = router.createUrlTree.mock.calls[0];
+        expect(options?.queryParams).toEqual({ cipherId: "cipher-1", action: "view" });
       });
     });
 
@@ -280,21 +339,12 @@ describe("vaultFilterLegacyRedirectGuard", () => {
     });
 
     describe("untranslatable type combined with other redirectable params", () => {
-      it("preserves type=trash in the redirect when combined with vaultId", async () => {
-        await runGuard(makeRoute({ vaultId: "org-123", type: "trash" }));
+      it("preserves type=all in the redirect when combined with vaultId", async () => {
+        await runGuard(makeRoute({ vaultId: "org-123", type: "all" }));
 
         const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
         expect(queryParams).toEqual(
-          expect.objectContaining({ "vault.vault": "org-123", type: "trash" }),
-        );
-      });
-
-      it("preserves type=archive in the redirect when combined with organizationId", async () => {
-        await runGuard(makeRoute({ organizationId: "org-456", type: "archive" }));
-
-        const [, , queryParams] = jest.mocked(createUrlTreeFromSnapshot).mock.calls[0];
-        expect(queryParams).toEqual(
-          expect.objectContaining({ "vault.vault": "org-456", type: "archive" }),
+          expect.objectContaining({ "vault.vault": "org-123", type: "all" }),
         );
       });
 
