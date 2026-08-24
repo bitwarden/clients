@@ -198,7 +198,6 @@ describe("DesktopLayoutComponent", () => {
         "Acme",
         "tools",
         "generator",
-        "importNoun",
         "exportNoun",
         "manage",
         "myFolders",

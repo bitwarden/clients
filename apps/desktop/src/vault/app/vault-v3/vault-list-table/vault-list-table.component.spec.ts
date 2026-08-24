@@ -156,4 +156,19 @@ describe("VaultListTableComponent", () => {
       expect(fixture.debugElement.query(By.css("vault-new-cipher-menu"))).toBeNull();
     });
   });
+
+  describe("import button", () => {
+    it("emits onImport when clicked", () => {
+      const emit = jest.fn();
+      component.onImport.subscribe(emit);
+      fixture.componentRef.setInput("showAddCipherBtn", true);
+      fixture.detectChanges();
+
+      fixture.debugElement
+        .query(By.css("#vault-list-table_button_import"))
+        .triggerEventHandler("click", {});
+
+      expect(emit).toHaveBeenCalled();
+    });
+  });
 });
