@@ -259,7 +259,7 @@ describe("ApproverInboxService", () => {
       );
 
       const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].statusLabelKey).toBe("pamStatusRevoked");
+      expect(history[0].statusBadge?.labelKey).toBe("pamStatusRevoked");
     });
 
     it("restores the row and rethrows when the revoke fails", async () => {
@@ -272,7 +272,7 @@ describe("ApproverInboxService", () => {
         ),
       ).rejects.toThrow("boom");
       const history = await firstValueFrom(service.historyRows$);
-      expect(history[0].statusLabelKey).toBe("pamStatusActivated");
+      expect(history[0].statusBadge?.labelKey).toBe("pamStatusActivated");
     });
 
     it("cancels an approval via access_requests().cancel()", async () => {
