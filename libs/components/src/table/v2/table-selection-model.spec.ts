@@ -100,6 +100,43 @@ describe("TableSelectionModel", () => {
       expect(model.count()).toBe(0);
     });
 
+    /**
+     * A selection sitting at `max` must not dead-end. Filter onto rows none of which are selected
+     * and the header renders unchecked, but there is no budget left to select with — so without
+     * this the checkbox would be inert, with no way forward except clearing by some other means.
+     */
+    it("clears instead of no-opping when the budget is spent and the scope moved", () => {
+      const all = rows(1200);
+      const filtered = signal<readonly Row[]>(all);
+      const model = new TableSelectionModel<Row>({ multiple: true, max: 500, rows: filtered });
+
+      model.toggleAll();
+      expect(model.count()).toBe(500);
+
+      // Narrow onto rows that exclude every selected one.
+      filtered.set(all.slice(600, 700));
+      expect(model.allSelected()).toBe(false);
+
+      model.toggleAll();
+
+      expect(model.count()).toBe(0);
+    });
+
+    /** With the budget handed back, the next select-all works within the narrowed view. */
+    it("can select again in the new scope after clearing", () => {
+      const all = rows(1200);
+      const filtered = signal<readonly Row[]>(all);
+      const model = new TableSelectionModel<Row>({ multiple: true, max: 500, rows: filtered });
+
+      model.toggleAll();
+      filtered.set(all.slice(600, 700));
+      model.toggleAll();
+      model.toggleAll();
+
+      expect(model.count()).toBe(100);
+      expect(model.allSelected()).toBe(true);
+    });
+
     it("leaves an uncapped model selecting everything", () => {
       const model = new TableSelectionModel<Row>({ multiple: true, rows: signal(rows(25)) });
 

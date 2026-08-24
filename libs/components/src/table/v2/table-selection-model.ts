@@ -135,9 +135,18 @@ export class TableSelectionModel<T> {
   /**
    * Selects every selectable in-scope row, or clears them if all are already selected. Bounded by
    * the configured `max` — see {@link TableSelectionConfig.max}.
+   *
+   * A full budget also clears. Otherwise a selection sitting at `max` would dead-end as soon as
+   * the rows in scope changed — filter onto rows none of which are selected and the header renders
+   * unchecked, but selecting is impossible with no budget left, so the checkbox would do nothing
+   * at all. Clearing keeps it actionable and hands back the budget to select within the new view.
    */
   toggleAll(): void {
-    if (this.allSelected()) {
+    if (this.count() >= this.max) {
+      // At the cap there is no budget to select with, so clear outright — including any rows held
+      // from a previous scope, since those are what consumed the budget.
+      this.clear();
+    } else if (this.allSelected()) {
       this.deselect(...this.selectable());
     } else {
       this.select(...this.selectableWithinMax());
