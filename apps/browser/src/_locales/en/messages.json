@@ -7893,6 +7893,26 @@
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
   },
+  "scanningYourVault": {
+    "message": "Scanning your vault",
+    "description": "Heading shown while the vault health scan is running."
+  },
+  "scanningYourVaultDescription": {
+    "message": "Checking for exposed, weak, and reused passwords.",
+    "description": "Explains what the vault health scan is doing while it runs."
+  },
+  "scanInProgress": {
+    "message": "In progress",
+    "description": "Short status meaning the vault health scan is underway, used where a completion percentage is not known."
+  },
+  "healthScanFailed": {
+    "message": "Something went wrong",
+    "description": "Heading shown when the vault health scan did not complete."
+  },
+  "healthScanFailedDescription": {
+    "message": "Your vault scan didn't complete due to an unexpected error.",
+    "description": "Explains that the vault health scan did not complete."
+  },
   "exposedPasswordsTitle": {
     "message": "Exposed passwords"
   },

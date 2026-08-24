@@ -536,7 +536,7 @@
     "message": "Добавить папки к элементам, чтобы отфильтровать их здесь."
   },
   "editItemWithName": {
-    "message": "Редактирование элемента - $NAME$",
+    "message": "Изменить элемент - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "Открыть сайт"
-  },
-  "launchWebsiteForName": {
-    "message": "Открыть сайт для $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "Сайт"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Обновить Премиум"
   },
-  "premiumNotCurrentMember": {
-    "message": "Сейчас у вас отсутствует Премиум."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Подпишитесь на Премиум и получите:"
-  },
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Премиум можно приобрести в настройках аккаунта в веб-версии Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "У вас есть Премиум!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Благодарим вас за поддержку Bitwarden."
   },
   "premiumFeatures": {
     "message": "Перейдите на Премиум и получите:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Код безопасности"
   },
-  "cardNumber": {
-    "message": "номер карты"
-  },
   "ex": {
     "message": "напр."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "Коллекций: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "Общие папки: $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Очистите фильтры или попробуйте другой поисковый запрос"
   },
-  "copyDetailsTitle": {
-    "message": "Скопировать информацию для $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Скопировать заметку - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Больше опций, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "Копировать $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "Элементов, требующих внимания нет",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Скомпрометированные пароли"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Пароли для этих логинов были раскрыты в результате утечки данных. Немедленно измените их, чтобы защитить свои аккаунты."
+  },
+  "weakPasswordsTitle": {
+    "message": "Слабые пароли"
+  },
+  "weakPasswordsDescription": {
+    "message": "Эти пароли легко угадать, поскольку они слишком короткие или простые. Усильте их, сделав более сложными."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Повторно использованные пароли"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Эти логины имеют повторно используемый пароль. Создайте уникальный пароль для каждого аккаунта, чтобы предотвратить доступ с использованием одного пароля к разным аккаунтам."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Удаление этого логина приведет к его удалению из хранилища, но не устранит угрозу. Чтобы защитить свой аккаунт, сначала смените пароль."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Этот пароль имеет дополнительные риски:"
+  },
+  "reused": {
+    "message": "Повторный",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ раз",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Ни один из ваших паролей не был найден в утечках данных."
+  },
+  "weakPasswordEmpty": {
+    "message": "Все ваши пароли надежны."
+  },
+  "reusedPasswordEmpty": {
+    "message": "Все ваши пароли уникальны."
+  },
+  "youreAllSet": {
+    "message": "Все готово!"
   }
 }

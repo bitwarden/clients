@@ -46,6 +46,7 @@ import {
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { PureCrypto } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { LoginDecryptionOptionsComponent } from "./login-decryption-options.component";
 import { LoginDecryptionOptionsService } from "./login-decryption-options.service";
@@ -80,6 +81,7 @@ describe("LoginDecryptionOptionsComponent", () => {
   let accountCryptographicStateService: MockProxy<any>;
   let authService: MockProxy<AuthService>;
   let sharedUnlockSettingsService: MockProxy<SharedUnlockSettingsService>;
+  let unlockService: MockProxy<UnlockService>;
 
   const mockUserId = "user-id-123" as UserId;
   const mockEmail = "test@example.com";
@@ -114,6 +116,7 @@ describe("LoginDecryptionOptionsComponent", () => {
     accountCryptographicStateService = mock();
     authService = mock<AuthService>();
     sharedUnlockSettingsService = mock<SharedUnlockSettingsService>();
+    unlockService = mock<UnlockService>();
 
     // The component's inlined initAccount awaits SdkLoadService.Ready, which never resolves under test.
     Object.defineProperty(SdkLoadService, "Ready", {
@@ -168,10 +171,11 @@ describe("LoginDecryptionOptionsComponent", () => {
       accountCryptographicStateService,
       authService,
       sharedUnlockSettingsService,
+      unlockService,
     );
   });
 
-  describe("createUser with feature flag enabled", () => {
+  describe("initializeUserCryptoForJitProvisionedAccount with feature flag enabled", () => {
     let mockPostKeysForTdeRegistration: jest.Mock;
     let mockRegistration: any;
     let mockAuth: any;
@@ -280,7 +284,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       } as any);
 
       // Act
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       // Assert
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
@@ -324,13 +328,13 @@ describe("LoginDecryptionOptionsComponent", () => {
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );
-      expect(keyService.setUserKey).toHaveBeenCalledWith(
-        expect.any(SymmetricCryptoKey),
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
         mockUserId,
+        expect.any(SymmetricCryptoKey),
       );
 
       const [, deviceKeyArg] = deviceTrustService.setDeviceKey.mock.calls[0];
-      const [userKeyArg] = keyService.setUserKey.mock.calls[0];
+      const [, userKeyArg] = unlockService.unlockWithDecryptedUserKey.mock.calls[0];
 
       expect((deviceKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedDeviceKey.keyB64);
       expect((userKeyArg as SymmetricCryptoKey).keyB64).toBe(expectedUserKey.keyB64);
@@ -362,7 +366,7 @@ describe("LoginDecryptionOptionsComponent", () => {
 
       component["formGroup"].controls.rememberDevice.setValue(false);
 
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       expect(sharedUnlockSettingsService.setUnlockSharingDisabled).toHaveBeenCalledWith(
         mockUserId,
@@ -388,7 +392,7 @@ describe("LoginDecryptionOptionsComponent", () => {
       } as any);
 
       // Remember device defaults to true.
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       expect(
         sharedUnlockSettingsService.setAllowSharingUnlockStateWithDesktop,
@@ -418,14 +422,17 @@ describe("LoginDecryptionOptionsComponent", () => {
       router.navigate.mockResolvedValue(true);
 
       // Act
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       // Assert
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(
         FeatureFlag.PM27279_V2RegistrationTdeJit,
       );
       expect(legacyCompatKeyService.makeKeyPair).toHaveBeenCalledWith(mockUserKey);
-      expect(keyService.setUserKey).toHaveBeenCalledWith(mockUserKey, mockUserId);
+      expect(unlockService.unlockWithDecryptedUserKey).toHaveBeenCalledWith(
+        mockUserId,
+        mockUserKey,
+      );
       expect(accountCryptographicStateService.setAccountCryptographicState).toHaveBeenCalledWith(
         { V1: { private_key: mockPrivateKey.encryptedString } },
         mockUserId,
@@ -457,12 +464,12 @@ describe("LoginDecryptionOptionsComponent", () => {
       configService.getFeatureFlag.mockResolvedValue(false);
       keyService.userKey$.mockReturnValue(of(makeSymmetricCryptoKey<UserKey>(64)));
 
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
       expect(logService.error).toHaveBeenCalledWith(
         "Tried to initialize account with existing user key.",
       );
-      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
       expect(apiService.postAccountKeys).not.toHaveBeenCalled();
       expect(validationService.showError).toHaveBeenCalledWith(
         new Error("Cannot initialize account, keys already exist."),
@@ -481,9 +488,9 @@ describe("LoginDecryptionOptionsComponent", () => {
         { encryptedString: null } as any,
       ]);
 
-      await component["createUser"]();
+      await component["initializeUserCryptoForJitProvisionedAccount"]();
 
-      expect(keyService.setUserKey).not.toHaveBeenCalled();
+      expect(unlockService.unlockWithDecryptedUserKey).not.toHaveBeenCalled();
       expect(apiService.postAccountKeys).not.toHaveBeenCalled();
       expect(validationService.showError).toHaveBeenCalledWith(
         new Error("Failed to create valid private key."),
