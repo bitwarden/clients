@@ -509,7 +509,7 @@
     "message": "选项"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ 的选项",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -521,7 +521,7 @@
     "message": "没有共享文件夹"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "筛选为 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,10 +530,10 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "将项目标记为收藏以在此处筛选它们。"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "将文件夹添加到项目以在此处筛选它们。"
   },
   "editItemWithName": {
     "message": "编辑项目 - $NAME$",
@@ -750,15 +750,6 @@
   },
   "launchWebsite": {
     "message": "打开网站"
-  },
-  "launchWebsiteForName": {
-    "message": "前往 $ITEMNAME$ 的网站",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "website": {
     "message": "网站"
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "刷新成员资格"
   },
-  "premiumNotCurrentMember": {
-    "message": "您目前不是高级版成员。"
-  },
-  "premiumSignUpAndGet": {
-    "message": "注册高级版成员资格并获得："
-  },
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 网页 App 的账户设置中购买高级版。"
-  },
-  "premiumCurrentMember": {
-    "message": "您是高级版成员！"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "感谢您支持 Bitwarden。"
   },
   "premiumFeatures": {
     "message": "升级到高级版并接收："
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "安全码"
   },
-  "cardNumber": {
-    "message": "卡号"
-  },
   "ex": {
     "message": "例如"
   },
@@ -2632,6 +2608,15 @@
       }
     }
   },
+  "nSharedFolders": {
+    "message": "$COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "favorites": {
     "message": "收藏夹"
   },
@@ -2735,7 +2720,7 @@
     "message": "跳转至..."
   },
   "ofPageCount": {
-    "message": "of $COUNT$",
+    "message": "/ $COUNT$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5066,7 +5051,7 @@
     "message": "未选择文件"
   },
   "fileChosen": {
-    "message": "已选择文件: $FILE_NAME$",
+    "message": "已选择文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5084,7 +5069,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$已添加文件$FILE_NAMES$",
+    "message": "已添加 $COUNT$ 个文件：$FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5097,7 +5082,7 @@
     }
   },
   "fileRemoved": {
-    "message": "已移除文件: $FILE_NAME$",
+    "message": "已移除文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -5106,10 +5091,10 @@
     }
   },
   "oneFileUploaded": {
-    "message": "1个文件已上传"
+    "message": "1 个文件已上传"
   },
   "filesUploaded": {
-    "message": "$COUNT$ 文件已上传",
+    "message": "$COUNT$ 个文件已上传",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5121,7 +5106,7 @@
     "message": "已上传文件"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "点击上传或将文件拖放至此"
+    "message": "点击上传或拖放至此"
   },
   "chooseFiles": {
     "message": "选择文件"
@@ -5549,7 +5534,7 @@
     "message": "已达到账户上限。请注销一个账户后再添加其他账户。"
   },
   "active": {
-    "message": "活动的"
+    "message": "活动"
   },
   "locked": {
     "message": "已锁定"
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "清除筛选或尝试其他搜索词"
   },
-  "copyDetailsTitle": {
-    "message": "复制详情：$ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "复制备注 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "更多选项，$ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7620,7 +7571,7 @@
     }
   },
   "health": {
-    "message": "健康度"
+    "message": "健康状况"
   },
   "scanMyVault": {
     "message": "扫描我的密码库"
@@ -7629,7 +7580,7 @@
     "message": "健康状况介绍"
   },
   "healthIntroDescription": {
-    "message": "通过修改已泄露、强度较弱以及重复使用的密码，监控并改善你的密码库安全状态。"
+    "message": "通过修复暴露的、弱的和重复使用的密码，监测并改善您的密码库的健康状况。"
   },
   "yourVaultIsHealthy": {
     "message": "您的密码库状态良好",
@@ -7640,7 +7591,7 @@
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$TOTAL$个密码中有$AT_RISK$个需要修复",
+    "message": "$AT_RISK$ / $TOTAL$ 个密码需要修复",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7654,15 +7605,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "没有密码泄露",
+    "message": "没有暴露的密码",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1个已泄露的密码",
+    "message": "1 个暴露的密码",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$已泄露密码",
+    "message": "$COUNT$ 个暴露的密码",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7672,11 +7623,11 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "已泄露的密码描述",
+    "message": "暴露于数据泄露中",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "未在数据泄露事件中发现你的任何密码",
+    "message": "在数据泄露中没有发现您的任何密码",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
@@ -7684,11 +7635,11 @@
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1个弱密码",
+    "message": "1 个弱密码",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$个弱密码",
+    "message": "$COUNT$ 个弱密码",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7698,11 +7649,11 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "过短或过于简单",
+    "message": "过于简短或简单",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "您所有的密码安全性都很高",
+    "message": "您所有的密码均很强大",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
@@ -7710,11 +7661,11 @@
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1个重复使用的密码",
+    "message": "1 个重复使用的密码",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$个重复使用的密码",
+    "message": "$COUNT$ 个重复使用的密码",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7724,7 +7675,7 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "多次登录重复使用",
+    "message": "重复用于多个登录",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
@@ -7736,7 +7687,57 @@
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "categoryHealthy": {
-    "message": "无任何需关注的项目",
+    "message": "没有需要注意的项目",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "暴露的密码"
+  },
+  "exposedPasswordsDescription": {
+    "message": "这些登录的密码曾在数据泄露中被暴露。立即更改它们以保护您的账户。"
+  },
+  "weakPasswordsTitle": {
+    "message": "弱密码"
+  },
+  "weakPasswordsDescription": {
+    "message": "这些密码过于简短或简单，很容易被猜到。增加它们的复杂度以增强其强度。"
+  },
+  "reusedPasswordsTitle": {
+    "message": "重复使用的密码"
+  },
+  "reusedPasswordsDescription": {
+    "message": "这些登录拥有重复使用的密码。为每个账户创建唯一的密码，以防止他人仅凭一个密码就能访问多个账户。"
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "删除此登录只会将其从您的密码库中移除，并不能消除风险。为保护您的账户，请先更改您的密码。"
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "此密码还存在其他风险："
+  },
+  "reused": {
+    "message": "重复使用",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ 次",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "在数据泄露中没有发现您的任何密码。"
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "一切就绪！"
   }
 }

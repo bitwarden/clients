@@ -1,6 +1,10 @@
 @if (vaultNav(); as nav) {
   @if (nav.vaults.length > 1) {
-    <bit-nav-item [text]="'allItems' | i18n" (mainContentClicked)="selectAllItems()">
+    <bit-nav-item
+      [text]="'allItems' | i18n"
+      [route]="allItemsRoute"
+      [routerLinkActiveOptions]="allItemsActiveOptions"
+    >
       <bit-icon-tile icon="bwi-list" variant="brand" emphasis="bold" size="sm" />
     </bit-nav-item>
   }
@@ -12,15 +16,20 @@
         <bit-nav-item
           icon="bwi-list-alt"
           [text]="'allVaultItems' | i18n"
-          (mainContentClicked)="selectVault(vault)"
+          [route]="vaultRoute(vault)"
         ></bit-nav-item>
       </bit-nav-group>
     }
   </ng-template>
 
-  @if (nav.vaults.length === 1 && !nav.organizationDataOwnership) {
+  @if (personalOnly()) {
     @let loneVault = nav.vaults[0];
-    <bit-nav-item [text]="loneVault.label" (mainContentClicked)="selectVault(loneVault)">
+    <!-- A lone vault still routes to /vault; only the label differs. -->
+    <bit-nav-item
+      [text]="loneVault.label"
+      [route]="allItemsRoute"
+      [routerLinkActiveOptions]="allItemsActiveOptions"
+    >
       <bit-icon-tile [icon]="loneVault.icon" [color]="vaultTileColor(loneVault)" size="sm" />
     </bit-nav-item>
   } @else if (nav.organizationDataOwnership) {

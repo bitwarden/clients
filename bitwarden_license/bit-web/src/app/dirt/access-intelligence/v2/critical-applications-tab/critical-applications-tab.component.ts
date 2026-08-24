@@ -21,7 +21,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   LinkModule,
-  NoItemsModule,
   PopoverModule,
   SearchModule,
   TableDataSource,
@@ -54,7 +53,6 @@ import {
     ReportLoadingComponent,
     LinkModule,
     SearchModule,
-    NoItemsModule,
     PipesModule,
     PopoverModule,
     SharedModule,
@@ -96,6 +94,10 @@ export class CriticalApplicationsTabComponent {
     { initialValue: [] },
   );
 
+  protected readonly enableRequestPasswordChange = computed(
+    () => this.unassignedCipherIds().length > 0,
+  );
+
   protected readonly helpMembersOpen = computed(
     () => this.coachmarkService.activeStepId() === "helpMembers",
   );
@@ -111,11 +113,6 @@ export class CriticalApplicationsTabComponent {
       totalAtRiskApplicationCount: report.summary.totalCriticalAtRiskApplicationCount,
       totalApplicationCount: report.summary.totalCriticalApplicationCount,
     };
-  });
-
-  protected readonly enableRequestPasswordChange = computed(() => {
-    const summary = this.applicationSummary();
-    return !!summary && summary.totalAtRiskMemberCount > 0;
   });
 
   constructor() {
