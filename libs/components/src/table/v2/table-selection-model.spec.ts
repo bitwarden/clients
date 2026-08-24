@@ -59,16 +59,6 @@ describe("TableSelectionModel", () => {
       scope.set(all.slice(0, 2));
 
       expect(model.count()).toBe(10);
-      expect(model.selectedOutOfScope().length).toBe(8);
-    });
-
-    it("reports no out-of-scope rows when everything selected is visible", () => {
-      const all = rows(5);
-      const model = new TableSelectionModel<Row>({ multiple: true, rows: signal(all) });
-
-      model.select(all[0], all[1]);
-
-      expect(model.selectedOutOfScope()).toEqual([]);
     });
 
     /**

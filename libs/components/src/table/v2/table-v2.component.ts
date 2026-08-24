@@ -685,11 +685,6 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
   ]);
 
   /**
-   * Rendered rows: {@link filtered} sorted by {@link sort} (using the column's
-   * `sortFn` or the default), then sliced to a projected paginator's page (unless
-   * it's in server-side mode, where the data already holds only the page).
-   */
-  /**
    * {@link filtered} in display order — the sort applied, but not the page slice.
    *
    * This, rather than `filtered`, is what the selection model scopes over: select-all is
@@ -707,6 +702,10 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
   });
 
+  /**
+   * Rendered rows: {@link sorted} sliced to a projected paginator's page (unless it's in
+   * server-side mode, where the data already holds only the page).
+   */
   protected readonly rows = computed(() => {
     const sorted = this.sorted();
     const paginator = this.paginator();

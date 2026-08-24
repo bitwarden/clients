@@ -1,16 +1,32 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-
-import { signal } from "@angular/core";
+import { PortalModule } from "@angular/cdk/portal";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LayoutFooterService } from "@bitwarden/components";
 
 import { VaultBatchBarService } from "../../services/vault-batch-bar.service";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { VaultBatchActionComponent } from "./vault-batch-action.component";
+
+/**
+ * Renders whatever `LayoutFooterService` is holding.
+ *
+ * `<bit-vault-batch-action>` hands its bar to that service as a `TemplatePortal` rather than
+ * rendering it inline, and `bit-layout` is normally the outlet. This stands in as that outlet so
+ * the bar actually renders and its bindings execute.
+ */
+@Component({
+  selector: "test-footer-outlet",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [PortalModule],
+  template: `<ng-template [cdkPortalOutlet]="footerPortal()"></ng-template>`,
+})
+class FooterOutletComponent {
+  protected readonly footerPortal = inject(LayoutFooterService).portal;
+}
 
 // JSDOM does not implement ResizeObserver — stub so BulkActionsBarComponent can construct.
 class ResizeObserverStub {
@@ -224,18 +240,27 @@ describe("VaultBatchActionComponent", () => {
 
   describe("action invocation", () => {
     /**
-     * The Clear button has to go through `clearSelection()` rather than the CDK model directly:
-     * once a host registers a selection source, `selected()` stops consulting that model, so
-     * clearing it would leave the count unchanged, the bar up, and every row still checked.
-     *
-     * Asserted against the template source because the bar renders through `LayoutFooterService`'s
-     * portal, which this spec provides no outlet for — so the binding never executes here.
+     * The Clear button has to go through `clearSelection()` rather than `selection.clear()`: once a
+     * host registers a selection source, `selected()` stops consulting the CDK model, so clearing
+     * that directly would leave the count unchanged, the bar up, and every row still checked.
      */
-    it("binds the bar's (clear) to the service's clearSelection", () => {
-      const template = readFileSync(join(__dirname, "vault-batch-action.component.html"), "utf8");
+    it("clears through the service when the bar's Clear button is pressed", () => {
+      selectedCount.set(2);
 
-      expect(template).toContain('(clear)="service.clearSelection()"');
-      expect(template).not.toContain("service.selection.clear()");
+      // The bar renders through LayoutFooterService's portal, so mount an outlet for it.
+      const outlet = TestBed.createComponent(FooterOutletComponent);
+      fixture.detectChanges();
+      outlet.detectChanges();
+
+      const clearButton = (outlet.nativeElement as HTMLElement).querySelector<HTMLButtonElement>(
+        "button[icon='bwi-clear']",
+      );
+      expect(clearButton).not.toBeNull();
+
+      clearButton!.click();
+      outlet.detectChanges();
+
+      expect(clearSpy).toHaveBeenCalledTimes(1);
     });
 
     it("calls service.bulkMoveToFolder when move action is invoked", () => {
