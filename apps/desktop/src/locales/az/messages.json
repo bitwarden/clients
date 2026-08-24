@@ -12,7 +12,7 @@
     "message": "Sevimlilər"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Elementləri burada filtrləmək üçün sevimli olaraq işarələyin."
   },
   "unfavorite": {
     "message": "Sevimlilərdən sil"
@@ -120,7 +120,7 @@
     "message": "Qovluqlarım"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
   },
   "addSharedFolder": {
     "message": "Paylaşılan qovluq əlavə et"
@@ -525,17 +525,8 @@
   "launch": {
     "message": "Başlat"
   },
-  "launchWebsiteForName": {
-    "message": "$ITEMNAME$ veb saytını başlat",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Veb saytı başlat"
   },
   "copyValue": {
     "message": "Dəyəri kopyala",
@@ -579,7 +570,7 @@
     "message": "Bitmə vaxtı"
   },
   "securityCode": {
-    "message": "Güvənlik kodu"
+    "message": "Təhlükəsizlik kodu"
   },
   "identityName": {
     "message": "Kimlik adı"
@@ -588,7 +579,7 @@
     "message": "Şirkət"
   },
   "ssn": {
-    "message": "Sosial güvənlik nömrəsi"
+    "message": "Sosial təminat nömrəsi"
   },
   "passportNumber": {
     "message": "Pasport nömrəsi"
@@ -1203,20 +1194,6 @@
   "copyVerificationCodeTotp": {
     "message": "Doğrulama kodunu kopyala (TOTP)"
   },
-  "copyFieldCipherName": {
-    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "copyPrivateKey": {
     "message": "Private açarı kopyala"
   },
@@ -1626,7 +1603,7 @@
     "message": "Geri qaytarma kodunuzu istifadə edin"
   },
   "insertU2f": {
-    "message": "Güvənlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
+    "message": "Təhlükəsizlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
   },
   "recoveryCodeTitle": {
     "message": "Bərpa kodu"
@@ -1639,7 +1616,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP güvənlik açarı"
+    "message": "Yubico OTP təhlükəsizlik açarı"
   },
   "yubiKeyDesc": {
     "message": "Hesabınıza erişmək üçün bir YubiKey istifadə edin. YubiKey 4, 4 Nano, 4C və NEO cihazları ilə işləyir."
@@ -1649,7 +1626,7 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Təşkilatınızını Duo Security ilə doğrulamaq üçün Duo Mobile tətbiqi, SMS, telefon zəngi və ya U2F güvənlik açarını istifadə edin.",
+    "message": "Təşkilatınızını Duo Security ilə doğrulamaq üçün Duo Mobile tətbiqi, SMS, telefon zəngi və ya U2F təhlükəsizlik açarını istifadə edin.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "verifyYourIdentity": {
@@ -1665,7 +1642,7 @@
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Hesabınıza erişmək üçün istənilən WebAuthn uyumlu güvənlik açarını istifadə edin."
+    "message": "Hesabınıza erişmək üçün istənilən WebAuthn uyumlu təhlükəsizlik açarını istifadə edin."
   },
   "emailTitle": {
     "message": "E-poçt"
@@ -1713,7 +1690,7 @@
     "message": "Kimlik doğrulama vaxtı bitdi"
   },
   "authenticationSessionTimedOut": {
-    "message": "Kimlik doğrulama seansının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
+    "message": "Kimlik doğrulama sessiyasının vaxtı bitdi. Lütfən giriş prosesini yenidən başladın."
   },
   "selfHostBaseUrl": {
     "message": "Self-host server URL-si",
@@ -1807,7 +1784,7 @@
     "message": "Hesabınızdan çıxış etmisiniz."
   },
   "loginExpired": {
-    "message": "Seansın müddəti bitdi."
+    "message": "Giriş sessiyanızın müddəti bitdi."
   },
   "restartRegistration": {
     "message": "Qeydiyyatı yenidən başlat"
@@ -1948,7 +1925,7 @@
     }
   },
   "twoStepLoginConfirmation": {
-    "message": "İki addımlı giriş, güvənlik açarı, kimlik doğrulayıcı tətbiq, SMS, telefon zəngi və ya e-poçt kimi digər cihazlarla girişinizi doğrulamanızı tələb edərək hesabınızı daha da güvənli edir. İki addımlı giriş, bitwarden.com veb seyfində qurula bilər. Veb saytı indi ziyarət etmək istəyirsiniz?"
+    "message": "İki addımlı giriş, təhlükəsizlik açarı, kimlik doğrulayıcı tətbiq, SMS, telefon zəngi və ya e-poçt kimi digər cihazlarla girişinizi doğrulamanızı tələb edərək hesabınızı daha da güvənli edir. İki addımlı giriş, bitwarden.com veb seyfində qurula bilər. Veb saytı indi ziyarət etmək istəyirsiniz?"
   },
   "twoStepLogin": {
     "message": "İki mərhələli giriş"
@@ -2011,7 +1988,7 @@
     "message": "Heç vaxt"
   },
   "security": {
-    "message": "Güvənlik"
+    "message": "Təhlükəsizlik"
   },
   "clearClipboard": {
     "message": "Lövhəni təmizlə",
@@ -2026,16 +2003,6 @@
   },
   "showQuickCopyActionsInVault": {
     "message": "Seyfdə cəld kopyalama fəaliyyətlərini göstər"
-  },
-  "copyNoteTitle": {
-    "message": "Notu kopyala - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
   },
   "noDetailsToCopy": {
     "message": "Kopyalanacaq detal yoxdur"
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "Təhlükəsizlik kodu yoxdur"
   },
-  "copyDetailsTitle": {
-    "message": "$ITEMNAME$ detallarını kopyala",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "İstifadəçi adını kopyala"
   },
@@ -2176,11 +2133,8 @@
     "message": "E-poçtu kopyala"
   },
   "copySecurityCode": {
-    "message": "Güvənlik kodunu kopyala",
+    "message": "Təhlükəsizlik kodunu kopyala",
     "description": "Copy credit card security code (CVV)"
-  },
-  "cardNumber": {
-    "message": "kart nömrəsi"
   },
   "premiumMembership": {
     "message": "Premium üzvlük"
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Üzvlüyünüzü bitwarden.com veb seyfində idarə edə bilərsiniz. İndi saytı ziyarət etmək istəyirsiniz?"
   },
-  "premiumRefresh": {
-    "message": "Üzvlüyü təzələ"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Hazırda premium bir üzvlüyünüz yoxdur."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Premium üzvlük üçün qeydiyyatdan keçin və bunları əldə edin:"
-  },
   "premiumSignUpStorage": {
-    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "Fayl qoşmaları üçün $SIZE$ şifrələnmiş anbar sahəsi.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "YubiKey və Duo kimi mülkiyyətçi iki addımlı giriş seçimləri."
-  },
-  "premiumSignUpReports": {
-    "message": "Seyfinizi güvəndə saxlamaq üçün parol gigiyenası, hesab sağlamlığı və veri pozuntusu hesabatları."
-  },
-  "premiumSignUpTotp": {
-    "message": "Seyfinizdəki girişlər üçün TOTP doğrulama kodu (2FA) yaradıcısı."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioritet müştəri dəstəyi."
-  },
-  "premiumSignUpFuture": {
-    "message": "Bütün gələcək premium özəlliklər. Daha çoxu tezliklə!"
+    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş depolama sahəsi."
   },
   "premiumPurchase": {
     "message": "Premium satın al"
   },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden veb tətbiqindəki hesab ayarlarınızda Premium satın ala bilərsiniz."
-  },
-  "premiumCurrentMember": {
-    "message": "Premium üzvsünüz!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Bitwarden-i dəstəklədiyiniz üçün təşəkkürlər."
-  },
-  "premiumPrice": {
-    "message": "Hamısı sadəcə ildə $PRICE$!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "ay"
@@ -3305,10 +3211,10 @@
     "message": "WebAuthn kimlik doğrulama"
   },
   "readSecurityKey": {
-    "message": "Güvənlik açarını oxu"
+    "message": "Təhlükəsizlik açarını oxu"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
+    "message": "Təhlükəsizlik açarı ilə əlaqə gözlənilir..."
   },
   "hideMyEmail": {
     "message": "E-poçt ünvanımı alıcılardan gizlət."
@@ -3344,10 +3250,10 @@
     "message": "Ana parolu güncəllə"
   },
   "updateMasterPasswordWarning": {
-    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün onu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış edəcəksiniz və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz təzəlikcə təşkilatınızdakı bir inzibatçı tərəfindən dəyişdirildi. Seyfə erişmək üçün onu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış edəcəksiniz və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
+    "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Seyfə erişmək üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı sessiyadan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saata qədər aktiv qalmağa davam edə bilər."
   },
   "changePasswordWarning": {
     "message": "Parolunuzu dəyişdirdikdən sonra yeni parolunuzla giriş etməli olacaqsınız. Digər cihazlardakı aktiv sessiyalar bir saat ərzində sonlandırılacaq."
@@ -3553,7 +3459,7 @@
     "message": "Daha çox seçim"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ üçün seçimlər",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3468,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Paylaşılan qovluq yoxdur"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ üzrə filtrlə",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3574,7 +3480,7 @@
     }
   },
   "sessionTimeout": {
-    "message": "Seansınızın vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
+    "message": "Sessiyanızın vaxtı bitdi. Lütfən geri qayıdıb yenidən giriş etməyə cəhd edin."
   },
   "exportingPersonalVaultTitle": {
     "message": "Fərdi seyfin xaricə köçürülməsi"
@@ -4476,7 +4382,7 @@
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Güvənlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
+    "message": "Təhlükəsizlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "launchDuo": {
     "message": "Duo-nu brauzerdə başlat"
@@ -5267,10 +5173,17 @@
     "message": "Hesabın e-poçtunu dəyişdir"
   },
   "passkeyLogin": {
-    "message": "Keçid açarı ilə giriş edilsin?"
+    "message": "Keçid açarı ilə giriş edilsin?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "Keçid açarı saxlanılsın?"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "Yeni giriş kimi saxla"
@@ -5282,7 +5195,11 @@
     "message": "Bu sayt üçün uyuşan giriş məlumatı yoxdur"
   },
   "overwritePasskey": {
-    "message": "Keçid açarının üzərinə yazılsın?"
+    "message": "Keçid açarının üzərinə yazılsın?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "Keçid açarı saxlanıla bilmir"
@@ -5303,7 +5220,7 @@
     "message": "Ekranı çəkməyə icazə ver"
   },
   "allowScreenshotsDesc": {
-    "message": "Bitwarden masaüstü tətbiqinin ekran şəkillərində yaxalanmasına və uzaq masaüstü seanslarında nümayiş etdirilməsinə icazə verin. Bunu sıradan çıxartsanız, bəzi xarici ekranlarda erişim əngəllənəcək."
+    "message": "Bitwarden masaüstü tətbiqinin ekran şəkillərində yaxalanmasına və uzaq masaüstü sessiyalarında nümayiş etdirilməsinə icazə verin. Bunu sıradan çıxartsanız, bəzi xarici ekranlarda erişim əngəllənəcək."
   },
   "confirmWindowStillVisibleTitle": {
     "message": "Pəncərənin hələ də göründüyünü təsdiqlə"
@@ -5815,7 +5732,7 @@
     "message": "Daxili kimlik doğrulayıcı"
   },
   "secureFileStorage": {
-    "message": "Güvənli fayl anbarı"
+    "message": "Güvənli fayl deposu"
   },
   "emergencyAccess": {
     "message": "Fövqəladə hal erişimi"
@@ -5903,10 +5820,10 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını Sistem kilidi açılanda olaraq təyin etdi."
+    "message": "Təşkilatınız, sessiyanın ilkin bitmə vaxtını \"Sistem kilidlənəndə\" olaraq təyin etdi."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını Yenidən başladılanda olaraq təyin etdi."
+    "message": "Təşkilatınız, sessiyanın ilkin bitmə vaxtını \"Yenidən başladılanda\" olaraq təyin etdi."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "Maksimum bitmə vaxtı $HOURS$ saat $MINUTES$ dəqiqə dəyərini aşa bilməz",
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

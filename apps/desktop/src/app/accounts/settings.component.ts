@@ -473,6 +473,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
     await this.keyService.refreshAdditionalKeys(activeUserId);
 
     // Validate the key is stored in case biometrics fail.
