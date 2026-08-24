@@ -28,6 +28,7 @@ import { IconComponent } from "../icon";
 import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
+import { OverflowItemDirective } from "../overflow-list";
 import { SearchComponent } from "../search/search.component";
 
 import { FilterOptionComponent } from "./filter-option.component";
@@ -96,6 +97,8 @@ const CLEAR_FILTER = Symbol("clear-filter");
   ],
   hostDirectives: [
     { directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth", "maxWidthClass"] },
+    // Lets a `bitOverflowList` ancestor measure the chip; inert with no such ancestor.
+    OverflowItemDirective,
   ],
 })
 export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPresenter, OnInit {

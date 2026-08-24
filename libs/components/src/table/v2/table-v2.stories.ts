@@ -276,6 +276,130 @@ class DemoFilterableTableComponent {
   }
 }
 
+@Component({
+  selector: "demo-kitchen-sink-table",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [
+    BitTableV2Component,
+    BitColumnComponent,
+    BitCellDefDirective,
+    BitHeaderCellComponent,
+    BitCellComponent,
+    BitTableToolbarComponent,
+    BitTablePaginatorComponent,
+    FilterMenuModule,
+    SearchModule,
+    ButtonModule,
+    LayoutComponent,
+  ],
+  template: `
+    <bit-layout>
+      <bit-table-v2 [tableDef]="table" [filter]="filter">
+        <bit-table-toolbar>
+          <bit-search class="tw-flex-1" placeholder="Search" aria-label="Search"></bit-search>
+          <button
+            bitButton
+            buttonType="secondary"
+            type="button"
+            slot="end"
+            startIcon="bwi-download"
+          >
+            Import
+          </button>
+          <button bitButton buttonType="secondary" type="button" slot="end" startIcon="bwi-sliders">
+            Customize
+          </button>
+          <button bitButton buttonType="primary" type="button" slot="end" startIcon="bwi-plus">
+            Add
+          </button>
+
+          <bit-filter-menu key="type" placeholderText="Type" unsetLabel="All">
+            @for (option of typeOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-divider></bit-filter-divider>
+
+          <bit-filter-menu key="vault" placeholderText="Vault" multiple>
+            @for (option of vaultOptions; track option.value) {
+              <bit-filter-option [value]="option.value">
+                {{ option.label }}
+              </bit-filter-option>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-menu key="collection" placeholderText="Collections" multiple>
+            @for (org of collectionOrgs; track org.name) {
+              <bit-filter-section [label]="org.name" collapsible>
+                @for (collection of org.collections; track collection.id) {
+                  <bit-filter-option [value]="collection.id">
+                    {{ collection.name }}
+                  </bit-filter-option>
+                }
+              </bit-filter-section>
+            }
+          </bit-filter-menu>
+
+          <bit-filter-toggle
+            key="favorite"
+            label="Favorites"
+            icon="bwi-star"
+            iconActive="bwi-star-f"
+          ></bit-filter-toggle>
+        </bit-table-toolbar>
+
+        <bit-column sortable defaultSort="asc">
+          <bit-header-cell>Name</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+        </bit-column>
+        <bit-column sortable width="120px">
+          <bit-header-cell>Type</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.type; let row">{{ row.type }}</bit-cell>
+        </bit-column>
+        <bit-column width="160px">
+          <bit-header-cell>Vault</bit-header-cell>
+          <bit-cell *bitCellDef="table.columns.vault; let row">{{ vaultName(row.vault) }}</bit-cell>
+        </bit-column>
+
+        <bit-table-paginator [pageSize]="5" [pageSizeOptions]="pageSizeOptions">
+        </bit-table-paginator>
+      </bit-table-v2>
+    </bit-layout>
+  `,
+})
+class DemoKitchenSinkTableComponent {
+  protected readonly data = signal(VAULT_ROWS);
+  protected readonly table = defineTable<VaultRow>(this.data);
+
+  protected readonly pageSizeOptions = [5, 10, 25];
+
+  protected readonly filter = (row: VaultRow, f: Partial<VaultFilters>) =>
+    (!f.search || row.name.toLowerCase().includes(f.search.toLowerCase())) &&
+    (f.type == null || row.type === f.type) &&
+    (!f.vault?.length || f.vault.includes(row.vault)) &&
+    (!f.collection?.length || f.collection.some((c) => row.collectionIds.includes(c))) &&
+    (!f.favorite || row.favorite);
+
+  protected readonly typeOptions = (["login", "card", "note"] as const).map((value) => ({
+    value,
+    label: value,
+  }));
+
+  protected readonly vaultOptions = VAULTS.map((vault) => ({
+    value: vault.id,
+    label: vault.name,
+  }));
+
+  protected readonly collectionOrgs = COLLECTION_ORGS;
+
+  protected vaultName(id: string): string {
+    return VAULTS.find((v) => v.id === id)?.name ?? id;
+  }
+}
+
 /**
  * Search on its own, with no filter chips. A projected `<bit-search>` registers the
  * `search` key with the table the same way a chip registers its own key, so the
@@ -531,6 +655,7 @@ export default {
         SkeletonTextComponent,
         DemoStatusColumnComponent,
         DemoFilterableTableComponent,
+        DemoKitchenSinkTableComponent,
         DemoSearchableTableComponent,
         DemoUrlSyncTableComponent,
         DemoFormTableComponent,
@@ -1077,6 +1202,18 @@ export const FillPage: Story = {
 export const Filterable: Story = {
   render: () => ({
     template: `<demo-filterable-table></demo-filterable-table>`,
+  }),
+};
+
+/**
+ * The toolbar at full stretch: search, every kind of filter chip, three `slot=end`
+ * action buttons, and a paginator. Useful for checking the responsive behaviour —
+ * below `md` the chip row collapses into the filter dialog and the action buttons
+ * take a full-width row of their own, split evenly.
+ */
+export const KitchenSink: Story = {
+  render: () => ({
+    template: `<demo-kitchen-sink-table></demo-kitchen-sink-table>`,
   }),
 };
 
