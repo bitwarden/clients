@@ -126,6 +126,24 @@ export const Edit: Story = {
   decorators: [atUrl("/organizations/org-1/access-rules/rule-1")],
 };
 
+/** Edit mode on a deactivated rule: the header badge reads "Off" and the Status checkbox is clear. */
+export const EditInactive: Story = {
+  decorators: [
+    moduleMetadata({
+      providers: [
+        { provide: ActivatedRoute, useValue: routeStub({ accessRuleId: "rule-1" }) },
+        {
+          provide: AccessRuleSdkService,
+          useValue: {
+            ...pamApi,
+            getAccessRule: () => Promise.resolve({ ...SAMPLE_RULE, enabled: false }),
+          } satisfies Partial<AccessRuleSdkService>,
+        },
+      ],
+    }),
+  ],
+};
+
 /**
  * The save-failure callout. Edit mode, with the update rejected: the form arrives valid and
  * populated, so pressing Save goes straight to the failure rather than to validation.
