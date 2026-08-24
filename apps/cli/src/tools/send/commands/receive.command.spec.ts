@@ -4,10 +4,20 @@ import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { SendTokenService, SendAccessToken } from "@bitwarden/common/auth/send-access";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import {
+  SendTokenService,
+  SendAccessToken,
+  passwordHashB64Required,
+} from "@bitwarden/common/auth/send-access";
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PRODUCTION_REGIONS } from "@bitwarden/common/platform/services/default-environment.service";
+import {
+  CloudEnvironment,
+  PRODUCTION_REGIONS,
+} from "@bitwarden/common/platform/services/default-environment.service";
 import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-access";
 import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -41,12 +51,9 @@ describe("SendReceiveCommand", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    environmentService.environment$ = of({
-      getUrls: () => ({
-        api: "https://api.bitwarden.com",
-        webVault: "https://vault.bitwarden.com",
-      }),
-    } as any);
+    environmentService.environment$ = of(
+      new CloudEnvironment(PRODUCTION_REGIONS.find((r) => r.key === Region.US)),
+    );
 
     environmentService.availableRegions.mockReturnValue(PRODUCTION_REGIONS);
 
@@ -74,6 +81,18 @@ describe("SendReceiveCommand", () => {
 
       expect(response.success).toBe(false);
       expect(response.message).toContain("Failed to parse");
+    });
+
+    it("should refuse a mismatched domain in non-interactive mode", async () => {
+      process.env.BW_NOINTERACTION = "true";
+
+      const response = await command.run("https://send.example.com/#/send/abc123/key456", {});
+
+      expect(response.success).toBe(false);
+      expect(response.message).toContain("does not match the configured domain");
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+
+      delete process.env.BW_NOINTERACTION;
     });
 
     it("should return error when URL is missing send ID or key", async () => {
@@ -459,8 +478,9 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://send.bitwarden.com/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
+      const { apiUrl, identityUrl } = await (command as any).resolveSendServer(new URL(sendUrl));
       expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
     });
 
     it("should resolve send.bitwarden.eu to api.bitwarden.eu", async () => {
@@ -471,20 +491,273 @@ describe("SendReceiveCommand", () => {
       const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
       await command.run(sendUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(sendUrl));
+      const { apiUrl, identityUrl } = await (command as any).resolveSendServer(new URL(sendUrl));
       expect(apiUrl).toBe("https://api.bitwarden.eu");
+      expect(identityUrl).toBe("https://identity.bitwarden.eu");
     });
 
     it("should handle custom domain URLs", async () => {
-      const mockToken = new SendAccessToken("test-token", Date.now() + 3600000);
-      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
-      jest.spyOn(command as any, "accessSendWithToken").mockResolvedValue(Response.success());
-
       const customUrl = "https://custom.example.com/#/send/abc123/key456";
-      await command.run(customUrl, {});
 
-      const apiUrl = await (command as any).getApiUrl(new URL(customUrl));
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL(customUrl));
+
       expect(apiUrl).toBe("https://custom.example.com/api");
+      expect(identityUrl).toBe("https://custom.example.com/identity");
+      expect(trusted).toBe(false);
+      expect(isConfiguredServer).toBe(false);
+    });
+
+    it("treats the configured region as its own minting authority", async () => {
+      const sendUrl = "https://send.bitwarden.com/#/send/abc123/key456";
+
+      const { trusted, isConfiguredServer } = await (command as any).resolveSendServer(
+        new URL(sendUrl),
+      );
+
+      expect(trusted).toBe(true);
+      expect(isConfiguredServer).toBe(true);
+    });
+
+    // send.bitwarden.com is a vanity host; the link a recipient actually copies out of their
+    // browser is the web vault origin, which is not any region's urls.send.
+    it("trusts a cloud web vault origin from a differently-configured CLI", async () => {
+      environmentService.environment$ = of(
+        new CloudEnvironment(PRODUCTION_REGIONS.find((r) => r.key === Region.EU)),
+      );
+
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL("https://vault.bitwarden.com/#/send/abc123/key456"));
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
+      expect(isConfiguredServer).toBe(false);
+    });
+
+    it("trusts a Gov web vault origin from a differently-configured CLI", async () => {
+      const { apiUrl, identityUrl, trusted } = await (command as any).resolveSendServer(
+        new URL("https://vault.bitwarden-gov.com/#/send/abc123/key456"),
+      );
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden-gov.com");
+      expect(identityUrl).toBe("https://identity.bitwarden-gov.com");
+    });
+
+    it("still resolves the configured region's own web vault origin", async () => {
+      const { apiUrl, identityUrl, trusted, isConfiguredServer } = await (
+        command as any
+      ).resolveSendServer(new URL("https://vault.bitwarden.com/#/send/abc123/key456"));
+
+      expect(trusted).toBe(true);
+      expect(apiUrl).toBe("https://api.bitwarden.com");
+      expect(identityUrl).toBe("https://identity.bitwarden.com");
+      expect(isConfiguredServer).toBe(true);
+    });
+
+    it("trusts another Bitwarden region but does not treat it as the configured server", async () => {
+      // Configured for US cloud; this link is EU. No trust prompt is warranted, but the token must
+      // still be minted at EU's identity server rather than at api.bitwarden.eu with a US token.
+      const sendUrl = "https://vault.bitwarden.eu/#/send/abc123/key456";
+
+      const { identityUrl, trusted, isConfiguredServer } = await (command as any).resolveSendServer(
+        new URL(sendUrl),
+      );
+
+      expect(identityUrl).toBe("https://identity.bitwarden.eu");
+      expect(trusted).toBe(true);
+      expect(isConfiguredServer).toBe(false);
+    });
+  });
+
+  describe("Token minting authority", () => {
+    const foreignServer = {
+      apiUrl: "https://custom.example.com/api",
+      identityUrl: "https://custom.example.com/identity",
+      trusted: false,
+      isConfiguredServer: false,
+    };
+
+    /** Parses the form-encoded body of the mint request the command issued. */
+    const mintedFields = async (): Promise<Record<string, string>> => {
+      const request = apiService.nativeFetch.mock.calls[0][0] as Request;
+      return Object.fromEntries(new URLSearchParams(await request.text()).entries());
+    };
+
+    const respondWith = (status: number, body: unknown) =>
+      apiService.nativeFetch.mockResolvedValue({
+        status,
+        headers: { get: () => "application/json" },
+        json: async () => body,
+      } as any);
+
+    // Ties resolveSendServer to requestToken through run(). The unit tests below hand requestToken a
+    // SendServer directly, so without this a regression that marked another region as the configured
+    // server would leave every other test passing.
+    it("mints and spends a cross-region Send at that region, end to end", async () => {
+      // beforeEach configures US cloud; this link is EU.
+      respondWith(200, { access_token: "eu-token", expires_in: 3600 });
+      sendApiService.postSendAccess.mockResolvedValue({} as any);
+      jest
+        .spyOn(SendAccess.prototype, "decrypt")
+        .mockResolvedValueOnce({ type: SendType.Text, text: { text: "secret" } } as any);
+      const stdoutSpy = jest.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+      const response = await command.run("https://vault.bitwarden.eu/#/send/abc123/key456", {});
+
+      expect(response.success).toBe(true);
+
+      // Minted at EU's identity server, never at the configured US one.
+      expect((apiService.nativeFetch.mock.calls[0][0] as Request).url).toBe(
+        "https://identity.bitwarden.eu/connect/token",
+      );
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+      expect(sendTokenService.getSendAccessToken$).not.toHaveBeenCalled();
+
+      // ...and spent at that same region's API.
+      expect(sendApiService.postSendAccess).toHaveBeenCalledWith(
+        expect.objectContaining({ token: "eu-token" }),
+        "https://api.bitwarden.eu",
+      );
+
+      stdoutSpy.mockRestore();
+    });
+
+    it("mints a foreign-origin Send at that origin, never the configured server", async () => {
+      respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
+
+      const result = await (command as any).requestToken(foreignServer, testSendId);
+
+      expect(result).toBeInstanceOf(SendAccessToken);
+      expect(result.token).toBe("foreign-token");
+      // The configured server must not be asked to mint a token for a Send it does not host.
+      expect(sendTokenService.tryGetSendAccessToken$).not.toHaveBeenCalled();
+      expect(sendTokenService.getSendAccessToken$).not.toHaveBeenCalled();
+
+      const request = apiService.nativeFetch.mock.calls[0][0] as Request;
+      expect(request.url).toBe("https://custom.example.com/identity/connect/token");
+    });
+
+    it("routes the configured server through the shared token service", async () => {
+      const mockToken = new SendAccessToken("configured-token", Date.now() + 3600000);
+      sendTokenService.tryGetSendAccessToken$.mockReturnValue(of(mockToken));
+
+      const result = await (command as any).requestToken(
+        {
+          apiUrl: "https://api.bitwarden.com",
+          identityUrl: "https://identity.bitwarden.com",
+          trusted: true,
+          isConfiguredServer: true,
+        },
+        testSendId,
+      );
+
+      expect(result).toBe(mockToken);
+      expect(sendTokenService.tryGetSendAccessToken$).toHaveBeenCalledWith(testSendId);
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
+    });
+
+    it("refuses to send credentials to a non-https server", async () => {
+      const result = await (command as any).requestToken(
+        { ...foreignServer, identityUrl: "http://custom.example.com/identity" },
+        testSendId,
+        { kind: "password", passwordHashB64: "hash" },
+      );
+
+      expect(result.kind).toBe("unknown");
+      expect(result.error).toContain("https");
+      expect(apiService.nativeFetch).not.toHaveBeenCalled();
+    });
+
+    it("rejects a token response with no usable expiry", async () => {
+      respondWith(200, { access_token: "foreign-token" });
+
+      const result = await (command as any).requestToken(foreignServer, testSendId);
+
+      expect(result.kind).toBe("unknown");
+      expect(result.error).toContain("expires_in");
+    });
+
+    describe("grant request body", () => {
+      beforeEach(() => {
+        respondWith(200, { access_token: "foreign-token", expires_in: 3600 });
+      });
+
+      it("sends the send_access grant with no credentials", async () => {
+        await (command as any).requestToken(foreignServer, testSendId);
+
+        expect(await mintedFields()).toEqual({
+          grant_type: "send_access",
+          client_id: "send",
+          scope: "api.send.access",
+          send_id: testSendId,
+        });
+      });
+
+      it("sends the password hash verbatim", async () => {
+        await (command as any).requestToken(foreignServer, testSendId, {
+          kind: "password",
+          passwordHashB64: "aGFzaCt3aXRoL3NwZWNpYWxzPQ==",
+        });
+
+        expect((await mintedFields()).password_hash_b64).toBe("aGFzaCt3aXRoL3NwZWNpYWxzPQ==");
+      });
+
+      it("sends the email for the email grant", async () => {
+        await (command as any).requestToken(foreignServer, testSendId, {
+          kind: "email",
+          email: "user+tag@example.com",
+        });
+
+        const fields = await mintedFields();
+        expect(fields.email).toBe("user+tag@example.com");
+        expect(fields.otp).toBeUndefined();
+      });
+
+      it("sends email and otp for the email_otp grant", async () => {
+        await (command as any).requestToken(foreignServer, testSendId, {
+          kind: "email_otp",
+          email: "user+tag@example.com",
+          otp: "012345" as any,
+        });
+
+        expect(await mintedFields()).toMatchObject({
+          email: "user+tag@example.com",
+          otp: "012345",
+        });
+      });
+    });
+
+    describe("error shape mapping", () => {
+      it.each([
+        ["invalid_request", "password_hash_b64_required"],
+        ["invalid_request", "email_required"],
+        ["invalid_request", "email_and_otp_required"],
+        ["invalid_grant", "password_hash_b64_invalid"],
+        ["invalid_grant", "send_id_invalid"],
+      ])("preserves %s / %s for callers to branch on", async (error, sendAccessErrorType) => {
+        respondWith(400, { error, send_access_error_type: sendAccessErrorType });
+
+        const result = await (command as any).requestToken(foreignServer, testSendId);
+
+        expect(result.kind).toBe("expected_server");
+        expect(result.error.error).toBe(error);
+        expect(result.error.send_access_error_type).toBe(sendAccessErrorType);
+      });
+
+      it("matches the predicate callers actually use", async () => {
+        respondWith(400, {
+          error: "invalid_request",
+          send_access_error_type: "password_hash_b64_required",
+        });
+
+        const result = await (command as any).requestToken(foreignServer, testSendId);
+
+        expect(passwordHashB64Required(result.error)).toBe(true);
+      });
     });
   });
 });
