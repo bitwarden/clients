@@ -30,18 +30,24 @@ import {
   SectionHeaderComponent,
 } from "@bitwarden/components";
 import { safeProvider } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../layouts/header/header.module";
 import { SharedModule } from "../../../shared";
 
-import { BasePolicyEditDefinition, PolicyDialogComponent } from "./base-policy-edit.component";
+import {
+  BasePolicyEditDefinition,
+  PolicyDialogComponent,
+  policyTitleKeys,
+  policyDescriptionKeys,
+} from "./base-policy-edit.component";
 import { PolicyEditDrawerComponent } from "./policy-edit-drawer.component";
 import { PolicyListService, PolicySection } from "./policy-list.service";
 import { POLICY_EDIT_REGISTER } from "./policy-register-token";
 
 @Component({
   templateUrl: "policies.component.html",
-  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule],
+  imports: [SharedModule, HeaderModule, SectionHeaderComponent, ItemModule, Vfo1I18nPipe],
   providers: [
     safeProvider({
       provide: PolicyListService,
@@ -105,6 +111,9 @@ export class PoliciesComponent {
         return policiesEnabledMap;
       }),
     );
+
+  protected readonly nameKeys = policyTitleKeys;
+  protected readonly descriptionKeys = policyDescriptionKeys;
 
   protected readonly policySections$: Observable<PolicySection[]> = this.organization$.pipe(
     switchMap((organization) =>

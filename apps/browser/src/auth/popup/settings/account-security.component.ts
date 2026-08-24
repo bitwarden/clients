@@ -20,7 +20,6 @@ import {
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { NudgesService, NudgeType } from "@bitwarden/angular/vault";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
-import { LockService } from "@bitwarden/auth/common";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { getFirstPolicy } from "@bitwarden/common/admin-console/services/policy/default-policy.service";
@@ -60,6 +59,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 import {
   NativeMessagingPermissionDialogComponent,
@@ -556,7 +556,7 @@ export class AccountSecurityComponent implements OnInit, OnDestroy {
 
   async lock() {
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
-    await this.lockService.lock(activeUserId);
+    await this.lockService.lock(activeUserId, LockSource.Manual);
   }
 
   async logOut() {

@@ -3,7 +3,7 @@ import { ActivatedRoute, convertToParamMap, Router } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -22,6 +22,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
+import { LockService } from "@bitwarden/unlock";
 import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../core/tests";
