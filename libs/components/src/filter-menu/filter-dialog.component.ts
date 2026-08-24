@@ -1,5 +1,14 @@
 import { NgTemplateOutlet } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -12,6 +21,7 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../overflow-list";
+import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterPresenter } from "./filter-tokens";
 
@@ -46,6 +56,11 @@ export interface FilterDialogParams {
 })
 export class FilterDialogComponent {
   private readonly dialogRef = inject(DialogRef);
+  private readonly injector = inject(Injector);
+
+  // Focus target when Clear all removes itself. `read` is explicit: the element hosts
+  // `bitButton`, so the default read would hand back that component, not the element.
+  private readonly doneButtonEl = viewChild("doneButton", { read: ElementRef<HTMLElement> });
 
   /** The filters to present, in row order. */
   protected readonly filters = inject<FilterDialogParams>(DIALOG_DATA).filters;
@@ -101,6 +116,15 @@ export class FilterDialogComponent {
   /** Reset every filter's selection. */
   protected clearAll(): void {
     this.filters.forEach((filter) => filter.clear());
+  }
+
+  /**
+   * Clearing removes the Clear all button itself, so pass focus to Done — the control
+   * that outlives it in the same footer — instead of dropping it to the document body.
+   */
+  protected clearAllAndKeepFocus(): void {
+    this.clearAll();
+    focusAfterRender(this.injector, () => this.doneButtonEl()?.nativeElement);
   }
 
   /** Dismiss the dialog. Selections apply live, so this just closes. */

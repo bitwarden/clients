@@ -7,7 +7,6 @@ import {
   Injector,
   OnInit,
   TemplateRef,
-  afterNextRender,
   booleanAttribute,
   computed,
   contentChildren,
@@ -42,6 +41,7 @@ import { OverflowItemDirective } from "../overflow-list";
 import { radioInputClasses } from "../radio-button";
 import { SearchComponent } from "../search/search.component";
 import { BitwardenIcon } from "../shared/icon";
+import { focusAfterRender } from "../utils/focus-after-render";
 
 import { FilterOptionComponent } from "./filter-option.component";
 import { FilterSectionComponent } from "./filter-section.component";
@@ -294,6 +294,9 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
 
   /** The `role="tree"` container, so key handling can move focus between its rows. */
   private readonly treeEl = viewChild<ElementRef<HTMLElement>>("tree");
+  // `read` is explicit: the trigger button also hosts `bit-chip-content`, so the default
+  // read would hand back that component rather than the element.
+  private readonly chipTriggerEl = viewChild("chipTrigger", { read: ElementRef<HTMLElement> });
   private readonly injector = inject(Injector);
 
   /**
@@ -633,13 +636,12 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
 
   /** Moves DOM focus onto the active row once the roving tabindex has been rebound. */
   private focusActiveRow(): void {
-    afterNextRender(
-      () => {
-        const rows =
-          this.treeEl()?.nativeElement.querySelectorAll<HTMLElement>('[role="treeitem"]');
-        rows?.[this.activeIndex()]?.focus();
-      },
-      { injector: this.injector },
+    focusAfterRender(
+      this.injector,
+      () =>
+        this.treeEl()?.nativeElement.querySelectorAll<HTMLElement>('[role="treeitem"]')[
+          this.activeIndex()
+        ],
     );
   }
 
@@ -733,6 +735,21 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     const normalized = this.multiple() && !Array.isArray(value) && value != null ? [value] : value;
     this._value.set(normalized);
     this.committedCount.set(this.selectedCount());
+  }
+
+  /**
+   * Clearing from the menu's footer removes that button, so hand focus back to the
+   * option list rather than letting it fall to the document body.
+   */
+  protected clearFromMenu(): void {
+    this.clear();
+    this.focusActiveRow();
+  }
+
+  /** Likewise for the chip's dismiss button — focus returns to the chip itself. */
+  protected clearFromChip(): void {
+    this.clear();
+    focusAfterRender(this.injector, () => this.chipTriggerEl()?.nativeElement);
   }
 
   /** Clears the selection. Wired to the dismiss button, the menu's Clear footer, and the dialog. */

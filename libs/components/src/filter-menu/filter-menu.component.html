@@ -10,6 +10,7 @@
     [disabled]="disabled()"
     [title]="displayLabel()"
     #menuTrigger="menuTrigger"
+    #chipTrigger
   >
     <span class="tw-block tw-min-w-0 tw-truncate">{{ displayLabel() }}</span>
   </button>
@@ -22,7 +23,7 @@
       type="button"
       [attr.aria-label]="'removeItem' | i18n: displayLabel()"
       [disabled]="disabled()"
-      (click)="clear()"
+      (click)="clearFromChip()"
     ></button>
   }
 </bit-chip-content>
@@ -294,7 +295,7 @@
         size="small"
         type="button"
         startIcon="bwi-clear"
-        (click)="clear()"
+        (click)="clearFromMenu()"
       >
         {{ "clear" | i18n }}
       </button>

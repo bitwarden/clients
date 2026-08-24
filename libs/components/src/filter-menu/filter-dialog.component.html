@@ -88,7 +88,7 @@
           type="button"
           class="tw-ms-auto"
           startIcon="bwi-clear"
-          (click)="clearAll()"
+          (click)="clearAllAndKeepFocus()"
         >
           {{ "clearAll" | i18n }}
         </button>
@@ -99,6 +99,7 @@
         type="button"
         [class.tw-ms-auto]="!selectedCount()"
         (click)="close()"
+        #doneButton
       >
         {{ "done" | i18n }}
       </button>

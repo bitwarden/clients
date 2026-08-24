@@ -1,6 +1,8 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
+  Injector,
   computed,
   contentChildren,
   effect,
@@ -26,6 +28,7 @@ import {
   OverflowListDirective,
   OverflowTriggerDirective,
 } from "../../overflow-list";
+import { focusAfterRender } from "../../utils/focus-after-render";
 import { isAtOrLargerThanBreakpointSignal } from "../../utils/responsive-utils";
 
 import { BitTableV2Component } from "./table-v2.component";
@@ -100,6 +103,8 @@ export class BitTableToolbarComponent {
   ]);
 
   private readonly overflowList = viewChild(OverflowListDirective);
+  private readonly filterRowEl = viewChild<ElementRef<HTMLElement>>("filterRow");
+  private readonly injector = inject(Injector);
 
   /**
    * Whether the filter row is collapsed to the single trigger + dialog. Below `md`
@@ -214,5 +219,10 @@ export class BitTableToolbarComponent {
    */
   protected clearAll(): void {
     this.filters().forEach((filter) => filter.clear());
+    // Clearing removes this very button, which would drop focus to the document body.
+    // Hand it to the first chip in the row the button belonged to.
+    focusAfterRender(this.injector, () =>
+      this.filterRowEl()?.nativeElement.querySelector<HTMLElement>("button[bit-chip-content]"),
+    );
   }
 }
