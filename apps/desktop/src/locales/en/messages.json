@@ -11,6 +11,18 @@
   "allItems": {
     "message": "All items"
   },
+  "allVaultItems": {
+    "message": "All vault items"
+  },
+  "vaults": {
+    "message": "Vaults"
+  },
+  "tools": {
+    "message": "Tools"
+  },
+  "manage": {
+    "message": "Manage"
+  },
   "favorites": {
     "message": "Favorites"
   },

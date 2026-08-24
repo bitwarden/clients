@@ -26,6 +26,7 @@ import {
   combineLatest,
   debounceTime,
   distinctUntilChanged,
+  of,
 } from "rxjs";
 import { filter, map, shareReplay, concatMap, tap } from "rxjs/operators";
 
@@ -117,6 +118,14 @@ import {
   VaultBatchBarService,
   VaultOrganizationUserNotificationsComponent,
   Vfo1TerminologyService,
+  ALL_ITEMS_SCOPE,
+  cipherInScope,
+  collectionInScope,
+  FilterFunction,
+  organizationInScope,
+  resolveVaultScope,
+  VaultNavService,
+  VaultScopeType,
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
@@ -199,6 +208,7 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   private totpService = inject(TotpService);
   private vfo1TerminologyService = inject(Vfo1TerminologyService);
   private folderService = inject(FolderService);
+  private vaultNavService = inject(VaultNavService);
 
   private destroyRef = inject(DestroyRef);
   private cipherFormConfigService = inject(CipherFormConfigService);
@@ -251,10 +261,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     { initialValue: [] },
   );
 
-  protected readonly vfo1Foundation = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
-    { initialValue: false },
-  );
+  private readonly vfo1Foundation$ = this.configService
+    .getFeatureFlag$(FeatureFlag.VFO1Foundation)
+    .pipe(shareReplay({ refCount: true, bufferSize: 1 }));
+
+  protected readonly vfo1Foundation = toSignal(this.vfo1Foundation$, { initialValue: false });
 
   private organizations$: Observable<Organization[]> = this.accountService.activeAccount$.pipe(
     map((a) => a?.id),
@@ -262,22 +273,52 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     switchMap((id) => this.organizationService.organizations$(id)),
   );
 
-  protected readonly showAddCipherBtn$ = combineLatest([
+  /** The vault the `:vaultId` segment scopes this page to; always All items on the legacy nav. */
+  private readonly vaultScope$ = this.vfo1Foundation$.pipe(
+    switchMap((vfo1Foundation) =>
+      vfo1Foundation
+        ? combineLatest([
+            this.route.paramMap.pipe(map((params) => params.get("vaultId"))),
+            this.vaultNavService.viewModel$,
+          ]).pipe(map(([vaultId, nav]) => resolveVaultScope(vaultId, nav) ?? ALL_ITEMS_SCOPE))
+        : of(ALL_ITEMS_SCOPE),
+    ),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  /** The organization the page is pinned to, whichever nav the user is on. */
+  private readonly selectedOrganization$ = combineLatest([
+    this.vfo1Foundation$,
+    this.vaultScope$,
     this.routedVaultFilterService.filter$,
     this.organizations$,
   ]).pipe(
-    map(([filter, organizations]) => {
-      const selectedOrg = organizations?.find((org) => org.id === filter?.organizationId);
-      if (selectedOrg && !selectedOrg.enabled) {
+    map(([vfo1Foundation, scope, filter, organizations]) => {
+      const organizationId =
+        vfo1Foundation && scope.type === VaultScopeType.Organization
+          ? scope.organizationId
+          : filter?.organizationId;
+      return organizations?.find((org) => org.id === organizationId);
+    }),
+  );
+
+  protected readonly showAddCipherBtn$ = combineLatest([
+    this.vfo1Foundation$,
+    this.vaultScope$,
+    this.routedVaultFilterService.filter$,
+    this.selectedOrganization$,
+  ]).pipe(
+    map(([vfo1Foundation, scope, filter, selectedOrganization]) => {
+      if (selectedOrganization && !selectedOrganization.enabled) {
         return false;
+      }
+
+      if (vfo1Foundation) {
+        return scope.type !== VaultScopeType.Trash && scope.type !== VaultScopeType.Archive;
       }
 
       const emptyStateTypes: EmptyStateType[] = ["trash", "favorites", "archive"];
-      if (filter?.type && emptyStateTypes.includes(filter.type as EmptyStateType)) {
-        return false;
-      }
-
-      return true;
+      return !(filter?.type && emptyStateTypes.includes(filter.type as EmptyStateType));
     }),
   );
 
@@ -285,14 +326,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
    * Whether a new cipher can be created in the currently selected organization.
    * `false` when the target organization is suspended, since items cannot be saved to it.
    */
-  protected readonly canCreateCipher$ = combineLatest([
-    this.routedVaultFilterService.filter$,
-    this.organizations$,
-  ]).pipe(
-    map(([filter, organizations]) => {
-      const selectedOrg = organizations?.find((org) => org.id === filter?.organizationId);
-      return !selectedOrg || selectedOrg.enabled;
-    }),
+  protected readonly canCreateCipher$ = this.selectedOrganization$.pipe(
+    map((selectedOrganization) => !selectedOrganization || selectedOrganization.enabled),
   );
 
   protected deactivatedOrgIcon = DeactivatedOrg;
@@ -304,6 +339,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected refreshing = false;
   protected allOrganizations: Organization[] = [];
   protected allCollections: CollectionView[] = [];
+  protected scopedOrganizations: Organization[] = [];
+  protected scopedCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
 
   protected readonly searchPlaceholderText = computed(() =>
@@ -497,6 +534,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
     const filter$ = this.routedVaultFilterService.filter$;
 
+    /** Rows come from the route's scope under VFO1, and from the query-param filter otherwise. */
+    const rowFilter$ = combineLatest([this.vfo1Foundation$, this.vaultScope$, filter$]).pipe(
+      map(([vfo1Foundation, scope, filter]): FilterFunction =>
+        vfo1Foundation ? (cipher) => cipherInScope(cipher, scope) : createFilterFunction(filter),
+      ),
+    );
+
     const allCollections$ = this.collectionService.decryptedCollections$(activeUserId);
     const nestedCollections$ = allCollections$.pipe(
       map((collections) => getNestedCollectionTree(collections)),
@@ -537,12 +581,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
-      filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
-      concatMap(async ([ciphers, filter, searchText]) => {
+    const ciphers$ = combineLatest([allowedCiphers$, rowFilter$, this.currentSearchText$]).pipe(
+      filter(([ciphers, filterFunction]) => ciphers != undefined && filterFunction != undefined),
+      concatMap(async ([ciphers, filterFunction, searchText]) => {
         const failedCiphers =
           (await firstValueFrom(this.cipherService.failedToDecryptCiphers$(activeUserId))) ?? [];
-        const filterFunction = createFilterFunction(filter);
         // Append any failed to decrypt ciphers to the top of the cipher list
         const allCiphers = [...failedCiphers, ...ciphers];
 
@@ -604,23 +647,38 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       .pipe(
         tap(() => (this.refreshing = true)),
         switchMap(() =>
-          combineLatest([allCollections$, this.organizations$, ciphers$, collections$]),
+          combineLatest([
+            allCollections$,
+            this.organizations$,
+            ciphers$,
+            collections$,
+            this.vfo1Foundation$,
+            this.vaultScope$,
+          ]),
         ),
         takeUntil(this.destroy$),
       )
-      .subscribe(([allCollections, allOrganizations, ciphers, collections]) => {
-        this.allCollections = allCollections;
-        this.allOrganizations = allOrganizations;
-        this.ciphers = ciphers;
-        this.collectionsToDisplay = collections;
-        this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
-        this.performingInitialLoad = false;
-        this.refreshing = false;
+      .subscribe(
+        ([allCollections, allOrganizations, ciphers, collections, vfo1Foundation, scope]) => {
+          this.allCollections = allCollections;
+          this.allOrganizations = allOrganizations;
+          this.scopedCollections = vfo1Foundation
+            ? allCollections.filter((collection) => collectionInScope(collection, scope))
+            : allCollections;
+          this.scopedOrganizations = vfo1Foundation
+            ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
+            : allOrganizations;
+          this.ciphers = ciphers;
+          this.collectionsToDisplay = collections;
+          this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+          this.performingInitialLoad = false;
+          this.refreshing = false;
 
-        // Explicitly mark for check to ensure the view is updated
-        // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
-        this.changeDetectorRef.markForCheck();
-      });
+          // Explicitly mark for check to ensure the view is updated
+          // Some sources are not always emitted within the Angular zone (e.g. ciphers updated via WS server notifications)
+          this.changeDetectorRef.markForCheck();
+        },
+      );
 
     combineLatest([allCollections$, ciphers$.pipe(map((c) => c.length > 0))])
       .pipe(takeUntil(this.destroy$))
