@@ -428,12 +428,12 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
     });
 
     // (Re)build the selection model from config — in an effect, since the model's
-    // constructor writes a signal (not allowed in a computed). Scoped over the
-    // filtered rows for select-all.
+    // constructor writes a signal (not allowed in a computed). Scoped over the rows in display
+    // order (see {@link sorted}), so a capped select-all keeps the ones the user sees first.
     effect(() => {
       const config = this.selection();
       this._selectionModel.set(
-        config ? new TableSelectionModel<T>({ ...config, rows: this.filtered }) : undefined,
+        config ? new TableSelectionModel<T>({ ...config, rows: this.sorted }) : undefined,
       );
     });
 
@@ -689,14 +689,26 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    * `sortFn` or the default), then sliced to a projected paginator's page (unless
    * it's in server-side mode, where the data already holds only the page).
    */
-  protected readonly rows = computed(() => {
+  /**
+   * {@link filtered} in display order — the sort applied, but not the page slice.
+   *
+   * This, rather than `filtered`, is what the selection model scopes over: select-all is
+   * "everything the user can see", and where a `max` bounds it, the rows it keeps have to be the
+   * ones at the top of the list as displayed. Slicing an unsorted set would check rows scattered
+   * through the list instead.
+   */
+  readonly sorted = computed<T[]>(() => {
     const filtered = this.filtered();
     const sort = this.sort();
-    let sorted = filtered;
-    if (sort.column) {
-      const col = this.effectiveColumns().find((c) => c.name() === sort.column);
-      sorted = sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+    if (!sort.column) {
+      return filtered;
     }
+    const col = this.effectiveColumns().find((c) => c.name() === sort.column);
+    return sortRows(filtered, sort.column, sort.direction, sort.fn ?? col?.sortFn());
+  });
+
+  protected readonly rows = computed(() => {
+    const sorted = this.sorted();
     const paginator = this.paginator();
     if (paginator && !paginator.manual()) {
       const start = paginator.currentPage() * paginator.pageSize();

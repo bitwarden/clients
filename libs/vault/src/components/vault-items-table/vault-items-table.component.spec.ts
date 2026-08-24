@@ -1553,6 +1553,38 @@ describe("VaultItemsTableComponent", () => {
       expect(selectionModel().indeterminate()).toBe(false);
     });
 
+    /**
+     * A capped select-all keeps the rows at the top of the list *as displayed*, so it has to slice
+     * in sort order. Scoped over the pre-sort filtered set it would check rows scattered through
+     * the list while disabling every remaining checkbox — reading as broken.
+     */
+    it("caps in display order when the sort is reversed", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      // Descending by name — the reverse of the table's implicit ascending order.
+      bitTable().sort.set({ column: "name", direction: "desc" });
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      // The 500 highest names, i.e. the top of the list the user is looking at.
+      const expected = [...many]
+        .sort((a, b) => b.name.localeCompare(a.name))
+        .slice(0, MAX_SELECTION_COUNT)
+        .map((cipher) => cipher.id);
+      expect(
+        selectionModel()
+          .selected()
+          .map((cipher) => cipher.id)
+          .sort(),
+      ).toEqual(expected.sort());
+    });
+
     /** A second toggle has to clear a capped selection rather than leaving it stuck. */
     it("clears a capped select-all on the next toggle", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
