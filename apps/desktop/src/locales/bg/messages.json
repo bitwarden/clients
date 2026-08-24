@@ -12,7 +12,7 @@
     "message": "Любими"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Отбелязвайте елементи като любими, за да ги филтрирате тук."
   },
   "unfavorite": {
     "message": "Премахване от любимите"
@@ -120,7 +120,7 @@
     "message": "Моите папки"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Добавете папки към елементите, за да ги филтрирате тук."
   },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
@@ -525,17 +525,8 @@
   "launch": {
     "message": "Пускане"
   },
-  "launchWebsiteForName": {
-    "message": "Отваряне на уеб сайта за $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Посещаване на уеб сайта"
   },
   "copyValue": {
     "message": "Копиране на стойността",
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Код за потвърждаване (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Копиране на $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Копиране на частния ключ"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Показване на действията за бързо копиране в трезора"
   },
-  "copyNoteTitle": {
-    "message": "Копиране на бележката – $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "Няма подробности за копиране"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "Няма код за сигурност"
   },
-  "copyDetailsTitle": {
-    "message": "Копиране на подробностите за $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "Копиране на потребителското име"
   },
@@ -2179,9 +2136,6 @@
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "номер на карта"
-  },
   "premiumMembership": {
     "message": "Платен абонамент"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Можете да управлявате своя абонамент през уеб сайта bitwarden.com. Искате ли да се отвори?"
   },
-  "premiumRefresh": {
-    "message": "Опресняване на абонамента"
-  },
-  "premiumNotCurrentMember": {
-    "message": "В момента ползвате безплатен абонамент."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Платеният абонамент дава следните предимства:"
-  },
   "premiumSignUpStorage": {
     "message": "1 ГБ пространство за файлове, които се шифроват."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ пространство за файлове, които се шифрират.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за пробивите в сигурността, което спомага трезорът ви да е допълнително защитен."
-  },
-  "premiumSignUpTotp": {
-    "message": "Генериране на временни, еднократни кодове за двустепенно удостоверяване за регистрациите в трезора."
-  },
-  "premiumSignUpSupport": {
-    "message": "Приоритетна поддръжка."
-  },
-  "premiumSignUpFuture": {
-    "message": "Всички бъдещи ползи! Предстои въвеждането на още!"
   },
   "premiumPurchase": {
     "message": "Покупка на платен абонамент"
   },
   "premiumPurchaseAlertV2": {
     "message": "Можете да закупите платената версия от настройките на регистрацията си, в приложението по уеб на Битуорден."
-  },
-  "premiumCurrentMember": {
-    "message": "Честито, ползвате платен абонамент!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Благодарим ви за подкрепата на Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "И това само за $PRICE$ на година!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "месец"
@@ -3553,7 +3459,7 @@
     "message": "Още настройки"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Опции за $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3468,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Няма споделена папка"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Филтриране по $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5267,10 +5173,17 @@
     "message": "Промяна на е-пощата"
   },
   "passkeyLogin": {
-    "message": "Вписване със секретен ключ?"
+    "message": "Вписване със секретен ключ?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Вписване със секретен ключ"
   },
   "savePasskeyQuestion": {
     "message": "Да се запази на секретният ключ?"
+  },
+  "savePasskey": {
+    "message": "Запазване на секретния ключ"
   },
   "saveNewPasskey": {
     "message": "Запазване като нов елемент за вписване"
@@ -5282,7 +5195,11 @@
     "message": "Няма записи за вписване отговарящи на този уеб сайт"
   },
   "overwritePasskey": {
-    "message": "Да се замени ли секретният ключ?"
+    "message": "Да се замени ли секретният ключ?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Замяна на секретния ключ"
   },
   "unableToSavePasskey": {
     "message": "Секретният ключ не може да бъде запазен"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "създаде нов секретен ключ за $RPID$, за $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "презапише секретен ключ за $RPID$, за $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "се впише като $USERNAME$ с Вашия секретен ключ за $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Потвърдете, че сте Вие, за да създадете нов секретен ключ за $RPID$, за $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Потвърдете, че сте Вие, за да презапишете секретен ключ за $RPID$, за $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Потвърдете, че сте Вие, за да се впишете като $USERNAME$ със секретния си ключ за $RPID$.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

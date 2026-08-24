@@ -539,6 +539,7 @@ export class ServiceContainer {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
+      new CliBiometricsService(),
     );
 
     this.legacyCompatKeyService = new LegacyCompatKeyService(
