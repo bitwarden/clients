@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, input } from "@an
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { CalloutModule } from "@bitwarden/components";
+import { VaultGatedCollectionBanner } from "@bitwarden/web-vault/app/vault/individual-vault/vault-gated-collection-banner.token";
 
 import { gatedCollection } from "../services/gated-collection";
 
@@ -25,7 +26,7 @@ import { gatedCollection } from "../services/gated-collection";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CalloutModule],
 })
-export class GatedCollectionBannerComponent {
+export class GatedCollectionBannerComponent implements VaultGatedCollectionBanner {
   readonly organizationId = input<OrganizationId | undefined>(undefined);
   readonly collectionId = input<CollectionId | undefined>(undefined);
 
