@@ -12,6 +12,22 @@
       >{{ pageTypeKey | i18n }}</span
     >
   </div>
+
+  <!-- Sits inside the h1 next to the name, so the sr-only label keeps the bare "On"/"Off" from
+       reading as part of the rule's title. Reflects the saved rule, like the heading itself does;
+       the Status checkbox below only takes effect on save. -->
+  <span slot="title-suffix" class="tw-flex tw-h-full tw-items-center">
+    @if (existing(); as rule) {
+      <span class="tw-sr-only">{{ "status" | i18n }}:</span>
+      <span
+        bitBadge
+        [variant]="rule.enabled ? 'success' : 'subtle'"
+        [startIcon]="null"
+        id="access-rule-edit_badge_status"
+        >{{ (rule.enabled ? "on" : "off") | i18n }}</span
+      >
+    }
+  </span>
 </bit-header>
 
 <bit-container>
@@ -86,8 +102,15 @@
             />
             <bit-hint>{{ "pamAccessRuleCollectionsHint" | i18n }}</bit-hint>
           </bit-form-field>
+        </bit-card>
+      </bit-section>
 
-          <bit-form-control class="tw-mt-4">
+      <bit-section>
+        <bit-section-header>
+          <h2 bitTypography="h5">{{ "pamAccessRuleStatusHeading" | i18n }}</h2>
+        </bit-section-header>
+        <bit-card>
+          <bit-form-control disableMargin>
             <input
               type="checkbox"
               bitCheckbox
