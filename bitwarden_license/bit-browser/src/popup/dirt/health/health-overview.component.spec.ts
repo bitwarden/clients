@@ -37,6 +37,7 @@ class MockRiskCategoryNavItemComponent {
   readonly icon = input.required<string>();
   readonly variant = input<string>("primary");
   readonly route = input.required<string>();
+  readonly locked = input(false);
 }
 
 describe("HealthOverviewComponent", () => {
@@ -52,12 +53,13 @@ describe("HealthOverviewComponent", () => {
   }
 
   /**
-   * The Health tab root owns the scan and only mounts this component once the
-   * report resolves, so every test drives it through its one input.
+   * The Health tab root owns the scan and the subscription check, so every test
+   * drives this component through its inputs.
    */
-  async function initComponent(report: VaultHealthReportView) {
+  async function initComponent(report: VaultHealthReportView, locked = false) {
     fixture = TestBed.createComponent(HealthOverviewComponent);
     fixture.componentRef.setInput("report", report);
+    fixture.componentRef.setInput("locked", locked);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -209,5 +211,30 @@ describe("HealthOverviewComponent", () => {
     expect(gauge()?.value()).toBe(0);
     expect(gauge()?.total()).toBe(50);
     expect(text()).toContain("yourVaultIsHealthy");
+  });
+
+  describe("when locked", () => {
+    const report = () => new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 });
+
+    it("locks every category row", async () => {
+      await initComponent(report(), true);
+
+      expect(rows().map((r) => r.locked())).toEqual([true, true, true]);
+    });
+
+    it("leaves every category row unlocked by default", async () => {
+      await initComponent(report());
+
+      expect(rows().map((r) => r.locked())).toEqual([false, false, false]);
+    });
+
+    it("still shows the gauge and the counts", async () => {
+      await initComponent(report(), true);
+
+      // A free user sees the same scan result; only the detail is withheld.
+      expect(gauge()?.value()).toBe(10);
+      expect(gauge()?.total()).toBe(100);
+      expect(text()).toContain("yourVaultRiskIsHigh");
+    });
   });
 });

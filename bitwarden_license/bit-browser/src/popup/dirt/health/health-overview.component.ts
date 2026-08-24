@@ -70,11 +70,12 @@ const RISK_CATEGORY_ROWS: readonly {
 ];
 
 /**
- * The body of the Health tab for a premium user: the At-Risk Gauge with its
- * heading and count, and the three risk categories.
+ * The body of the Health tab: the At-Risk Gauge with its heading and count, and
+ * the three risk categories. Free users see the same scan result with the
+ * categories locked.
  *
  * Presentational — it renders the report it is given and fetches nothing. The
- * Health tab root runs the scan and only mounts this once the report resolves.
+ * Health tab root runs the scan and owns the subscription check.
  */
 @Component({
   selector: "dirt-health-overview",
@@ -93,6 +94,9 @@ const RISK_CATEGORY_ROWS: readonly {
 export class HealthOverviewComponent {
   /** The completed scan result to render. The Health tab root owns the scan. */
   readonly report = input.required<VaultHealthReportView>();
+
+  /** Whether Health details are locked behind Premium. */
+  readonly locked = input(false);
 
   /** Unique logins at risk in any category — the gauge's value. */
   protected readonly atRiskCount = computed(() => this.report().atRiskCount);

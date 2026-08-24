@@ -19,6 +19,7 @@ import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/po
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -53,6 +54,7 @@ export class HealthComponent {
   private readonly cipherService = inject(CipherService);
   private readonly vaultHealthReportService = inject(VaultHealthReportService);
   private readonly logService = inject(LogService);
+  private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
 
   readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
@@ -72,6 +74,23 @@ export class HealthComponent {
       ),
     ),
     { initialValue: false },
+  );
+
+  /**
+   * Whether Health details are locked behind Premium. Starts locked so a free
+   * user never briefly sees navigable categories before the check resolves.
+   */
+  protected readonly locked = toSignal(
+    toObservable(this.userId).pipe(
+      switchMap((userId) =>
+        userId
+          ? this.billingAccountProfileStateService
+              .hasPremiumFromAnySource$(userId)
+              .pipe(map((hasPremium) => !hasPremium))
+          : of(true),
+      ),
+    ),
+    { initialValue: true },
   );
 
   /** The latest report for the active user and where its generation got to. */
