@@ -17,7 +17,7 @@ export abstract class AutoUnlockService {
 
   /**
    * Writes or clears the never-lock user key, according to whether the user's vault timeout allows
-   * storing it. Called during unlock, where the freshly decrypted user key is already in hand.
+   * storing it. Called during unlock.
    *
    * @param userId - The user's id
    * @param userKey - The user's decrypted user key
