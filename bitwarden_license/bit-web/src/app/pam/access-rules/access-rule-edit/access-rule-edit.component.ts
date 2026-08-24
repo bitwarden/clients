@@ -377,11 +377,10 @@ export class AccessRuleEditComponent {
   }
 
   /**
-   * Keep the default duration at or below the max. Raising the default past the max clamps the
-   * default back down to it — the max is never adjusted by the default, only the other direction:
-   * lowering the max below the current default drags the default down with it. A max of
-   * {@link NO_DURATION_CAP} ("no maximum") never constrains the default. Mutations use
-   * `emitEvent: false` so the paired control updates without re-triggering this.
+   * Keep the default duration at or below the max: when the user moves one picker
+   * past the other, drag the other along so the pair stays consistent. A max of
+   * {@link NO_DURATION_CAP} ("no maximum") never constrains the default. Mutations
+   * use `emitEvent: false` so the paired control updates without re-triggering this.
    */
   private coupleDurationBounds(): void {
     const defaultControl = this.formGroup.controls.defaultLeaseDurationSeconds;
@@ -389,7 +388,7 @@ export class AccessRuleEditComponent {
 
     defaultControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((value) => {
       if (maxControl.value !== NO_DURATION_CAP && value > maxControl.value) {
-        defaultControl.setValue(maxControl.value, { emitEvent: false });
+        maxControl.setValue(value, { emitEvent: false });
       }
     });
 

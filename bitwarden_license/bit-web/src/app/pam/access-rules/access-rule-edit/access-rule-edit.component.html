@@ -135,14 +135,7 @@
               formControlName="defaultLeaseDurationSeconds"
             >
               @for (opt of durationOptions; track opt.seconds) {
-                <bit-option
-                  [value]="opt.seconds"
-                  [label]="opt.labelKey | i18n"
-                  [disabled]="
-                    formGroup.controls.maxLeaseDurationSeconds.value !== noDurationCap &&
-                    opt.seconds > formGroup.controls.maxLeaseDurationSeconds.value
-                  "
-                />
+                <bit-option [value]="opt.seconds" [label]="opt.labelKey | i18n" />
               }
             </bit-select>
             <bit-hint>{{ "pamAccessRuleDefaultDurationHint" | i18n }}</bit-hint>
