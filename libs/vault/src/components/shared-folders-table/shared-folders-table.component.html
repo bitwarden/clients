@@ -20,6 +20,14 @@
     >
       {{ "addSharedFolder" | i18n }}
     </button>
+
+    @if (showPermissions()) {
+      <bit-filter-menu key="permissions" [placeholderText]="'permissions' | i18n" multiple>
+        @for (permission of permissionOptions(); track permission) {
+          <bit-filter-option [value]="permission">{{ permission }}</bit-filter-option>
+        }
+      </bit-filter-menu>
+    }
   </bit-table-toolbar>
 
   <!--

@@ -50,15 +50,20 @@ describe("SharedFoldersTableComponent", () => {
     return fixture.debugElement.query(By.directive(BitTableV2Component)).componentInstance;
   }
 
-  /** The registered `FilterControl` for the adopted `bit-search`. */
-  function searchControl(): FilterControl {
+  /** The registered `FilterControl` for a given key. */
+  function filterControl(key: string): FilterControl {
     const control = bitTable()
       .filterControls()
-      .find((c) => c.key() === "search");
+      .find((c) => c.key() === key);
     if (!control) {
-      throw new Error("No FilterControl registered for the projected search");
+      throw new Error(`No FilterControl registered under "${key}"`);
     }
     return control;
+  }
+
+  /** The registered `FilterControl` for the adopted `bit-search`. */
+  function searchControl(): FilterControl {
+    return filterControl("search");
   }
 
   it("renders a row per shared folder", () => {
@@ -116,6 +121,80 @@ describe("SharedFoldersTableComponent", () => {
       fixture.detectChanges();
 
       expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Finance" })]);
+    });
+  });
+
+  describe("the permissions chip", () => {
+    it("offers each distinct permission label, sorted", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", permissions: "Can view" }),
+        row({ id: "b", permissions: "Can manage" }),
+        row({ id: "c", permissions: "Can edit" }),
+        row({ id: "d", permissions: "Can manage" }),
+      ]);
+
+      expect(component["permissionOptions"]()).toEqual(["Can edit", "Can manage", "Can view"]);
+    });
+
+    it("is omitted when the rows offer fewer than two distinct labels", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", permissions: "Can manage" }),
+        row({ id: "b", permissions: "Can manage" }),
+      ]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("bit-filter-menu")).toBeNull();
+    });
+
+    it("is rendered when the rows offer more than one distinct label", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", permissions: "Can manage" }),
+        row({ id: "b", permissions: "Can view" }),
+      ]);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector("bit-filter-menu")).not.toBeNull();
+    });
+
+    it("matches everything when nothing is selected", () => {
+      expect(applyFilter(row({ permissions: "Can manage" }), {})).toBe(true);
+      expect(applyFilter(row({ permissions: "Can manage" }), { permissions: [] })).toBe(true);
+    });
+
+    it("matches a row carrying any selected label", () => {
+      const values: SharedFoldersTableFilters = { permissions: ["Can manage", "Can view"] };
+
+      expect(applyFilter(row({ permissions: "Can manage" }), values)).toBe(true);
+      expect(applyFilter(row({ permissions: "Can view" }), values)).toBe(true);
+      expect(applyFilter(row({ permissions: "Can edit" }), values)).toBe(false);
+    });
+
+    it("narrows the rendered rows as the selection changes", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", name: "Engineering", permissions: "Can manage" }),
+        row({ id: "b", name: "Finance", permissions: "Can view" }),
+      ]);
+      fixture.detectChanges();
+
+      filterControl("permissions").setValue(["Can view"]);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Finance" })]);
+    });
+
+    it("intersects with the search term", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", name: "Engineering", permissions: "Can manage" }),
+        row({ id: "b", name: "Finance", permissions: "Can view" }),
+        row({ id: "c", name: "Finance archive", permissions: "Can manage" }),
+      ]);
+      fixture.detectChanges();
+
+      searchControl().setValue("fin");
+      filterControl("permissions").setValue(["Can manage"]);
+      fixture.detectChanges();
+
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Finance archive" })]);
     });
   });
 

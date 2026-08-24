@@ -83,7 +83,16 @@ export default {
               addSharedFolder: "Add shared folder",
               itemCount: (count) => `${count} items`,
               clearAll: "Clear all",
+              filter: "Filter",
               filters: "Filters",
+              // Permissions filter chip
+              filterByName: (name) => `Filter by ${name}`,
+              removeItem: (name) => `Remove ${name}`,
+              filtersSelected: (count) => `${count} selected`,
+              noMatchingItems: "No matching items",
+              clear: "Clear",
+              done: "Done",
+              all: "All",
               // Columns and rows
               name: "Name",
               permissions: "Permissions",
@@ -104,10 +113,24 @@ type Story = StoryObj<StoryProps>;
 
 /**
  * The table as a host gets it out of the box: bind `sharedFolders` and `rowActions`, and the
- * columns, sorting, and search follow from the rows. Sort by any of Name, Permissions, or Items;
- * the search box matches on name.
+ * columns, sorting, search, and Permissions chip all follow from the rows. Sort by any of Name,
+ * Permissions, or Items; the search box matches on name; the chip offers each permission label
+ * present in the rows, with a faceted count apiece.
  */
 export const Default: Story = {};
+
+/**
+ * The Permissions chip is omitted when every folder carries the same permission — with one option
+ * it could only ever select every row, so it has nothing to narrow.
+ */
+export const SinglePermission: Story = {
+  args: {
+    sharedFolders: sharedFolders.map((sharedFolder) => ({
+      ...sharedFolder,
+      permissions: "Can manage",
+    })),
+  },
+};
 
 /** Bind `loading` while the client resolves the folders; skeleton rows stand in for the data. */
 export const Loading: Story = {

@@ -2,6 +2,7 @@ import {
   booleanAttribute,
   ChangeDetectionStrategy,
   Component,
+  computed,
   input,
   output,
   TrackByFunction,
@@ -17,6 +18,7 @@ import {
   BitTableV2Component,
   ButtonModule,
   defineTable,
+  FilterMenuModule,
   IconButtonModule,
   IconModule,
   IconTileComponent,
@@ -51,11 +53,17 @@ export type SharedFoldersTableFilters = {
    * carries the term for seeding, URL sync, and Clear all as well as for matching.
    */
   search?: string;
+
+  /**
+   * Permission labels. Multi-select: a row matches any selected label — see {@link
+   * SharedFoldersTableComponent.permissionOptions} for where the labels come from.
+   */
+  permissions?: string[];
 };
 
 /**
  * A shared folders table: name, permissions, item count, and a per-row Options menu, with a search
- * field and an Add button in the toolbar above them.
+ * field, a Permissions filter chip, and an Add button in the toolbar above them.
  *
  * The table is presentational — it sorts and searches the rows it is handed and reports intent
  * back through {@link add} and each action's `run`. Loading the folders, resolving what a
@@ -88,6 +96,7 @@ export type SharedFoldersTableFilters = {
     BitTableToolbarComponent,
     BitTableV2Component,
     ButtonModule,
+    FilterMenuModule,
     I18nPipe,
     IconButtonModule,
     IconModule,
@@ -121,13 +130,47 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   protected readonly trackById: TrackByFunction<R> = (_index, row) => row.id;
 
   /**
+   * The permission labels the Permissions chip offers, deduplicated and sorted for a stable menu.
+   *
+   * Derived from the rows rather than taken as an input: a permission label is an opaque,
+   * already-translated string to the table (see {@link SharedFolderRow.permissions}), so the rows
+   * on hand are the only account of which permissions exist. Read off the *unfiltered*
+   * `sharedFolders` so the options hold steady while a filter is active — the table's faceted
+   * counts already say which of them would match.
+   */
+  protected readonly permissionOptions = computed(() =>
+    [...new Set(this.sharedFolders().map((row) => row.permissions))].sort((a, b) =>
+      a.localeCompare(b),
+    ),
+  );
+
+  /**
+   * Whether the Permissions chip has anything to narrow. One distinct label can't exclude a row,
+   * so the chip is omitted rather than offered as a no-op.
+   */
+  protected readonly showPermissions = computed(() => this.permissionOptions().length > 1);
+
+  /** The single predicate the table derives its rows, counts, and empty state from. */
+  protected readonly filter = (row: R, values: SharedFoldersTableFilters): boolean =>
+    this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
+
+  /**
    * Matches a row against the toolbar's search term, on name only — the permission label and the
    * item count are facets of the folder rather than ways a person names one.
    */
-  protected readonly filter = (row: R, values: SharedFoldersTableFilters): boolean => {
-    const search = values.search?.trim().toLowerCase();
-    return !search || row.name.toLowerCase().includes(search);
-  };
+  private matchesSearch(row: R, search: string | undefined): boolean {
+    const term = search?.trim().toLowerCase();
+    return !term || row.name.toLowerCase().includes(term);
+  }
+
+  /**
+   * The Permissions chip is multi-select: `permissions` is an array of the labels chosen from
+   * {@link permissionOptions}, and a row matches if it carries *any* of them. `undefined` and `[]`
+   * both mean unfiltered.
+   */
+  private matchesPermissions(row: R, permissions: string[] | undefined): boolean {
+    return !permissions?.length || permissions.includes(row.permissions);
+  }
 
   /** The actions visible for `row`, honouring each action's optional `show` predicate. */
   protected visibleActions(row: R): SharedFoldersTableRowAction<R>[] {
