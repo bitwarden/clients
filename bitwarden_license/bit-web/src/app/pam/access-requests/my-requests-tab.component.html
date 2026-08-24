@@ -19,12 +19,9 @@
     <span slot="end" bitBadge variant="secondary">{{ pendingRows().length }}</span>
 
     @if (pendingRows().length === 0) {
-      <bit-no-items class="tw-mt-2 tw-block" data-testid="my-access-pending-empty">
-        <span slot="title" class="tw-mt-4 tw-block">{{ "pamMyRequestsPendingEmpty" | i18n }}</span>
-        <a slot="button" bitButton buttonType="secondary" routerLink="/vault">
-          {{ "goToVault" | i18n }}
-        </a>
-      </bit-no-items>
+      <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-pending-empty">
+        {{ "pamMyRequestsPendingEmpty" | i18n }}
+      </p>
     } @else {
       <bit-table [dataSource]="pendingDataSource">
         <ng-container header>

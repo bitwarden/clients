@@ -260,11 +260,10 @@ describe("MyRequestsTabComponent", () => {
   });
 
   describe("Pending section empty state", () => {
-    it("offers a link back to the vault when there is nothing pending", () => {
+    it("shows the empty-state message when there is nothing pending", () => {
       create();
 
-      const link = query('[data-testid="my-access-pending-empty"] a') as HTMLAnchorElement | null;
-      expect(link).not.toBeNull();
+      expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
       expect(fixture.nativeElement.textContent).toContain("pamMyRequestsPendingEmpty");
     });
   });
