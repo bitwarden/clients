@@ -25,6 +25,7 @@ import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
 import { ChipDismissButtonComponent } from "../chips/shared/chip-dismiss-button.component";
 import { IconComponent } from "../icon";
+import { IconTileComponent, IconTileVariant } from "../icon-tile";
 import { menuItemBaseStyles, menuItemPrimaryStyles } from "../menu/menu-item.component";
 import { MenuTriggerForDirective } from "../menu/menu-trigger-for.directive";
 import { MenuComponent } from "../menu/menu.component";
@@ -87,6 +88,7 @@ const CLEAR_FILTER = Symbol("clear-filter");
     I18nPipe,
     NgTemplateOutlet,
     IconComponent,
+    IconTileComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
@@ -286,6 +288,19 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     }
     host.registerFilter(this);
     this.destroyRef.onDestroy(() => host.unregisterFilter(this));
+  }
+
+  /**
+   * A disabled option's tile drops to the neutral `gray` family, so the leading visual reads as
+   * inactive alongside the muted label instead of staying fully saturated.
+   */
+  protected tileVariant(option: FilterOptionComponent): IconTileVariant {
+    return option.disabled() ? "gray" : (option.iconTile()?.variant ?? "primary");
+  }
+
+  /** A custom color is ignored while disabled, otherwise it would override the neutral variant. */
+  protected tileColor(option: FilterOptionComponent): string | undefined {
+    return option.disabled() ? undefined : option.iconTile()?.color;
   }
 
   /** Narrows an entry to a section for the template (else `null`). */

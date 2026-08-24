@@ -8,13 +8,15 @@ import {
   viewChild,
 } from "@angular/core";
 
+import { IconTileOptions } from "../icon-tile";
+
 import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
 /**
  * A selectable option inside a `bit-filter-menu`. It's **declarative**: it holds the
- * `value`, optional `count`, and `disabled` state, and captures its projected label
- * text — it renders no visible UI of its own. The chip draws the actual row (indicator,
- * label, count) and handles selection, so the same options render independently in the
+ * `value`, optional `count`, `iconTile`, and `disabled` state, and captures its projected
+ * label text — it renders no visible UI of its own. The chip draws the actual row (indicator,
+ * tile, label, count) and handles selection, so the same options render independently in the
  * popover and the responsive filter dialog without sharing one set of projected nodes.
  */
 @Component({
@@ -40,6 +42,9 @@ export class FilterOptionComponent<T = unknown> implements FilterEntry {
 
   /** Whether the option is selectable. */
   readonly disabled = input(false, { transform: booleanAttribute });
+
+  /** Renders a leading icon tile on the row. The chip forces `size="xs"` so rows line up. */
+  readonly iconTile = input<IconTileOptions>();
 
   private readonly labelEl = viewChild<ElementRef<HTMLElement>>("label");
 
