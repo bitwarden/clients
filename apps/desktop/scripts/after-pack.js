@@ -63,6 +63,24 @@ async function run(context) {
     }
   }
 
+  // The Safari extension is copied in here for the same reason as the autofill extension: it
+  // has to be present before electron-builder signs the app. It used to be copied in from the
+  // afterSign hook, which invalidated the app's seal and forced a second signing pass over the
+  // whole package to repair it.
+  if (["darwin", "mas"].includes(context.electronPlatformName)) {
+    console.log("### Copying safari extension");
+    // Copy Safari plugin to work-around https://github.com/electron-userland/electron-builder/issues/5552
+    const plugIn = path.join(__dirname, "../PlugIns");
+    if (!fse.existsSync(plugIn)) {
+      console.log("### Safari extension not found - skipping");
+    } else {
+      const appName = context.packager.appInfo.productFilename;
+      const plugInsPath = path.join(context.appOutDir, `${appName}.app`, "Contents/PlugIns");
+      fse.mkdirSync(plugInsPath, { recursive: true });
+      fse.copySync(path.join(plugIn, "safari.appex"), path.join(plugInsPath, "safari.appex"));
+    }
+  }
+
   if (["darwin", "mas"].includes(context.electronPlatformName)) {
     const is_mas = context.electronPlatformName === "mas";
 
