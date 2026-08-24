@@ -198,6 +198,52 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(heading.textContent).toContain("pamAccessRuleCreateTitle");
   });
 
+  it("badges the saved rule as on, inside the heading", async () => {
+    const fixture = await render({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Production database access",
+      enabled: true,
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    const badge = fixture.nativeElement.querySelector("h1 #access-rule-edit_badge_status");
+    expect(badge).not.toBeNull();
+    expect(badge.textContent.trim()).toBe("on");
+  });
+
+  it("badges a deactivated rule as off", async () => {
+    const fixture = await render({ params: { accessRuleId: "rule-1" } }, {
+      id: "rule-1",
+      name: "Production database access",
+      enabled: false,
+      collections: [],
+      conditions: [],
+    } as unknown as AccessRuleView);
+
+    const badge = fixture.nativeElement.querySelector("#access-rule-edit_badge_status");
+    expect(badge.textContent.trim()).toBe("off");
+  });
+
+  it("leaves the badge off create mode, where there is no saved rule to describe", async () => {
+    const fixture = await render({});
+
+    expect(fixture.nativeElement.querySelector("#access-rule-edit_badge_status")).toBeNull();
+  });
+
+  it("gives the enabled checkbox its own Status section", async () => {
+    const fixture = await render({});
+
+    const section = fixture.nativeElement
+      .querySelector("#access-rule-edit_checkbox_enabled")
+      .closest("bit-section") as HTMLElement;
+    expect(section.querySelector("bit-section-header").textContent.trim()).toBe(
+      "pamAccessRuleStatusHeading",
+    );
+    // Nothing else rode along out of General info.
+    expect(section.querySelectorAll("input")).toHaveLength(1);
+  });
+
   it("links the event logs at the organization's reporting route", async () => {
     const fixture = await render({});
 
