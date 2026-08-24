@@ -14,7 +14,8 @@ import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration"
 /**
  * This migration re-enrolls biometric stored keys when the user key has changed
  * since the last biometric enrollment. It detects this by comparing the stored
- * enrolled key ID with the current user key's key ID.
+ * enrolled key ID with the current user key's key ID; any mismatch - including a
+ * key ID appearing or disappearing - triggers a re-enrollment.
  */
 export class BiometricPersistentMigration implements EncryptedMigration {
   constructor(
@@ -39,18 +40,11 @@ export class BiometricPersistentMigration implements EncryptedMigration {
     }
 
     await SdkLoadService.Ready;
-    const currentKeyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
+    const keyId = CryptoClient.get_key_id_for_symmetric_key(userKey.toEncoded());
+    const currentKeyId = keyId == null ? null : Utils.fromBufferToB64(keyId);
     const enrolledKeyId = await this.biometricStateService.getBiometricEnrolledKeyId(userId);
-    const isV1ToV2Migration = enrolledKeyId == null && currentKeyId != null;
-    const isV2ToV2Migration =
-      enrolledKeyId != null &&
-      currentKeyId != null &&
-      enrolledKeyId !== Utils.fromBufferToB64(currentKeyId);
-    if (isV1ToV2Migration || isV2ToV2Migration) {
-      return "needsMigration";
-    }
 
-    return "noMigrationNeeded";
+    return currentKeyId === enrolledKeyId ? "noMigrationNeeded" : "needsMigration";
   }
 
   async runMigrations(userId: UserId, _masterPassword: string | null): Promise<void> {
