@@ -1518,7 +1518,7 @@ describe("VaultItemsTableComponent", () => {
      * so select-all over a very large vault is capped rather than unbounded — matching the cap the
      * legacy vault-items component applies.
      */
-    it("caps what it hands the batch bar at MAX_SELECTION_COUNT", () => {
+    it("caps the selection itself at MAX_SELECTION_COUNT", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
         cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
       );
@@ -1528,8 +1528,45 @@ describe("VaultItemsTableComponent", () => {
       selectionModel().toggleAll();
       fixture.detectChanges();
 
-      expect(selectionModel().count()).toBe(many.length);
+      // The cap binds the selection, not just what the bar is handed — the two must agree, or the
+      // over-cap rows would render checked while no action ever touches them.
+      expect(selectionModel().count()).toBe(MAX_SELECTION_COUNT);
       expect(batchBar.selected().length).toBe(MAX_SELECTION_COUNT);
+    });
+
+    /**
+     * The header checkbox has to resolve at the cap. Measured against every filtered row it would
+     * never read as fully selected once a select-all stops short, leaving it stuck indeterminate.
+     */
+    it("reports allSelected once a capped select-all has taken everything it will take", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().allSelected()).toBe(true);
+      expect(selectionModel().indeterminate()).toBe(false);
+    });
+
+    /** A second toggle has to clear a capped selection rather than leaving it stuck. */
+    it("clears a capped select-all on the next toggle", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
+      expect(batchBar.selected().length).toBe(0);
     });
 
     /**

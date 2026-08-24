@@ -8,6 +8,14 @@ export type TableSelectionConfig<T> = {
   /** Which rows may be selected. Defaults to "every row". */
   canSelect?: (row: T) => boolean;
   /**
+   * Upper bound on how many rows may be selected at once. Unlimited by default.
+   *
+   * {@link toggleAll} stops at this many, and {@link allSelected} measures against the same
+   * bounded set — so when a cap is in force the header checkbox reads as fully selected at the
+   * cap, and what the checkboxes show is always exactly what a consumer will act on.
+   */
+  max?: number;
+  /**
    * The rows in scope for select-all / indeterminate — the table's filtered
    * view. Read reactively, so the aggregates track filtering.
    */
@@ -28,14 +36,16 @@ export class TableSelectionModel<T> {
   private readonly multiple: boolean;
   private readonly canSelect: (row: T) => boolean;
   private readonly rows: Signal<readonly T[]>;
+  private readonly max: number;
   private readonly _selected = signal<readonly T[]>([]);
 
   constructor(config: TableSelectionConfig<T>) {
     this.multiple = config.multiple ?? false;
     this.canSelect = config.canSelect ?? (() => true);
     this.rows = config.rows;
+    this.max = config.max ?? Infinity;
     const initial = (config.initial ?? []).filter((row) => this.canSelect(row));
-    this._selected.set(this.multiple ? initial : initial.slice(0, 1));
+    this._selected.set(this.multiple ? initial.slice(0, this.max) : initial.slice(0, 1));
   }
 
   /** The currently selected rows. */
@@ -47,15 +57,26 @@ export class TableSelectionModel<T> {
   /** In-scope rows that may be selected — the model's `rows` minus non-selectable ones. */
   readonly selectable = computed(() => this.rows().filter((row) => this.canSelect(row)));
 
-  /** Whether every selectable in-scope row is selected. */
+  /**
+   * The selectable in-scope rows a select-all would actually take — {@link selectable} bounded by
+   * the configured `max`. Identical to `selectable()` when no cap is set.
+   */
+  private readonly selectableWithinMax = computed(() =>
+    this.max === Infinity ? this.selectable() : this.selectable().slice(0, this.max),
+  );
+
+  /**
+   * Whether every selectable in-scope row a select-all would take is selected. Measured against
+   * the capped set, so at the cap the header reads as fully selected rather than never resolving.
+   */
   readonly allSelected = computed(() => {
-    const rows = this.selectable();
+    const rows = this.selectableWithinMax();
     return rows.length > 0 && rows.every((row) => this.isSelected(row));
   });
 
   /** Whether some but not all selectable in-scope rows are selected. */
   readonly indeterminate = computed(() => {
-    const rows = this.selectable();
+    const rows = this.selectableWithinMax();
     const selected = rows.filter((row) => this.isSelected(row)).length;
     return selected > 0 && selected < rows.length;
   });
@@ -70,7 +91,11 @@ export class TableSelectionModel<T> {
     return this.canSelect(row);
   }
 
-  /** Selects rows, ignoring any that aren't {@link isSelectable}. Single-select keeps only the last. */
+  /**
+   * Selects rows, ignoring any that aren't {@link isSelectable}. Single-select keeps only the last.
+   * Stops once the configured `max` is reached, so the selection can never exceed what a consumer
+   * has said it will act on.
+   */
   select(...rows: T[]): void {
     const allowed = rows.filter((row) => this.canSelect(row));
     if (allowed.length === 0) {
@@ -82,6 +107,9 @@ export class TableSelectionModel<T> {
       }
       const next = [...current];
       for (const row of allowed) {
+        if (next.length >= this.max) {
+          break;
+        }
         if (!next.includes(row)) {
           next.push(row);
         }
@@ -104,13 +132,15 @@ export class TableSelectionModel<T> {
     }
   }
 
-  /** Selects every selectable in-scope row, or clears them if all are already selected. */
+  /**
+   * Selects every selectable in-scope row, or clears them if all are already selected. Bounded by
+   * the configured `max` — see {@link TableSelectionConfig.max}.
+   */
   toggleAll(): void {
-    const rows = this.selectable();
     if (this.allSelected()) {
-      this.deselect(...rows);
+      this.deselect(...this.selectable());
     } else {
-      this.select(...rows);
+      this.select(...this.selectableWithinMax());
     }
   }
 

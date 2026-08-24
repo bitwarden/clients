@@ -76,10 +76,14 @@ export const NO_FOLDER = "noFolder";
 export const VAULT_FILTER_NAMESPACE = "vault";
 
 /**
- * Upper bound on how many rows a selection hands to the batch bar, matching the cap the legacy
+ * Upper bound on how many rows may be selected at once, matching the cap the legacy
  * `vault-items.component` applies to its own select-all. Bulk actions turn each selected item into
  * per-cipher permission checks and request payloads, so an unbounded select-all over a large vault
  * is a performance cliff rather than a useful action.
+ *
+ * Applied to the selection itself rather than to what the batch bar is handed: capping a
+ * downstream view would leave rows checked that no action would ever touch, so a bulk delete over
+ * the cap would silently skip the remainder.
  */
 export const MAX_SELECTION_COUNT = 500;
 
@@ -322,7 +326,10 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Must stay a stable reference — `bit-table-v2` rebuilds its selection model whenever this
    * changes, so an inline object literal in the template would reset the selection constantly.
    */
-  protected readonly selection: SelectionConfig<C> = { multiple: true };
+  protected readonly selection: SelectionConfig<C> = {
+    multiple: true,
+    max: MAX_SELECTION_COUNT,
+  };
 
   /** The configured column set to display */
   protected readonly displayedColumns = signal<VaultItemsTableColumn[]>([...VAULT_COLUMNS]);
@@ -616,12 +623,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     }
 
     const teardown = batchBar.registerSelection({
-      selected: computed(() =>
-        model
-          .selected()
-          .slice(0, MAX_SELECTION_COUNT)
-          .map((cipher) => ({ cipher }) as VaultItem<C>),
-      ),
+      selected: computed(() => model.selected().map((cipher) => ({ cipher }) as VaultItem<C>)),
       clear: () => model.clear(),
     });
 
