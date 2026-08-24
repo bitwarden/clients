@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { map, switchMap } from "rxjs/operators";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { NoCredentialsIcon, ReportExposedPasswords, UnlockedIcon } from "@bitwarden/assets/svg";
+import { NoCredentialsIcon, ReportExposedPasswords, LockIcon } from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -30,7 +30,8 @@ import {
   IconModule,
   DialogService,
   CenterPositionStrategy,
-  NoItemsModule,
+  StatusLockupComponent,
+  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -61,7 +62,8 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     I18nPipe,
     MenuModule,
     IconModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
@@ -95,6 +97,7 @@ export class HealthRiskCategoryDetailComponent {
     this.accountService.activeAccount$.pipe(
       getUserId,
       switchMap((userId) => this.vaultHealthReportService.getVaultHealthReport$(userId)),
+      map((state) => state.report),
     ),
     { initialValue: null },
   );
@@ -160,13 +163,13 @@ export class HealthRiskCategoryDetailComponent {
     [RiskCategory.Weak]: {
       titleKey: "weakPasswordsTitle",
       descriptionKey: "weakPasswordsDescription",
-      emptyKey: "weakPasswordsEmpty",
-      emptyIcon: UnlockedIcon,
+      emptyKey: "weakPasswordEmpty",
+      emptyIcon: LockIcon,
     },
     [RiskCategory.Reused]: {
       titleKey: "reusedPasswordsTitle",
       descriptionKey: "reusedPasswordsDescription",
-      emptyKey: "reusedPasswordsEmpty",
+      emptyKey: "reusedPasswordEmpty",
       emptyIcon: NoCredentialsIcon,
     },
   };

@@ -3,18 +3,14 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, map, of } from "rxjs";
 
 import { IconComponent as AppVaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import {
-  BitSvg,
-  ReportExposedPasswords,
-  UnlockedIcon,
-  NoCredentialsIcon,
-} from "@bitwarden/assets/svg";
+import { BitSvg, ReportExposedPasswords, LockIcon, NoCredentialsIcon } from "@bitwarden/assets/svg";
 import { CipherHealthView } from "@bitwarden/bit-common/dirt/access-intelligence/models/view/cipher-health.view";
 import {
   RiskCategory,
+  VaultHealthReportStatus,
   VaultHealthReportView,
 } from "@bitwarden/bit-common/dirt/vault-health/models";
 import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
@@ -110,14 +106,14 @@ const categories = [
     category: RiskCategory.Weak,
     titleKey: "weakPasswordsTitle",
     descriptionKey: "weakPasswordsDescription",
-    emptyKey: "weakPasswordsEmpty",
-    icon: UnlockedIcon,
+    emptyKey: "weakPasswordEmpty",
+    icon: LockIcon,
   },
   {
     category: RiskCategory.Reused,
     titleKey: "reusedPasswordsTitle",
     descriptionKey: "reusedPasswordsDescription",
-    emptyKey: "reusedPasswordsEmpty",
+    emptyKey: "reusedPasswordEmpty",
     icon: NoCredentialsIcon,
   },
 ] as const;
@@ -218,7 +214,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   /** The icon bound to the empty state, read off the component input rather than the rendered SVG. */
   function noItemsIcon(): BitSvg | undefined {
-    return fixture.debugElement.query(By.css("bit-no-items"))?.componentInstance.icon();
+    return fixture.debugElement
+      .query(By.css("bit-status-lockup bit-svg"))
+      ?.componentInstance.content();
   }
 
   /** The row's change password CTA, or `undefined` when the row does not render one. */
@@ -267,7 +265,16 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
     report$ = new BehaviorSubject<VaultHealthReportView | null>(null);
     reportService = mock<VaultHealthReportService>();
-    reportService.getVaultHealthReport$.mockReturnValue(report$);
+    // The service emits { status, report }; wrap the report-only subject so a
+    // present report reads as success and a null one as idle.
+    reportService.getVaultHealthReport$.mockReturnValue(
+      report$.pipe(
+        map((report) => ({
+          status: report ? VaultHealthReportStatus.Success : VaultHealthReportStatus.Idle,
+          report,
+        })),
+      ),
+    );
 
     cipherViews$ = new BehaviorSubject<CipherView[]>([]);
     cipherService = mock<CipherService>();
