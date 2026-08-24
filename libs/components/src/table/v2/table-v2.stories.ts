@@ -1218,6 +1218,48 @@ export const SelectableSubset: Story = {
 };
 
 /**
+ * A `max` bounds how many rows may be selected at once. Set it when acting on a
+ * selection costs something per item — a bulk action that turns each row into a
+ * permission check and a request payload, say — so an unbounded select-all over a
+ * large list is a performance cliff rather than a useful action.
+ *
+ * The cap binds the selection itself, not some downstream view of it, so what the
+ * checkboxes show is always exactly what a consumer will act on. Capped to 3 here:
+ *
+ * - Select-all takes 3 of the 5 rows and stops.
+ * - The header still resolves as checked rather than sticking indeterminate — it
+ *   measures against what a select-all would take, not every row in scope.
+ * - The remaining checkboxes disable, so a click can't leave a row rendering as
+ *   selected while nothing acts on it. Selected rows stay deselectable, and
+ *   freeing a slot re-enables the rest.
+ * - Clicking the header again clears, handing the budget back.
+ */
+export const SelectableCapped: Story = {
+  render: () => {
+    const table = defineTable<DemoRow>(basicData);
+    return {
+      props: { table, selection: { multiple: true, max: 3 } },
+      template: `
+        <bit-table-v2 [tableDef]="table" [selection]="selection">
+          <bit-column>
+            <bit-header-cell>Id</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.id; let row">{{ row.id }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Name</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.name; let row">{{ row.name }}</bit-cell>
+          </bit-column>
+          <bit-column>
+            <bit-header-cell>Other</bit-header-cell>
+            <bit-cell *bitCellDef="table.columns.other; let row">{{ row.other }}</bit-cell>
+          </bit-column>
+        </bit-table-v2>
+      `,
+    };
+  },
+};
+
+/**
  * When no rows render (in column-def mode) — empty data, or a filter that
  * excluded everything — the table shows a default `<bit-status-lockup>`. Project
  * `slot="empty"` to override it with your own empty state.
