@@ -50,7 +50,7 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
     case AccessAuditEventKind.RequestDenied:
       return "pamAuditKindRequestDenied";
     case AccessAuditEventKind.RequestCancelled:
-      return "pamAuditKindRequestCancelled";
+      return "pamAuditKindRequestCanceled";
     case AccessAuditEventKind.RequestExpiredUnanswered:
       return "pamAuditKindRequestExpiredUnanswered";
     case AccessAuditEventKind.RequestExpiredUnactivated:
