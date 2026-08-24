@@ -1718,58 +1718,12 @@
   "copyName": {
     "message": "Copiar nome"
   },
-  "cardNumber": {
-    "message": "número do cartão"
-  },
-  "copyFieldCipherName": {
-    "message": "Copiar $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copiar anotação - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Nenhum valor digitado",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
     "message": "No details to copy"
-  },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsite": {
     "message": "Launch website"
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento criptografado para anexos de arquivos."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ de armazenamento criptografado para anexos de arquivos.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Opções de autenticação em duas etapas proprietárias como YubiKey e Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência"
-  },
-  "premiumSignUpReports": {
-    "message": "Relatórios de higiene de senha, saúde da conta, e vazamentos de dados para manter o seu cofre seguro."
-  },
-  "premiumSignUpTotp": {
-    "message": "Gerador de código de verificação TOTP (2FA) para credenciais no seu cofre."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioridade no suporte ao cliente."
-  },
-  "premiumSignUpFuture": {
-    "message": "Todos os recursos do Premium no futuro. Mais em breve!"
-  },
-  "premiumPrice": {
-    "message": "Tudo por apenas $PRICE$ por ano!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Torne-se Premium por apenas $PRICE$ por ano, ou obtenha contas Premium para $FAMILYPLANUSERCOUNT$ usuários e compartilhamento familiar ilimitado com um ",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "The organization you are trying to join only allows its members to belong to one organization."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "Este usuário pode acessar o Gerenciador de Segredos"
   },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Activate user access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "This user can access Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "Importante:"
   },
@@ -12210,6 +12149,10 @@
     "message": "Acesso ativado ao Gerenciador de Segredos",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Activated access to Privileged Controls",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Ativar acesso"
   },
@@ -12217,8 +12160,16 @@
     "message": "Conceda aos seguintes membros acesso ao Gerenciador de Segredos. O cargo concedido no Gerenciador de Senhas será aplicado ao Gerenciador de Segredos.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Grant the following members access to Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Ativar Gerenciador de Segredos"
+  },
+  "activatePrivilegedControls": {
+    "message": "Activate Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "A frase biométrica da sua organização",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Organizações grátis para 2 pessoas"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Segredos ilimitados"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "Audite o acesso dos membros da organização entre grupos, conjuntos e os itens dos conjuntos. A exportação em CSV fornece informações detalhadas por membro, incluindo informações sobre permissões de conjuntos e configurações de conta."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(Sem conjunto)"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "Ver todos os planos"

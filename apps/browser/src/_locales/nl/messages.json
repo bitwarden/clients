@@ -751,15 +751,6 @@
   "launchWebsite": {
     "message": "Website openen"
   },
-  "launchWebsiteForName": {
-    "message": "Website starten voor $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "website": {
     "message": "Website"
   },
@@ -1683,12 +1674,6 @@
   "premiumRefresh": {
     "message": "Abonnement vernieuwen"
   },
-  "premiumNotCurrentMember": {
-    "message": "Je bent momenteel geen Premium-lid."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Meld je aan voor een Premium-abonnement en krijg:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB versleutelde opslag voor bijlagen."
   },
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Je kunt Premium via je accountinstellingen in de Bitwarden webapp kopen."
-  },
-  "premiumCurrentMember": {
-    "message": "Je bent Premium-lid!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Bedankt voor het ondersteunen van Bitwarden."
   },
   "premiumFeatures": {
     "message": "Upgrade naar premium en ontvang:"
@@ -2213,9 +2192,6 @@
   "securityCode": {
     "message": "Beveiligingscode"
   },
-  "cardNumber": {
-    "message": "kaartnummer"
-  },
   "ex": {
     "message": "bijv."
   },
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ collecties",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ gedeelde mappen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4636,7 +4621,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsBodyNoItems": {
-    "message": "Deel bestanden en gegevens veilig met iedereen, op elk platform. Je informatie blijft end-to-end versleuteld terwijl en blootstelling beperkt.",
+    "message": "Bestanden en gegevens veilig met anderen delen, op elk platform. Je informatie blijft end-to-end versleuteld en lekken beperkt.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inputRequired": {
@@ -5590,11 +5575,11 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Reguliere expressie\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "message": "\"Reguliere expressie\" is een geavanceerde optie met een verhoogd risico op het lekken van inloggegevens.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Begint met\" is een geavanceerde optie met een verhoogd risico op het blootstellen van inloggegevens.",
+    "message": "\"Begint met\" is een geavanceerde optie met een verhoogd risico op het lekken van inloggegevens.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Wis filters of probeer een andere zoekterm"
   },
-  "copyDetailsTitle": {
-    "message": "Gegevens voor $ITEMNAME$ kopiëren",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Notitie kopiëren - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Meer opties, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5839,20 +5804,6 @@
       "field": {
         "content": "$2",
         "example": "Username"
-      }
-    }
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ kopiëren",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
       }
     }
   },
@@ -7654,15 +7605,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "Geen blootgestelde wachtwoorden",
+    "message": "Geen gelekte wachtwoorden",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 blootgesteld wachtwoord",
+    "message": "1 gelekt wachtwoord",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ blootgestelde wachtwoorden",
+    "message": "$COUNT$ gelekte wachtwoorden",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7672,7 +7623,7 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Blootgesteld in datalekken",
+    "message": "Gelekt in datalekken",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
@@ -7738,5 +7689,55 @@
   "categoryHealthy": {
     "message": "Geen items die aandacht nodig hebben",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "Gelekte wachtwoorden"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Wachtwoorden voor deze logins waren zijn gelekt in datalekken. Wijzig ze meteen om je accounts te beschermen."
+  },
+  "weakPasswordsTitle": {
+    "message": "Zwakke wachtwoorden"
+  },
+  "weakPasswordsDescription": {
+    "message": "Deze wachtwoorden kunnen gemakkelijk worden geraden omdat ze te kort of eenvoudig zijn. Versterk ze door ze complexer te maken."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Hergebruikte wachtwoorden"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Deze logins hebben een hergebruikt wachtwoord. Maak een uniek wachtwoord aan voor elk account om te voorkomen dat iemand meerdere accounts met één wachtwoord bezoekt."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Het verwijderen van deze login verwijdert deze uit je kluis maar lost het risico niet op. Om je account te beschermen, wijzig je eerst je wachtwoord."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "Dit wachtwoord heeft extra risico's:"
+  },
+  "reused": {
+    "message": "Hergebruikt",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ items",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "Geen van je wachtwoorden zijn gevonden in datalekken"
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "Je bent helemaal klaar!"
   }
 }
