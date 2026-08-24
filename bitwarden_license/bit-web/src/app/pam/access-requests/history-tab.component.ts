@@ -28,6 +28,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
+import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
@@ -63,6 +64,7 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
   imports: [
     CommonModule,
     RouterModule,
+    AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
     IconComponent,
@@ -137,7 +139,7 @@ export class HistoryTabComponent {
 
   /**
    * A lease the caller granted and can still end: the row is one they manage, it produced a lease,
-   * and that lease is still live. `statusLabelKey` is the already-resolved display status, so this
+   * and that lease is still live. `statusBadge` is the already-resolved display status, so this
    * reads the same conclusion the badge shows rather than re-deriving it.
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
@@ -145,7 +147,7 @@ export class HistoryTabComponent {
       this.showingManaged() &&
       this.managedIds().has(String(row.id)) &&
       row.producedLeaseId != null &&
-      row.statusLabelKey === "pamStatusActivated"
+      row.statusBadge?.labelKey === "pamStatusActivated"
     );
   }
 
