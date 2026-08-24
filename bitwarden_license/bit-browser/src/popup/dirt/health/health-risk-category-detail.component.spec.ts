@@ -214,7 +214,9 @@ describe("HealthRiskCategoryDetailComponent", () => {
 
   /** The icon bound to the empty state, read off the component input rather than the rendered SVG. */
   function noItemsIcon(): BitSvg | undefined {
-    return fixture.debugElement.query(By.css("bit-no-items"))?.componentInstance.icon();
+    return fixture.debugElement
+      .query(By.css("bit-status-lockup bit-svg"))
+      ?.componentInstance.content();
   }
 
   /** The row's change password CTA, or `undefined` when the row does not render one. */

@@ -14,13 +14,12 @@
   @if (vaultState === VaultStateEnum.Empty) {
     <vault-fade-in-out>
       <div class="tw-flex tw-flex-col tw-h-full tw-justify-center">
-        <bit-no-items [icon]="vaultIcon">
+        <bit-status-lockup>
+          <bit-svg slot="graphic" [content]="vaultIcon"></bit-svg>
           <ng-container slot="title">{{ "yourVaultIsEmpty" | i18n }}</ng-container>
-          <ng-container slot="description">
-            <p bitTypography="body2" class="tw-mx-6 tw-mt-2">
-              {{ "emptyVaultDescription" | i18n }}
-            </p>
-          </ng-container>
+          <div slot="description" class="tw-mx-6">
+            {{ "emptyVaultDescription" | i18n }}
+          </div>
           <a
             slot="button"
             bitButton
@@ -30,7 +29,7 @@
           >
             {{ "newLogin" | i18n }}
           </a>
-        </bit-no-items>
+        </bit-status-lockup>
       </div>
     </vault-fade-in-out>
   }
@@ -114,10 +113,11 @@
   @if (vaultState !== VaultStateEnum.Empty) {
     @if (vaultState === VaultStateEnum.NoResults) {
       <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
-        <bit-no-items [icon]="noResultsIcon">
+        <bit-status-lockup>
+          <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
           <ng-container slot="title">{{ "noItemsMatchSearch" | i18n }}</ng-container>
           <ng-container slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</ng-container>
-        </bit-no-items>
+        </bit-status-lockup>
       </div>
     }
 
@@ -125,12 +125,13 @@
     <div role="status" aria-live="polite">
       @if (vaultState === VaultStateEnum.DeactivatedOrg) {
         <div class="tw-flex tw-flex-col tw-justify-center tw-h-auto tw-pt-12">
-          <bit-no-items [icon]="deactivatedIcon">
+          <bit-status-lockup>
+            <bit-svg slot="graphic" [content]="deactivatedIcon"></bit-svg>
             <ng-container slot="title">
               {{ "organizationIsDeactivated" | i18n }}
             </ng-container>
             <ng-container slot="description">{{ "contactYourOrgAdmin" | i18n }}</ng-container>
-          </bit-no-items>
+          </bit-status-lockup>
         </div>
       }
     </div>

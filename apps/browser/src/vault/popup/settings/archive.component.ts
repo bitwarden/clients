@@ -6,6 +6,7 @@ import { combineLatest, firstValueFrom, map, Observable, startWith, switchMap } 
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { NoResults } from "@bitwarden/assets/svg";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -24,9 +25,10 @@ import {
   IconButtonModule,
   ItemModule,
   MenuModule,
-  NoItemsModule,
+  StatusLockupComponent,
   SectionComponent,
   SectionHeaderComponent,
+  SvgComponent,
   ToastService,
   TypographyModule,
   CardComponent,
@@ -57,7 +59,7 @@ import { ROUTES_AFTER_EDIT_DELETION } from "../services/vault-popup-after-deleti
     PopupPageComponent,
     PopupHeaderComponent,
     PopOutComponent,
-    NoItemsModule,
+    StatusLockupComponent,
     ItemModule,
     MenuModule,
     IconButtonModule,
@@ -70,6 +72,7 @@ import { ROUTES_AFTER_EDIT_DELETION } from "../services/vault-popup-after-deleti
     ButtonComponent,
     IconModule,
     Vfo1I18nPipe,
+    SvgComponent,
   ],
 })
 export class ArchiveComponent {
@@ -86,6 +89,8 @@ export class ArchiveComponent {
   private collectionService = inject(CollectionService);
 
   private userId$: Observable<UserId> = this.accountService.activeAccount$.pipe(getUserId);
+
+  readonly noItemsIcon = NoResults;
 
   private readonly orgMap = toSignal(
     this.userId$.pipe(

@@ -1,16 +1,17 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { GearIcon } from "@bitwarden/assets/svg";
-import { NoItemsModule } from "@bitwarden/components";
+import { StatusLockupComponent } from "@bitwarden/components";
 import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console/organizations/shared";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-no-clients",
-  imports: [SharedOrganizationModule, NoItemsModule],
+  imports: [SharedOrganizationModule, StatusLockupComponent],
   template: `
-    <bit-no-items [icon]="icon">
+    <bit-status-lockup>
+      <bit-svg slot="graphic" [content]="icon"></bit-svg>
       <div slot="title">{{ "noClients" | i18n }}</div>
       <a
         *ngIf="showAddOrganizationButton"
@@ -24,7 +25,7 @@ import { SharedOrganizationModule } from "@bitwarden/web-vault/app/admin-console
         <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
         {{ "addNewOrganization" | i18n }}
       </a>
-    </bit-no-items>
+    </bit-status-lockup>
   `,
 })
 export class NoClientsComponent {

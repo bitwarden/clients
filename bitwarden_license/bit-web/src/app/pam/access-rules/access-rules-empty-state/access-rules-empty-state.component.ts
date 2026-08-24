@@ -5,8 +5,9 @@ import {
   CardComponent,
   IconTileComponent,
   ItemModule,
-  NoItemsModule,
+  StatusLockupComponent,
   TypographyModule,
+  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -29,7 +30,8 @@ import { NoAccessRulesIcon } from "../no-access-rules.icon";
     CardComponent,
     IconTileComponent,
     ItemModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
     I18nPipe,
   ],
   host: {

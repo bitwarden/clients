@@ -21,7 +21,6 @@ import {
   TypographyModule,
   CopyClickDirective,
   A11yTitleDirective,
-  NoItemsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -70,7 +69,6 @@ import { IconComponent } from "./vault/components/icon.component";
     TypographyModule,
     TableModule,
     MenuModule,
-    NoItemsModule,
     IconButtonModule,
     SvgModule,
     LinkModule,

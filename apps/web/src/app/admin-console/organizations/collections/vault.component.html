@@ -110,8 +110,9 @@
       @let showCollectionAccessRestricted = showCollectionAccessRestricted$ | async;
       @if (!refreshing && (isEmpty$ | async)) {
         @if (!showCollectionAccessRestricted) {
-          <bit-no-items>
-            <span slot="title" class="tw-mt-4 tw-block">{{ "noItemsInList" | i18n }}</span>
+          <bit-status-lockup>
+            <bit-svg slot="graphic" [content]="noItemIcon"></bit-svg>
+            <span slot="title" class="tw-block">{{ "noItemsInList" | i18n }}</span>
 
             @if (
               filter &&
@@ -134,7 +135,7 @@
                 {{ (btnTextAddCreateFeatureFlag() ? "addItem" : "newItem") | i18n }}
               </button>
             }
-          </bit-no-items>
+          </bit-status-lockup>
         } @else {
           <collection-access-restricted
             [canEditCollection]="selectedCollection?.node?.canEdit(organization)"

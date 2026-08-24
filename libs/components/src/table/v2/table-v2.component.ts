@@ -23,15 +23,17 @@ import {
   untracked,
 } from "@angular/core";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { CheckboxModule } from "../../checkbox";
 import { FILTER_HOST, FilterControl, FilterHost } from "../../filter-menu/filter-tokens";
 import { IconComponent } from "../../icon/icon.component";
-import { NoItemsComponent } from "../../no-items/no-items.component";
 import { SearchComponent } from "../../search/search.component";
 import { SkeletonTextComponent } from "../../skeleton";
+import { StatusLockupComponent } from "../../status-lockup/status-lockup.component";
+import { SvgComponent } from "../../svg";
 import { ParamState, ParamValue, queryParamStore } from "../../utils";
 import { SortDirection, SortFn } from "../table-data-source";
 
@@ -176,8 +178,9 @@ type RenderItem<T> =
     BitRowComponent,
     CheckboxModule,
     IconComponent,
-    NoItemsComponent,
+    StatusLockupComponent,
     SkeletonTextComponent,
+    SvgComponent,
     SyncScrollLeftDirective,
     I18nPipe,
   ],
@@ -205,6 +208,7 @@ type RenderItem<T> =
 export class BitTableV2Component<T = unknown, S extends string = never, F = Record<string, unknown>>
   implements AfterContentInit, FilterHost
 {
+  protected readonly noResultsSvg = NoResults;
   /**
    * The typed contract — row type `T`, synthetic columns `S`, filter shape `F` —
    * plus the row data and the typed `columns.*` references bound to `*bitCellDef`.

@@ -14,8 +14,8 @@ import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loa
 import {
   ButtonModule,
   CalloutModule,
-  NoItemsModule,
-  TypographyModule,
+  StatusLockupComponent,
+  SvgComponent,
 } from "@bitwarden/components";
 import {
   NewSendDropdownComponent,
@@ -60,7 +60,7 @@ export type SendState = (typeof SendState)[keyof typeof SendState];
     PopupHeaderComponent,
     PopOutComponent,
     CurrentAccountComponent,
-    NoItemsModule,
+    StatusLockupComponent,
     JslibModule,
     CommonModule,
     ButtonModule,
@@ -68,7 +68,7 @@ export type SendState = (typeof SendState)[keyof typeof SendState];
     SendListItemsContainerComponent,
     SendListFiltersComponent,
     SendSearchComponent,
-    TypographyModule,
+    SvgComponent,
     VaultFadeInOutSkeletonComponent,
     VaultLoadingSkeletonComponent,
   ],

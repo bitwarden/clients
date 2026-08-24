@@ -11,6 +11,7 @@ import {
 } from "@angular/core";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
+import { NoResults } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -36,11 +37,12 @@ import {
   FilterMenuModule,
   IconModule,
   LinkModule,
-  NoItemsModule,
   SearchModule,
   SelectionConfig,
   SkeletonTextComponent,
   SortFn,
+  StatusLockupComponent,
+  SvgComponent,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -208,9 +210,10 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     I18nPipe,
     IconModule,
     LinkModule,
-    NoItemsModule,
     SearchModule,
     SkeletonTextComponent,
+    StatusLockupComponent,
+    SvgComponent,
     TooltipDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
@@ -326,6 +329,8 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly emptyDescriptionKey = computed(() =>
     this.ciphers().length > 0 ? "clearFiltersOrTryAnother" : "emptyVaultDescription",
   );
+
+  protected readonly noResultsIcon = NoResults;
 
   protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS.get(type) ?? "";
 

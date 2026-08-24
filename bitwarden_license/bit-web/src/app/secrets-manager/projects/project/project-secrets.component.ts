@@ -12,6 +12,7 @@ import {
   switchMap,
 } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import {
   getOrganizationById,
   OrganizationService,
@@ -67,6 +68,8 @@ export class ProjectSecretsComponent implements OnInit {
     private accountService: AccountService,
     private logService: LogService,
   ) {}
+
+  readonly noItemsIcon = NoResults;
 
   ngOnInit() {
     const currentProjectEdited = this.projectService.project$.pipe(

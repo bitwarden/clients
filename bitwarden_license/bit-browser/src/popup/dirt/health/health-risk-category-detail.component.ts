@@ -30,7 +30,8 @@ import {
   IconModule,
   DialogService,
   CenterPositionStrategy,
-  NoItemsModule,
+  StatusLockupComponent,
+  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -61,7 +62,8 @@ const HEALTH_OVERVIEW_ROUTE = "/tabs/health";
     I18nPipe,
     MenuModule,
     IconModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
   ],
 })
 export class HealthRiskCategoryDetailComponent {
