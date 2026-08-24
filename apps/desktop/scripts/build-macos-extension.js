@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-require-imports, no-console */
 const child = require("child_process");
+const path = require("path");
 const { exit } = require("process");
 
 const fse = require("fs-extra");
+
+const { APP_IDS, PRODUCT_NAMES } = require("./channel.js");
 
 const paths = {
   macosBuild: "./macos/build",
@@ -12,6 +15,23 @@ const paths = {
   extensionDistDir: "./macos/dist",
   extensionDist: "./macos/dist/autofill-extension.appex",
   macOsProject: "./macos/desktop.xcodeproj",
+  generatedEntitlements: "./intermediates/entitlements/autofill-extension.plist",
+};
+
+/// The extension's provisioning profile, per release channel and per distribution. A profile
+/// authorizes one App ID, and the extension's App ID follows the app's, so beta cannot be signed
+/// with stable's profile even though the entitlements would otherwise look the same.
+const provisioningProfiles = {
+  stable: {
+    "mas-dev": "Bitwarden Desktop Autofill Development 2024",
+    mas: "Bitwarden Desktop Autofill App Store 2024",
+    mac: "Bitwarden Desktop Autofill Extension Developer Dis",
+  },
+  beta: {
+    "mas-dev": "Beta Bitwarden Desktop Autofill Development",
+    mas: "Beta Bitwarden Desktop Autofill App Store",
+    mac: "Beta Bitwarden Desktop Autofill Developer ID",
+  },
 };
 
 exports.default = buildMacOs;
@@ -29,7 +49,6 @@ async function buildMacOs() {
 
   let configuration;
   let codeSignIdentity;
-  let provisioningProfileSpecifier;
   let buildDirectory;
   const configurationArgument = process.argv[2];
   if (configurationArgument !== undefined) {
@@ -37,17 +56,14 @@ async function buildMacOs() {
     if (configurationArgument == "mas-dev") {
       configuration = "Debug";
       codeSignIdentity = "Apple Development";
-      provisioningProfileSpecifier = "Bitwarden Desktop Autofill Development 2024";
       buildDirectory = paths.extensionBuildDebug;
     } else if (configurationArgument == "mas") {
       configuration = "ReleaseAppStore";
       codeSignIdentity = "3rd Party Mac Developer Application";
-      provisioningProfileSpecifier = "Bitwarden Desktop Autofill App Store 2024";
       buildDirectory = paths.extensionBuildReleaseAppStore;
     } else if (configurationArgument == "mac") {
       configuration = "ReleaseDeveloper";
       codeSignIdentity = "Developer ID Application";
-      provisioningProfileSpecifier = "Bitwarden Desktop Autofill Extension Developer Dis";
       buildDirectory = paths.extensionBuildReleaseDeveloper;
     } else {
       console.log("### Unable to determine configuration, skipping Autofill Extension build");
@@ -57,6 +73,18 @@ async function buildMacOs() {
     console.log("### No configuration argument found, skipping Autofill Extension build");
     return;
   }
+
+  // Which app hosts this extension. macOS requires an extension's bundle identifier to be
+  // prefixed by its containing app's, so the channel decides the extension's identity too.
+  const channelArgument = process.argv[3] ?? "stable";
+  const appId = APP_IDS[channelArgument];
+  if (appId === undefined) {
+    console.log(`### Unknown channel '${channelArgument}', skipping Autofill Extension build`);
+    return;
+  }
+  const provisioningProfileSpecifier = provisioningProfiles[channelArgument][configurationArgument];
+
+  console.log(`### Channel '${channelArgument}', hosted by ${appId}`);
 
   const proc = child.spawn("xcodebuild", [
     "-project",
@@ -71,6 +99,20 @@ async function buildMacOs() {
     // be explicitly defined in this call.
     `CODE_SIGN_IDENTITY=${codeSignIdentity}`,
     `PROVISIONING_PROFILE_SPECIFIER=${provisioningProfileSpecifier}`,
+
+    // A setting given on the command line outranks the target's own build settings and the
+    // .xcconfig behind them, which is the only reason the two above take effect at all. The
+    // project derives PRODUCT_BUNDLE_IDENTIFIER, BITWARDEN_APP_GROUP and the extension's display
+    // name from these, so passing the app's identity is enough to retarget the whole build.
+    `BITWARDEN_APP_ID=${appId}`,
+    `BITWARDEN_PRODUCT_NAME=${PRODUCT_NAMES[channelArgument]}`,
+
+    // Beta signs with entitlements generated from its own identifier; stable still signs with the
+    // checked-in ones the project already names, so it is left alone. Absolute because xcodebuild
+    // resolves this against the Xcode project's directory rather than apps/desktop.
+    ...(channelArgument === "stable"
+      ? []
+      : [`CODE_SIGN_ENTITLEMENTS=${path.resolve(paths.generatedEntitlements)}`]),
   ]);
   stdOutProc(proc);
   await new Promise((resolve, reject) =>

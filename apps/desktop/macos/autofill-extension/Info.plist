@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>BitwardenAppGroupIdentifier</key>
-	<string>LTZ2PFU5D6.com.bitwarden.desktop</string>
+	<string>$(BITWARDEN_APP_GROUP)</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
