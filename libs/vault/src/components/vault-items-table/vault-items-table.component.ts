@@ -13,7 +13,6 @@ import { toSignal } from "@angular/core/rxjs-interop";
 import { map, of, switchMap } from "rxjs";
 
 import { IconComponent as VaultIconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { NoResults } from "@bitwarden/assets/svg";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -49,8 +48,6 @@ import {
   SelectionConfig,
   SkeletonTextComponent,
   SortFn,
-  StatusLockupComponent,
-  SvgComponent,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -66,6 +63,7 @@ import {
   MY_VAULT,
   NO_FOLDER,
 } from "../../utils/vault-filter-predicates";
+import { EmptyVaultComponent } from "../empty-vault/empty-vault.component";
 
 import { VaultItemsTableActionsColumnComponent } from "./vault-items-table-actions-column.component";
 import {
@@ -208,6 +206,7 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     BitTableToolbarComponent,
     BitTableV2Component,
     ButtonModule,
+    EmptyVaultComponent,
     FilterMenuModule,
     I18nPipe,
     IconModule,
@@ -215,8 +214,6 @@ const CIPHER_TYPE_LABELS = new Map<CipherType, string>(
     LinkModule,
     SearchModule,
     SkeletonTextComponent,
-    StatusLockupComponent,
-    SvgComponent,
     TooltipDirective,
     VaultIconComponent,
     VaultItemsTableActionsColumnComponent,
@@ -343,22 +340,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
   protected readonly MY_VAULT = MY_VAULT;
   protected readonly NO_FOLDER = NO_FOLDER;
-
-  /**
-   * Empty-state copy. A single `slot="empty"` has to cover both cases — rows filtered down to
-   * none, and a genuinely empty vault — so the branch resolves to an i18n key rather than
-   * wrapping the slots in an `@if`: content projection only matches the static top-level nodes
-   * of projected content, so anything inside a conditional block never reaches its slot.
-   */
-  protected readonly emptyTitleKey = computed(() =>
-    this.ciphers().length > 0 ? "noMatchingItems" : "noItemsInVault",
-  );
-
-  protected readonly emptyDescriptionKey = computed(() =>
-    this.ciphers().length > 0 ? "clearFiltersOrTryAnother" : "emptyVaultDescription",
-  );
-
-  protected readonly noResultsIcon = NoResults;
 
   protected readonly cipherTypeLabel = (type: CipherType) => CIPHER_TYPE_LABELS.get(type) ?? "";
 

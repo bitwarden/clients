@@ -100,23 +100,12 @@
     </bit-filter-menu>
   </bit-table-toolbar>
 
-  <bit-status-lockup slot="empty">
-    <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
-    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
-    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
-    <button
-      slot="button"
-      type="button"
-      bitButton
-      buttonType="secondary"
-      startIcon="bwi-clear"
-      [class.tw-hidden]="!hasActiveChipFilters(vaultTable)"
-      class="tw-mb-6"
-      (click)="clearChipFilters(vaultTable)"
-    >
-      {{ "clearAll" | i18n }}
-    </button>
-  </bit-status-lockup>
+  <vault-empty-vault
+    slot="empty"
+    [hasItems]="ciphers().length > 0"
+    [hasActiveFilters]="hasActiveChipFilters(vaultTable)"
+    (clearFilters)="clearChipFilters(vaultTable)"
+  ></vault-empty-vault>
 
   <!-- Name -->
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">

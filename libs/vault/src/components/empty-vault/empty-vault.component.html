@@ -1,0 +1,17 @@
+<bit-status-lockup>
+  <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
+  <span slot="title">{{ titleKey() | i18n }}</span>
+  <span slot="description">{{ descriptionKey() | i18n }}</span>
+  <button
+    slot="button"
+    type="button"
+    bitButton
+    buttonType="secondary"
+    startIcon="bwi-clear"
+    [class.tw-hidden]="!hasActiveFilters()"
+    class="tw-mb-6"
+    (click)="clearFilters.emit()"
+  >
+    {{ "clearAll" | i18n }}
+  </button>
+</bit-status-lockup>
