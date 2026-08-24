@@ -93,7 +93,8 @@
     </bit-filter-menu>
   </bit-table-toolbar>
 
-  <bit-no-items slot="empty">
+  <bit-status-lockup slot="empty">
+    <bit-svg slot="graphic" [content]="noResultsIcon"></bit-svg>
     <span slot="title">{{ emptyTitleKey() | i18n }}</span>
     <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
     <button
@@ -108,7 +109,7 @@
     >
       {{ "clearAll" | i18n }}
     </button>
-  </bit-no-items>
+  </bit-status-lockup>
 
   <!-- Name -->
   <bit-column sortable defaultSort="asc" width="minmax(240px, 480px)">
