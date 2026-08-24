@@ -25,6 +25,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   AutofocusDirective,
+  BadgeModule,
   BreadcrumbsModule,
   ButtonModule,
   CalloutModule,
@@ -85,7 +86,7 @@ import {
  * `accessRuleId` route param and fetches the rule with {@link AccessRuleSdkService.getAccessRule}
  * so the page works on deep-link/refresh; create mode reads an optional `template` query
  * param to prefill from a starter template. Groups the form into card sections
- * (General info / Access duration / Optional conditions) per the design; on save it
+ * (General info / Status / Access duration / Optional conditions) per the design; on save it
  * routes back to the access-rules list.
  */
 @Component({
@@ -96,6 +97,7 @@ import {
     ReactiveFormsModule,
     AsyncActionsModule,
     AutofocusDirective,
+    BadgeModule,
     BreadcrumbsModule,
     ButtonModule,
     CalloutModule,
