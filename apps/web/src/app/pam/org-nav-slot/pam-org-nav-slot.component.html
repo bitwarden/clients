@@ -6,5 +6,8 @@
     @if (showAuditLog()) {
       <bit-nav-item [text]="'pamAuditLog' | i18n" route="pam/audit"></bit-nav-item>
     }
+    @if (showRotation()) {
+      <bit-nav-item [text]="'pamRotationNav' | i18n" route="pam/rotation"></bit-nav-item>
+    }
   </bit-nav-group>
 }
