@@ -99,7 +99,7 @@ describe("historyDisplayStatus", () => {
     });
   });
 
-  it("labels a canceled lease as Cancelled (pamStatusEndedByYou)", () => {
+  it("labels a canceled lease as Canceled", () => {
     const r = request("req-1", {
       status: "approved",
       producedLeaseId: "lease-1",
@@ -107,7 +107,7 @@ describe("historyDisplayStatus", () => {
     });
     expect(historyDisplayStatus(r)).toEqual({
       badgeState: null,
-      statusBadge: { labelKey: "pamStatusEndedByYou", variant: "subtle" },
+      statusBadge: { labelKey: "pamStatusCanceled", variant: "subtle" },
     });
   });
 
@@ -125,7 +125,7 @@ describe("historyDisplayStatus", () => {
 
   it("reads Revoked off the lease status even with the requester's own deny on the log", () => {
     // The label used to be derived from the decision log; `canceled` vs `revoked` settles it now,
-    // so a self-deny recorded alongside an operator revoke must not flip it back to Cancelled.
+    // so a self-deny recorded alongside an operator revoke must not flip it back to Canceled.
     const r = request("req-1", {
       status: "approved",
       requesterId: "user-1",
