@@ -74,6 +74,7 @@ export { elapsedLabel } from "./date/elapsed";
 export type { ElapsedLabel } from "./date/elapsed";
 export { ApprovalSdkService } from "./abstractions/approval-sdk.service";
 export { AuditApiService } from "./access-audit/audit-api.service";
+export { RotationApiService } from "./rotation/rotation-api.service";
 export { AccessAuditEventKind } from "./access-audit/responses/access-audit-event.response";
 export type { AccessAuditEventResponse } from "./access-audit/responses/access-audit-event.response";
 export { durationLabel, exactWindow, reasonText, relativeStart } from "./helpers/approval-window";
