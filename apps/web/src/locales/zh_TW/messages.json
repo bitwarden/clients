@@ -1718,58 +1718,12 @@
   "copyName": {
     "message": "複製名稱"
   },
-  "cardNumber": {
-    "message": "卡號"
-  },
-  "copyFieldCipherName": {
-    "message": "複製 $FIELD$，$CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "複製 $ITEMNAME$ 的詳細資訊",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "複製備註 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "未輸入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
     "message": "沒有可複製的詳細資訊"
-  },
-  "launchWebsiteForName": {
-    "message": "開啟 $ITEMNAME$ 的網站",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsite": {
     "message": "Launch website"
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "用於檔案附件的 1 GB 的加密檔案儲存空間。"
   },
-  "premiumSignUpStorageV2": {
-    "message": "用於檔案附件的 $SIZE$ 加密儲存空間。",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "專有的兩步驟登入選項，例如 YubiKey 和 Duo。"
-  },
   "premiumSignUpEmergency": {
     "message": "緊急存取"
-  },
-  "premiumSignUpReports": {
-    "message": "密碼健康、帳戶體檢以及資料外洩報告，保障您的密碼庫安全。"
-  },
-  "premiumSignUpTotp": {
-    "message": "用於您的密碼庫中登入項目的 TOTP 驗證碼 (2FA) 產生器。"
-  },
-  "premiumSignUpSupport": {
-    "message": "優先客戶支援。"
-  },
-  "premiumSignUpFuture": {
-    "message": "未來會有更多進階功能，敬請期待！"
-  },
-  "premiumPrice": {
-    "message": "每年只需 $PRICE$ ！",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "升級到進階會員只需 $PRICE$/年，或是升級到含有 $FAMILYPLANUSERCOUNT$ 位進階使用者，可無限制家庭共享的 ",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "The organization you are trying to join only allows its members to belong to one organization."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "此使用者可以存取 Secrets Manager"
   },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Activate user access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "This user can access Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "重要："
   },
@@ -12210,6 +12149,10 @@
     "message": "已啟用對機密管理員的存取權限",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Activated access to Privileged Controls",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "啟用存取權限"
   },
@@ -12217,8 +12160,16 @@
     "message": "授予以下成員對機密管理員的存取權限。在密碼管理員授予的角色也適用於機密管理員。",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Grant the following members access to Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "啟用 Secrets Manager"
+  },
+  "activatePrivilegedControls": {
+    "message": "Activate Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "您組織的指紋短語",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "免費的 2 人組織"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "無限數量的機密"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "審核組織成員在群組、集合及集合項目中的存取權。CSV 匯出將提供每位成員的詳細分析，包括集合權限及帳號設定資訊。"
   },
-  "memberAccessReportPageDescV2": {
-    "message": "稽核成員在群組、收藏集及收藏集項目中的存取權限。CSV 匯出檔會提供每位成員的詳細資料，包括收藏集權限與帳戶設定。"
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "（無集合）"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "查看所有方案"

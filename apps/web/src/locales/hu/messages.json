@@ -1069,7 +1069,7 @@
     "message": "Kedvencek"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Elemek megjelölése kedvencként az itteni szűréshez."
   },
   "taskSummary": {
     "message": "Feladat összefoglaló"
@@ -1210,7 +1210,7 @@
     "message": "Saját mappák"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Adjunk hozzá mappákat az elemekhez az itteni szűréshez."
   },
   "addSharedFolder": {
     "message": "Megosztott mappa hozzadása"
@@ -1718,43 +1718,6 @@
   "copyName": {
     "message": "Név másolása"
   },
-  "cardNumber": {
-    "message": "kártya szám"
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ másolása",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Adatok másolása: $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Jegyzet másolása - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Nincs megadva érték.",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
@@ -1762,17 +1725,8 @@
   "noDetailsToCopy": {
     "message": "Nincsenek másolandó adatok."
   },
-  "launchWebsiteForName": {
-    "message": "$ITEMNAME$ webhely elindítása",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Webhely indítása"
   },
   "me": {
     "message": "Én"
@@ -3414,7 +3368,7 @@
     "message": "További opciók"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ opciók",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3423,7 +3377,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ szűrő",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB titkosított tárhely a fájlmellékleteknek."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ titkosított tárhely a fájlmellékletekhez.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Saját kétlépcsős bejelentkezési lehetőségek mint a YubiKey és a Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Sürgősségi hozzáférés"
-  },
-  "premiumSignUpReports": {
-    "message": "Jelszó higiénia, felhasználói fiók biztonsága, és adatszivárgási jelentések a széf biztonsága érdekében."
-  },
-  "premiumSignUpTotp": {
-    "message": "Egyszeri időalapú TOTP ellenőrző kód (2FA) generátor a széfbe bejelentkezésekhez."
-  },
-  "premiumSignUpSupport": {
-    "message": "Elsőbbségi ügyfélszolgálat."
-  },
-  "premiumSignUpFuture": {
-    "message": "Minden jövőbeli prémium funkció. Hamarosan jön még több!"
-  },
-  "premiumPrice": {
-    "message": "Mindez csak $PRICE$ /év.",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Prémium csomag mindössze $PRICE$/év áron, vagy szerezzünk be prémium fiókot $FAMILYPLANUSERCOUNT$ felhasználónak és korlátlan családi megosztást:",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "Egy szervezet, amelynek már tagja vagyunk, csak egy szervezethez engedi tartozni a tagjait."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "Egy szervezet, amelynek már tagja vagyunk, csak egy megosztott széfhez engedi tartozni a tagjait."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "Az a szervezet, amelyhez csatlakozni próbálunk, csak egy megosztott széfhez engedi tartozni a tagjait."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Az a szervezet, amelyhez csatlakozni próbálunk, csak egy szervezethez engedi tartozni a tagjait."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "Ez a felhasználó elérheti a Titkos kód kezelőt"
   },
+  "privilegedControls": {
+    "message": "Privilegizált ellenőrzések",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Aktiválja a felhasználói hozzáférést a Privilegizált ellenőrzésekhez.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Ez a felhasználó hozzáférhet a Privilegizált ellenőrzésekhez.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "Fontos:"
   },
@@ -12210,6 +12149,10 @@
     "message": "A hozzáférés engedélyezése a Titkos kód kezelőhöz",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "A hozzáférés aktiválásra került a Privilegizált ellenőrzésekhez.",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Hozzáférés bekapcsolása"
   },
@@ -12217,8 +12160,16 @@
     "message": "Hozzáférés kiosztása a következő tagoknak a Titkos kód kezelőhöz.. A Jelszókezelőben megadott szerepkör a Titkos kód kezelőre vonatkozik.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Hozzáférés adása a következő tagoknak a Privilegizált ellenőrzésekhez.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Titkos kód kezelő bekapcsolása"
+  },
+  "activatePrivilegedControls": {
+    "message": "Privilegizált ellenőrzések aktiválása",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "A szervezet ujjnyomat kifejezése",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Díjmentes 2 személyes szervezetek"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Korlátlan titkos kód"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "A szervezeti tagok hozzáférésének ellenőrzése a csoportok, gyűjtemények és gyűjteményelemek között. A CSV exportálás tagonként részletes lebontást biztosít, beleértve a gyűjtemény engedélyekre és a fiókkonfigurációkra vonatkozó információkat."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  "memberAccessReportPageDescV3": {
+    "message": "A szervezeti tagok hozzáférésének ellenőrzése a csoportok, megosztott mappák és elemek között. A CSV exportálás tagonként részletes lebontást biztosít, beleértve a jogosultságokra és a fiók konfigurációkra vonatkozó információkat."
   },
   "memberAccessReportNoCollection": {
     "message": "(Nincs gyűjtemény)"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Nyissuk meg az előfizetési oldalt Bitwarden fiókban és töltsük le a licensz fájlt. Ezután térjünk vissza erre a képernyőre és töltsük fel lentebb."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "A felhő környezetben jelentkezzünk be a Bitwarden fiókba, nyissuk meg az előfizetés oldalt és töltsük le licensz fájlt. Ezután térjünk vissza erre a képernyőre és töltsük fel azt."
   },
   "viewAllPlans": {
     "message": "Összes csomag megtekintése"

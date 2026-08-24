@@ -1069,7 +1069,7 @@
     "message": "Oblíbené"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Označte položky jako oblíbené pro jejich filtrování zde."
   },
   "taskSummary": {
     "message": "Shrnutí úkolů"
@@ -1210,7 +1210,7 @@
     "message": "Moje složky"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Přidejte složky k položkám pro jejich filtrování zde."
   },
   "addSharedFolder": {
     "message": "Přidat sdílenou složku"
@@ -1718,43 +1718,6 @@
   "copyName": {
     "message": "Kopírovat název"
   },
-  "cardNumber": {
-    "message": "číslo karty"
-  },
-  "copyFieldCipherName": {
-    "message": "Kopírovat $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Kopírovat podrobnosti pro $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Kopírovat poznámku - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Nebyla zadána žádná hodnota",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
@@ -1762,17 +1725,8 @@
   "noDetailsToCopy": {
     "message": "Žádné podrobnosti ke kopírování"
   },
-  "launchWebsiteForName": {
-    "message": "Spustit web pro $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Otevřít webovou stránku"
   },
   "me": {
     "message": "Já"
@@ -3414,7 +3368,7 @@
     "message": "Více voleb"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Volby pro $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3423,7 +3377,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrovat podle $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ šifrovaného úložiště pro přílohy.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Nouzový přístup"
-  },
-  "premiumSignUpReports": {
-    "message": "Hlášení o hygieně Vašich hesel, zdraví účtu a narušeních bezpečnosti."
-  },
-  "premiumSignUpTotp": {
-    "message": "Generátor TOTP kódu dvoufázového přihlašování (2FA) pro přihlašovací údaje ve Vašem trezoru."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioritní zákaznická podpora."
-  },
-  "premiumSignUpFuture": {
-    "message": "Všechny budoucí funkce členství Premium. Více již brzy!"
-  },
-  "premiumPrice": {
-    "message": "Vše jen za $PRICE$ ročně!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Přejděte na členství Premium jen za $PRICE$ ročně nebo získejte prémiové účty pro $FAMILYPLANUSERCOUNT$ uživatelů a neomezené rodinné sdílení s ",
@@ -4719,7 +4640,7 @@
     "message": "Název organizace"
   },
   "vaultName": {
-    "message": "Vault name"
+    "message": "Název trezoru"
   },
   "accountOwnedBusiness": {
     "message": "Tento účet je vlastněn společností."
@@ -4838,7 +4759,7 @@
     }
   },
   "limitedSharedFolders": {
-    "message": "Limited to $COUNT$ shared folders",
+    "message": "Omezeno na $COUNT$ sdílených složek",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -4862,7 +4783,7 @@
     "message": "Neomezený počet sbírek"
   },
   "createUnlimitedSharedFolders": {
-    "message": "Create unlimited shared folders"
+    "message": "Vytvořit neomezené sdílené složky"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ šifrovaného úložiště",
@@ -6566,7 +6487,7 @@
     }
   },
   "unableToJoinOrganizationName": {
-    "message": "Unable to join $ORGANIZATIONNAME$",
+    "message": "Nelze se připojit k $ORGANIZATIONNAME$",
     "placeholders": {
       "organizationName": {
         "content": "$1",
@@ -6575,13 +6496,13 @@
     }
   },
   "openOrgInviteLinkNoLongerValid": {
-    "message": "The invite link is no longer valid."
+    "message": "Odkaz na pozvánku již není platný."
   },
   "returnToLogin": {
-    "message": "Return to login"
+    "message": "Zpět na přihlášení"
   },
   "returnToRegistration": {
-    "message": "Return to registration"
+    "message": "Zpět k registraci"
   },
   "joinOrganizationDesc": {
     "message": "Byli jste pozváni do výše uvedené organizace. Chcete-li přijmout pozvánku, musíte se přihlásit nebo vytvořit nový účet na Bitwardenu."
@@ -6611,16 +6532,16 @@
     }
   },
   "openOrgInviteAcceptFailed": {
-    "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
+    "message": "Nelze přijmout pozvánku. Požádejte správce organizace o zaslání nové pozvánky."
   },
   "openOrgInviteAcceptFailedTitle": {
-    "message": "Cannot accept invitation"
+    "message": "Nelze přijmout pozvánku"
   },
   "openOrgInviteAcceptAlreadyMember": {
-    "message": "You are already a member of this organization."
+    "message": "Již jste členem této organizace."
   },
   "openOrgInviteAcceptEmailDomainNotAllowed": {
-    "message": "Emails matching $DOMAIN$ are not allowed in this organization.",
+    "message": "E-maily odpovídající $DOMAIN$ nejsou v této organizaci povoleny.",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -6629,52 +6550,58 @@
     }
   },
   "openOrgInviteAcceptFreeAdminLimit": {
-    "message": "You cannot join this organization because you are already the admin of a free organization."
+    "message": "Nemůžete se připojit k této organizaci, protože jste již správcem volné organizace."
   },
   "openOrgInviteAcceptOrgAccessRevoked": {
-    "message": "You have been revoked from this organization. Contact your admin to regain access."
+    "message": "Byli jste odvoláni z této organizace. Obraťte se na správce, abyste znovu získali přístup."
   },
   "openOrgInviteAcceptProviderUser": {
-    "message": "Provider users may not join using this invitation link."
+    "message": "Uživatelé poskytovatele se nemohou připojit pomocí tohoto odkazu."
   },
   "openOrgInviteAcceptResetPasswordKeyRequired": {
-    "message": "Something went wrong, please reload the page to try again."
+    "message": "Něco se pokazilo. Prosíme, aktualizujte stránku a zkuste to znovu."
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
-    "message": "An organization you are already a member of only allows its members to belong to one organization."
+    "message": "Organizace, ve které jste již členem, jen umožňuje, aby její členové patřili do jedné organizace."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "Organizace, ve které jste již členem, jen umožňuje, aby její členové měli přístup k jednomu sdílenému trezoru."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "Organizace, do které se snažíte vstoupit, jen umožňuje, aby její členové měli přístup k jednomu asdílenému terzoru."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
-    "message": "The organization you are trying to join only allows its members to belong to one organization."
+    "message": "Organizace, do které se snažíte vstoupit, umožňuje svým členům být členy jen jedné organizace."
   },
   "openOrgInviteAcceptTwoFactorRequired": {
-    "message": "You must set up two-step login in order to join this organization."
+    "message": "Musíte nastavit dvoufázové přihlášení, abyste se mohli připojit k této organizaci."
   },
   "openOrgInviteAcceptEmailNotVerified": {
-    "message": "You must verify your email address before joining an organization."
+    "message": "Před vstupem do organizace musíte ověřit svou e-mailovou adresu."
   },
   "openOrgInviteAcceptUnexpected": {
-    "message": "Something went wrong, please reload the page to try again."
+    "message": "Něco se pokazilo. Prosíme, aktualizujte stránku a zkuste to znovu."
   },
   "openOrgInviteNoSeatsMessage": {
-    "message": "Your invitation could not be accepted because there is not an available seat."
+    "message": "Vaše pozvánka nemohla být přijata, protože není k dispozici volné místo."
   },
   "openOrgInviteStatusUnexpectedErrorMessage": {
-    "message": "Something went wrong, please reload the page to try again."
+    "message": "Něco se pokazilo. Prosíme, aktualizujte stránku a zkuste to znovu."
   },
   "openOrgInviteEmailDomainNotAllowed": {
-    "message": "This domain isn't accepted by this organization. Try a different email address."
+    "message": "Tato doména není touto organizací přijata. Zkuste jinou e-mailovou adresu."
   },
   "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
-    "message": "Could not accept invitation"
+    "message": "Nelze přijmout pozvánku"
   },
   "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
-    "message": "Could not decrypt the organization invite. Try again using the same browser to start and finish the signup process."
+    "message": "Pozvánku organizace nelze dešifrovat. Zkuste to znovu pomocí stejného prohlížeče začít a dokončit proces registrace."
   },
   "goToLogin": {
-    "message": "Go to login"
+    "message": "Přejít na přihlášení"
   },
   "goToVault": {
-    "message": "Go to vault"
+    "message": "Přejít do trezoru"
   },
   "rememberEmail": {
     "message": "Zapamatovat si e-mail"
@@ -9505,25 +9432,25 @@
     "message": "Sponzorované rodiny"
   },
   "sponsoredBitwardenFamiliesV2": {
-    "message": "Non-member redemptions"
+    "message": "Výplaty pro nečleny"
   },
   "noSponsoredFamiliesMessage": {
     "message": "Žádné sponzorované rodiny"
   },
   "noSponsoredFamiliesMessageV2": {
-    "message": "No redemptions yet"
+    "message": "Zatím nedošlo k žádné výplatě"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Zde se zobrazí sponzorované plány rodin, které nejsou členy"
   },
   "noSponsoredFamiliesDetailsV2": {
-    "message": "No non-members have redeemed the Sponsored Family Plan."
+    "message": "Žádný nečlen zatím nevyužil sponzorovaný rodinný tarif."
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Členové Vaší organizace mají nárok na bezplatné rodiny Bitwarden. Můžete sponzorovat zdarma rodiny Bitwarden pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden. Sponzorování nečlena vyžaduje dostupné místo ve Vaší organizaci."
   },
   "sponsorshipFreeBitwardenFamiliesV2": {
-    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
+    "message": "Vaši členové mají nárok na využití sponzorovaného rodinného tarifu. Můžete sponzorovat rodinný tarif pro zaměstnance, kteří nejsou členy Vaší organizace Bitwarden, ale k tomu je nutné, aby ve Vaší organizaci byla k dispozici volná místa."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Pokud odeberete aktivní sponzorství, bude po datu obnovení sponzorované organizace k dispozici volný uživatel ve Vaší organizaci."
@@ -9532,7 +9459,7 @@
     "message": "Vy a Vaše rodina máte nárok na Bitwarden pro rodinu zdarma. Nárok můžete uplatnit Vaším osobním e-mailem, abyste zajistili bezpečnost Vašich dat, i když nejste v práci."
   },
   "sponsoredFamiliesEligibleV2": {
-    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+    "message": "Vy a vaše rodina máte nárok na program \"Sponsored Families Plan\", a to bez jakýchkoli dodatečných nákladů. Tento program si aktivujte pomocí svého osobního e-mailu, abyste zajistili bezpečnost svých dat a oddělili je od svého pracovního účtu v Bitwardenu."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Uplatněte ještě dnes svůj plán Bitwarden pro rodinu zdarma, aby byla Vaše data bezpečná, i když nejste v práci."
@@ -9541,7 +9468,7 @@
     "message": "Plán Bitwarden pro rodiny zahrnuje"
   },
   "sponsoredFamiliesIncludeMessageV2": {
-    "message": "The Bitwarden Families plan includes"
+    "message": "Plán \"Bitwarden Families\" obsahuje"
   },
   "sponsoredFamiliesPremiumAccess": {
     "message": "Prémiový přístup až pro 6 uživatelů"
@@ -9550,7 +9477,7 @@
     "message": "Sdílené sbírky pro členy rodiny"
   },
   "sponsoredFamiliesSharedFoldersForFamilyMembers": {
-    "message": "Shared folders for family members"
+    "message": "Sdílené složky pro členy rodiny"
   },
   "memberFamilies": {
     "message": "Rodiny členů"
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "Tento uživatel může přistupovat ke Správci tajných klíčů"
   },
+  "privilegedControls": {
+    "message": "Privilegované ovládací prvky",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Aktivuje přístup uživatele k privilegovaným ovládacím prvkům.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Tento uživatel má přístup k privilegovaným ovládacím prvkům",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "Důležité:"
   },
@@ -12210,6 +12149,10 @@
     "message": "Aktivován přístup uživatele ke Správci tajných klíčů",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Aktivován přístup k privilegovaným ovládacím prvkům",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Aktivovat přístup"
   },
@@ -12217,8 +12160,16 @@
     "message": "Udělte následujícím členům přístup ke Správci tajných klíčů. Role udělená ve Správci hesel se bude vztahovat na Správce tajných klíčů.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Udělte těmto členům přístup k privilegovaným ovládacím prvkům.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Aktivovat Správce tajných klíčů"
+  },
+  "activatePrivilegedControls": {
+    "message": "Aktivovat privilegované ovládací prvky",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Fráze otisku prstu Vaší organizace",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Zdarma a organizace do 2 osob"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Neomezené klíče"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "Audit přístupu členů organizace ke skupinám, sbírkám a položkám sbírek. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit přístupu členů ke skupinám, sbírkám a položkám sbírek. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit přístupu členů ke skupinám, sdíleným složkám a položkám. Export CSV poskytuje podrobný rozpis pro jednotlivé členy, včetně informací o oprávněních ke sbírkám a konfiguracích účtů."
   },
   "memberAccessReportNoCollection": {
     "message": "(Žádná sbírka)"
@@ -14273,7 +14227,7 @@
     "message": "Neomezené sbírky"
   },
   "unlimitedSharedFolders": {
-    "message": "Unlimited shared folders"
+    "message": "Neomezený počet sdílených složek"
   },
   "secureDataSharing": {
     "message": "Zabezpečené sdílení dat"
@@ -15510,7 +15464,7 @@
     "message": "Neomezené rodinné sbírky"
   },
   "familiesUnlimitedSharedFolders": {
-    "message": "Unlimited family shared folders"
+    "message": "Neomezený počet sdílených složek v rodině"
   },
   "familiesSharedStorage": {
     "message": "Sdílené úložiště pro důležité rodinné informace"
@@ -15534,7 +15488,7 @@
     }
   },
   "limitedSharedFoldersV2": {
-    "message": "Up to $COUNT$ shared folders",
+    "message": "Až $COUNT$ sdílených složek",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15954,7 +15908,10 @@
     "message": "Otevřete stránku s předplatným na Vašem účtu Bitwarden a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a nahrajte jej níže."
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
-    "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+    "message": "Otevřete stránku s předplatným na Vašem účtu Bitwarden a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a nahrajte jej níže."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "Ve svém cloudovém prostředí se přihlaste ke svému účtu Bitwarden, otevřete stránku předplatného a stáhněte si licenční soubor. Poté se vraťte na tuto obrazovku a soubor nahrajte."
   },
   "viewAllPlans": {
     "message": "Zobraz všechny plány"

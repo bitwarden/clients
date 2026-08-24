@@ -1069,7 +1069,7 @@
     "message": "Yêu thích"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Đánh dấu các mục là yêu thích để lọc chúng tại đây."
   },
   "taskSummary": {
     "message": "Tóm tắt nhiệm vụ"
@@ -1210,7 +1210,7 @@
     "message": "Thư mục của tôi"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Thêm thư mục vào các mục để lọc chúng tại đây."
   },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
@@ -1718,43 +1718,6 @@
   "copyName": {
     "message": "Sao chép tên"
   },
-  "cardNumber": {
-    "message": "số thẻ"
-  },
-  "copyFieldCipherName": {
-    "message": "Sao chép $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Sao chép chi tiết cho $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Sao chép ghi chú - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Chưa nhập giá trị",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
@@ -1762,17 +1725,8 @@
   "noDetailsToCopy": {
     "message": "Không có chi tiết để sao chép"
   },
-  "launchWebsiteForName": {
-    "message": "Khởi chạy trang web cho $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Mở trang web"
   },
   "me": {
     "message": "Tôi"
@@ -3414,7 +3368,7 @@
     "message": "Tùy chọn khác"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Tùy chọn cho $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3423,7 +3377,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Lọc theo $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Truy cập khẩn cấp"
-  },
-  "premiumSignUpReports": {
-    "message": "Độ mạnh của mật khẩu, tình trạng bảo mật tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho lưu trữ của bạn."
-  },
-  "premiumSignUpTotp": {
-    "message": "Trình tạo mã xác minh TOTP (2FA) cho các mục đăng nhập trong kho của bạn."
-  },
-  "premiumSignUpSupport": {
-    "message": "Hỗ trợ khách hàng ưu tiên."
-  },
-  "premiumSignUpFuture": {
-    "message": "Tất cả các tính năng Cao cấp trong tương lai. Nó sẽ sớm xuất hiện!"
-  },
-  "premiumPrice": {
-    "message": "Tất cả chỉ với $PRICE$/năm!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Nâng cấp lên gói Cao cấp chỉ với $PRICE$ /năm, hoặc đăng ký gói Cao cấp cho $FAMILYPLANUSERCOUNT$ người dùng và chia sẻ không giới hạn cho gia đình với một ",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "Một tổ chức mà bạn đã là thành viên chỉ cho phép các thành viên của mình thuộc về một tổ chức."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Tổ chức mà bạn đang cố gắng tham gia chỉ cho phép các thành viên của mình thuộc về một tổ chức."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "Người dùng này có thể truy cập Trình quản lý Bí mật"
   },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Activate user access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "This user can access Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "Quan trọng:"
   },
@@ -12210,6 +12149,10 @@
     "message": "Đã kích hoạt quyền truy cập Trình quản lý Bí mật",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Activated access to Privileged Controls",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Kích hoạt quyền truy cập"
   },
@@ -12217,8 +12160,16 @@
     "message": "Cấp quyền truy cập Trình quản lý Bí mật cho các thành viên sau. Vai trò được cấp trong Trình quản lý Mật khẩu sẽ áp dụng cho Trình quản lý Bí mật.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Grant the following members access to Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Kích hoạt Trình quản lý Bí mật"
+  },
+  "activatePrivilegedControls": {
+    "message": "Activate Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Cụm từ xác thực của tổ chức bạn",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Miễn phí cho 2 người của tổ chức"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Bí mật không giới hạn"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "Kiểm tra quyền truy cập của thành viên tổ chức trên các nhóm, bộ sưu tập và mục trong bộ sưu tập. Tệp CSV xuất ra cung cấp bảng phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền của bộ sưu tập và cấu hình tài khoản."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Kiểm tra quyền truy cập của thành viên trên các nhóm, bộ sưu tập và các mục trong bộ sưu tập. Tệp xuất CSV cung cấp bản phân tích chi tiết cho từng thành viên, bao gồm thông tin về quyền bộ sưu tập và cấu hình tài khoản."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(Không có Bố sưu tập)"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Mở trang đăng ký trên tài khoản Bitwarden của bạn và tải xuống tệp giấy phép của bạn. Sau đó quay lại màn hình này và tải tệp lên bên dưới."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "Xem tất cả các gói"

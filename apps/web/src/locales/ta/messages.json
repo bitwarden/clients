@@ -1718,58 +1718,12 @@
   "copyName": {
     "message": "பெயரை நகலெடு"
   },
-  "cardNumber": {
-    "message": "அட்டை எண்"
-  },
-  "copyFieldCipherName": {
-    "message": "$FIELD$, $CIPHERNAME$ நகலெடு",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "No value entered",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
     "message": "No details to copy"
-  },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsite": {
     "message": "Launch website"
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "கோப்பு இணைப்புகளுக்கு 1 GB என்க்ரிப்ட் செய்யப்பட்ட சேமிப்பகம்."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ encrypted storage for file attachments.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "YubiKey மற்றும் Duo போன்ற தனியுரிம இரண்டு-படி உள்நுழைவு விருப்பங்கள்."
-  },
   "premiumSignUpEmergency": {
     "message": "அவசர அணுகல்"
-  },
-  "premiumSignUpReports": {
-    "message": "உங்கள் வால்ட்டைப் பாதுகாப்பாக வைத்திருக்க கடவுச்சொல் சுகாதாரம், கணக்கு நலம் மற்றும் தரவு மீறல் அறிக்கைகள்."
-  },
-  "premiumSignUpTotp": {
-    "message": "உங்கள் வால்ட்டில் உள்நுழைவுகளுக்கான TOTP சரிபார்ப்பு குறியீடு (2FA) ஜெனரேட்டர்."
-  },
-  "premiumSignUpSupport": {
-    "message": "முன்னுரிமை வாடிக்கையாளர் ஆதரவு."
-  },
-  "premiumSignUpFuture": {
-    "message": "அனைத்து எதிர்கால பிரீமியம் அம்சங்கள். மேலும் பல விரைவில்!"
-  },
-  "premiumPrice": {
-    "message": "$PRICE$ /ஆண்டுக்கு மட்டுமே!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "$PRICE$ /ஆண்டுக்கு பிரீமியத்திற்குச் செல்லவும், அல்லது $FAMILYPLANUSERCOUNT$ பயனர்களுக்கு பிரீமியம் கணக்குகளைப் பெறுங்கள் மற்றும் ",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "The organization you are trying to join only allows its members to belong to one organization."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "இந்த பயனர் Secrets Manager-ஐ அணுகலாம்"
   },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Activate user access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "This user can access Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "முக்கியமானது:"
   },
@@ -12210,6 +12149,10 @@
     "message": "Secrets Manager-க்கு அணுகல் செயல்படுத்தப்பட்டது",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Activated access to Privileged Controls",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "அணுகலைச் செயல்படுத்தவும்"
   },
@@ -12217,8 +12160,16 @@
     "message": "பின்வரும் உறுப்பினர்களுக்கு Secrets Manager-க்கு அணுகலை வழங்கவும். கடவுச்சொல் மேலாளரில் வழங்கப்பட்ட பங்கு Secrets Manager-க்கு பொருந்தும்.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Grant the following members access to Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Secrets Manager-ஐ செயல்படுத்தவும்"
+  },
+  "activatePrivilegedControls": {
+    "message": "Activate Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "உங்கள் நிறுவனத்தின் கைரேகை சொற்றொடர்",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "இலவச 2-நபர் நிறுவனங்கள்"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "வரம்பற்ற ரகசியங்கள்"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "குழுக்கள், தொகுப்புகள் மற்றும் தொகுப்பு உருப்படிகள் முழுவதும் நிறுவன உறுப்பினர் அணுகலைத் தணிக்கை செய். CSV ஏற்றுமதி, தொகுப்பு அனுமதிகள் மற்றும் கணக்கு உள்ளமைவுகள் பற்றிய தகவல்கள் உட்பட ஒரு உறுப்பினருக்குரிய விவரங்களைப் பார்க்க வழிசெய்கிறது."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(தொகுப்பு இல்லை)"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "View all plans"

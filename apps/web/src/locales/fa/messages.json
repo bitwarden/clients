@@ -1718,58 +1718,12 @@
   "copyName": {
     "message": "کپی نام"
   },
-  "cardNumber": {
-    "message": "شماره کارت"
-  },
-  "copyFieldCipherName": {
-    "message": "کپی $FIELD$،$CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "کپی یادداشت - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "هیچ مقداری وارد نشده است",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
     "message": "No details to copy"
-  },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsite": {
     "message": "Launch website"
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره‌سازی رمزنگاری شده برای پرونده‌های پیوست."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ فضای ذخیره‌سازی رمزگذاری شده برای پیوست‌های پرونده.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "گزینه های ورود اضافی دو مرحله ای مانند YubiKey و Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "دسترسی اضطراری"
-  },
-  "premiumSignUpReports": {
-    "message": "گزارش‌های بهداشت رمز عبور، سلامت حساب و نقض داده‌ها برای ایمن نگهداشتن گاوصندوق شما."
-  },
-  "premiumSignUpTotp": {
-    "message": "تولید کننده کد تأیید (2FA) از نوع TOTP برای ورودهای موجود در گاوصندوقتان."
-  },
-  "premiumSignUpSupport": {
-    "message": "اولویت پشتیبانی از مشتری."
-  },
-  "premiumSignUpFuture": {
-    "message": "تمام ویژگی‌های پرمیوم آینده. به زودی بیشتر!"
-  },
-  "premiumPrice": {
-    "message": "تمامش فقط $PRICE$ در سال!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "فقط با $PRICE$ در سال کاربر پرمیوم شویید یا برای کاربران $FAMILYPLANUSERCOUNT$ حساب‌های پرمیوم و اشتراک‌گذاری نامحدود خانواده با ",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "An organization you are already a member of only allows its members to belong to one organization."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "The organization you are already a member of only allows its members to access one shared vault."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "The organization you are trying to join only allows its members to access one shared vault."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "The organization you are trying to join only allows its members to belong to one organization."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "این کاربر می تواند به مدیر رازها دسترسی داشته باشد"
   },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Activate user access to Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "This user can access Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "مهم:"
   },
@@ -12210,6 +12149,10 @@
     "message": "دسترسی فعال به مدیر رازها",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Activated access to Privileged Controls",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "فعال کردن دسترسی"
   },
@@ -12217,8 +12160,16 @@
     "message": "به اعضای زیر اجازه دسترسی به مدیر رازها را بدهید. نقش اعطا شده در مدیر کلمه عبور برای مدیر رازها اعمال می‌شود.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Grant the following members access to Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "فعال کردن مدیر رازها"
+  },
+  "activatePrivilegedControls": {
+    "message": "Activate Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "عبارت اثر انگشت سازمان شما",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "سازمان‌های ۲ نفره رایگان"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "اسرار نامحدود"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "دسترسی اعضای سازمان را در گروه‌ها، مجموعه‌ها و موارد مجموعه بررسی کنید. خروجی CSV شامل جزئیات کامل برای هر عضو است، از جمله اطلاعات مربوط به مجوزهای مجموعه و تنظیمات حساب کاربری."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audit member access across groups, collections, and collection items. The CSV export provides a detailed breakdown per member, including information on collection permissions and account configurations."
+  "memberAccessReportPageDescV3": {
+    "message": "Audit member access across groups, shared folders, and items. The CSV export provides a detailed breakdown per member, including information on permissions and account configurations."
   },
   "memberAccessReportNoCollection": {
     "message": "(بدون مجموعه)"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Open the subscription page on your Bitwarden account and download your license file. Then return to this screen and upload it below."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "On your cloud environment, log in to your Bitwarden account, open the subscription page, and download your license file. Then, return to this screen and upload it."
   },
   "viewAllPlans": {
     "message": "نمایش همه طرح‌ها"

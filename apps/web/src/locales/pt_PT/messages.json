@@ -1069,7 +1069,7 @@
     "message": "Favoritos"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Marque itens como favoritos para os filtrar aqui."
   },
   "taskSummary": {
     "message": "Resumo da tarefa"
@@ -1210,7 +1210,7 @@
     "message": "As minhas pastas"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Adicione pastas aos itens para os filtrar aqui."
   },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
@@ -1718,43 +1718,6 @@
   "copyName": {
     "message": "Copiar nome"
   },
-  "cardNumber": {
-    "message": "número do cartão"
-  },
-  "copyFieldCipherName": {
-    "message": "Copiar $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Copiar detalhes de $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Copiar nota - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Nenhum valor introduzido",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
@@ -1762,17 +1725,8 @@
   "noDetailsToCopy": {
     "message": "Não há detalhes para copiar"
   },
-  "launchWebsiteForName": {
-    "message": "Abrir o site de $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Abrir site"
   },
   "me": {
     "message": "Eu"
@@ -2154,7 +2108,7 @@
     "message": "Utilizar um método de início de sessão diferente"
   },
   "logInWithPasskey": {
-    "message": "Iniciar sessão com a chave de acesso"
+    "message": "Iniciar sessão com chave de acesso"
   },
   "useSingleSignOn": {
     "message": "Utilizar início de sessão único"
@@ -3414,7 +3368,7 @@
     "message": "Mais opções"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Opções para $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3423,7 +3377,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Filtrar por $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência"
-  },
-  "premiumSignUpReports": {
-    "message": "Relatórios de segurança de palavras-passe, estado das contas e fugas de dados para manter o seu cofre seguro."
-  },
-  "premiumSignUpTotp": {
-    "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioridade no apoio ao cliente."
-  },
-  "premiumSignUpFuture": {
-    "message": "Todas as futuras funcionalidades Premium. E muitas mais em breve!"
-  },
-  "premiumPrice": {
-    "message": "Tudo por apenas $PRICE$ /ano!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Adquira uma conta Premium por apenas $PRICE$ /ano, ou obtenha contas Premium para $FAMILYPLANUSERCOUNT$ utilizadores e partilha familiar ilimitada com um ",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "Uma organização da qual já é membro só permite que os membros pertençam a uma única organização."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "A organização da qual já é membro só permite que os seus membros tenham acesso a um único cofre partilhado."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "A organização à qual está a tentar aderir só permite que os seus membros tenham acesso a um único cofre partilhado."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "A organização à qual está a tentar aderir só permite que os membros pertençam a uma única organização."
@@ -11205,10 +11132,10 @@
     "message": "Coleção"
   },
   "noCollection": {
-    "message": "Sem coleções"
+    "message": "Nenhuma coleção"
   },
   "noSharedFolder": {
-    "message": "Sem pasta partilhada",
+    "message": "Nenhuma pasta partilhada",
     "description": "VFO1 terminology feature flag variant of noCollection"
   },
   "noCollectionsAdded": {
@@ -11642,6 +11569,18 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "Este utilizador pode aceder ao Gestor de Segredos"
+  },
+  "privilegedControls": {
+    "message": "Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Ative o acesso dos utilizadores a Privileged Controls.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Este utilizador pode aceder a Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
     "message": "Importante:"
@@ -12210,6 +12149,10 @@
     "message": "Acesso ativado ao Gestor de Segredos",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Acesso a Privileged Controls ativado",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Ativar acesso"
   },
@@ -12217,8 +12160,16 @@
     "message": "Atribua aos seguintes membros acesso ao Gestor de Segredos. A função atribuída no Gestor de Palavras-passe será aplicada ao Gestor de Segredos.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Conceda aos seguintes membros acesso a Privileged Controls.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Ativar o Gestor de Segredos"
+  },
+  "activatePrivilegedControls": {
+    "message": "Ativar Privileged Controls",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Frase de impressão digital da sua organização",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Organizações gratuitas para 2 pessoas"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Segredos ilimitados"
@@ -13889,14 +13843,14 @@
   "memberAccessReportPageDesc": {
     "message": "Audite o acesso dos membros da organização a grupos, coleções e itens das coleções. A exportação para CSV fornece uma análise detalhada de cada membro, incluindo informações sobre as permissões das coleções e as configurações da conta."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Audite o acesso dos membros a grupos, coleções e itens das coleções. A exportação para CSV fornece uma análise detalhada de cada membro, incluindo informações sobre as permissões das coleções e as configurações da conta."
+  "memberAccessReportPageDescV3": {
+    "message": "Audite o acesso dos membros a grupos, pastas partilhadas e itens. A exportação CSV fornece uma análise detalhada de cada membro, incluindo informações sobre permissões e configurações das contas."
   },
   "memberAccessReportNoCollection": {
-    "message": "(Sem coleção)"
+    "message": "(Nenhuma coleção)"
   },
   "memberAccessReportNoCollectionPermission": {
-    "message": "(Sem permissões de coleção)"
+    "message": "(Nenhuma permissão de coleção)"
   },
   "memberAccessReportNoGroup": {
     "message": "(Sem grupos)"
@@ -15955,6 +15909,9 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Abra a página da subscrição na sua conta Bitwarden e transfira o ficheiro de licença. Em seguida, volte a este ecrã e carregue-o abaixo."
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "No seu ambiente de cloud, inicie sessão na sua conta Bitwarden, abra a página da subscrição e transfira o seu ficheiro de licença. Em seguida, volte a este ecrã e carregue-o."
   },
   "viewAllPlans": {
     "message": "Ver todos os planos"

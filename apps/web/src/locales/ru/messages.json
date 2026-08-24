@@ -1069,7 +1069,7 @@
     "message": "Избранные"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Пометить элементы как избранные, чтобы отфильтровать их здесь."
   },
   "taskSummary": {
     "message": "Сводка по задаче"
@@ -1210,7 +1210,7 @@
     "message": "Мои папки"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Добавить папки к элементам, чтобы отфильтровать их здесь."
   },
   "addSharedFolder": {
     "message": "Добавить общую папку"
@@ -1718,43 +1718,6 @@
   "copyName": {
     "message": "Скопировать имя"
   },
-  "cardNumber": {
-    "message": "номер карты"
-  },
-  "copyFieldCipherName": {
-    "message": "Копировать $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Скопировать информацию для $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Скопировать заметку - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Значение не введено",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
@@ -1762,17 +1725,8 @@
   "noDetailsToCopy": {
     "message": "Нет информации для копирования"
   },
-  "launchWebsiteForName": {
-    "message": "Открыть сайт для $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Открыть сайт"
   },
   "me": {
     "message": "Мое"
@@ -3414,7 +3368,7 @@
     "message": "Больше опций"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Опции для $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3423,7 +3377,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Фильтр по $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
   },
-  "premiumSignUpStorageV2": {
-    "message": "Зашифрованного хранилища для вложенных файлов: $SIZE$",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
-  },
   "premiumSignUpEmergency": {
     "message": "Экстренный доступ"
-  },
-  "premiumSignUpReports": {
-    "message": "Гигиена паролей, здоровье аккаунта и отчеты об утечках данных для обеспечения безопасности вашего хранилища."
-  },
-  "premiumSignUpTotp": {
-    "message": "Генератор кода подтверждения TOTP (2ЭА) для входа в ваше хранилище."
-  },
-  "premiumSignUpSupport": {
-    "message": "Приоритетная поддержка."
-  },
-  "premiumSignUpFuture": {
-    "message": "Все будущие функции Премиум. Их будет больше!"
-  },
-  "premiumPrice": {
-    "message": "Всего лишь $PRICE$ /в год!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "Перейдите на Премиум всего за $PRICE$ /год или получите Премиум для $FAMILYPLANUSERCOUNT$ пользователей и неограниченный семейный обмен с ",
@@ -5598,7 +5519,7 @@
     }
   },
   "editItemWithName": {
-    "message": "Редактирование элемента - $NAME$",
+    "message": "Изменить элемент - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -6642,6 +6563,12 @@
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
     "message": "Организация, членом которой вы уже являетесь, позволяет своим членам принадлежать только к одной организации."
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "Организация, членом которой вы уже являетесь, предоставляет своим пользователям доступ только к одному общему хранилищу."
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "Организация, в которую вы пытаетесь вступить, предоставляет своим пользователям доступ только к одному общему хранилищу."
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
     "message": "Организация, к которой вы пытаетесь присоединиться, позволяет своим членам принадлежать только к одной организации."
@@ -9505,25 +9432,25 @@
     "message": "Спонсируемые семьи"
   },
   "sponsoredBitwardenFamiliesV2": {
-    "message": "Non-member redemptions"
+    "message": "Использование не являющимися участниками"
   },
   "noSponsoredFamiliesMessage": {
     "message": "Нет спонсируемых семей"
   },
   "noSponsoredFamiliesMessageV2": {
-    "message": "No redemptions yet"
+    "message": "Пока никто не воспользовался"
   },
   "noSponsoredFamiliesDetails": {
     "message": "Здесь будут показаны планы семей, не являющихся спонсорскими"
   },
   "noSponsoredFamiliesDetailsV2": {
-    "message": "No non-members have redeemed the Sponsored Family Plan."
+    "message": "Никто из не являющихся участниками не воспользовался спонсируемым семейным планом."
   },
   "sponsorshipFreeBitwardenFamilies": {
     "message": "Члены вашей организации имеют право на бесплатный план Bitwarden Families. Вы можете спонсировать бесплатный Bitwarden Families для сотрудников, которые не являются членами вашей организации Bitwarden. Для спонсирования сотрудника, не являющегося членом организации, необходимо наличие свободного места в вашей организации."
   },
   "sponsorshipFreeBitwardenFamiliesV2": {
-    "message": "Your members are eligible to redeem a Sponsored Families Plan. You can sponsor a Families plan for employees who are not members of your Bitwarden organization, but this will require available seats within your organization."
+    "message": "Ваши участники имеют право воспользоваться тарифным планом для спонсируемых семей. Вы можете спонсировать семейный тарифный план для сотрудников, не являющихся участниками вашей организации Bitwarden, однако для этого необходимо наличие свободных мест в вашей организации."
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "Когда вы прекращаете активное спонсорство, место в вашей организации будет доступно после даты продления спонсируемой организации."
@@ -9532,7 +9459,7 @@
     "message": "Вам и вашей семье доступен бесплатный план Bitwarden Families. Используйте свой личный адрес электронной почты, чтобы защитить данные даже тогда, когда вы не на работе."
   },
   "sponsoredFamiliesEligibleV2": {
-    "message": "You and your family are eligible for a Sponsored Families Plan at no additional cost to you. Redeem this plan with your personal email to keep your data secure and separate from your Bitwarden work account."
+    "message": "Вы и ваша семья имеете право на участие в программе спонсируемых семей без каких-либо дополнительных затрат с вашей стороны. Активируйте эту программу, указав свой личный адрес email, чтобы обеспечить безопасность ваших данных и отделить их от вашего рабочего аккаунта Bitwarden."
   },
   "sponsoredFamiliesEligibleCard": {
     "message": "Воспользуйтесь бесплатным планом Bitwarden Families сегодня, чтобы обеспечить безопасность ваших данных, даже когда вы не на работе."
@@ -11643,6 +11570,18 @@
   "userAccessSecretsManagerGA": {
     "message": "Этот пользователь может получить доступ к менеджеру секретов"
   },
+  "privilegedControls": {
+    "message": "Привилегированное управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "Активировать доступ пользователя к средствам привилегированного управления.",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "Этот пользователь имеет доступ к средствам привилегированного управления",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
   "important": {
     "message": "Важно:"
   },
@@ -12210,6 +12149,10 @@
     "message": "Активирован доступ к менеджеру секретов",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "Активирован доступ к средствам привилегированного управления.",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "Активировать доступ"
   },
@@ -12217,8 +12160,16 @@
     "message": "Предоставить следующим пользователям доступ к менеджеру секретов. Роль, предоставленная в менеджере паролей, будет применяться и к менеджеру секретов.",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "Предоставьте следующим участникам доступ к средствам привилегированного управления.",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "Активировать менеджеру секретов"
+  },
+  "activatePrivilegedControls": {
+    "message": "Активировать привилегированное управление",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "Фраза отпечатка вашей организации",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "Бесплатные организации из 2 человек"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "Неограниченные секреты"
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "Аудит доступа членов организации к группам, коллекциям и элементам коллекций. Экспорт в формате CSV содержит подробную разбивку по членам, включая информацию о разрешениях на коллекции и конфигурациях учетных записей."
   },
-  "memberAccessReportPageDescV2": {
-    "message": "Аудит доступа пользователей к группам, коллекциям и элементам коллекций. Экспорт в формате CSV содержит подробную разбивку по членам, включая информацию о разрешениях на коллекции и конфигурациях учетных записей."
+  "memberAccessReportPageDescV3": {
+    "message": "Проверяйте доступ пользователей к группам, общим папкам и элементам. Экспорт в формат CSV предоставляет подробную разбивку по каждому пользователю, включая информацию о правах доступа и настройках аккаунта."
   },
   "memberAccessReportNoCollection": {
     "message": "(Нет коллекций)"
@@ -15956,6 +15910,9 @@
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
     "message": "Откройте страницу подписки в своем аккаунте Bitwarden и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его ниже."
   },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "В вашей облачной среде войдите в свой аккаунт Bitwarden, откройте страницу подписки и скачайте файл лицензии. Затем вернитесь на этот экран и загрузите его."
+  },
   "viewAllPlans": {
     "message": "Посмотреть все планы"
   },
@@ -16914,7 +16871,7 @@
     "message": "7 дней"
   },
   "pamAccessRuleSingleActiveLease": {
-    "message": "Только один пользователь может одновременно иметь активную аренду"
+    "message": "Одновременно только один пользователь может иметь активную аренду"
   },
   "pamAccessRuleSingleActiveLeaseHint": {
     "message": "Новые запросы помещаются в очередь до тех пор, пока текущий срок аренды не истечет или не будет аннулирован."

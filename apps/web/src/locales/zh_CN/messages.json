@@ -90,7 +90,7 @@
     }
   },
   "noReportRan": {
-    "message": "您还没有创建报告"
+    "message": "您尚未创建报告"
   },
   "notifiedMembers": {
     "message": "已通知成员"
@@ -450,7 +450,7 @@
     "message": "没有具有弱的、暴露的或重复使用的密码的应用程序。"
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到 $APPNAME$。",
+    "message": "这些成员正在登录到具有弱的、暴露的或重复使用的密码的 $APPNAME$。",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -1069,7 +1069,7 @@
     "message": "收藏夹"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "将项目标记为收藏以在此处筛选它们。"
   },
   "taskSummary": {
     "message": "任务摘要"
@@ -1210,7 +1210,7 @@
     "message": "我的文件夹"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "将文件夹添加到项目以在此处筛选它们。"
   },
   "addSharedFolder": {
     "message": "添加共享文件夹"
@@ -1718,58 +1718,12 @@
   "copyName": {
     "message": "复制名称"
   },
-  "cardNumber": {
-    "message": "卡号"
-  },
-  "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "复制 $ITEMNAME$ 的详细信息",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "复制备注 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "未输入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
     "message": "没有可复制的详细信息"
-  },
-  "launchWebsiteForName": {
-    "message": "前往 $ITEMNAME$ 的网站",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
   },
   "launchWebsite": {
     "message": "打开网站"
@@ -3325,7 +3279,7 @@
     "message": "未选择文件"
   },
   "fileChosen": {
-    "message": "选择的文件：$FILE_NAME$",
+    "message": "已选择文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -3334,7 +3288,7 @@
     }
   },
   "fileAdded": {
-    "message": "添加的文件：$FILE_NAME$",
+    "message": "已添加文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -3343,7 +3297,7 @@
     }
   },
   "filesAdded": {
-    "message": "$COUNT$ 个文件已添加：$FILE_NAMES$",
+    "message": "已添加 $COUNT$ 个文件：$FILE_NAMES$",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3356,7 +3310,7 @@
     }
   },
   "fileRemoved": {
-    "message": "移除的文件：$FILE_NAME$",
+    "message": "已移除文件：$FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -3377,10 +3331,10 @@
     }
   },
   "uploadedFiles": {
-    "message": "已上传的文件"
+    "message": "已上传文件"
   },
   "clickToUploadOrDragAndDrop": {
-    "message": "点击上传或拖放"
+    "message": "点击上传或拖放至此"
   },
   "chooseFiles": {
     "message": "选择文件"
@@ -3414,7 +3368,7 @@
     "message": "更多选项"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ 的选项",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3423,7 +3377,7 @@
     }
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "筛选为 $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -4143,41 +4097,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ 文件附件加密存储空间。",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "专有的两步登录选项，例如 YubiKey 和 Duo。"
-  },
   "premiumSignUpEmergency": {
     "message": "紧急访问"
-  },
-  "premiumSignUpReports": {
-    "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
-  },
-  "premiumSignUpTotp": {
-    "message": "用于密码库中登录项目的 TOTP 验证码 (2FA) 生成器。"
-  },
-  "premiumSignUpSupport": {
-    "message": "优先客户支持。"
-  },
-  "premiumSignUpFuture": {
-    "message": "未来的更多高级版功能。敬请期待！"
-  },
-  "premiumPrice": {
-    "message": "所有功能仅需 $PRICE$ /年！",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "升级高级版仅需 $PRICE$ /年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
@@ -4575,10 +4496,10 @@
     "message": "管理订阅"
   },
   "launchCloudSubscription": {
-    "message": "启动云订阅"
+    "message": "前往云端订阅"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "启动云订阅"
+    "message": "前往云端订阅"
   },
   "storage": {
     "message": "存储"
@@ -4692,7 +4613,7 @@
     "message": "许可证文件"
   },
   "licenseFileDesc": {
-    "message": "您的许可证文件的名称类似于 $FILE_NAME$",
+    "message": "您的许可证文件将被命名为类似于 $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -6620,7 +6541,7 @@
     "message": "您已经是这个组织的成员。"
   },
   "openOrgInviteAcceptEmailDomainNotAllowed": {
-    "message": "此组织不允许使用与 $DOMAIN$ 匹配的电子邮箱地址。",
+    "message": "此组织不允许使用与 $DOMAIN$ 匹配的电子邮箱。",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -6641,10 +6562,16 @@
     "message": "出错了，请重新加载页面以重试。"
   },
   "openOrgInviteAcceptSingleOrgOtherOrg": {
-    "message": "您已经是其成员的组织只允许其成员属于一个组织。"
+    "message": "您已加入的组织只允许其成员属于一个组织。"
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "您已加入的组织只允许其成员访问一个共享的密码库。"
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "您尝试加入的组织只允许其成员访问一个共享的密码库。"
   },
   "openOrgInviteAcceptSingleOrgTargetOrg": {
-    "message": "您正在尝试加入的组织只允许其成员属于一个组织。"
+    "message": "您尝试加入的组织只允许其成员属于一个组织。"
   },
   "openOrgInviteAcceptTwoFactorRequired": {
     "message": "您必须设置两步登录才能加入这个组织。"
@@ -9334,7 +9261,7 @@
     }
   },
   "vaultTimeoutToLarge": {
-    "message": "您的密码库超时超出了您的组织设置的限制。"
+    "message": "您的密码库超时超出了您组织设置的限制。"
   },
   "vaultCustomTimeoutMinimum": {
     "message": "自定义超时最少为 1 分钟。"
@@ -9511,7 +9438,7 @@
     "message": "没有赞助的家庭"
   },
   "noSponsoredFamiliesMessageV2": {
-    "message": "没有兑换记录"
+    "message": "尚无兑换记录"
   },
   "noSponsoredFamiliesDetails": {
     "message": "已赞助的非成员家庭版方案将显示在这里"
@@ -9889,7 +9816,7 @@
     "message": "令牌已轮换"
   },
   "billingSyncKeyDesc": {
-    "message": "要完成此表单，需要填写您的云组织订阅设置中的计费同步令牌。"
+    "message": "要完成此表单，需要填写您的云端组织订阅设置中的计费同步令牌。"
   },
   "billingSyncKey": {
     "message": "计费同步令牌"
@@ -10856,7 +10783,7 @@
     "description": "Message to encourage the user to start creating service accounts."
   },
   "serviceAccountsNoItemsTitle": {
-    "message": "还没有可显示的内容",
+    "message": "尚无可显示的内容",
     "description": "Title to indicate that there are no service accounts to display."
   },
   "searchSecrets": {
@@ -11389,22 +11316,22 @@
     "message": "此成员尚未认领账户。请联系成员更新其电子邮箱地址。"
   },
   "emailHasMasterPasswordHint": {
-    "message": "此成员设置了主密码。请联系成员更新其电子邮箱地址。"
+    "message": "此成员拥有主密码。请联系成员更新其电子邮箱地址。"
   },
   "emailErrorNotClaimedDomain": {
-    "message": "新的电子邮箱地址必须匹配组织声明的域名。"
+    "message": "新的电子邮箱必须匹配组织声明的域名。"
   },
   "emailErrorAlreadyInUse": {
-    "message": "电子邮箱地址已被组织中的某个成员使用。"
+    "message": "电子邮箱已被组织中的某个成员使用。"
   },
   "emailErrorClaimedByOrg": {
-    "message": "电子邮箱地址已被使用。您可以改为邀请他们加入您的组织。"
+    "message": "电子邮箱已被使用。您可以改为邀请他们加入您的组织。"
   },
   "emailErrorHasMasterPassword": {
-    "message": "无法更改已设置主密码的成员的电子邮箱地址。"
+    "message": "无法更改拥有主密码的成员的电子邮箱。"
   },
   "emailErrorChangeFailed": {
-    "message": "更改电子邮箱地址失败。请重试。"
+    "message": "更改电子邮箱失败。请重试。"
   },
   "nameErrorNotClaimed": {
     "message": "无法更改未被组织声明的成员的名称。"
@@ -11642,6 +11569,18 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "此用户可以访问 Secrets Manager"
+  },
+  "privilegedControls": {
+    "message": "特权控制",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "激活用户对特权控制的访问权限。",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "此用户可以访问特权控制",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
     "message": "重要："
@@ -12210,6 +12149,10 @@
     "message": "激活了对 Secrets Manager 的访问权限",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "激活了对特权控制的访问权限",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "激活访问权限"
   },
@@ -12217,8 +12160,16 @@
     "message": "允许以下成员访问 Secrets Manager。Password Manager 中授予的角色将适用于 Secrets Manager。",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "授予以下成员对特权控制的访问权限。",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "激活 Secrets Manager"
+  },
+  "activatePrivilegedControls": {
+    "message": "激活特权控制",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "您组织的指纹短语",
@@ -12385,6 +12336,9 @@
   },
   "free2PersonOrganization": {
     "message": "免费的 2 人组织"
+  },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
   },
   "unlimitedSecrets": {
     "message": "不限数量的机密"
@@ -13234,7 +13188,7 @@
     "description": "Message to encourage the user to start creating machine accounts."
   },
   "machineAccountsNoItemsTitle": {
-    "message": "还没有可显示的内容",
+    "message": "尚无可显示的内容",
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
@@ -13889,8 +13843,8 @@
   "memberAccessReportPageDesc": {
     "message": "审计组织成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
   },
-  "memberAccessReportPageDescV2": {
-    "message": "审计成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
+  "memberAccessReportPageDescV3": {
+    "message": "审计成员在群组、共享文件夹和项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括权限和账户配置信息。"
   },
   "memberAccessReportNoCollection": {
     "message": "（无集合）"
@@ -15954,7 +15908,10 @@
     "message": "打开您的 Bitwarden 云账户的订阅页面，下载您的许可证文件。然后返回此界面，在下方上传该文件。"
   },
   "alreadyHaveSubscriptionSelfHostedMessageV2": {
-    "message": "打开您的 Bitwarden 账户上的订阅页面，下载您的许可证文件。然后返回此界面，并在下方上传它。"
+    "message": "打开您的 Bitwarden 账户的订阅页面，下载您的许可证文件。然后返回此界面，在下方上传该文件。"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "在您的云端环境中，登录您的 Bitwarden 账户，打开订阅页面，下载您的许可证文件。然后返回此界面，上传该文件。"
   },
   "viewAllPlans": {
     "message": "查看所有方案"
@@ -16872,7 +16829,7 @@
     "message": "无法加载集合。请刷新页面以重试。"
   },
   "pamAccessRuleDefaultDurationHint": {
-    "message": "此持续时间将预填到访问请求中。"
+    "message": "此持续时间将预先填入到访问请求中。"
   },
   "pamAccessRuleDescription": {
     "message": "描述"
@@ -16932,7 +16889,7 @@
     "message": "单次延期允许持续的最长时间。"
   },
   "pamAccessRuleConditionHumanApproval": {
-    "message": "需要批准"
+    "message": "人工批准"
   },
   "pamAccessRuleConditionIpAllowlist": {
     "message": "通过 IP 地址限制"
@@ -16962,7 +16919,7 @@
     }
   },
   "pamNoAccessRulesYetTitle": {
-    "message": "暂无访问规则"
+    "message": "尚无访问规则"
   },
   "pamNoAccessRulesYetDescription": {
     "message": "创建规则，为敏感的集合添加额外的保护。"
