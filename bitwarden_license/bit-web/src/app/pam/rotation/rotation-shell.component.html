@@ -1,0 +1,50 @@
+<app-header [title]="'pamRotationTitle' | i18n">
+  @switch (activeTab()) {
+    @case ("managed-credentials") {
+      @if (hasConfigs()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="createManagedCredential"
+          id="rotation-shell_button_new-managed-credential"
+        >
+          {{ "pamRotationConfigNew" | i18n }}
+        </button>
+      }
+    }
+    @case ("target-systems") {
+      @if (hasTargetSystems()) {
+        <button
+          type="button"
+          bitButton
+          buttonType="primary"
+          [bitAction]="createTargetSystem"
+          id="rotation-shell_button_new-target-system"
+        >
+          {{ "pamTargetSystemNew" | i18n }}
+        </button>
+      }
+    }
+    @case ("daemons") {
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        [bitAction]="registerDaemon"
+        id="rotation-shell_button_new-daemon"
+      >
+        {{ "pamDaemonNew" | i18n }}
+      </button>
+    }
+  }
+  <bit-tab-nav-bar slot="tabs" [label]="'pamRotationTitle' | i18n">
+    <bit-tab-link route="managed-credentials" [berryValue]="awaitingManualCount()">{{
+      "pamRotationTabManagedCredentials" | i18n
+    }}</bit-tab-link>
+    <bit-tab-link route="target-systems">{{ "pamRotationTabTargetSystems" | i18n }}</bit-tab-link>
+    <bit-tab-link route="daemons">{{ "pamRotationTabDaemons" | i18n }}</bit-tab-link>
+  </bit-tab-nav-bar>
+</app-header>
+
+<router-outlet></router-outlet>
