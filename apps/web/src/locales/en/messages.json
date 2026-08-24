@@ -1224,16 +1224,6 @@
   "sharedFolders": {
     "message": "Shared folders"
   },
-  "collectionsInParent": {
-    "message": "Collections in $NAME$",
-    "description": "Titles the grid of collections nested directly inside the collection being viewed.",
-    "placeholders": {
-      "name": {
-        "content": "$1",
-        "example": "Engineering"
-      }
-    }
-  },
   "sharedFoldersInParent": {
     "message": "Shared folders in $NAME$",
     "description": "Titles the grid of shared folders nested directly inside the shared folder being viewed.",
@@ -1241,24 +1231,6 @@
       "name": {
         "content": "$1",
         "example": "Engineering"
-      }
-    }
-  },
-  "collectionCount": {
-    "message": "$COUNT$ collections",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "16"
-      }
-    }
-  },
-  "collectionCountSingular": {
-    "message": "$COUNT$ collection",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "1"
       }
     }
   },
@@ -1279,20 +1251,6 @@
         "example": "1"
       }
     }
-  },
-  "moreCollectionsShownAbove": {
-    "message": "$COUNT$ more collections shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of collections is expanded. The revealed collections render above the button that expanded them.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
-  },
-  "moreCollectionsShownAboveSingular": {
-    "message": "1 more collection shown above this button",
-    "description": "Announced to screen readers when a collapsed grid of collections is expanded. The revealed collections render above the button that expanded them."
   },
   "moreSharedFoldersShownAbove": {
     "message": "$COUNT$ more shared folders shown above this button",
