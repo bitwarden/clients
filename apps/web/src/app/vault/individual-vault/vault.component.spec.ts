@@ -43,7 +43,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { SyncService } from "@bitwarden/common/platform/sync";
-import { UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -89,7 +89,10 @@ import { WebVaultPromptService } from "../services/web-vault-prompt.service";
 import { WelcomeDialogService } from "../services/welcome-dialog.service";
 
 import { VaultBannersService } from "./vault-banners/services/vault-banners.service";
-import { VAULT_GATED_COLLECTION_BANNER } from "./vault-gated-collection-banner.token";
+import {
+  VaultGatedCollectionBanner,
+  VAULT_GATED_COLLECTION_BANNER,
+} from "./vault-gated-collection-banner.token";
 import { VaultOnboardingService } from "./vault-onboarding/services/abstraction/vault-onboarding.service";
 import { VaultComponent } from "./vault.component";
 
@@ -100,9 +103,9 @@ import { VaultComponent } from "./vault.component";
     >{{ organizationId() }}/{{ collectionId() }}</span
   >`,
 })
-class TestGatedCollectionBannerComponent {
-  readonly organizationId = input<string | undefined>(undefined);
-  readonly collectionId = input<string | undefined>(undefined);
+class TestGatedCollectionBannerComponent implements VaultGatedCollectionBanner {
+  readonly organizationId = input<OrganizationId | undefined>(undefined);
+  readonly collectionId = input<CollectionId | undefined>(undefined);
 }
 
 const TEST_CIPHER_ID = "test-cipher-id";
