@@ -63,14 +63,12 @@ interface Options {
 
 /// Which documents a build needs, and what goes in each.
 ///
-/// The App Store build is sandboxed, so its app names every capability it needs, and its proxy --
-/// which the browser launches rather than the app, so it inherits nothing -- has to name the app
-/// group itself, that group being the only way it can reach the app's socket.
+/// The App Store build is sandboxed, so its app names every capability it needs, and it gets a
+/// login helper plus an inherit document for the proxy copy the app itself spawns.
 ///
-/// A directly distributed build is not sandboxed, so both proxy binaries get the app's inherit
-/// document, which is what after-pack.js signs them with today. That is deliberately unchanged
-/// here: moving the socket into the App Group container on every build, and sandboxing the
-/// Developer ID proxy to match, is a separate change.
+/// The proxy is sandboxed and scoped to the App Group on every build, App Store or not. The
+/// browser launches it, not the app, so it inherits nothing, and the group container is the only
+/// place where it and the app can both reach the socket.
 function documents(options: Options): Partial<Record<keyof typeof FILES, Entitlements>> {
   const bundleId = APP_IDS[options.channel];
   const entitlements = { bundleId, autofill: options.autofill, appGroup: options.appGroup };
@@ -79,9 +77,13 @@ function documents(options: Options): Partial<Record<keyof typeof FILES, Entitle
   return {
     app: appStore ? masAppEntitlements(entitlements) : macAppEntitlements(entitlements),
     appInherit: appStore ? masAppInheritEntitlements() : macAppInheritEntitlements(),
-    desktopProxy: appStore ? desktopProxyEntitlements(entitlements) : macAppInheritEntitlements(),
-    desktopProxyInherit: appStore ? desktopProxyInheritEntitlements() : macAppInheritEntitlements(),
-    ...(appStore ? { loginHelper: masLoginHelperEntitlements() } : {}),
+    desktopProxy: desktopProxyEntitlements(entitlements),
+    ...(appStore
+      ? {
+          desktopProxyInherit: desktopProxyInheritEntitlements(),
+          loginHelper: masLoginHelperEntitlements(),
+        }
+      : {}),
     ...(options.autofill ? { autofillExtension: autofillExtensionEntitlements(entitlements) } : {}),
   };
 }

@@ -117,16 +117,22 @@ async function run(context) {
     // not end in `.beta`, and an identifier that is not one of ours should fail loudly.
     const channel = channelForAppId(packageId);
 
-    if (is_mas) {
-      const proxyEntitlements = entitlementsPath(
-        channel,
-        "desktop-proxy.plist",
-        "entitlements.desktop_proxy.plist",
-      );
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${proxyPath}"`,
-      );
+    // Sandbox the proxy and scope it to the App Group on Developer ID builds as well as App Store
+    // ones, so both reach the same shared container the app listens on. Without the group the
+    // proxy resolves its socket to its own cache directory, which the app cannot see.
+    const proxyEntitlements = entitlementsPath(
+      channel,
+      "desktop-proxy.plist",
+      "entitlements.desktop_proxy.plist",
+    );
+    child_process.execSync(
+      `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${proxyPath}"`,
+    );
 
+    if (is_mas) {
+      // The App Store build spawns the inherit helper as a child of the sandboxed app, so it
+      // takes the host's sandbox -- and its App Group membership -- through the inherit
+      // entitlement rather than naming the group itself.
       const inheritEntitlements = entitlementsPath(
         channel,
         "desktop-proxy-inherit.plist",
@@ -138,16 +144,13 @@ async function run(context) {
     } else {
       // For non-Appstore builds, we don't need the inherit binary as they are not sandboxed,
       // but we sign and include it anyway for consistency. It should be removed once DDG supports the proxy directly.
-      const proxyEntitlements = entitlementsPath(
+      const inheritEntitlements = entitlementsPath(
         channel,
-        "desktop-proxy.plist",
+        "app-inherit.plist",
         "entitlements.mac.inherit.plist",
       );
       child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${proxyPath}"`,
-      );
-      child_process.execSync(
-        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${proxyEntitlements}" "${inheritProxyPath}"`,
+        `codesign -s '${id}' -i ${packageId} -f --timestamp --options runtime --entitlements "${inheritEntitlements}" "${inheritProxyPath}"`,
       );
     }
   }
