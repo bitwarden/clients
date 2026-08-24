@@ -35,8 +35,10 @@
       <div class="tw-flex tw-gap-4">
         <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnStatus" | i18n }}</dt>
         <dd class="tw-m-0 tw-flex-1">
-          @if (badge(); as b) {
-            <span bitBadge [variant]="b.statusVariant">{{ b.statusLabelKey | i18n }}</span>
+          @if (badge()?.badgeState; as state) {
+            <app-pam-access-state-badge [state]="state" />
+          } @else if (badge()?.statusBadge; as b) {
+            <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
           }
         </dd>
       </div>
@@ -105,8 +107,8 @@
           <dd class="tw-m-0 tw-flex-1">
             @if (leaseActive()) {
               <span bitBadge variant="success">{{ "pamStatusActivated" | i18n }}</span>
-            } @else if (badge(); as b) {
-              <span bitBadge [variant]="b.statusVariant">{{ b.statusLabelKey | i18n }}</span>
+            } @else if (badge()?.statusBadge; as b) {
+              <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
             }
           </dd>
         </div>
