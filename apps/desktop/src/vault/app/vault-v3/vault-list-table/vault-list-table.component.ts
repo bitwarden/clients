@@ -44,6 +44,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly ciphers = input.required<C[]>();
   readonly folders = input<FolderView[]>([]);
   readonly collections = input<CollectionView[]>([]);
+  readonly allCollections = input<CollectionView[]>([]);
   readonly organizations = input<Organization[]>([]);
   readonly loading = input<boolean>(false);
   readonly showPremiumCallout = input<boolean>(false);
@@ -63,7 +64,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   }));
 
   protected readonly rowActions = computed<VaultItemsTableRowAction<C>[]>(() =>
-    this.cipherRowMenuService.getRowActions<C>(this.collections(), this.cipherRowMenuHandlers()),
+    this.cipherRowMenuService.getRowActions<C>(this.allCollections(), this.cipherRowMenuHandlers()),
   );
 
   protected readonly itemAction = (item: C): void =>

@@ -67,14 +67,16 @@ describe("VaultListTableComponent", () => {
   });
 
   describe("rowActions", () => {
-    it("passes the collections input to CipherRowMenuService.getRowActions", () => {
-      const col = { id: "col-1" } as CollectionView;
-      fixture.componentRef.setInput("collections", [col]);
+    it("passes the unscoped allCollections input to CipherRowMenuService.getRowActions", () => {
+      const scoped = { id: "col-1" } as CollectionView;
+      const unscoped = { id: "col-2" } as CollectionView;
+      fixture.componentRef.setInput("collections", [scoped]);
+      fixture.componentRef.setInput("allCollections", [scoped, unscoped]);
 
       component["rowActions"]();
 
       expect(mockGetRowActions).toHaveBeenCalledWith(
-        [col],
+        [scoped, unscoped],
         expect.objectContaining({
           edit: expect.any(Function),
           clone: expect.any(Function),

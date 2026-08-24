@@ -9,6 +9,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { DialogService, LayoutComponent, NavigationModule } from "@bitwarden/components";
 import { SendPolicyService } from "@bitwarden/send-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/vault";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
 import { ExportDesktopComponent } from "../tools/export/export-desktop.component";
@@ -30,6 +31,8 @@ import { DesktopSideNavComponent } from "./desktop-side-nav.component";
     DesktopSideNavComponent,
     VaultFilterComponent,
     SendFiltersNavComponent,
+    VaultNavSectionComponent,
+    VaultManageNavComponent,
   ],
   templateUrl: "./desktop-layout.component.html",
 })
