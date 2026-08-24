@@ -37,6 +37,12 @@ describe("AccessStateBadgeComponent", () => {
     expect(component["recipe"]()).toBeNull();
   });
 
+  it("renders no placeholder text when there is no state, so the cipher-view modal stays empty", () => {
+    create(null);
+    expect(fixture.nativeElement.textContent.trim()).toBe("");
+    expect(fixture.nativeElement.innerHTML).not.toContain("\u2014");
+  });
+
   it.each([
     ["privileged", "primary", "bwi-key", "pamAccessBadgePrivileged"],
     ["pending", "warning", "bwi-clock", "pamAccessBadgePending"],
