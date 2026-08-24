@@ -1,6 +1,6 @@
 import { inject, Signal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, of, switchMap } from "rxjs";
+import { combineLatest, map, of, startWith, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -71,9 +71,15 @@ export function gatedCollection(
       ) {
         return of(false);
       }
-      return governedCollections
-        .rules$(organizationId)
-        .pipe(map((rules) => rulesGoverningCollection(rules, id).length > 0));
+      // `startWith(false)` because the vault banner is ONE component instance whose inputs the
+      // host swaps as the user moves between collections. Without a seed, `switchMap` leaves the
+      // previous collection's verdict standing until the new read lands, so the banner would keep
+      // asserting "requires a request" over an ungated collection's items for the length of a
+      // network round trip. A cached read still emits synchronously, so this adds no flicker.
+      return governedCollections.rules$(organizationId).pipe(
+        map((rules) => rulesGoverningCollection(rules, id).length > 0),
+        startWith(false),
+      );
     }),
   );
 
