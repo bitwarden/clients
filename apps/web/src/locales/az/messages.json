@@ -906,6 +906,24 @@
   "editFolder": {
     "message": "Qovluğa düzəliş et"
   },
+  "editFolderNamed": {
+    "message": "$NAME$ - düzəliş et",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "$NAME$ - sil",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "editWithName": {
     "message": "$ITEM$ - düzəliş et: $NAME$",
     "placeholders": {
@@ -1064,6 +1082,9 @@
   },
   "allItems": {
     "message": "Bütün elementlər"
+  },
+  "allVaultItems": {
+    "message": "Bütün seyf elementləri"
   },
   "favorites": {
     "message": "Sevimlilər"
@@ -2026,6 +2047,36 @@
   "deletedFolder": {
     "message": "Qovluq silindi"
   },
+  "folderEdited": {
+    "message": "Qovluğa düzəliş edildi"
+  },
+  "foldersDeleted": {
+    "message": "Qovluqlar silindi"
+  },
+  "deleteFoldersCount": {
+    "message": "$COUNT$ qovluğu sil",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "$NAME$ qovluğu sildiyiniz zaman, bu qovluq tətbiq edildiyi bütün elementlərdən silinəcək. Elementlərin özləri silinməyəcək.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "Bu qovluqları sildiyiniz zaman, bu qovluqlar tətbiq edildiyi bütün elementlərdən silinəcək. Elementlərin özləri silinməyəcək."
+  },
+  "enterAName": {
+    "message": "Bir ad daxil edin."
+  },
   "editInfo": {
     "message": "Məlumata düzəliş et"
   },
@@ -2479,6 +2530,9 @@
   },
   "newVault": {
     "message": "Yeni seyf"
+  },
+  "addPlan": {
+    "message": "Plan əlavə et"
   },
   "noOrganizationsList": {
     "message": "Heç bir təşkilata aid deyilsiniz. Təşkilatlar, elementlərinizi digər istifadəçilərlə güvənli şəkildə paylaşmağınızı təmin edir."
@@ -3361,6 +3415,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "$NAME$ təlimatlarına burada baxın:",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Kömək Mərkəzi"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Proses, Google Chrome-dan daxilə köçürmə prosesi ilə eynidir.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "KeePassX masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"CSV faylına köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importAviraInstructions": {
+    "message": "Avira veb seyfində \"Ayarlar\" → \"Verilərim\" → \"Veriləri xaricə köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importBlurInstructions": {
+    "message": "Blur veb seyfində ən üstdəki istifadəçi adınıza klikləyin və \"Ayarlar\" → \"Veriləri xaricə köçür\"ü seçin, sonra \"Hesablar\"ınız üçün \"CSV xaricə köçürmə\"yə klikləyin."
+  },
+  "importSafeincloudInstructions": {
+    "message": "SafeInCloud masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML olaraq\"ı seçin və XML faylını saxlayın."
+  },
+  "importPadlockInstructions": {
+    "message": "Padlock masaüstü tətbiqini istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\" → \"Xaricə köçür\" düyməsinə basın və faylı \"CSV olaraq\" saxlayın."
+  },
+  "importKeepass2Instructions": {
+    "message": "KeePass 2 masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ü seçin və \"KeePass XML (2.x)\" seçimini edin."
+  },
+  "importUpmInstructions": {
+    "message": "Universal Password Manager masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"Xaricə köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importSaferpassInstructions": {
+    "message": "SaferPass brauzer uzantısını istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\"a gedin. CSV faylını saxlamaq üçün \"Hesabları xaricə köçür\" düyməsinə klikləyin."
+  },
+  "importMeldiumInstructions": {
+    "message": "Meldium veb seyfini istifadə edərək, \"Ayarlar\"a gedin. \"Veriləri xaricə köçür\" funksiyasını tapın və CSV faylını saxlamaq üçün \"Mənə verilərimi göstər\"ə klikləyin."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Password Dragon masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML olaraq\"ı seçin. Açılan pəncərədə \"Bütün sətirlər\"i seçin və bütün xanaları işarələyin. \"Xaricə köçür\" düyməsinə klikləyin və XML faylını saxlayın."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Enpass masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"CSV olaraq\"ı seçin. Xəbərdarlıq mesajı üçün \"Oldu\"nu seçin və CSV faylını saxlayın. Nəzərə alın ki, daxilə köçürmə, yalnız Enpass ingiliscə olaraq ayarlandığı zaman xaricə köçürülən faylları dəstəkləyir, ona görə də ayarlarınızı buna uyğun qurun."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "EnPass 6 masaüstü tətbiqini istifadə edərək menyu düyməsinə klikləyin və \"Fayl\" → \"Xaricə köçür\"ü seçin. \".json\" fayl formatını seçin və JSON faylını saxlayın."
+  },
+  "importPwsafeInstructions": {
+    "message": "Password Safe masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML formatı...\"nı seçin və XML faylını saxlayın."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Dashlane-ə giriş edin, \"Hesabım\" → \"Ayarlar\" → \"Faylı xaricə köçür\"ə klikləyin və \"CSV faylı kimi xaricə köçür\"ü seçin. Bu proseslə müxtəlif CSV fayllarını ehtiva edən bir zip arxivi endiriləcək. Arxivi açın və hər bir CSV faylını ayrıca daxilə köçürün."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane artıq JSON formatını dəstəkləmir. Bunu yalnız daxilə köçürüləcək JSON faylı mövcud olduğu zaman istifadə edin. Yeni xaricə köçürmələr yaradarkən CSV daxilə köçürücünü istifadə edin."
+  },
+  "importMsecureInstructions": {
+    "message": "nSecure masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"CSV faylı...\"nı seçin və CSV faylını saxlayın."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Sticky Password masaüstü tətbiqini istifadə edərək, \"Menyu\" (üst sağda) → \"Xaricə köçür\" → \"Hamısını xaricə köçür\"ü seçin. Şifrələnməmiş XML formatını seçin və XML faylını saxlayın."
+  },
+  "importTruekeyInstructions": {
+    "message": "True Key masaüstü tətbiqini istifadə edərək, sağ üstdəki dişli çarx ikonuna klikləyin və \"Tətbiq ayarları\"na gedin. \"Xaricə köçür\" düyməsinə klikləyin, parolunuzu daxil edin və CSV faylını saxlayın."
+  },
+  "importClipperzInstructions": {
+    "message": "Clipperz veb tətbiqinə (clipperz.is/app) giriş edin. Naviqasiya çubuğunu genişləndirmək üçün sağ üst küncdəki 3 xətt menyu ikonuna klikləyin. \"Verilər\" → \"Xaricə köçür\"ü seçin. HTML faylını saxlamaq üçün \"HTML+JSON endir\" düyməsinə klikləyin."
+  },
+  "importRoboformInstructions": {
+    "message": "RoboForm Editor masaüstü tətbiqini istifadə etmək üçün sol üstdəki \"RoboForm\" → \"Seçimlər\" → \"Hesab və verilər\"ə gedin və \"Xaricə köçür\" düyməsinə klikləyin. Verilərinizin hamısını seçin, \"Format\"ı \"CSV faylı\" kimi dəyişdirin və sonra CSV faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin. Qeyd: RoboForm, yalnız giriş etmə məlumatlarını xaricə köçürməyinizə icazə verir. Digər elementlər xaricə köçürülməyəcək."
+  },
+  "importPassboltInstructions": {
+    "message": "Passbolt veb seyfində giriş edin və \"Parollar\" bölməsinə gedin. Xaricə köçürmək istədiyiniz bütün parolları seçin və ən üstdəki \"Xaricə köçür\" düyməsinə klikləyin. \"csv (lastpass)\" xaricə köçürmə formatını seçin və \"Xaricə köçür\" düyməsinə klikləyin."
+  },
+  "importAscendoInstructions": {
+    "message": "Ascendo DataVault masaüstü tətbiqini istifadə edərək, \"Alətlər\" → \"Xaricə köçür\"ə gedin. Açılan pəncərədə \"Bütün elementlər (DVX, CSV)\" seçimini edin. CSV faylını saxlamaq üçün \"Oldu\" düyməsinə klikləyin."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Password Boss masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Veriləri xaricə köçür\" → \"Password Boss JSON - şifrələnməmiş\"i seçin və JSON faylını saxlayın."
+  },
+  "importZohoInstructions": {
+    "message": "Zoho veb seyfində (vault.zoho.com) giriş edin. \"Alətlər\" → \"Sirrləri xaricə köçür\"ü seçin. \"Bütün sirrlər\"i seçin və \"Zoho Seyf Formatı CSV\" düyməsinə klikləyin. Mətn sahəsindəki veriləri seçib kopyalayın. Notepad kimi mətn redaktoru açın və veriləri yapışdırın. Həmin verilər olan faylı mətn redaktorunda bu formatda saxlayın",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+  },
+  "importPasskeepInstructions": {
+    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python script to your desktop as",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Open terminal and run",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "and then",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Then upload the resulting",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "file here to Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+  },
+  "importPasspackInstructions": {
+    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+  },
+  "importPassmanInstructions": {
+    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+  },
+  "importFsecureInstructions": {
+    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+  },
+  "importKasperskyInstructions": {
+    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+  },
+  "importRemembearInstructions": {
+    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+  },
+  "importMykiInstructions": {
+    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+  },
+  "importBlackberryInstructions": {
+    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+  },
+  "importButtercupInstructions": {
+    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+  },
+  "importCodebookInstructions": {
+    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+  },
+  "importYotiInstructions": {
+    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+  },
+  "importProtonpassInstructions": {
+    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+  },
   "options": {
     "message": "Seçimlər"
   },
@@ -3487,6 +3742,10 @@
   },
   "restrictedItemTypePolicyDescV2": {
     "message": "Üzvlərə öz seyflərində kredit kartı yaratmasına və saxlamasına icazə verməyin. Bu siyasət işə salındığı zaman, mövcud kartlar avtomatik olaraq gizlədiləcək."
+  },
+  "restrictedItemTypePolicyDescVfo1": {
+    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
     "message": "Kart element növləri daxilə köçürülə bilmir"
@@ -7394,6 +7653,10 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Üzvlər tərəfindən yaradılmış parollar üçün minimum tələblər dəstini seçin."
   },
+  "passwordGeneratorPolicyDescVfo1": {
+    "message": "Set requirements for password generator.",
+    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  },
   "generatedPassword": {
     "message": "Parol yaradıldı"
   },
@@ -7642,14 +7905,26 @@
   "singleOrg": {
     "message": "Vahid təşkilat"
   },
+  "singleOrgVfo1": {
+    "message": "Single organization membership",
+    "description": "VFO1 terminology variant of 'singleOrg'"
+  },
   "singleOrgDesc": {
     "message": "İstifadəçilərin digər təşkilatlara qoşulmasını məhdudlaşdırın."
   },
   "singleOrgPolicyDesc": {
     "message": "Üzvlərin digər təşkilatlara qoşulmasını məhdudlaşdır. Bu siyasət, domen doğrulamasını fəallaşdıran təşkilatlar üçün tələb olunur."
   },
+  "singleOrgPolicyDescVfo1": {
+    "message": "Restrict members from joining other shared or organization vaults.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  },
   "singleOrgPolicyDescV2": {
     "message": "Bu təşkilatın üzvləri digər təşkilatlara qoşula bilməz. Bu siyasət fəallaşdırıldığı zaman, digər təşkilatlara aid olan mövcud üzvlərin erişimləri ləğv ediləcək. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur."
+  },
+  "singleOrgPolicyDescV2Vfo1": {
+    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
     "message": "Hazırkı təşkilatınızın, bir neçə təşkilata qoşulmasına icazə verməyən bir siyasəti var. Lütfən təşkilat adminləri ilə əlaqə saxlayın və ya fərqli bir Bitwarden hesabı ilə qeydiyyatdan keçin."
@@ -7659,6 +7934,18 @@
   },
   "requireSso": {
     "message": "Vahid daxil olma kimlik doğrulamasını tələb et"
+  },
+  "requireSsoVfo1": {
+    "message": "Require SSO",
+    "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
+  },
+  "requireSsoPolicyDescListVfo1": {
+    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
+  },
+  "requireSsoPolicyDescV2Vfo1": {
+    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
   "requireSsoPolicyDesc": {
     "message": "Üzvlərin \"Müəssisə üçün vahid daxil olma\" üsulu ilə giriş etməsini tələb et."
@@ -7677,6 +7964,10 @@
   },
   "requireSsoPolicyReqV2": {
     "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat siyasətini fəallaşdırmalısınız."
+  },
+  "requireSsoPolicyReqV2Vfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
   },
   "requireSsoPolicyReqError": {
     "message": "Vahid təşkilat siyasəti qurulmayıb."
@@ -8064,8 +8355,16 @@
   "centralizeDataOwnership": {
     "message": "Təşkilat sahibliyini mərkəzləşdirin"
   },
+  "centralizeDataOwnershipVfo1": {
+    "message": "Centralized organization ownership",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
+  },
   "centralizeDataOwnershipDesc": {
     "message": "Bütün üzv elementləri, təşkilat tərəfindən sahiblənəcək və idarə ediləcək. Adminlər və sahibləri daxil deyil. "
+  },
+  "centralizeDataOwnershipDescVfo1": {
+    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Mərkəzi sahiblik barədə daha ətraflı",
@@ -8101,11 +8400,23 @@
   "centralizeDataOwnershipDescV2": {
     "message": "Bütün üzv elementləri, təşkilata məxsus olacaq və təşkilat tərəfindən idarə olunacaq. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur. Daha ətraflı "
   },
+  "centralizeDataOwnershipDescV3": {
+    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. ",
+    "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
+  },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Bütün istifadəçilərə öz giriş məlumatlarını idarə edə biləcəkləri “Elementlərim” sahəsi verin."
   },
+  "centralizeDataOwnershipBenefit3Vfo1": {
+    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
+  },
   "promptUsersToMoveItemsV2": {
     "message": "İstifadəçilərdən öz seyf elementlərini təşkilata daşımasını istəyin"
+  },
+  "promptUsersToMoveItemsVfo1": {
+    "message": "Prompt users to move their My vault items to the organization",
+    "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
     "message": "Təşkilata veri üzərində məcburi sahiblik ver"
@@ -8151,6 +8462,10 @@
     "message": "Təşkilata dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
+  "autoConfirmDescriptionVfo1": {
+    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
+  },
   "howToTurnOnAutoConfirm": {
     "message": "Avtomatik istifadəçi təsdiqi necə işə salınır"
   },
@@ -8172,6 +8487,10 @@
     "message": "Təşkilata dəvət edilmiş yeni istifadəçilər, admin cihazının kilidi açıldığı zaman avtomatik olaraq təsdiqlənəcək. Bu siyasəti işə salmazdan əvvəl, lütfən aşağıdakıları incələyin və razılaşın: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
+  "autoConfirmPolicyEditDescriptionVfo1": {
+    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
+  },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "Potensial təhlükəsizlik riski. "
   },
@@ -8185,11 +8504,23 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Vahid təşkilat siyasəti tələb olunur. "
   },
+  "autoConfirmSingleOrgRequiredVfo1": {
+    "message": "Single organization vault policy required. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
+  },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Bu avtomatlaşdırmanı aktivləşdirmək üçün bütün üzvlər yalnız bu təşkilata aid olmalıdır."
   },
+  "autoConfirmSingleOrgRequiredDescVfo1": {
+    "message": "All members must only belong to this organization vault to activate this automation.",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
+  },
   "autoConfirmSingleOrgExemption": {
     "message": "Vahid təşkilat siyasəti bütün rollara şamil ediləcək. "
+  },
+  "autoConfirmSingleOrgExemptionVfo1": {
+    "message": "Single organization vault policy will extend to all roles. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "Fövqəladə hal erişimi yoxdur. "
@@ -8329,6 +8660,10 @@
     "message": "Send-i idarə et",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
+  "manageSendAndShareVfo1": {
+    "message": "Manage Send and share",
+    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  },
   "sendControlsPolicyDesc": {
     "message": "Send yaratma və düzəliş seçimlərini ayarla. Send-ləri xaric etmə imkanı da var.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8336,6 +8671,10 @@
   "sendControlsPolicyDescV4": {
     "message": "Üzvlərin Send-i necə istifadə etdiyini idarə edin. Bu siyasət, siz bu siyasəti işə saldıqdan sonra yaradılan Send-lərə tətbiq olunacaq. Adminlər və sahiblər istisnadır.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsPolicyDescVfo1": {
+    "message": "Set Send configuration options.",
+    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Send seçimləri",
@@ -8357,6 +8696,10 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Avto-doldurma üçün giriş məlumatlarının nə vaxt təklif ediləcəyini müəyyənləşdirin. Adminlər və sahiblər bu siyasətdən azaddır."
+  },
+  "uriMatchDetectionPolicyDescVfo1": {
+    "message": "Set the default URI match detection for all items created by members.",
+    "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
     "message": "Avtodoldurma zamanı Bitwarden-in giriş məlumatlarını təklif etməsi üçün veb-sayt ünvanının (URI) ilkin olaraq hansı hissələrinin uyuşmalı olduğunu təyin edin. Bu siyasət, sahiblərə və adminlərə tətbiq olunmur."
@@ -8514,10 +8857,10 @@
     "message": "Sirləri ucdan-uca şifrələmə ilə qoruyun. Artıq sabit kodlaşdırma sirlərinə və ya .env faylları üzərindən paylaşmağa ehtiyac yoxdur."
   },
   "enhanceDeveloperProductivity": {
-    "message": "Tərtibatçı məhsuldarlığını artır."
+    "message": "Gəlişdirici məhsuldarlığını artırın."
   },
   "enhanceDeveloperProductivityDescription": {
-    "message": "Tərtibatçıların, kod keyfiyyətini yaxşılaşdırmaq kimi vacib mövzulara fokuslana bilməsi üçün \"runtime\"da sirləri proqramlı şəkildə alın və yerləşdirin."
+    "message": "Gəlişdiricilərin, kod keyfiyyətini yaxşılaşdırmaq kimi vacib mövzulara fokuslana bilməsi üçün \"runtime\"da sirləri proqramlı şəkildə alın və yerləşdirin."
   },
   "strengthenBusinessSecurity": {
     "message": "Biznes təhlükəsizliyini gücləndirin."
@@ -8771,11 +9114,19 @@
   "accountRecoveryPolicy": {
     "message": "Hesab geri qaytarma administrasiyası"
   },
+  "accountRecoveryPolicyDescVfo1": {
+    "message": "Allow admins to reset master passwords for members.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Bu siyasəti aktivləşdirməzdən əvvəl vahid təşkilat üçün Müəssisə siyasəti işə salınmalıdır."
   },
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "Bu siyasəti fəallaşdırmazdan əvvəl vahid təşkilat siyasətini fəallaşdırmalısınız."
+  },
+  "accountRecoveryPolicySingleOrgReqV2Vfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
     "message": "Üzvlərin öz hesablarına təkrar erişməsinə kömək etmək üçün adminlərə icazə verin. Üzvlərin yazılması şərtdir: "
@@ -9148,6 +9499,10 @@
   "automaticAppLoginWithSSODescV2": {
     "message": "İstifadəçilər kimlik provayderinizdən bir tətbiq başlatdığı zaman, onların giriş məlumatları avtomatik olaraq doldurulub göndəriləcək və tək bir kliklə təhlükəsiz giriş təmin ediləcək."
   },
+  "automaticAppLoginWithSSODescListVfo1": {
+    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Provayder host-unu müəyyənləşdir"
   },
@@ -9162,6 +9517,10 @@
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Sahiblər istisna olmaqla bütün üzvlər üçün maksimum sessiya bitmə vaxtını təyin edin."
+  },
+  "sessionTimeoutPolicyDescriptionVfo1": {
+    "message": "Set a maximum vault timeout for members.",
+    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
     "message": "Maksimum icazə verilən bitmə vaxtı"
@@ -9278,6 +9637,14 @@
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Üzvlərin öz fərdi seyflərindən veriləri xaricə köçürməsinə icazə verməyin. Bu siyasət, sahiblərə və adminlərə şamil olunmur."
   },
+  "disablePersonalVaultExportDescriptionVfo1": {
+    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
+  },
+  "disablePersonalVaultExportDescriptionListVfo1": {
+    "message": "Do not allow members to export their vault data.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
+  },
   "vaultExportDisabled": {
     "message": "Seyf xaricə köçürmə silindi"
   },
@@ -9292,6 +9659,10 @@
   },
   "activateAutofillPolicyDescription": {
     "message": "Bütün mövcud və yeni üzvlər üçün brauzer uzantısında \"Səhifə yüklənəndə avto-doldur\" ayarını aktivləşdirin."
+  },
+  "activateAutofillPolicyDescriptionVfo1": {
+    "message": "Automatically fill logins on websites and apps.",
+    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
     "message": "Brauzer uzantısında bütün mövcud ve yeni üzvlər üçün səhifə yüklənərkən avto-doldurma ayarını fəalalşdırın. Təhlükəyə məruz qalmış və ya etibarsız veb saytlar"
@@ -12676,10 +13047,6 @@
       }
     }
   },
-  "seeDetailedInstructions": {
-    "message": "Kömək saytımızda detallı təlimatlara baxın",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "getStartedWithYourVault": {
     "message": "Seyfinizi istifadə etməyə başlayın"
   },
@@ -14473,11 +14840,23 @@
   "freeFamiliesSponsorshipPolicyTitleV2": {
     "message": "Sponsorlu Ailələr planını sil"
   },
+  "freeFamiliesSponsorshipTitleVfo1": {
+    "message": "Remove Sponsored Family Plan",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
+    "message": "Remove Sponsored Families Plan",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Üzvlərin bu təşkilat vasitəsilə Families planını istifadə etməsinə icazə verməyin."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Üzvlərin təşkilatınız tərəfindən dəstəklənən Ailələr planından yararlanmasına icazə verməyin."
+  },
+  "freeFamiliesSponsorshipDescVfo1": {
+    "message": "Remove the option for members to redeem a free Families plan.",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Bank hesabı ilə ödəniş, yalnız Amerika Birləşmiş Ştatlarındakı müştərilər üçün əlçatandır. Bank hesabınızı doğrulamağınız tələb olunacaq. Növbəti 1-2 iş günü ərzində mikro depozit qoyacağıq. Bank hesabını yoxlamaq üçün bu depozitdəki əməliyyat açıqlayıcı kodunu təşkilatın faktura səhifəsində daxil edin. Bank hesabı doğrulanmadıqda ödəniş buraxılacaq və abunəliyiniz dayandırılacaq."
@@ -15634,8 +16013,16 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "İstifadəçilərin, götürülmüş domenlərə aid e-poçt ünvanlarını istifadə edərək təşkilatınızın xaricində hesab yaratmasını önləyin."
   },
+  "blockClaimedDomainAccountCreationDescVfo1": {
+    "message": "Prevent account creation from claimed domains.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
+  },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Üzvlərin, təşkilatınızın xaricində Bitwarden hesabları yaratmaq üçün götürdüyünüz domeni istifadə etməsini əngəlləyin."
+  },
+  "blockClaimedDomainAccountCreationDescV2Vfo1": {
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Bu siyasət aktivləşdirilməzdən əvvəl bir domen götürülməlidir."
