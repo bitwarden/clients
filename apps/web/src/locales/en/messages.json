@@ -19600,9 +19600,6 @@
   "pamExtendLeaseReasonLabel": {
     "message": "Reason"
   },
-  "pamStatusPending": {
-    "message": "Pending"
-  },
   "pamStatusApproved": {
     "message": "Approved"
   },
