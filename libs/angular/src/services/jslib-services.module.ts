@@ -39,11 +39,9 @@ import {
   AuthRequestService,
   AuthRequestServiceAbstraction,
   DefaultAuthRequestApiService,
-  DefaultLockService,
   DefaultLoginSuccessHandlerService,
   DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailService,
   LoginEmailServiceAbstraction,
   LoginStrategyCacheService,
@@ -287,7 +285,6 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/default-sdk.service";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for DI
@@ -418,7 +415,12 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  DefaultLockService,
+  LockService,
+  DefaultUnlockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   UserCryptoDialogService,
   UserKeyRotationService,
@@ -873,6 +875,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       StateProvider,
       AccountCryptographicStateService,
+      BiometricsService,
     ],
   }),
   safeProvider({
@@ -1054,6 +1057,7 @@ const safeProviders: SafeProvider[] = [
       StateServiceAbstraction,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      KeyService,
     ],
   }),
   safeProvider({
@@ -1337,7 +1341,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
-      KeyService,
       LegacyCompatKeyService,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -1350,6 +1353,7 @@ const safeProviders: SafeProvider[] = [
       AccountCryptographicStateService,
       SdkService,
       InternalUserDecryptionOptionsServiceAbstraction,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -1721,11 +1725,6 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: UserAutoUnlockKeyService,
-    useClass: UserAutoUnlockKeyService,
-    deps: [KeyService],
-  }),
-  safeProvider({
     provide: ErrorHandler,
     useClass: LoggingErrorHandler,
     deps: [],
@@ -1801,6 +1800,7 @@ const safeProviders: SafeProvider[] = [
       InternalUserDecryptionOptionsServiceAbstraction,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -2042,9 +2042,7 @@ const safeProviders: SafeProvider[] = [
       VaultTimeoutSettingsService,
       LogoutService,
       MessagingServiceAbstraction,
-      SearchServiceAbstraction,
       FolderServiceAbstraction,
-      InternalMasterPasswordServiceAbstraction,
       StateEventRunnerService,
       CipherServiceAbstraction,
       AuthServiceAbstraction,

@@ -14,7 +14,6 @@ import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import {
   AuthRequestServiceAbstraction,
   DESKTOP_SSO_CALLBACK,
-  LockService,
   LogoutReason,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -62,6 +61,7 @@ import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { TroubleshootingDialogComponent } from "@bitwarden/logging-angular";
+import { LockService, LockSource } from "@bitwarden/unlock";
 import { AddEditFolderDialogComponent, AddEditFolderDialogResult } from "@bitwarden/vault";
 
 import { DeviceManagementDialogComponent } from "../auth/device-management/device-management-dialog.component";
@@ -227,10 +227,10 @@ export class AppComponent implements OnInit, OnDestroy {
             this.loading = false;
             break;
           case "lockVault":
-            await this.lockService.lock(message.userId ?? this.activeUserId);
+            await this.lockService.lock(message.userId ?? this.activeUserId, LockSource.Manual);
             break;
           case "lockAllVaults": {
-            await this.lockService.lockAll();
+            await this.lockService.lockAll(LockSource.Manual);
             break;
           }
           case "locked":
@@ -842,7 +842,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (options[0] === timeout) {
         options[1] === "logOut"
           ? await this.logOut("vaultTimeout", userId as UserId)
-          : await this.lockService.lock(userId as UserId);
+          : await this.lockService.lock(userId as UserId, LockSource.VaultTimeout);
       }
     }
   }

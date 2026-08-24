@@ -100,6 +100,7 @@ import { BrowserExtensionPromptComponent } from "./vault/components/browser-exte
 import { SetupExtensionComponent } from "./vault/components/setup-extension/setup-extension.component";
 import { setupExtensionRedirectGuard } from "./vault/guards/setup-extension-redirect.guard";
 import { VaultModule } from "./vault/individual-vault/vault.module";
+import { MyFoldersComponent } from "./vault/my-folders/my-folders.component";
 
 const routes: Routes = [
   // These need to be placed at the top of the list prior to the root
@@ -702,6 +703,12 @@ const routes: Routes = [
         canDeactivate: [unsavedSendEditsGuard],
       },
       {
+        path: "folders",
+        component: MyFoldersComponent,
+        canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
+        data: { titleId: "myFolders" } satisfies RouteDataProperties,
+      },
+      {
         path: "sm-landing",
         component: SMLandingComponent,
         data: { titleId: "moreProductsFromBitwarden" },
@@ -743,6 +750,11 @@ const routes: Routes = [
             path: "domain-rules",
             component: DomainRulesComponent,
             data: { titleId: "domainRules" } satisfies RouteDataProperties,
+          },
+          {
+            path: "add-plan",
+            component: CreateOrganizationComponent,
+            data: { titleId: "addPlan" } satisfies RouteDataProperties,
           },
           {
             path: "subscription",

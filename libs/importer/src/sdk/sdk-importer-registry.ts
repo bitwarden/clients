@@ -5,7 +5,7 @@ import { SdkVaultImporter } from "./sdk-vault-importer";
 /**
  * Maps an import format to its SDK-backed importer strategy. Formats absent from the registry use
  * the classic client-side `Importer` pipeline. Each strategy is constructed lazily on first lookup
- * and memoized, since `get` can be hit per change-detection cycle (e.g. via `acceptedFileTypes`).
+ * and memoized, since `get` can be hit per change-detection cycle (e.g. via `fileInputAcceptHint`).
  */
 export class SdkImporterRegistry {
   private readonly factories = new Map<ImportType, () => SdkVaultImporter>();
