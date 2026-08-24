@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -125,6 +125,32 @@ describe("GatedCollectionBannerComponent", () => {
 
     expect(banner()).toBeNull();
     expect(governedCollections.rules$).not.toHaveBeenCalled();
+  });
+
+  // `NgComponentOutlet` reuses one banner instance and swaps its inputs, so a verdict left
+  // standing from the previous collection is shown over the new one's items.
+  it("stops explaining the previous collection's restriction while the new collection's rules load", () => {
+    const pendingRules$ = new Subject<AccessRuleView[]>();
+    organizations$.next([
+      { id: PAM_ORG, usePam: true },
+      { id: OTHER_PAM_ORG, usePam: true },
+    ]);
+    governedCollections.rules$.mockImplementation((organizationId) =>
+      organizationId === PAM_ORG ? of([accessRule(true, [COLLECTION])]) : pendingRules$,
+    );
+
+    create(PAM_ORG, COLLECTION);
+    expect(banner()).not.toBeNull();
+
+    fixture.componentRef.setInput("organizationId", OTHER_PAM_ORG);
+    fixture.detectChanges();
+
+    expect(banner()).toBeNull();
+
+    pendingRules$.next([accessRule(true, [COLLECTION])]);
+    fixture.detectChanges();
+
+    expect(banner()).not.toBeNull();
   });
 
   it("does not read rules when the PAM flag is off", () => {
