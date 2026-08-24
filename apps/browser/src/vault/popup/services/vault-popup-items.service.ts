@@ -264,7 +264,13 @@ export class VaultPopupItemsService {
     this.vaultPopupListFiltersService.filters$,
   ]).pipe(
     map(([hasSearchText, filters]) => {
-      return hasSearchText || Object.values(filters).some((filter) => filter !== null);
+      return (
+        hasSearchText ||
+        // The object filters are multi-select, so an empty array is the cleared state, not a narrowed one.
+        Object.values(filters).some((filter) =>
+          Array.isArray(filter) ? filter.length > 0 : filter != null,
+        )
+      );
     }),
     shareReplay({ bufferSize: 1, refCount: true }),
   );

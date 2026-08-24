@@ -21,6 +21,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { LocalData } from "@bitwarden/common/vault/models/data/local.data";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import {
   RestrictedCipherType,
   RestrictedItemTypesService,
@@ -57,6 +58,7 @@ describe("VaultPopupItemsService", () => {
   let ciphersSubject: BehaviorSubject<Record<CipherId, CipherData>>;
   let localDataSubject: BehaviorSubject<Record<CipherId, LocalData>>;
   let failedToDecryptCiphersSubject: BehaviorSubject<CipherView[]>;
+  let filtersSubject: BehaviorSubject<PopupListFilter>;
 
   const cipherServiceMock = mock<CipherService>();
   const vaultSettingsServiceMock = mock<VaultSettingsService>();
@@ -115,12 +117,13 @@ describe("VaultPopupItemsService", () => {
     vaultSettingsServiceMock.showCardsCurrentTab$ = new BehaviorSubject(false);
     vaultSettingsServiceMock.showIdentitiesCurrentTab$ = new BehaviorSubject(false);
 
-    vaultPopupListFiltersServiceMock.filters$ = new BehaviorSubject({
-      organization: null,
-      collection: null,
+    filtersSubject = new BehaviorSubject<PopupListFilter>({
+      organization: [],
+      collection: [],
       cipherType: null,
-      folder: null,
+      folder: [],
     });
+    vaultPopupListFiltersServiceMock.filters$ = filtersSubject;
     // Return all ciphers, `filterFunction$` will be tested in `VaultPopupListFiltersService`
     vaultPopupListFiltersServiceMock.filterFunction$ = new BehaviorSubject(
       (ciphers: PopupCipherViewLike[]) => ciphers,
@@ -501,6 +504,37 @@ describe("VaultPopupItemsService", () => {
         expect(canSearch).toBe(false);
         done();
       });
+    });
+
+    it("is false when the multi-select filters are all empty", async () => {
+      searchService.isSearchable.mockImplementation(async () => false);
+
+      filtersSubject.next({
+        organization: [],
+        collection: [],
+        folder: [],
+        cipherType: null,
+      });
+
+      expect(await firstValueFrom(service.hasFilterApplied$)).toBe(false);
+    });
+
+    it.each([
+      ["organization", { organization: [{ id: "org-1" } as Organization] }],
+      ["collection", { collection: [{ id: "col-1" } as CollectionView] }],
+      ["folder", { folder: [{ id: "folder-1" } as FolderView] }],
+    ])("is true when the %s filter has a selection", async (_name, selection) => {
+      searchService.isSearchable.mockImplementation(async () => false);
+
+      filtersSubject.next({
+        organization: [],
+        collection: [],
+        folder: [],
+        cipherType: null,
+        ...selection,
+      });
+
+      expect(await firstValueFrom(service.hasFilterApplied$)).toBe(true);
     });
   });
 
