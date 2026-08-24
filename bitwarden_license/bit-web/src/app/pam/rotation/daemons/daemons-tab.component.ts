@@ -116,7 +116,6 @@ export class DaemonsTabComponent {
       await this.daemonsService.assign(row.daemon, targetSystemId);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("pamDaemonAssigned"),
       });
     } catch (e) {
@@ -143,7 +142,6 @@ export class DaemonsTabComponent {
       await this.daemonsService.unassign(daemon, targetSystemId);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("pamDaemonUnassigned"),
       });
     } catch (e) {
@@ -166,7 +164,6 @@ export class DaemonsTabComponent {
       await this.daemonsService.setEnabled(row.daemon, false);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("pamDaemonDisabled"),
       });
     } catch (e) {
@@ -179,7 +176,6 @@ export class DaemonsTabComponent {
       await this.daemonsService.setEnabled(row.daemon, true);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("pamDaemonEnabled"),
       });
     } catch (e) {
@@ -202,7 +198,6 @@ export class DaemonsTabComponent {
       await this.daemonsService.delete(row.daemon);
       this.toastService.showToast({
         variant: "success",
-        title: null,
         message: this.i18nService.t("pamDaemonDeleted"),
       });
     } catch (e) {
@@ -215,6 +210,6 @@ export class DaemonsTabComponent {
       e instanceof ErrorResponse
         ? (e.message ?? this.i18nService.t("unexpectedError"))
         : this.i18nService.t("unexpectedError");
-    this.toastService.showToast({ variant: "error", title: null, message });
+    this.toastService.showToast({ variant: "error", message });
   }
 }

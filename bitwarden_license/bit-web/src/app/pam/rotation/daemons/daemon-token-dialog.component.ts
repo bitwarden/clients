@@ -67,7 +67,7 @@ export class DaemonTokenDialogComponent {
   static open(
     dialogService: DialogService,
     config: DialogConfig<DaemonTokenDialogParams>,
-  ): DialogRef {
+  ): DialogRef<void> {
     return dialogService.open<void, DaemonTokenDialogParams>(DaemonTokenDialogComponent, config);
   }
 }
