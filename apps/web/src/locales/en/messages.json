@@ -17327,8 +17327,8 @@
   "pamResolverUnknownApprover": {
     "message": "Unknown approver"
   },
-  "pamAccessRequestItemUnavailable": {
-    "message": "Item unavailable"
+  "pamAccessRequestItemNameUnavailable": {
+    "message": "Name unavailable"
   },
   "pamInboxInCollection": {
     "message": "in $COLLECTION$",

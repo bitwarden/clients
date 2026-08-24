@@ -28,7 +28,7 @@ function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
     ...emptyResolvedNames(),
     cipherNameById: new Map([["cipher-1", "Prod database"]]),
     collectionNameById: new Map([["col-1", "Production"]]),
-    unresolvedCipherName: "Item unavailable",
+    unresolvedCipherName: "Name unavailable",
     ...overrides,
   };
 }
@@ -45,7 +45,7 @@ describe("toApprovalRow", () => {
     // An approver often cannot see the item they are granting access to.
     const row = toApprovalRow(request(), names({ cipherNameById: new Map() }), NOW, true);
 
-    expect(row.cipherName).toBe("Item unavailable");
+    expect(row.cipherName).toBe("Name unavailable");
     expect(row.collectionName).toBe("Production");
   });
 
@@ -103,8 +103,8 @@ describe("toApprovalRow", () => {
       true,
     );
 
-    expect(row.cipherName).toBe("Item unavailable");
-    expect(row.searchText).not.toContain("item");
+    expect(row.cipherName).toBe("Name unavailable");
+    expect(row.searchText).not.toContain("name");
     expect(row.searchText).not.toContain("unavailable");
   });
 

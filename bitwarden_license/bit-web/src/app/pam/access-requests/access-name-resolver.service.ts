@@ -68,7 +68,7 @@ export class AccessNameResolverService {
   async resolveNames(
     refs: ReadonlyArray<{ cipherId: string; collectionId: string }>,
   ): Promise<ResolvedNames> {
-    const unresolvedCipherName = this.i18nService.t("pamAccessRequestItemUnavailable");
+    const unresolvedCipherName = this.i18nService.t("pamAccessRequestItemNameUnavailable");
     if (refs.length === 0) {
       return { ...emptyResolvedNames(), unresolvedCipherName };
     }

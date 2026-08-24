@@ -72,7 +72,7 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
 }
 
 function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
-  return { ...emptyResolvedNames(), unresolvedCipherName: "Item unavailable", ...overrides };
+  return { ...emptyResolvedNames(), unresolvedCipherName: "Name unavailable", ...overrides };
 }
 
 describe("terminalStatusBadge", () => {
@@ -238,7 +238,7 @@ describe("toRequestRow", () => {
   it("falls back to the resolver's placeholder when the item name is unresolved", () => {
     const row = toRequestRow(request("req-1"), names());
 
-    expect(row.cipherName).toBe("Item unavailable");
+    expect(row.cipherName).toBe("Name unavailable");
     expect(row.collectionName).toBeNull();
     expect(row.cipherId).toBe("cipher-1");
     expect(row.collectionId).toBe("col-1");
@@ -371,7 +371,7 @@ describe("toLeaseRow", () => {
   it("falls back to the resolver's placeholder when a name is unresolved", () => {
     const row = toLeaseRow(lease("lease-1"), names());
 
-    expect(row.cipherName).toBe("Item unavailable");
+    expect(row.cipherName).toBe("Name unavailable");
     expect(row.collectionName).toBeNull();
     expect(row.cipherId).toBe("cipher-1");
   });

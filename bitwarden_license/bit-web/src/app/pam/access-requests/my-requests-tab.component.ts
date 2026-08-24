@@ -47,7 +47,7 @@ import { MyAccessService } from "./my-access.service";
 /** A row carrying the id + collection fields the toolbar filters against. */
 type FilterableRow = {
   collectionId: string;
-  cipherName: string;
+  cipherName: string | null;
   collectionName: string | null;
 };
 
@@ -200,7 +200,7 @@ export class MyRequestsTabComponent implements OnInit {
       if (term === "") {
         return true;
       }
-      const haystack = `${row.cipherName} ${row.collectionName ?? ""}`.toLowerCase();
+      const haystack = `${row.cipherName ?? ""} ${row.collectionName ?? ""}`.toLowerCase();
       return haystack.includes(term);
     });
   }

@@ -135,7 +135,7 @@ export function storyNames(): ResolvedNames {
       ["cipher-2", cipherView("cipher-2", "Payments API key")],
       ["cipher-3", cipherView("cipher-3", "Root CA signing key")],
     ]),
-    unresolvedCipherName: "Item unavailable",
+    unresolvedCipherName: "Name unavailable",
   };
 }
 

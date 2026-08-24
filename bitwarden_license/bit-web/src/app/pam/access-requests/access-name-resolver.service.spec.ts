@@ -84,7 +84,7 @@ describe("AccessNameResolverService", () => {
   it("carries the translated placeholder for callers whose cipher did not resolve", async () => {
     const names = await service.resolveNames([{ cipherId: "cipher-9", collectionId: "col-9" }]);
 
-    expect(names.unresolvedCipherName).toBe("pamAccessRequestItemUnavailable");
+    expect(names.unresolvedCipherName).toBe("pamAccessRequestItemNameUnavailable");
   });
 
   it("dedupes cipher ids before decrypting", async () => {
@@ -104,7 +104,7 @@ describe("AccessNameResolverService", () => {
 
     expect(names).toEqual({
       ...emptyResolvedNames(),
-      unresolvedCipherName: "pamAccessRequestItemUnavailable",
+      unresolvedCipherName: "pamAccessRequestItemNameUnavailable",
     });
     expect(cipherService.getAllDecryptedForIdsIncludingPartials).not.toHaveBeenCalled();
   });
