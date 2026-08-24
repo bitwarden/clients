@@ -1,4 +1,3 @@
-import { signal } from "@angular/core";
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
 import { BehaviorSubject } from "rxjs";
@@ -8,11 +7,10 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
-import { BitwardenIcon, I18nMockService } from "@bitwarden/components";
+import { I18nMockService } from "@bitwarden/components";
 
 import { RoutedVaultFilterModel } from "../../models/routed-vault-filter.model";
 import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
-import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
 
@@ -68,24 +66,6 @@ const LONG_NAME_FOLDERS = folderNodes([
   "A folder name with no spaces atallwhichcannotwrapanywhere",
 ]);
 
-/**
- * Stories default to the flag on, since that is the state this component ships for;
- * {@link TerminologyFlagOff} overrides it. `Vfo1TerminologyService.enabled` is a signal, so the mock
- * exposes one too, and derives its icon mapping from it exactly as the real service does.
- */
-function terminologyProvider(enabled: boolean) {
-  const enabledSignal = signal(enabled);
-
-  return {
-    provide: Vfo1TerminologyService,
-    useValue: {
-      enabled: enabledSignal,
-      iconClass: (icon: BitwardenIcon): BitwardenIcon =>
-        enabledSignal() ? "bwi-shared-folder" : icon,
-    },
-  };
-}
-
 export default {
   title: "Vault/Shared Folder Card Grid",
   component: SharedFolderCardGridComponent,
@@ -93,7 +73,6 @@ export default {
     moduleMetadata({
       imports: [RouterTestingModule],
       providers: [
-        terminologyProvider(true),
         {
           provide: RoutedVaultFilterService,
           useValue: {
@@ -111,17 +90,10 @@ export default {
           provide: I18nService,
           useFactory: () =>
             new I18nMockService({
-              collections: "Collections",
               sharedFolders: "Shared folders",
-              collectionsInParent: (name) => `Collections in ${name}`,
               sharedFoldersInParent: (name) => `Shared folders in ${name}`,
-              collectionCount: (count) => `${count} collections`,
-              collectionCountSingular: (count) => `${count} collection`,
               sharedFolderCount: (count) => `${count} shared folders`,
               sharedFolderSingular: (count) => `${count} shared folder`,
-              moreCollectionsShownAbove: (count) =>
-                `${count} more collections shown above this button`,
-              moreCollectionsShownAboveSingular: `1 more collection shown above this button`,
               moreSharedFoldersShownAbove: (count) =>
                 `${count} more shared folders shown above this button`,
               moreSharedFoldersShownAboveSingular: `1 more shared folder shown above this button`,
@@ -245,18 +217,6 @@ export const NarrowContainerExpanded: Story = {
 export const LongNames: Story = {
   args: {
     folders: LONG_NAME_FOLDERS,
-  },
-};
-
-/** Every other story runs with the flag on; this one covers the pre-VFO1 terms and icon. */
-export const TerminologyFlagOff: Story = {
-  decorators: [
-    moduleMetadata({
-      providers: [terminologyProvider(false)],
-    }),
-  ],
-  args: {
-    folders: MANY_FOLDERS,
   },
 };
 

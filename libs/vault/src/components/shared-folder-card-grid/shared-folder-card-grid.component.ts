@@ -28,10 +28,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { RoutedVaultFilterModel } from "../../models/routed-vault-filter.model";
-import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
-import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
 import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
-import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 /**
  * The grid never grows past three columns, and nine cards — three full rows at that width — stay
@@ -93,8 +90,6 @@ type SharedFolderCard = {
     NgTemplateOutlet,
     RouterLink,
     TypographyModule,
-    Vfo1I18nPipe,
-    Vfo1IconPipe,
     AccordionComponent,
   ],
 })
@@ -102,7 +97,6 @@ export class SharedFolderCardGridComponent {
   private readonly i18nService = inject(I18nService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
   private readonly routedVaultFilterService = inject(RoutedVaultFilterService);
-  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /**
    * Direct children of the shared folder in view, as already derived by the host. An empty array
@@ -167,18 +161,10 @@ export class SharedFolderCardGridComponent {
    * rather than markup.
    */
   protected readonly countSegments = computed(() => {
-    let sentence = "";
-    if (this.count() === 1) {
-      sentence = this.i18nService.t(
-        this.vfo1TerminologyService.enabled() ? "sharedFolderSingular" : "collectionCountSingular",
-        COUNT_TOKEN,
-      );
-    } else {
-      sentence = this.i18nService.t(
-        this.vfo1TerminologyService.enabled() ? "sharedFolderCount" : "collectionCount",
-        COUNT_TOKEN,
-      );
-    }
+    const sentence = this.i18nService.t(
+      this.count() === 1 ? "sharedFolderSingular" : "sharedFolderCount",
+      COUNT_TOKEN,
+    );
 
     const [before, after = ""] = sentence.split(COUNT_TOKEN);
     return { before, count: this.count(), after };
@@ -211,18 +197,9 @@ export class SharedFolderCardGridComponent {
       const message = untracked(() => {
         const overflowCardsCount = this.overflowCards().length;
         if (overflowCardsCount === 1) {
-          return this.i18nService.t(
-            this.vfo1TerminologyService.enabled()
-              ? "moreSharedFoldersShownAboveSingular"
-              : "moreCollectionsShownAboveSingular",
-          );
+          return this.i18nService.t("moreSharedFoldersShownAboveSingular");
         }
-        return this.i18nService.t(
-          this.vfo1TerminologyService.enabled()
-            ? "moreSharedFoldersShownAbove"
-            : "moreCollectionsShownAbove",
-          overflowCardsCount,
-        );
+        return this.i18nService.t("moreSharedFoldersShownAbove", overflowCardsCount);
       });
 
       void this.liveAnnouncer.announce(message, "polite");

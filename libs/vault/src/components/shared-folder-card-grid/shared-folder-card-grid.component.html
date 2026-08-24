@@ -2,7 +2,7 @@
 
 @if (count() > 0) {
   <bit-accordion
-    [title]="'collectionsInParent' | vfo1I18n: 'sharedFoldersInParent' : parentName()"
+    [title]="'sharedFoldersInParent' | i18n: parentName()"
     variant="subtle"
     [open]="true"
   >
@@ -58,7 +58,7 @@
         [queryParamsHandling]="folder.queryParamsHandling"
         [state]="folder.state"
       >
-        <bit-icon-tile slot="start" [icon]="'bwi-collection-shared' | vfo1Icon"></bit-icon-tile>
+        <bit-icon-tile slot="start" icon="bwi-shared-folder"></bit-icon-tile>
         {{ folder.name }}
         <bit-icon slot="end" name="bwi-angle-right" class="tw-text-2xl" />
       </a>

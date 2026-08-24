@@ -1,5 +1,4 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
-import { signal } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NavigationExtras, provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
@@ -12,7 +11,6 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
 import { RoutedVaultFilterModel } from "../../models/routed-vault-filter.model";
 import { RoutedVaultFilterService } from "../../services/routed-vault-filter.service";
-import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 import { SharedFolderCardGridComponent } from "./shared-folder-card-grid.component";
 
@@ -26,7 +24,6 @@ describe("SharedFolderCardGridComponent", () => {
   let liveAnnouncer: MockProxy<LiveAnnouncer>;
 
   const filter$ = new BehaviorSubject<RoutedVaultFilterModel>({});
-  const vfo1Enabled = signal(false);
   const createRoute = jest.fn<[unknown[], NavigationExtras], [RoutedVaultFilterModel]>();
 
   function folderNode(id: string, name: string): TreeNode<CollectionView> {
@@ -72,7 +69,6 @@ describe("SharedFolderCardGridComponent", () => {
 
   beforeEach(async () => {
     filter$.next({});
-    vfo1Enabled.set(false);
     liveAnnouncer = mock<LiveAnnouncer>();
 
     createRoute.mockReset();
@@ -101,13 +97,6 @@ describe("SharedFolderCardGridComponent", () => {
         },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
         { provide: RoutedVaultFilterService, useValue: { filter$, createRoute } },
-        {
-          provide: Vfo1TerminologyService,
-          useValue: {
-            enabled: vfo1Enabled,
-            iconClass: (icon: string) => (vfo1Enabled() ? "bwi-shared-folder" : icon),
-          },
-        },
       ],
     }).compileComponents();
   });
@@ -121,7 +110,7 @@ describe("SharedFolderCardGridComponent", () => {
       expect(cards.map((card) => card.textContent?.trim())).toEqual(["Folder 0", "Folder 1"]);
 
       cards.forEach((card) => {
-        expect(card.querySelector("bit-icon-tile i")?.classList).toContain("bwi-collection-shared");
+        expect(card.querySelector("bit-icon-tile i")?.classList).toContain("bwi-shared-folder");
         expect(card.querySelector(".bwi-angle-right")).not.toBeNull();
       });
     });
@@ -281,16 +270,6 @@ describe("SharedFolderCardGridComponent", () => {
       trigger()?.click();
       fixture.detectChanges();
 
-      expect(liveAnnouncer.announce).toHaveBeenCalledWith("moreCollectionsShownAbove:4", "polite");
-    });
-
-    it("announces shared folder terminology when the flag is on", () => {
-      vfo1Enabled.set(true);
-      createComponent(folderNodes(COLLAPSED_CARD_COUNT + 4));
-
-      trigger()?.click();
-      fixture.detectChanges();
-
       expect(liveAnnouncer.announce).toHaveBeenCalledWith(
         "moreSharedFoldersShownAbove:4",
         "polite",
@@ -308,13 +287,19 @@ describe("SharedFolderCardGridComponent", () => {
     it("titles the section with the parent folder name", () => {
       createComponent(folderNodes(2), "Engineering");
 
-      expect(accordionTitle()).toBe("collectionsInParent:Engineering");
+      expect(accordionTitle()).toBe("sharedFoldersInParent:Engineering");
     });
 
     it("shows the child count alongside the title", () => {
       createComponent(folderNodes(16));
 
-      expect(countLabel()).toBe("collectionCount:16");
+      expect(countLabel()).toBe("sharedFolderCount:16");
+    });
+
+    it("uses the singular sentence for a lone child", () => {
+      createComponent(folderNodes(1));
+
+      expect(countLabel()).toBe("sharedFolderSingular:1");
     });
 
     it("emphasizes the number without splitting the translated sentence", () => {
@@ -325,7 +310,7 @@ describe("SharedFolderCardGridComponent", () => {
       const emphasized = fixture.nativeElement.querySelector('[slot="end"] strong');
       expect(emphasized.textContent).toBe("16");
       expect(emphasized.classList).toContain("tw-font-bold");
-      expect(countLabel()).toBe("collectionCount:16");
+      expect(countLabel()).toBe("sharedFolderCount:16");
       expect(countLabel()).not.toContain("\uFFFC");
     });
 
@@ -333,41 +318,7 @@ describe("SharedFolderCardGridComponent", () => {
       createComponent(folderNodes(COLLAPSED_CARD_COUNT + 7));
 
       expect(cardLinks()).toHaveLength(COLLAPSED_CARD_COUNT);
-      expect(countLabel()).toBe(`collectionCount:${COLLAPSED_CARD_COUNT + 7}`);
-    });
-  });
-
-  describe("terminology", () => {
-    it("uses the legacy terms for the title and count when the flag is off", () => {
-      createComponent(folderNodes(2), "Engineering");
-
-      expect(accordionTitle()).toBe("collectionsInParent:Engineering");
-      expect(countLabel()).toBe("collectionCount:2");
-    });
-
-    it("uses shared folder terms for the title and count when the flag is on", () => {
-      vfo1Enabled.set(true);
-      createComponent(folderNodes(2), "Engineering");
-
-      expect(accordionTitle()).toBe("sharedFoldersInParent:Engineering");
-      expect(countLabel()).toBe("sharedFolderCount:2");
-    });
-
-    it("keeps the shared collection icon when the flag is off", () => {
-      createComponent(folderNodes(1));
-
-      expect(cardLinks()[0].querySelector("bit-icon-tile i")?.classList).toContain(
-        "bwi-collection-shared",
-      );
-    });
-
-    it("swaps the folder icon when the flag is on", () => {
-      vfo1Enabled.set(true);
-      createComponent(folderNodes(1));
-
-      expect(cardLinks()[0].querySelector("bit-icon-tile i")?.classList).toContain(
-        "bwi-shared-folder",
-      );
+      expect(countLabel()).toBe(`sharedFolderCount:${COLLAPSED_CARD_COUNT + 7}`);
     });
 
     it("names the region holding the cards with the titled accordion trigger", () => {
