@@ -119,5 +119,28 @@ export interface FilterEntry {
   readonly kind: "option" | "section";
 }
 
+/** One row of a multi-select menu's flattened tree — a section header or an option. */
+export type FilterTreeNode =
+  | { kind: "section"; section: unknown; level: number; setsize: number; posinset: number }
+  | { kind: "option"; option: unknown; level: number; setsize: number; posinset: number };
+
+/**
+ * What a multi-select filter menu exposes to its tree rows. The rows render flat, so
+ * only the menu's node list knows which row owns which — it answers those questions
+ * here rather than each row deriving them from the DOM.
+ */
+export interface FilterTreeHost {
+  nodeLabel(node: FilterTreeNode): string;
+  nodeDisabled(node: FilterTreeNode): boolean;
+  nodeExpanded(node: FilterTreeNode): boolean;
+  toggleNodeExpanded(node: FilterTreeNode): void;
+  activateNode(node: FilterTreeNode): void;
+  parentRow<T>(row: T): T | null;
+  childRows<T>(row: T): T[];
+}
+
+/** Provided by `bit-filter-menu`; injected by its tree rows. */
+export const FILTER_TREE_HOST = new InjectionToken<FilterTreeHost>("FilterTreeHost");
+
 /** Provided by `bit-filter-option` and `bit-filter-section`; injected by `bit-filter-menu`. */
 export const FILTER_ENTRY = new InjectionToken<FilterEntry>("FilterEntry");

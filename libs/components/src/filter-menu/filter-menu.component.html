@@ -128,11 +128,12 @@
       class="tw-min-h-0 tw-flex-1 tw-overflow-y-auto"
       (keydown)="onTreeKeydown($event)"
     >
-      @for (node of treeNodes(); track $index; let i = $index) {
+      @for (node of treeNodes(); track $index) {
         @let expandable = nodeExpandable(node);
         @let checked = nodeChecked(node);
         <div
           role="treeitem"
+          [bitFilterTreeRow]="node"
           [class]="optionRowClasses"
           [style.padding-inline-start.rem]="0.5 + (node.level - 1) * 1.25"
           [attr.aria-level]="node.level"
@@ -141,8 +142,6 @@
           [attr.aria-expanded]="expandable ? nodeExpanded(node) : null"
           [attr.aria-checked]="checked"
           [attr.aria-disabled]="nodeDisabled(node) ? true : null"
-          [tabindex]="i === activeIndex() ? 0 : -1"
-          (focus)="setActiveIndex(i)"
           (click)="nodeDisabled(node) ? null : activateNode(node)"
         >
           @if (expandable) {

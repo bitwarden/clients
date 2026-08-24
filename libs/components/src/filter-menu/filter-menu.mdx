@@ -88,8 +88,14 @@ partly selected, which is more than a listbox can express. It's one tab stop, na
 | `Home` / `End` | First / last row                                   |
 | `Space`        | Select or clear the row, and everything beneath it |
 
-The expander is driven by `←`/`→` rather than being its own tab stop, and section headers are rows
-too — expandable but not selectable.
+Typing jumps to the row whose label starts with what you typed. The expander is driven by `←`/`→`
+rather than being its own tab stop, and section headers are rows too — expandable but not
+selectable.
+
+Navigation is CDK's `TreeKeyManager`; each row adapts itself to its item contract via
+`bitFilterTreeRow`. The row is the item rather than the `bit-filter-option` behind it, because an
+option is declared once but rendered per surface, so only the row maps one-to-one onto something
+focusable.
 
 Both surfaces sit in a `dialog`-role popover, so `Tab` reaches the search field and the footer
 instead of dismissing, and `Escape` closes and returns focus to the chip.

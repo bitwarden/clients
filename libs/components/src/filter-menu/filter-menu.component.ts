@@ -1,3 +1,4 @@
+import { TreeKeyManager } from "@angular/cdk/a11y";
 import { NgTemplateOutlet } from "@angular/common";
 import {
   ChangeDetectionStrategy,
@@ -16,8 +17,11 @@ import {
   input,
   signal,
   viewChild,
+  viewChildren,
 } from "@angular/core";
+import { toObservable } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
+import { map } from "rxjs";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -51,28 +55,15 @@ import {
   FILTER_GROUP,
   FILTER_HOST,
   FILTER_PRESENTER,
+  FILTER_TREE_HOST,
   FilterControl,
   FilterEntry,
   FilterGroup,
   FilterPresenter,
+  FilterTreeHost,
+  FilterTreeNode,
 } from "./filter-tokens";
-
-/** One row of a multi-select menu's flattened tree — a section header or an option. */
-type FilterTreeNode =
-  | {
-      kind: "section";
-      section: FilterSectionComponent;
-      level: number;
-      setsize: number;
-      posinset: number;
-    }
-  | {
-      kind: "option";
-      option: FilterOptionComponent;
-      level: number;
-      setsize: number;
-      posinset: number;
-    };
+import { FilterTreeRowDirective } from "./filter-tree-row.directive";
 
 /** Show the in-menu search once the menu has more than this many options. */
 const SEARCH_THRESHOLD = 10;
@@ -121,11 +112,13 @@ const CLEAR_FILTER = Symbol("clear-filter");
     NgTemplateOutlet,
     IconComponent,
     CheckboxModule,
+    FilterTreeRowDirective,
     IconTileComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     { provide: FILTER_GROUP, useExisting: forwardRef(() => FilterMenuComponent) },
+    { provide: FILTER_TREE_HOST, useExisting: forwardRef(() => FilterMenuComponent) },
     { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterMenuComponent) },
     { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterMenuComponent) },
   ],
@@ -135,7 +128,9 @@ const CLEAR_FILTER = Symbol("clear-filter");
     OverflowItemDirective,
   ],
 })
-export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPresenter, OnInit {
+export class FilterMenuComponent
+  implements FilterGroup, FilterControl, FilterPresenter, FilterTreeHost, OnInit
+{
   /** The chip's key — the property its value occupies in the host's `filterValues`. */
   readonly key = input.required<string>();
 
@@ -512,23 +507,77 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     return nodes;
   });
 
-  /** The row the tree's single tab stop currently sits on. */
-  private readonly activeNodeIndex = signal(0);
+  /** The rendered rows, in document order — the same order as {@link treeNodes}. */
+  private readonly treeRows = viewChildren(FilterTreeRowDirective);
 
-  /** Clamped to the rows that actually exist, so collapsing or searching can't strand it. */
-  protected readonly activeIndex = computed(() =>
-    Math.min(this.activeNodeIndex(), Math.max(this.treeNodes().length - 1, 0)),
+  /**
+   * CDK owns tree navigation: up/down over the rows on screen, right to open then step
+   * in, left to close then climb, home/end, typeahead, and disabled skipping. The rows
+   * adapt themselves to its item contract; this just supplies the list.
+   */
+  private readonly keyManager = new TreeKeyManager<FilterTreeRowDirective>(
+    toObservable(this.treeRows).pipe(
+      map((rows) => [...(rows as readonly FilterTreeRowDirective[])]),
+    ),
+    {
+      typeAheadDebounceInterval: true,
+      // Rows are re-created as the tree expands or a search narrows it; keying on the
+      // declaration behind each row keeps the active row identified across that.
+      trackBy: (row) => {
+        const node = row.node();
+        return node.kind === "section" ? node.section : node.option;
+      },
+    },
   );
+
+  protected onTreeKeydown(event: KeyboardEvent): void {
+    this.keyManager.onKeydown(event);
+  }
+
+  /** @see FilterTreeHost.parentRow — the nearest earlier row a level above this one. */
+  parentRow<T>(row: T): T | null {
+    const rows = this.treeRows();
+    const index = rows.indexOf(row as never);
+    if (index < 0) {
+      return null;
+    }
+    const level = rows[index].node().level;
+    for (let i = index - 1; i >= 0; i--) {
+      if (rows[i].node().level < level) {
+        return rows[i] as never;
+      }
+    }
+    return null;
+  }
+
+  /** @see FilterTreeHost.childRows — the run of rows one level deeper, before the next sibling. */
+  childRows<T>(row: T): T[] {
+    const rows = this.treeRows();
+    const index = rows.indexOf(row as never);
+    if (index < 0) {
+      return [];
+    }
+    const level = rows[index].node().level;
+    const children: T[] = [];
+    for (let i = index + 1; i < rows.length && rows[i].node().level > level; i++) {
+      if (rows[i].node().level === level + 1) {
+        children.push(rows[i] as never);
+      }
+    }
+    return children;
+  }
 
   /** Whether a row expands, and whether it currently is. */
   protected nodeExpandable(node: FilterTreeNode): boolean {
-    return node.kind === "section" ? node.section.collapsible() : node.option.hasChildren();
+    return node.kind === "section"
+      ? (node.section as FilterSectionComponent).collapsible()
+      : (node.option as FilterOptionComponent).hasChildren();
   }
 
-  protected nodeExpanded(node: FilterTreeNode): boolean {
+  nodeExpanded(node: FilterTreeNode): boolean {
     return node.kind === "section"
-      ? this.sectionExpanded(node.section)
-      : this.optionExpanded(node.option);
+      ? this.sectionExpanded(node.section as FilterSectionComponent)
+      : this.optionExpanded(node.option as FilterOptionComponent);
   }
 
   /** A section header isn't selectable; only options carry a checked state. */
@@ -536,113 +585,39 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
     if (node.kind === "section") {
       return null;
     }
-    if (this.partiallySelected(node.option)) {
+    const option = node.option as FilterOptionComponent;
+    if (this.partiallySelected(option)) {
       return "mixed";
     }
-    return this.optionSelected(node.option) ? "true" : "false";
+    return this.optionSelected(option) ? "true" : "false";
   }
 
-  protected nodeLabel(node: FilterTreeNode): string {
-    return node.kind === "section" ? node.section.label() : node.option.label();
+  nodeLabel(node: FilterTreeNode): string {
+    return node.kind === "section"
+      ? (node.section as FilterSectionComponent).label()
+      : (node.option as FilterOptionComponent).label();
   }
 
-  protected nodeDisabled(node: FilterTreeNode): boolean {
-    return node.kind === "option" && node.option.disabled();
-  }
-
-  protected setActiveIndex(index: number): void {
-    this.activeNodeIndex.set(index);
+  nodeDisabled(node: FilterTreeNode): boolean {
+    return node.kind === "option" && (node.option as FilterOptionComponent).disabled();
   }
 
   /** Expand or collapse a row, whichever it currently isn't. */
-  protected toggleNodeExpanded(node: FilterTreeNode): void {
+  toggleNodeExpanded(node: FilterTreeNode): void {
     if (node.kind === "section") {
-      node.section.toggle();
+      (node.section as FilterSectionComponent).toggle();
     } else {
-      node.option.toggleOpen();
+      (node.option as FilterOptionComponent).toggleOpen();
     }
   }
 
-  /** Select or clear a row. Section headers only expand, so they no-op here. */
-  protected activateNode(node: FilterTreeNode): void {
+  /** Select or clear a row. Section headers only expand, so they toggle instead. */
+  activateNode(node: FilterTreeNode): void {
     if (node.kind === "option") {
-      this.toggleOption(node.option);
+      this.toggleOption(node.option as FilterOptionComponent);
     } else {
       this.toggleNodeExpanded(node);
     }
-  }
-
-  /**
-   * Tree navigation. Up/Down walk the rows that are actually on screen; Right opens a
-   * closed row and then steps into it; Left closes an open one and otherwise climbs to
-   * the parent; Space and Enter select.
-   */
-  protected onTreeKeydown(event: KeyboardEvent): void {
-    const nodes = this.treeNodes();
-    if (nodes.length === 0) {
-      return;
-    }
-    const index = this.activeIndex();
-    const node = nodes[index];
-    let next: number | undefined;
-
-    switch (event.key) {
-      case "ArrowDown":
-        next = Math.min(index + 1, nodes.length - 1);
-        break;
-      case "ArrowUp":
-        next = Math.max(index - 1, 0);
-        break;
-      case "Home":
-        next = 0;
-        break;
-      case "End":
-        next = nodes.length - 1;
-        break;
-      case "ArrowRight":
-        if (this.nodeExpandable(node) && !this.nodeExpanded(node)) {
-          this.toggleNodeExpanded(node);
-        } else if (this.nodeExpandable(node)) {
-          next = Math.min(index + 1, nodes.length - 1);
-        }
-        break;
-      case "ArrowLeft":
-        if (this.nodeExpandable(node) && this.nodeExpanded(node)) {
-          this.toggleNodeExpanded(node);
-        } else {
-          // Climb to the nearest row a level above this one.
-          for (let i = index - 1; i >= 0; i--) {
-            if (nodes[i].level < node.level) {
-              next = i;
-              break;
-            }
-          }
-        }
-        break;
-      case " ":
-      case "Enter":
-        this.activateNode(node);
-        break;
-      default:
-        return;
-    }
-
-    event.preventDefault();
-    if (next != null) {
-      this.setActiveIndex(next);
-      this.focusActiveRow();
-    }
-  }
-
-  /** Moves DOM focus onto the active row once the roving tabindex has been rebound. */
-  private focusActiveRow(): void {
-    focusAfterRender(
-      this.injector,
-      () =>
-        this.treeEl()?.nativeElement.querySelectorAll<HTMLElement>('[role="treeitem"]')[
-          this.activeIndex()
-        ],
-    );
   }
 
   /** An option's own value followed by every value nested beneath it. */
@@ -743,7 +718,11 @@ export class FilterMenuComponent implements FilterGroup, FilterControl, FilterPr
    */
   protected clearFromMenu(): void {
     this.clear();
-    this.focusActiveRow();
+    focusAfterRender(this.injector, () => {
+      const active = this.keyManager.getActiveItem() ?? this.treeRows()[0];
+      active?.focus();
+      return null;
+    });
   }
 
   /** Likewise for the chip's dismiss button — focus returns to the chip itself. */
