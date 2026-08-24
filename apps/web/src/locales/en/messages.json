@@ -16834,6 +16834,10 @@
   "pamAccessRules": {
     "message": "Access rules"
   },
+  "pamNoAccessRule": {
+    "message": "No access rule",
+    "description": "Screen-reader text for a vault row in the Controlled access column that no access rule governs."
+  },
   "pamAccessRuleActive": {
     "message": "Active"
   },
