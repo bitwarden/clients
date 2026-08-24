@@ -52,6 +52,19 @@ fn internal_ipc_codec<T: AsyncRead + AsyncWrite>(inner: T) -> Framed<T, LengthDe
         .new_framed(inner)
 }
 
+/// The shared App Group container declared in this bundle's Info.plist, if resolvable.
+///
+/// Reads the group identifier stamped into the Info.plist per build variant and asks the
+/// OS for its container, creating it if needed. Returns `None` outside a signed bundle
+/// entitled to the group (e.g. an unsigned dev build). Resolving the group at runtime
+/// rather than hardcoding it lets a single native binary serve both production and beta
+/// without the two channels sharing a socket.
+#[cfg(target_os = "macos")]
+fn app_group_container() -> Option<std::path::PathBuf> {
+    let group_id = desktop_objc::app_group_id()?;
+    desktop_objc::app_group_container_path(&group_id).map(std::path::PathBuf::from)
+}
+
 /// The main path to the IPC socket.
 pub fn path(name: &str) -> std::path::PathBuf {
     #[cfg(target_os = "windows")]
@@ -72,27 +85,21 @@ pub fn path(name: &str) -> std::path::PathBuf {
         // When running in an unsandboxed environment, path is: /Users/<user>/
         // While running sandboxed, it's different:
         // /Users/<user>/Library/Containers/com.bitwarden.desktop/Data
-        let mut home = dirs::home_dir().expect("Could not find user home directory");
+        let home = dirs::home_dir().expect("Could not find user home directory");
 
         // Check if the app is sandboxed by looking for the Containers directory
-        let containers_position = home
-            .components()
-            .position(|c| c.as_os_str() == "Containers");
+        let sandboxed = home.components().any(|c| c.as_os_str() == "Containers");
 
-        // If the app is sanboxed, we need to use the App Group directory
-        if let Some(position) = containers_position {
-            // We want to use App Groups in /Users/<user>/Library/Group
-            // Containers/LTZ2PFU5D6.com.bitwarden.desktop, so we need to remove all the
-            // components after the user. We can use the previous position to do this.
-            while home.components().count() > position - 1 {
-                home.pop();
+        // If the app is sandboxed, its own container is not reachable from the other side
+        // of the socket, so we need to use the shared App Group container instead.
+        if sandboxed {
+            match app_group_container() {
+                Some(container) => return container.join(format!("s.{name}")),
+                None => tracing::error!(
+                    "Sandboxed build could not resolve its App Group container; falling back \
+                     to the cache directory, which peers outside the sandbox cannot reach"
+                ),
             }
-
-            let tmp = home.join("Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop");
-
-            // The tmp directory might not exist, so create it
-            let _ = std::fs::create_dir_all(&tmp);
-            return tmp.join(format!("s.{name}"));
         }
     }
 
