@@ -85,23 +85,27 @@ export default {
               clearAll: "Clear all",
               filter: "Filter",
               filters: "Filters",
-              // Permissions filter chip
+              // Permissions filter chip, and its small-screen dialog
               filterByName: (name) => `Filter by ${name}`,
               removeItem: (name) => `Remove ${name}`,
               filtersSelected: (count) => `${count} selected`,
-              noMatchingItems: "No matching items",
               clear: "Clear",
               done: "Done",
               all: "All",
+              back: "Back",
+              backTo: (name) => `Back to ${name}`,
+              viewItemsIn: (name) => `View items in ${name}`,
               // Columns and rows
               name: "Name",
               permissions: "Permissions",
               items: "Items",
               options: "Options",
               optionsForItem: (name) => `Options for ${name}`,
-              // Default empty state
-              noItemsTitle: "No items to show",
-              noItemsDescription: "There are no items to list.",
+              selectAllRows: "Select all rows",
+              selectRow: "Select row",
+              // The table's default empty state
+              nothingToShow: "Nothing to show",
+              noMatchingItems: "No matching items",
             }),
         },
       ],
