@@ -1,9 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { catchError, combineLatest, from, map, Observable, of, switchMap } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   CipherViewLike,
   CipherViewLikeUtils,
@@ -20,6 +24,13 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
  * pseudo-collections ("Unassigned"), which carry no server state at all.
  */
 type BadgeCollection = { hasEnabledAccessRule?: boolean };
+
+/**
+ * What the row's lookup concluded: a badge state, `"none"` for "checked, governed by no rule",
+ * or `null` for "nothing to say" — the feature is off, there is no row to check, or the lookup
+ * failed. Only `"none"` can draw the em dash, and only a failed lookup must not.
+ */
+type LeaseBadgeCell = AccessBadgeState | "none" | null;
 
 /**
  * Binds `VAULT_ROW_LEASE_BADGE` for one row in the vault list — cipher or collection.
@@ -40,6 +51,18 @@ type BadgeCollection = { hasEnabledAccessRule?: boolean };
  * against the list it is rendered beside, and works for viewers who cannot read the
  * organization's access rules — notably provider users, whom `MemberRequirement` excludes from
  * the access-rules endpoint by design.
+ *
+ * A cipher row with no rule draws an em dash — paired with an equivalent screen-reader label,
+ * since the dash itself is decorative — rather than an empty cell, so "checked, not governed" is
+ * distinguishable from "not loaded yet". The placeholder lives here and not in
+ * {@link AccessStateBadgeComponent}, which the cipher-view modal and the Requests page also
+ * render and where the spec calls for nothing at all.
+ *
+ * A collection row never draws it. `hasEnabledAccessRule` is declared `boolean = false` and read
+ * as `getResponseProperty("HasEnabledAccessRule") || false`, so a server too old to derive the
+ * field is indistinguishable from one reporting no rule — the flag cannot express "I did not
+ * check". Blank is the honest answer there, and it is what this column already means by an empty
+ * cell.
  */
 @Component({
   selector: "app-pam-vault-row-lease-badge",
@@ -53,8 +76,31 @@ export class VaultRowLeaseBadgeComponent {
 
   private readonly configService = inject(ConfigService);
   private readonly accessRequestSdkService = inject(AccessRequestSdkService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
 
-  private readonly state$: Observable<AccessBadgeState | null> = combineLatest([
+  protected readonly noAccessRuleLabel = inject(I18nService).t("pamNoAccessRule");
+
+  /**
+   * Ids of the organizations that actually carry Privileged Access. The column itself is
+   * table-wide — one PAM-enabled organization anywhere in view turns it on for every row — so the
+   * placeholder has to be narrowed to the row's own organization here, or a row from an
+   * organization that cannot have access rules would claim it was checked against them.
+   */
+  private readonly pamOrganizationIds = toSignal(
+    this.accountService.activeAccount$.pipe(
+      getOptionalUserId,
+      switchMap((userId) =>
+        userId == null ? of([]) : this.organizationService.organizations$(userId),
+      ),
+      map(
+        (organizations) => new Set<string>(organizations.filter((o) => o.usePam).map((o) => o.id)),
+      ),
+    ),
+    { initialValue: new Set<string>() },
+  );
+
+  private readonly cell$: Observable<LeaseBadgeCell> = combineLatest([
     toObservable(this.cipher),
     toObservable(this.collection),
     this.configService.getFeatureFlag$(FeatureFlag.Pam),
@@ -64,32 +110,48 @@ export class VaultRowLeaseBadgeComponent {
         return of(null);
       }
       if (cipher != null) {
-        return this.cipherState$(cipher);
+        return this.cipherCell$(cipher);
       }
       if (collection != null) {
-        return this.collectionState$(collection);
+        return this.collectionCell$(collection);
       }
       return of(null);
     }),
   );
 
-  protected readonly badge = toSignal(this.state$, { initialValue: null });
+  private readonly cell = toSignal(this.cell$, { initialValue: null });
 
-  private cipherState$(cipher: CipherViewLike): Observable<AccessBadgeState | null> {
+  protected readonly badge = computed<AccessBadgeState | null>(() => {
+    const cell = this.cell();
+    return cell === "none" ? null : cell;
+  });
+
+  protected readonly showNoAccessRule = computed(() => {
+    if (this.cell() !== "none") {
+      return false;
+    }
+    const organizationId = this.cipher()?.organizationId;
+    return organizationId != null && this.pamOrganizationIds().has(String(organizationId));
+  });
+
+  private cipherCell$(cipher: CipherViewLike): Observable<LeaseBadgeCell> {
     // Gating is driven by the SDK's `partial` flag, which only some `CipherViewLike` members
-    // carry — read it through the util rather than off the union. No flag or no id — no badge.
-    if (!CipherViewLikeUtils.isPartial(cipher) || cipher.id == null) {
+    // carry; read it through the util rather than off the union. Not gated is a real answer;
+    // no id means the lookup could not run, which is not.
+    if (!CipherViewLikeUtils.isPartial(cipher)) {
+      return of("none");
+    }
+    if (cipher.id == null) {
       return of(null);
     }
     return from(this.accessRequestSdkService.getCipherAccessState(String(cipher.id))).pipe(
-      map(cipherAccessBadgeState),
+      map((state): LeaseBadgeCell => cipherAccessBadgeState(state) ?? "none"),
+      // A failed read is not evidence of anything, so it must not draw the placeholder.
       catchError(() => of(null)),
     );
   }
 
-  private collectionState$({
-    hasEnabledAccessRule,
-  }: BadgeCollection): Observable<AccessBadgeState | null> {
+  private collectionCell$({ hasEnabledAccessRule }: BadgeCollection): Observable<LeaseBadgeCell> {
     return of(hasEnabledAccessRule === true ? { kind: "privileged" } : null);
   }
 }

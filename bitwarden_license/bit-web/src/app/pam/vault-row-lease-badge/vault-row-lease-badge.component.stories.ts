@@ -2,6 +2,9 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import type { CipherAccessStateView } from "@bitwarden/sdk-internal";
@@ -14,11 +17,15 @@ import { VaultRowLeaseBadgeComponent } from "./vault-row-lease-badge.component";
 /** The SDK spells the resting states as bare strings and the active one as a tagged variant. */
 type BadgeState = string | { active: { expiresAt: string } };
 
+/** The organization every cipher fixture below belongs to unless a story says otherwise. */
+const PAM_ORGANIZATION_ID = "org-1";
+
 /** A cipher the SDK has marked as gated. Only `partial` and `id` decide whether a row fetches. */
 function gatedCipher(): CipherView {
   const cipher = new CipherView();
   cipher.id = "cipher-1";
   cipher.partial = true;
+  cipher.organizationId = PAM_ORGANIZATION_ID;
   return cipher;
 }
 
@@ -27,6 +34,7 @@ function ungatedCipher(): CipherView {
   const cipher = new CipherView();
   cipher.id = "cipher-2";
   cipher.partial = false;
+  cipher.organizationId = PAM_ORGANIZATION_ID;
   return cipher;
 }
 
@@ -34,9 +42,26 @@ function ungatedCipher(): CipherView {
  * `state` is a factory, not a value, so an active lease's `expiresAt` is relative to when the story
  * renders rather than when this module loaded — a stale one would resolve straight to "Session
  * ended".
+ *
+ * `organizations` stands in for the account's PAM-eligible organizations, which the component
+ * reads to narrow the em dash placeholder to rows whose organization can actually carry access
+ * rules. Defaults to the one organization every cipher fixture belongs to; a story can pass an
+ * empty `usePam` to show a row the placeholder must not reach.
  */
-function pam(options: { enabled?: boolean; state?: () => BadgeState; fails?: boolean } = {}) {
-  const { enabled = true, state, fails = false } = options;
+function pam(
+  options: {
+    enabled?: boolean;
+    state?: () => BadgeState;
+    fails?: boolean;
+    organizations?: { id: string; usePam: boolean }[];
+  } = {},
+) {
+  const {
+    enabled = true,
+    state,
+    fails = false,
+    organizations = [{ id: PAM_ORGANIZATION_ID, usePam: true }],
+  } = options;
   return moduleMetadata({
     imports: [VaultRowLeaseBadgeComponent],
     providers: [
@@ -48,6 +73,13 @@ function pam(options: { enabled?: boolean; state?: () => BadgeState; fails?: boo
             fails
               ? Promise.reject(new Error("access-state read failed"))
               : Promise.resolve({ badgeState: state?.() } as unknown as CipherAccessStateView),
+        },
+      },
+      { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      {
+        provide: OrganizationService,
+        useValue: {
+          organizations$: () => of(organizations as Organization[]),
         },
       },
     ],
@@ -109,6 +141,17 @@ export const CipherRowActiveLease: Story = {
 export const UngatedCipher: Story = {
   args: { cipher: ungatedCipher() },
   decorators: [pam({ state: () => "privileged" })],
+};
+
+/**
+ * An ungated row whose organization cannot have access rules. The placeholder narrows to
+ * `pamOrganizationIds`, so this row must render nothing, not the em dash `UngatedCipher` shows.
+ */
+export const UngatedCipherInNonPamOrganization: Story = {
+  args: { cipher: ungatedCipher() },
+  decorators: [
+    pam({ state: () => "privileged", organizations: [{ id: PAM_ORGANIZATION_ID, usePam: false }] }),
+  ],
 };
 
 /** With the PAM flag off nothing renders, and no row issues a request. */
