@@ -13,6 +13,7 @@ export type SharedDevFlags = {
   configRetrievalIntervalMs: number;
   showRiskInsightsDebug: boolean;
   fillAssistDevTools: boolean;
+  useBitwardenAutofillAttributes: boolean;
   testPhishingUrls: string[];
 };
 
