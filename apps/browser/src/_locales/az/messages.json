@@ -156,7 +156,7 @@
     "message": "Nömrəni kopyala"
   },
   "copySecurityCode": {
-    "message": "Güvənlik kodunu kopyala"
+    "message": "Təhlükəsizlik kodunu kopyala"
   },
   "copyName": {
     "message": "Adı kopyala"
@@ -165,7 +165,7 @@
     "message": "Şirkəti kopyala"
   },
   "copySSN": {
-    "message": "Sosial güvənlik nömrəsini kopyala"
+    "message": "Sosial təminat nömrəsini kopyala"
   },
   "copyPassportNumber": {
     "message": "Pasport nömrəsini kopyala"
@@ -509,7 +509,7 @@
     "message": "Seçimlər"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "$NAME$ üçün seçimlər",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -518,10 +518,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Paylaşılan qovluq yoxdur"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ üzrə filtrlə",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -530,13 +530,13 @@
     }
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Elementləri burada filtrləmək üçün sevimli olaraq işarələyin."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Elementləri burada filtrləmək üçün onlara qovluq əlavə edin."
   },
   "editItemWithName": {
-    "message": "Edit item - $NAME$",
+    "message": "Elementə düzəliş et - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -545,7 +545,7 @@
     }
   },
   "noItemsInVault": {
-    "message": "No items in the vault"
+    "message": "Seyfdə element yoxdur"
   },
   "length": {
     "message": "Uzunluq"
@@ -751,15 +751,6 @@
   "launchWebsite": {
     "message": "Veb saytı başlat"
   },
-  "launchWebsiteForName": {
-    "message": "$ITEMNAME$ veb saytını başlat",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "website": {
     "message": "Veb sayt"
   },
@@ -916,7 +907,7 @@
     "message": "Heç vaxt"
   },
   "security": {
-    "message": "Güvənlik"
+    "message": "Təhlükəsizlik"
   },
   "confirmMasterPassword": {
     "message": "Ana parolu təsdiqlə"
@@ -1056,7 +1047,7 @@
     "message": "Giriş prosesini tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "followTheStepsBelowToFinishLoggingInWithSecurityKey": {
-    "message": "Güvənlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
+    "message": "Təhlükəsizlik açarınızla girişi tamamlamaq üçün aşağıdakı addımları izləyin."
   },
   "restartRegistration": {
     "message": "Qeydiyyatı yenidən başlat"
@@ -1098,7 +1089,7 @@
     "message": "Qovluq əlavə edildi"
   },
   "twoStepLoginConfirmation": {
-    "message": "İki addımlı giriş, güvənlik açarı, kimlik doğrulayıcı tətbiq, SMS, telefon zəngi və ya e-poçt kimi digər cihazlarla girişinizi doğrulamanızı tələb edərək hesabınızı daha da güvənli edir. İki addımlı giriş, bitwarden.com veb seyfində qurula bilər. Veb saytı indi ziyarət etmək istəyirsiniz?"
+    "message": "İki addımlı giriş, təhlükəsizlik açarı, kimlik doğrulayıcı tətbiq, SMS, telefon zəngi və ya e-poçt kimi digər cihazlarla girişinizi doğrulamanızı tələb edərək hesabınızı daha da güvənli edir. İki addımlı giriş, bitwarden.com veb seyfində qurula bilər. Veb saytı indi ziyarət etmək istəyirsiniz?"
   },
   "twoStepLoginConfirmationContent": {
     "message": "Bitwarden veb tətbiqində iki addımlı girişi quraraq hesabınızı daha güvənli edin."
@@ -1683,17 +1674,11 @@
   "premiumRefresh": {
     "message": "Üzvlüyü təzələ"
   },
-  "premiumNotCurrentMember": {
-    "message": "Hazırda premium bir üzvlüyünüz yoxdur"
-  },
-  "premiumSignUpAndGet": {
-    "message": "Premium üzvlük üçün qeydiyyatdan keçin və bunları əldə edin:"
-  },
   "premiumSignUpStorage": {
-    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş saxlama sahəsi."
+    "message": "Fayl qoşmaları üçün 1 GB şifrələnmiş depolama sahəsi."
   },
   "premiumSignUpStorageV2": {
-    "message": "Fayl qoşmaları üçün $SIZE$ şifrələnmiş anbar sahəsi.",
+    "message": "Fayl qoşmaları üçün $SIZE$ şifrələnmiş depolama sahəsi.",
     "placeholders": {
       "size": {
         "content": "$1",
@@ -1733,12 +1718,6 @@
   },
   "premiumPurchaseAlertV2": {
     "message": "Bitwarden veb tətbiqindəki hesab ayarlarınızda Premium satın ala bilərsiniz."
-  },
-  "premiumCurrentMember": {
-    "message": "Premium üzvsünüz!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Bitwarden-i dəstəklədiyiniz üçün təşəkkürlər!"
   },
   "premiumFeatures": {
     "message": "Premium-a yüksəlt və bunları əldə et:"
@@ -1799,7 +1778,7 @@
     "message": "Geri qaytarma kodunuzu istifadə edin"
   },
   "insertU2f": {
-    "message": "Güvənlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
+    "message": "Təhlükəsizlik açarını kompüterinizin USB portuna taxın. Düyməsi varsa toxunun."
   },
   "openInNewTab": {
     "message": "Yeni vərəqdə aç"
@@ -1808,7 +1787,7 @@
     "message": "WebAuthn kimlik doğrulama"
   },
   "readSecurityKey": {
-    "message": "Güvənlik açarını oxu"
+    "message": "Təhlükəsizlik açarını oxu"
   },
   "readingPasskeyLoading": {
     "message": "Keçid açarı oxunur..."
@@ -1820,7 +1799,7 @@
     "message": "Fərqli bir giriş üsulu istifadə edin"
   },
   "awaitingSecurityKeyInteraction": {
-    "message": "Güvənlik açarı ilə əlaqə gözlənilir..."
+    "message": "Təhlükəsizlik açarı ilə əlaqə gözlənilir..."
   },
   "loginUnavailable": {
     "message": "Giriş edilə bilmir"
@@ -1848,7 +1827,7 @@
     "description": "'Bitwarden Authenticator' is a product name and should not be translated."
   },
   "yubiKeyTitleV2": {
-    "message": "Yubico OTP Güvənlik Açarı"
+    "message": "Yubico OTP Təhlükəsizlik Açarı"
   },
   "yubiKeyDesc": {
     "message": "Hesabınıza erişmək üçün bir YubiKey istifadə edin. YubiKey 4, 4 Nano, 4C və NEO cihazları ilə işləyir."
@@ -1858,14 +1837,14 @@
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "duoOrganizationDesc": {
-    "message": "Təşkilatınızını Duo Security ilə doğrulamaq üçün Duo Mobile tətbiqi, SMS, telefon zəngi və ya U2F güvənlik açarını istifadə edin.",
+    "message": "Təşkilatınızını Duo Security ilə doğrulamaq üçün Duo Mobile tətbiqi, SMS, telefon zəngi və ya U2F təhlükəsizlik açarını istifadə edin.",
     "description": "'Duo Security' and 'Duo Mobile' are product names and should not be translated."
   },
   "webAuthnTitle": {
     "message": "FIDO2 WebAuthn"
   },
   "webAuthnDesc": {
-    "message": "Hesabınıza erişmək üçün istənilən WebAuthn uyumlu güvənlik açarını istifadə edin."
+    "message": "Hesabınıza erişmək üçün istənilən WebAuthn uyumlu təhlükəsizlik açarını istifadə edin."
   },
   "emailTitle": {
     "message": "E-poçt"
@@ -2008,7 +1987,7 @@
     "message": "Kartları təklif kimi göstər"
   },
   "showInlineMenuSSHKeysLabel": {
-    "message": "Display SSH keys as suggestions"
+    "message": "SSH açarlarını təklif olaraq göstər"
   },
   "showInlineMenuOnIconSelectionLabel": {
     "message": "İkon seçildikdə təklifləri göstər"
@@ -2211,10 +2190,7 @@
     "message": "Dekabr"
   },
   "securityCode": {
-    "message": "Güvənlik kodu"
-  },
-  "cardNumber": {
-    "message": "kart nömrəsi"
+    "message": "Təhlükəsizlik kodu"
   },
   "ex": {
     "message": "məs."
@@ -2256,7 +2232,7 @@
     "message": "Şirkət"
   },
   "ssn": {
-    "message": "Sosial güvənlik nömrəsi"
+    "message": "Sosial təminat nömrəsi"
   },
   "passportNumber": {
     "message": "Pasport nömrəsi"
@@ -2625,6 +2601,15 @@
   },
   "nCollections": {
     "message": "$COUNT$ kolleksiya",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "nSharedFolders": {
+    "message": "$COUNT$ paylaşılan qovluq",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5751,26 +5736,6 @@
   "clearFiltersOrTryAnother": {
     "message": "Filtrləri təmizləyin və ya başqa bir axtarış terminini sınayın"
   },
-  "copyDetailsTitle": {
-    "message": "$ITEMNAME$ detallarını kopyala",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "Notu kopyala - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "moreOptionsLabel": {
     "message": "Daha çox seçim, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
@@ -5842,20 +5807,6 @@
       }
     }
   },
-  "copyFieldCipherName": {
-    "message": "Kopyala: $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "Heç bir dəyər daxil edilməyib",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
@@ -5921,7 +5872,7 @@
     "message": "İndi mmövcuddur"
   },
   "accountSecurity": {
-    "message": "Hesab güvənliyi"
+    "message": "Hesab təhlükəsizliyi"
   },
   "phishingBlocker": {
     "message": "Fişinq əngəlləyici"
@@ -7148,7 +7099,7 @@
     "message": "Daxili kimlik doğrulayıcı"
   },
   "secureFileStorage": {
-    "message": "Güvənli fayl anbarı"
+    "message": "Güvənli fayl deposu"
   },
   "emergencyAccess": {
     "message": "Fövqəladə hal erişimi"
@@ -7252,13 +7203,13 @@
     }
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToImmediately": {
-    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını dərhal olaraq təyin etdi."
+    "message": "Təşkilatınız, sessiyanın ilkin bitmə vaxtını Dərhal olaraq təyin etdi."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnLocked": {
-    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını Sistem kilidi açılanda olaraq təyin etdi."
+    "message": "Təşkilatınız, sessiyanın ilkin bitmə vaxtını \"Sistem kilidlənəndə\" olaraq təyin etdi."
   },
   "sessionTimeoutSettingsPolicySetDefaultTimeoutToOnRestart": {
-    "message": "Təşkilatınız, seansın ilkin bitmə vaxtını Brauzer yenidən başladılanda olaraq təyin etdi."
+    "message": "Təşkilatınız, sessiyanın ilkin bitmə vaxtını \"Brauzer yenidən başladılanda\" olaraq təyin etdi."
   },
   "sessionTimeoutSettingsPolicyMaximumError": {
     "message": "Maksimum bitmə vaxtı $HOURS$ saat $MINUTES$ dəqiqə dəyərini aşa bilməz",
@@ -7632,15 +7583,15 @@
     "message": "İfşa olunan, zəif və ya təkrar istifadə olunan parolları düzəldərək seyfinizin sağlamlığını izləyin və yaxşılaşdırın."
   },
   "yourVaultIsHealthy": {
-    "message": "Your vault is healthy",
+    "message": "Seyfiniz sağlamdır",
     "description": "Heading shown when none of the user's passwords are at risk."
   },
   "yourVaultRiskIsHigh": {
-    "message": "Your vault risk is high",
+    "message": "Seyfinizdə risk yüksəkdir",
     "description": "Heading shown when at least one of the user's passwords is at risk."
   },
   "passwordsNeedFixing": {
-    "message": "$AT_RISK$ of $TOTAL$ passwords need fixing",
+    "message": "$AT_RISK$/$TOTAL$ parol düzəldilməlidir",
     "description": "Count of the user's passwords that are at risk, out of the total number scanned.",
     "placeholders": {
       "at_risk": {
@@ -7654,15 +7605,15 @@
     }
   },
   "exposedPasswordsNone": {
-    "message": "No exposed passwords",
+    "message": "İfşa olmuş parol yoxdur",
     "description": "Title of the exposed risk category row when no passwords are exposed."
   },
   "exposedPassword": {
-    "message": "1 exposed password",
+    "message": "1 ifşa olmuş parol",
     "description": "Title of the exposed risk category row when exactly one password is exposed."
   },
   "exposedPasswordsPlural": {
-    "message": "$COUNT$ exposed passwords",
+    "message": "$COUNT$ ifşa olmuş parol",
     "description": "Title of the exposed risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7672,23 +7623,23 @@
     }
   },
   "exposedPasswordsDesc": {
-    "message": "Exposed in data breaches",
+    "message": "Veri sızıntılarında ifşa olub",
     "description": "Explains what makes a password count as exposed."
   },
   "exposedPasswordsNoneDesc": {
-    "message": "None of your passwords were found in data breaches",
+    "message": "Parollarınızdan heç biri veri sızıntılarında tapılmadı",
     "description": "Description of the exposed risk category row when no passwords are exposed."
   },
   "weakPasswordsNone": {
-    "message": "No weak passwords",
+    "message": "Zəif parol yoxdur",
     "description": "Title of the weak risk category row when no passwords are weak."
   },
   "weakPassword": {
-    "message": "1 weak password",
+    "message": "1 zəif parol",
     "description": "Title of the weak risk category row when exactly one password is weak."
   },
   "weakPasswordsPlural": {
-    "message": "$COUNT$ weak passwords",
+    "message": "$COUNT$ zəif parol",
     "description": "Title of the weak risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7698,23 +7649,23 @@
     }
   },
   "weakPasswordsDesc": {
-    "message": "Too short or simple",
+    "message": "Çox qısadır və ya sadədir",
     "description": "Explains what makes a password count as weak."
   },
   "weakPasswordsNoneDesc": {
-    "message": "All your passwords are strong",
+    "message": "Bütün parollarınız güclüdür",
     "description": "Description of the weak risk category row when no passwords are weak."
   },
   "reusedPasswordsNone": {
-    "message": "No reused passwords",
+    "message": "Təkrar ist. olunmuş parol yoxdur",
     "description": "Title of the reused risk category row when no passwords are reused."
   },
   "reusedPassword": {
-    "message": "1 reused password",
+    "message": "1 təkrar ist. olunmuş parol",
     "description": "Title of the reused risk category row when exactly one password is reused."
   },
   "reusedPasswordsPlural": {
-    "message": "$COUNT$ reused passwords",
+    "message": "$COUNT$ təkrar ist. olunmuş parol",
     "description": "Title of the reused risk category row, including the count. Used for counts of two or more.",
     "placeholders": {
       "count": {
@@ -7724,19 +7675,69 @@
     }
   },
   "reusedPasswordsDesc": {
-    "message": "Reused for several logins",
+    "message": "Bir neçə girişdə təkrar ist. olunub",
     "description": "Explains what makes a password count as reused."
   },
   "reusedPasswordsNoneDesc": {
-    "message": "All your passwords are unique",
+    "message": "Bütün parollarınız unikaldır",
     "description": "Description of the reused risk category row when no passwords are reused."
   },
   "risksIdentified": {
-    "message": "Risks identified",
+    "message": "Müəyyən olunmuş risklər",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
   "categoryHealthy": {
-    "message": "No items need attention",
+    "message": "Müdaxilə ediləcək heç nə yoxdur",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
+  },
+  "exposedPasswordsTitle": {
+    "message": "İfşa olunmuş parollar"
+  },
+  "exposedPasswordsDescription": {
+    "message": "Bu girişlərə aid parollar veri sızıntılarında üzə çıxıb. Hesablarınızı qorumaq üçün onları dərhal dəyişdirin."
+  },
+  "weakPasswordsTitle": {
+    "message": "Zəif parollar"
+  },
+  "weakPasswordsDescription": {
+    "message": "Bu parollar çox qısa və ya sadə olduğu üçün asanlıqla təxmin edilə bilər. Daha mürəkkəb edərək onları gücləndirin."
+  },
+  "reusedPasswordsTitle": {
+    "message": "Təkrar istf. olunan parollar"
+  },
+  "reusedPasswordsDescription": {
+    "message": "Bu girişlərdəki parollar təkrar istifadə olunub. Kiminsə sadəcə bir parol istifadə edərək birdən çox hesaba erişməsini önləmək üçün hər hesaba unikal bir parol təyin edin."
+  },
+  "deleteAtRiskItemDescription": {
+    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+  },
+  "passwordHasAdditionalRisks": {
+    "message": "This password has additional risks:"
+  },
+  "reused": {
+    "message": "Reused",
+    "description": "ex. A password that is reused across multiple logins."
+  },
+  "xTimes": {
+    "message": "$COUNT$ times",
+    "description": "The number of times a password is reused. ex. 6 times",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "6"
+      }
+    }
+  },
+  "exposedPasswordsEmpty": {
+    "message": "None of your passwords were found in data breaches."
+  },
+  "weakPasswordEmpty": {
+    "message": "All your passwords are strong."
+  },
+  "reusedPasswordEmpty": {
+    "message": "All your passwords are unique."
+  },
+  "youreAllSet": {
+    "message": "You're all set!"
   }
 }
