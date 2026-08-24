@@ -123,6 +123,7 @@ import {
   KdfConfigService,
   KeyService,
   KeyService as KeyServiceAbstraction,
+  DefaultKeyService,
   BiometricStateService,
   BiometricsService,
 } from "@bitwarden/key-management";
@@ -169,7 +170,6 @@ import { DesktopFido2UserVerificationService } from "../../autofill/services/des
 import { DesktopFido2WindowsUserVerificationService } from "../../autofill/services/desktop-fido2-windows-user-verification.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
-import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
@@ -272,7 +272,7 @@ const safeProviders: SafeProvider[] = [
     //
     // Setting the ACCESS_TOKEN_LOCATION=DISK environment variable forces the same disk-backed
     // behavior on any platform, for environments where the OS keyring is unavailable or
-    // undesirable (see `accessTokenLocation` in apps/desktop/src/utils.ts).
+    // undesirable (see `accessTokenLocation` in apps/desktop/src/main/platform-utils.main.ts).
     provide: SUPPORTS_SECURE_STORAGE,
     useValue:
       ELECTRON_SUPPORTS_SECURE_STORAGE &&
@@ -388,7 +388,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: KeyServiceAbstraction,
-    useClass: ElectronKeyService,
+    useClass: DefaultKeyService,
     deps: [
       CryptoFunctionServiceAbstraction,
       EncryptService,
@@ -396,9 +396,8 @@ const safeProviders: SafeProvider[] = [
       LogService,
       StateServiceAbstraction,
       StateProvider,
-      BiometricStateService,
-      DesktopBiometricsService,
       AccountCryptographicStateService,
+      BiometricsService,
     ],
   }),
   safeProvider({
