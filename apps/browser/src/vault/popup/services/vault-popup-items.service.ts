@@ -369,17 +369,15 @@ export class VaultPopupItemsService {
               const hostname = env.getHostname();
               const email = accounts[userId]?.email ?? "";
               return from(
-                this.searchService.searchCiphers(userId, searchText, undefined, filtered),
+                this.searchService.searchCiphers(userId, null, searchText, filtered),
               ).pipe(
-                map(
-                  (results): CrossAccountSearchResult => ({
-                    userId,
-                    email,
-                    hostname,
-                    label: `${hostname} (${email})`,
-                    ciphers: results as PopupCipherViewLike[],
-                  }),
-                ),
+                map((results): CrossAccountSearchResult => ({
+                  userId,
+                  email,
+                  hostname,
+                  label: `${hostname} (${email})`,
+                  ciphers: results as PopupCipherViewLike[],
+                })),
               );
             },
           ),
