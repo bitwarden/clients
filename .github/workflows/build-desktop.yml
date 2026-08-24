@@ -896,15 +896,57 @@ jobs:
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: ./scripts/validate-chromium-importer-thumbprint.ps1
 
+      # The Appx built above keeps the Microsoft-assigned publisher and stays unsigned,
+      # which is what the Store requires.
       - name: Rename appx files for store
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
         run: |
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
-          Copy-Item "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
-            -Destination "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32.appx" `
+            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-ia32-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-x64.appx" `
+            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-x64-store.appx"
+          Rename-Item -Path "./dist/Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64.appx" `
+            -NewName "Bitwarden-Beta-$env:_PACKAGE_VERSION-arm64-store.appx"
+
+      # An Appx can only be signed when its manifest publisher matches the certificate
+      # subject, so read the subject from the signed binary.
+      - name: Read signing certificate subject
+        id: cert-subject
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        run: |
+          $signature = Get-AuthenticodeSignature "./dist/win-unpacked/Bitwarden Beta.exe"
+          if ($null -eq $signature.SignerCertificate) {
+            Write-Error "Expected a signed exe, got status '$($signature.Status)': $($signature.StatusMessage)"
+            exit 1
+          }
+          $subject = $signature.SignerCertificate.Subject
+          Write-Host "Signing certificate subject: $subject"
+          "publisher=$subject" >> $env:GITHUB_OUTPUT
+
+      # Packs and signs the Appx with the CI signing certificate and publisher.
+      # Reuses the compiled Rust and webpack builds from above, so we only need
+      # to swap out the manifest, recompress and sign.
+      - name: Pack & sign appx for direct download
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          ELECTRON_BUILDER_SIGN: 1
+          ELECTRON_BUILDER_SIGN_APPX: 1
+          SIGNING_VAULT_URL: ${{ steps.retrieve-secrets.outputs.code-signing-vault-url }}
+          SIGNING_CLIENT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-client-id }}
+          SIGNING_TENANT_ID: ${{ steps.retrieve-secrets.outputs.code-signing-tenant-id }}
+          SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
+          SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
+          _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
+        run: node ./scripts/pack-signed-appx.mts --config electron-builder.beta.json --publisher $env:_APPX_PUBLISHER
+
+      # A signed Store package is rejected at ingestion and an unsigned direct download
+      # installs for nobody, so confirm each package ended up as intended before we
+      # upload any of them.
+      - name: Verify appx signing state and publishers
+        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        env:
+          _APPX_PUBLISHER: ${{ steps.cert-subject.outputs.publisher }}
+        run: ./scripts/validate-appx-signatures.ps1 -Config electron-builder.beta.json -SignedPublisher $env:_APPX_PUBLISHER
 
       - name: Fix NSIS artifact names for auto-updater
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
