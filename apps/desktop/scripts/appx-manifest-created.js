@@ -2,7 +2,7 @@
 /**
  * Fix up the Appx manifest electron-builder generates, before makeappx packs it.
  *
- * Three things need fixing that electron-builder's config can't express. All are the same
+ * Two things need fixing that electron-builder's config can't express. Both are the same
  * for every channel, so any channel can register this hook as-is — the only channel
  * specific input is the plugin config file the manifest itself names.
  *
@@ -12,15 +12,12 @@
  *   class ID the app never serves hijacks it from the app that does. electron-builder
  *   inlines custom-appx-extensions*.xml verbatim and expands no macros in it, so the
  *   extensions file names its channel's config and the class ID is resolved here.
- * - `<uap:LockScreen>`: electron-builder emits it for any package whose appx assets
- *   include a BadgeLogo and offers no way to turn it off. resources/appx is shared
- *   between channels, so the element is dropped here rather than by deleting the asset.
  * - Comments: the template and the extensions file both document themselves, and none of
  *   that belongs in a shipped package. Removing them reserializes the document, so the
  *   packed manifest is normalized rather than formatted the way the sources are.
  *
- * The first two fail the build when there is nothing to fix, so a manifest that quietly
- * stops needing one gets noticed rather than shipped.
+ * The first fails the build when there is nothing to fix, so a manifest that quietly
+ * stops needing it gets noticed rather than shipped.
  */
 const fs = require("fs");
 const path = require("path");
@@ -30,7 +27,6 @@ const { JSDOM } = require("jsdom");
 const CLSID_MACRO = /\$\{clsid:([\w.-]+)\}/g;
 // XMLSerializer emits no declaration, and Appx manifests are always UTF-8.
 const XML_DECLARATION = '<?xml version="1.0" encoding="utf-8"?>\n';
-const LOCK_SCREEN_LINE = /^[ \t]*<uap:LockScreen\b[^>]*\/>[ \t]*\r?\n/m;
 
 const configDir = path.resolve(__dirname, "../resources");
 
@@ -55,17 +51,6 @@ function resolveClsids(manifest, manifestPath) {
   return manifest.replace(CLSID_MACRO, (_, configFile) => readClsid(configFile));
 }
 
-function removeLockScreen(manifest, manifestPath) {
-  if (!LOCK_SCREEN_LINE.test(manifest)) {
-    throw new Error(
-      `No <uap:LockScreen> element to remove from ${manifestPath}. If electron-builder no ` +
-        `longer emits one — say because resources/appx/BadgeLogo.png is gone — drop this fixup.`,
-    );
-  }
-
-  return manifest.replace(LOCK_SCREEN_LINE, "");
-}
-
 function removeComments(manifest, manifestPath) {
   const { window } = new JSDOM();
   const document = new window.DOMParser().parseFromString(manifest, "application/xml");
@@ -87,7 +72,6 @@ function removeComments(manifest, manifestPath) {
 exports.default = function (manifestPath) {
   let manifest = fs.readFileSync(manifestPath, "utf8");
   manifest = resolveClsids(manifest, manifestPath);
-  manifest = removeLockScreen(manifest, manifestPath);
   manifest = removeComments(manifest, manifestPath);
   fs.writeFileSync(manifestPath, manifest);
   console.log(`[*] Rewrote ${manifestPath} for packing`);
