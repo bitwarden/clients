@@ -82,30 +82,23 @@ pub fn path(name: &str) -> std::path::PathBuf {
 
     #[cfg(target_os = "macos")]
     {
-        // When running in an unsandboxed environment, path is: /Users/<user>/
-        // While running sandboxed, it's different:
-        // /Users/<user>/Library/Containers/com.bitwarden.desktop/Data
-        let home = dirs::home_dir().expect("Could not find user home directory");
-
-        // Check if the app is sandboxed by looking for the Containers directory
-        let sandboxed = home.components().any(|c| c.as_os_str() == "Containers");
-
-        // If the app is sandboxed, its own container is not reachable from the other side
-        // of the socket, so we need to use the shared App Group container instead.
-        if sandboxed {
-            match app_group_container() {
-                Some(container) => return container.join(format!("s.{name}")),
-                None => tracing::error!(
-                    "Sandboxed build could not resolve its App Group container; falling back \
-                     to the cache directory, which peers outside the sandbox cannot reach"
-                ),
+        // Every socket lives in the shared App Group container, sandboxed or not. The
+        // autofill extension is always sandboxed and can only reach sockets there, and
+        // routing the desktop proxy through the same container keeps a single socket path
+        // per channel instead of one per sandbox status. The OS only hands back the
+        // container when the process is entitled to the group, so unsigned dev builds fall
+        // through to the cache directory below.
+        if let Some(container) = app_group_container() {
+            if container.exists() {
+                return container.join(format!("s.{name}"));
             }
         }
     }
 
     #[cfg(any(target_os = "linux", target_os = "macos"))]
     {
-        // On Linux and unsandboxed Mac, we use the user's cache directory.
+        // On Linux, and on Mac when no App Group container is available (unsigned dev
+        // builds), we use the user's cache directory.
         let home = dirs::cache_dir().expect("Could not find user cache directory");
         let path_dir = home.join("com.bitwarden.desktop");
 
