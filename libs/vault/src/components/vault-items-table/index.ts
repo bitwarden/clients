@@ -12,6 +12,8 @@ export {
   MY_VAULT,
   NO_FOLDER,
   VAULT_COLUMNS,
+  VAULT_FILTER_KEYS,
+  VAULT_FILTER_NAMESPACE,
   type VaultItemsTableColumn,
   VaultItemsTableComponent,
   type VaultItemsTableFilters,

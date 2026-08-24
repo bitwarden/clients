@@ -58,6 +58,7 @@ import {
   CipherDecryptionKeys,
   KeyService as KeyServiceAbstraction,
 } from "./abstractions/key.service";
+import { BiometricsService } from "./biometrics/biometric.service";
 
 export class DefaultKeyService implements KeyServiceAbstraction {
   /**
@@ -77,6 +78,7 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     protected stateService: StateService,
     protected stateProvider: StateProvider,
     protected accountCryptographyStateService: AccountCryptographicStateService,
+    protected biometricsService: BiometricsService,
   ) {
     this.activeUserOrgKeys$ = this.stateProvider.activeUserId$.pipe(
       switchMap((userId) => (userId != null ? this.orgKeys$(userId) : NEVER)),
@@ -125,10 +127,6 @@ export class DefaultKeyService implements KeyServiceAbstraction {
     return this.stateProvider
       .getUser(userId, USER_EVER_HAD_USER_KEY)
       .state$.pipe(map((x) => x ?? false));
-  }
-
-  getInMemoryUserKeyFor$(userId: UserId): Observable<UserKey | null> {
-    return this.stateProvider.getUserState$(USER_KEY, userId);
   }
 
   /**
@@ -367,6 +365,8 @@ export class DefaultKeyService implements KeyServiceAbstraction {
   }
 
   protected async clearAllStoredUserKeys(userId: UserId): Promise<void> {
+    // No-op on platforms that do not store a biometrics-protected copy of the user key.
+    await this.biometricsService.deleteBiometricUnlockKeyForUser(userId);
     await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
   }
 
