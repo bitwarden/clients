@@ -4,7 +4,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
 import { SafeShell } from "../../platform/main/safe-shell.main";
-import * as utils from "../../utils";
+import * as utils from "../platform-utils.main";
 
 import { AccountMenu } from "./menu.account";
 
@@ -13,7 +13,7 @@ jest.mock("electron", () => ({
   dialog: { showMessageBox: jest.fn() },
 }));
 
-jest.mock("../../utils", () => ({
+jest.mock("../platform-utils.main", () => ({
   isMacAppStore: jest.fn().mockReturnValue(false),
   isWindowsStore: jest.fn().mockReturnValue(false),
 }));
