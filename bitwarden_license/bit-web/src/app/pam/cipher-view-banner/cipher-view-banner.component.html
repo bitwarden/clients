@@ -1,4 +1,4 @@
-@if (activeLease()) {
+@if (activeLease(); as lease) {
   <bit-callout
     type="success"
     [title]="'pamActiveLeaseBannerTitle' | i18n: leaseRemainingLabel()"
@@ -9,39 +9,54 @@
       "N left" / "Ending soon" pill would render a second copy of the same clock. The other three
       states have no countdown in their title, so they show the shared pill.
     -->
-    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-end tw-gap-2">
-      @if (canExtendLease()) {
+    <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+      <span bitTypography="body2" data-testid="active-lease-ends-at">
+        {{ "pamWindowUntil" | i18n: (lease.notAfter | date: "short") }}
+      </span>
+      <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        @if (canExtendLease()) {
+          <button
+            type="button"
+            bitButton
+            buttonType="secondary"
+            size="small"
+            [bitAction]="extendLease"
+            id="pam-cipher-view-banner_button_extend"
+          >
+            {{ "pamExtendLeaseButton" | i18n }}
+          </button>
+        }
         <button
           type="button"
           bitButton
-          buttonType="secondary"
+          buttonType="danger"
           size="small"
-          [bitAction]="extendLease"
-          id="pam-cipher-view-banner_button_extend"
+          [bitAction]="endLease"
+          id="pam-cipher-view-banner_button_end"
         >
-          {{ "pamExtendLeaseButton" | i18n }}
+          {{ "pamEndLeaseButton" | i18n }}
         </button>
-      }
-      <button
-        type="button"
-        bitButton
-        buttonType="danger"
-        size="small"
-        [bitAction]="endLease"
-        id="pam-cipher-view-banner_button_end"
-      >
-        {{ "pamEndLeaseButton" | i18n }}
-      </button>
+      </span>
     </div>
   </bit-callout>
-} @else if (approvedRequest()) {
+} @else if (approvedRequest(); as request) {
   <bit-callout
     type="success"
     [title]="'pamApprovedRequestBannerTitle' | i18n"
     data-testid="cipher-view-banner-approved"
   >
     <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
-      <app-pam-access-state-badge [state]="badge()" />
+      <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+        <app-pam-access-state-badge [state]="badge()" />
+        <span bitTypography="body2" data-testid="approved-access-window">
+          @if (approvedRequestStartsNow()) {
+            {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | date: "short") }}
+          } @else {
+            {{ request.leaseNotBefore | date: "short" }} &ndash;
+            {{ request.leaseNotAfter | date: "short" }}
+          }
+        </span>
+      </span>
       <span class="tw-flex tw-items-center tw-gap-2">
         <button
           type="button"

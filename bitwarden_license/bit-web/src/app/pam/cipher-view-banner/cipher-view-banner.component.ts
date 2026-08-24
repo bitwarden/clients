@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -92,6 +93,7 @@ import {
     ReactiveFormsModule,
     TypographyModule,
     AccessStateBadgeComponent,
+    DatePipe,
     DurationLongPipe,
     DurationShortPipe,
     I18nPipe,
@@ -115,7 +117,7 @@ export class CipherViewBannerComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
 
-  /** Ticks once a second so the active lease's countdown stays live. */
+  /** Ticks once a second so the live countdown and a scheduled window's opening stay current. */
   private readonly nowMs = signal(Date.now());
 
   private readonly enabled$ = this.configService.getFeatureFlag$(FeatureFlag.Pam);
@@ -188,6 +190,31 @@ export class CipherViewBannerComponent implements OnInit {
 
   protected readonly leaseRemainingLabel = computed(() =>
     this.activeLease() == null ? "" : formatRemaining(this.activeLeaseExpiryMs() - this.nowMs()),
+  );
+
+  /**
+   * Whether an approved request's window has already opened — the same question
+   * `my-requests-tab.component.ts` asks as `startsNow`, so both surfaces state a granted window the
+   * same way: "until X" once it has opened, and the full `notBefore – notAfter` range while it is
+   * still scheduled. Without the distinction the banner describes a grant that cannot be started
+   * yet as available now.
+   */
+  protected readonly approvedRequestStartsNow = computed(() => {
+    const request = this.approvedRequest();
+    return request != null && Date.parse(request.leaseNotBefore) <= this.nowMs();
+  });
+
+  /**
+   * Whether anything on screen still reads {@link nowMs} — the only two readers are the active
+   * lease's countdown and an approved request waiting for its window to open. Everything else the
+   * banner renders is fixed for a given state, so ticking outside these two would write a signal
+   * once a second, and so run change detection, for a view that cannot move. The approved case is
+   * one-way: past its `leaseNotBefore` the branch settles on "until X" and stops needing the clock.
+   */
+  private readonly clockAdvances = computed(
+    () =>
+      this.activeLease() != null ||
+      (this.approvedRequest() != null && !this.approvedRequestStartsNow()),
   );
 
   /** Whether the "Request access" entry point has folded out its form. */
@@ -264,7 +291,7 @@ export class CipherViewBannerComponent implements OnInit {
     // drives change detection on its own.
     this.ngZone.runOutsideAngular(() => {
       const intervalId = setInterval(() => {
-        if (this.activeLease() != null) {
+        if (this.clockAdvances()) {
           this.nowMs.set(Date.now());
         }
       }, 1000);
