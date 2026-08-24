@@ -12,7 +12,14 @@ import {
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NavigationEnd, QueryParamsHandling, Router, RouterLink, UrlTree } from "@angular/router";
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  QueryParamsHandling,
+  Router,
+  RouterLink,
+  UrlTree,
+} from "@angular/router";
 import { filter } from "rxjs";
 
 import { IconModule } from "../icon";
@@ -71,6 +78,7 @@ export class BreadcrumbComponent implements OnInit {
   readonly size = signal<"small" | "base">("base");
 
   private readonly router = inject(Router);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   readonly isActiveRoute = signal(false);
 
@@ -81,15 +89,20 @@ export class BreadcrumbComponent implements OnInit {
       return;
     }
 
-    let routeStringOrUrlTree: string | UrlTree = "";
+    // Resolve the target the same way `RouterLink` does — a bare string is a single command, and
+    // `queryParams`/`queryParamsHandling` are part of the URL the crumb navigates to. Comparing
+    // against the path alone marks every crumb sharing that path as active, which is the norm for
+    // crumbs that navigate via query params (ex. `[route]="[]"` plus a differing `collectionId`).
+    const urlTree =
+      route instanceof UrlTree
+        ? route
+        : this.router.createUrlTree(Array.isArray(route) ? route : [route], {
+            relativeTo: this.activatedRoute,
+            queryParams: this.queryParams(),
+            queryParamsHandling: this.queryParamsHandling(),
+          });
 
-    if (typeof route === "string" || route instanceof UrlTree) {
-      routeStringOrUrlTree = route;
-    } else {
-      routeStringOrUrlTree = this.router.createUrlTree(route);
-    }
-
-    const result = this.router.isActive(routeStringOrUrlTree, {
+    const result = this.router.isActive(urlTree, {
       paths: "exact",
       queryParams: "exact",
       fragment: "ignored",
