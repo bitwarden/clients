@@ -12,7 +12,7 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { NoItemsModule, SearchModule, ToastService } from "@bitwarden/components";
+import { SearchModule, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { OssModule } from "../../oss.module";
@@ -27,7 +27,7 @@ import { SmLandingApiService } from "./sm-landing-api.service";
 @Component({
   selector: "app-request-sm-access",
   templateUrl: "request-sm-access.component.html",
-  imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule, OssModule],
+  imports: [SharedModule, SearchModule, HeaderModule, OssModule],
 })
 export class RequestSMAccessComponent implements OnInit {
   requestAccessForm = new FormGroup({

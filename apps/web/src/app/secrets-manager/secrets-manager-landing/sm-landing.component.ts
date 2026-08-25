@@ -9,7 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { NoItemsModule, SearchModule } from "@bitwarden/components";
+import { SearchModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { activeUserIsGovMode$ } from "../../platform/gov-mode";
@@ -19,7 +19,7 @@ import { SharedModule } from "../../shared/shared.module";
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
 @Component({
   selector: "app-sm-landing",
-  imports: [SharedModule, SearchModule, NoItemsModule, HeaderModule],
+  imports: [SharedModule, SearchModule, HeaderModule],
   templateUrl: "sm-landing.component.html",
 })
 export class SMLandingComponent implements OnInit {
