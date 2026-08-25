@@ -181,7 +181,8 @@ export const SHADOW_ROOT_CANDIDATE_NODE_NAMES = Object.freeze(
 );
 
 /**
- * The default location where fill assist targeting rules are published.
+ * The default rules feed base URL. Composed with resource paths
+ * (e.g. `manifest.json`) at fetch time.
  */
 export const DEFAULT_FILL_ASSIST_RULES_URL =
   "https://github.com/bitwarden/map-the-web/releases/latest/download";

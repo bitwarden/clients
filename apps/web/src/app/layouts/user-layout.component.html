@@ -18,29 +18,7 @@
       </bit-nav-section>
 
       <bit-nav-section [label]="'manage' | i18n">
-        <bit-nav-item icon="bwi-folder" [text]="'myFolders' | i18n" route="folders"></bit-nav-item>
-        <bit-nav-item
-          icon="bwi-archive"
-          [text]="'archiveNoun' | i18n"
-          (mainContentClicked)="selectArchive()"
-        >
-          @if (showArchivePremiumBadge()) {
-            <button
-              type="button"
-              slot="end"
-              bit-chip-action
-              startIcon="bwi-diamond"
-              [label]="'upgrade' | i18n"
-              size="small"
-              (click)="promptForPremium()"
-            ></button>
-          }
-        </bit-nav-item>
-        <bit-nav-item
-          icon="bwi-trash"
-          [text]="'trash' | i18n"
-          (mainContentClicked)="selectItemType('trash')"
-        ></bit-nav-item>
+        <vault-manage-nav />
         <bit-nav-group icon="bwi-cog" [text]="'settings' | i18n">
           <bit-nav-item [text]="'myAccount' | i18n" route="settings/account"></bit-nav-item>
           <bit-nav-item [text]="'security' | i18n" route="settings/security"></bit-nav-item>
