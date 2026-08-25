@@ -342,7 +342,7 @@ describe("AccessRulesComponent — make a copy", () => {
   });
 });
 
-describe("AccessRulesComponent — activation toasts", () => {
+describe("AccessRulesComponent — mutation success toasts", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -398,6 +398,18 @@ describe("AccessRulesComponent — activation toasts", () => {
 
     expect(openSimpleDialog).not.toHaveBeenCalled();
     expect(updateAccessRule).toHaveBeenCalled();
+  });
+
+  it("reports a success toast after deleting a single rule", async () => {
+    const target = rule("rule-1", "VPN");
+    const fixture = await setupMutations([target]);
+
+    await fixture.componentInstance["remove"](target);
+
+    expect(showToast).toHaveBeenCalledWith({
+      variant: "success",
+      message: "pamAccessRuleDeleted",
+    });
   });
 });
 

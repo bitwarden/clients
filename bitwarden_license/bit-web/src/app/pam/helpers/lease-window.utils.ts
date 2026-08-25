@@ -10,7 +10,7 @@ export const ACCESS_RULE_DURATION_PRESETS: ReadonlyArray<{ seconds: number; labe
   { seconds: 60 * 60, labelKey: "pamAccessRuleDuration1h" },
   { seconds: 4 * 60 * 60, labelKey: "pamAccessRuleDuration4h" },
   { seconds: 8 * 60 * 60, labelKey: "pamAccessRuleDuration8h" },
-  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration24h" },
+  { seconds: 24 * 60 * 60, labelKey: "pamAccessRuleDuration1d" },
   { seconds: 7 * 24 * 60 * 60, labelKey: "pamAccessRuleDuration7d" },
 ];
 

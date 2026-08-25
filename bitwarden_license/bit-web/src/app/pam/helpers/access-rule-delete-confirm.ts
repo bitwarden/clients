@@ -11,6 +11,6 @@ export function accessRuleDeleteConfirmOptions(ruleName: string): SimpleDialogOp
     content: { key: "pamAccessRuleDeleteConfirmContent", placeholders: [ruleName] },
     acceptButtonText: { key: "delete" },
     cancelButtonText: { key: "cancel" },
-    type: "warning",
+    type: "danger",
   };
 }
