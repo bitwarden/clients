@@ -186,9 +186,9 @@ export class CipherViewBannerComponent implements OnInit {
   /**
    * The governing rule's terms for a request nobody has made yet: how long access may run, and
    * whether it would be granted on the spot. Both come from the same side-effect-free `preCheck`
-   * the fold-out runs, because the access state read above carries neither — `CipherAccessStateView`
-   * publishes `maxExtensionDurationSeconds`, which caps extending a lease that already exists, not
-   * opening a request.
+   * the fold-out runs, because the access state read above carries neither. `CipherAccessStateView`
+   * publishes only `maxExtensionDurationSeconds`, which caps extending a lease that already exists
+   * rather than opening a request.
    *
    * Read only while the resting request-access state is on screen, so a cipher under a lease or
    * with a request in play costs no extra round-trip. The fold-out still runs its own pre-check on

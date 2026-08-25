@@ -147,8 +147,7 @@ describe("CipherViewBannerComponent", () => {
 
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
     // The resting banner pre-checks on its own to render the rule's maximum duration, so every
-    // test needs a resolved pre-check even when it never opens the form. Upstream dropped this
-    // stub when nothing pre-checked at rest; that is no longer true.
+    // test needs a resolved pre-check even when it never opens the form.
     requestsApi.preCheck.mockResolvedValue(preCheck());
     leasingErrors.isLeasingError.mockReturnValue(false);
 
