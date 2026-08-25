@@ -29,6 +29,7 @@ trait FilterStep: Sync {
 /// one shared slice of trait objects with no per-call allocation. Any runtime input (our pid) is
 /// threaded in through [`FilterCtx`].
 static PIPELINE: &[&dyn FilterStep] = &[
+    &ExcludeUnlabeled,
     &ExcludeSelf,
     &ExcludeSystemPaths,
     &ExcludeShellSurface,
@@ -61,6 +62,20 @@ pub(super) fn apply(candidates: Vec<RunningApp>) -> Vec<RunningApp> {
     }
 
     kept
+}
+
+/// Drop candidates with no usable label. An app we can't name isn't a pairable target and would
+/// otherwise surface as a blank row — e.g. a windowless packaged app whose WinRT display name is
+/// absent and whose process path can't be resolved, or a window whose AUMID/product/exe all fail
+/// to resolve. Enforced here (policy) since collection stays inclusive.
+struct ExcludeUnlabeled;
+impl FilterStep for ExcludeUnlabeled {
+    fn name(&self) -> &'static str {
+        "exclude-unlabeled"
+    }
+    fn keep(&self, c: &RunningApp, _ctx: &FilterCtx) -> bool {
+        !c.name().trim().is_empty()
+    }
 }
 
 /// Drop our own process.
@@ -194,6 +209,17 @@ mod tests {
         let ctx = FilterCtx { self_pid: 100 };
         assert!(!step.keep(&app(100, "a.exe", None, true, true), &ctx));
         assert!(step.keep(&app(200, "a.exe", None, true, true), &ctx));
+    }
+
+    #[test]
+    fn exclude_unlabeled_drops_candidates_with_no_usable_name() {
+        let step = ExcludeUnlabeled;
+        let ctx = FilterCtx { self_pid: 0 };
+        // No display name (helper sets it None) and an empty filename → no usable label.
+        assert!(!step.keep(&app(1, "", None, true, true), &ctx));
+        // Whitespace-only is also unusable.
+        assert!(!step.keep(&app(1, "   ", None, true, true), &ctx));
+        assert!(step.keep(&app(1, "chrome.exe", None, true, false), &ctx));
     }
 
     #[test]
