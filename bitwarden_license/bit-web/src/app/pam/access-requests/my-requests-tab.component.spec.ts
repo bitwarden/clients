@@ -11,6 +11,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { tableColumnVisibility } from "../testing/table-columns";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
@@ -78,6 +79,7 @@ describe("MyRequestsTabComponent", () => {
     endLease: jest.Mock;
   };
   let toastService: MockProxy<ToastService>;
+  let cancelService: MockProxy<AccessRequestCancelService>;
 
   function create(): void {
     fixture = TestBed.createComponent(MyRequestsTabComponent);
@@ -104,12 +106,15 @@ describe("MyRequestsTabComponent", () => {
       endLease: jest.fn().mockResolvedValue(undefined),
     };
     toastService = mock<ToastService>();
+    cancelService = mock<AccessRequestCancelService>();
+    cancelService.confirmWithdrawal.mockResolvedValue(true);
 
     await TestBed.configureTestingModule({
       imports: [MyRequestsTabComponent, NoopAnimationsModule],
       providers: [
         provideRouter([]),
         { provide: MyAccessService, useValue: myAccess },
+        { provide: AccessRequestCancelService, useValue: cancelService },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -297,6 +302,96 @@ describe("MyRequestsTabComponent", () => {
         header: [null, "@lg", "@2xl", null],
         body: [null, "@lg", "@2xl", null],
       });
+    });
+  });
+
+  describe("withdrawing from a row", () => {
+    it("asks the shared confirmation before withdrawing, then withdraws and toasts", async () => {
+      const row = requestRow({ status: "pending" });
+      pendingRows$.next([row]);
+      create();
+
+      await component["cancel"](row);
+
+      expect(cancelService.confirmWithdrawal).toHaveBeenCalledWith(true);
+      expect(myAccess.cancel).toHaveBeenCalledWith(row.id);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "pamMyRequestsCanceledToast" }),
+      );
+    });
+
+    it("describes an approved-but-unstarted request's withdrawal in its own words", async () => {
+      const row = requestRow({ status: "approved" });
+      pendingRows$.next([row]);
+      create();
+
+      await component["cancel"](row);
+
+      expect(cancelService.confirmWithdrawal).toHaveBeenCalledWith(false);
+    });
+
+    it("withdraws nothing when the confirmation is declined", async () => {
+      cancelService.confirmWithdrawal.mockResolvedValue(false);
+      const row = requestRow({ status: "pending" });
+      pendingRows$.next([row]);
+      create();
+
+      await component["cancel"](row);
+
+      expect(myAccess.cancel).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+      expect(component["isCancelling"](row.id)).toBe(false);
+    });
+
+    it("keeps the row busy across the confirmation, so a second click cannot re-ask", async () => {
+      const row = requestRow({ status: "pending" });
+      pendingRows$.next([row]);
+      create();
+      let confirm: (confirmed: boolean) => void = () => {};
+      cancelService.confirmWithdrawal.mockReturnValue(
+        new Promise<boolean>((resolve) => (confirm = resolve)),
+      );
+
+      const first = component["cancel"](row);
+      expect(component["isCancelling"](row.id)).toBe(true);
+      await component["cancel"](row);
+      expect(cancelService.confirmWithdrawal).toHaveBeenCalledTimes(1);
+
+      confirm(true);
+      await first;
+
+      expect(myAccess.cancel).toHaveBeenCalledTimes(1);
+      expect(component["isCancelling"](row.id)).toBe(false);
+    });
+
+    it("toasts and clears the row when the withdrawal fails", async () => {
+      const row = requestRow({ status: "pending" });
+      pendingRows$.next([row]);
+      create();
+      myAccess.cancel.mockRejectedValue(new Error("boom"));
+
+      await component["cancel"](row);
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pamMyRequestsCancelError" }),
+      );
+      expect(component["isCancelling"](row.id)).toBe(false);
+    });
+
+    it("offers the withdrawal as a destructive action in both tables", () => {
+      pendingRows$.next([requestRow({ id: "req-pending", status: "pending" })]);
+      extensionRows$.next([requestRow({ id: "req-ext", status: "pending" })]);
+      create();
+
+      for (const testid of [
+        "my-access-pending-cancel-req-pending",
+        "my-access-extension-cancel-req-ext",
+      ]) {
+        const button = query(`[data-testid="${testid}"]`);
+        expect(button).not.toBeNull();
+        expect(button!.className).toContain("tw-bg-bg-danger");
+        expect(button!.textContent?.trim()).toBe("pendingStateCancelRequest");
+      }
     });
   });
 

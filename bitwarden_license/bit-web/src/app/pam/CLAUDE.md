@@ -116,12 +116,22 @@ Two services drive every refresh:
 - `AccessEventService` — the server's `RefreshAccessRequest` push, filtered to a bare tick.
 - `AccessRefreshService` — merges that push with this client's own mutations and fans it
   out per cipher, so the cipher-view banner and the gated-cipher reloader react to a local
-  change and a remote one through exactly the same path.
+  change and a remote one through exactly the same path. Subscribing without a cipher id
+  means "whichever item changed, tell me": the reading a surface whose state spans the
+  caller's whole vault needs, since a request for an item it holds no row for yet still
+  belongs on it.
 
-Page-level services (`MyAccessService`, `ApproverInboxService`,
-`AccessRequestDetailService`) subscribe to the push directly and reload. Use `concatMap`,
-not `switchMap`: two pushes arriving together must not interleave their loads and leave
-several subjects describing different moments.
+`MyAccessService` subscribes to `AccessRefreshService` unscoped, so a withdrawal made in the
+request drawer — which announces through the shared cancel flow — reconciles the list behind
+it. `ApproverInboxService` and `AccessRequestDetailService` subscribe to the push directly.
+Use `concatMap`, not `switchMap`: two announcements arriving together must not interleave
+their loads and leave several subjects describing different moments.
+
+A surface that reconciles its own mutation optimistically must not announce that mutation:
+the announcement comes straight back as a reload that discards the patch. `MyAccessService`
+therefore stays quiet on `cancel`/`endLease`, and the "My requests" rows borrow only the
+shared _confirmation_ (`AccessRequestCancelService.confirmWithdrawal`), not the shared
+withdrawal.
 
 ## OSS seams
 

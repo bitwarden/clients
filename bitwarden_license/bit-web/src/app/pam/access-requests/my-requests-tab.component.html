@@ -107,13 +107,13 @@
                   <button
                     type="button"
                     bitButton
-                    buttonType="secondary"
+                    buttonType="danger"
                     size="small"
                     [disabled]="isCancelling(row.id)"
                     (click)="cancel(row)"
                     [attr.data-testid]="'my-access-pending-cancel-' + row.id"
                   >
-                    {{ "cancel" | i18n }}
+                    {{ "pendingStateCancelRequest" | i18n }}
                   </button>
                 }
               </div>
@@ -188,13 +188,13 @@
                 <button
                   type="button"
                   bitButton
-                  buttonType="secondary"
+                  buttonType="danger"
                   size="small"
                   [disabled]="isCancelling(row.id)"
                   (click)="cancel(row)"
                   [attr.data-testid]="'my-access-extension-cancel-' + row.id"
                 >
-                  {{ "cancel" | i18n }}
+                  {{ "pendingStateCancelRequest" | i18n }}
                 </button>
               }
             </td>

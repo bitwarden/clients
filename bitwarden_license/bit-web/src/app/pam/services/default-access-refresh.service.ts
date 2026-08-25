@@ -12,7 +12,8 @@ import { AccessEventService, AccessRefreshService } from "..";
  *    nothing about which item the caller has open — so it invalidates every subscriber.
  *
  * `undefined` on the subject means "every cipher", matching {@link notifyAccessChanged}'s optional
- * parameter rather than introducing a separate sentinel value.
+ * parameter rather than introducing a separate sentinel value; `undefined` on the subscription side
+ * is its mirror — "whichever cipher changed, tell me".
  *
  * The merge happens per subscription rather than through a long-lived internal subscription, so a
  * client whose user never opens a gated item never attaches to the push channel at all, and there is
@@ -26,9 +27,9 @@ export class DefaultAccessRefreshService implements AccessRefreshService {
 
   constructor(private accessEventService: AccessEventService) {}
 
-  accessChanged$(cipherId: string): Observable<void> {
+  accessChanged$(cipherId?: string): Observable<void> {
     const local$ = this.changed$.pipe(
-      filter((changed) => changed === undefined || changed === cipherId),
+      filter((changed) => cipherId === undefined || changed === undefined || changed === cipherId),
       // Annotated: the repo builds apps without `strictNullChecks`, where a bare `undefined` widens
       // to `any` and trips `noImplicitAny` on the inferred return type.
       map((): void => undefined),

@@ -40,6 +40,7 @@ import { AccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
+import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
@@ -93,6 +94,7 @@ export class MyRequestsTabComponent implements OnInit {
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
   private readonly dialogService = inject(DialogService);
+  private readonly cancelService = inject(AccessRequestCancelService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
 
@@ -273,12 +275,21 @@ export class MyRequestsTabComponent implements OnInit {
     );
   }
 
+  /**
+   * Withdraw a request from its row. Asks the shared confirmation — the same question the request
+   * drawer and the cipher-view banner ask — then withdraws through {@link MyAccessService}, whose
+   * optimistic patch is what keeps the row from lingering. The row stays busy across the
+   * confirmation too, so a second click cannot open a second dialog over the same request.
+   */
   protected async cancel(row: MyAccessRequestRow): Promise<void> {
     if (!this.canCancel(row) || this.isCancelling(row.id)) {
       return;
     }
     this.cancelling.update((s) => new Set([...s, row.id]));
     try {
+      if (!(await this.cancelService.confirmWithdrawal(row.status === "pending"))) {
+        return;
+      }
       await this.myAccess.cancel(row.id);
       this.toastService.showToast({
         variant: "success",

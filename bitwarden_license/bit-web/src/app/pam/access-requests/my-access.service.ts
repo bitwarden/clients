@@ -6,10 +6,10 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import {
-  AccessEventService,
   AccessLeaseId,
   AccessLeaseSdkService,
   AccessLeaseView,
+  AccessRefreshService,
   AccessRequestId,
   AccessRequestSdkService,
   AccessRequestView,
@@ -35,9 +35,11 @@ import {
  * loads them, resolves display names, and performs the request/lease lifecycle mutations
  * (activate, cancel, end) via the Rust-SDK-served services
  * (`AccessRequestSdkService`/`AccessLeaseSdkService`). The page loads on open, reloads on every
- * server-pushed access event ({@link AccessEventService}) so an approver's decision appears without a
- * refresh, and after its own mutations reconciles itself either via an optimistic local patch
- * (cancel/endLease) or an explicit reload (activate).
+ * announcement from {@link AccessRefreshService} — the server push merged with the mutations other
+ * surfaces make, so an approver's decision and a withdrawal made in the request drawer both land
+ * here without a refresh — and after its own mutations reconciles itself either via an optimistic
+ * local patch (cancel/endLease) or an explicit reload (activate). Its own mutations deliberately do
+ * not announce: they have already reconciled, and announcing would replace that patch with a load.
  *
  * Provided on the "Access requests" shell route so each visit gets one instance shared across its
  * tabs. View concerns (toasts, confirm dialogs, the live countdown clock, action gating) stay in
@@ -48,7 +50,7 @@ export class MyAccessService {
   private readonly requestsApi = inject(AccessRequestSdkService);
   private readonly leasesApi = inject(AccessLeaseSdkService);
   private readonly nameResolver = inject(AccessNameResolverService);
-  private readonly accessEvents = inject(AccessEventService);
+  private readonly accessRefresh = inject(AccessRefreshService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _requests$ = new BehaviorSubject<AccessRequestView[]>([]);
@@ -149,10 +151,14 @@ export class MyAccessService {
   );
 
   constructor() {
-    // Reload on every access push. `concatMap` (not `switchMap`) so two pushes arriving close
-    // together cannot interleave their loads and leave the three subjects describing different
-    // moments; an in-flight load always finishes before the next starts.
-    this.accessEvents
+    // Unscoped: this page's rows span every item the caller has asked for, so a change to any one
+    // of them can add or re-status a row here — including a request for an item that has none yet,
+    // which a cipher-scoped subscription could not have been listening for.
+    //
+    // `concatMap` (not `switchMap`) so two announcements arriving close together cannot interleave
+    // their loads and leave the three subjects describing different moments; an in-flight load
+    // always finishes before the next starts.
+    this.accessRefresh
       .accessChanged$()
       .pipe(
         concatMap(() => from(this.load())),

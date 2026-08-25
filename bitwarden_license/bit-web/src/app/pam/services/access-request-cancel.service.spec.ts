@@ -160,6 +160,34 @@ describe("AccessRequestCancelService", () => {
     expect(announced).toHaveBeenCalledWith(CIPHER_ID);
   });
 
+  describe("confirmWithdrawal", () => {
+    it("asks the same question the withdrawing entry points ask, and withdraws nothing itself", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(loadedRequest());
+      await service.cancelRequestById(REQUEST_ID);
+      const withdrawnOptions = dialogService.openSimpleDialog.mock.calls[0][0];
+      requestsApi.cancelAccessRequest.mockClear();
+
+      await expect(service.confirmWithdrawal(true)).resolves.toBe(true);
+
+      expect(dialogService.openSimpleDialog.mock.calls[1][0]).toEqual(withdrawnOptions);
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+    });
+
+    it("describes the approved case in its own words", async () => {
+      await service.confirmWithdrawal(false);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "pamCancelRequestApprovedConfirm" } }),
+      );
+    });
+
+    it("reports a declined confirmation", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      await expect(service.confirmWithdrawal(true)).resolves.toBe(false);
+    });
+  });
+
   describe("cancelRequestById", () => {
     it("cancels the pending request, toasts success, and announces the change", async () => {
       requestsApi.getAccessRequest.mockResolvedValue(loadedRequest());

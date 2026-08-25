@@ -1,7 +1,10 @@
 import { TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { firstValueFrom, Subject } from "rxjs";
+import { firstValueFrom, NEVER, Subject } from "rxjs";
 
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { DialogService, ToastService } from "@bitwarden/components";
 import type {
   AccessLeaseId,
   AccessLeaseView,
@@ -9,7 +12,9 @@ import type {
   AccessRequestView,
 } from "@bitwarden/sdk-internal";
 
-import { AccessEventService, AccessLeaseSdkService, AccessRequestSdkService } from "..";
+import { AccessLeaseSdkService, AccessRefreshService, AccessRequestSdkService } from "..";
+import { AccessRequestCancelService } from "../services/access-request-cancel.service";
+import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 
 import {
   AccessNameResolverService,
@@ -59,18 +64,30 @@ function lease(id: string, overrides: Record<string, unknown> = {}): AccessLease
   } as unknown as AccessLeaseView;
 }
 
+/** Lets the reload triggered by an announcement settle before the assertions read state. */
+async function flushMicrotasks(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 describe("MyAccessService", () => {
   let service: MyAccessService;
   let requestsApi: MockProxy<AccessRequestSdkService>;
   let leasesApi: MockProxy<AccessLeaseSdkService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
   let push$: Subject<void>;
+  let accessRefresh: DefaultAccessRefreshService;
 
   beforeEach(() => {
     push$ = new Subject<void>();
     requestsApi = mock<AccessRequestSdkService>();
     leasesApi = mock<AccessLeaseSdkService>();
     nameResolver = mock<AccessNameResolverService>();
+    // The real fan-out, not a mock: the point of these tests is that the page reacts to what the
+    // shared signal actually merges — the server push and this client's own mutations alike.
+    accessRefresh = new DefaultAccessRefreshService({
+      accessChanged$: () => push$.asObservable(),
+      approverInboxChanged$: () => NEVER,
+    });
 
     requestsApi.listMyAccessRequests.mockResolvedValue([]);
     leasesApi.listMyLeases.mockResolvedValue([]);
@@ -79,7 +96,7 @@ describe("MyAccessService", () => {
     TestBed.configureTestingModule({
       providers: [
         MyAccessService,
-        { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
+        { provide: AccessRefreshService, useValue: accessRefresh },
         { provide: AccessRequestSdkService, useValue: requestsApi },
         { provide: AccessLeaseSdkService, useValue: leasesApi },
         { provide: AccessNameResolverService, useValue: nameResolver },
@@ -287,6 +304,73 @@ describe("MyAccessService", () => {
       const rows = await firstValueFrom(service.pendingRows$);
       expect(rows).toHaveLength(1);
       expect(rows[0].status).toBe("approved");
+    });
+
+    it("reloads when another surface announces a change to one of the caller's items", async () => {
+      await service.load();
+      requestsApi.listMyAccessRequests.mockClear();
+      leasesApi.listMyLeases.mockClear();
+
+      accessRefresh.notifyAccessChanged("cipher-1");
+      await flushMicrotasks();
+
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+      expect(leasesApi.listMyLeases).toHaveBeenCalledTimes(1);
+    });
+
+    it("reloads when the announcement names no cipher", async () => {
+      await service.load();
+      requestsApi.listMyAccessRequests.mockClear();
+
+      // What a failed re-read announces: no id to scope to, so every surface re-reads.
+      accessRefresh.notifyAccessChanged(undefined);
+      await flushMicrotasks();
+
+      expect(requestsApi.listMyAccessRequests).toHaveBeenCalledTimes(1);
+    });
+
+    it("reconciles the list when the shared cancel flow withdraws a request from another surface", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+      expect(await firstValueFrom(service.pendingRows$)).toHaveLength(1);
+
+      // The request drawer's withdrawal: a different surface, sharing only the refresh signal.
+      const dialogService = mock<DialogService>();
+      dialogService.openSimpleDialog.mockResolvedValue(true);
+      const i18nService = mock<I18nService>();
+      i18nService.t.mockImplementation((key) => key);
+      const cancelService = new AccessRequestCancelService(
+        requestsApi,
+        accessRefresh,
+        dialogService,
+        mock<ToastService>(),
+        i18nService,
+        mock<LogService>(),
+      );
+      requestsApi.getAccessRequest.mockResolvedValue(request("req-1", { status: "pending" }));
+      requestsApi.listMyAccessRequests.mockResolvedValue([
+        request("req-1", { status: "canceled", resolvedAt: "2024-01-01T00:30:00.000Z" }),
+      ]);
+
+      await cancelService.cancelRequestById("req-1" as unknown as AccessRequestId);
+      await flushMicrotasks();
+
+      expect(await firstValueFrom(service.pendingRows$)).toEqual([]);
+      const history = await firstValueFrom(service.historyRows$);
+      expect(history.map((r) => r.id)).toEqual(["req-1"]);
+    });
+
+    it("does not reload after its own optimistic mutation", async () => {
+      requestsApi.listMyAccessRequests.mockResolvedValue([request("req-1", { status: "pending" })]);
+      await service.load();
+      requestsApi.listMyAccessRequests.mockClear();
+
+      await service.cancel("req-1" as unknown as AccessRequestId);
+      await flushMicrotasks();
+
+      // Announcing its own patch would only replace it with a load, and each load would announce
+      // again; the page reconciles locally and stays quiet.
+      expect(requestsApi.listMyAccessRequests).not.toHaveBeenCalled();
     });
 
     it("serialises overlapping pushes so state never mixes two loads", async () => {

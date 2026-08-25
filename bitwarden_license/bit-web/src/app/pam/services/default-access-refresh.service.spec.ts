@@ -16,6 +16,13 @@ describe("DefaultAccessRefreshService", () => {
     return () => count;
   }
 
+  /** The page-level reading: every announcement, whichever cipher it names. */
+  function watchEverything(): () => number {
+    let count = 0;
+    subscriptions.push(service.accessChanged$().subscribe(() => (count += 1)));
+    return () => count;
+  }
+
   beforeEach(() => {
     push$ = new Subject<void>();
     const accessEvents: AccessEventService = {
@@ -87,6 +94,29 @@ describe("DefaultAccessRefreshService", () => {
 
     expect(cipherOne()).toBe(1);
     expect(cipherTwo()).toBe(1);
+  });
+
+  it("notifies an unscoped subscriber whichever cipher changed", () => {
+    // A page whose rows span the caller's whole vault cannot name the cipher it cares about — a
+    // request for an item it holds no row for yet still belongs on it.
+    const everything = watchEverything();
+
+    service.notifyAccessChanged("cipher-1");
+    service.notifyAccessChanged("cipher-2");
+    service.notifyAccessChanged();
+    push$.next();
+
+    expect(everything()).toBe(4);
+  });
+
+  it("gives an unscoped subscriber one emission per push, not one per cipher in flight", () => {
+    const everything = watchEverything();
+    watch("cipher-1");
+    watch("cipher-2");
+
+    push$.next();
+
+    expect(everything()).toBe(1);
   });
 
   it("does not attach to the push channel until a consumer subscribes", () => {

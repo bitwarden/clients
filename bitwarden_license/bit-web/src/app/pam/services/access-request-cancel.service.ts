@@ -16,7 +16,9 @@ import {
  * request drawer, which starts from a REQUEST — shares this flow, so the confirmation copy and the
  * withdraw semantics cannot drift apart. The remaining pages that hold a request id
  * (`MyAccessService`, `ApproverInboxService`) keep their own cancel calls, because their
- * reload and toast semantics belong to those surfaces.
+ * reload and toast semantics belong to those surfaces. The requester-facing one of those — the
+ * "My requests" list — still asks this flow's question, through {@link confirmWithdrawal}, so the
+ * confirmation stays single-sourced even where the mutation is not.
  *
  * "Outstanding" mirrors the banner's withdraw semantics: a pending request or an
  * approved-but-unactivated one — either can be withdrawn until a lease is minted, after which
@@ -81,9 +83,21 @@ export class AccessRequestCancelService {
     }
   }
 
+  /**
+   * Ask the withdrawal confirmation on behalf of a surface that owns the mutation itself — the
+   * "My requests" list, whose rows reconcile through an optimistic local patch that a shared
+   * withdrawal would turn into a full reload. Only the question is shared; the caller still
+   * performs the withdrawal and reports its outcome.
+   *
+   * @returns whether the reader confirmed.
+   */
+  async confirmWithdrawal(pending: boolean): Promise<boolean> {
+    return await this.dialogService.openSimpleDialog(cancelConfirmation(pending));
+  }
+
   /** @returns whether the request was withdrawn, as opposed to kept. */
   private async confirmAndCancel(id: AccessRequestId, pending: boolean): Promise<boolean> {
-    const confirmed = await this.dialogService.openSimpleDialog(cancelConfirmation(pending));
+    const confirmed = await this.confirmWithdrawal(pending);
     if (!confirmed) {
       return false;
     }

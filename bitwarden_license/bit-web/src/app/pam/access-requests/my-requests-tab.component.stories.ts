@@ -6,6 +6,7 @@ import { of } from "rxjs";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import {
   DAY,
   HOUR,
@@ -129,6 +130,11 @@ function myAccess(
         },
       },
       { provide: ToastService, useValue: { showToast: () => {} } },
+      // The withdrawal confirmation is declined in stories, so a click never mutates the fixture.
+      {
+        provide: AccessRequestCancelService,
+        useValue: { confirmWithdrawal: () => Promise.resolve(false) },
+      },
     ],
   });
 }

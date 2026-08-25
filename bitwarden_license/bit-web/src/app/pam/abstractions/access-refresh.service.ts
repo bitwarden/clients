@@ -18,8 +18,12 @@ export abstract class AccessRefreshService {
    * Emits whenever `cipherId`'s access state may have changed — either because this client mutated
    * it or because every cipher was invalidated at once (see {@link notifyAccessChanged}). Never
    * completes; consumers own their teardown.
+   *
+   * Omit `cipherId` to hear every announcement whichever item it names: the reading a page-level
+   * surface needs, since its state spans the caller's whole vault and any one of those mutations
+   * can add, remove, or re-status a row on it.
    */
-  abstract accessChanged$(cipherId: string): Observable<void>;
+  abstract accessChanged$(cipherId?: string): Observable<void>;
 
   /**
    * Announce that access changed. Pass a `cipherId` to invalidate one item, or omit it to
