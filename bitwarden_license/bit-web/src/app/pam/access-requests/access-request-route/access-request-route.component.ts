@@ -45,6 +45,7 @@ import {
 } from "../..";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
+import { AccessRequestCancelService } from "../../services/access-request-cancel.service";
 import { AccessNameResolverService, emptyResolvedNames } from "../access-name-resolver.service";
 import { historyDisplayStatus } from "../my-access-row";
 
@@ -118,6 +119,7 @@ export class AccessRequestRouteComponent implements OnInit {
   }
 
   private readonly detail = inject(AccessRequestDetailService);
+  private readonly cancelService = inject(AccessRequestCancelService);
   private readonly drawerRef = inject<DrawerRef<undefined>>(DrawerRef);
   private readonly params = inject<AccessRequestDrawerParams>(DIALOG_DATA);
   private readonly dialogService = inject(DialogService);
@@ -312,22 +314,15 @@ export class AccessRequestRouteComponent implements OnInit {
   }
 
   protected async cancel(): Promise<void> {
-    if (!this.canCancel() || this.cancelling()) {
+    const request = this.request();
+    if (request == null || !this.canCancel() || this.cancelling()) {
       return;
     }
     this.cancelling.set(true);
     try {
-      await this.detail.cancel();
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamMyRequestsCanceledToast"),
-      });
-    } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pamMyRequestsCancelError"),
-      });
+      if (await this.cancelService.cancelRequestById(request.id)) {
+        await this.detail.reload();
+      }
     } finally {
       this.cancelling.set(false);
     }

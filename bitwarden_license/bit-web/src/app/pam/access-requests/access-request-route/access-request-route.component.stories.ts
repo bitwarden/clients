@@ -11,6 +11,7 @@ import type { AccessRequestView } from "../../abstractions/access-lease";
 import { AccessLeaseSdkService } from "../../abstractions/access-lease-sdk.service";
 import { AccessRequestSdkService } from "../../abstractions/access-request-sdk.service";
 import { LeasingErrorService } from "../../abstractions/leasing-error.service";
+import { AccessRequestCancelService } from "../../services/access-request-cancel.service";
 import {
   DAY,
   HOUR,
@@ -75,6 +76,12 @@ function detail(options: { request?: () => AccessRequestView; error?: unknown } 
       { provide: DIALOG_DATA, useValue: { requestId: "req-1" } },
       { provide: DrawerRef, useValue: { isDrawer: true, close: () => {} } },
       { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
+      // Withdrawal runs through the shared cancel flow, which owns its own confirmation. The
+      // stub declines, matching the DialogService stub above.
+      {
+        provide: AccessRequestCancelService,
+        useValue: { cancelRequestById: () => Promise.resolve(false) },
+      },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
   });

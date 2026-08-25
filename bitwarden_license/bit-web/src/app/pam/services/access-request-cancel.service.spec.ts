@@ -5,7 +5,11 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import type { AccessRequestId, CipherAccessStateView } from "../abstractions/access-lease";
+import type {
+  AccessRequestId,
+  AccessRequestView,
+  CipherAccessStateView,
+} from "../abstractions/access-lease";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 
 import { AccessRequestCancelService } from "./access-request-cancel.service";
@@ -22,6 +26,15 @@ function state(overrides: Partial<CipherAccessStateView> = {}): CipherAccessStat
     approvedRequest: undefined,
     ...overrides,
   } as unknown as CipherAccessStateView;
+}
+
+function loadedRequest(overrides: Partial<AccessRequestView> = {}): AccessRequestView {
+  return {
+    id: REQUEST_ID,
+    cipherId: CIPHER_ID,
+    status: "pending",
+    ...overrides,
+  } as unknown as AccessRequestView;
 }
 
 describe("AccessRequestCancelService", () => {
@@ -145,5 +158,92 @@ describe("AccessRequestCancelService", () => {
       expect.objectContaining({ variant: "error", message: "pendingStateCancelError" }),
     );
     expect(announced).toHaveBeenCalledWith(CIPHER_ID);
+  });
+
+  describe("cancelRequestById", () => {
+    it("cancels the pending request, toasts success, and announces the change", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(loadedRequest());
+      const announced = jest.spyOn(accessRefresh, "notifyAccessChanged");
+
+      await expect(service.cancelRequestById(REQUEST_ID)).resolves.toBe(true);
+
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith(REQUEST_ID);
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "success", message: "pamCancelRequestCanceledToast" }),
+      );
+      expect(announced).toHaveBeenCalledWith(CIPHER_ID);
+    });
+
+    it("asks the same question the cipher-scoped entry point asks", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(loadedRequest());
+
+      await service.cancelRequestById(REQUEST_ID);
+      const pendingOptions = dialogService.openSimpleDialog.mock.calls[0][0];
+
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        state({ pendingRequest: { id: REQUEST_ID } as never }),
+      );
+      await service.cancelOutstandingRequest(CIPHER_ID);
+
+      expect(dialogService.openSimpleDialog.mock.calls[1][0]).toEqual(pendingOptions);
+    });
+
+    it("describes the approved case in the confirmation", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(loadedRequest({ status: "approved" }));
+
+      await service.cancelRequestById(REQUEST_ID);
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "pamCancelRequestApprovedConfirm" } }),
+      );
+    });
+
+    it("withdraws nothing when the confirmation is dismissed", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(loadedRequest());
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+
+      await expect(service.cancelRequestById(REQUEST_ID)).resolves.toBe(false);
+
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
+    });
+
+    it("leaves a request that is no longer outstanding alone", async () => {
+      // Activated since the caller rendered it: the lease, not the request, governs access now.
+      requestsApi.getAccessRequest.mockResolvedValue(
+        loadedRequest({ status: "approved", producedLeaseId: "lease-1" as never }),
+      );
+
+      await expect(service.cancelRequestById(REQUEST_ID)).resolves.toBe(false);
+
+      expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+    });
+
+    it("toasts an error and still announces the change when the cancel fails", async () => {
+      requestsApi.getAccessRequest.mockResolvedValue(loadedRequest());
+      requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
+      const announced = jest.spyOn(accessRefresh, "notifyAccessChanged");
+
+      await expect(service.cancelRequestById(REQUEST_ID)).resolves.toBe(false);
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pendingStateCancelError" }),
+      );
+      expect(announced).toHaveBeenCalledWith(CIPHER_ID);
+    });
+
+    it("never rejects when the request cannot even be re-read", async () => {
+      requestsApi.getAccessRequest.mockRejectedValue(new Error("boom"));
+      const announced = jest.spyOn(accessRefresh, "notifyAccessChanged");
+
+      await expect(service.cancelRequestById(REQUEST_ID)).resolves.toBe(false);
+
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pendingStateCancelError" }),
+      );
+      // No cipher to scope the signal to, so every leasing surface re-reads.
+      expect(announced).toHaveBeenCalledWith(undefined);
+    });
   });
 });

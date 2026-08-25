@@ -32,7 +32,9 @@ import {
 /**
  * Loads and holds the single access request behind the request drawer — one of the caller's own
  * requests — resolving display names from local vault state and owning the requester-facing
- * mutations (cancel / activate / end lease). Approve/Deny is not offered here: a requester never
+ * mutations (activate / end lease). Withdrawal is not one of them: it runs through the shared
+ * `AccessRequestCancelService`, which every surface that withdraws a request goes through, and the
+ * drawer just reloads afterwards. Approve/Deny is not offered here either: a requester never
  * decides their own request (that's the deferred approver-inbox flow).
  *
  * Drawer-scoped (provided on the drawer component, not root), so each open gets its own instance.
@@ -87,13 +89,16 @@ export class AccessRequestDetailService {
     this._id$.next(id);
   }
 
-  /** Cancel/withdraw the loaded request, then reload to surface the canceled status. */
-  async cancel(): Promise<void> {
+  /**
+   * Re-read the loaded request. Withdrawal is not one of the mutations owned here: it runs through
+   * the shared `AccessRequestCancelService` flow, which confirms first, so the drawer reloads
+   * through this instead of cancelling itself.
+   */
+  async reload(): Promise<void> {
     const id = this._request$.value?.id;
     if (id == null) {
       return;
     }
-    await this.requestsApi.cancelAccessRequest(id);
     await this.fetch(id);
   }
 

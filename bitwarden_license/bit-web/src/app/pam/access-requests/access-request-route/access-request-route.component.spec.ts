@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, NEVER } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,6 +16,10 @@ import {
 } from "@bitwarden/components";
 
 import type { AccessRequestView } from "../../abstractions/access-lease";
+import { AccessRefreshService } from "../../abstractions/access-refresh.service";
+import { AccessRequestSdkService } from "../../abstractions/access-request-sdk.service";
+import { AccessRequestCancelService } from "../../services/access-request-cancel.service";
+import { DefaultAccessRefreshService } from "../../services/default-access-refresh.service";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
 import {
   AccessNameResolverService,
@@ -55,13 +59,14 @@ describe("AccessRequestRouteComponent", () => {
     loadError$: BehaviorSubject<unknown | null>;
     names$: BehaviorSubject<ResolvedNames>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
-    cancel: jest.Mock;
+    reload: jest.Mock;
     activate: jest.Mock;
     endLease: jest.Mock;
     setRequest: jest.Mock;
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let requestsApi: MockProxy<AccessRequestSdkService>;
   let drawerRef: { isDrawer: true; close: jest.Mock };
 
   function create(): void {
@@ -86,7 +91,7 @@ describe("AccessRequestRouteComponent", () => {
         collectionNameById: new Map([["col-1", "Production"]]),
       }),
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
-      cancel: jest.fn().mockResolvedValue(undefined),
+      reload: jest.fn().mockResolvedValue(undefined),
       activate: jest.fn().mockResolvedValue(undefined),
       endLease: jest.fn().mockResolvedValue(undefined),
       setRequest: jest.fn(),
@@ -95,18 +100,43 @@ describe("AccessRequestRouteComponent", () => {
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
+    requestsApi = mock<AccessRequestSdkService>();
+    // The shared cancel flow re-reads the request rather than trusting what was rendered, so the
+    // read tracks whatever the drawer is currently showing.
+    requestsApi.getAccessRequest.mockImplementation(async () => detail.request$.value!);
+    const logService = mock<LogService>();
+    const i18nService = {
+      t: (key: string, ...args: unknown[]) => [key, ...args].join(" "),
+    } as I18nService;
+    // No push in these tests: the flow is exercised through local mutations only.
+    const accessRefresh = new DefaultAccessRefreshService({
+      accessChanged$: () => NEVER,
+      approverInboxChanged$: () => NEVER,
+    });
 
     await TestBed.configureTestingModule({
       imports: [AccessRequestRouteComponent, NoopAnimationsModule],
       providers: [
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
-        { provide: LogService, useValue: mock<LogService>() },
+        { provide: LogService, useValue: logService },
         { provide: DIALOG_DATA, useValue: { requestId: "req-1" } },
         { provide: DrawerRef, useValue: drawerRef },
+        { provide: I18nService, useValue: i18nService },
+        { provide: AccessRequestSdkService, useValue: requestsApi },
+        { provide: AccessRefreshService, useValue: accessRefresh },
+        // The real shared cancel flow over the same mocks, so the drawer's withdraw behaviour —
+        // confirmation included — is exercised end to end rather than stubbed past.
         {
-          provide: I18nService,
-          useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
+          provide: AccessRequestCancelService,
+          useValue: new AccessRequestCancelService(
+            requestsApi,
+            accessRefresh,
+            dialogService,
+            toastService,
+            i18nService,
+            logService,
+          ),
         },
       ],
     })
@@ -179,6 +209,17 @@ describe("AccessRequestRouteComponent", () => {
 
       expect(component["cipherName"]()).toBe("cipher-1");
       expect(component["collectionName"]()).toBeNull();
+    });
+
+    it("names the withdraw action and renders it as the destructive one", () => {
+      create();
+
+      const button = fixture.nativeElement.querySelector(
+        "#access-request_button_cancel",
+      ) as HTMLElement;
+      expect(button).not.toBeNull();
+      expect(button.textContent?.trim()).toBe("pendingStateCancelRequest");
+      expect(button.getAttribute("buttonType")).toBe("danger");
     });
 
     it("identifies the requester by name, then email, then id", () => {
@@ -459,28 +500,62 @@ describe("AccessRequestRouteComponent", () => {
   });
 
   describe("actions", () => {
-    it("cancels and toasts", async () => {
+    it("asks the shared confirmation before withdrawing, then cancels and reloads", async () => {
       create();
 
       await component["cancel"]();
 
-      expect(detail.cancel).toHaveBeenCalled();
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "success",
-        message: "pamMyRequestsCanceledToast",
-      });
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: { key: "pamCancelRequestTitle" },
+          content: { key: "pamCancelRequestPendingConfirm" },
+          acceptButtonText: { key: "pendingStateCancelRequest" },
+          cancelButtonText: { key: "pamKeepRequest" },
+          type: "danger",
+        }),
+      );
+      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith("req-1");
+      expect(detail.reload).toHaveBeenCalled();
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          variant: "success",
+          message: "pamCancelRequestCanceledToast",
+        }),
+      );
+    });
+
+    it("describes an approved request's withdrawal in its own words", async () => {
+      detail.request$.next(request({ status: "approved" }));
+      create();
+
+      await component["cancel"]();
+
+      expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
+        expect.objectContaining({ content: { key: "pamCancelRequestApprovedConfirm" } }),
+      );
+    });
+
+    it("withdraws nothing when the confirmation is declined", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      create();
+
+      await component["cancel"]();
+
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+      expect(detail.reload).not.toHaveBeenCalled();
+      expect(toastService.showToast).not.toHaveBeenCalled();
     });
 
     it("toasts an error when cancelling fails", async () => {
-      detail.cancel.mockRejectedValue(new Error("boom"));
+      requestsApi.cancelAccessRequest.mockRejectedValue(new Error("boom"));
       create();
 
       await component["cancel"]();
 
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamMyRequestsCancelError",
-      });
+      expect(toastService.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ variant: "error", message: "pendingStateCancelError" }),
+      );
+      expect(detail.reload).not.toHaveBeenCalled();
     });
 
     it("starts access and toasts", async () => {
@@ -528,7 +603,7 @@ describe("AccessRequestRouteComponent", () => {
       await component["startAccess"]();
       await component["endLease"]();
 
-      expect(detail.cancel).not.toHaveBeenCalled();
+      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
       expect(detail.activate).not.toHaveBeenCalled();
       expect(detail.endLease).not.toHaveBeenCalled();
     });

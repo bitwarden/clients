@@ -142,13 +142,13 @@
         <button
           type="button"
           bitButton
-          buttonType="secondary"
+          buttonType="danger"
           id="access-request_button_cancel"
           [loading]="cancelling()"
           [disabled]="cancelling()"
           (click)="cancel()"
         >
-          {{ "cancel" | i18n }}
+          {{ "pendingStateCancelRequest" | i18n }}
         </button>
       }
       @if (canEndLease()) {

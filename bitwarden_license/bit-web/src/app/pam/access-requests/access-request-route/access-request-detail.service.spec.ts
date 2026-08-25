@@ -158,13 +158,12 @@ describe("AccessRequestDetailService", () => {
   });
 
   describe("mutations re-fetch to reconcile", () => {
-    it("cancels then re-fetches", async () => {
+    it("re-reads the loaded request on demand", async () => {
       await setup();
       requestsApi.getAccessRequest.mockClear();
 
-      await service.cancel();
+      await service.reload();
 
-      expect(requestsApi.cancelAccessRequest).toHaveBeenCalledWith(REQUEST_ID);
       expect(requestsApi.getAccessRequest).toHaveBeenCalledTimes(1);
     });
 
@@ -192,10 +191,12 @@ describe("AccessRequestDetailService", () => {
       requestsApi.getAccessRequest.mockRejectedValue(new Error("boom"));
       await setup();
 
-      await service.cancel();
+      requestsApi.getAccessRequest.mockClear();
+
+      await service.reload();
       await service.activate();
 
-      expect(requestsApi.cancelAccessRequest).not.toHaveBeenCalled();
+      expect(requestsApi.getAccessRequest).not.toHaveBeenCalled();
       expect(requestsApi.activateAccessRequest).not.toHaveBeenCalled();
     });
   });

@@ -1,15 +1,22 @@
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService, ToastService } from "@bitwarden/components";
+import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 
-import { AccessRefreshService, AccessRequestSdkService } from "..";
+import {
+  AccessRefreshService,
+  AccessRequestId,
+  AccessRequestSdkService,
+  AccessRequestView,
+} from "..";
 
 /**
- * The one place a caller's outstanding access request for a gated cipher is withdrawn. Both
- * entry points that start from a CIPHER — the cipher-view banner and the vault-row menu — share
- * this flow; the pages that already hold a request id (`MyAccessService`,
- * `AccessRequestDetailService`, `ApproverInboxService`) keep their own cancel calls, because
- * their reload and toast semantics belong to those surfaces.
+ * The one place a caller's outstanding access request is withdrawn. Every surface that offers the
+ * withdrawal — the cipher-view banner and the vault-row menu, which start from a CIPHER, and the
+ * request drawer, which starts from a REQUEST — shares this flow, so the confirmation copy and the
+ * withdraw semantics cannot drift apart. The remaining pages that hold a request id
+ * (`MyAccessService`, `ApproverInboxService`) keep their own cancel calls, because their
+ * reload and toast semantics belong to those surfaces.
  *
  * "Outstanding" mirrors the banner's withdraw semantics: a pending request or an
  * approved-but-unactivated one — either can be withdrawn until a lease is minted, after which
@@ -39,33 +46,87 @@ export class AccessRequestCancelService {
       if (request == null) {
         return;
       }
-      const contentKey =
-        state.pendingRequest != null
-          ? "pamCancelRequestPendingConfirm"
-          : "pamCancelRequestApprovedConfirm";
-      const confirmed = await this.dialogService.openSimpleDialog({
-        title: { key: "pamCancelRequestTitle" },
-        content: { key: contentKey },
-        acceptButtonText: { key: "pendingStateCancelRequest" },
-        cancelButtonText: { key: "pamKeepRequest" },
-        type: "danger",
-      });
-      if (!confirmed) {
-        return;
-      }
-      await this.accessRequestSdkService.cancelAccessRequest(request.id);
-      this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamCancelRequestCanceledToast"),
-      });
+      await this.confirmAndCancel(request.id, state.pendingRequest != null);
     } catch (e) {
-      this.logService.error(e);
-      this.toastService.showToast({
-        variant: "error",
-        message: this.i18nService.t("pendingStateCancelError"),
-      });
+      this.reportFailure(e);
     } finally {
       this.accessRefreshService.notifyAccessChanged(cipherId);
     }
   }
+
+  /**
+   * Withdraw a request the caller already holds the id of, after the same confirmation
+   * {@link cancelOutstandingRequest} shows. Re-reads the request rather than trusting the status
+   * the caller rendered, for the same reason: it may have been decided or activated since, and a
+   * request that is no longer outstanding is left alone.
+   *
+   * Never rejects, and always announces the shared refresh signal. Returns whether the request was
+   * actually withdrawn, so a surface holding its own copy of the request knows to re-read it —
+   * the refresh signal reaches the cipher-scoped surfaces, not the request-scoped ones.
+   */
+  async cancelRequestById(requestId: AccessRequestId): Promise<boolean> {
+    let cipherId: string | undefined;
+    try {
+      const request = await this.accessRequestSdkService.getAccessRequest(requestId);
+      cipherId = uuidAsString(request.cipherId);
+      if (!isOutstanding(request)) {
+        return false;
+      }
+      return await this.confirmAndCancel(request.id, request.status === "pending");
+    } catch (e) {
+      this.reportFailure(e);
+      return false;
+    } finally {
+      this.accessRefreshService.notifyAccessChanged(cipherId);
+    }
+  }
+
+  /** @returns whether the request was withdrawn, as opposed to kept. */
+  private async confirmAndCancel(id: AccessRequestId, pending: boolean): Promise<boolean> {
+    const confirmed = await this.dialogService.openSimpleDialog(cancelConfirmation(pending));
+    if (!confirmed) {
+      return false;
+    }
+    await this.accessRequestSdkService.cancelAccessRequest(id);
+    this.toastService.showToast({
+      variant: "success",
+      message: this.i18nService.t("pamCancelRequestCanceledToast"),
+    });
+    return true;
+  }
+
+  private reportFailure(e: unknown): void {
+    this.logService.error(e);
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t("pendingStateCancelError"),
+    });
+  }
+}
+
+/**
+ * The confirmation every withdrawal asks. Built in one place so the two entry points cannot end up
+ * asking the reader different questions about the same action.
+ */
+function cancelConfirmation(pending: boolean): SimpleDialogOptions {
+  return {
+    title: { key: "pamCancelRequestTitle" },
+    content: {
+      key: pending ? "pamCancelRequestPendingConfirm" : "pamCancelRequestApprovedConfirm",
+    },
+    acceptButtonText: { key: "pendingStateCancelRequest" },
+    cancelButtonText: { key: "pamKeepRequest" },
+    type: "danger",
+  };
+}
+
+/**
+ * The request-scoped reading of "outstanding" — what `getCipherAccessState` reports as its
+ * `pendingRequest` / `approvedRequest`, derived from a request the caller already holds.
+ */
+function isOutstanding(request: AccessRequestView): boolean {
+  return (
+    request.status === "pending" ||
+    (request.status === "approved" && request.producedLeaseId == null)
+  );
 }
