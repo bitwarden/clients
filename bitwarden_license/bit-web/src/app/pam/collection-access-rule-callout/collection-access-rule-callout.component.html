@@ -10,8 +10,7 @@
         <a
           bitLink
           linkType="primary"
-          [routerLink]="['/organizations', organizationId(), 'pam', 'access-rules']"
-          [queryParams]="{ accessRuleId: rule.id }"
+          [routerLink]="['/organizations', organizationId(), 'pam', 'access-rules', rule.id]"
           (click)="closeDialog()"
           >{{ rule.name }}</a
         >
