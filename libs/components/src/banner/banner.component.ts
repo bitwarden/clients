@@ -70,11 +70,19 @@ export class BannerComponent implements OnInit {
       "tw-flex-col",
       // Account for bit-layout's padding
       "[bit-layout_&]:-tw-mt-6",
-      "[bit-layout_&:not(bit-page_*)]:-tw-mb-6",
+      "[bit-layout_&]:tw-pb-6",
     ].concat(
       this.vfo1Enabled()
-        ? ["[bit-layout_&]:-tw-mx-10"]
-        : ["[bit-layout_&]:-tw-mx-8", "[bit-layout_&]:tw-pb-6"],
+        ? [
+            "[bit-layout_&]:-tw-mx-10",
+            // bit-layout zeroes <main>'s top padding when the page renders a bit-header, leaving
+            // the -mt-6 above nothing to cancel — it would pull the banner out of the scroll
+            // container, clipping it. Inside a bit-page the -mt-6 still cancels that element's
+            // own py-6, so this only applies to banners projected straight into <main>.
+            "[bit-layout_main:has(bit-header)_&]:tw-mt-0",
+            "[bit-layout:has(bit-header)_&]:tw-pb-0",
+          ]
+        : ["[bit-layout_&]:-tw-mx-8"],
     ),
   );
 

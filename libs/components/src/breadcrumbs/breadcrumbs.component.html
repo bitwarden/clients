@@ -14,7 +14,6 @@
         [class]="activeBreadcrumbStyles"
         [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
         aria-current="page"
-        tabindex="0"
       >
         <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
       </h1>
@@ -23,7 +22,6 @@
         [class]="activeBreadcrumbStyles"
         [bitTypography]="size() === 'small' ? 'h6' : 'h3'"
         aria-current="page"
-        tabindex="0"
       >
         <ng-container [ngTemplateOutlet]="breadcrumb.content()"></ng-container>
       </span>

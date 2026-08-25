@@ -1,5 +1,5 @@
 import { DialogRef } from "@angular/cdk/dialog";
-import { ChangeDetectionStrategy, Component, inject } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -118,12 +118,14 @@ export class KitchenSinkDialogWithAutofocusComponent {
   imports: [KitchenSinkSharedModule],
   template: `
     <bit-page>
-      <div>
-        <bit-banner>
-          Bitwarden is the most trusted password manager.
-          <a bitLink [linkType]="variant">Click me</a>
-        </bit-banner>
-      </div>
+      @if (bannerVisible()) {
+        <div>
+          <bit-banner (dismiss)="hideBanner()">
+            Bitwarden is the most trusted password manager.
+            <a bitLink [linkType]="variant">Click me</a>
+          </bit-banner>
+        </div>
+      }
       <bit-header title="Kitchen Sink" icon="bwi-collection">
         <bit-breadcrumbs slot="breadcrumbs">
           @for (item of navItems; track item) {
@@ -199,6 +201,12 @@ export class KitchenSinkMainComponent {
   protected readonly dialogService = inject(DialogService);
   protected readonly tourService = inject(KitchenSinkTourService);
   protected readonly configService = inject(ConfigService);
+
+  protected readonly bannerVisible = signal(true);
+
+  hideBanner() {
+    this.bannerVisible.set(false);
+  }
 
   openDialog() {
     this.dialogService.open(KitchenSinkDialogComponent);
