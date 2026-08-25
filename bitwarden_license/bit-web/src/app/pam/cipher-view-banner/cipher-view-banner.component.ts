@@ -53,6 +53,7 @@ import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dial
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatRemaining } from "../date/format-remaining";
+import { isGovernedCipher } from "../helpers/governed-cipher";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
 import {
@@ -127,9 +128,8 @@ export class CipherViewBannerComponent implements OnInit {
   /**
    * The caller's access state for the open cipher, re-read on every access change.
    *
-   * Reads only for a PAM-governed cipher — the flag is on and the cipher is either still gated
-   * (`partial`) or already served under a lease (`leaseGated`). Without that guard a plain cipher
-   * open would fire a PAM request for every item in the vault.
+   * Reads only for a PAM-governed cipher, per {@link isGovernedCipher}, and only while the flag
+   * is on.
    *
    * The re-read trigger is {@link AccessRefreshService}, shared with the gated-cipher reloader, so
    * starting access here also reveals the credential in the item behind this banner.
@@ -137,7 +137,7 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly state = toSignal(
     combineLatest([toObservable(this.cipher), this.enabled$]).pipe(
       switchMap(([cipher, enabled]) => {
-        if (!enabled || cipher.id == null || !(cipher.partial || cipher.leaseGated === true)) {
+        if (!enabled || cipher.id == null || !isGovernedCipher(cipher)) {
           return of(null);
         }
         const cipherId = String(cipher.id);
