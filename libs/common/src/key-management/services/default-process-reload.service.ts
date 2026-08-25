@@ -1,10 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom, map, timeout } from "rxjs";
+import { firstValueFrom, timeout } from "rxjs";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { getOptionalUserId } from "../../auth/services/account.service";
 import {
   VaultTimeoutAction,
   VaultTimeoutSettingsService,
@@ -52,7 +53,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     }
 
     // If there is an active user, check if they have an ephemeral PIN. If so, prevent process reload upon lock.
-    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
     if (userId != null) {
       if ((await this.pinService.getPinLockType(userId)) === "AfterFirstUnlock") {
         this.logService.info(
@@ -71,10 +72,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     this.reloadInterval = null;
 
     const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(
-        map((a) => a?.id),
-        timeout(500),
-      ),
+      this.accountService.activeAccount$.pipe(getOptionalUserId, timeout(500)),
     );
     // Replace current active user if they will be logged out on reload
     if (activeUserId != null) {
@@ -85,7 +83,7 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
       );
       if (timeoutAction === VaultTimeoutAction.LogOut) {
         const nextUser = await firstValueFrom(
-          this.accountService.nextUpAccount$.pipe(map((account) => account?.id ?? null)),
+          this.accountService.nextUpAccount$.pipe(getOptionalUserId),
         );
         await this.accountService.switchAccount(nextUser);
       }
