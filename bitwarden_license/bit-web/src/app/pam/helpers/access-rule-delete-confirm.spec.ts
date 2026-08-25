@@ -1,7 +1,7 @@
 import { accessRuleDeleteConfirmOptions } from "./access-rule-delete-confirm";
 
 describe("accessRuleDeleteConfirmOptions", () => {
-  it("asks the warning question with the rule name as the only placeholder", () => {
+  it("asks the delete question with the rule name as the only placeholder", () => {
     expect(accessRuleDeleteConfirmOptions("Prod database")).toEqual({
       title: { key: "pamAccessRuleDeleteConfirmTitle" },
       content: {
@@ -10,7 +10,7 @@ describe("accessRuleDeleteConfirmOptions", () => {
       },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
-      type: "warning",
+      type: "danger",
     });
   });
 });
