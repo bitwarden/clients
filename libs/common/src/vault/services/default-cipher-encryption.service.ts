@@ -23,7 +23,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
-          const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
+          const sdkCipherView = model.toSdkCipherView();
 
           const encryptionContext = await ref.value.vault().ciphers().encrypt(sdkCipherView);
 
@@ -53,9 +53,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           const results = await ref.value
             .vault()
             .ciphers()
-            .encrypt_list(
-              models.map((model) => model.toSdkCipherView(ref.value.vault().ciphers())),
-            );
+            .encrypt_list(models.map((model) => model.toSdkCipherView()));
           return results.map((encryptionContext) => ({
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
@@ -80,7 +78,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
-          const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
+          const sdkCipherView = model.toSdkCipherView();
 
           const movedCipherView = ref.value
             .vault()
@@ -111,7 +109,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
       this.sdkService.userClient$(userId).pipe(
         concatMap(async (sdk) => {
           using ref = sdk.take();
-          const sdkCipherView = model.toSdkCipherView(ref.value.vault().ciphers());
+          const sdkCipherView = model.toSdkCipherView();
 
           const encryptionContext = await ref.value
             .vault()

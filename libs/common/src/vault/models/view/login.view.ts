@@ -136,9 +136,6 @@ export class LoginView extends ItemView {
 
   /**
    * Converts the LoginView to an SDK LoginView.
-   *
-   * Note: FIDO2 credentials are intentionally excluded on the write path — they are
-   * handled separately via toSdkCipherView when the cipher has passkeys.
    */
   toSdkLoginView(): SdkLoginView {
     return {
@@ -148,7 +145,9 @@ export class LoginView extends ItemView {
       totp: this.hasTotp ? this.totp : undefined,
       autofillOnPageLoad: this.autofillOnPageLoad ?? undefined,
       uris: this.uris?.map((uri) => uri.toSdkLoginUriView()),
-      fido2Credentials: undefined,
+      fido2Credentials: this.fido2Credentials.length
+        ? this.fido2Credentials.map((cred) => cred.toSdkFido2CredentialFullView())
+        : undefined,
     };
   }
 }

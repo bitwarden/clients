@@ -222,9 +222,6 @@ describe("DefaultCipherEncryptionService", () => {
       expect(result).toBeDefined();
       expect(result!.cipher.login!.fido2Credentials).toHaveLength(1);
 
-      // Verify toSdkCipherView was called with the SDK ciphers client
-      expect(cipherViewObj.toSdkCipherView).toHaveBeenCalledWith(mockSdkClient.vault().ciphers());
-
       // Encrypted fido2 credential should be in the cipher passed to encrypt
       expect(mockSdkClient.vault().ciphers().encrypt).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -432,7 +429,6 @@ describe("DefaultCipherEncryptionService", () => {
       expect(result).toBeDefined();
       expect(result!.cipher).toEqual(expectedCipher);
       expect(result!.encryptedFor).toBe(userId);
-      expect(cipherViewObj.toSdkCipherView).toHaveBeenCalledWith(mockSdkClient.vault().ciphers());
       expect(mockSdkClient.vault().ciphers().move_to_organization).toHaveBeenCalledWith(
         expect.objectContaining({
           id: cipherId,

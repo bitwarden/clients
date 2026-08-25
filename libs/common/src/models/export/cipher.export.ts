@@ -44,11 +44,16 @@ export class CipherExport {
     view.notes = req.notes;
     view.favorite = req.favorite;
     view.reprompt = req.reprompt ?? CipherRepromptType.None;
-    try {
-      view.key = req.key != null ? SymmetricCryptoKey.fromString(req.key) : undefined;
-    } catch {
-      // Old exports stored the wrapped EncString key which cannot be used on import
-      view.key = undefined;
+    // Only overwrite an existing view.key when the export JSON explicitly carries one.
+    // Leaving it absent (e.g. after CLI redaction) preserves the already-decrypted key
+    // that the bw-edit path fetches before calling toView(), preventing silent key loss.
+    if (req.key != null) {
+      if (EncString.isSerializedEncString(req.key)) {
+        // Old exports stored the wrapped EncString key; it cannot be used without the vault key
+        view.key = undefined;
+      } else {
+        view.key = SymmetricCryptoKey.fromString(req.key);
+      }
     }
 
     if (req.fields != null) {
