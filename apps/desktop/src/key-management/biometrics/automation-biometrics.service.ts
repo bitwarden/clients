@@ -30,7 +30,7 @@ export class AutomationBiometricsService implements OsBiometricService {
   private pendingRequests: PendingRequest[] = [];
   private nextRequestId = 1;
 
-  constructor(private logService: LogService) {}
+  constructor(private readonly logService: LogService) {}
 
   // --- Automation control surface (driven over IPC) ---
 
