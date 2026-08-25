@@ -73,6 +73,9 @@ describe("ItemDetailsStateBadgeComponent", () => {
 
     expect(component["badge"]()).toBeNull();
     expect(fixture.nativeElement.textContent.trim()).toBe("");
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='item-details-state-badge']"),
+    ).toBeNull();
     expect(accessRequestSdkService.getCipherAccessState).not.toHaveBeenCalled();
   });
 
@@ -98,6 +101,9 @@ describe("ItemDetailsStateBadgeComponent", () => {
     expect(
       fixture.nativeElement.querySelector("[data-testid='access-state-badge-privileged']"),
     ).not.toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='item-details-state-badge']"),
+    ).not.toBeNull();
   });
 
   it("reads the state again when access changes, so it cannot contradict the card below", async () => {
@@ -114,6 +120,20 @@ describe("ItemDetailsStateBadgeComponent", () => {
 
     expect(component["badge"]()?.kind).toBe("privileged");
     expect(accessRequestSdkService.getCipherAccessState).toHaveBeenCalledTimes(2);
+  });
+
+  it("renders nothing for an active lease, so the banner heading is the only countdown", async () => {
+    accessRequestSdkService.getCipherAccessState.mockResolvedValue({
+      badgeState: { active: { expiresAt: new Date(Date.now() + 12 * 60 * 1000).toISOString() } },
+    } as unknown as CipherAccessStateView);
+
+    create(gatedCipher());
+    await settle();
+
+    expect(component["badge"]()).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector("[data-testid='item-details-state-badge']"),
+    ).toBeNull();
   });
 
   it("renders nothing when the access-state read fails", async () => {
