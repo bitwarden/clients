@@ -378,7 +378,7 @@ describe("MyRequestsTabComponent", () => {
       expect(component["isCancelling"](row.id)).toBe(false);
     });
 
-    it("offers the withdrawal as a destructive action in both tables", () => {
+    it("offers the withdrawal as a plain secondary button in both tables", () => {
       pendingRows$.next([requestRow({ id: "req-pending", status: "pending" })]);
       extensionRows$.next([requestRow({ id: "req-ext", status: "pending" })]);
       create();
@@ -389,8 +389,9 @@ describe("MyRequestsTabComponent", () => {
       ]) {
         const button = query(`[data-testid="${testid}"]`);
         expect(button).not.toBeNull();
-        expect(button!.className).toContain("tw-bg-bg-danger");
-        expect(button!.textContent?.trim()).toBe("pendingStateCancelRequest");
+        expect(button!.className).toContain("tw-bg-bg-secondary");
+        expect(button!.className).not.toContain("tw-bg-bg-danger");
+        expect(button!.textContent?.trim()).toBe("cancel");
       }
     });
   });
