@@ -193,6 +193,88 @@ describe("AccessRequestRouteComponent", () => {
     });
   });
 
+  describe("layout", () => {
+    function labels(): (string | undefined)[] {
+      return Array.from(fixture.nativeElement.querySelectorAll("dt")).map((label) =>
+        (label as Element).textContent?.trim(),
+      );
+    }
+
+    it("renders the gated item as its own row rather than as a value in the detail list", () => {
+      create();
+
+      expect(labels()).not.toContain("pamColumnItem");
+      expect(fixture.nativeElement.querySelector("bit-item bit-item-content")).not.toBeNull();
+    });
+
+    it("leaves no icon in a value cell, so the value column shares one left edge", () => {
+      create();
+
+      const list = fixture.nativeElement.querySelector("dl") as HTMLElement;
+      expect(list).not.toBeNull();
+      expect(list.querySelector("dd bit-icon, dd app-vault-icon")).toBeNull();
+    });
+
+    it("shows the exact requested window as text rather than only on hover", () => {
+      create();
+
+      expect(text()).toContain(component["exactWindowText"]());
+      expect(fixture.nativeElement.querySelector("[bitTooltip]")).toBeNull();
+    });
+
+    it("states the request's status once, outside the detail list", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: PAST }));
+
+      create();
+
+      expect(labels()).not.toContain("pamColumnStatus");
+    });
+
+    it("keeps the live countdown in the detail list rather than in a section of its own", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "active" }),
+      );
+
+      create();
+
+      expect(labels()).toContain("pamColumnRemaining");
+    });
+
+    it("drops the countdown row once the lease is no longer live", () => {
+      detail.request$.next(
+        request({ status: "approved", producedLeaseId: "lease-1", producedLeaseStatus: "expired" }),
+      );
+
+      create();
+
+      expect(labels()).not.toContain("pamColumnRemaining");
+    });
+
+    it("contains a decision's comment within its own log entry", () => {
+      detail.request$.next(
+        request({
+          status: "denied",
+          decisions: [
+            humanDecision({
+              id: "approver-1",
+              name: "Ada",
+              verdict: "deny",
+              comment: "Use the read replica instead.",
+            }),
+          ],
+        }),
+      );
+
+      create();
+
+      const entry = fixture.nativeElement.querySelector("bit-item-group bit-item") as HTMLElement;
+      expect(entry).not.toBeNull();
+      expect(entry.textContent).toContain("Ada");
+      expect(entry.textContent).toContain("pamStatusDenied");
+      expect(entry.textContent).toContain("Use the read replica instead.");
+    });
+  });
+
   describe("the decision log", () => {
     it("credits the access rule for an automatic decision", () => {
       detail.request$.next(request({ status: "approved", decisions: [automaticDecision()] }));
@@ -263,6 +345,9 @@ describe("AccessRequestRouteComponent", () => {
 
       const decisions = component["decisions"]();
       expect(decisions[1].labelKey).toBe("pamAuditKindLeaseEndedByHolder");
+      // Neutral, not danger: a holder closing their own lease is not a denial.
+      expect(decisions[1].variant).toBe("subtle");
+      expect(decisions[0].variant).toBe("success");
       expect(text()).not.toContain("pamStatusDenied");
     });
 

@@ -151,6 +151,35 @@ export const Denied: Story = {
   ],
 };
 
+/**
+ * The widest content the detail layout has to absorb: a long free-text reason, and a decision log
+ * carrying more than one entry — here an approval that was later pulled back by an operator.
+ */
+export const LongReasonAndMultipleDecisions: Story = {
+  decorators: [
+    detail({
+      request: () =>
+        accessRequest({
+          status: "approved",
+          resolvedAt: fromNow(-35 * MINUTE),
+          producedLeaseId: "lease-3",
+          producedLeaseStatus: "revoked",
+          reason:
+            "Paging on the checkout latency spike. I need the primary to compare its slow-query log against the read replica, and the replica lag is already well outside the window we can reason about.",
+          decisions: [
+            decision({ comment: "Approved for the incident window." }),
+            decision({
+              decider: { human: { id: "operator-9", name: "Ops on-call" } },
+              verdict: "deny",
+              comment: "Incident closed, pulling access back.",
+              decidedAt: fromNow(-5 * MINUTE),
+            }),
+          ],
+        }),
+    }),
+  ],
+};
+
 /** Auto-approved by the rule: the decision log credits the rule rather than a person. */
 export const AutoApproved: Story = {
   decorators: [

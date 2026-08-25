@@ -19,17 +19,18 @@ import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.se
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
+  BadgeVariant,
   ButtonModule,
   DIALOG_DATA,
   DialogModule,
   DialogService,
   DrawerRef,
   IconModule,
+  ItemModule,
   NoItemsModule,
   SectionComponent,
   SectionHeaderComponent,
   ToastService,
-  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -51,16 +52,17 @@ import { historyDisplayStatus } from "../my-access-row";
 import { AccessRequestDetailService } from "./access-request-detail.service";
 
 /**
- * i18n keys for a decision-log entry's outcome. A Deny recorded on a request that did not end
- * Denied is the lease ending (self-end or operator revoke), not a denial — mirroring the
- * historical-status derivation in `../my-access-row`.
+ * Copy and badge colour for a decision-log entry's outcome. A Deny recorded on a request that did
+ * not end Denied is the lease ending (self-end or operator revoke), not a denial — mirroring the
+ * historical-status derivation in `../my-access-row`. A lease ending is neither good news nor bad,
+ * so it takes the neutral badge rather than the denial's danger colour.
  */
-const DECISION_LABEL_KEYS = {
-  approved: "pamStatusApproved",
-  denied: "pamStatusDenied",
-  endedByHolder: "pamAuditKindLeaseEndedByHolder",
-  revoked: "pamAuditKindLeaseRevoked",
-} as const;
+const DECISION_BADGES = {
+  approved: { labelKey: "pamStatusApproved", variant: "success" },
+  denied: { labelKey: "pamStatusDenied", variant: "danger" },
+  endedByHolder: { labelKey: "pamAuditKindLeaseEndedByHolder", variant: "subtle" },
+  revoked: { labelKey: "pamAuditKindLeaseRevoked", variant: "subtle" },
+} as const satisfies Record<string, { labelKey: string; variant: BadgeVariant }>;
 
 /** What the shell hands the drawer: the request to load. */
 export type AccessRequestDrawerParams = { requestId: string };
@@ -95,10 +97,10 @@ export type AccessRequestDrawerParams = { requestId: string };
     ButtonModule,
     IconModule,
     IconComponent,
+    ItemModule,
     NoItemsModule,
     SectionComponent,
     SectionHeaderComponent,
-    TooltipDirective,
     TypographyModule,
     RemainingTimePipe,
   ],
@@ -214,7 +216,8 @@ export class AccessRequestRouteComponent implements OnInit {
           approver?.email ||
           (approver?.id == null ? "" : uuidAsString(approver.id)),
         outcome,
-        labelKey: DECISION_LABEL_KEYS[outcome],
+        labelKey: DECISION_BADGES[outcome].labelKey,
+        variant: DECISION_BADGES[outcome].variant as BadgeVariant,
         comment: decision.comment,
         decidedAt: decision.decidedAt,
       };
