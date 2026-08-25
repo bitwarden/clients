@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormBuilder } from "@angular/forms";
 import {
   combineLatest,
   debounceTime,
@@ -65,32 +65,17 @@ const FILTER_VISIBILITY_KEY = new KeyDefinition<boolean>(VAULT_SETTINGS_DISK, "f
  * Serialized state of the PopupListFilter for interfacing with the PopupViewCacheService
  */
 export interface CachedFilterState {
-  organizationIds?: string[];
-  collectionIds?: string[];
-  folderIds?: string[];
-  cipherType?: CipherType | null;
-  /** @deprecated Single-select shape written before organizations became multi-select. Read only. */
   organizationId?: string;
-  /** @deprecated Single-select shape written before collections became multi-select. Read only. */
   collectionId?: string;
-  /** @deprecated Single-select shape written before folders became multi-select. Read only. */
   folderId?: string;
+  cipherType?: CipherType | null;
 }
 
 /** All available cipher filters */
 export type PopupListFilter = {
-  /**
-   * Multi-select, same semantics as {@link PopupListFilter.collection}. "My vault" is carried as a
-   * synthetic {@link MY_VAULT_ID} organization and stands for the items in no organization.
-   */
-  organization: Organization[];
-  /**
-   * Multi-select: a cipher matches when it belongs to any selected collection. Empty means
-   * unfiltered — never `null`, matching what a multi-select chip holds when cleared.
-   */
-  collection: CollectionView[];
-  /** Multi-select, same semantics as {@link PopupListFilter.collection}. */
-  folder: FolderView[];
+  organization: Organization | null;
+  collection: CollectionView | null;
+  folder: FolderView | null;
   cipherType: CipherType | null;
 };
 
@@ -101,77 +86,11 @@ const NESTING_DELIMITER = "/";
 export const MY_VAULT_ID = "MyVault";
 
 const INITIAL_FILTERS: PopupListFilter = {
-  organization: [],
-  collection: [],
-  folder: [],
+  organization: null,
+  collection: null,
+  folder: null,
   cipherType: null,
 };
-
-/** Whether a cipher satisfies every filter in `filters`. Backs `filterFunction$`. */
-function matchesFilters(cipher: PopupCipherViewLike, filters: Partial<PopupListFilter>): boolean {
-  // Vault popup lists never show deleted ciphers
-  if (CipherViewLikeUtils.isDeleted(cipher)) {
-    return false;
-  }
-
-  if (filters.cipherType != null && CipherViewLikeUtils.getType(cipher) !== filters.cipherType) {
-    return false;
-  }
-
-  // Multi-select filters are OR'd within themselves and AND'd against the others: an item in
-  // any selected collection, in any selected folder.
-  if (filters.collection?.length) {
-    const inAnyCollection = filters.collection.some((collection) =>
-      cipher.collectionIds?.includes(asUuid(collection.id!)),
-    );
-    if (!inAnyCollection) {
-      return false;
-    }
-  }
-
-  if (filters.folder?.length) {
-    const inAnyFolder = filters.folder.some((folder) =>
-      // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
-      folder.id ? cipher.folderId === folder.id : !cipher.folderId,
-    );
-    if (!inAnyFolder) {
-      return false;
-    }
-  }
-
-  if (filters.organization?.length) {
-    const inAnyOrganization = filters.organization.some((organization) =>
-      // "My vault" is not a real organization; it stands for the items that belong to none.
-      organization.id === MY_VAULT_ID
-        ? cipher.organizationId == null
-        : cipher.organizationId === organization.id,
-    );
-    if (!inAnyOrganization) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-/**
- * Item counts for each filter's options, keyed by the option's identity: the `CipherType`
- * for `cipherType`, and the entity id for the object-valued filters.
- */
-export type FilterOptionCounts = {
-  cipherType: Map<CipherType, number>;
-  organization: Map<string, number>;
-  collection: Map<string, number>;
-  folder: Map<string, number>;
-};
-
-/** The `folder` count key for the "Items with no folder" option, which has no id of its own. */
-export const NO_FOLDER_COUNT_KEY = "";
-
-/** The ids of the selected organizations, including {@link MY_VAULT_ID} when "My vault" is on. */
-function selectedOrganizationIds(filters: Partial<PopupListFilter>): string[] {
-  return (filters.organization ?? []).map((organization) => organization.id);
-}
 
 @Injectable({
   providedIn: "root",
@@ -180,20 +99,9 @@ export class VaultPopupListFiltersService {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   /**
-   * UI form for all filters. Built with explicit controls rather than `FormBuilder.group`, which
-   * reads an array value as the `[value, validators]` config tuple and would type the multi-select
-   * controls as their element. Those are `nonNullable`, so clearing them yields `[]`.
+   * UI form for all filters
    */
-  filterForm = new FormGroup({
-    organization: new FormControl<Organization[]>(INITIAL_FILTERS.organization, {
-      nonNullable: true,
-    }),
-    collection: new FormControl<CollectionView[]>(INITIAL_FILTERS.collection, {
-      nonNullable: true,
-    }),
-    folder: new FormControl<FolderView[]>(INITIAL_FILTERS.folder, { nonNullable: true }),
-    cipherType: new FormControl<CipherType | null>(INITIAL_FILTERS.cipherType),
-  });
+  filterForm = this.formBuilder.group<PopupListFilter>(INITIAL_FILTERS);
 
   /**
    * Observable for `filterForm` value
@@ -206,14 +114,9 @@ export class VaultPopupListFiltersService {
     shareReplay({ bufferSize: 1, refCount: true }),
   );
 
-  /** Emits the number of narrowed filters, so a multi-select filter counts once. */
+  /** Emits the number of applied filters. */
   numberOfAppliedFilters$ = this.filters$.pipe(
-    map(
-      (filters) =>
-        Object.values(filters).filter((filter) =>
-          Array.isArray(filter) ? filter.length > 0 : Boolean(filter),
-        ).length,
-    ),
+    map((filters) => Object.values(filters).filter((filter) => Boolean(filter)).length),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
@@ -232,10 +135,9 @@ export class VaultPopupListFiltersService {
 
   private serializeFilters(): CachedFilterState {
     return {
-      organizationIds: this.filterForm.value.organization?.map((o) => o.id),
-      collectionIds: this.filterForm.value.collection?.map((c) => c.id!),
-      // The "Items with no folder" option has no id of its own; it round-trips as an empty string.
-      folderIds: this.filterForm.value.folder?.map((f) => f.id ?? ""),
+      organizationId: this.filterForm.value.organization?.id,
+      collectionId: this.filterForm.value.collection?.id,
+      folderId: this.filterForm.value.folder?.id,
       cipherType: this.filterForm.value.cipherType,
     };
   }
@@ -249,43 +151,31 @@ export class VaultPopupListFiltersService {
       .pipe(take(1))
       .subscribe(([orgOptions, collectionOptions, folderViews]) => {
         const patchValue: PopupListFilter = {
-          organization: [],
-          collection: [],
-          folder: [],
+          organization: null,
+          collection: null,
+          folder: null,
           cipherType: null,
         };
 
-        // `organizationId`/`collectionId`/`folderId` are the pre-multi-select shapes, each
-        // restored as a single selection.
-        const organizationIds =
-          state.organizationIds ?? (state.organizationId ? [state.organizationId] : []);
-        const collectionIds =
-          state.collectionIds ?? (state.collectionId ? [state.collectionId] : []);
-        const folderIds = state.folderIds ?? (state.folderId ? [state.folderId] : []);
-
-        if (organizationIds.length) {
-          patchValue.organization = organizationIds
-            .map((id) =>
-              // "My vault" is synthetic, so it has no entry in the options to resolve against.
-              id === MY_VAULT_ID
-                ? ({ id: MY_VAULT_ID } as Organization)
-                : orgOptions.find((o) => o.value?.id === id)?.value,
-            )
-            .filter((organization): organization is Organization => organization != null);
+        if (state.organizationId) {
+          if (state.organizationId === MY_VAULT_ID) {
+            patchValue.organization = { id: MY_VAULT_ID } as Organization;
+          } else {
+            const orgOption = orgOptions.find((o) => o.value?.id === state.organizationId);
+            patchValue.organization = orgOption?.value || null;
+          }
         }
 
-        if (collectionIds.length) {
-          const allCollections = collectionOptions.flatMap((c) => this.flattenOptions(c));
-          patchValue.collection = collectionIds
-            .map((id) => allCollections.find((c) => c.value?.id === id)?.value)
-            .filter((collection): collection is CollectionView => collection != null);
+        if (state.collectionId) {
+          const collection = collectionOptions
+            .flatMap((c) => this.flattenOptions(c))
+            .find((c) => c.value?.id === state.collectionId)?.value;
+          patchValue.collection = collection || null;
         }
 
-        if (folderIds.length) {
-          patchValue.folder = folderIds
-            // "Items with no folder" has no id of its own and serializes as an empty string.
-            .map((id) => folderViews.find((f) => (f.id ?? "") === id))
-            .filter((folder): folder is FolderView => folder != null);
+        if (state.folderId) {
+          const folder = folderViews.find((f) => f.id === state.folderId);
+          patchValue.folder = folder || null;
         }
 
         if (state.cipherType) {
@@ -306,6 +196,7 @@ export class VaultPopupListFiltersService {
     private organizationService: OrganizationService,
     private i18nService: I18nService,
     private collectionService: CollectionService,
+    private formBuilder: FormBuilder,
     private policyService: PolicyService,
     private stateProvider: StateProvider,
     private accountService: AccountService,
@@ -348,61 +239,53 @@ export class VaultPopupListFiltersService {
     this.filters$.pipe(
       map(
         (filters) => (ciphers: PopupCipherViewLike[]) =>
-          ciphers.filter((cipher) => matchesFilters(cipher, filters)),
+          ciphers.filter((cipher) => {
+            // Vault popup lists never shows deleted ciphers
+            if (CipherViewLikeUtils.isDeleted(cipher)) {
+              return false;
+            }
+
+            if (
+              filters.cipherType !== null &&
+              CipherViewLikeUtils.getType(cipher) !== filters.cipherType
+            ) {
+              return false;
+            }
+
+            if (
+              filters.collection &&
+              !cipher.collectionIds?.includes(asUuid(filters.collection.id!))
+            ) {
+              return false;
+            }
+
+            if (filters.folder) {
+              if (!filters.folder.id) {
+                // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
+                if (cipher.folderId) {
+                  return false;
+                }
+              } else if (cipher.folderId !== filters.folder.id) {
+                return false;
+              }
+            }
+
+            const isMyVault = filters.organization?.id === MY_VAULT_ID;
+
+            if (isMyVault) {
+              if (cipher.organizationId != null) {
+                return false;
+              }
+            } else if (filters.organization) {
+              if (cipher.organizationId !== filters.organization.id) {
+                return false;
+              }
+            }
+
+            return true;
+          }),
       ),
     );
-
-  /**
-   * Absolute item counts for every filter option. The applied filters deliberately don't narrow
-   * these, so an option's number stays stable as the user moves through the menus. Deleted, archived,
-   * and restricted items are excluded, since they're never listed.
-   */
-  filterOptionCounts$: Observable<FilterOptionCounts> = this.activeUserId$.pipe(
-    switchMap((userId) =>
-      combineLatest([
-        this.cipherService.cipherListViews$(userId),
-        this.restrictedItemTypesService.restricted$,
-      ]),
-    ),
-    map(([cipherViews, restrictedTypes]) => {
-      const ciphers = cipherViews ? Object.values(cipherViews) : [];
-      const counts: FilterOptionCounts = {
-        cipherType: new Map<CipherType, number>(),
-        organization: new Map<string, number>(),
-        collection: new Map<string, number>(),
-        folder: new Map<string, number>(),
-      };
-
-      const increment = <K>(map: Map<K, number>, key: K) => {
-        map.set(key, (map.get(key) ?? 0) + 1);
-      };
-
-      for (const cipher of ciphers) {
-        if (
-          CipherViewLikeUtils.isDeleted(cipher) ||
-          CipherViewLikeUtils.isArchived(cipher) ||
-          this.restrictedItemTypesService.isCipherRestricted(cipher, restrictedTypes)
-        ) {
-          continue;
-        }
-
-        increment(counts.cipherType, CipherViewLikeUtils.getType(cipher));
-
-        // Ciphers outside an organization belong to the synthetic "My vault" option.
-        increment(counts.organization, cipher.organizationId ?? MY_VAULT_ID);
-
-        // A cipher can sit in several collections, so it counts toward each of them.
-        for (const collectionId of cipher.collectionIds ?? []) {
-          increment(counts.collection, collectionId);
-        }
-
-        increment(counts.folder, cipher.folderId ?? NO_FOLDER_COUNT_KEY);
-      }
-
-      return counts;
-    }),
-    shareReplay({ refCount: true, bufferSize: 1 }),
-  );
 
   /**
    * All available cipher types (filtered by policy restrictions and feature flags)
@@ -521,9 +404,8 @@ export class VaultPopupListFiltersService {
         this.filters$.pipe(
           distinctUntilChanged(
             (previousFilter, currentFilter) =>
-              // Only update the folders when the organization filter changes
-              selectedOrganizationIds(previousFilter).join() ===
-              selectedOrganizationIds(currentFilter).join(),
+              // Only update the folders when the organizationId filter changes
+              previousFilter.organization?.id === currentFilter.organization?.id,
           ),
         ),
         this.folderService.folderViews$(userId),
@@ -550,29 +432,26 @@ export class VaultPopupListFiltersService {
               // Update `name` of the "no folder" option to "Items with no folder"
               const updatedNoFolder = {
                 ...noFolder,
-                name: this.i18nService.t("noFoldersLabel"),
+                name: this.i18nService.t("itemsWithNoFolder"),
               };
 
               // Move the "no folder" option to the end of the list
-              arrangedFolders = [updatedNoFolder, ...folders.filter((f) => f.id)];
+              arrangedFolders = [...folders.filter((f) => f.id), updatedNoFolder];
             }
             return [filters as PopupListFilter, arrangedFolders, cipherViews];
           },
         ),
         map(([filters, folders, cipherViews]) => {
-          const organizationIds = selectedOrganizationIds(filters);
+          const organizationId = filters.organization?.id ?? null;
 
-          // When nothing is selected, or "My vault" is among the selections, return all folders —
-          // "My vault" spans every folder, so it imposes no constraint of its own.
-          if (!organizationIds.length || organizationIds.includes(MY_VAULT_ID)) {
+          // When no org or "My vault" is selected, return all folders
+          if (organizationId === null || organizationId === MY_VAULT_ID) {
             return folders;
           }
 
-          const orgCiphers = cipherViews.filter((c) =>
-            organizationIds.some((id) => id === c.organizationId),
-          );
+          const orgCiphers = cipherViews.filter((c) => c.organizationId === organizationId);
 
-          // Return only the folders that have ciphers within the filtered organizations
+          // Return only the folders that have ciphers within the filtered organization
           return folders.filter((f) => {
             if (!f.id) {
               // "Items with no folder" (id is falsy): match ciphers where folderId is null, undefined, or empty
@@ -605,21 +484,17 @@ export class VaultPopupListFiltersService {
       switchMap((userId) =>
         combineLatest([
           this.filters$.pipe(
-            distinctUntilChanged(
-              (prev, curr) =>
-                selectedOrganizationIds(prev).join() === selectedOrganizationIds(curr).join(),
-            ),
+            distinctUntilChanged((prev, curr) => prev.organization?.id === curr.organization?.id),
           ),
           this.collectionService.decryptedCollections$(userId),
           this.organizationService.memberOrganizations$(userId),
         ]),
       ),
       map(([filters, allCollections, orgs]) => {
-        const orgFilterIds = selectedOrganizationIds(filters);
-        // When the organization filter is selected, filter out collections that do not belong to
-        // any selected organization. "My vault" owns no collections, so it matches none.
-        const filtered = orgFilterIds.length
-          ? allCollections.filter((c) => orgFilterIds.some((id) => id === c.organizationId))
+        const orgFilterId = filters.organization?.id ?? null;
+        // When the organization filter is selected, filter out collections that do not belong to the selected organization
+        const filtered = orgFilterId
+          ? allCollections.filter((c) => c.organizationId === orgFilterId)
           : allCollections;
 
         return sortDefaultCollections(filtered, orgs, this.i18nService.collator);
@@ -693,42 +568,33 @@ export class VaultPopupListFiltersService {
   /**
    * Validate collection & folder filters when the organization filter changes
    */
-  private validateOrganizationChange(organizations: Organization[]): void {
-    if (!organizations.length) {
+  private validateOrganizationChange(organization: Organization | null): void {
+    if (!organization) {
       return;
     }
 
-    // Widened to `string[]` so the synthetic `MY_VAULT_ID` compares against the branded org ids.
-    const organizationIds: string[] = organizations.map((organization) => organization.id);
     const currentFilters = this.filterForm.getRawValue();
 
-    // When the organization filter changes, drop the selected collections that do not belong to
-    // any selected organization. Only the ones that fell out are dropped — the rest stay applied.
-    const collections = currentFilters.collection ?? [];
-    const keptCollections = collections.filter((c) =>
-      organizationIds.some((id) => id === c.organizationId),
-    );
-    if (keptCollections.length !== collections.length) {
-      this.filterForm.get("collection")?.setValue(keptCollections);
+    // When the organization filter changes and a collection is already selected,
+    // reset the collection filter if the collection does not belong to the new organization filter
+    if (currentFilters.collection && currentFilters.collection.organizationId !== organization.id) {
+      this.filterForm.get("collection")?.setValue(null);
     }
 
-    // Same for folders, which belong to an organization only by way of the ciphers in them. "My
-    // vault" imposes no folder constraint, so nothing is dropped while it is selected.
-    const folders = currentFilters.folder ?? [];
-    if (folders.length && !organizationIds.includes(MY_VAULT_ID)) {
-      // Get all ciphers that belong to the newly selected organizations
-      const orgCiphers = this.cipherViews.filter((c) =>
-        organizationIds.some((id) => id === c.organizationId),
+    // When the organization filter changes and a folder is already selected,
+    // reset the folder filter if the folder does not belong to the new organization filter
+    if (currentFilters.folder && currentFilters.folder.id && organization.id !== MY_VAULT_ID) {
+      // Get all ciphers that belong to the new organization
+      const orgCiphers = this.cipherViews.filter((c) => c.organizationId === organization.id);
+
+      // Find any ciphers within the organization that belong to the current folder
+      const newOrgContainsFolder = orgCiphers.some(
+        (oc) => oc.folderId === currentFilters?.folder?.id,
       );
 
-      // "Items with no folder" (a falsy id) is left alone rather than evaluated: the option list
-      // drops it when the organization has no folderless items, but the filter survives.
-      const keptFolders = folders.filter(
-        (folder) => !folder.id || orgCiphers.some((oc) => oc.folderId === folder.id),
-      );
-
-      if (keptFolders.length !== folders.length) {
-        this.filterForm.get("folder")?.setValue(keptFolders);
+      // If the new organization does not contain the current folder, reset the folder filter
+      if (!newOrgContainsFolder) {
+        this.filterForm.get("folder")?.setValue(null);
       }
     }
   }
