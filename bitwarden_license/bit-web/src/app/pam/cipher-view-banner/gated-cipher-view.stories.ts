@@ -117,6 +117,14 @@ function provideStoryCipherView() {
     { provide: TaskService, useValue: { pendingTasks$: () => of([]) } },
     { provide: PlatformUtilsService, useValue: { launchUri: () => {} } },
     {
+      provide: DialogService,
+      useValue: {
+        openSimpleDialog: () => Promise.resolve(false),
+        open: () => ({ closed: of(undefined) }),
+      },
+    },
+    { provide: ToastService, useValue: { showToast: () => {} } },
+    {
       provide: ChangeLoginPasswordService,
       useValue: { getChangePasswordUrl: () => Promise.resolve(undefined) },
     },
@@ -176,14 +184,6 @@ function gated(state: () => Record<string, unknown>) {
         useValue: { cancelOutstandingRequest: () => Promise.resolve() },
       },
       { provide: LeasingErrorService, useValue: { isLeasingError: () => false } },
-      {
-        provide: DialogService,
-        useValue: {
-          openSimpleDialog: () => Promise.resolve(false),
-          open: () => ({ closed: of(undefined) }),
-        },
-      },
-      { provide: ToastService, useValue: { showToast: () => {} } },
     ],
   });
 }
