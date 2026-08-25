@@ -8,6 +8,7 @@ import {
   ViewContainerRef,
   WritableSignal,
   computed,
+  inject,
   signal,
   viewChild,
 } from "@angular/core";
@@ -27,10 +28,12 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
+import { policyDrawerDescriptionKeys, policyDrawerTitleKeys } from "../base-policy-edit.component";
 import {
-  PolicyEditDrawerComponent,
+  PolicyEditDialogComponent,
   PolicyEditDialogData,
   PolicyEditDialogResult,
 } from "../policy-edit-drawer.component";
@@ -44,7 +47,7 @@ import { PolicyStep } from "./models";
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultiStepPolicyEditDialogComponent
-  extends PolicyEditDrawerComponent
+  extends PolicyEditDialogComponent
   implements AfterViewInit
 {
   private readonly policyFormViewRef: Signal<ViewContainerRef | undefined> = viewChild(
@@ -52,16 +55,36 @@ export class MultiStepPolicyEditDialogComponent
     { read: ViewContainerRef },
   );
 
+  readonly formGroup = this.formBuilder.group({});
+
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
 
+  private readonly terminology = inject(Vfo1TerminologyService);
+
+  private readonly dialogTitleKeys = computed<[string, string]>(() =>
+    policyDrawerTitleKeys(this.policy),
+  );
+
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
       return undefined;
     }
-    return this.i18nService.t(this.policy.name);
+    const [legacy, next] = this.dialogTitleKeys();
+    return this.i18nService.t(this.terminology.enabled() ? next : legacy);
+  });
+
+  protected readonly showDescription = computed(() => this.policy.showDescription);
+
+  private readonly dialogDescriptionKeys = computed<[string, string]>(() =>
+    policyDrawerDescriptionKeys(this.policy),
+  );
+
+  protected readonly descriptionKey = computed(() => {
+    const [legacy, next] = this.dialogDescriptionKeys();
+    return this.terminology.enabled() ? next : legacy;
   });
 
   protected readonly saveDisabled = toSignal(

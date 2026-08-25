@@ -188,13 +188,13 @@ export class FolderService implements InternalFolderServiceAbstraction {
   }
 
   async delete(id: string | string[], userId: UserId): Promise<any> {
+    const folderIdsToDelete = Array.isArray(id) ? id : [id];
+
     await this.clearDecryptedFolderState(userId);
     await this.encryptedFoldersState(userId).update((folders) => {
       if (folders == null) {
         return;
       }
-
-      const folderIdsToDelete = Array.isArray(id) ? id : [id];
 
       folderIdsToDelete.forEach((id) => {
         if (folders[id] != null) {
@@ -210,7 +210,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     if (ciphers != null) {
       const updates: Cipher[] = [];
       for (const cId in ciphers) {
-        if (ciphers[cId].folderId === id) {
+        if (folderIdsToDelete.includes(ciphers[cId].folderId)) {
           ciphers[cId].folderId = null;
           updates.push(ciphers[cId]);
         }
