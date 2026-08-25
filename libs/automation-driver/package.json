@@ -1,0 +1,11 @@
+{
+  "name": "@bitwarden/automation-driver",
+  "version": "0.0.1",
+  "description": "Automation driver library for E2E test automation of Bitwarden clients",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "GPL-3.0",
+  "author": "automation-driver"
+}

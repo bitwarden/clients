@@ -247,6 +247,10 @@ bitwarden_license/bit-web/src/app/pam  @bitwarden/team-pam-dev
 apps/web/src/app/pam                   @bitwarden/team-pam-dev
 libs/pam                               @bitwarden/team-pam-dev
 
+## Automation driver ##
+### Temporary Code-owner.
+libs/automation-driver @bitwarden/team-key-management-dev
+
 ## Locales ##
 apps/browser/src/_locales/en/messages.json
 apps/browser/store/locales/en
