@@ -16,7 +16,7 @@ import { SearchModule, ToastService } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { OssModule } from "../../oss.module";
-import { activeUserIsGovMode$ } from "../../platform/gov-mode";
+import { clientIsGovMode$ } from "../../platform/gov-mode";
 import { SharedModule } from "../../shared/shared.module";
 import { RequestSMAccessRequest } from "../models/requests/request-sm-access.request";
 
@@ -60,7 +60,7 @@ export class RequestSMAccessComponent implements OnInit {
       // Self-serve organization creation is blocked on the Gov cloud (govModeBlockedGuard would
       // bounce them with an access-denied toast), so send them back to the landing page instead.
       const isGovMode = await firstValueFrom(
-        activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+        clientIsGovMode$(this.accountService, this.govModeService, this.logService),
       );
       if (isGovMode) {
         await this.router.navigate(["/sm-landing"]);

@@ -12,7 +12,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { SearchModule } from "@bitwarden/components";
 
 import { HeaderModule } from "../../layouts/header/header.module";
-import { activeUserIsGovMode$ } from "../../platform/gov-mode";
+import { clientIsGovMode$ } from "../../platform/gov-mode";
 import { SharedModule } from "../../shared/shared.module";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
@@ -47,7 +47,7 @@ export class SMLandingComponent implements OnInit {
       this.handleEnabledOrganizations(enabledOrganizations);
     } else if (
       await firstValueFrom(
-        activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+        clientIsGovMode$(this.accountService, this.govModeService, this.logService),
       )
     ) {
       // Organizations on the Gov cloud are sales-provisioned, so there is no self-serve flow to

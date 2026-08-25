@@ -26,7 +26,7 @@ import { VaultManageNavComponent, VaultNavSectionComponent } from "@bitwarden/va
 import { PremiumSubscriptionRoutingService } from "@bitwarden/web-vault/app/billing/individual/services/premium-subscription-routing.service";
 
 import { BillingFreeFamiliesNavItemComponent } from "../billing/shared/billing-free-families-nav-item.component";
-import { activeUserIsGovMode$ } from "../platform/gov-mode";
+import { clientIsGovMode$ } from "../platform/gov-mode";
 import { CoachmarkComponent, CoachmarkService } from "../vault/components/coachmark";
 
 import { WebLayoutModule } from "./web-layout.module";
@@ -81,7 +81,7 @@ export class UserLayoutComponent implements OnInit {
    * point — organizations on the Gov cloud are sales-provisioned.
    */
   protected readonly isGovMode = toSignal(
-    activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+    clientIsGovMode$(this.accountService, this.govModeService, this.logService),
     { initialValue: false },
   );
 

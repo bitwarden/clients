@@ -7,11 +7,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 
-import { activeUserIsGovMode$ } from "./gov-mode";
+import { clientIsGovMode$ } from "./gov-mode";
 
 const USER_ID = "user-id" as UserId;
 
-describe("activeUserIsGovMode$", () => {
+describe("clientIsGovMode$", () => {
   let accountService: AccountService;
   let govModeService: MockProxy<GovModeService>;
   let logService: MockProxy<LogService>;
@@ -26,7 +26,7 @@ describe("activeUserIsGovMode$", () => {
     govModeService.isGovMode$.mockReturnValue(of(isGovMode));
 
     const result = await firstValueFrom(
-      activeUserIsGovMode$(accountService, govModeService, logService),
+      clientIsGovMode$(accountService, govModeService, logService),
     );
 
     expect(result).toBe(isGovMode);
@@ -37,7 +37,7 @@ describe("activeUserIsGovMode$", () => {
     govModeService.isGovMode$.mockReturnValue(throwError(() => new Error("boom")));
 
     const result = await firstValueFrom(
-      activeUserIsGovMode$(accountService, govModeService, logService),
+      clientIsGovMode$(accountService, govModeService, logService),
     );
 
     expect(result).toBe(false);
@@ -48,7 +48,7 @@ describe("activeUserIsGovMode$", () => {
     govModeService.isGovMode$.mockReturnValue(throwError(() => new Error("boom")));
 
     await firstValueFrom(
-      activeUserIsGovMode$(accountService, govModeService, logService, "some caller"),
+      clientIsGovMode$(accountService, govModeService, logService, "some caller"),
     );
 
     expect(logService.error).toHaveBeenCalledWith(
@@ -57,15 +57,19 @@ describe("activeUserIsGovMode$", () => {
     );
   });
 
-  it("fails open and emits false when there is no active account", async () => {
-    accountService = { activeAccount$: of(null as Account | null) } as AccountService;
+  it.each([true, false])(
+    "falls back to the global environment when there is no active account (%s)",
+    async (isGovMode) => {
+      accountService = { activeAccount$: of(null as Account | null) } as AccountService;
+      govModeService.globalIsGovMode$ = of(isGovMode);
 
-    const result = await firstValueFrom(
-      activeUserIsGovMode$(accountService, govModeService, logService),
-    );
+      const result = await firstValueFrom(
+        clientIsGovMode$(accountService, govModeService, logService),
+      );
 
-    expect(result).toBe(false);
-    expect(govModeService.isGovMode$).not.toHaveBeenCalled();
-    expect(logService.error).toHaveBeenCalled();
-  });
+      expect(result).toBe(isGovMode);
+      expect(govModeService.isGovMode$).not.toHaveBeenCalled();
+      expect(logService.error).not.toHaveBeenCalled();
+    },
+  );
 });

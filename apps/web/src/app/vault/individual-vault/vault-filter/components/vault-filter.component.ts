@@ -46,7 +46,7 @@ import {
   Vfo1TerminologyService,
 } from "@bitwarden/vault";
 import { OrganizationWarningsService } from "@bitwarden/web-vault/app/billing/organizations/warnings/services";
-import { activeUserIsGovMode$ } from "@bitwarden/web-vault/app/platform/gov-mode";
+import { clientIsGovMode$ } from "@bitwarden/web-vault/app/platform/gov-mode";
 
 import { OrganizationOptionsComponent } from "./organization-options.component";
 
@@ -265,10 +265,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     );
 
     // Organizations on the Gov cloud are sales-provisioned, so self-serve creation is unavailable.
-    // activeUserIsGovMode$ fails open, so an error can't take down the filter sidebar or kill the
+    // clientIsGovMode$ fails open, so an error can't take down the filter sidebar or kill the
     // policy-refresh subscription.
     const isGovMode = await firstValueFrom(
-      activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+      clientIsGovMode$(this.accountService, this.govModeService, this.logService),
     );
 
     const addAction =

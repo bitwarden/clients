@@ -595,7 +595,7 @@ export const routes: Routes = [
       },
       {
         path: "trial-initiation",
-        canActivate: [unauthGuardFn()],
+        canActivate: [unauthGuardFn(), govModeBlockedGuard()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,
@@ -607,7 +607,7 @@ export const routes: Routes = [
       },
       {
         path: "secrets-manager-trial-initiation",
-        canActivate: [unauthGuardFn()],
+        canActivate: [unauthGuardFn(), govModeBlockedGuard()],
         component: CompleteTrialInitiationComponent,
         resolve: {
           pageTitle: freeTrialTextResolver,

@@ -32,10 +32,16 @@ describe("oss routing", () => {
   // the guard wiring by running each route's canActivate entries with Gov mode on: dropping the
   // canActivate entry — or registering the factory uncalled, which Angular would treat as the
   // guard and silently fail open — must fail this suite.
-  describe.each(["create-organization", "add-plan"])("%s route", (path) => {
+  describe.each([
+    "create-organization",
+    "add-plan",
+    "trial-initiation",
+    "secrets-manager-trial-initiation",
+  ])("%s route", (path) => {
     beforeEach(() => {
       const govModeService = mock<GovModeService>();
       govModeService.isGovMode$.mockReturnValue(of(true));
+      govModeService.globalIsGovMode$ = of(true);
 
       const accountService = mock<AccountService>();
       accountService.activeAccount$ = of({ id: "user-id" as UserId } as never);
@@ -60,12 +66,19 @@ describe("oss routing", () => {
         const guards = (route.canActivate ?? []) as CanActivateFn[];
         expect(guards.length).toBeGreaterThan(0);
 
+        // Sibling guards (e.g. unauthGuardFn on the trial routes) may fail on providers this
+        // harness doesn't supply — treat those as non-answers; only govModeBlockedGuard must
+        // produce the blocking UrlTree.
         const results = await Promise.all(
-          guards.map((guard) =>
-            TestBed.runInInjectionContext(() =>
-              guard({} as ActivatedRouteSnapshot, { url: `/${path}` } as RouterStateSnapshot),
-            ),
-          ),
+          guards.map(async (guard) => {
+            try {
+              return await TestBed.runInInjectionContext(() =>
+                guard({} as ActivatedRouteSnapshot, { url: `/${path}` } as RouterStateSnapshot),
+              );
+            } catch {
+              return null;
+            }
+          }),
         );
 
         expect(results.some((result) => result instanceof UrlTree)).toBe(true);

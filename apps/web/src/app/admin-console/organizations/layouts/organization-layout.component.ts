@@ -39,7 +39,7 @@ import { FreeFamiliesPolicyService } from "../../../billing/services/free-famili
 import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
 import { WebLayoutModule } from "../../../layouts/web-layout.module";
 import { PamOrgNavSlotComponent } from "../../../pam/org-nav-slot/pam-org-nav-slot.component";
-import { activeUserIsGovMode$ } from "../../../platform/gov-mode";
+import { clientIsGovMode$ } from "../../../platform/gov-mode";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -106,7 +106,7 @@ export class OrganizationLayoutComponent {
     this.userId$.pipe(
       switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
     ),
-    activeUserIsGovMode$(this.accountService, this.govModeService, this.logService),
+    clientIsGovMode$(this.accountService, this.govModeService, this.logService),
   ]).pipe(map(([singleOrgPolicyApplies, isGovMode]) => singleOrgPolicyApplies || isGovMode));
 
   private readonly provider$: Observable<Provider | undefined> = combineLatest([

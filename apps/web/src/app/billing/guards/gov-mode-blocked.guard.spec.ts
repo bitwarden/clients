@@ -43,6 +43,7 @@ describe("govModeBlockedGuard", () => {
     logService = mock<LogService>();
 
     govModeService.isGovMode$.mockReturnValue(of(isGovMode));
+    govModeService.globalIsGovMode$ = of(isGovMode);
     accountService.activeAccount$ = of(hasActiveAccount ? ({ id: userId } as any) : null);
 
     const testBed = TestBed.configureTestingModule({
@@ -137,14 +138,21 @@ describe("govModeBlockedGuard", () => {
     expect(govModeService.isGovMode$).toHaveBeenCalledWith(userId);
   });
 
-  it("fails open and allows navigation when there is no active account", async () => {
+  it("falls back to the global check and blocks when there is no active account", async () => {
     const { router } = setup({ isGovMode: true, hasActiveAccount: false });
 
     await router.navigate([guardedRoute]);
 
-    expect(router.url).toBe(`/${guardedRoute}`);
     expect(govModeService.isGovMode$).not.toHaveBeenCalled();
-    expect(logService.error).toHaveBeenCalled();
+    expect(router.url).toBe("/vault");
+  });
+
+  it("falls back to the global check and allows navigation when not in Gov mode and there is no active account", async () => {
+    const { router } = setup({ isGovMode: false, hasActiveAccount: false });
+
+    await router.navigate([guardedRoute]);
+
+    expect(router.url).toBe(`/${guardedRoute}`);
   });
 
   it("fails open and allows navigation when the gov mode check errors", async () => {

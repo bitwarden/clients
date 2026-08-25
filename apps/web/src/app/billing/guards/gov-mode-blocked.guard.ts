@@ -8,7 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ToastService } from "@bitwarden/components";
 
-import { activeUserIsGovMode$ } from "../../platform/gov-mode";
+import { clientIsGovMode$ } from "../../platform/gov-mode";
 
 /**
  * Returns a CanActivateFn that blocks navigation when the client is connected to the Gov cloud.
@@ -17,13 +17,14 @@ import { activeUserIsGovMode$ } from "../../platform/gov-mode";
  * organization creation are never available there. Blocked navigation shows an "Access denied"
  * toast and redirects.
  *
- * Guarded routes are expected to sit behind authentication, so an active account is assumed.
+ * Works on authenticated and unauthenticated routes alike: {@link clientIsGovMode$} checks the
+ * active account's environment, or the global environment when signed out (the trial-initiation
+ * routes).
  *
- * Note: this guard deliberately **fails open** (via {@link activeUserIsGovMode$}). Any error while
- * determining the region (including a missing active account) is logged and navigation is allowed.
- * Failing closed would lock US/EU users out of flows they are entitled to, which is a worse
- * outcome than the Gov user briefly reaching a page whose backend rejects self-serve requests
- * anyway.
+ * Note: this guard deliberately **fails open** (via {@link clientIsGovMode$}). Any error while
+ * determining the region is logged and navigation is allowed. Failing closed would lock US/EU
+ * users out of flows they are entitled to, which is a worse outcome than the Gov user briefly
+ * reaching a page whose backend rejects self-serve requests anyway.
  *
  * @param redirectUrl - Url to redirect to when navigation is blocked. Defaults to `/vault`.
  */
@@ -37,7 +38,7 @@ export const govModeBlockedGuard = (redirectUrl = "/vault"): CanActivateFn => {
     const toastService = inject(ToastService);
 
     const isGovMode = await firstValueFrom(
-      activeUserIsGovMode$(
+      clientIsGovMode$(
         accountService,
         govModeService,
         logService,

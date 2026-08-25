@@ -33,7 +33,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { BitwardenIcon } from "@bitwarden/components";
 
-import { activeUserIsGovMode$ } from "../../../platform/gov-mode";
+import { clientIsGovMode$ } from "../../../platform/gov-mode";
 
 export type ProductSwitcherItem = {
   /**
@@ -138,7 +138,7 @@ export class ProductSwitcherService {
   );
 
   /** Whether the active user's environment is the Gov cloud. */
-  isGovMode$ = activeUserIsGovMode$(this.accountService, this.govModeService, this.logService);
+  isGovMode$ = clientIsGovMode$(this.accountService, this.govModeService, this.logService);
 
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
     switchMap((account) => {
