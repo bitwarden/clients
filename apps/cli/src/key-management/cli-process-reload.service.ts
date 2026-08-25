@@ -1,4 +1,4 @@
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 
 /**
  * CLI implementation of ProcessReloadServiceAbstraction.

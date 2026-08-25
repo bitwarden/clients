@@ -4,15 +4,13 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { getOptionalUserId } from "../../auth/services/account.service";
-import {
-  VaultTimeoutAction,
-  VaultTimeoutSettingsService,
-} from "../../key-management/vault-timeout";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { UserId } from "../../types/guid";
-import { ProcessReloadServiceAbstraction } from "../abstractions/process-reload.service";
 import { PinServiceAbstraction } from "../pin/pin.service.abstraction";
+import { VaultTimeoutAction, VaultTimeoutSettingsService } from "../vault-timeout";
+
+import { ProcessReloadServiceAbstraction } from "./process-reload.service";
 
 /**
  * Safety timeout for state reads, so a hanging call cannot stop the process

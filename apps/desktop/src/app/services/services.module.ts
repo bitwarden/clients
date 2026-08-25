@@ -60,14 +60,16 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import {
   InternalMasterPasswordServiceAbstraction,
   MasterPasswordServiceAbstraction,
 } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
-import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
+import {
+  DefaultProcessReloadService,
+  ProcessReloadServiceAbstraction,
+} from "@bitwarden/common/key-management/process-reload";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   SharedUnlockPeerService,

@@ -110,7 +110,7 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
@@ -123,6 +123,7 @@ import { DefaultMasterPasswordUnlockService } from "@bitwarden/common/key-manage
 import { MasterPasswordService } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.service.abstraction";
 import { PinService } from "@bitwarden/common/key-management/pin/pin.service.implementation";
+import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/process-reload";
 import {
   SharedUnlockPeerService,
   SharedUnlockSettingsService,
