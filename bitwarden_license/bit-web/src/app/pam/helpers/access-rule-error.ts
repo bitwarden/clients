@@ -15,10 +15,17 @@ export type AccessRuleErrorField = "name" | "collections" | "maxExtensionDuratio
  * failures raised by `AccessRuleValidator` ("Conditions must be an array.", and its siblings) are
  * deliberately absent: the edit form builds that document itself, so any of them is a client bug
  * the admin cannot act on, and the generic system-error copy is the honest thing to show.
+ * `NameRequiredLocally` is the one exception to "sourced from the server": it's the SDK's own
+ * local (pre-HTTP) validation message, never a wire body.
  */
 export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
   NameRequired: {
     serverMessage: "Name is required.",
+    messageKey: "pamAccessRuleNameRequired",
+    field: "name",
+  },
+  NameRequiredLocally: {
+    serverMessage: "Name must be between 1 and 256 characters",
     messageKey: "pamAccessRuleNameRequired",
     field: "name",
   },
