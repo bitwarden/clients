@@ -77,6 +77,7 @@
                       bitButton
                       buttonType="primary"
                       size="small"
+                      class="tw-whitespace-nowrap"
                       [loading]="isStarting(row.id)"
                       [disabled]="isStarting(row.id)"
                       (click)="activate(row)"
@@ -84,7 +85,7 @@
                     >
                       {{ "pamStartLeaseButton" | i18n }}
                     </button>
-                    <span class="tw-text-xs tw-text-muted">
+                    <span class="tw-text-xs tw-text-muted tw-whitespace-nowrap">
                       {{ "pamActivateWithin" | i18n: (row.leaseNotAfter | remainingTime: nowMs()) }}
                     </span>
                   </div>
@@ -110,19 +111,11 @@
     }
   </bit-accordion>
 
-  <!-- Extension requests -->
-  <bit-accordion [title]="'pamMyRequestsGroupExtensions' | i18n">
-    <span slot="end" bitBadge variant="secondary">{{ extensionRows().length }}</span>
+  @if (extensionRows().length > 0) {
+    <!-- Extension requests -->
+    <bit-accordion [title]="'pamMyRequestsGroupExtensions' | i18n">
+      <span slot="end" bitBadge variant="secondary">{{ extensionRows().length }}</span>
 
-    @if (extensionRows().length === 0) {
-      <p
-        bitTypography="body2"
-        class="tw-mb-0 tw-text-muted"
-        data-testid="my-access-extensions-empty"
-      >
-        {{ "pamMyRequestsExtensionsEmpty" | i18n }}
-      </p>
-    } @else {
       <bit-table [dataSource]="extensionDataSource">
         <ng-container header>
           <tr>
@@ -182,8 +175,8 @@
           </tr>
         </ng-template>
       </bit-table>
-    }
-  </bit-accordion>
+    </bit-accordion>
+  }
 
   <!-- Currently checked out (active leases) -->
   <bit-accordion [title]="'pamMyRequestsGroupCheckedOut' | i18n">
