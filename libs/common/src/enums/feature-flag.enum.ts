@@ -13,6 +13,7 @@ export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
   CollectionBulkDecryptWithFailures = "collection-bulk-decrypt-with-failures",
+  CollectionAdminBulkDecrypt = "collection-admin-bulk-decrypt",
   StagedStatus = "pm-34423-staged-status",
   PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
 
@@ -147,6 +148,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
   [FeatureFlag.CollectionBulkDecryptWithFailures]: FALSE,
+  [FeatureFlag.CollectionAdminBulkDecrypt]: FALSE,
   [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
   /* Autofill */

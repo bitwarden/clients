@@ -8,6 +8,7 @@ import { CollectionId, OrganizationId } from "../../../types/guid";
 import { OrgKey } from "../../../types/key";
 
 import { CollectionData } from "./collection.data";
+import { CollectionAccessDetailsResponse } from "./collection.response";
 
 import { CollectionView } from ".";
 
@@ -52,6 +53,31 @@ export class Collection extends Domain {
     collection.manage = obj.manage;
     collection.type = obj.type;
     collection.defaultUserCollectionEmail = obj.defaultUserCollectionEmail;
+
+    return collection;
+  }
+
+  /**
+   * Creates a Collection domain model from a `CollectionAccessDetailsResponse`, for use with SDK
+   * crypto operations (see {@link CollectionEncryptionService}). Admin-only fields (`groups`,
+   * `users`, `unmanaged`, `assigned`) are not carried by `Collection` and must be re-attached by
+   * the caller when transforming a decrypted result back to a `CollectionAdminView`.
+   */
+  static fromCollectionAccessDetailsResponse(
+    response: CollectionAccessDetailsResponse,
+  ): Collection {
+    const collection = new Collection({
+      id: response.id,
+      name: new EncString(response.name),
+      organizationId: response.organizationId,
+    });
+
+    collection.externalId = response.externalId;
+    collection.readOnly = response.readOnly;
+    collection.hidePasswords = response.hidePasswords;
+    collection.manage = response.manage;
+    collection.type = response.type;
+    collection.defaultUserCollectionEmail = response.defaultUserCollectionEmail;
 
     return collection;
   }

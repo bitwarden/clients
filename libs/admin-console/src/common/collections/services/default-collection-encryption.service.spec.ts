@@ -15,6 +15,7 @@ import { EncString } from "@bitwarden/legacy-crypto";
 import {
   Collection as SdkCollection,
   CollectionView as SdkCollectionView,
+  DecryptCollectionListResult,
 } from "@bitwarden/sdk-internal";
 
 import { DefaultCollectionEncryptionService } from "./default-collection-encryption.service";
@@ -59,6 +60,13 @@ function makeSdkCollectionView(overrides: Partial<SdkCollectionView> = {}): SdkC
   };
 }
 
+function makeResult(
+  successes: SdkCollectionView[],
+  failures: SdkCollection[] = [],
+): DecryptCollectionListResult {
+  return { successes, failures };
+}
+
 describe("DefaultCollectionEncryptionService", () => {
   let service: DefaultCollectionEncryptionService;
 
@@ -88,7 +96,6 @@ describe("DefaultCollectionEncryptionService", () => {
 
     const mockCollectionsClient = {
       decrypt: mockDecrypt,
-      decrypt_list: jest.fn(),
       decrypt_list_with_failures: mockDecryptListWithFailures,
       encrypt: jest.fn(),
       encrypt_list: jest.fn(),
@@ -108,87 +115,122 @@ describe("DefaultCollectionEncryptionService", () => {
     service = new DefaultCollectionEncryptionService(sdkService, logService, configService);
   });
 
+  describe("decryptManyWithFailures", () => {
+    it("checks the CollectionBulkDecryptWithFailures feature flag", async () => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
+      mockDecrypt.mockReturnValue(makeSdkCollectionView());
+
+      await firstValueFrom(service.decryptManyWithFailures([makeCollection()], userId));
+
+      expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.CollectionBulkDecryptWithFailures,
+      );
+    });
+  });
+
   describe("when CollectionBulkDecryptWithFailures is enabled", () => {
     beforeEach(() => {
       (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(true));
     });
 
-    describe("decryptMany", () => {
-      it("checks the CollectionBulkDecryptWithFailures feature flag", async () => {
-        mockDecryptListWithFailures.mockReturnValue({
-          successes: [makeSdkCollectionView()],
-          failures: [],
+    describe("decrypt", () => {
+      it("decrypts a single collection and maps the result", async () => {
+        const collection = makeCollection();
+        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+
+        const sdkView = makeSdkCollectionView({ name: "Decrypted Name" });
+        mockDecryptListWithFailures.mockReturnValue(makeResult([sdkView]));
+
+        const result = await firstValueFrom(service.decrypt(collection, userId));
+
+        expect(mockDecryptListWithFailures).toHaveBeenCalledWith([stubSdkCollection]);
+        expect(mockDecrypt).not.toHaveBeenCalled();
+        expect(result).toBeInstanceOf(CollectionView);
+        expect(result.name).toBe("Decrypted Name");
+      });
+
+      it("logs the error and rejects when the SDK throws", async () => {
+        const collection = makeCollection();
+        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+        mockDecryptListWithFailures.mockImplementation(() => {
+          throw new Error("crypto failure");
         });
 
-        await firstValueFrom(service.decryptMany([makeCollection()], userId));
-
-        expect(configService.getFeatureFlag$).toHaveBeenCalledWith(
-          FeatureFlag.CollectionBulkDecryptWithFailures,
+        await expect(firstValueFrom(service.decrypt(collection, userId))).rejects.toThrow();
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining("Failed to decrypt collections in batch"),
         );
       });
 
+      it("logs the error and rejects when the SDK client is unavailable", async () => {
+        (sdkService.userClient$ as jest.Mock).mockReturnValue(of(null));
+        const collection = makeCollection();
+        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+
+        await expect(firstValueFrom(service.decrypt(collection, userId))).rejects.toThrow();
+        expect(logService.error).toHaveBeenCalledWith(
+          expect.stringContaining("Failed to decrypt collections in batch"),
+        );
+      });
+    });
+
+    describe("decryptMany", () => {
       it("returns an empty array without calling the SDK for empty input", async () => {
         const result = await firstValueFrom(service.decryptMany([], userId));
         expect(result).toEqual([]);
         expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
       });
 
-      it("decrypts all collections via a single batch call and returns views", async () => {
+      it("decrypts all collections and returns views", async () => {
         const collection1 = makeCollection();
         const collection2 = makeCollection({ id: collectionId2 });
         jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
         jest.spyOn(collection2, "toSdkCollection").mockReturnValue(stubSdkCollection);
 
-        mockDecryptListWithFailures.mockReturnValue({
-          successes: [
-            makeSdkCollectionView({ id: collectionId as any, name: "Collection 1" }),
+        mockDecryptListWithFailures.mockReturnValue(
+          makeResult([
             makeSdkCollectionView({ id: collectionId2 as any, name: "Collection 2" }),
-          ],
-          failures: [],
-        });
+            makeSdkCollectionView({ id: collectionId as any, name: "Collection 1" }),
+          ]),
+        );
 
         const result = await firstValueFrom(
           service.decryptMany([collection1, collection2], userId),
         );
 
         expect(result).toHaveLength(2);
-        expect(result[0].name).toBe("Collection 1");
-        expect(result[1].name).toBe("Collection 2");
+        expect(result.map((v) => v.name)).toEqual(
+          expect.arrayContaining(["Collection 1", "Collection 2"]),
+        );
       });
 
-      it("logs and drops any collection the SDK returns as a failure", async () => {
+      it("returns failures separately without dropping successes", async () => {
         const collection1 = makeCollection();
         const collection2 = makeCollection({ id: collectionId2 });
         jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
         jest.spyOn(collection2, "toSdkCollection").mockReturnValue(stubSdkCollection);
 
-        // SDK reports collection1 as a failure and returns only collection2.
-        mockDecryptListWithFailures.mockReturnValue({
-          successes: [makeSdkCollectionView({ id: collectionId2 as any, name: "Collection 2" })],
-          failures: [{ id: collectionId as any }],
-        });
-
-        const result = await firstValueFrom(
-          service.decryptMany([collection1, collection2], userId),
+        const failedSdkCollection: SdkCollection = {
+          ...stubSdkCollection,
+          id: collectionId as any,
+        };
+        mockDecryptListWithFailures.mockReturnValue(
+          makeResult(
+            [makeSdkCollectionView({ id: collectionId2 as any, name: "Collection 2" })],
+            [failedSdkCollection],
+          ),
         );
 
-        expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Collection 2");
-        expect(logService.error).toHaveBeenCalledWith(
-          expect.stringContaining(`Failed to decrypt collection ${collection1.id}`),
+        const { success, failure } = await firstValueFrom(
+          service.decryptManyWithFailures([collection1, collection2], userId),
         );
-      });
 
-      it("rejects when the batch SDK call throws", async () => {
-        const collection = makeCollection();
-        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-        mockDecryptListWithFailures.mockImplementation(() => {
-          throw new Error("batch failure");
-        });
-
-        await expect(firstValueFrom(service.decryptMany([collection], userId))).rejects.toThrow();
+        expect(success).toHaveLength(1);
+        expect(success[0].name).toBe("Collection 2");
+        expect(failure).toHaveLength(1);
+        expect(failure[0].id).toBe(collectionId);
         expect(logService.error).toHaveBeenCalledWith(
-          expect.stringContaining("Failed to decrypt collections in batch"),
+          expect.stringContaining(`Failed to decrypt 1 collection(s): ${collectionId}`),
         );
       });
 
@@ -199,52 +241,37 @@ describe("DefaultCollectionEncryptionService", () => {
           type: CollectionTypes.DefaultUserCollection,
         });
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-        mockDecryptListWithFailures.mockReturnValue({
-          successes: [makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection })],
-          failures: [],
-        });
+        mockDecryptListWithFailures.mockReturnValue(
+          makeResult([makeSdkCollectionView({ type: CollectionTypes.DefaultUserCollection })]),
+        );
 
         const [result] = await firstValueFrom(service.decryptMany([collection], userId));
 
         expect(result.defaultUserCollectionEmail).toBe(email);
       });
 
-      it("matches each decrypted view to its source collection by ID", async () => {
-        const email = "offboarded@example.com";
+      it("resolves duplicate input ids by letting the last entry win", async () => {
+        // A duplicate id indicates a duplicate collection - the map collapses to the last entry,
+        // which is used to re-associate the decrypted view with its source (needed to preserve
+        // `defaultUserCollectionEmail`, which gates the security restriction in
+        // `CollectionView.canEditName()`).
         const collection1 = makeCollection({
-          defaultUserCollectionEmail: email,
+          defaultUserCollectionEmail: "offboarded@example.com",
           type: CollectionTypes.DefaultUserCollection,
         });
         const collection2 = makeCollection({
-          id: collectionId2,
+          // same id as collection1, but no defaultUserCollectionEmail
           type: CollectionTypes.SharedCollection,
         });
         jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
         jest.spyOn(collection2, "toSdkCollection").mockReturnValue(stubSdkCollection);
+        mockDecryptListWithFailures.mockReturnValue(makeResult([makeSdkCollectionView()]));
 
-        // Return views in reverse order to confirm ID-based matching, not index-based.
-        mockDecryptListWithFailures.mockReturnValue({
-          successes: [
-            makeSdkCollectionView({
-              id: collectionId2 as any,
-              type: CollectionTypes.SharedCollection,
-            }),
-            makeSdkCollectionView({
-              id: collectionId as any,
-              type: CollectionTypes.DefaultUserCollection,
-            }),
-          ],
-          failures: [],
-        });
-
-        const results = await firstValueFrom(
+        const [result] = await firstValueFrom(
           service.decryptMany([collection1, collection2], userId),
         );
 
-        const view1 = results.find((v) => v.id === collectionId);
-        const view2 = results.find((v) => v.id === collectionId2);
-        expect(view1?.defaultUserCollectionEmail).toBe(email);
-        expect(view2?.defaultUserCollectionEmail).toBeUndefined();
+        expect(result.defaultUserCollectionEmail).toBeUndefined();
       });
 
       it("logs the error and rejects when the SDK client is unavailable", async () => {
@@ -258,34 +285,25 @@ describe("DefaultCollectionEncryptionService", () => {
         );
       });
     });
+  });
+
+  describe("when CollectionBulkDecryptWithFailures is disabled", () => {
+    beforeEach(() => {
+      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
+    });
 
     describe("decrypt", () => {
-      it("decrypts a single collection via the batch SDK call and maps the result", async () => {
+      it("decrypts a single collection using the original per-item SDK call", async () => {
         const collection = makeCollection();
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-
-        const sdkView = makeSdkCollectionView({ name: "Decrypted Name" });
-        mockDecryptListWithFailures.mockReturnValue({ successes: [sdkView], failures: [] });
+        mockDecrypt.mockReturnValue(makeSdkCollectionView({ name: "Decrypted Name" }));
 
         const result = await firstValueFrom(service.decrypt(collection, userId));
 
-        expect(mockDecryptListWithFailures).toHaveBeenCalledWith([stubSdkCollection]);
-        expect(mockDecrypt).not.toHaveBeenCalled();
+        expect(mockDecrypt).toHaveBeenCalledWith(stubSdkCollection);
+        expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
         expect(result).toBeInstanceOf(CollectionView);
         expect(result.name).toBe("Decrypted Name");
-      });
-
-      it("rejects when the batch call throws", async () => {
-        const collection = makeCollection();
-        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-        mockDecryptListWithFailures.mockImplementation(() => {
-          throw new Error("batch failure");
-        });
-
-        await expect(firstValueFrom(service.decrypt(collection, userId))).rejects.toThrow();
-        expect(logService.error).toHaveBeenCalledWith(
-          expect.stringContaining("Failed to decrypt collections in batch"),
-        );
       });
 
       it("logs the error and rejects when the SDK client is unavailable", async () => {
@@ -298,12 +316,6 @@ describe("DefaultCollectionEncryptionService", () => {
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
       });
-    });
-  });
-
-  describe("when CollectionBulkDecryptWithFailures is disabled", () => {
-    beforeEach(() => {
-      (configService.getFeatureFlag$ as jest.Mock).mockReturnValue(of(false));
     });
 
     describe("decryptMany", () => {
@@ -333,7 +345,7 @@ describe("DefaultCollectionEncryptionService", () => {
         expect(result[1].name).toBe("Collection 2");
       });
 
-      it("logs and drops items that fail to decrypt without aborting the rest", async () => {
+      it("logs and returns a failure for an item that fails to decrypt, without dropping the rest", async () => {
         const collection1 = makeCollection();
         const collection2 = makeCollection({ id: collectionId2 });
         jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
@@ -345,15 +357,17 @@ describe("DefaultCollectionEncryptionService", () => {
           })
           .mockReturnValueOnce(makeSdkCollectionView({ name: "Collection 2" }));
 
-        const result = await firstValueFrom(
-          service.decryptMany([collection1, collection2], userId),
+        const { success, failure } = await firstValueFrom(
+          service.decryptManyWithFailures([collection1, collection2], userId),
         );
 
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining(`Failed to decrypt collection ${collection1.id}`),
         );
-        expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Collection 2");
+        expect(success).toHaveLength(1);
+        expect(success[0].name).toBe("Collection 2");
+        expect(failure).toHaveLength(1);
+        expect(failure[0]).toBe(collection1);
       });
 
       it("preserves defaultUserCollectionEmail from the source collection", async () => {
@@ -378,32 +392,6 @@ describe("DefaultCollectionEncryptionService", () => {
         jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
 
         await expect(firstValueFrom(service.decryptMany([collection], userId))).rejects.toThrow();
-        expect(logService.error).toHaveBeenCalledWith(
-          expect.stringContaining("Failed to decrypt collections in batch"),
-        );
-      });
-    });
-
-    describe("decrypt", () => {
-      it("decrypts a single collection using the original per-item SDK call", async () => {
-        const collection = makeCollection();
-        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-        mockDecrypt.mockReturnValue(makeSdkCollectionView({ name: "Decrypted Name" }));
-
-        const result = await firstValueFrom(service.decrypt(collection, userId));
-
-        expect(mockDecrypt).toHaveBeenCalledWith(stubSdkCollection);
-        expect(mockDecryptListWithFailures).not.toHaveBeenCalled();
-        expect(result).toBeInstanceOf(CollectionView);
-        expect(result.name).toBe("Decrypted Name");
-      });
-
-      it("logs the error and rejects when the SDK client is unavailable", async () => {
-        (sdkService.userClient$ as jest.Mock).mockReturnValue(of(null));
-        const collection = makeCollection();
-        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
-
-        await expect(firstValueFrom(service.decrypt(collection, userId))).rejects.toThrow();
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
