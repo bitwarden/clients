@@ -173,9 +173,9 @@ export class CipherViewBannerComponent implements OnInit {
    * however late it is started, so a request left sitting yields less than this. The absolute
    * expiry that would say so is a separate piece of copy, not yet supplied.
    *
-   * Both routes into the approved state resolve the window at submit — an auto-approving rule from
-   * the duration the requester picked, a human approver from the window they asked for — so the
-   * same subtraction is right for both.
+   * Both routes into the approved state resolve the window at submit. An auto-approving rule
+   * resolves it from the duration the requester picked, a human approver from the window they asked
+   * for, so the same subtraction is right for both.
    *
    * Yields `null` for a window that does not resolve to a positive span, so a malformed one renders
    * no line rather than "0 minutes of access".

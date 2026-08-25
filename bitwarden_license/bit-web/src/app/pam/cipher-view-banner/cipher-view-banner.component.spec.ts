@@ -285,7 +285,7 @@ describe("CipherViewBannerComponent", () => {
     });
 
     // The human-approval route resolves the window from the requester's chosen start and end,
-    // which can sit wholly in the future; the same subtraction has to hold there.
+    // which can sit wholly in the future.
     it("states the granted duration for a window that has not opened yet", async () => {
       requestsApi.getCipherAccessState.mockResolvedValue(
         accessState({ approvedRequest: requestView(grantedWindow(3 * 3600, 24 * 3600)) }),
