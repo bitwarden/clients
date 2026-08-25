@@ -313,16 +313,7 @@ export class LoginDecryptionOptionsComponent implements OnInit {
       .pipe(
         filter((status) => status === AuthenticationStatus.Unlocked),
         take(1),
-        switchMap(() =>
-          defer(() => this.handleSharedUnlockBootstrap()).pipe(
-            // handleSharedUnlockBootstrap already reports its own failures; this keeps the bare
-            // subscribe below from being load-bearing if that ever changes.
-            catchError((err: unknown) => {
-              this.validationService.showError(err);
-              return EMPTY;
-            }),
-          ),
-        ),
+        switchMap(() => defer(() => this.handleSharedUnlockBootstrap())),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();

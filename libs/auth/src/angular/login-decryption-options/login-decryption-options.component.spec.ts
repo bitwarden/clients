@@ -513,6 +513,51 @@ describe("LoginDecryptionOptionsComponent", () => {
     });
   });
 
+  describe("persisting the remember-device choice", () => {
+    beforeEach(() => {
+      userDecryptionOptionsService.userDecryptionOptionsById$.mockReturnValue(
+        of({
+          trustedDeviceOption: {
+            hasAdminApproval: true,
+            hasLoginApprovingDevice: false,
+            hasManageResetPasswordPermission: false,
+            isTdeOffboarding: false,
+          },
+          hasMasterPassword: true,
+          keyConnectorOption: undefined,
+        }),
+      );
+    });
+
+    it("reports a failed write and keeps persisting later toggles", async () => {
+      // ngOnInit wires the valueChanges subscription and then calls setValue, so the first write
+      // happens during init. Reject it to exercise the catchError.
+      deviceTrustService.setShouldTrustDevice.mockRejectedValueOnce(new Error("persist failed"));
+      const reported = new Promise<unknown>((resolve) => {
+        validationService.showError.mockImplementation((err: unknown) => {
+          resolve(err);
+          return [];
+        });
+      });
+
+      await component.ngOnInit();
+
+      await expect(reported).resolves.toEqual(new Error("persist failed"));
+
+      // The subscription has to survive the failure, otherwise no later toggle is ever persisted.
+      const persisted = new Promise<void>((resolve) => {
+        deviceTrustService.setShouldTrustDevice.mockImplementation(async () => {
+          resolve();
+        });
+      });
+
+      component["formGroup"].controls.rememberDevice.setValue(false);
+      await persisted;
+
+      expect(deviceTrustService.setShouldTrustDevice).toHaveBeenLastCalledWith(mockUserId, false);
+    });
+  });
+
   describe("shared unlock bootstrap on existing untrusted device", () => {
     // Driven by the test rather than a fixed `of(...)`, so the auth status can be moved after
     // ngOnInit has subscribed and each assertion sits at a known point in the timeline.
