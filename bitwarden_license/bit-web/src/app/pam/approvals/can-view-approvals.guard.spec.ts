@@ -1,5 +1,12 @@
 import { TestBed } from "@angular/core/testing";
-import { ActivatedRouteSnapshot, GuardResult, Router, UrlSegment } from "@angular/router";
+import {
+  ActivatedRouteSnapshot,
+  GuardResult,
+  Router,
+  RouterStateSnapshot,
+  UrlSegment,
+} from "@angular/router";
+import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom, isObservable, of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -23,10 +30,17 @@ describe("canViewApprovalsGuard", () => {
   let organizations$: BehaviorSubject<Organization[]>;
   let router: Router;
 
-  /** Runs the guard in an injection context and normalises its result to a promise. */
+  /**
+   * Runs the guard in an injection context and normalises its result to a promise.
+   *
+   * The guard is typed `CanActivateFn`, so call sites must pass both `route` and `state` even though
+   * this implementation ignores the second one. Static analysis reads the arrow function's arity
+   * rather than the annotation and flags the argument as superfluous — it is not, and dropping it
+   * fails the build with TS2554.
+   */
   async function run(segments = ["pam", "approvals"]): Promise<GuardResult> {
     const result = TestBed.runInInjectionContext(() =>
-      canViewApprovalsGuard(snapshotFor(segments)),
+      canViewApprovalsGuard(snapshotFor(segments), mock<RouterStateSnapshot>()),
     );
     return isObservable(result) ? await firstValueFrom(result) : await result;
   }
