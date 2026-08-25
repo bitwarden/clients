@@ -177,9 +177,10 @@ export abstract class DomainSettingsService {
   /**
    * The effective fill assist rules-feed URL, in priority order: org policy's
    * custom URL (if it differs from the Bitwarden default) → server config's
-   * URL → hardcoded default. Always ends with a trailing slash.
+   * URL. Emits `undefined` when neither source supplies a URL. When defined,
+   * always ends with a trailing slash.
    */
-  effectiveFillAssistRulesUrl$: Observable<string>;
+  effectiveFillAssistRulesUrl$: Observable<string | undefined>;
 
   /**
    * Resolved state for enabling fill assist, combining the feature flag, the
@@ -237,7 +238,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   private enableFillAssistState: GlobalState<boolean | null>;
   readonly enableFillAssist$: Observable<boolean>;
   readonly fillAssistPolicy$: Observable<{ rulesUrl?: string } | null>;
-  readonly effectiveFillAssistRulesUrl$: Observable<string>;
+  readonly effectiveFillAssistRulesUrl$: Observable<string | undefined>;
   readonly resolvedEnableFillAssist$: Observable<boolean>;
 
   readonly targetingRules$: Observable<TargetingRulesByDomain | null>;
@@ -323,8 +324,11 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
         if (!isDefault) {
           return withSlash(policyUrl);
         }
-        const serverUrl = serverConfig?.environment?.fillAssistRules;
-        return serverUrl ? withSlash(serverUrl) : defaultUrl;
+        const serverUrl = serverConfig?.environment?.fillAssistRules?.trim();
+        if (!serverUrl) {
+          return undefined;
+        }
+        return withSlash(serverUrl);
       }),
       distinctUntilChanged(),
       shareReplay({ bufferSize: 1, refCount: true }),
@@ -356,16 +360,20 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       this.environmentService.environment$,
       this.effectiveFillAssistRulesUrl$,
     ]).pipe(
-      switchMap(([env, effectiveUrl]) =>
-        this.stateProvider
+      switchMap(([env, effectiveUrl]) => {
+        // No rules-feed URL means no cache entry to read.
+        if (!effectiveUrl) {
+          return of(null);
+        }
+        return this.stateProvider
           .getGlobal(SERVER_TARGETING_RULES)
           .state$.pipe(
             map(
               (records) =>
                 records?.[fillAssistRulesCacheKey(env.getApiUrl(), effectiveUrl)] ?? null,
             ),
-          ),
-      ),
+          );
+      }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
@@ -441,6 +449,9 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
   async setTargetingRules(rules: TargetingRulesByDomain, effectiveUrl?: string): Promise<void> {
     const env = await firstValueFrom(this.environmentService.environment$);
     const url = effectiveUrl ?? (await firstValueFrom(this.effectiveFillAssistRulesUrl$));
+    if (!url) {
+      return;
+    }
     const key = fillAssistRulesCacheKey(env.getApiUrl(), url);
     await this.stateProvider
       .getGlobal(SERVER_TARGETING_RULES)

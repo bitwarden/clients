@@ -71,9 +71,11 @@ describe("DefaultDomainSettingsService", () => {
     policyService.policiesByType$.mockReturnValue(fillAssistPolicyMock$);
 
     // effectiveFillAssistRulesUrl$ subscribes to serverConfig$; default the
-    // mock to an empty environment so the URL derivation falls back to the
-    // hardcoded default.
-    serverConfigMock$ = new BehaviorSubject<any>({ environment: {} });
+    // mock to a server-supplied URL so targeting rules have a cache key to
+    // read and write under.
+    serverConfigMock$ = new BehaviorSubject<any>({
+      environment: { fillAssistRules: "https://server.example.com/rules" },
+    });
     (configService as any).serverConfig$ = serverConfigMock$;
 
     domainSettingsService = new DefaultDomainSettingsService(
@@ -816,19 +818,37 @@ describe("DefaultDomainSettingsService", () => {
   });
 
   describe("effectiveFillAssistRulesUrl$", () => {
-    const DEFAULT_URL_TRAILING = "https://fillassist.bitwarden.com/";
-
     beforeEach(() => {
       accountService.activeAccountSubject.next({ id: mockUserId } as any);
     });
 
-    it("falls back to the hardcoded default when no policy URL and no server config URL", async () => {
+    it("emits undefined when no policy URL and no server config URL", async () => {
       fillAssistPolicyMock$.next([]);
       serverConfigMock$.next({ environment: {} });
 
       const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
 
-      expect(url).toBe(DEFAULT_URL_TRAILING);
+      expect(url).toBeUndefined();
+    });
+
+    it("emits undefined when the server config URL is whitespace", async () => {
+      fillAssistPolicyMock$.next([]);
+      serverConfigMock$.next({ environment: { fillAssistRules: "   " } });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBeUndefined();
+    });
+
+    it("emits undefined when the policy URL is the default sentinel and server config has no URL", async () => {
+      fillAssistPolicyMock$.next([
+        makeFillAssistPolicy({ rulesUrl: "https://fillassist.bitwarden.com" }),
+      ]);
+      serverConfigMock$.next({ environment: {} });
+
+      const url = await firstValueFrom(domainSettingsService.effectiveFillAssistRulesUrl$);
+
+      expect(url).toBeUndefined();
     });
 
     it("uses the server config URL when no policy URL is set", async () => {
@@ -980,6 +1000,27 @@ describe("DefaultDomainSettingsService", () => {
       );
 
       expect(result).not.toBeNull();
+    });
+
+    it("does not write when no snapshot is passed and no effective URL resolves", async () => {
+      fillAssistPolicyMock$.next([]);
+      serverConfigMock$.next({ environment: {} });
+      await domainSettingsService.setEnableFillAssist(true);
+      const getGlobalSpy = jest.spyOn(fakeStateProvider, "getGlobal");
+
+      await domainSettingsService.setTargetingRules(mockRulesForUrlTest);
+
+      expect(getGlobalSpy).not.toHaveBeenCalled();
+    });
+
+    it("reads no rules when no effective URL resolves", async () => {
+      await domainSettingsService.setEnableFillAssist(true);
+      await domainSettingsService.setTargetingRules(mockRulesForUrlTest);
+
+      serverConfigMock$.next({ environment: {} });
+      const result = await firstValueFrom(domainSettingsService.targetingRules$);
+
+      expect(result).toBeNull();
     });
   });
 
