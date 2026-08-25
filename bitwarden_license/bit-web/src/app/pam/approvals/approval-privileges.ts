@@ -13,9 +13,9 @@ import { getUserId } from "@bitwarden/common/auth/services/account.service";
  * the Access requests page is user-global: it spans every organization the user belongs to rather
  * than one named in the URL.
  *
- * A plain function taking its dependencies as arguments rather than an injectable, so the tab (which
- * decides whether to render the inbox) and the route guard (which decides whether the route is
- * reachable) derive from one expression and cannot drift apart.
+ * A plain function taking its dependencies as arguments rather than an injectable, so the shell's
+ * tab-link (which decides whether the "Approvals" tab-link renders) and the route guard (which
+ * decides whether the route is reachable) derive from one expression and cannot drift apart.
  */
 export function hasApprovalPrivileges$(
   accountService: AccountService,
