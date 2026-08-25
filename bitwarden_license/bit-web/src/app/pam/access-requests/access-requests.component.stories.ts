@@ -23,7 +23,6 @@ type ShellOptions = {
   extensions?: number;
   leases?: number;
   approvals?: number;
-  history?: number;
   canApprove?: boolean;
 };
 
@@ -36,14 +35,7 @@ type ShellOptions = {
  * environment injector, so a module-level provider is invisible to it.
  */
 function shell(options: ShellOptions = {}) {
-  const {
-    pending = 0,
-    extensions = 0,
-    leases = 0,
-    approvals = 0,
-    history = 0,
-    canApprove = true,
-  } = options;
+  const { pending = 0, extensions = 0, leases = 0, approvals = 0, canApprove = true } = options;
   const rows = (count: number) => of(Array.from({ length: count }, (_, i) => ({ id: `row-${i}` })));
 
   return [
@@ -56,7 +48,6 @@ function shell(options: ShellOptions = {}) {
             pendingRows$: rows(pending),
             extensionRows$: rows(extensions),
             leases$: rows(leases),
-            historyRows$: rows(history),
             loadError$: of(null),
             load: () => Promise.resolve(),
           },
@@ -110,7 +101,7 @@ type Story = StoryObj<AccessRequestsComponent>;
  * requests and active leases — everything the caller still holds or can act on.
  */
 export const Default: Story = {
-  decorators: shell({ pending: 2, extensions: 1, leases: 3, approvals: 4, history: 12 }),
+  decorators: shell({ pending: 2, extensions: 1, leases: 3, approvals: 4 }),
 };
 
 /** Nothing anywhere: a zero count renders no berry rather than a "0". */
@@ -123,5 +114,5 @@ export const NoCounts: Story = {
  * never hold anything is noise, and the route guard redirects the deep link to match.
  */
 export const WithoutApprovals: Story = {
-  decorators: shell({ canApprove: false, pending: 1, leases: 1, history: 5 }),
+  decorators: shell({ canApprove: false, pending: 1, leases: 1 }),
 };
