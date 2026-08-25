@@ -9,6 +9,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
+  IconModule,
   DialogModule,
   ButtonModule,
   DialogRef,
@@ -17,6 +18,7 @@ import {
   SectionHeaderComponent,
   IconTileComponent,
   CardComponent,
+  TypographyModule,
   AsyncActionsModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -39,6 +41,8 @@ export interface HealthDeleteAtRiskItemDialogData {
     CardComponent,
     I18nPipe,
     AsyncActionsModule,
+    TypographyModule,
+    IconModule,
   ],
 })
 export class HealthDeleteAtRiskItemDialogComponent {
