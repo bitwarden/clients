@@ -864,6 +864,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       if (error instanceof Error && error.message === "Payment method validation failed") {
         return;
       }
+      if (error instanceof Error && error.message === "billingTaxIdTypeInferenceError") {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("billingTaxIdTypeInferenceError"),
+        });
+        return;
+      }
       if (this.premiumOrgUpgradeService.isBankAccountNotSupportedError(error)) {
         this.toastService.showToast({
           variant: "error",

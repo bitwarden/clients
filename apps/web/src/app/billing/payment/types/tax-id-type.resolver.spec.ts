@@ -1,4 +1,9 @@
-import { getTaxIdTypeForCountry, normalizeTaxIdValue, taxIdTypes } from "./tax-id-type";
+import {
+  findTaxIdTypeByValue,
+  getTaxIdTypeForCountry,
+  normalizeTaxIdValue,
+  taxIdTypes,
+} from "./tax-id-type";
 
 describe("getTaxIdTypeForCountry", () => {
   describe("value-aware resolution", () => {
@@ -40,6 +45,23 @@ describe("getTaxIdTypeForCountry", () => {
 
     it("resolves a value with mixed whitespace and case", () => {
       expect(getTaxIdTypeForCountry("GB", " gb123456789 ")?.code).toBe("gb_vat");
+    });
+
+    it("resolves a value with internal whitespace", () => {
+      expect(getTaxIdTypeForCountry("GB", "GB 123456789")?.code).toBe("gb_vat");
+    });
+  });
+
+  describe("separator characters are literal", () => {
+    const brazil = taxIdTypes.filter((type) => type.iso === "BR");
+    const switzerland = taxIdTypes.filter((type) => type.iso === "CH");
+
+    it("does not treat an arbitrary character as a Brazilian CPF separator", () => {
+      expect(findTaxIdTypeByValue(brazil, "123X456X789-87")).toBeUndefined();
+    });
+
+    it("does not treat an arbitrary character as a Swiss VAT separator", () => {
+      expect(findTaxIdTypeByValue(switzerland, "CHE-123X456X789MWST")).toBeUndefined();
     });
   });
 
@@ -133,6 +155,10 @@ describe("getTaxIdTypeForCountry", () => {
 describe("normalizeTaxIdValue", () => {
   it("trims surrounding whitespace", () => {
     expect(normalizeTaxIdValue(" 987654321 ")).toBe("987654321");
+  });
+
+  it("removes internal whitespace", () => {
+    expect(normalizeTaxIdValue("GB 123 456 789")).toBe("GB123456789");
   });
 
   it("converts to uppercase", () => {

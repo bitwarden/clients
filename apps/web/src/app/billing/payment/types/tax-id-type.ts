@@ -8,7 +8,8 @@ export type TaxIdType = Readonly<{
   format?: RegExp;
 }>;
 
-export const normalizeTaxIdValue = (value: string): string => value.trim().toUpperCase();
+export const normalizeTaxIdValue = (value: string): string =>
+  value.replace(/\s+/g, "").toUpperCase();
 
 export const findTaxIdTypeByValue = (
   types: ReadonlyArray<TaxIdType>,
@@ -197,7 +198,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Brazilian CNPJ number",
     example: "01.234.456/5432-10",
     impactsTaxCalculation: false,
-    format: /^[0-9]{2}.?[0-9]{3}.?[0-9]{3}\/?[0-9]{4}-?[0-9]{2}$/,
+    format: /^[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}-?[0-9]{2}$/,
   },
   {
     country: "Brazil",
@@ -206,7 +207,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Brazilian CPF number",
     example: "123.456.789-87",
     impactsTaxCalculation: false,
-    format: /^[0-9]{3}.?[0-9]{3}.?[0-9]{3}-?[0-9]{2}$/,
+    format: /^[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[0-9]{2}$/,
   },
   {
     country: "Bulgaria",
@@ -1018,7 +1019,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Switzerland UID number",
     example: "CHE-123.456.789 HR",
     impactsTaxCalculation: false,
-    format: /^CHE-?[0-9]{3}.?[0-9]{3}.?[0-9]{3} ?HR$/,
+    format: /^CHE-?[0-9]{3}\.?[0-9]{3}\.?[0-9]{3} ?HR$/,
   },
   {
     country: "Switzerland",
@@ -1027,7 +1028,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Switzerland VAT number",
     example: "CHE-123.456.789 MWST",
     impactsTaxCalculation: true,
-    format: /^CHE-?[0-9]{3}.?[0-9]{3}.?[0-9]{3} ?MWST$/,
+    format: /^CHE-?[0-9]{3}\.?[0-9]{3}\.?[0-9]{3} ?MWST$/,
   },
   {
     country: "Taiwan",
