@@ -3,11 +3,10 @@ import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
   provideStoryChangeDetection,
@@ -64,13 +63,7 @@ function shell(options: ShellOptions = {}) {
       ],
     }),
     applicationConfig({
-      providers: [
-        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-        {
-          provide: OrganizationService,
-          useValue: { organizations$: () => of([{ canManageAccessRules: canApprove }]) },
-        },
-      ],
+      providers: [{ provide: ApprovalPrivilegeService, useValue: { canApprove$: of(canApprove) } }],
     }),
   ];
 }
