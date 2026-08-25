@@ -56,6 +56,18 @@ describe("classifyAccessRuleError", () => {
     expect(outcome).toEqual({ kind: "mapped", messageKey: "pamAccessRuleErrorMissing" });
   });
 
+  it("maps the SDK's own local blank-name rejection onto the name field, not the generic banner", () => {
+    const outcome = classifyAccessRuleError(
+      accessRuleError("Validation", ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally.serverMessage),
+    );
+
+    expect(outcome).toEqual({
+      kind: "mapped",
+      messageKey: "pamAccessRuleNameRequired",
+      field: "name",
+    });
+  });
+
   it("falls back to generic for a conditions-document failure the admin cannot act on", () => {
     const outcome = classifyAccessRuleError(
       accessRuleError("Validation", "Conditions must be an array."),
