@@ -306,8 +306,17 @@ export class MyRequestsTabComponent implements OnInit {
       });
     } catch (e) {
       this.logService.error(e);
-      // A taken single-active-lease slot or an org-wide freeze surfaces here; the approved request
-      // stays activatable for a manual retry.
+      // A taken single-active-lease slot, an org-wide freeze, or anything else the server rejects
+      // activation for surfaces here; the approved request stays activatable for a manual retry.
+      //
+      // The server's own sentence is deliberately NOT shown. On the "Api" variant `.message` is the
+      // raw SDK transport string with the entire serialized response body concatenated onto it --
+      // envelope, `exceptionMessage`, and `exceptionStackTrace` carrying the server's absolute
+      // filesystem paths and internal .NET frames. Putting it in a toast published all of that to
+      // the requester (see `classifyAccessRuleError`, which exists for exactly this reason on the
+      // rule path). Surfacing the real reason needs the same treatment: a catalog mapping each
+      // sentence `ActivateAccessRequestCommand` raises to approved copy. None of those six strings
+      // has an approved key yet, so this stays generic until they do.
       this.toastService.showToast({
         variant: "error",
         message: this.i18nService.t("pamStartLeaseError"),
