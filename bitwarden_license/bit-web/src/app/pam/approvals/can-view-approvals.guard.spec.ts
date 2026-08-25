@@ -26,7 +26,7 @@ describe("canViewApprovalsGuard", () => {
   /** Runs the guard in an injection context and normalises its result to a promise. */
   async function run(segments = ["pam", "approvals"]): Promise<GuardResult> {
     const result = TestBed.runInInjectionContext(() =>
-      canViewApprovalsGuard(snapshotFor(segments), null as never),
+      canViewApprovalsGuard(snapshotFor(segments)),
     );
     return isObservable(result) ? await firstValueFrom(result) : await result;
   }
