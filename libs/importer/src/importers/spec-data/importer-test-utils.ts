@@ -28,10 +28,31 @@ export function assertCustomFieldsStructure(
 ) {
   expect(actualFields.length).toEqual(expectedFields.length);
   for (let i = 0; i < expectedFields.length; i++) {
-    expect(actualFields[i].name).toEqual(expectedFields[i][0]);
-    expect(actualFields[i].value).toEqual(expectedFields[i][1]);
+    try {
+      expect(actualFields[i].name).toEqual(expectedFields[i][0]);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      throw new Error(
+        `Expected custom field name ${expectedFields[i][0]}, received ${actualFields[i].name}`,
+      );
+    }
+    try {
+      expect(actualFields[i].value).toEqual(expectedFields[i][1]);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      throw new Error(
+        `Expected custom field value ${expectedFields[i][1]}, received ${actualFields[i].value}`,
+      );
+    }
     if (expectedFields[i].length === 3) {
-      expect(actualFields[i].type).toEqual(expectedFields[i][2]);
+      try {
+        expect(actualFields[i].type).toEqual(expectedFields[i][2]);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      } catch (err) {
+        throw new Error(
+          `Expected custom field type ${expectedFields[i][2]}, received ${actualFields[i].type}`,
+        );
+      }
     }
   }
 }

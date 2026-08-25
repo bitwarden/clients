@@ -7,6 +7,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
+import { testData as dedicatedItemsTestData } from "../spec-data/protonpass-json/protonpass-dedicated-types.json";
 import { testData } from "../spec-data/protonpass-json/protonpass.json";
 
 import { ProtonPassJsonImporter } from "./protonpass-json-importer";
@@ -289,6 +290,113 @@ describe("Protonpass Json Importer", () => {
         ["TestSectionHidden", "SectionHidden", FieldType.Hidden],
         ["TestExtra", "Extra", FieldType.Text],
       ]);
+    });
+  });
+
+  describe("should parse bank account data", () => {
+    it("with new item types feature flag OFF", async () => {
+      const result = await expectParse(importer, dedicatedItemsTestData, 3);
+
+      // With the feature flag off bank accounts are imported as secure notes
+      // with custom fields capturing the rest of the information
+      const bankAccountCipher = result.ciphers[0];
+      expect(bankAccountCipher.type).toEqual(CipherType.SecureNote);
+      assertCustomFieldsStructure(bankAccountCipher.fields, [
+        ["Bank Name", "Bank of the Shire", FieldType.Text],
+        ["Account Number", "1234567890", FieldType.Text],
+        ["Routing Number", "123456", FieldType.Text],
+        ["Account Type", "Checking", FieldType.Text],
+        ["IBAN", "123456", FieldType.Hidden],
+        ["SWIFT/BIC", "1234", FieldType.Text],
+        ["Holder Name", "Bilbo Baggins", FieldType.Text],
+      ]);
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const result = await expectParse(importer, dedicatedItemsTestData, 3);
+
+      // With the feature flag on bank accounts are imported as their dedicated type
+      const bankAccountCipher = result.ciphers[0];
+      expect(bankAccountCipher.type).toEqual(CipherType.BankAccount);
+      expect(bankAccountCipher.bankAccount.bankName).toEqual("Bank of the Shire");
+      expect(bankAccountCipher.bankAccount.accountNumber).toEqual("1234567890");
+      expect(bankAccountCipher.bankAccount.routingNumber).toEqual("123456");
+      expect(bankAccountCipher.bankAccount.accountType).toEqual("Checking");
+      expect(bankAccountCipher.bankAccount.iban).toEqual("123456");
+      expect(bankAccountCipher.bankAccount.swiftCode).toEqual("1234");
+      expect(bankAccountCipher.bankAccount.nameOnAccount).toEqual("Bilbo Baggins");
+    });
+  });
+
+  describe("should parse drivers license data", () => {
+    it("with new item types feature flag OFF", async () => {
+      const result = await expectParse(importer, dedicatedItemsTestData, 3);
+
+      // With the feature flag off drivers licenses are imported as secure notes
+      // with custom fields capturing the rest of the information
+      const driversLicenseCipher = result.ciphers[1];
+      expect(driversLicenseCipher.type).toEqual(CipherType.SecureNote);
+      assertCustomFieldsStructure(driversLicenseCipher.fields, [
+        ["Full Name", "Bilbo Baggins", FieldType.Text],
+        ["License Number", "123456789", FieldType.Text],
+        ["Issuing State/Country", "The Shire", FieldType.Text],
+        ["Expiry Date", "2951-06-19", FieldType.Text],
+        ["Date of Birth", "2890-09-22", FieldType.Text],
+        ["Class", "D", FieldType.Text],
+      ]);
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const result = await expectParse(importer, dedicatedItemsTestData, 3);
+
+      // With the feature flag on drivers licenses are imported as their dedicated type
+      const driversLicenseCipher = result.ciphers[1];
+      expect(driversLicenseCipher.type).toEqual(CipherType.DriversLicense);
+      expect(driversLicenseCipher.driversLicense.firstName).toEqual("Bilbo");
+      expect(driversLicenseCipher.driversLicense.middleName).toBeUndefined();
+      expect(driversLicenseCipher.driversLicense.lastName).toEqual("Baggins");
+      expect(driversLicenseCipher.driversLicense.licenseNumber).toEqual("123456789");
+      expect(driversLicenseCipher.driversLicense.issuingState).toEqual("The Shire");
+      expect(driversLicenseCipher.driversLicense.expirationDate).toEqual("2951-06-19");
+      expect(driversLicenseCipher.driversLicense.dateOfBirth).toEqual("2890-09-22");
+      expect(driversLicenseCipher.driversLicense.licenseClass).toEqual("D");
+    });
+  });
+
+  describe("should parse passport data", () => {
+    it("with new item types feature flag OFF", async () => {
+      const result = await expectParse(importer, dedicatedItemsTestData, 3);
+
+      // With the feature flag off passports are imported as secure notes
+      // with custom fields capturing the rest of the information
+      const passportCipher = result.ciphers[2];
+      expect(passportCipher.type).toEqual(CipherType.SecureNote);
+      assertCustomFieldsStructure(passportCipher.fields, [
+        ["Full Name", "Bilbo Baggins", FieldType.Text],
+        ["Passport Number", "1234567890", FieldType.Hidden],
+        ["Country", "The Shire", FieldType.Text],
+        ["Expiry Date", "2951-06-19", FieldType.Text],
+        ["Date of Birth", "2890-09-22", FieldType.Text],
+        ["Issuing Authority", "Hobbiton Consulate", FieldType.Text],
+      ]);
+    });
+
+    it("with new item types feature flag ON", async () => {
+      configService.getFeatureFlag.mockResolvedValueOnce(true);
+      const result = await expectParse(importer, dedicatedItemsTestData, 3);
+
+      // With the feature flag on passports are imported as their dedicated type
+      const passportCipher = result.ciphers[2];
+      expect(passportCipher.type).toEqual(CipherType.Passport);
+      expect(passportCipher.passport.givenName).toEqual("Bilbo");
+      expect(passportCipher.passport.surname).toEqual("Baggins");
+      expect(passportCipher.passport.passportNumber).toEqual("1234567890");
+      expect(passportCipher.passport.issuingCountry).toEqual("The Shire");
+      expect(passportCipher.passport.expirationDate).toEqual("2951-06-19");
+      expect(passportCipher.passport.dateOfBirth).toEqual("2890-09-22");
+      expect(passportCipher.passport.issuingAuthority).toEqual("Hobbiton Consulate");
     });
   });
 });
