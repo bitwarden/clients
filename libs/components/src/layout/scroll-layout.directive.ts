@@ -42,7 +42,10 @@ export class ScrollLayoutHostDirective implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.service.scrollableRef.set(this.previousRef);
+    // Only restore if this host is still the active one; out-of-order destruction must not clobber a live host.
+    if (this.service.scrollableRef() === this.ref) {
+      this.service.scrollableRef.set(this.previousRef);
+    }
   }
 }
 
