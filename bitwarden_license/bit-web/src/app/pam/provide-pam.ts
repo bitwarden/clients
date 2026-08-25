@@ -7,7 +7,11 @@ import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.serv
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SafeProvider, safeProvider } from "@bitwarden/ui-common";
-import { CIPHER_VIEW_BANNER, GATED_CIPHER_RELOADER } from "@bitwarden/vault";
+import {
+  CIPHER_VIEW_BANNER,
+  GATED_CIPHER_RELOADER,
+  ITEM_DETAILS_STATE_BADGE,
+} from "@bitwarden/vault";
 import { COLLECTION_ACCESS_RULE_CALLOUT } from "@bitwarden/web-vault/app/admin-console/organizations/shared/components/collection-dialog/collection-access-rule-callout.token";
 import { PamNavBadgeService } from "@bitwarden/web-vault/app/pam/pam-nav-badge.service";
 import { VaultRowAccessActionsService } from "@bitwarden/web-vault/app/vault/components/vault-items/vault-row-access-actions.service";
@@ -19,6 +23,7 @@ import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip
 import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
+import { ItemDetailsStateBadgeComponent } from "./item-details-state-badge/item-details-state-badge.component";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
 import { AccessRequestCancelService } from "./services/access-request-cancel.service";
 import { AccessRequestsSdkService } from "./services/access-requests-sdk.service";
@@ -60,11 +65,12 @@ import {
  *
  * Also fills the OSS seams PAM owns, each injected `{ optional: true }` on the OSS
  * side so an unprovided token stays inert: `CIPHER_VIEW_BANNER` (the requester's
- * leasing entry point on an open cipher) and `VAULT_ROW_LEASE_BADGE` (the per-row
- * access-state pill, on cipher AND collection rows — collection rows show the
+ * leasing entry point on an open cipher), `ITEM_DETAILS_STATE_BADGE` (the access-state
+ * pill on the open item's name row) and `VAULT_ROW_LEASE_BADGE` (the same pill per row,
+ * on cipher AND collection rows — collection rows show the
  * "Privileged" pill straight off the collection's server-derived
  * `hasEnabledAccessRule`),
- * both component classes, plus `GATED_CIPHER_RELOADER` (the
+ * all three component classes, plus `GATED_CIPHER_RELOADER` (the
  * observable that reveals a gated cipher in place once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
  * edit dialog), `PamNavBadgeService` (the nav badge count), and
@@ -136,6 +142,10 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: CIPHER_VIEW_BANNER,
       useValue: CipherViewBannerComponent,
+    }),
+    safeProvider({
+      provide: ITEM_DETAILS_STATE_BADGE,
+      useValue: ItemDetailsStateBadgeComponent,
     }),
     safeProvider({
       provide: AccessEventService,
