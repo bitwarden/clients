@@ -47,7 +47,12 @@
               <app-vault-icon [cipher]="cipher" />
             }
             <div>
-              <a [routerLink]="['/pam/requests', row.id]">{{ row.cipherName ?? row.cipherId }}</a>
+              <a
+                [routerLink]="[]"
+                [queryParams]="{ requestId: row.id }"
+                queryParamsHandling="merge"
+                >{{ row.cipherName ?? row.cipherId }}</a
+              >
               @if (row.collectionName) {
                 <div class="tw-text-xs tw-text-muted">
                   {{ "pamInboxInCollection" | i18n: row.collectionName }}

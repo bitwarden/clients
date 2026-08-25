@@ -5,7 +5,7 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
@@ -61,6 +61,8 @@ function shell(options: ShellOptions = {}) {
           },
         },
         { provide: ToastService, useValue: { showToast: () => {} } },
+        // The shell opens the request drawer off the `requestId` query param; no story sets one.
+        { provide: DialogService, useValue: { openDrawer: () => Promise.resolve(undefined) } },
       ],
     }),
     applicationConfig({

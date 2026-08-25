@@ -10,7 +10,6 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { RouterModule } from "@angular/router";
 import { filter } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
@@ -21,7 +20,10 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
   ButtonModule,
+  DIALOG_DATA,
+  DialogModule,
   DialogService,
+  DrawerRef,
   IconModule,
   NoItemsModule,
   SectionComponent,
@@ -31,9 +33,9 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
+  AccessRequestId,
   AccessRequestView,
   durationLabel,
   exactWindow,
@@ -43,7 +45,7 @@ import {
 } from "../..";
 import { AccessStateBadgeComponent } from "../../access-state-badge/access-state-badge.component";
 import { RemainingTimePipe } from "../../date/remaining-time.pipe";
-import { emptyResolvedNames } from "../access-name-resolver.service";
+import { AccessNameResolverService, emptyResolvedNames } from "../access-name-resolver.service";
 import { historyDisplayStatus } from "../my-access-row";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
@@ -60,9 +62,13 @@ const DECISION_LABEL_KEYS = {
   revoked: "pamAuditKindLeaseRevoked",
 } as const;
 
+/** What the shell hands the drawer: the request to load. */
+export type AccessRequestDrawerParams = { requestId: string };
+
 /**
- * The dedicated, shareable page for one of the caller's own access requests
- * (`/pam/requests/:id`). Reached by clicking a request/lease row in "My access", or a direct link.
+ * The drawer body for one of the caller's own access requests, opened over the requests list by
+ * {@link AccessRequestsComponent} whenever the `requestId` query param names a request. Closing it
+ * leaves the reader on the tab they opened it from.
  *
  * Trimmed port of the `pam/poc` branch's `access-request-route.component`: the pass-1
  * `AccessRequestSdkService.getAccessRequest` is user-scoped (it only ever returns one of the
@@ -72,19 +78,18 @@ const DECISION_LABEL_KEYS = {
  * requester never decides their own request — that's the deferred approver-inbox flow). Only
  * Start / Cancel / End access are offered here.
  *
- * Data, name resolution, and mutations live in the page-scoped {@link AccessRequestDetailService};
+ * Data, name resolution, and mutations live in the drawer-scoped {@link AccessRequestDetailService};
  * this component owns only the view (the live countdown clock and the action affordances).
  */
 @Component({
   selector: "app-pam-access-request-route",
   templateUrl: "./access-request-route.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [AccessRequestDetailService],
+  providers: [AccessRequestDetailService, AccessNameResolverService],
   imports: [
     CommonModule,
-    RouterModule,
     I18nPipe,
-    HeaderModule,
+    DialogModule,
     AccessStateBadgeComponent,
     BadgeComponent,
     ButtonModule,
@@ -99,7 +104,18 @@ const DECISION_LABEL_KEYS = {
   ],
 })
 export class AccessRequestRouteComponent implements OnInit {
+  /** Opens the drawer over whatever list is on screen. The caller owns the `requestId` query param. */
+  static openDrawer(dialogService: DialogService, params: AccessRequestDrawerParams) {
+    return dialogService.openDrawer<
+      undefined,
+      AccessRequestDrawerParams,
+      AccessRequestRouteComponent
+    >(AccessRequestRouteComponent, { data: params });
+  }
+
   private readonly detail = inject(AccessRequestDetailService);
+  private readonly drawerRef = inject<DrawerRef<undefined>>(DrawerRef);
+  protected readonly params = inject<AccessRequestDrawerParams>(DIALOG_DATA);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -248,7 +264,14 @@ export class AccessRequestRouteComponent implements OnInit {
   /** The holder can end their own active lease early. */
   protected readonly canEndLease = computed(() => this.leaseActive());
 
+  /** Whether the drawer renders a footer at all — a terminal request offers no action. */
+  protected readonly hasActions = computed(
+    () => this.canStart() || this.canCancel() || this.canEndLease(),
+  );
+
   ngOnInit(): void {
+    this.detail.setRequest(this.params.requestId as unknown as AccessRequestId);
+
     // Keep the countdown clock outside the Angular zone so a periodic in-zone timer never blocks
     // `whenStable()` for tests/hosts; the signal write still drives change detection.
     this.ngZone.runOutsideAngular(() => {
@@ -269,6 +292,10 @@ export class AccessRequestRouteComponent implements OnInit {
           message: this.i18nService.t("pamAccessRequestLoadError"),
         });
       });
+  }
+
+  protected close(): void {
+    void this.drawerRef.close();
   }
 
   protected cipherFor(cipherIdValue: AccessRequestView["cipherId"]): CipherView | undefined {

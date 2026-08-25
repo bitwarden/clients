@@ -23,10 +23,14 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   off. Per-row CIDR validation rides on each pushed control.
 - `access-requests/` — the user-scoped "Access requests" page at `/pam`: a tabbed shell
   (`access-requests.component`) over Approvals, My requests, and History, plus the
-  shareable single-request page at `/pam/requests/:id`. `MyAccessService`,
-  `ApproverInboxService`, and `AccessNameResolverService` are provided on the SHELL
-  ROUTE, not on the component, because routed children inherit a parent route's
-  providers but not a component's — that is what lets the tabs share one load.
+  single-request drawer (`access-request-route/`) the shell opens over whichever tab is
+  showing, off a `requestId` query param. `/pam/requests/:id` survives as a redirect for
+  existing links. `MyAccessService`, `ApproverInboxService`, and
+  `AccessNameResolverService` are provided on the SHELL ROUTE, not on the component,
+  because routed children inherit a parent route's providers but not a component's —
+  that is what lets the tabs share one load. The drawer is the exception: its injector
+  parent is `DialogService`'s, never a route's, so it provides its own
+  `AccessNameResolverService` and takes its id from `DIALOG_DATA`.
 - `approvals/` — the approver side: the SDK-backed inbox data service, the decide
   dialog, the privilege check, and the route guard.
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four

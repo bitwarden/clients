@@ -1,9 +1,9 @@
 import { importProvidersFrom } from "@angular/core";
-import { ActivatedRoute, RouterModule, convertToParamMap } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import { EMPTY, of } from "rxjs";
+import { EMPTY } from "rxjs";
 
-import { DialogService, ToastService } from "@bitwarden/components";
+import { DIALOG_DATA, DialogService, DrawerRef, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessEventService } from "../../abstractions/access-event.service";
@@ -21,7 +21,6 @@ import {
   liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
-  provideStoryWebHeader,
   storyNames,
 } from "../../testing/story-fixtures";
 import { AccessNameResolverService } from "../access-name-resolver.service";
@@ -30,7 +29,7 @@ import { AccessRequestRouteComponent } from "./access-request-route.component";
 
 const names = storyNames();
 
-/** The 404 shape the page reads as "not found" rather than an error banner. */
+/** The 404 shape the drawer reads as "not found" rather than an error banner. */
 const NOT_FOUND = {
   name: "AccessRequestError",
   variant: "Api",
@@ -40,10 +39,10 @@ const NOT_FOUND = {
 /**
  * The component declares `providers: [AccessRequestDetailService]`, so a module-level stub of that
  * service is shadowed and the real one is always constructed. These stories therefore stub the
- * service's own dependencies and let the real page-scoped service run — which is more faithful
+ * service's own dependencies and let the real drawer-scoped service run — which is more faithful
  * anyway, since the loading/not-found/error states are its logic, not the component's.
  *
- * The page clocks its own countdown for a running lease, so windows that must still be open are
+ * The drawer clocks its own countdown for a running lease, so windows that must still be open are
  * built against the real clock inside the factory.
  */
 function detail(options: { request?: () => AccessRequestView; error?: unknown } = {}) {
@@ -73,16 +72,8 @@ function detail(options: { request?: () => AccessRequestView; error?: unknown } 
         },
       },
       { provide: AccessEventService, useValue: { accessChanged$: () => EMPTY } },
-      {
-        provide: ActivatedRoute,
-        // `data` is what the shared web header reads for its route title; without it the header
-        // throws before the page renders.
-        useValue: {
-          paramMap: of(convertToParamMap({ id: "req-1" })),
-          params: of({ id: "req-1" }),
-          data: of({}),
-        },
-      },
+      { provide: DIALOG_DATA, useValue: { requestId: "req-1" } },
+      { provide: DrawerRef, useValue: { isDrawer: true, close: () => {} } },
       { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
@@ -99,7 +90,6 @@ export default {
         importProvidersFrom(PreloadedEnglishI18nModule),
         importProvidersFrom(RouterModule.forRoot([])),
         provideStoryLogService(),
-        ...provideStoryWebHeader(),
       ],
     }),
   ],
@@ -179,8 +169,8 @@ export const AutoApproved: Story = {
 
 /**
  * A link to a request that no longer exists — or that is not this caller's to see. The server
- * returns 404 for both so ids cannot be probed, and the page reads that as not-found rather than
- * an error banner.
+ * returns 404 for both so ids cannot be probed, and the drawer reads that as not-found rather than
+ * an error banner. Its only way out is Close, since the list it opened over is still behind it.
  */
 export const NotFound: Story = {
   decorators: [detail({ error: NOT_FOUND })],

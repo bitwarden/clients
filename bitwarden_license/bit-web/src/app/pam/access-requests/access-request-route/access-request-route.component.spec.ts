@@ -1,19 +1,27 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
-import { DialogService, ToastService } from "@bitwarden/components";
-import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
+import {
+  DIALOG_DATA,
+  DialogModule,
+  DialogService,
+  DrawerRef,
+  ToastService,
+} from "@bitwarden/components";
 
 import type { AccessRequestView } from "../../abstractions/access-lease";
 import { automaticDecision, humanDecision, selfEndDecision } from "../../testing/decision-builders";
-import { ResolvedNames, emptyResolvedNames } from "../access-name-resolver.service";
+import {
+  AccessNameResolverService,
+  ResolvedNames,
+  emptyResolvedNames,
+} from "../access-name-resolver.service";
 
 import { AccessRequestDetailService } from "./access-request-detail.service";
 import { AccessRequestRouteComponent } from "./access-request-route.component";
@@ -50,9 +58,11 @@ describe("AccessRequestRouteComponent", () => {
     cancel: jest.Mock;
     activate: jest.Mock;
     endLease: jest.Mock;
+    setRequest: jest.Mock;
   };
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
+  let drawerRef: { isDrawer: true; close: jest.Mock };
 
   function create(): void {
     fixture = TestBed.createComponent(AccessRequestRouteComponent);
@@ -79,7 +89,9 @@ describe("AccessRequestRouteComponent", () => {
       cancel: jest.fn().mockResolvedValue(undefined),
       activate: jest.fn().mockResolvedValue(undefined),
       endLease: jest.fn().mockResolvedValue(undefined),
+      setRequest: jest.fn(),
     };
+    drawerRef = { isDrawer: true, close: jest.fn() };
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
@@ -87,20 +99,25 @@ describe("AccessRequestRouteComponent", () => {
     await TestBed.configureTestingModule({
       imports: [AccessRequestRouteComponent, NoopAnimationsModule],
       providers: [
-        provideRouter([]),
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: DIALOG_DATA, useValue: { requestId: "req-1" } },
+        { provide: DrawerRef, useValue: drawerRef },
         {
           provide: I18nService,
           useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
         },
       ],
     })
-      // The detail service is provided ON the component, so it has to be swapped there; the header
-      // module pulls in page chrome this test has no interest in.
+      // The detail service and the name resolver are provided ON the component, so they have to be
+      // swapped there. `DialogModule` goes too: it provides `DialogService`, which would shadow the
+      // mock this test asserts the end-lease confirm against.
       .overrideComponent(AccessRequestRouteComponent, {
-        remove: { imports: [HeaderModule], providers: [AccessRequestDetailService] },
+        remove: {
+          imports: [DialogModule],
+          providers: [AccessRequestDetailService, AccessNameResolverService],
+        },
         add: {
           schemas: [NO_ERRORS_SCHEMA],
           providers: [{ provide: AccessRequestDetailService, useValue: detail }],
@@ -110,6 +127,12 @@ describe("AccessRequestRouteComponent", () => {
   });
 
   describe("loading states", () => {
+    it("points the detail service at the request the drawer was opened for", () => {
+      create();
+
+      expect(detail.setRequest).toHaveBeenCalledWith("req-1");
+    });
+
     it("renders the not-found state when the request is not available", () => {
       detail.request$.next(null);
       detail.notFound$.next(true);
@@ -117,6 +140,16 @@ describe("AccessRequestRouteComponent", () => {
       create();
 
       expect(text()).toContain("pamAccessRequestNotFound");
+    });
+
+    it("closes the drawer from the not-found state rather than linking nowhere", () => {
+      detail.request$.next(null);
+      detail.notFound$.next(true);
+      create();
+
+      component["close"]();
+
+      expect(drawerRef.close).toHaveBeenCalled();
     });
 
     it("toasts a load failure that is not a not-found", () => {

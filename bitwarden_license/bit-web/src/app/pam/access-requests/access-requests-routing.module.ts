@@ -1,11 +1,10 @@
-import { NgModule } from "@angular/core";
-import { RouterModule, Routes } from "@angular/router";
+import { NgModule, inject } from "@angular/core";
+import { Router, RouterModule, Routes } from "@angular/router";
 
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { canViewApprovalsGuard } from "../approvals/can-view-approvals.guard";
 
 import { AccessNameResolverService } from "./access-name-resolver.service";
-import { AccessRequestRouteComponent } from "./access-request-route/access-request-route.component";
 import { AccessRequestsComponent } from "./access-requests.component";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
 import { HistoryTabComponent } from "./history-tab.component";
@@ -42,13 +41,14 @@ const routes: Routes = [
     ],
   },
   {
-    // A shareable link to a single one of the caller's own requests/leases — every row links here.
-    // A sibling of the tabbed shell so it renders full-page; `AccessRequestRouteComponent` provides
-    // its own page-scoped detail service, sharing only `AccessNameResolverService` via this route.
+    // The email deep-link target. Kept as a redirect rather than a page so an existing link lands
+    // on the list with the request's drawer open over it — a redirect FUNCTION, because the :id has
+    // to cross from a path segment into a query param.
     path: "requests/:id",
-    component: AccessRequestRouteComponent,
-    providers: [AccessNameResolverService],
-    data: { titleId: "pamAccessRequestTitle" },
+    redirectTo: ({ params }) =>
+      inject(Router).createUrlTree(["/pam/my-requests"], {
+        queryParams: { requestId: params.id },
+      }),
   },
 ];
 

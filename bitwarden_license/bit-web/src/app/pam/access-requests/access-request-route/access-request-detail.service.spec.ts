@@ -1,7 +1,6 @@
 import { TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 
 import {
   AccessEventService,
@@ -44,7 +43,7 @@ function leasingError(message: string): Error {
   return Object.assign(new Error(message), { name: "AccessRequestError", variant: "Api" });
 }
 
-/** Lets the route-driven fetch in the constructor settle before assertions. */
+/** Lets the fetch the service kicks off for its id settle before assertions. */
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 describe("AccessRequestDetailService", () => {
@@ -54,7 +53,6 @@ describe("AccessRequestDetailService", () => {
   let nameResolver: MockProxy<AccessNameResolverService>;
   let leasingErrors: MockProxy<LeasingErrorService>;
   let push$: Subject<void>;
-  let paramMap$: BehaviorSubject<ReturnType<typeof convertToParamMap>>;
 
   async function setup(): Promise<void> {
     TestBed.configureTestingModule({
@@ -65,10 +63,10 @@ describe("AccessRequestDetailService", () => {
         { provide: AccessNameResolverService, useValue: nameResolver },
         { provide: LeasingErrorService, useValue: leasingErrors },
         { provide: AccessEventService, useValue: { accessChanged$: () => push$.asObservable() } },
-        { provide: ActivatedRoute, useValue: { paramMap: paramMap$.asObservable() } },
       ],
     });
     service = TestBed.inject(AccessRequestDetailService);
+    service.setRequest(REQUEST_ID);
     await settle();
   }
 
@@ -78,7 +76,6 @@ describe("AccessRequestDetailService", () => {
     nameResolver = mock<AccessNameResolverService>();
     leasingErrors = mock<LeasingErrorService>();
     push$ = new Subject<void>();
-    paramMap$ = new BehaviorSubject(convertToParamMap({ id: "req-1" }));
 
     requestsApi.getAccessRequest.mockResolvedValue(request());
     // Name resolution is the resolver's own concern (and its own spec); this service only reads its maps.
@@ -87,7 +84,7 @@ describe("AccessRequestDetailService", () => {
   });
 
   describe("loading", () => {
-    it("fetches the request named by the route id", async () => {
+    it("fetches the request it is pointed at", async () => {
       await setup();
 
       expect(requestsApi.getAccessRequest).toHaveBeenCalledWith("req-1");
@@ -104,21 +101,21 @@ describe("AccessRequestDetailService", () => {
       ]);
     });
 
-    it("re-fetches when the route id changes", async () => {
+    it("re-fetches when it is pointed at another request", async () => {
       await setup();
       requestsApi.getAccessRequest.mockClear();
 
-      paramMap$.next(convertToParamMap({ id: "req-2" }));
+      service.setRequest("req-2" as unknown as AccessRequestId);
       await settle();
 
       expect(requestsApi.getAccessRequest).toHaveBeenCalledWith("req-2");
     });
 
-    it("does not re-fetch when the route re-emits the same id", async () => {
+    it("does not re-fetch when it is pointed at the same request again", async () => {
       await setup();
       requestsApi.getAccessRequest.mockClear();
 
-      paramMap$.next(convertToParamMap({ id: "req-1" }));
+      service.setRequest(REQUEST_ID);
       await settle();
 
       expect(requestsApi.getAccessRequest).not.toHaveBeenCalled();
@@ -152,7 +149,7 @@ describe("AccessRequestDetailService", () => {
       await setup();
 
       requestsApi.getAccessRequest.mockResolvedValue(request({ id: "req-2" }));
-      paramMap$.next(convertToParamMap({ id: "req-2" }));
+      service.setRequest("req-2" as unknown as AccessRequestId);
       await settle();
 
       expect(await firstValueFrom(service.loadError$)).toBeNull();

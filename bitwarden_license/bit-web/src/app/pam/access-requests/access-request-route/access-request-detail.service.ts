@@ -1,6 +1,5 @@
 import { DestroyRef, Injectable, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   Observable,
@@ -31,16 +30,16 @@ import {
 } from "../access-name-resolver.service";
 
 /**
- * Loads and holds the single access request behind the `/pam/requests/:id` page — a shareable
- * link to one of the caller's own requests — resolving display names from local vault state and
- * owning the requester-facing mutations (cancel / activate / end lease). Approve/Deny is not
- * offered here: a requester never decides their own request (that's the deferred approver-inbox
- * flow).
+ * Loads and holds the single access request behind the request drawer — one of the caller's own
+ * requests — resolving display names from local vault state and owning the requester-facing
+ * mutations (cancel / activate / end lease). Approve/Deny is not offered here: a requester never
+ * decides their own request (that's the deferred approver-inbox flow).
  *
- * Page-scoped (provided on the route, not root), so each visit gets its own instance. Re-fetches
- * on the route id and on every server-pushed access event ({@link AccessEventService}), so an
- * approver's decision lands on an open page without a reload; mutations made here re-fetch
- * explicitly rather than waiting for their own push to come back.
+ * Drawer-scoped (provided on the drawer component, not root), so each open gets its own instance.
+ * Re-fetches on the id it is pointed at ({@link setRequest}) and on every server-pushed access
+ * event ({@link AccessEventService}), so an approver's decision lands on an open drawer without a
+ * reload; mutations made here re-fetch explicitly rather than waiting for their own push to come
+ * back.
  */
 @Injectable()
 export class AccessRequestDetailService {
@@ -49,7 +48,6 @@ export class AccessRequestDetailService {
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly leasingErrors = inject(LeasingErrorService);
   private readonly accessEvents = inject(AccessEventService);
-  private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly _request$ = new BehaviorSubject<AccessRequestView | null>(null);
@@ -57,6 +55,7 @@ export class AccessRequestDetailService {
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
   private readonly _notFound$ = new BehaviorSubject<boolean>(false);
+  private readonly _id$ = new BehaviorSubject<AccessRequestId | null>(null);
 
   /** The loaded request; its display names come from {@link names$}. Null while loading/errored. */
   readonly request$: Observable<AccessRequestView | null> = this._request$.asObservable();
@@ -74,17 +73,21 @@ export class AccessRequestDetailService {
     // Load when the id changes, and again on every access push. `startWith` gives the push stream an
     // initial value so combineLatest emits on first paint rather than waiting for a push. fetch()
     // records failures on loadError$/notFound$ rather than throwing, so the stream never tears down.
-    const id$ = this.route.paramMap.pipe(
-      map((params) => params.get("id")),
-      filter((id): id is string => id != null),
+    const id$ = this._id$.pipe(
+      filter((id): id is AccessRequestId => id != null),
       distinctUntilChanged(),
     );
     combineLatest([id$, this.accessEvents.accessChanged$().pipe(startWith(undefined))])
       .pipe(
-        switchMap(([id]) => this.fetch(id as unknown as AccessRequestId)),
+        switchMap(([id]) => this.fetch(id)),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe();
+  }
+
+  /** Point the service at a request. Re-fetches on a new id and on every access push. */
+  setRequest(id: AccessRequestId): void {
+    this._id$.next(id);
   }
 
   /** Cancel/withdraw the loaded request, then reload to surface the canceled status. */
