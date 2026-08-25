@@ -9,7 +9,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import {
-  IconModule,
   DialogModule,
   ButtonModule,
   DialogRef,
@@ -42,7 +41,6 @@ export interface HealthDeleteAtRiskItemDialogData {
     I18nPipe,
     AsyncActionsModule,
     TypographyModule,
-    IconModule,
   ],
 })
 export class HealthDeleteAtRiskItemDialogComponent {
