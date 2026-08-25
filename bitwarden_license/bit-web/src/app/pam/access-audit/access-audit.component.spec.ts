@@ -4,9 +4,12 @@ import { ActivatedRoute } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { I18nMockService } from "@bitwarden/components";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
   AccessNameResolverService,
@@ -39,11 +42,7 @@ describe("AccessAuditComponent", () => {
   let auditApiService: MockProxy<AuditApiService>;
   let nameResolver: MockProxy<AccessNameResolverService>;
 
-  beforeEach(async () => {
-    auditApiService = mock<AuditApiService>();
-    nameResolver = mock<AccessNameResolverService>();
-    nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
-
+  const configureTestBed = async (canManageAccessRules = true) => {
     await TestBed.configureTestingModule({
       imports: [AccessAuditComponent],
       providers: [
@@ -54,6 +53,13 @@ describe("AccessAuditComponent", () => {
           provide: ActivatedRoute,
           useValue: { params: of({ organizationId: ORGANIZATION_ID }) },
         },
+        { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+        {
+          provide: OrganizationService,
+          useValue: {
+            organizations$: () => of([{ id: ORGANIZATION_ID, canManageAccessRules }]),
+          },
+        },
         {
           provide: I18nService,
           // I18nMockService throws on an unknown key, so this covers every key the template can
@@ -61,9 +67,12 @@ describe("AccessAuditComponent", () => {
           useValue: new I18nMockService({
             loading: "Loading",
             errorOccurred: "An error has occurred",
+            pamAuditLog: "Audit log",
             pamAuditLoadError: "Could not load the audit trail",
+            tryAgain: "Try again",
             pamAuditEmptyTitle: "No audit activity",
             pamAuditEmptyMessage: "Activity will appear here.",
+            pamAccessRules: "Access rules",
             pamAuditSearchPlaceholder: "Search the audit log",
             pamAuditNoMatchesTitle: "No matching events",
             pamAuditNoMatchesMessage: "No events match the current filters.",
@@ -84,11 +93,23 @@ describe("AccessAuditComponent", () => {
       ],
     })
       // Stub the design-system children so these tests exercise this component's own
-      // load / filter / status logic rather than table and chip rendering.
-      .overrideComponent(AccessAuditComponent, { add: { schemas: [NO_ERRORS_SCHEMA] } })
+      // load / filter / status logic rather than table and chip rendering; the header module pulls
+      // in page chrome (route.data) this test has no interest in wiring up.
+      .overrideComponent(AccessAuditComponent, {
+        remove: { imports: [HeaderModule] },
+        add: { schemas: [NO_ERRORS_SCHEMA] },
+      })
       .compileComponents();
 
     fixture = TestBed.createComponent(AccessAuditComponent);
+  };
+
+  beforeEach(async () => {
+    auditApiService = mock<AuditApiService>();
+    nameResolver = mock<AccessNameResolverService>();
+    nameResolver.resolveNames.mockResolvedValue(emptyResolvedNames());
+
+    await configureTestBed();
   });
 
   /** The component's protected surface, reached the way the template reaches it. */
@@ -114,6 +135,30 @@ describe("AccessAuditComponent", () => {
     expect(component().status()).toBe("empty");
   });
 
+  it("shows the empty state's Access rules link for a viewer who can manage access rules", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector("#access-audit_link_access-rules");
+    expect(link).not.toBeNull();
+  });
+
+  it("drops the empty state's Access rules link for a viewer who cannot manage access rules", async () => {
+    TestBed.resetTestingModule();
+    await configureTestBed(false);
+    auditApiService.listAccessAuditTrail.mockResolvedValue([]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const link = fixture.nativeElement.querySelector("#access-audit_link_access-rules");
+    expect(link).toBeNull();
+  });
+
   it("reports error when the read fails, and logs it", async () => {
     auditApiService.listAccessAuditTrail.mockRejectedValue(new Error("boom"));
 
@@ -122,6 +167,19 @@ describe("AccessAuditComponent", () => {
 
     expect(component().status()).toBe("error");
     expect(TestBed.inject(LogService).error).toHaveBeenCalled();
+  });
+
+  it("recovers from the error state when load() is retried", async () => {
+    auditApiService.listAccessAuditTrail.mockRejectedValueOnce(new Error("boom"));
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(component().status()).toBe("error");
+
+    auditApiService.listAccessAuditTrail.mockResolvedValueOnce([event()]);
+    await component().load();
+
+    expect(component().status()).toBe("ready");
   });
 
   // Only an event naming both a cipher and its collection can be matched to a local vault item, so
@@ -151,10 +209,10 @@ describe("AccessAuditComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
 
-    // Labelled and sorted alphabetically, one entry per distinct kind.
+    // Labelled and sorted alphabetically, one entry per distinct kind label key.
     expect(component().kindOptions()).toEqual([
-      { label: "Lease activated", value: "leaseActivated" },
-      { label: "Request approved", value: "requestApproved" },
+      { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
+      { label: "Request approved", value: "pamAuditKindRequestApproved" },
     ]);
   });
 
@@ -168,10 +226,10 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
     expect(component().filteredRows()).toHaveLength(2);
 
-    component().kindControl.setValue("leaseActivated");
+    component().kindControl.setValue("pamAuditKindLeaseActivated");
 
     expect(component().filteredRows()).toHaveLength(1);
-    expect(component().filteredRows()[0].kind).toBe("leaseActivated");
+    expect(component().filteredRows()[0].kindLabelKey).toBe("pamAuditKindLeaseActivated");
   });
 
   it("filters rows by free text over actor, requester, item, and detail", async () => {
