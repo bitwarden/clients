@@ -61,6 +61,7 @@
                   [routerLink]="[]"
                   [queryParams]="{ requestId: row.id }"
                   queryParamsHandling="merge"
+                  [replaceUrl]="true"
                   >{{ row.cipherName }}</a
                 >
                 @if (row.collectionName) {

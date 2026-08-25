@@ -1,7 +1,8 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
+import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter } from "@angular/router";
+import { provideRouter, RouterLink } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -258,5 +259,24 @@ describe("MyRequestsTabComponent", () => {
       expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
       expect(fixture.nativeElement.textContent).toContain("pamMyRequestsPendingEmpty");
     });
+  });
+
+  function drawerLinks(): RouterLink[] {
+    return fixture.debugElement
+      .queryAll(By.directive(RouterLink))
+      .map((el) => el.injector.get(RouterLink))
+      .filter((link) => link.queryParams?.requestId != null);
+  }
+
+  it("opens a request with replaceUrl from every section, so Back leaves the page instead of unwinding opened requests", () => {
+    pendingRows$.next([requestRow({ id: "req-pending", status: "pending" })]);
+    extensionRows$.next([requestRow({ id: "req-ext", status: "pending" })]);
+    leases$.next([leaseRow()]);
+    create();
+
+    const links = drawerLinks();
+
+    expect(links).toHaveLength(3);
+    expect(links.every((link) => link.replaceUrl)).toBe(true);
   });
 });

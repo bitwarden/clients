@@ -51,8 +51,9 @@ import { MyAccessService } from "./my-access.service";
  *
  * The shell also owns the request drawer: a `requestId` query param names the request showing in
  * {@link AccessRequestRouteComponent}, so a row link only has to add the param and the reader stays
- * on their own tab. Closing the drawer clears the param with `replaceUrl`, which is what stops
- * browser Back walking through every request that was opened.
+ * on their own tab. Both ends of that round trip navigate with `replaceUrl` — the row links as well
+ * as the close handler — so opening and closing a request leaves the history depth unchanged and
+ * browser Back does not walk through every request that was opened.
  */
 @Component({
   selector: "pam-access-requests",
