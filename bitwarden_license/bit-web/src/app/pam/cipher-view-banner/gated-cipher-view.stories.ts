@@ -45,7 +45,7 @@ import {
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 /**
- * The composed cipher view, rather than the banner on its own — this is where the card ORDER is
+ * The composed cipher view, rather than the banner on its own. This is where the card ORDER is
  * visible, and the order is the only thing these stories exist to show: identity, then access, then
  * Autofill options, then Item history.
  *
@@ -86,7 +86,7 @@ function provideStoryCipherView() {
   return [
     // Only the PAM flag is on. `VFO1Foundation` and `PM32016RemoveAtRiskCallout` are read by the
     // cipher view and its item-details child, and blanket-enabling every flag would silently swap
-    // the terminology and drop the at-risk callout — neither of which these stories are about.
+    // the terminology and drop the at-risk callout, neither of which these stories are about.
     {
       provide: ConfigService,
       useValue: { getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.Pam) },
@@ -124,7 +124,6 @@ function provideStoryCipherView() {
   ];
 }
 
-/** Binds the real banner to the token, over an access state built at render time. */
 function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({
     imports: [CipherViewBannerComponent],
@@ -206,7 +205,7 @@ export const Pending: Story = {
   ],
 };
 
-/** Approved but not yet started — the tallest of the three access cards. */
+/** Approved but not yet started: the tallest of the three access cards. */
 export const Approved: Story = {
   decorators: [
     gated(() => ({
