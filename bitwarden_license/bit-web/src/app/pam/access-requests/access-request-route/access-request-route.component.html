@@ -1,8 +1,4 @@
-<bit-dialog
-  dialogSize="large"
-  [title]="'pamAccessRequestTitle' | i18n"
-  [loading]="loading() && request() == null && !notFound() && !loadError()"
->
+<bit-dialog dialogSize="large" [title]="'pamAccessRequestTitle' | i18n" [loading]="showLoading()">
   <ng-container bitDialogContent>
     @if (request(); as r) {
       <bit-section>

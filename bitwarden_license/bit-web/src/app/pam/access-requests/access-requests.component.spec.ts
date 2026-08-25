@@ -7,7 +7,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { DialogService, DrawerRef, ToastService } from "@bitwarden/components";
+import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 
@@ -93,7 +93,7 @@ describe("AccessRequestsComponent", () => {
 
     it("opens the drawer for the request the query param names", async () => {
       queryParams$.next({ requestId: "req-1" });
-      openDrawer.mockResolvedValue(drawerRef() as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(drawerRef());
 
       await create();
 
@@ -103,7 +103,7 @@ describe("AccessRequestsComponent", () => {
 
     it("does not reopen when the same request is emitted again", async () => {
       queryParams$.next({ requestId: "req-1" });
-      openDrawer.mockResolvedValue(drawerRef() as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(drawerRef());
       await create();
 
       queryParams$.next({ requestId: "req-1", tab: "history" });
@@ -114,7 +114,7 @@ describe("AccessRequestsComponent", () => {
 
     it("reopens for another request — a row clicked while the drawer is showing", async () => {
       queryParams$.next({ requestId: "req-1" });
-      openDrawer.mockResolvedValue(drawerRef() as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(drawerRef());
       await create();
 
       queryParams$.next({ requestId: "req-2" });
@@ -127,7 +127,7 @@ describe("AccessRequestsComponent", () => {
     it("closes the open drawer when the query param is cleared", async () => {
       const ref = drawerRef();
       queryParams$.next({ requestId: "req-1" });
-      openDrawer.mockResolvedValue(ref as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(ref);
       await create();
 
       queryParams$.next({});
@@ -139,7 +139,7 @@ describe("AccessRequestsComponent", () => {
     it("clears the request from the URL when the drawer closes, keeping the current tab", async () => {
       const ref = drawerRef();
       queryParams$.next({ requestId: "req-1" });
-      openDrawer.mockResolvedValue(ref as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(ref);
       await create();
 
       ref.closed.next(undefined);
@@ -156,10 +156,10 @@ describe("AccessRequestsComponent", () => {
       const first = drawerRef();
       const second = drawerRef();
       queryParams$.next({ requestId: "req-1" });
-      openDrawer.mockResolvedValue(first as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(first);
       await create();
 
-      openDrawer.mockResolvedValue(second as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(second);
       queryParams$.next({ requestId: "req-2" });
       await settle();
 
@@ -171,7 +171,7 @@ describe("AccessRequestsComponent", () => {
     it("closes the drawer on destroy without writing query params onto the new route", async () => {
       const ref = drawerRef();
       queryParams$.next({ requestId: "req-1" });
-      openDrawer.mockResolvedValue(ref as unknown as DrawerRef<undefined>);
+      openDrawer.mockResolvedValue(ref);
       await create();
 
       fixture.destroy();

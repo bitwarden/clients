@@ -3,9 +3,9 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import {
   BehaviorSubject,
   Observable,
+  ReplaySubject,
   combineLatest,
   distinctUntilChanged,
-  filter,
   map,
   startWith,
   switchMap,
@@ -55,7 +55,7 @@ export class AccessRequestDetailService {
   private readonly _loading$ = new BehaviorSubject<boolean>(true);
   private readonly _loadError$ = new BehaviorSubject<unknown | null>(null);
   private readonly _notFound$ = new BehaviorSubject<boolean>(false);
-  private readonly _id$ = new BehaviorSubject<AccessRequestId | null>(null);
+  private readonly _id$ = new ReplaySubject<AccessRequestId>(1);
 
   /** The loaded request; its display names come from {@link names$}. Null while loading/errored. */
   readonly request$: Observable<AccessRequestView | null> = this._request$.asObservable();
@@ -73,10 +73,7 @@ export class AccessRequestDetailService {
     // Load when the id changes, and again on every access push. `startWith` gives the push stream an
     // initial value so combineLatest emits on first paint rather than waiting for a push. fetch()
     // records failures on loadError$/notFound$ rather than throwing, so the stream never tears down.
-    const id$ = this._id$.pipe(
-      filter((id): id is AccessRequestId => id != null),
-      distinctUntilChanged(),
-    );
+    const id$ = this._id$.pipe(distinctUntilChanged());
     combineLatest([id$, this.accessEvents.accessChanged$().pipe(startWith(undefined))])
       .pipe(
         switchMap(([id]) => this.fetch(id)),

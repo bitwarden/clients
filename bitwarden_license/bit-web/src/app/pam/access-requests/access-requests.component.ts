@@ -154,12 +154,15 @@ export class AccessRequestsComponent implements OnInit {
     // Leaving /pam entirely destroys the shell but not the drawer: closeOnNavigation is off, so
     // nothing else would tear it down. Clearing drawerRef first stops the closed handler writing
     // query params onto the route the user just navigated to.
-    this.destroyRef.onDestroy(() => {
-      const ref = this.drawerRef();
-      this.drawerRef.set(undefined);
-      this.openRequestId.set(null);
-      void ref?.close();
-    });
+    this.destroyRef.onDestroy(() => void this.forgetDrawer()?.close());
+  }
+
+  /** Drop the shell's hold on the drawer and hand it back, so the caller can close it. */
+  private forgetDrawer(): DrawerRef<undefined> | undefined {
+    const ref = this.drawerRef();
+    this.drawerRef.set(undefined);
+    this.openRequestId.set(null);
+    return ref;
   }
 
   private async syncDrawer(requestId: string | null): Promise<void> {
@@ -167,10 +170,7 @@ export class AccessRequestsComponent implements OnInit {
       return;
     }
     if (requestId == null) {
-      const closing = this.drawerRef();
-      this.drawerRef.set(undefined);
-      this.openRequestId.set(null);
-      await closing?.close();
+      await this.forgetDrawer()?.close();
       return;
     }
 
@@ -190,8 +190,7 @@ export class AccessRequestsComponent implements OnInit {
       if (this.drawerRef() !== ref) {
         return;
       }
-      this.drawerRef.set(undefined);
-      this.openRequestId.set(null);
+      this.forgetDrawer();
       // No `relativeTo`: an empty command array keeps the whole current path, so closing the
       // drawer leaves the reader on the tab they opened it from.
       void this.router.navigate([], {

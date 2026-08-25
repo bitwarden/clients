@@ -115,7 +115,7 @@ export class AccessRequestRouteComponent implements OnInit {
 
   private readonly detail = inject(AccessRequestDetailService);
   private readonly drawerRef = inject<DrawerRef<undefined>>(DrawerRef);
-  protected readonly params = inject<AccessRequestDrawerParams>(DIALOG_DATA);
+  private readonly params = inject<AccessRequestDrawerParams>(DIALOG_DATA);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -124,7 +124,7 @@ export class AccessRequestRouteComponent implements OnInit {
   private readonly ngZone = inject(NgZone);
 
   protected readonly request = toSignal(this.detail.request$, { initialValue: null });
-  protected readonly loading = toSignal(this.detail.loading$, { initialValue: true });
+  private readonly loading = toSignal(this.detail.loading$, { initialValue: true });
   protected readonly notFound = toSignal(this.detail.notFound$, { initialValue: false });
   protected readonly loadError = toSignal(this.detail.loadError$, { initialValue: null });
   private readonly cipherById = toSignal(this.detail.cipherById$, {
@@ -267,6 +267,11 @@ export class AccessRequestRouteComponent implements OnInit {
   /** Whether the drawer renders a footer at all — a terminal request offers no action. */
   protected readonly hasActions = computed(
     () => this.canStart() || this.canCancel() || this.canEndLease(),
+  );
+
+  /** The first load, before there is either a request or a terminal state to render instead. */
+  protected readonly showLoading = computed(
+    () => this.loading() && this.request() == null && !this.notFound() && !this.loadError(),
   );
 
   ngOnInit(): void {
