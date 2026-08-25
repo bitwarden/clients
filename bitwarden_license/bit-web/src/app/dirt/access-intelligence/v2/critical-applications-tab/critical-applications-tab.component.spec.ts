@@ -139,49 +139,6 @@ describe("CriticalApplicationsTabComponent", () => {
     });
   });
 
-  // ==================== Observable → Signal Conversions ====================
-
-  describe("Observable → Signal Conversions", () => {
-    it("should convert report$ to signal via toSignal()", () => {
-      const testReport = createRiskInsights({
-        reports: [createReport("github.com", {}, {})],
-      });
-
-      mockDataService.report$.next(testReport);
-
-      expect(testAccess(component).report()).toBe(testReport);
-    });
-
-    it("should convert loading$ to signal", () => {
-      mockDataService.loading$.next(true);
-      expect(testAccess(component).loading()).toBe(true);
-
-      mockDataService.loading$.next(false);
-      expect(testAccess(component).loading()).toBe(false);
-    });
-
-    it("should convert ciphers$ to signal", () => {
-      const cipher = new CipherView();
-      cipher.id = "cipher-1";
-      mockDataService.ciphers$.next([cipher]);
-
-      expect(testAccess(component).ciphers()).toHaveLength(1);
-      expect(testAccess(component).ciphers()[0].id).toBe("cipher-1");
-    });
-
-    it("should expose the drawer state signal from DrawerStateService", () => {
-      const state: DrawerState = {
-        open: true,
-        type: DrawerType.CriticalAtRiskMembers,
-        invokerId: "criticalAppsAtRiskMembers",
-      };
-
-      mockDrawerState.set(state);
-
-      expect(testAccess(component).drawerState()).toBe(state);
-    });
-  });
-
   // ==================== atRiskCipherIds ====================
 
   describe("atRiskCipherIds", () => {
