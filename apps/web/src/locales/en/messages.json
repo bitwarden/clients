@@ -16221,6 +16221,18 @@
   "recoveryStepFoldersTitle": {
     "message": "Verifying folder integrity"
   },
+  "recoveryStepAttachmentTitle": {
+    "message": "Verifying attachment integrity"
+  },
+  "recoveryStepAttachmentIssue": {
+    "message": "$COUNT$ item(s) have file attachments with old encryption. Open an item below and go to Attachments to fix it.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "dataRecoveryTitle": {
     "message": "Data Recovery and Diagnostics"
   },

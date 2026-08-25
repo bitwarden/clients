@@ -28,6 +28,7 @@ import {
   RecoveryWorkingData,
   FolderStep,
   CipherStep,
+  AttachmentStep,
 } from "./steps";
 
 export const StepStatus = Object.freeze({
@@ -42,6 +43,7 @@ interface StepState {
   title: string;
   status: StepStatus;
   message?: string;
+  oldAttachmentCipherIds?: string[];
 }
 
 @Component({
@@ -78,6 +80,7 @@ export class DataRecoveryComponent {
       this.dialogService,
       this.encryptService,
     ),
+    new AttachmentStep(this.i18nService),
   ];
   private workingData: RecoveryWorkingData | null = null;
 
@@ -135,6 +138,8 @@ export class DataRecoveryComponent {
       try {
         const success = await step.runDiagnostics(this.workingData, this.logger);
         currentSteps[i].status = success ? StepStatus.Completed : StepStatus.Failed;
+        currentSteps[i].message = step.message;
+        currentSteps[i].oldAttachmentCipherIds = step.oldAttachmentCipherIds;
         if (!success) {
           hasAnyFailures = true;
         }
@@ -143,6 +148,7 @@ export class DataRecoveryComponent {
       } catch (error) {
         currentSteps[i].status = StepStatus.Failed;
         currentSteps[i].message = (error as Error).message;
+        currentSteps[i].oldAttachmentCipherIds = undefined;
         this.steps.set([...currentSteps]);
         this.logger.record(
           `Diagnostics failed for step: ${step.title} with error: ${(error as Error).message}`,

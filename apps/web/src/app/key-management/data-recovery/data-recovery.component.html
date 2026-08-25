@@ -50,6 +50,25 @@
             >
               {{ step.title }}
             </span>
+            @if (step.message) {
+              <p bitTypography="body2" class="tw-mb-0 tw-text-danger">{{ step.message }}</p>
+            }
+            @if (step.oldAttachmentCipherIds?.length) {
+              <ul
+                class="tw-mb-0 tw-mt-1 tw-max-h-40 tw-list-none tw-space-y-1 tw-overflow-y-auto tw-pl-0"
+              >
+                @for (cipherId of step.oldAttachmentCipherIds; track cipherId) {
+                  <li>
+                    <a
+                      bitLink
+                      routerLink="/vault"
+                      [queryParams]="{ itemId: cipherId, action: 'edit' }"
+                      >{{ cipherId }}</a
+                    >
+                  </li>
+                }
+              </ul>
+            }
           </div>
         </div>
       }

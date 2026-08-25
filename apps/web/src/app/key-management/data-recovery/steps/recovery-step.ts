@@ -12,6 +12,14 @@ export abstract class RecoveryStep {
   /** Title of the recovery step, as an i18n key. */
   abstract title: string;
 
+  /** Localized detail about the outcome, shown under the step once diagnostics have run. */
+  message?: string;
+
+  /**
+   * IDs of ciphers that hold old attachments. Rendered under the step as links to the vault item.
+   */
+  oldAttachmentCipherIds?: string[];
+
   /**
    * Runs diagnostics on the provided working data.
    * Returns true if no issues were found, false otherwise.
