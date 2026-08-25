@@ -22,7 +22,10 @@ import { MyAccessService } from "./my-access.service";
  *    member with no approval privileges, rather than shown empty: a tab that can never have anything
  *    in it is noise, and `canViewApprovalsGuard` redirects the deep link to match.
  *  - My requests — the caller's own pending/extension requests and active leases.
- *  - History — the caller's terminal requests, plus (for approvers) the ones they decided.
+ *  - History — the caller's terminal requests, plus (for approvers) the ones they decided. No
+ *    berry: {@link MyAccessService.historyRows$} only grows (terminal requests never leave
+ *    history), so a live count there would read as permanent unattended work rather than
+ *    something to act on — unlike the My requests and Approvals berries below.
  *
  * Each tab is a child route rendered in the shell's `<router-outlet>`; the shell stays mounted
  * across tab navigation. {@link MyAccessService} is provided at the parent route (see the routing
@@ -73,12 +76,6 @@ export class AccessRequestsComponent implements OnInit {
 
   /** The "Approvals" berry: requests awaiting the caller's decision. */
   protected readonly approvalsCount = toSignal(this.inbox.pendingCount$, { initialValue: 0 });
-
-  /** The "History" berry: the caller's terminal requests. */
-  protected readonly historyCount = toSignal(
-    this.myAccess.historyRows$.pipe(map((rows) => rows.length)),
-    { initialValue: 0 },
-  );
 
   ngOnInit(): void {
     void this.myAccess.load();
