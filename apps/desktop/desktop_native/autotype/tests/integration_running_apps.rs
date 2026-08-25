@@ -46,8 +46,8 @@ fn print_running_apps() {
         .unwrap_or(4)
         .max(4);
 
-    println!("  {:<name_w$}  {}", "NAME", "PATH");
-    println!("  {:<name_w$}  {}", "-".repeat(name_w), "----");
+    println!("  {:<name_w$}  PATH", "NAME");
+    println!("  {:<name_w$}  ----", "-".repeat(name_w));
     for a in &apps {
         println!(
             "  {:<name_w$}  {}",
