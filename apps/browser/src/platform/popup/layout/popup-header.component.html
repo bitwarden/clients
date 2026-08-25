@@ -69,7 +69,10 @@
         }
         @if (pageTitle()) {
           <div class="tw-inline-flex tw-items-center tw-gap-1">
-            <h1 bitTypography="h3" [class]="vfo1Enabled() ? '!tw-mb-0' : '!tw-mb-0.5'">
+            <h1
+              [bitTypography]="vfo1Enabled() ? 'h5' : 'h3'"
+              [class]="vfo1Enabled() ? '!tw-mb-0' : '!tw-mb-0.5'"
+            >
               {{ pageTitle() }}
             </h1>
             <ng-content select="[slot=title-suffix]"></ng-content>
