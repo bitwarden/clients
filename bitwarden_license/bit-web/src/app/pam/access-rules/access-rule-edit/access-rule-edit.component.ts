@@ -186,12 +186,12 @@ export class AccessRuleEditComponent {
     () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
   );
 
-  protected readonly eventLogRoute = ["/organizations", this.organizationId, "reporting", "events"];
+  protected readonly eventLogRoute = ["/organizations", this.organizationId, "pam", "audit"];
 
   /**
    * Gates the footer notice. `canManageAccessRules` (this page's guard) does not imply access to
    * event logs: `canAccessEventLogs` also requires the organization's `useEvents` entitlement, and
-   * without it the reporting route bounces the admin straight back out.
+   * without it the PAM audit route's own guard bounces the admin straight back out.
    */
   protected readonly canAccessEventLogs = toSignal(
     this.activeUserId$.pipe(
