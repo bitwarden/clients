@@ -7,11 +7,15 @@
 
 use std::ffi::c_void;
 
-use windows::core::{Interface, GUID, PWSTR};
-use windows::Win32::System::Com::CoTaskMemFree;
-use windows::Win32::UI::Shell::{
-    IEnumShellItems, IShellItem, IShellItem2, SHGetKnownFolderItem, KF_FLAG_DEFAULT,
-    SIGDN_NORMALDISPLAY,
+use windows::{
+    core::{Interface, GUID, PWSTR},
+    Win32::{
+        System::Com::CoTaskMemFree,
+        UI::Shell::{
+            IEnumShellItems, IShellItem, IShellItem2, SHGetKnownFolderItem, KF_FLAG_DEFAULT,
+            SIGDN_NORMALDISPLAY,
+        },
+    },
 };
 
 use super::{AppRegistration, AppRegistry};

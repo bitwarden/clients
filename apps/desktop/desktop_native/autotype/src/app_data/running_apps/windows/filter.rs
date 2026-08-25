@@ -2,8 +2,10 @@
 //!
 //! Each rule is a self-contained [`FilterStep`], run in the order given by [`PIPELINE`].
 
-use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::{
+    ffi::OsStr,
+    path::{Path, PathBuf},
+};
 
 use tracing::debug;
 use windows::Win32::System::Threading::GetCurrentProcessId;
@@ -263,7 +265,8 @@ mod tests {
                 false,
             ), // shell surface
             app(4244, "vctip.exe", Some("D:\\x\\vctip.exe"), true, false), // background noise
-            app(4245, "helper.exe", None, false, false), // windowless unregistered
+            app(4245, "helper.exe", None, false, false),                   /* windowless
+                                                                            * unregistered */
         ];
         let kept = apply(candidates);
         let names: Vec<&str> = kept.iter().map(|c| c.filename.as_str()).collect();

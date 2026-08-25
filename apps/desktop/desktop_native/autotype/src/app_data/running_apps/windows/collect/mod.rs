@@ -9,13 +9,20 @@
 //! combined set ([`collect_windows`]: dedupe + identity resolution against the AppsFolder
 //! registry), then merges Source B by PID ([`merge_packaged`])
 
-use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::{
+    collections::{HashMap, HashSet},
+    path::PathBuf,
+};
 
-use windows::core::PWSTR;
-use windows::Win32::Foundation::{CloseHandle, MAX_PATH};
-use windows::Win32::System::Threading::{
-    OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32, PROCESS_QUERY_LIMITED_INFORMATION,
+use windows::{
+    core::PWSTR,
+    Win32::{
+        Foundation::{CloseHandle, MAX_PATH},
+        System::Threading::{
+            OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_WIN32,
+            PROCESS_QUERY_LIMITED_INFORMATION,
+        },
+    },
 };
 
 use super::{AppRegistry, RunningApp, APPLICATION_FRAME_HOST_EXE, PKEY_APP_USER_MODEL_ID};

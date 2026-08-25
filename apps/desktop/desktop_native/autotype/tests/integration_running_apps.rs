@@ -2,8 +2,8 @@
 //!
 //! Runs the real [`autotype::get_running_apps`] pipeline against whatever is currently running on
 //! the machine and prints the results as a table.
-//! It makes no assertions, this is a developer tool to eyeball what the enumeration returns, so it must be run on a Windows machine that
-//! already has a normal set of apps open.
+//! It makes no assertions, this is a developer tool to eyeball what the enumeration returns, so it
+//! must be run on a Windows machine that already has a normal set of apps open.
 //!
 //! ```text
 //! RUST_LOG=debug cargo test -p autotype --test integration_running_apps -- --nocapture

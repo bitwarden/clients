@@ -5,13 +5,16 @@
 //!    2. filter out the noise
 //!    3. sort alphabetically by display name
 
-use std::collections::HashMap;
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 use tracing::{debug, warn};
-use windows::core::GUID;
-use windows::Win32::Foundation::{PROPERTYKEY, RPC_E_CHANGED_MODE};
-use windows::Win32::System::Com::{CoInitializeEx, CoUninitialize, COINIT_APARTMENTTHREADED};
+use windows::{
+    core::GUID,
+    Win32::{
+        Foundation::{PROPERTYKEY, RPC_E_CHANGED_MODE},
+        System::Com::{CoInitializeEx, CoUninitialize, COINIT_APARTMENTTHREADED},
+    },
+};
 
 use crate::app_data::AppData;
 

@@ -10,22 +10,27 @@
 //!     - not a tool window
 //!     - and has a real title bar (`WS_CAPTION` + `WS_SYSMENU`).
 
-use std::ffi::c_void;
-use std::path::Path;
+use std::{ffi::c_void, path::Path};
 
-use windows::core::{BOOL, PCWSTR};
-use windows::Win32::Foundation::{HWND, LPARAM};
-use windows::Win32::Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED};
-use windows::Win32::Storage::FileSystem::{
-    GetFileVersionInfoSizeW, GetFileVersionInfoW, VerQueryValueW,
-};
-use windows::Win32::System::Com::CoTaskMemFree;
-use windows::Win32::System::Com::StructuredStorage::{PropVariantClear, PropVariantToStringAlloc};
-use windows::Win32::UI::Shell::PropertiesSystem::{IPropertyStore, SHGetPropertyStoreForWindow};
-use windows::Win32::UI::WindowsAndMessaging::{
-    EnumChildWindows, EnumWindows, GetWindow, GetWindowLongW, GetWindowTextLengthW,
-    GetWindowThreadProcessId, IsWindowVisible, GWL_EXSTYLE, GWL_STYLE, GW_OWNER, WS_CAPTION,
-    WS_EX_TOOLWINDOW, WS_SYSMENU,
+use windows::{
+    core::{BOOL, PCWSTR},
+    Win32::{
+        Foundation::{HWND, LPARAM},
+        Graphics::Dwm::{DwmGetWindowAttribute, DWMWA_CLOAKED},
+        Storage::FileSystem::{GetFileVersionInfoSizeW, GetFileVersionInfoW, VerQueryValueW},
+        System::Com::{
+            CoTaskMemFree,
+            StructuredStorage::{PropVariantClear, PropVariantToStringAlloc},
+        },
+        UI::{
+            Shell::PropertiesSystem::{IPropertyStore, SHGetPropertyStoreForWindow},
+            WindowsAndMessaging::{
+                EnumChildWindows, EnumWindows, GetWindow, GetWindowLongW, GetWindowTextLengthW,
+                GetWindowThreadProcessId, IsWindowVisible, GWL_EXSTYLE, GWL_STYLE, GW_OWNER,
+                WS_CAPTION, WS_EX_TOOLWINDOW, WS_SYSMENU,
+            },
+        },
+    },
 };
 
 use super::{process_image_path, RawWindow, APPLICATION_FRAME_HOST_EXE, PKEY_APP_USER_MODEL_ID};
