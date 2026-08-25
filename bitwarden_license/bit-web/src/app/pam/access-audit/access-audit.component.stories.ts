@@ -1,8 +1,10 @@
 import { importProvidersFrom } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
@@ -133,7 +135,15 @@ function audit(options: { events?: AccessAuditEventResponse[]; fails?: boolean }
         provide: AccessNameResolverService,
         useValue: { resolveNames: () => Promise.resolve(names) },
       },
-      { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+      {
+        provide: ActivatedRoute,
+        useValue: { params: of({ organizationId: "org-1" }), data: of({}) },
+      },
+      { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
+      {
+        provide: OrganizationService,
+        useValue: { organizations$: () => of([{ id: "org-1", canManageAccessRules: true }]) },
+      },
     ],
   });
 }
@@ -146,6 +156,7 @@ export default {
       providers: [
         provideStoryChangeDetection(),
         importProvidersFrom(PreloadedEnglishI18nModule),
+        importProvidersFrom(RouterModule.forRoot([])),
         provideStoryLogService(),
       ],
     }),
