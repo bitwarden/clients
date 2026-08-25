@@ -41,7 +41,7 @@ import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.
  *
  * Only ever rendered for an approver: `canViewApprovalsGuard` redirects a non-approver's deep
  * link to the sibling `my-requests` tab, and the shell (`access-requests.component.html`) only
- * renders the "Approvals" tab-link when `hasApprovalPrivileges$` is true — so a non-approver
+ * renders the "Approvals" tab-link when {@link ApprovalPrivilegeService} says so — so a non-approver
  * never reaches this component.
  *
  * Data, ordering, and the optimistic decide live in {@link ApproverInboxService} (shared with the

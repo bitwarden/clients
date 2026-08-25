@@ -7,17 +7,12 @@ import {
   UrlSegment,
 } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, isObservable, of } from "rxjs";
+import { BehaviorSubject, firstValueFrom, isObservable } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { SyncService } from "@bitwarden/common/platform/sync";
 
+import { ApprovalPrivilegeService } from "./approval-privilege.service";
 import { canViewApprovalsGuard } from "./can-view-approvals.guard";
-
-const approverOrg = { canManageAccessRules: true } as Organization;
-const memberOrg = { canManageAccessRules: false } as Organization;
 
 /** A snapshot whose `pathFromRoot` spells out `segments`, as the router builds it. */
 function snapshotFor(segments: string[]): ActivatedRouteSnapshot {
@@ -27,7 +22,8 @@ function snapshotFor(segments: string[]): ActivatedRouteSnapshot {
 }
 
 describe("canViewApprovalsGuard", () => {
-  let organizations$: BehaviorSubject<Organization[]>;
+  let canApprove$: BehaviorSubject<boolean>;
+  let syncService: { getLastSync: jest.Mock; fullSync: jest.Mock };
   let router: Router;
 
   /**
@@ -46,15 +42,18 @@ describe("canViewApprovalsGuard", () => {
   }
 
   beforeEach(() => {
-    organizations$ = new BehaviorSubject<Organization[]>([approverOrg]);
+    // What the privilege IS lives in `approval-privileges.spec.ts`; this spec only cares that the
+    // guard routes on the answer.
+    canApprove$ = new BehaviorSubject<boolean>(true);
+    syncService = {
+      getLastSync: jest.fn().mockResolvedValue(new Date()),
+      fullSync: jest.fn().mockResolvedValue(true),
+    };
 
     TestBed.configureTestingModule({
       providers: [
-        {
-          provide: AccountService,
-          useValue: { activeAccount$: of({ id: "user-1" as UserId }) },
-        },
-        { provide: OrganizationService, useValue: { organizations$: () => organizations$ } },
+        { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
+        { provide: SyncService, useValue: syncService },
         {
           provide: Router,
           useValue: { createUrlTree: jest.fn((commands: unknown[]) => commands as never) },
@@ -68,15 +67,22 @@ describe("canViewApprovalsGuard", () => {
     expect(await run()).toBe(true);
   });
 
-  it("is satisfied by the privilege in ANY organization, not the one in the URL", async () => {
-    // The Access requests page is user-global, so it spans every organization the user belongs to.
-    organizations$.next([memberOrg, approverOrg]);
+  it("syncs before deciding when nothing has synced yet", async () => {
+    // The privilege comes from synced collection state; deciding first would bounce a real approver
+    // on a cold deep link.
+    syncService.getLastSync.mockResolvedValue(null);
 
     expect(await run()).toBe(true);
+    expect(syncService.fullSync).toHaveBeenCalled();
   });
 
-  it("redirects a member with no approval privileges to My requests", async () => {
-    organizations$.next([memberOrg]);
+  it("does not re-sync when a sync has already landed", async () => {
+    expect(await run()).toBe(true);
+    expect(syncService.fullSync).not.toHaveBeenCalled();
+  });
+
+  it("redirects a non-approver to My requests", async () => {
+    canApprove$.next(false);
 
     await run();
 
@@ -84,13 +90,13 @@ describe("canViewApprovalsGuard", () => {
   });
 
   it("redirects rather than blocking, so a bookmarked tab is not a dead end", async () => {
-    organizations$.next([memberOrg]);
+    canApprove$.next(false);
 
     expect(await run()).not.toBe(false);
   });
 
   it("rebuilds the redirect from the matched path, so it survives being mounted elsewhere", async () => {
-    organizations$.next([memberOrg]);
+    canApprove$.next(false);
 
     await run(["organizations", "org-1", "pam", "approvals"]);
 
@@ -101,13 +107,5 @@ describe("canViewApprovalsGuard", () => {
       "pam",
       "my-requests",
     ]);
-  });
-
-  it("redirects a user who belongs to no organization at all", async () => {
-    organizations$.next([]);
-
-    await run();
-
-    expect(router.createUrlTree).toHaveBeenCalled();
   });
 });
