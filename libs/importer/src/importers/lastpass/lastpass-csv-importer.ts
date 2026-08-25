@@ -251,6 +251,8 @@ export class LastPassCsvImporter extends BaseImporter implements Importer {
           Pin: "pin",
           "Branch Phone": "bankContactPhone",
         });
+        // Make sure the account type is corrected
+        mappedData.accountType = this.processBankAccountType(mappedData.accountType);
         cipher.type = CipherType.BankAccount;
         cipher.bankAccount = new BankAccountView();
         Object.assign(cipher.bankAccount, mappedData);

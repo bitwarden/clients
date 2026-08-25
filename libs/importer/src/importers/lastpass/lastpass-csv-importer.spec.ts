@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
+import { FieldType, CipherType, BankAccountType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
@@ -279,7 +279,7 @@ Notes:`);
       expect(cipher.name).toEqual("Test Bank Account");
       expect(cipher.type).toEqual(CipherType.BankAccount);
       expect(cipher.bankAccount.bankName).toEqual("Bank of the Shire");
-      expect(cipher.bankAccount.accountType).toEqual("Checking");
+      expect(cipher.bankAccount.accountType).toEqual(BankAccountType.Checking);
       expect(cipher.bankAccount.routingNumber).toEqual("123456");
       expect(cipher.bankAccount.accountNumber).toEqual("1234567890");
       expect(cipher.bankAccount.swiftCode).toEqual("123");

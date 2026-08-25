@@ -587,7 +587,11 @@ export class OnePassword1PuxImporter extends BaseImporter implements Importer {
     if (useNewDedicatedTypes) {
       const fieldName = this.bankAccountFieldMap.get(field.id);
       if (fieldName) {
-        cipher.bankAccount[fieldName] = fieldValue;
+        if (fieldName === "accountType") {
+          cipher.bankAccount[fieldName] = this.processBankAccountType(fieldValue);
+        } else {
+          cipher.bankAccount[fieldName] = fieldValue;
+        }
         return true;
       }
       return false;

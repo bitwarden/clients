@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { BankAccountType, CipherType } from "@bitwarden/common/vault/enums";
 
 import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import {
@@ -228,7 +228,7 @@ describe("Keeper CSV Importer", () => {
       const bankAccountCipher = result.ciphers[1];
       expect(bankAccountCipher.type).toEqual(CipherType.BankAccount);
       expect(bankAccountCipher.name).toEqual("Test Bank Account");
-      expect(bankAccountCipher.bankAccount.accountType).toEqual("Checking");
+      expect(bankAccountCipher.bankAccount.accountType).toEqual(BankAccountType.Checking);
       expect(bankAccountCipher.bankAccount.accountNumber).toEqual("1234567890");
       expect(bankAccountCipher.bankAccount.routingNumber).toEqual("12345");
       expect(bankAccountCipher.bankAccount.nameOnAccount).toEqual("Bilbo Baggins");

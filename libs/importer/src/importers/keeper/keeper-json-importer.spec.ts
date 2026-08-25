@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
+import { BankAccountType } from "@bitwarden/common/vault/enums";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { FieldType } from "@bitwarden/common/vault/enums/field-type.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -161,6 +162,7 @@ describe("Keeper Json Importer", () => {
         expect(bankAccountCipher.bankAccount.accountNumber).toEqual("8472651938");
         expect(bankAccountCipher.bankAccount.routingNumber).toEqual("121000248");
         expect(bankAccountCipher.bankAccount.nameOnAccount).toEqual("Michael James Thompson");
+        expect(bankAccountCipher.bankAccount.accountType).toEqual(BankAccountType.Checking);
         // Fields
         expect(bankAccountCipher.fields.length).toEqual(0);
         // Folder

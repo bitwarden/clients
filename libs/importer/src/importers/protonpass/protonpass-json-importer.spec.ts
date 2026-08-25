@@ -4,7 +4,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
+import { FieldType, CipherType, BankAccountType } from "@bitwarden/common/vault/enums";
 
 import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import { testData as dedicatedItemsTestData } from "../spec-data/protonpass-json/protonpass-dedicated-types.json";
@@ -322,7 +322,7 @@ describe("Protonpass Json Importer", () => {
       expect(bankAccountCipher.bankAccount.bankName).toEqual("Bank of the Shire");
       expect(bankAccountCipher.bankAccount.accountNumber).toEqual("1234567890");
       expect(bankAccountCipher.bankAccount.routingNumber).toEqual("123456");
-      expect(bankAccountCipher.bankAccount.accountType).toEqual("Checking");
+      expect(bankAccountCipher.bankAccount.accountType).toEqual(BankAccountType.Checking);
       expect(bankAccountCipher.bankAccount.iban).toEqual("123456");
       expect(bankAccountCipher.bankAccount.swiftCode).toEqual("1234");
       expect(bankAccountCipher.bankAccount.nameOnAccount).toEqual("Bilbo Baggins");

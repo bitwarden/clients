@@ -3,7 +3,12 @@ import { mock } from "jest-mock-extended";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { OrganizationId } from "@bitwarden/common/types/guid";
-import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import {
+  FieldType,
+  SecureNoteType,
+  CipherType,
+  BankAccountType,
+} from "@bitwarden/common/vault/enums";
 import * as sdkInternal from "@bitwarden/sdk-internal";
 
 import { ImportRecordErrorReason } from "../../models";
@@ -402,7 +407,7 @@ describe("1Password 1Pux Importer", () => {
 
       expect(cipher.bankAccount.nameOnAccount).toEqual("Cool Guy");
       expect(cipher.bankAccount.bankName).toEqual("Super Credit Union");
-      expect(cipher.bankAccount.accountType).toEqual("checking");
+      expect(cipher.bankAccount.accountType).toEqual(BankAccountType.Checking);
       expect(cipher.bankAccount.routingNumber).toEqual("111000999");
       expect(cipher.bankAccount.accountNumber).toEqual("192837465918273645");
       expect(cipher.bankAccount.swiftCode).toEqual("123456");

@@ -196,6 +196,8 @@ export class OnePassword1PifImporter extends BaseImporter implements Importer {
         return field;
       });
     }
+    // Make sure the account type is corrected
+    bankAccountView.accountType = this.processBankAccountType(bankAccountView.accountType ?? "");
     cipher.bankAccount = bankAccountView;
   }
 

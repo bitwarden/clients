@@ -197,6 +197,9 @@ export class KeeperJsonImporter extends KeeperImporter implements Importer {
       record.custom_fields,
       "$bankAccount/routingNumber",
     );
+    bankAccount.accountType = this.processBankAccountType(
+      this.findCustomField(record.custom_fields, "$bankAccount/accountType"),
+    );
     this.deleteTopLevelCustomField(record.custom_fields, "$bankAccount");
 
     const nameParts = this.extractNameFromCustomFields(record.custom_fields);

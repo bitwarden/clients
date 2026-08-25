@@ -1,7 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { CipherType, FieldType } from "@bitwarden/common/vault/enums";
+import { BankAccountType, CipherType, FieldType } from "@bitwarden/common/vault/enums";
 
 import { assertCustomFieldsStructure } from "../spec-data/importer-test-utils";
 import { BankAccountTestData } from "../spec-data/onepassword-1pif/bankaccount";
@@ -165,7 +165,7 @@ describe("1Password 1Pif Importer", () => {
       expect(bankAccountCipher.name).toEqual("Test Bank Account");
       expect(bankAccountCipher.bankAccount.bankName).toEqual("Bank of the Shire");
       expect(bankAccountCipher.bankAccount.nameOnAccount).toEqual("Bilbo Baggins");
-      expect(bankAccountCipher.bankAccount.accountType).toEqual("Checking");
+      expect(bankAccountCipher.bankAccount.accountType).toEqual(BankAccountType.Checking);
       expect(bankAccountCipher.bankAccount.routingNumber).toEqual("12345");
       expect(bankAccountCipher.bankAccount.accountNumber).toEqual("1234567890");
       expect(bankAccountCipher.bankAccount.swiftCode).toEqual("123");

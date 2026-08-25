@@ -70,7 +70,7 @@ export class KeeperCsvImporter extends KeeperImporter implements Importer {
             // We should add support for other languages later
             case "Bank Account": {
               const [type, accountNbr, routingNbr] = fieldValue.split(" | ");
-              bankAccountView.accountType = type;
+              bankAccountView.accountType = this.processBankAccountType(type);
               bankAccountView.accountNumber = accountNbr;
               bankAccountView.routingNumber = routingNbr;
               break;

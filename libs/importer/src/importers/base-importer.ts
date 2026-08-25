@@ -8,7 +8,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
-import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import {
+  FieldType,
+  SecureNoteType,
+  CipherType,
+  BankAccountType,
+} from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -473,5 +478,24 @@ export abstract class BaseImporter {
       (date.getUTCMonth() + 1).toString().padStart(2, "0"),
       date.getUTCDate().toString().padStart(2, "0"),
     ].join("-");
+  }
+
+  protected processBankAccountType(type: string): BankAccountType {
+    switch (type.toLowerCase()) {
+      case BankAccountType.CertificateOfDeposit:
+        return BankAccountType.CertificateOfDeposit;
+      case BankAccountType.Checking:
+        return BankAccountType.Checking;
+      case BankAccountType.InvestmentBrokerage:
+        return BankAccountType.InvestmentBrokerage;
+      case BankAccountType.LineOfCredit:
+        return BankAccountType.LineOfCredit;
+      case BankAccountType.MoneyMarket:
+        return BankAccountType.MoneyMarket;
+      case BankAccountType.Savings:
+        return BankAccountType.Savings;
+      default:
+        return BankAccountType.Other;
+    }
   }
 }

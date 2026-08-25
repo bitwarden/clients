@@ -365,7 +365,11 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
       const fieldMapValue = this.bankAccountFieldMap.get(field.fieldName);
       const fieldValue = this.getExtraFieldValue(field);
       if (fieldMapValue && !this.isNullOrWhitespace(fieldValue)) {
-        cipher.bankAccount[fieldMapValue] = fieldValue;
+        if (fieldMapValue === "accountType") {
+          cipher.bankAccount[fieldMapValue] = this.processBankAccountType(fieldValue);
+        } else {
+          cipher.bankAccount[fieldMapValue] = fieldValue;
+        }
       } else {
         this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
       }
