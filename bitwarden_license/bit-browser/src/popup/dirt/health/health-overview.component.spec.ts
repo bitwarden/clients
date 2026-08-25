@@ -70,6 +70,10 @@ describe("HealthOverviewComponent", () => {
     return el ? (el.componentInstance as MockAtRiskGaugeComponent) : null;
   }
 
+  function upgradeButton(): HTMLButtonElement | null {
+    return fixture.nativeElement.querySelector("#health-overview_button_upgrade");
+  }
+
   function rows(): MockRiskCategoryNavItemComponent[] {
     return fixture.debugElement
       .queryAll((n) => n.name === "dirt-risk-category-nav-item")
@@ -235,6 +239,36 @@ describe("HealthOverviewComponent", () => {
       expect(gauge()?.value()).toBe(10);
       expect(gauge()?.total()).toBe(100);
       expect(text()).toContain("yourVaultRiskIsHigh");
+    });
+
+    it("shows the upgrade button below the categories", async () => {
+      await initComponent(report(), true);
+
+      const button = upgradeButton();
+      expect(button).not.toBeNull();
+      expect(button?.textContent).toContain("upgradeToViewPasswords");
+
+      // Below all three rows, per the design.
+      const rendered = Array.from(
+        fixture.nativeElement.querySelectorAll("dirt-risk-category-nav-item, button[bitButton]"),
+      );
+      expect(rendered.indexOf(button!)).toBe(rendered.length - 1);
+    });
+
+    it("emits upgrade when the button is pressed, leaving the launch to the Health tab root", async () => {
+      await initComponent(report(), true);
+      const emitted = jest.fn();
+      fixture.componentInstance.upgrade.subscribe(emitted);
+
+      upgradeButton()?.click();
+
+      expect(emitted).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not show the upgrade button when unlocked", async () => {
+      await initComponent(report());
+
+      expect(upgradeButton()).toBeNull();
     });
   });
 });

@@ -34,4 +34,20 @@
       />
     </bit-item>
   }
+
+  @if (locked()) {
+    <bit-item>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        block
+        endIcon="bwi-external-link"
+        id="health-overview_button_upgrade"
+        (click)="upgrade.emit()"
+      >
+        {{ "upgradeToViewPasswords" | i18n }}
+      </button>
+    </bit-item>
+  }
 </bit-item-group>

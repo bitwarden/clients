@@ -9,6 +9,7 @@ import {
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { EMPTY, Observable, catchError, defer, filter, map, of, switchMap, take, tap } from "rxjs";
 
+import { PremiumUpgradeDialogComponent } from "@bitwarden/angular/billing/components";
 import {
   VAULT_HEALTH_REPORT_IDLE,
   VaultHealthReportStatus,
@@ -24,6 +25,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import { DialogService } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { HealthIntroComponent } from "./health-intro.component";
@@ -55,6 +57,7 @@ export class HealthComponent {
   private readonly vaultHealthReportService = inject(VaultHealthReportService);
   private readonly logService = inject(LogService);
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
+  private readonly dialogService = inject(DialogService);
 
   readonly userId = toSignal(
     this.accountService.activeAccount$.pipe(map((account) => account?.id)),
@@ -158,6 +161,11 @@ export class HealthComponent {
       }
     });
   }
+
+  /** Sends a free user into the premium upgrade flow from the Health Overview. */
+  protected readonly handleUpgrade = () => {
+    PremiumUpgradeDialogComponent.open(this.dialogService);
+  };
 
   readonly handleHealthScan = async () => {
     const userId = this.userId();

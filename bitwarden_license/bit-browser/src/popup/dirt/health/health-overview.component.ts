@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
 
 import {
   RiskCategory,
@@ -6,6 +6,7 @@ import {
 } from "@bitwarden/bit-common/dirt/vault-health/models";
 import {
   BitwardenIcon,
+  ButtonModule,
   CardComponent,
   IconTileVariant,
   ItemModule,
@@ -83,6 +84,7 @@ const RISK_CATEGORY_ROWS: readonly {
   imports: [
     AtRiskGaugeComponent,
     RiskCategoryNavItemComponent,
+    ButtonModule,
     CardComponent,
     ItemModule,
     SectionHeaderComponent,
@@ -97,6 +99,9 @@ export class HealthOverviewComponent {
 
   /** Whether Health details are locked behind Premium. */
   readonly locked = input(false);
+
+  /** The locked-state upgrade button was pressed. The Health tab root launches the flow. */
+  readonly upgrade = output<void>();
 
   /** Unique logins at risk in any category — the gauge's value. */
   protected readonly atRiskCount = computed(() => this.report().atRiskCount);

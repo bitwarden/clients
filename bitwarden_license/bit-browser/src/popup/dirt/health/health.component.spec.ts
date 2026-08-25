@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, map, of, ReplaySubject, Subject, throwError } from "rxjs";
@@ -24,6 +24,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DialogService } from "@bitwarden/components";
 
 import { HealthOverviewComponent } from "./health-overview.component";
 import { HealthScanErrorComponent } from "./health-scan-error.component";
@@ -69,6 +70,7 @@ class MockCurrentAccountComponent {}
 class MockHealthOverviewComponent {
   readonly report = input.required<VaultHealthReportView>();
   readonly locked = input(false);
+  readonly upgrade = output<void>();
 }
 
 @Component({
@@ -95,6 +97,7 @@ describe("HealthComponent", () => {
   let hasPremium$: BehaviorSubject<boolean>;
   let healthAccessService: MockProxy<HealthAccessService>;
   let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let dialogService: MockProxy<DialogService>;
   let cipherService: MockProxy<CipherService>;
   let reportService: MockProxy<VaultHealthReportService>;
   let logService: MockProxy<LogService>;
@@ -191,6 +194,8 @@ describe("HealthComponent", () => {
     billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
     billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(hasPremium$);
 
+    dialogService = mock<DialogService>();
+
     cipherService = mock<CipherService>();
     cipherService.cipherViews$.mockReturnValue(of([] as CipherView[]));
 
@@ -223,6 +228,7 @@ describe("HealthComponent", () => {
           provide: BillingAccountProfileStateService,
           useValue: billingAccountProfileStateService,
         },
+        { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         {
           provide: AbstractThemingService,
@@ -719,6 +725,24 @@ describe("HealthComponent", () => {
       expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
         userId,
       );
+    });
+
+    it("launches the upgrade flow when the Health Overview asks for it", async () => {
+      hasPremium$.next(false);
+      await initWithReport();
+
+      overview()!.upgrade.emit();
+      await settle();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not launch the upgrade flow on its own", async () => {
+      hasPremium$.next(false);
+
+      await initWithReport();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 });
