@@ -24,14 +24,14 @@ import { LayoutComponent, PageComponent } from "../../layout";
 import { LinkModule } from "../../link";
 import { MenuModule } from "../../menu";
 import { NavigationModule } from "../../navigation";
-import { NoItemsModule } from "../../no-items";
 import { PopoverModule } from "../../popover";
 import { ProgressBarComponent } from "../../progress";
 import { RadioButtonModule } from "../../radio-button";
 import { SearchModule } from "../../search";
 import { SectionComponent } from "../../section";
 import { SelectModule } from "../../select";
-import { SvgModule } from "../../svg";
+import { StatusLockupComponent } from "../../status-lockup";
+import { SvgComponent, SvgModule } from "../../svg";
 import { TableModule } from "../../table";
 import { TabsModule } from "../../tabs";
 import { ToggleGroupModule } from "../../toggle-group";
@@ -65,7 +65,7 @@ import { TypographyModule } from "../../typography";
     LinkModule,
     MenuModule,
     NavigationModule,
-    NoItemsModule,
+    StatusLockupComponent,
     PopoverModule,
     ProgressBarComponent,
     RadioButtonModule,
@@ -106,7 +106,7 @@ import { TypographyModule } from "../../typography";
     LinkModule,
     MenuModule,
     NavigationModule,
-    NoItemsModule,
+    StatusLockupComponent,
     PopoverModule,
     ProgressBarComponent,
     RadioButtonModule,
@@ -115,6 +115,7 @@ import { TypographyModule } from "../../typography";
     SearchModule,
     SectionComponent,
     SelectModule,
+    SvgComponent,
     TableModule,
     TabsModule,
     ToggleGroupModule,
