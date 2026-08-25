@@ -118,14 +118,7 @@
         data-testid="cipher-view-banner-max-duration"
       >
         <bit-icon name="bwi-clock" />
-        <span>
-          {{
-            (terms.approvalMode === "automatic"
-              ? "pamRequestAccessBannerMaxDurationAutomatic"
-              : "pamRequestAccessBannerMaxDuration"
-            ) | i18n: (terms.maxSeconds | durationLong)
-          }}
-        </span>
+        {{ terms.messageKey | i18n: (terms.maxSeconds | durationLong) }}
       </p>
     }
 

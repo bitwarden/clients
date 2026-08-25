@@ -119,6 +119,10 @@ describe("CipherViewBannerComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+    // The resting pre-check is only reachable once the access-state read has settled, so its
+    // resolution lands a cycle after the state it depends on.
+    await fixture.whenStable();
+    fixture.detectChanges();
   }
 
   function text(): string {

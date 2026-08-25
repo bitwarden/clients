@@ -12,17 +12,7 @@ import {
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import {
-  catchError,
-  combineLatest,
-  defer,
-  firstValueFrom,
-  from,
-  map,
-  merge,
-  of,
-  switchMap,
-} from "rxjs";
+import { catchError, combineLatest, firstValueFrom, from, map, merge, of, switchMap } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -213,10 +203,16 @@ export class CipherViewBannerComponent implements OnInit {
       switchMap((cipherId) =>
         cipherId == null
           ? of(null)
-          : defer(() => this.accessRequestSdkService.preCheck(String(cipherId))).pipe(
-              map((result) =>
-                Number.isFinite(result.maxDurationSeconds)
-                  ? { maxSeconds: result.maxDurationSeconds, approvalMode: result.approvalMode }
+          : from(this.accessRequestSdkService.preCheck(String(cipherId))).pipe(
+              map(({ approvalMode, maxDurationSeconds }) =>
+                Number.isFinite(maxDurationSeconds)
+                  ? {
+                      maxSeconds: maxDurationSeconds,
+                      messageKey:
+                        approvalMode === "automatic"
+                          ? "pamRequestAccessBannerMaxDurationAutomatic"
+                          : "pamRequestAccessBannerMaxDuration",
+                    }
                   : null,
               ),
               catchError((e: unknown) => {
