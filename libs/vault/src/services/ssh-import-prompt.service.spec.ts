@@ -125,19 +125,6 @@ describe("SshImportPromptService", () => {
       expect(i18nService.t).toHaveBeenCalledWith("sshKeyTypeUnsupported");
     });
 
-    it("shows an error toast when the key type is unsupported", async () => {
-      jest.spyOn(sdkInternal, "import_ssh_key").mockImplementationOnce(() => {
-        throw { variant: "UnsupportedKeyType" };
-      });
-      platformUtilsService.readFromClipboard.mockResolvedValue("ssh_key");
-
-      expect(await sshImportPromptService.importSshKeyFromClipboard()).toBeNull();
-      expect(toastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error" }),
-      );
-      expect(i18nService.t).toHaveBeenCalledWith("sshKeyTypeUnsupported");
-    });
-
     it("blocks ECDSA key import when SSHecdsa flag is disabled", async () => {
       jest.spyOn(sdkInternal, "import_ssh_key").mockReturnValue(exampleEcdsaKey);
       platformUtilsService.readFromClipboard.mockResolvedValue("ecdsa_key");
