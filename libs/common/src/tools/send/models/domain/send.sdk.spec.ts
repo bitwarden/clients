@@ -148,23 +148,6 @@ describe("Send <-> SDK Send mapping", () => {
     });
   });
 
-  describe("SendData.fromSdkSend", () => {
-    it.each([
-      ["text", textSendData],
-      ["file", fileSendData],
-    ])("round-trips a %s SendData through the SDK Send shape", (_label, build) => {
-      const data = build();
-
-      const back = SendData.fromSdkSend(new Send(data).toSdkSend());
-
-      expect(back).toEqual(data);
-    });
-
-    it("returns null for a null input", () => {
-      expect(SendData.fromSdkSend(null as any)).toBeNull();
-    });
-  });
-
   describe("SendRecordMapper round-trip (SendData <-> SDK)", () => {
     const mapper = new SendRecordMapper();
 

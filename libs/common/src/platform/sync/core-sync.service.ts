@@ -20,6 +20,7 @@ import {
   SyncSendNotification,
 } from "../../models/response/notification.response";
 import { SendData } from "../../tools/send/models/data/send.data";
+import { Send } from "../../tools/send/models/domain/send";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -254,7 +255,7 @@ export abstract class CoreSyncService implements SyncService {
               sdk.sends().fetch(asUuid<SdkSendId>(notification.id)),
             );
             if (sdkSend != null) {
-              await this.sendService.upsert(SendData.fromSdkSend(sdkSend));
+              await this.sendService.upsert(Send.fromSdkSend(sdkSend).toSendData());
               this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
               return this.syncCompleted(true, activeUserId);
             }

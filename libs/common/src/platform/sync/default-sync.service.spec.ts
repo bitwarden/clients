@@ -37,6 +37,7 @@ import { KeyConnectorService } from "../../key-management/key-connector/abstract
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { SyncSendNotification } from "../../models/response/notification.response";
 import { SendData } from "../../tools/send/models/data/send.data";
+import { Send } from "../../tools/send/models/domain/send";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { SendType } from "../../tools/send/types/send-type";
@@ -83,7 +84,6 @@ describe("DefaultSyncService", () => {
   let configService: MockProxy<ConfigService>;
   let sdkService: MockProxy<SdkService>;
   let cryptoSyncHandler: { on_sync: jest.Mock<Promise<void>, [CryptoSyncData]> };
-  let sendSyncHandler: { on_sync: jest.Mock };
   let sendsClient: { fetch: jest.Mock };
 
   let sut: DefaultSyncService;
@@ -118,14 +118,12 @@ describe("DefaultSyncService", () => {
     configService = mock();
     sdkService = mock();
     cryptoSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
-    sendSyncHandler = { on_sync: jest.fn().mockResolvedValue(undefined) };
     sendsClient = { fetch: jest.fn() };
     sdkService.userClient$.mockReturnValue(
       of({
         take: () => ({
           value: {
             crypto_sync_handler: () => cryptoSyncHandler,
-            send_sync_handler: () => sendSyncHandler,
             sends: () => sendsClient,
           },
           [Symbol.dispose]: jest.fn(),
@@ -329,43 +327,6 @@ describe("DefaultSyncService", () => {
         cryptoSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
 
         await expect(sut.fullSync(true, { allowThrowOnError: true })).rejects.toThrow("boom");
-      });
-    });
-
-    describe("send sync handler", () => {
-      it("persists the sync response's sends into the SDK when the flag is on", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
-        await sut.fullSync(true);
-
-        expect(sendSyncHandler.on_sync).toHaveBeenCalledTimes(1);
-        expect(sendSyncHandler.on_sync).toHaveBeenCalledWith([]);
-      });
-
-      it("does not run the send sync handler when the flag is off", async () => {
-        configService.getFeatureFlag.mockResolvedValue(false);
-
-        await sut.fullSync(true);
-
-        expect(sendSyncHandler.on_sync).not.toHaveBeenCalled();
-      });
-
-      it("logs but does not throw when the send sync handler rejects", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-        sendSyncHandler.on_sync.mockRejectedValue(new Error("boom"));
-
-        await expect(sut.fullSync(true)).resolves.toBe(true);
-
-        expect(logService.error).toHaveBeenCalled();
-      });
-
-      it("still replaces sends via the InternalSendService read path when the flag is on", async () => {
-        configService.getFeatureFlag.mockResolvedValue(true);
-
-        await sut.fullSync(true);
-
-        // syncSends remains the authoritative read path; the SDK handler is additive.
-        expect(sendService.replace).toHaveBeenCalled();
       });
     });
 
@@ -945,7 +906,9 @@ describe("DefaultSyncService", () => {
       expect(result).toBe(true);
       expect(sendsClient.fetch).toHaveBeenCalledWith(sendGuid);
       expect(sendApiService.getSend).not.toHaveBeenCalled();
-      expect(sendService.upsert).toHaveBeenCalledWith(SendData.fromSdkSend(sdkSend as any));
+      expect(sendService.upsert).toHaveBeenCalledWith(
+        Send.fromSdkSend(sdkSend as any).toSendData(),
+      );
       expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
     });
 
