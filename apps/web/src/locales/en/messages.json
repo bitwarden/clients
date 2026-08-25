@@ -18781,9 +18781,6 @@
   "pamTemplateJustInTimeShortSummary": {
     "message": "Auto-approved"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Auto-approved • Expires after 1h • Audit logged"
-  },
   "pamTemplateJustInTimeName": {
     "message": "Just-in-time access"
   },
@@ -18793,9 +18790,6 @@
   "pamTemplateApprovalRequiredShortSummary": {
     "message": "Human approval • 1 approver required"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Human approval • 1 approver required • Audit logged"
-  },
   "pamTemplateApprovalRequiredName": {
     "message": "Approval required"
   },
@@ -18804,9 +18798,6 @@
   },
   "pamTemplateIpRestrictedShortSummary": {
     "message": "Auto-approved • IP Allowlist"
-  },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Auto-approved • IP Allowlist • Audit logged"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
