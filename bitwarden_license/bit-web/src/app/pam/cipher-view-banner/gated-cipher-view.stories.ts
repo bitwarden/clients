@@ -209,17 +209,19 @@ export const RequestAccess: Story = {
   decorators: [gated(() => ({ badgeState: "privileged" }))],
 };
 
+function pendingState() {
+  return {
+    badgeState: "pending",
+    pendingRequest: accessRequest({
+      leaseNotBefore: liveFromNow(0),
+      leaseNotAfter: liveFromNow(HOUR),
+    }),
+  };
+}
+
 /** A request is with an approver: "Pending approval" on the name row, Cancel request in the card. */
 export const Pending: Story = {
-  decorators: [
-    gated(() => ({
-      badgeState: "pending",
-      pendingRequest: accessRequest({
-        leaseNotBefore: liveFromNow(0),
-        leaseNotAfter: liveFromNow(HOUR),
-      }),
-    })),
-  ],
+  decorators: [gated(pendingState)],
 };
 
 /** Approved but not yet started: "Ready to use" on the name row, the tallest of the access cards. */
@@ -242,15 +244,7 @@ export const Approved: Story = {
  */
 export const LongNameWithBadge: Story = {
   args: { cipher: longNameGatedCipher() },
-  decorators: [
-    gated(() => ({
-      badgeState: "pending",
-      pendingRequest: accessRequest({
-        leaseNotBefore: liveFromNow(0),
-        leaseNotAfter: liveFromNow(HOUR),
-      }),
-    })),
-  ],
+  decorators: [gated(pendingState)],
 };
 
 /**

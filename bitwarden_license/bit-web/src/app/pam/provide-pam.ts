@@ -67,11 +67,10 @@ import {
  * side so an unprovided token stays inert: `CIPHER_VIEW_BANNER` (the requester's
  * leasing entry point on an open cipher), `ITEM_DETAILS_STATE_BADGE` (the access-state
  * pill on the open item's name row) and `VAULT_ROW_LEASE_BADGE` (the same pill per row,
- * on cipher AND collection rows — collection rows show the
- * "Privileged" pill straight off the collection's server-derived
- * `hasEnabledAccessRule`),
- * all three component classes, plus `GATED_CIPHER_RELOADER` (the
- * observable that reveals a gated cipher in place once a lease covers it),
+ * on cipher AND collection rows — collection rows show the "Privileged" pill straight
+ * off the collection's server-derived `hasEnabledAccessRule`), all three component
+ * classes, plus `GATED_CIPHER_RELOADER` (the observable that reveals a gated cipher in
+ * place once a lease covers it),
  * `COLLECTION_ACCESS_RULE_CALLOUT` (the governing-rule notice in the collection
  * edit dialog), `PamNavBadgeService` (the nav badge count), and
  * `VaultRowAccessActionsService` (withdrawing a gated row's outstanding access
