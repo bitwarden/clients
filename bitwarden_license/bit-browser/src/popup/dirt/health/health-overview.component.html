@@ -1,38 +1,50 @@
-<div class="tw-flex tw-flex-col tw-gap-5">
-  <bit-card class="tw-flex tw-flex-col tw-items-center">
-    <dirt-at-risk-gauge [value]="atRiskCount()" [total]="totalCount()" />
-    <h2
-      bitTypography="body1"
-      class="tw-mb-0 tw-mt-2 tw-text-center tw-font-semibold tw-text-fg-heading"
-    >
-      {{ (isAtRisk() ? "yourVaultRiskIsHigh" : "yourVaultIsHealthy") | i18n }}
-    </h2>
-    <span bitTypography="helper" class="tw-text-center tw-text-fg-body-subtle">
-      {{ "passwordsNeedFixing" | i18n: atRiskCount() : totalCount() }}
-    </span>
-  </bit-card>
+<bit-card class="tw-mb-2 tw-flex tw-flex-col tw-items-center">
+  <dirt-at-risk-gauge [value]="atRiskCount()" [total]="totalCount()" />
 
-  <div>
-    <bit-section-header>
-      <h2 bitTypography="h6">{{ "risksIdentified" | i18n }}</h2>
-    </bit-section-header>
+  <h2 bitTypography="body1" class="tw-mb-0 tw-text-center tw-font-semibold tw-text-fg-heading">
+    {{ (isAtRisk() ? "yourVaultRiskIsHigh" : "yourVaultIsHealthy") | i18n }}
+  </h2>
 
-    <bit-item-group>
-      @for (row of categoryRows(); track row.category) {
-        <bit-item>
-          <dirt-risk-category-nav-item
-            [labelKeyNone]="row.labelKeyNone"
-            [labelKeySingular]="row.labelKeySingular"
-            [labelKeyPlural]="row.labelKeyPlural"
-            [descriptionKey]="row.descriptionKey"
-            [descriptionKeyNone]="row.descriptionKeyNone"
-            [count]="row.count"
-            [icon]="row.icon"
-            [variant]="row.variant"
-            [route]="row.route"
-          />
-        </bit-item>
-      }
-    </bit-item-group>
-  </div>
-</div>
+  <span bitTypography="helper" class="tw-text-center tw-text-fg-body-subtle">
+    {{ "passwordsNeedFixing" | i18n: atRiskCount() : totalCount() }}
+  </span>
+</bit-card>
+
+<bit-section-header>
+  <h2 bitTypography="h6">{{ "risksIdentified" | i18n }}</h2>
+</bit-section-header>
+
+<bit-item-group>
+  @for (row of categoryRows(); track row.category) {
+    <bit-item>
+      <dirt-risk-category-nav-item
+        [labelKeyNone]="row.labelKeyNone"
+        [labelKeySingular]="row.labelKeySingular"
+        [labelKeyPlural]="row.labelKeyPlural"
+        [descriptionKey]="row.descriptionKey"
+        [descriptionKeyNone]="row.descriptionKeyNone"
+        [count]="row.count"
+        [icon]="row.icon"
+        [variant]="row.variant"
+        [route]="row.route"
+        [locked]="locked()"
+      />
+    </bit-item>
+  }
+
+  @if (locked()) {
+    <bit-item>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        block
+        endIcon="bwi-external-link"
+        id="health-overview_button_upgrade"
+        (click)="upgrade.emit()"
+      >
+        {{ "upgradeToViewPasswords" | i18n }}
+      </button>
+    </bit-item>
+  }
+</bit-item-group>

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, map, of, ReplaySubject, Subject, throwError } from "rxjs";
@@ -16,6 +16,7 @@ import { PopOutComponent } from "@bitwarden/browser/platform/popup/components/po
 import { PopupHeaderComponent } from "@bitwarden/browser/platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "@bitwarden/browser/platform/popup/layout/popup-page.component";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeTypes } from "@bitwarden/common/platform/enums";
@@ -23,6 +24,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { DialogService } from "@bitwarden/components";
 
 import { HealthOverviewComponent } from "./health-overview.component";
 import { HealthScanErrorComponent } from "./health-scan-error.component";
@@ -67,6 +69,8 @@ class MockCurrentAccountComponent {}
 })
 class MockHealthOverviewComponent {
   readonly report = input.required<VaultHealthReportView>();
+  readonly locked = input(false);
+  readonly upgrade = output<void>();
 }
 
 @Component({
@@ -90,7 +94,10 @@ describe("HealthComponent", () => {
   let activeAccount$: ReplaySubject<Account | null>;
   let hasBeenOpened$: BehaviorSubject<boolean>;
   let hasRunScan$: BehaviorSubject<boolean>;
+  let hasPremium$: BehaviorSubject<boolean>;
   let healthAccessService: MockProxy<HealthAccessService>;
+  let billingAccountProfileStateService: MockProxy<BillingAccountProfileStateService>;
+  let dialogService: MockProxy<DialogService>;
   let cipherService: MockProxy<CipherService>;
   let reportService: MockProxy<VaultHealthReportService>;
   let logService: MockProxy<LogService>;
@@ -182,6 +189,13 @@ describe("HealthComponent", () => {
     healthAccessService.healthHasBeenOpened$.mockReturnValue(hasBeenOpened$);
     healthAccessService.hasRunHealthScan$.mockReturnValue(hasRunScan$);
 
+    // Premium by default, so the existing tests exercise the unlocked experience.
+    hasPremium$ = new BehaviorSubject<boolean>(true);
+    billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+    billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(hasPremium$);
+
+    dialogService = mock<DialogService>();
+
     cipherService = mock<CipherService>();
     cipherService.cipherViews$.mockReturnValue(of([] as CipherView[]));
 
@@ -210,6 +224,11 @@ describe("HealthComponent", () => {
         { provide: CipherService, useValue: cipherService },
         { provide: VaultHealthReportService, useValue: reportService },
         { provide: LogService, useValue: logService },
+        {
+          provide: BillingAccountProfileStateService,
+          useValue: billingAccountProfileStateService,
+        },
+        { provide: DialogService, useValue: dialogService },
         { provide: I18nService, useValue: { t: (key: string) => key } },
         {
           provide: AbstractThemingService,
@@ -647,6 +666,83 @@ describe("HealthComponent", () => {
 
       expect(healthAccessService.healthHasBeenOpened$).not.toHaveBeenCalled();
       expect(healthAccessService.hasRunHealthScan$).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("premium gating", () => {
+    /** Runs a scan to success so the Health Overview is mounted. */
+    async function initWithReport() {
+      hasRunScan$.next(true);
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 100, atRiskCount: 10 }));
+
+      await initComponent();
+      await settle();
+    }
+
+    it("locks the Health Overview for a user without premium", async () => {
+      hasPremium$.next(false);
+
+      await initWithReport();
+
+      expect(overview()?.locked()).toBe(true);
+    });
+
+    it("leaves the Health Overview unlocked for a user with premium", async () => {
+      hasPremium$.next(true);
+
+      await initWithReport();
+
+      expect(overview()?.locked()).toBe(false);
+    });
+
+    it("unlocks the Health Overview when the user upgrades, with no reload", async () => {
+      hasPremium$.next(false);
+      await initWithReport();
+      expect(overview()?.locked()).toBe(true);
+
+      // The subscription check reads hasPremiumFromAnySource$, so the view swaps
+      // itself once the upgrade lands rather than needing the tab reopened.
+      hasPremium$.next(true);
+      await settle();
+
+      expect(overview()?.locked()).toBe(false);
+    });
+
+    it("stays locked when the premium check has not yet emitted", async () => {
+      // A free user must never see navigable categories while the check settles.
+      billingAccountProfileStateService.hasPremiumFromAnySource$.mockReturnValue(
+        new Subject<boolean>(),
+      );
+
+      await initWithReport();
+
+      expect(overview()?.locked()).toBe(true);
+    });
+
+    it("scopes the premium check to the active user", async () => {
+      await initWithReport();
+
+      expect(billingAccountProfileStateService.hasPremiumFromAnySource$).toHaveBeenCalledWith(
+        userId,
+      );
+    });
+
+    it("launches the upgrade flow when the Health Overview asks for it", async () => {
+      hasPremium$.next(false);
+      await initWithReport();
+
+      overview()!.upgrade.emit();
+      await settle();
+
+      expect(dialogService.open).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not launch the upgrade flow on its own", async () => {
+      hasPremium$.next(false);
+
+      await initWithReport();
+
+      expect(dialogService.open).not.toHaveBeenCalled();
     });
   });
 });
