@@ -19093,9 +19093,6 @@
   "pamAccessRuleDuration1d": {
     "message": "1 day"
   },
-  "pamAccessRuleDuration2d": {
-    "message": "2 days"
-  },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
   },
