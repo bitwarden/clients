@@ -386,6 +386,62 @@ describe("CipherViewBannerComponent", () => {
     });
   });
 
+  describe("the rule's terms, before the form is opened", () => {
+    const MAX_DURATION = '[data-testid="cipher-view-banner-max-duration"]';
+
+    it("renders the cap alone when the rule needs an approver", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", maxDurationSeconds: 4 * 3600 }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDuration 4 hours",
+      );
+    });
+
+    it("renders the cap with the instant-approval clause when the rule auto-approves", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "automatic", maxDurationSeconds: 86_400 }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDurationAutomatic 1 day",
+      );
+    });
+
+    it("renders no line when the pre-check resolves no cap", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ maxDurationSeconds: undefined }));
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("renders no line, and no error, when the pre-check fails", async () => {
+      requestsApi.preCheck.mockRejectedValue(new Error("boom"));
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("does not pre-check a cipher whose access is already in play", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView() }),
+      );
+
+      await create(gatedCipher());
+
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+    });
+  });
+
   describe("the request fold-out", () => {
     it("shapes the form from the pre-check's automatic path", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));

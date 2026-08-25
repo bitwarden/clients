@@ -12,7 +12,17 @@ import {
 } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { catchError, combineLatest, firstValueFrom, from, map, merge, of, switchMap } from "rxjs";
+import {
+  catchError,
+  combineLatest,
+  defer,
+  firstValueFrom,
+  from,
+  map,
+  merge,
+  of,
+  switchMap,
+} from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -25,6 +35,7 @@ import {
   CalloutModule,
   DialogService,
   FormFieldModule,
+  IconModule,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -90,6 +101,7 @@ import {
     ButtonModule,
     CalloutModule,
     FormFieldModule,
+    IconModule,
     ReactiveFormsModule,
     TypographyModule,
     AccessStateBadgeComponent,
@@ -179,6 +191,42 @@ export class CipherViewBannerComponent implements OnInit {
       this.activeLease() == null &&
       this.approvedRequest() == null &&
       this.pendingRequest() == null,
+  );
+
+  /**
+   * The governing rule's terms for a request nobody has made yet: how long access may run, and
+   * whether it would be granted on the spot. Both come from the same side-effect-free `preCheck`
+   * the fold-out runs, because the access state read above carries neither — `CipherAccessStateView`
+   * publishes `maxExtensionDurationSeconds`, which caps extending a lease that already exists, not
+   * opening a request.
+   *
+   * Read only while the resting request-access state is on screen, so a cipher under a lease or
+   * with a request in play costs no extra round-trip. The fold-out still runs its own pre-check on
+   * open: this one is for display, and `hasActiveLease` has to be resolved against the moment of
+   * submit rather than the moment of render.
+   *
+   * Yields `null` when the cap is missing, so a rule whose bounds the server could not resolve
+   * renders no line rather than a made-up limit.
+   */
+  protected readonly restingRequestTerms = toSignal(
+    toObservable(computed(() => (this.canRequestAccess() ? this.cipher().id : null))).pipe(
+      switchMap((cipherId) =>
+        cipherId == null
+          ? of(null)
+          : defer(() => this.accessRequestSdkService.preCheck(String(cipherId))).pipe(
+              map((result) =>
+                Number.isFinite(result.maxDurationSeconds)
+                  ? { maxSeconds: result.maxDurationSeconds, approvalMode: result.approvalMode }
+                  : null,
+              ),
+              catchError((e: unknown) => {
+                this.logService.error(e);
+                return of(null);
+              }),
+            ),
+      ),
+    ),
+    { initialValue: null },
   );
 
   // Parsed once per lease change: the per-second tick would otherwise re-parse the same ISO string
