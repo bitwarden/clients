@@ -24,7 +24,6 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
   constructor(
     private pinService: PinServiceAbstraction,
     private messagingService: MessagingService,
-    private reloadCallback: (() => Promise<void>) | null = null,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private accountService: AccountService,
     private logService: LogService,
@@ -98,11 +97,11 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     await this.accountService.switchAccount(nextUser);
   }
 
-  private async performProcessReload(): Promise<void> {
+  /**
+   * Wipes the process. Clients that cannot reload from the "reloadProcess" message alone
+   * override this to add their own teardown.
+   */
+  protected async performProcessReload(): Promise<void> {
     this.messagingService.send("reloadProcess");
-
-    if (this.reloadCallback != null) {
-      await this.reloadCallback();
-    }
   }
 }

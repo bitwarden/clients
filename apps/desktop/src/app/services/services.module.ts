@@ -207,8 +207,6 @@ import { InitService } from "./init.service";
 import { NativeMessagingManifestService } from "./native-messaging-manifest.service";
 import { DesktopSetInitialPasswordService } from "./set-initial-password/desktop-set-initial-password.service";
 
-const RELOAD_CALLBACK = new SafeInjectionToken<() => any>("RELOAD_CALLBACK");
-
 /**
  * Provider definitions used in the ngModule.
  * Add your provider definition here using the safeProvider function as a wrapper. This will give you type safety.
@@ -244,10 +242,6 @@ const safeProviders: SafeProvider[] = [
     useFactory: (initService: InitService) => initService.init(),
     deps: [InitService],
     multi: true,
-  }),
-  safeProvider({
-    provide: RELOAD_CALLBACK,
-    useValue: null,
   }),
   safeProvider({
     provide: LogServiceAbstraction,
@@ -342,7 +336,6 @@ const safeProviders: SafeProvider[] = [
     deps: [
       PinServiceAbstraction,
       MessagingServiceAbstraction,
-      RELOAD_CALLBACK,
       VaultTimeoutSettingsService,
       AccountServiceAbstraction,
       LogService,
