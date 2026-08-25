@@ -46,9 +46,9 @@ export default {
             new I18nMockService({
               decryptionError: "Decryption error",
               couldNotDecryptVaultItem:
-                "Bitwarden could not decrypt the vault item listed below. Contact the Bitwarden support team and provide the item ID below to see if it can be recovered.",
+                "Bitwarden could not decrypt the vault item listed below. Contact Bitwarden Customer Support and provide the item ID below to see if it can be recovered.",
               couldNotDecryptVaultItems:
-                "Bitwarden could not decrypt the vault items listed below. Contact the Bitwarden support team and provide the item IDs below to see if they can be recovered.",
+                "Bitwarden could not decrypt the vault items listed below. Contact Bitwarden Customer Support and provide the item IDs below to see if they can be recovered.",
               itemId: "Item ID",
               itemIds: "Item IDs",
               copyId: "Copy ID",
