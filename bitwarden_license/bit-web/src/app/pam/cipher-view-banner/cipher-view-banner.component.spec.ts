@@ -22,6 +22,7 @@ import type {
   AccessRequestView,
   CipherAccessStateView,
 } from "../abstractions/access-lease";
+import { formatDuration } from "../date/format-duration";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import { DefaultAccessRefreshService } from "../services/default-access-refresh.service";
 
@@ -411,6 +412,18 @@ describe("CipherViewBannerComponent", () => {
       expect(component["humanForm"].getRawValue().start).not.toBe("");
     });
 
+    it("renders the human path's Reason field as a multi-line textarea", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      const reason = query("#pam-cipher-view-banner_textarea_human-reason");
+      expect(reason?.tagName).toBe("TEXTAREA");
+      expect(reason?.getAttribute("rows")).toBe("3");
+    });
+
     // PM-39858: the picker offered a hardcoded 15m-24h preset list and pre-selected 1h, whatever the
     // governing rule allowed. Both now come from the pre-check's bounds.
     it("narrows the duration picker to the rule's maximum", async () => {
@@ -468,13 +481,24 @@ describe("CipherViewBannerComponent", () => {
       );
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
       // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
       component["humanForm"].patchValue({ date: "2026-08-17", start: "09:00", end: "11:00" });
       fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component["windowExceedsMax"]()).toBe(true);
       expect(component["humanForm"].invalid).toBe(true);
+      // Asserted on what the requester actually sees. The error lives on the form GROUP, so
+      // `bit-form-field`'s slot (which reads `end`'s own status) never renders it; the visible
+      // paragraph is the only thing that does.
+      const maxWindow = formatDuration("en-US", 1800, "long");
+      const error = query('[data-testid="window-exceeds-max"]');
+      expect(error).not.toBeNull();
+      expect(error?.textContent).toContain(maxWindow);
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -591,16 +615,22 @@ describe("CipherViewBannerComponent", () => {
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
     });
 
-    it("shows the window error inline once the requester inverts the window", async () => {
+    it("shows the window error once the requester inverts the window", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
       await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
 
       component["humanForm"].patchValue({ date: "2026-08-17", start: "10:00", end: "09:00" });
       fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
 
       expect(component["windowEndBeforeStart"]()).toBe(true);
-      expect(query('[data-testid="window-end-before-start"]')).not.toBeNull();
+      const error = query('[data-testid="window-end-before-start"]');
+      expect(error).not.toBeNull();
+      expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
     });
   });
 
