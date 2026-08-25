@@ -78,7 +78,7 @@ export class CipherViewComponent {
    */
   readonly cipher = input.required<CipherView>();
 
-  /** Host-provided banner above the cipher's details; null when unprovided. */
+  /** Host-provided banner below the cipher's details; null when unprovided. */
   protected readonly bannerComponent: Type<unknown> | null = inject(CIPHER_VIEW_BANNER, {
     optional: true,
   });
