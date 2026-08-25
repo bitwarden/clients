@@ -9,7 +9,6 @@ import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -20,10 +19,12 @@ import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/platform/sync";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { LogService } from "@bitwarden/logging";
 import { UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -52,7 +53,7 @@ export class InitService {
     private nativeMessagingService: NativeMessagingService,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
-    private userAutoUnlockKeyService: UserAutoUnlockKeyService,
+    private unlockService: UnlockService,
     private accountService: AccountService,
     private tokenService: TokenService,
     private versionService: VersionService,
@@ -65,11 +66,12 @@ export class InitService {
     private configService: ConfigService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     private biometricsService: BiometricsService,
-    private unlockService: UnlockService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     @Inject(DOCUMENT) private document: Document,
     private readonly migrationRunner: MigrationRunner,
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
+    private logService: LogService,
   ) {}
 
   init() {
@@ -85,16 +87,19 @@ export class InitService {
       const userIds = Object.keys(accounts) as UserId[];
       await this.tokenService.cleanupTokenStorage(userIds);
 
-      const setUserKeyInMemoryPromises = [];
-      for (const userId of userIds) {
-        // For each acct, we must await the process of setting the user key in memory
-        // if the auto user key is set to avoid race conditions of any code trying to access
-        // the user key from mem.
-        setUserKeyInMemoryPromises.push(
-          this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId),
-        );
-      }
-      await Promise.all(setUserKeyInMemoryPromises);
+      // For each acct, we must await the process of unlocking with the never-lock key
+      // if it is set, to avoid race conditions of any code trying to access the user key
+      // from mem. A failure to unlock one account leaves that account locked rather than
+      // failing app initialization for every other account.
+      await Promise.all(
+        userIds.map(async (userId) => {
+          try {
+            await this.unlockService.unlockWithAutoUnlockKey(userId);
+          } catch (e) {
+            this.logService.error("[InitService] Failed to auto-unlock user on startup", e);
+          }
+        }),
+      );
 
       await this.serverCommunicationConfigService.init();
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -112,7 +117,11 @@ export class InitService {
       this.versionService.init();
       this.updateRestartService.init();
 
-      const containerService = new ContainerService(this.keyService, this.encryptService);
+      const containerService = new ContainerService(
+        this.keyService,
+        this.encryptService,
+        this.legacyCompatKeyService,
+      );
       containerService.attachToGlobal(this.win);
 
       if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {

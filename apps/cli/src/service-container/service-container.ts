@@ -23,9 +23,7 @@ import {
   SsoUrlService,
   AuthRequestApiServiceAbstraction,
   DefaultAuthRequestApiService,
-  DefaultLockService,
   DefaultLogoutService,
-  LockService,
 } from "@bitwarden/auth/common";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { InternalNewPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/new-policy.service";
@@ -87,11 +85,6 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
-import {
-  DefaultKeyGenerationService,
-  KeyGenerationService,
-} from "@bitwarden/common/key-management/crypto";
-import { EncryptServiceImplementation } from "@bitwarden/common/key-management/crypto/services/encrypt.service.implementation";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
 import { DeviceTrustService } from "@bitwarden/common/key-management/device-trust/services/device-trust.service.implementation";
 import { DefaultEncryptedMigrator } from "@bitwarden/common/key-management/encrypted-migrator/default-encrypted-migrator";
@@ -149,7 +142,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 // eslint-disable-next-line no-restricted-imports -- Needed for service construction
 import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
@@ -206,7 +198,15 @@ import {
   BiometricStateService,
   DefaultBiometricStateService,
 } from "@bitwarden/key-management";
-import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
+// eslint-disable-next-line no-restricted-imports
+import {
+  DefaultKeyGenerationService,
+  DefaultLegacyCompatKeyService as LegacyCompatKeyService,
+  EncryptServiceImplementation,
+  KeyGenerationService,
+} from "@bitwarden/legacy-crypto";
+// eslint-disable-next-line no-restricted-imports
+import { NodeCryptoFunctionService } from "@bitwarden/legacy-crypto/node";
 import {
   ActiveUserStateProvider,
   DerivedStateProvider,
@@ -227,7 +227,14 @@ import {
   DefaultStateService,
 } from "@bitwarden/state-internal";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  AutoUnlockService,
+  DefaultAutoUnlockService,
+  DefaultLockService,
+  LockService,
+  DefaultUnlockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -273,6 +280,7 @@ export class ServiceContainer {
   i18nService: I18nService;
   platformUtilsService: CliPlatformUtilsService;
   keyService: KeyService;
+  legacyCompatKeyService: LegacyCompatKeyService;
   tokenService: TokenService;
   appIdService: AppIdService;
   apiService: NodeApiService;
@@ -355,7 +363,6 @@ export class ServiceContainer {
   billingAccountProfileStateService: BillingAccountProfileStateService;
   premiumCheckoutPendingService: PremiumCheckoutPendingService;
   providerApiService: ProviderApiServiceAbstraction;
-  userAutoUnlockKeyService: UserAutoUnlockKeyService;
   kdfConfigService: KdfConfigService;
   taskSchedulerService: TaskSchedulerService;
   sdkService: SdkService;
@@ -374,6 +381,7 @@ export class ServiceContainer {
   cipherArchiveService: CipherArchiveService;
   lockService: LockService;
   unlockService: UnlockService;
+  autoUnlockService: AutoUnlockService;
   private accountCryptographicStateService: DefaultAccountCryptographicStateService;
   private v2UpgradeTokenStateService: V2UpgradeTokenStateService;
 
@@ -527,22 +535,38 @@ export class ServiceContainer {
     );
 
     this.keyService = new KeyService(
-      this.masterPasswordService,
-      this.keyGenerationService,
       this.cryptoFunctionService,
       this.encryptService,
       this.platformUtilsService,
       this.logService,
       this.stateService,
-      this.accountService,
       this.stateProvider,
-      this.kdfConfigService,
       this.accountCryptographicStateService,
+      new CliBiometricsService(),
+    );
+
+    this.autoUnlockService = new DefaultAutoUnlockService(
+      this.keyService,
+      this.stateService,
+      this.stateProvider,
+      this.platformUtilsService,
+      this.logService,
+    );
+
+    this.legacyCompatKeyService = new LegacyCompatKeyService(
+      this.masterPasswordService,
+      this.keyGenerationService,
+      this.cryptoFunctionService,
+      this.encryptService,
+      this.logService,
+      this.accountService,
+      this.kdfConfigService,
+      this.keyService,
     );
 
     this.masterPasswordUnlockService = new DefaultMasterPasswordUnlockService(
       this.masterPasswordService,
-      this.keyService,
+      this.legacyCompatKeyService,
       this.logService,
     );
 
@@ -577,7 +601,7 @@ export class ServiceContainer {
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.userDecryptionOptionsService,
-      this.keyService,
+      this.autoUnlockService,
       this.tokenService,
       this.policyService,
       this.biometricStateService,
@@ -604,7 +628,11 @@ export class ServiceContainer {
       customUserAgent,
     );
 
-    this.containerService = new ContainerService(this.keyService, this.encryptService);
+    this.containerService = new ContainerService(
+      this.keyService,
+      this.encryptService,
+      this.legacyCompatKeyService,
+    );
 
     this.configApiService = new ConfigApiService(this.apiService);
 
@@ -745,10 +773,9 @@ export class ServiceContainer {
       this.stateProvider,
       this.logService,
       new CliBiometricsService(),
-      this.platformUtilsService,
-      this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
+      this.autoUnlockService,
     );
 
     this.sendTokenService = new DefaultSendTokenService(
@@ -760,7 +787,7 @@ export class ServiceContainer {
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
-      this.keyService,
+      this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
       this.logService,
@@ -772,6 +799,7 @@ export class ServiceContainer {
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
+      this.unlockService,
     );
 
     this.twoFactorService = new DefaultTwoFactorService(
@@ -796,11 +824,13 @@ export class ServiceContainer {
       this.appIdService,
       this.masterPasswordService,
       this.keyService,
+      this.legacyCompatKeyService,
       this.encryptService,
       this.apiService,
       this.stateProvider,
       this.authRequestApiService,
       this.accountService,
+      this.unlockService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
@@ -882,6 +912,7 @@ export class ServiceContainer {
       this.unlockService,
       loginStrategyCacheService,
       loginStrategySessionTimeoutService,
+      this.legacyCompatKeyService,
     );
 
     this.restrictedItemTypesService = new RestrictedItemTypesService(
@@ -918,6 +949,7 @@ export class ServiceContainer {
 
     this.cipherService = new CipherService(
       this.keyService,
+      this.legacyCompatKeyService,
       this.domainSettingsService,
       this.apiService,
       this.i18nService,
@@ -976,9 +1008,7 @@ export class ServiceContainer {
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
-      this.searchService,
       this.folderService,
-      this.masterPasswordService,
       this.stateEventRunnerService,
       this.cipherService,
       this.authService,
@@ -1096,8 +1126,6 @@ export class ServiceContainer {
       this.accountService,
     );
 
-    this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
-
     this.hibpApiService = new HibpApiService(this.apiService);
     this.auditService = new AuditService(
       this.cryptoFunctionService,
@@ -1195,7 +1223,12 @@ export class ServiceContainer {
     // as this runs on every command and could be a performance hit
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (activeAccount?.id) {
-      await this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(activeAccount.id);
+      // A failure here leaves the vault locked rather than failing every command outright.
+      try {
+        await this.unlockService.unlockWithAutoUnlockKey(activeAccount.id);
+      } catch (e) {
+        this.logService.error("[ServiceContainer] Failed to auto-unlock user on init", e);
+      }
     }
 
     this.inited = true;

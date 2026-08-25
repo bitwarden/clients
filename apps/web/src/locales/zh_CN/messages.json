@@ -90,7 +90,7 @@
     }
   },
   "noReportRan": {
-    "message": "您还没有创建报告"
+    "message": "您尚未创建报告"
   },
   "notifiedMembers": {
     "message": "已通知成员"
@@ -450,7 +450,7 @@
     "message": "没有具有弱的、暴露的或重复使用的密码的应用程序。"
   },
   "atRiskMembersDescriptionWithApp": {
-    "message": "这些成员正在使用弱的、暴露的或重复使用的密码登录到 $APPNAME$。",
+    "message": "这些成员正在登录到具有弱的、暴露的或重复使用的密码的 $APPNAME$。",
     "placeholders": {
       "appname": {
         "content": "$1",
@@ -906,6 +906,24 @@
   "editFolder": {
     "message": "编辑文件夹"
   },
+  "editFolderNamed": {
+    "message": "Edit $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Delete $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "editWithName": {
     "message": "编辑 $ITEM$：$NAME$",
     "placeholders": {
@@ -1065,8 +1083,14 @@
   "allItems": {
     "message": "所有项目"
   },
+  "allVaultItems": {
+    "message": "All vault items"
+  },
   "favorites": {
     "message": "收藏夹"
+  },
+  "favoritesFilterTooltip": {
+    "message": "将项目标记为收藏以在此处筛选它们。"
   },
   "taskSummary": {
     "message": "任务摘要"
@@ -1206,6 +1230,9 @@
   "myFolders": {
     "message": "我的文件夹"
   },
+  "foldersFilterTooltip": {
+    "message": "将文件夹添加到项目以在此处筛选它们。"
+  },
   "addSharedFolder": {
     "message": "添加共享文件夹"
   },
@@ -1252,7 +1279,7 @@
     }
   },
   "deleteSharedFolderNameKeepItemsDesc": {
-    "message": "The shared folder $NAME$ will be permanently deleted. The items in the folder won't be deleted.",
+    "message": "共享文件夹 $NAME$ 将被永久删除。文件夹中的项目将不会被删除。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -1261,7 +1288,7 @@
     }
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "这些共享文件夹将被永久删除。文件夹中的项目将不会被删除。"
   },
   "deleteSelectedSharedFoldersDesc": {
     "message": "$COUNT$ 个共享文件夹将被永久删除。",
@@ -1571,7 +1598,7 @@
     "message": "项目"
   },
   "itemLower": {
-    "message": "item"
+    "message": "项目"
   },
   "itemDetails": {
     "message": "项目详细信息"
@@ -1712,58 +1739,15 @@
   "copyName": {
     "message": "复制名称"
   },
-  "cardNumber": {
-    "message": "卡号"
-  },
-  "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
-  "copyNoteTitle": {
-    "message": "复制备注 - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noValueEntered": {
     "message": "未输入任何值",
     "description": "Screen reader announcement appended to a custom field's name when the field has no value entered."
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "没有可复制的详细信息"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "打开网站"
   },
   "me": {
     "message": "我"
@@ -2062,6 +2046,36 @@
   },
   "deletedFolder": {
     "message": "文件夹已删除"
+  },
+  "folderEdited": {
+    "message": "Folder edited"
+  },
+  "foldersDeleted": {
+    "message": "Folders deleted"
+  },
+  "deleteFoldersCount": {
+    "message": "Delete $COUNT$ folders",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "When you delete the $NAME$ folder, it will be removed from every item it's been applied to. The items themselves won't be deleted.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "When you delete these folders, they will be removed from every item they've been applied to. The items themselves won't be deleted."
+  },
+  "enterAName": {
+    "message": "Enter a name."
   },
   "editInfo": {
     "message": "编辑信息"
@@ -2517,6 +2531,9 @@
   "newVault": {
     "message": "新增密码库"
   },
+  "addPlan": {
+    "message": "Add plan"
+  },
   "noOrganizationsList": {
     "message": "您没有加入任何组织。组织允许您与其他用户安全地共享项目。"
   },
@@ -2663,7 +2680,7 @@
     "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "collectionsDesc": {
-    "message": "编辑与其共享此项目的集合。只有具有这些集合访问权限的组织用户才能看到此项目。"
+    "message": "编辑与其共享此项目的集合。只有拥有这些集合访问权限的组织用户才能看到此项目。"
   },
   "deleteSelectedItemsDesc": {
     "message": "$COUNT$ 个项目将被发送到回收站。",
@@ -2720,19 +2737,19 @@
     "message": "复制验证码"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "没有用户名"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "没有密码"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "没有验证码"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "没有号码"
   },
   "noSecurityCode": {
-    "message": "No security code"
+    "message": "没有安全码"
   },
   "copyUuid": {
     "message": "复制 UUID"
@@ -3312,6 +3329,79 @@
   "noFileChosen": {
     "message": "未选择文件"
   },
+  "noFileSelected": {
+    "message": "未选择文件"
+  },
+  "fileChosen": {
+    "message": "已选择文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "已添加文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "已添加 $COUNT$ 个文件：$FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "已移除文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 个文件已上传"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ 个文件已上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "已上传文件"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "点击上传或拖放至此"
+  },
+  "chooseFiles": {
+    "message": "选择文件"
+  },
+  "maxFileSizeParam": {
+    "message": "最大文件大小：$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "或复制/粘贴要导入的文件内容"
   },
@@ -3325,11 +3415,230 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "See detailed $NAME$ instructions in our",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Help Center"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "The process is exactly the same as importing from Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "Using the KeePassX desktop application, navigate to \"Database\" → \"Export to CSV file\" and save the CSV file."
+  },
+  "importAviraInstructions": {
+    "message": "In the Avira web vault, go to \"Settings\" → \"My Data\" → \"Export data\" and save the CSV file."
+  },
+  "importBlurInstructions": {
+    "message": "In the Blur web vault, click your username at the top and go to \"Settings\" → \"Export Data\", then click \"Export CSV\" for your \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "Using the SafeInCloud desktop application, navigate to \"File\" → \"Export\" → \"As XML\" and save the XML file."
+  },
+  "importPadlockInstructions": {
+    "message": "Using the Padlock desktop application, click the hamburger icon in the top left corner and navigate to \"Settings\" → \"Export\" button and save the file \"As CSV\"."
+  },
+  "importKeepass2Instructions": {
+    "message": "Using the KeePass 2 desktop application, navigate to \"File\" → \"Export\" and select the \"KeePass XML (2.x)\" option."
+  },
+  "importUpmInstructions": {
+    "message": "Using the Universal Password Manager desktop application, navigate to \"Database\" → \"Export\" and save the CSV file."
+  },
+  "importSaferpassInstructions": {
+    "message": "Using the SaferPass browser extension, click the hamburger icon in the top left corner and navigate to \"Settings\". Click the \"Export accounts\" button to save the CSV file."
+  },
+  "importMeldiumInstructions": {
+    "message": "Using the Meldium web vault, navigate to \"Settings\". Locate the \"Export data\" function and click \"Show me my data\" to save the CSV file."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Using the Password Dragon desktop application, navigate to \"File\" → \"Export\" → \"To XML\". In the dialog that pops up select \"All Rows\" and check all fields. Click the \"Export\" button and save the XML file."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Using the Enpass desktop application, navigate to \"File\" → \"Export\" → \"As CSV\". Select \"OK\" to the warning alert and save the CSV file. Note that the importer only supports files exported while Enpass is set to the English language, so adjust your settings accordingly."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Using the Enpass 6 desktop application, click the menu button and navigate to \"File\" → \"Export\". Select the \".json\" file format option and save the JSON file."
+  },
+  "importPwsafeInstructions": {
+    "message": "Using the Password Safe desktop application, navigate to \"File\" → \"Export To\" → \"XML format...\" and save the XML file."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Log in to Dashlane, click on \"My Account\" → \"Settings\" → \"Export file\" and select \"Export as a CSV file\". This will download a zip archive containing various CSV files. Unzip the archive and import each CSV file individually."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane no longer supports the JSON format. Only use this if you have an existing JSON for import. Use the CSV importer when creating new exports."
+  },
+  "importMsecureInstructions": {
+    "message": "Using the mSecure desktop application, navigate to \"File\" → \"Export\" → \"CSV File...\" and save the CSV file."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Using the Sticky Password desktop application, navigate to \"Menu\" (top right) → \"Export\" → \"Export all\". Select the unencrypted format XML option and save the XML file."
+  },
+  "importTruekeyInstructions": {
+    "message": "Using the True Key desktop application, click the gear icon (top right) and then navigate to \"App Settings\". Click the \"Export\" button, enter your password and save the CSV file."
+  },
+  "importClipperzInstructions": {
+    "message": "Log into the Clipperz web application (clipperz.is/app). Click the hamburger menu icon in the top right to expand the navigation bar. Navigate to \"Data\" → \"Export\". Click the \"download HTML+JSON\" button to save the HTML file."
+  },
+  "importRoboformInstructions": {
+    "message": "Using the RoboForm Editor desktop application, navigate to \"RoboForm\" (top left) → \"Options\" → \"Account & Data\" and click the \"Export\" button. Select all of your data, change the \"Format\" to \"CSV file\" and then click the \"Export\" button to save the CSV file. Note: RoboForm only allows you to export Logins. Other items will not be exported."
+  },
+  "importPassboltInstructions": {
+    "message": "Log into the Passbolt web vault and navigate to the \"Passwords\" listing. Select all of the passwords you would like to export and click the \"Export\" button at the top of the listing. Choose the \"csv (lastpass)\" export format and click the \"Export\" button."
+  },
+  "importAscendoInstructions": {
+    "message": "Using the Ascendo DataVault desktop application, navigate to \"Tools\" → \"Export\". In the dialog that pops up, select the \"All Items (DVX, CSV)\" option. Click the \"Ok\" button to save the CSV file."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Using the Password Boss desktop application, navigate to \"File\" → \"Export data\" → \"Password Boss JSON - not encrypted\" and save the JSON file."
+  },
+  "importZohoInstructions": {
+    "message": "Log into the Zoho web vault (vault.zoho.com). Navigate to \"Tools\" → \"Export Secrets\". Select \"All Secrets\" and click the \"Zoho Vault Format CSV\" button. Highlight and copy the data from the textarea. Open a text editor like Notepad and paste the data. Save the data from the text editor as",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+  },
+  "importPasskeepInstructions": {
+    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python script to your desktop as",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Open terminal and run",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "and then",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Then upload the resulting",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "file here to Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+  },
+  "importPasspackInstructions": {
+    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+  },
+  "importPassmanInstructions": {
+    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+  },
+  "importFsecureInstructions": {
+    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+  },
+  "importKasperskyInstructions": {
+    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+  },
+  "importRemembearInstructions": {
+    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+  },
+  "importMykiInstructions": {
+    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+  },
+  "importBlackberryInstructions": {
+    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+  },
+  "importButtercupInstructions": {
+    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+  },
+  "importCodebookInstructions": {
+    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+  },
+  "importYotiInstructions": {
+    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+  },
+  "importProtonpassInstructions": {
+    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+  },
   "options": {
     "message": "选项"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "更多选项"
+  },
+  "optionsForItem": {
+    "message": "$NAME$ 的选项",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "filterByName": {
+    "message": "筛选为 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "preferences": {
     "message": "偏好设置"
@@ -3350,7 +3659,7 @@
     "message": "显示网站图标并获取更改密码的 URL"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
+    "message": "在密码库中显示快速复制操作"
   },
   "default": {
     "message": "默认"
@@ -3433,6 +3742,10 @@
   },
   "restrictedItemTypePolicyDescV2": {
     "message": "不允许成员在他们的密码库中创建和存储信用卡项目。启用此策略后，现有的信用卡将被自动隐藏。"
+  },
+  "restrictedItemTypePolicyDescVfo1": {
+    "message": "Do not allow members to create and store credit card items. When this policy is turned on, existing cards will be automatically hidden.",
+    "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
     "message": "无法导入支付卡项目类型"
@@ -4043,41 +4356,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
   },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ 文件附件加密存储空间。",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "专有的两步登录选项，例如 YubiKey 和 Duo。"
-  },
   "premiumSignUpEmergency": {
     "message": "紧急访问"
-  },
-  "premiumSignUpReports": {
-    "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
-  },
-  "premiumSignUpTotp": {
-    "message": "用于密码库中登录项目的 TOTP 验证码 (2FA) 生成器。"
-  },
-  "premiumSignUpSupport": {
-    "message": "优先客户支持。"
-  },
-  "premiumSignUpFuture": {
-    "message": "未来的更多高级版功能。敬请期待！"
-  },
-  "premiumPrice": {
-    "message": "所有功能仅需 $PRICE$ /年！",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "premiumPriceWithFamilyPlan": {
     "message": "升级高级版仅需 $PRICE$ /年，或成为具有 $FAMILYPLANUSERCOUNT$ 位用户以及无限制的家庭共享的高级账户，通过 ",
@@ -4223,10 +4503,10 @@
     "message": "取消订阅"
   },
   "completeCancellation": {
-    "message": "完全取消"
+    "message": "完成取消"
   },
   "helpUsImprove": {
-    "message": "帮助我们改进。您为什么取消？"
+    "message": "帮助我们改进。请问您为什么取消？"
   },
   "additionalDetails": {
     "message": "更多详细信息"
@@ -4239,6 +4519,15 @@
   },
   "pendingCancellation": {
     "message": "待取消"
+  },
+  "pendingAnnualUpgradeNotice": {
+    "message": "您将于 $DATE$ 切换为按年计费。所显示的方案和价格反映的是您即将生效的年度订阅。",
+    "placeholders": {
+      "date": {
+        "content": "$1",
+        "example": "Aug 1, 2026"
+      }
+    }
   },
   "subscriptionPendingCanceled": {
     "message": "此订阅在当前计费周期结束前已标记为取消。"
@@ -4466,10 +4755,10 @@
     "message": "管理订阅"
   },
   "launchCloudSubscription": {
-    "message": "启动云订阅"
+    "message": "前往云端订阅"
   },
   "launchCloudSubscriptionSentenceCase": {
-    "message": "启动云订阅"
+    "message": "前往云端订阅"
   },
   "storage": {
     "message": "存储"
@@ -4583,7 +4872,7 @@
     "message": "许可证文件"
   },
   "licenseFileDesc": {
-    "message": "您的许可证文件的名称类似于 $FILE_NAME$",
+    "message": "您的许可证文件将被命名为类似于 $FILE_NAME$",
     "placeholders": {
       "file_name": {
         "content": "$1",
@@ -4608,6 +4897,9 @@
   },
   "organizationName": {
     "message": "组织名称"
+  },
+  "vaultName": {
+    "message": "密码库名称"
   },
   "accountOwnedBusiness": {
     "message": "此账户由商业用户拥有。"
@@ -4725,6 +5017,15 @@
       }
     }
   },
+  "limitedSharedFolders": {
+    "message": "仅限 $COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
   "addShareLimitedUsers": {
     "message": "添加并最多与 $COUNT$ 位用户共享",
     "placeholders": {
@@ -4739,6 +5040,9 @@
   },
   "createUnlimitedCollections": {
     "message": "创建不限数量的集合"
+  },
+  "createUnlimitedSharedFolders": {
+    "message": "创建不限数量的共享文件夹"
   },
   "gbEncryptedFileStorage": {
     "message": "$SIZE$ 加密文件存储空间",
@@ -5959,7 +6263,7 @@
     }
   },
   "editedSharedFoldersForItem": {
-    "message": "Edited shared folders for item $ID$.",
+    "message": "编辑了项目 $ID$ 的共享文件夹。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -5971,7 +6275,7 @@
     "message": "接受了转移至组织所有权。"
   },
   "userAcceptedTransferWithOrgName": {
-    "message": "Accepted transfer to $ORGNAME$ vault ownership.",
+    "message": "接受了转移至 $ORGNAME$ 密码库所有权。",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -6046,7 +6350,7 @@
     }
   },
   "createdOrganizationIdWithName": {
-    "message": "创建了$ORGNAME$ 密码库 $ID$。",
+    "message": "创建了 $ORGNAME$ 密码库 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6441,6 +6745,24 @@
       }
     }
   },
+  "unableToJoinOrganizationName": {
+    "message": "无法加入 $ORGANIZATIONNAME$",
+    "placeholders": {
+      "organizationName": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "openOrgInviteLinkNoLongerValid": {
+    "message": "邀请链接已失效。"
+  },
+  "returnToLogin": {
+    "message": "返回登录"
+  },
+  "returnToRegistration": {
+    "message": "返回注册"
+  },
   "joinOrganizationDesc": {
     "message": "您已被邀请加入上面的组织。要接受邀请，您需要登录或者创建一个新的 Bitwarden 账户。"
   },
@@ -6467,6 +6789,78 @@
         "example": "You must set up 2FA on your user account before you can join this organization."
       }
     }
+  },
+  "openOrgInviteAcceptFailed": {
+    "message": "无法接受邀请。请向组织管理员请求发送新的邀请链接。"
+  },
+  "openOrgInviteAcceptFailedTitle": {
+    "message": "无法接受邀请"
+  },
+  "openOrgInviteAcceptAlreadyMember": {
+    "message": "您已经是这个组织的成员。"
+  },
+  "openOrgInviteAcceptEmailDomainNotAllowed": {
+    "message": "此组织不允许使用与 $DOMAIN$ 匹配的电子邮箱。",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "example.com"
+      }
+    }
+  },
+  "openOrgInviteAcceptFreeAdminLimit": {
+    "message": "由于您已经是某个免费版组织的管理员，您不能加入这个组织。"
+  },
+  "openOrgInviteAcceptOrgAccessRevoked": {
+    "message": "您已经从此组织中被撤销。请联系您的管理员以重新获取访问权限。"
+  },
+  "openOrgInviteAcceptProviderUser": {
+    "message": "提供商用户不能使用此邀请链接加入。"
+  },
+  "openOrgInviteAcceptResetPasswordKeyRequired": {
+    "message": "出错了，请重新加载页面以重试。"
+  },
+  "openOrgInviteAcceptSingleOrgOtherOrg": {
+    "message": "您已加入的组织只允许其成员属于一个组织。"
+  },
+  "openOrgInviteAcceptSingleOrgErrorOtherOrg": {
+    "message": "您已加入的组织只允许其成员访问一个共享的密码库。"
+  },
+  "openOrgInviteAcceptSingleOrgErrorTargetOrg": {
+    "message": "您尝试加入的组织只允许其成员访问一个共享的密码库。"
+  },
+  "openOrgInviteAcceptSingleOrgTargetOrg": {
+    "message": "您尝试加入的组织只允许其成员属于一个组织。"
+  },
+  "openOrgInviteAcceptTwoFactorRequired": {
+    "message": "您必须设置两步登录才能加入这个组织。"
+  },
+  "openOrgInviteAcceptEmailNotVerified": {
+    "message": "您必须验证您的电子邮箱地址，然后才能加入组织。"
+  },
+  "openOrgInviteAcceptUnexpected": {
+    "message": "出错了，请重新加载页面以重试。"
+  },
+  "openOrgInviteNoSeatsMessage": {
+    "message": "由于没有可用的席位，您的邀请无法被接受。"
+  },
+  "openOrgInviteStatusUnexpectedErrorMessage": {
+    "message": "出错了，请重新加载页面以重试。"
+  },
+  "openOrgInviteEmailDomainNotAllowed": {
+    "message": "此域名未被这个组织接受。请尝试其他电子邮箱地址。"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedTitle": {
+    "message": "无法接受邀请"
+  },
+  "registrationSealedOpenOrgInviteDecryptionFailedMessage": {
+    "message": "无法解密组织邀请。请使用同一浏览器重新开始并完成注册流程。"
+  },
+  "goToLogin": {
+    "message": "前往登录"
+  },
+  "goToVault": {
+    "message": "前往密码库"
   },
   "rememberEmail": {
     "message": "记住电子邮箱"
@@ -6653,7 +7047,7 @@
     "description": "Upper limit of seats to allow through autoscaling"
   },
   "maxSeatCost": {
-    "message": "最大潜在的席位成本"
+    "message": "最大潜在的席位费用"
   },
   "addSeats": {
     "message": "添加席位",
@@ -6896,7 +7290,7 @@
     "message": "随时。"
   },
   "byEmail": {
-    "message": "通过电子邮箱"
+    "message": "通过电子邮件"
   },
   "byLink": {
     "message": "通过链接"
@@ -6917,7 +7311,7 @@
     "message": "邀请链接"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "转移并添加"
   },
   "lastGenerated": {
     "message": "上次生成：$DATE$",
@@ -7259,11 +7653,15 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "为所有成员生成的密码选择一组最低要求。"
   },
+  "passwordGeneratorPolicyDescVfo1": {
+    "message": "Set requirements for password generator.",
+    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  },
   "generatedPassword": {
-    "message": "生成了密码"
+    "message": "生成的密码"
   },
   "generatedPassphrase": {
-    "message": "生成了密码短语"
+    "message": "生成的密码短语"
   },
   "masterPasswordPolicyInEffect": {
     "message": "一个或多个组织策略要求您的主密码满足以下要求："
@@ -7507,14 +7905,26 @@
   "singleOrg": {
     "message": "单一组织"
   },
+  "singleOrgVfo1": {
+    "message": "Single organization membership",
+    "description": "VFO1 terminology variant of 'singleOrg'"
+  },
   "singleOrgDesc": {
     "message": "限制成员加入其他组织。"
   },
   "singleOrgPolicyDesc": {
     "message": "限制成员加入其他组织。对于已启用域名验证的组织来说，该策略是必需的。"
   },
+  "singleOrgPolicyDescVfo1": {
+    "message": "Restrict members from joining other shared or organization vaults.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  },
   "singleOrgPolicyDescV2": {
     "message": "本组织成员不能加入其他组织。启用此策略后，属于其他组织的现有成员将被撤销其访问权限。所有者和管理员不受此策略的约束。"
+  },
+  "singleOrgPolicyDescV2Vfo1": {
+    "message": "Members cannot join other organization vaults. Existing members who belong to other organizations will have their access revoked when this policy is enabled. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
     "message": "您当前的组织策略禁止您加入多个组织。请联系您的组织管理员，或从其他 Bitwarden 账户注册。"
@@ -7524,6 +7934,18 @@
   },
   "requireSso": {
     "message": "要求单点登录 (SSO) 身份验证"
+  },
+  "requireSsoVfo1": {
+    "message": "Require SSO",
+    "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
+  },
+  "requireSsoPolicyDescListVfo1": {
+    "message": "Require members to log in with the Enterprise Single Sign-On method.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
+  },
+  "requireSsoPolicyDescV2Vfo1": {
+    "message": "Require members to log in with the Enterprise Single Sign-On method. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
   "requireSsoPolicyDesc": {
     "message": "要求成员使用企业单点登录 (SSO) 方式登录。"
@@ -7542,6 +7964,10 @@
   },
   "requireSsoPolicyReqV2": {
     "message": "必须先启用「单一组织」策略，然后才能启用此策略。"
+  },
+  "requireSsoPolicyReqV2Vfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
   },
   "requireSsoPolicyReqError": {
     "message": "单一组织策略未启用。"
@@ -7929,8 +8355,16 @@
   "centralizeDataOwnership": {
     "message": "集中化组织所有权"
   },
+  "centralizeDataOwnershipVfo1": {
+    "message": "Centralized organization ownership",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
+  },
   "centralizeDataOwnershipDesc": {
     "message": "所有成员项目都将由组织拥有和管理。管理员和所有者不受此策略的约束。"
+  },
+  "centralizeDataOwnershipDescVfo1": {
+    "message": "Require members to save items to the organization by removing their personally owned My vault.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "进一步了解集中化所有权",
@@ -7966,11 +8400,23 @@
   "centralizeDataOwnershipDescV2": {
     "message": "所有成员项目都将由组织拥有和管理。所有者和管理员不受此策略的约束。进一步了解 "
   },
+  "centralizeDataOwnershipDescV3": {
+    "message": "All member items will be owned and managed by the organization. This policy won't be enforced for owners and admins. ",
+    "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
+  },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "为所有用户提供一个专用的「我的项目」空间，用于管理他们自己的登录。"
   },
+  "centralizeDataOwnershipBenefit3Vfo1": {
+    "message": "Give all users a dedicated My items space for managing their own logins.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
+  },
   "promptUsersToMoveItemsV2": {
     "message": "提示用户将他们的密码库项目移动到组织"
+  },
+  "promptUsersToMoveItemsVfo1": {
+    "message": "Prompt users to move their My vault items to the organization",
+    "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
     "message": "强制组织数据所有权"
@@ -8016,6 +8462,10 @@
     "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
+  "autoConfirmDescriptionVfo1": {
+    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked.",
+    "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
+  },
   "howToTurnOnAutoConfirm": {
     "message": "如何启用自动用户确认"
   },
@@ -8037,6 +8487,10 @@
     "message": "当管理员的设备解锁时，邀请加入组织的新用户将被自动确认。启用此策略前，请审查并同意：",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
+  "autoConfirmPolicyEditDescriptionVfo1": {
+    "message": "New users invited to the organization vault will be automatically confirmed when an admin’s device is unlocked. Before turning on this policy, please review and agree to the following: ",
+    "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
+  },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "潜在的安全风险。"
   },
@@ -8050,11 +8504,23 @@
   "autoConfirmSingleOrgRequired": {
     "message": "要求单一组织策略。"
   },
+  "autoConfirmSingleOrgRequiredVfo1": {
+    "message": "Single organization vault policy required. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
+  },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "所有成员必须仅属于此组织才能激活此自动化功能。"
   },
+  "autoConfirmSingleOrgRequiredDescVfo1": {
+    "message": "All members must only belong to this organization vault to activate this automation.",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
+  },
   "autoConfirmSingleOrgExemption": {
     "message": "单一组织策略将扩展到所有角色。"
+  },
+  "autoConfirmSingleOrgExemptionVfo1": {
+    "message": "Single organization vault policy will extend to all roles. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "没有紧急访问权限。"
@@ -8194,6 +8660,10 @@
     "message": "管理 Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
+  "manageSendAndShareVfo1": {
+    "message": "Manage Send and share",
+    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  },
   "sendControlsPolicyDesc": {
     "message": "设置用于创建和编辑 Send 的选项，包括禁用 Send 的功能。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8201,6 +8671,10 @@
   "sendControlsPolicyDescV4": {
     "message": "管理成员使用 Send 的方式。启用此策略后，此策略将应用于 Send 的创建。管理员和所有者不受此策略的约束。",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsPolicyDescVfo1": {
+    "message": "Set Send configuration options.",
+    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Send 选项",
@@ -8222,6 +8696,10 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "确定何时将登录建议用于自动填充。管理员和所有者不受此策略的约束。"
+  },
+  "uriMatchDetectionPolicyDescVfo1": {
+    "message": "Set the default URI match detection for all items created by members.",
+    "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
     "message": "设置网站地址 (URI) 中需要匹配的默认部分，以便 Bitwarden 在自动填充时建议登录项目。所有者和管理员不受此策略的约束。"
@@ -8636,11 +9114,19 @@
   "accountRecoveryPolicy": {
     "message": "账户恢复管理"
   },
+  "accountRecoveryPolicyDescVfo1": {
+    "message": "Allow admins to reset master passwords for members.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "必须先启用「单一组织」企业策略，然后才能激活此策略。"
   },
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "必须先启用「单一组织」策略，然后才能启用此策略。"
+  },
+  "accountRecoveryPolicySingleOrgReqV2Vfo1": {
+    "message": "You must enable the single organization membership policy before enabling this one.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
     "message": "允许管理员帮助已注册"
@@ -9013,6 +9499,10 @@
   "automaticAppLoginWithSSODescV2": {
     "message": "当用户通过身份提供程序启动 App 时，他们的登录信息将自动填写并提交，从而实现一键式安全登录。"
   },
+  "automaticAppLoginWithSSODescListVfo1": {
+    "message": "Login forms will automatically be filled and submitted for apps launched from your configured identity provider.",
+    "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "身份提供程序主机"
   },
@@ -9027,6 +9517,10 @@
   },
   "sessionTimeoutPolicyDescription": {
     "message": "为除所有者以外的所有成员设置最大会话超时。"
+  },
+  "sessionTimeoutPolicyDescriptionVfo1": {
+    "message": "Set a maximum vault timeout for members.",
+    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
     "message": "最大允许的超时"
@@ -9068,7 +9562,7 @@
     "message": "进一步了解设备保护"
   },
   "sessionTimeoutConfirmationOnSystemLockTitle": {
-    "message": "「系统锁定时」只适用于浏览器和桌面 App"
+    "message": "「系统锁定时」仅适用于浏览器和桌面 App"
   },
   "sessionTimeoutConfirmationOnSystemLockDescription": {
     "message": "由于移动端和网页 App 不支持该选项，将使用「App 重启时」作为其最大允许的超时。"
@@ -9126,7 +9620,7 @@
     }
   },
   "vaultTimeoutToLarge": {
-    "message": "您的密码库超时超出了您的组织设置的限制。"
+    "message": "您的密码库超时超出了您组织设置的限制。"
   },
   "vaultCustomTimeoutMinimum": {
     "message": "自定义超时最少为 1 分钟。"
@@ -9143,6 +9637,14 @@
   "disablePersonalVaultExportDescriptionV2": {
     "message": "不允许成员从他们的个人密码库导出数据。所有者和管理员不受此策略的约束。"
   },
+  "disablePersonalVaultExportDescriptionVfo1": {
+    "message": "Do not allow members to export their vault data. This policy won't be enforced for owners and admins.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
+  },
+  "disablePersonalVaultExportDescriptionListVfo1": {
+    "message": "Do not allow members to export their vault data.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
+  },
   "vaultExportDisabled": {
     "message": "密码库导出已禁用"
   },
@@ -9157,6 +9659,10 @@
   },
   "activateAutofillPolicyDescription": {
     "message": "为所有现有成员和新成员激活浏览器扩展上的页面加载时自动填充设置。"
+  },
+  "activateAutofillPolicyDescriptionVfo1": {
+    "message": "Automatically fill logins on websites and apps.",
+    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
     "message": "为所有现有成员和新成员启用浏览器扩展中的页面加载时自动填充设置。被攻破或不受信任的网站可能会"
@@ -9296,14 +9802,26 @@
   "sponsoredBitwardenFamilies": {
     "message": "赞助的家庭"
   },
+  "sponsoredBitwardenFamiliesV2": {
+    "message": "非成员兑换"
+  },
   "noSponsoredFamiliesMessage": {
     "message": "没有赞助的家庭"
+  },
+  "noSponsoredFamiliesMessageV2": {
+    "message": "尚无兑换记录"
   },
   "noSponsoredFamiliesDetails": {
     "message": "已赞助的非成员家庭版方案将显示在这里"
   },
+  "noSponsoredFamiliesDetailsV2": {
+    "message": "没有非成员兑现赞助的家庭版方案。"
+  },
   "sponsorshipFreeBitwardenFamilies": {
-    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版。您可以为不是您的 Bitwarden 组织成员的员工赞助免费的 Bitwarden 家庭版。赞助非成员需要您的组织内有可用的席位。"
+    "message": "您的组织成员有资格获得免费的 Bitwarden 家庭版。您可以为不是您的 Bitwarden 组织成员的员工赞助免费的 Bitwarden 家庭版。赞助非成员要求您的组织内有可用的席位。"
+  },
+  "sponsorshipFreeBitwardenFamiliesV2": {
+    "message": "您的成员有资格兑换赞助的家庭版方案。您可以为不是您的 Bitwarden 组织成员的员工赞助家庭版方案，但这要求您的组织内有可用的席位。"
   },
   "sponsoredFamiliesRemoveActiveSponsorship": {
     "message": "当您移除某个活动赞助，在被赞助组织的续费日期之后，您的组织中将释放一个可用的席位。"
@@ -9311,17 +9829,26 @@
   "sponsoredFamiliesEligible": {
     "message": "您和您的家人有资格获得免费的 Bitwarden 家庭版。使用您的个人电子邮箱兑换，即使您不在工作中，也能确保您的数据安全。"
   },
+  "sponsoredFamiliesEligibleV2": {
+    "message": "您和您的家人有资格获得赞助的家庭版方案，而无需额外的费用。使用您的个人电子邮箱兑换此方案，以确保您的数据安全，并将其与您的 Bitwarden 工作账户分开。"
+  },
   "sponsoredFamiliesEligibleCard": {
     "message": "立即兑换免费的 Bitwarden 家庭版方案，即使您不在工作中，也能确保您的数据安全。"
   },
   "sponsoredFamiliesIncludeMessage": {
     "message": "Bitwarden 家庭版方案包含"
   },
+  "sponsoredFamiliesIncludeMessageV2": {
+    "message": "Bitwarden 家庭版方案包含"
+  },
   "sponsoredFamiliesPremiumAccess": {
     "message": "最多 6 位高级版访问权限的用户"
   },
   "sponsoredFamiliesSharedCollectionsForFamilyMembers": {
-    "message": "为家庭成员提供共享集合"
+    "message": "适用于家庭成员的共享集合"
+  },
+  "sponsoredFamiliesSharedFoldersForFamilyMembers": {
+    "message": "适用于家庭成员的共享文件夹"
   },
   "memberFamilies": {
     "message": "成员家庭"
@@ -9363,7 +9890,7 @@
     "message": "输入您的个人电子邮箱以兑换 Bitwarden 家庭版"
   },
   "sponsoredFamiliesLeaveCopy": {
-    "message": "如果您移除邀请或您被从赞助组织中移除，您的家庭版赞助将在下一个续费日到期。"
+    "message": "如果您移除邀请或您被移出赞助组织，您的家庭版赞助将在下一次续费日期到期。"
   },
   "acceptBitwardenFamiliesHelp": {
     "message": "接受现有组织的邀请或创建一个新的家庭版组织。"
@@ -9660,7 +10187,7 @@
     "message": "令牌已轮换"
   },
   "billingSyncKeyDesc": {
-    "message": "要完成此表单，需要填写您的云组织订阅设置中的计费同步令牌。"
+    "message": "要完成此表单，需要填写您的云端组织订阅设置中的计费同步令牌。"
   },
   "billingSyncKey": {
     "message": "计费同步令牌"
@@ -9736,7 +10263,7 @@
     "message": "如果实体 ID 不是 URL，则必填。"
   },
   "offerNoLongerValid": {
-    "message": "此优惠不再可用。请联系组织管理员获取更多信息。"
+    "message": "此优惠已失效。请联系组织管理员获取更多信息。"
   },
   "openIdOptionalCustomizations": {
     "message": "个性化（可选）"
@@ -10544,7 +11071,7 @@
     "message": "永久删除机密"
   },
   "secretProjectAssociationDescription": {
-    "message": "选择要将此机密与其相关联的工程。仅有权访问这些工程的组织用户能查看该机密。",
+    "message": "选择要将此机密与其相关联的工程。只有拥有这些工程访问权限的组织用户能看到此机密。",
     "description": "A prompt explaining how secrets can be associated with projects."
   },
   "selectProjects": {
@@ -10627,7 +11154,7 @@
     "description": "Message to encourage the user to start creating service accounts."
   },
   "serviceAccountsNoItemsTitle": {
-    "message": "还没有可显示的内容",
+    "message": "尚无可显示的内容",
     "description": "Title to indicate that there are no service accounts to display."
   },
   "searchSecrets": {
@@ -11160,22 +11687,22 @@
     "message": "此成员尚未认领账户。请联系成员更新其电子邮箱地址。"
   },
   "emailHasMasterPasswordHint": {
-    "message": "此成员设置了主密码。请联系成员更新其电子邮箱地址。"
+    "message": "此成员拥有主密码。请联系成员更新其电子邮箱地址。"
   },
   "emailErrorNotClaimedDomain": {
-    "message": "新的电子邮箱地址必须匹配组织声明的域名。"
+    "message": "新的电子邮箱必须匹配组织声明的域名。"
   },
   "emailErrorAlreadyInUse": {
-    "message": "电子邮箱地址已被组织中的某个成员使用。"
+    "message": "电子邮箱已被组织中的某个成员使用。"
   },
   "emailErrorClaimedByOrg": {
-    "message": "电子邮箱地址已被使用。您可以改为邀请他们加入您的组织。"
+    "message": "电子邮箱已被使用。您可以改为邀请他们加入您的组织。"
   },
   "emailErrorHasMasterPassword": {
-    "message": "无法更改已设置主密码的成员的电子邮箱地址。"
+    "message": "无法更改拥有主密码的成员的电子邮箱。"
   },
   "emailErrorChangeFailed": {
-    "message": "更改电子邮箱地址失败。请重试。"
+    "message": "更改电子邮箱失败。请重试。"
   },
   "nameErrorNotClaimed": {
     "message": "无法更改未被组织声明的成员的名称。"
@@ -11413,6 +11940,18 @@
   },
   "userAccessSecretsManagerGA": {
     "message": "此用户可以访问 Secrets Manager"
+  },
+  "privilegedControls": {
+    "message": "特权控制",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "privilegedControlsAccessDescription": {
+    "message": "激活用户对特权控制的访问权限。",
+    "description": "'Privileged Controls' is a product name and should not be translated."
+  },
+  "userAccessPrivilegedControls": {
+    "message": "此用户可以访问特权控制",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "important": {
     "message": "重要："
@@ -11981,6 +12520,10 @@
     "message": "激活了对 Secrets Manager 的访问权限",
     "description": "Confirmation message that one or more users gained access to Secrets Manager"
   },
+  "activatedAccessToPrivilegedControls": {
+    "message": "激活了对特权控制的访问权限",
+    "description": "Confirmation message that one or more users gained access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateAccess": {
     "message": "激活访问权限"
   },
@@ -11988,8 +12531,16 @@
     "message": "允许以下成员访问 Secrets Manager。Password Manager 中授予的角色将适用于 Secrets Manager。",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
+  "bulkEnablePrivilegedControlsDescription": {
+    "message": "授予以下成员对特权控制的访问权限。",
+    "description": "This description is shown to an admin when they are attempting to grant users access to Privileged Controls. 'Privileged Controls' is a product name and should not be translated."
+  },
   "activateSecretsManager": {
     "message": "激活 Secrets Manager"
+  },
+  "activatePrivilegedControls": {
+    "message": "激活特权控制",
+    "description": "'Privileged Controls' is a product name and should not be translated."
   },
   "yourOrganizationsFingerprint": {
     "message": "您组织的指纹短语",
@@ -12157,6 +12708,9 @@
   "free2PersonOrganization": {
     "message": "免费的 2 人组织"
   },
+  "freePlanWithSharedVault": {
+    "message": "Free plan with shared vault"
+  },
   "unlimitedSecrets": {
     "message": "不限数量的机密"
   },
@@ -12289,7 +12843,7 @@
     "message": "服务账户限制（可选）"
   },
   "maxServiceAccountCost": {
-    "message": "最大潜在的服务账户成本"
+    "message": "最大潜在的服务账户费用"
   },
   "loggedInExclamation": {
     "message": "已登录！"
@@ -12359,7 +12913,7 @@
     }
   },
   "modifiedSharedFolderManagement": {
-    "message": "Modified shared folder management setting $ID$.",
+    "message": "修改了共享文件夹管理设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12377,7 +12931,7 @@
     }
   },
   "limitSharedFolderCreationEnabled": {
-    "message": "Turned on Restrict shared folder creation setting $ID$.",
+    "message": "启用了限制共享文件夹创建设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12395,7 +12949,7 @@
     }
   },
   "limitSharedFolderCreationDisabled": {
-    "message": "Turned off Restrict shared folder creation setting $ID$.",
+    "message": "停用了限制共享文件夹创建设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12413,7 +12967,7 @@
     }
   },
   "limitSharedFolderDeletionEnabled": {
-    "message": "Turned on Restrict shared folder deletion setting $ID$.",
+    "message": "启用了限制共享文件夹删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12431,7 +12985,7 @@
     }
   },
   "limitSharedFolderDeletionDisabled": {
-    "message": "Turned off Restrict shared folder deletion setting $ID$.",
+    "message": "停用了限制共享文件夹删除设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12467,7 +13021,7 @@
     }
   },
   "allowAdminAccessToAllSharedFolderItemsEnabled": {
-    "message": "Turned on Allow owners and admins to manage all shared folders and items setting $ID$.",
+    "message": "启用了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -12485,17 +13039,13 @@
     }
   },
   "allowAdminAccessToAllSharedFolderItemsDisabled": {
-    "message": "Turned off Allow owners and admins to manage all shared folders and items setting $ID$.",
+    "message": "停用了允许所有者和管理员管理所有共享文件夹和项目设置 $ID$。",
     "placeholders": {
       "id": {
         "content": "$1",
         "example": "Unique ID"
       }
     }
-  },
-  "seeDetailedInstructions": {
-    "message": "请参阅我们的帮助网站上的详细说明：",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "getStartedWithYourVault": {
     "message": "开始使用您的密码库"
@@ -12727,6 +13277,36 @@
     "message": "重组、收购、优先级调整，或者我们不再需要密码管理器了。",
     "description": "Hint for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
   },
+  "switchToAnnualAndSave": {
+    "message": "切换为按年计费，节省 $SAVINGS$ /年",
+    "description": "Heading on the inline annual-upgrade callout shown in the cancellation survey. SAVINGS = formatted savings amount",
+    "placeholders": {
+      "savings": {
+        "content": "$1",
+        "example": "$288"
+      }
+    }
+  },
+  "currentCostMonthlyBilling": {
+    "message": "当前费用（按月计费）",
+    "description": "Label for the current annual cost on monthly billing, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualBillingCost": {
+    "message": "按年计费费用",
+    "description": "Label for the annual billing cost, shown on the inline annual-upgrade callout in the cancellation survey. The dollar amount is rendered next to it."
+  },
+  "annualSwitchDisclaimer": {
+    "message": "所显示的价格为税前价格。该切换将在您的下一次续费日期生效。",
+    "description": "Disclaimer on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchToAnnualBilling": {
+    "message": "切换为按年计费",
+    "description": "Button label on the inline annual-upgrade callout shown in the cancellation survey."
+  },
+  "switchedToAnnualBilling": {
+    "message": "您的订阅将在下一次续费日期切换为按年计费。",
+    "description": "Success toast text shown after redeeming the annual-upgrade offer from the cancellation survey."
+  },
   "cancelSurveyPoorServiceLabel": {
     "message": "客户服务体验太差",
     "description": "Label for a cancel survey radio option shown when a Teams or Enterprise organization cancels their subscription."
@@ -12788,16 +13368,16 @@
     "message": "分配到这些集合"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这个项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到此项目。"
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到此项目。"
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到这些项目。"
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到这些项目。"
   },
   "selectCollectionsToAssign": {
     "message": "选择要分配的集合"
@@ -12809,31 +13389,31 @@
     "message": "成功分配了集合"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "成功添加了共享文件夹"
   },
   "itemMovedToCollection": {
     "message": "项目已移动到集合"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "项目已添加到共享文件夹"
   },
   "itemMovedToCollections": {
     "message": "项目已移动到集合"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "项目已添加到共享文件夹"
   },
   "itemsMovedToCollection": {
     "message": "项目已移动到集合"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "项目已添加到共享文件夹"
   },
   "itemsMovedToCollections": {
     "message": "项目已移动到集合"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "项目已添加到共享文件夹"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
@@ -12864,7 +13444,7 @@
     "message": "项目"
   },
   "itemsLower": {
-    "message": "items"
+    "message": "项目"
   },
   "assignedSeats": {
     "message": "已分配的席位"
@@ -12975,7 +13555,7 @@
     "description": "Message to encourage the user to start creating machine accounts."
   },
   "machineAccountsNoItemsTitle": {
-    "message": "还没有可显示的内容",
+    "message": "尚无可显示的内容",
     "description": "Title to indicate that there are no machine accounts to display."
   },
   "deleteMachineAccounts": {
@@ -13122,7 +13702,7 @@
     "message": "机器账户限制（可选）"
   },
   "maxMachineAccountCost": {
-    "message": "最大潜在的机器账户成本"
+    "message": "最大潜在的机器账户费用"
   },
   "machineAccountAccessUpdated": {
     "message": "机器账户访问权限已更新"
@@ -13630,8 +14210,8 @@
   "memberAccessReportPageDesc": {
     "message": "审计组织成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
   },
-  "memberAccessReportPageDescV2": {
-    "message": "审计成员在群组、集合和集合项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括集合权限和账户配置信息。"
+  "memberAccessReportPageDescV3": {
+    "message": "审计成员在群组、共享文件夹和项目中的访问权限。CSV 导出文件提供了每位成员的详细信息，包括权限和账户配置信息。"
   },
   "memberAccessReportNoCollection": {
     "message": "（无集合）"
@@ -13752,7 +14332,7 @@
     "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 个项目将永久转移到所选密码库。您将不再拥有该项目。"
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
@@ -13764,7 +14344,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选密码库。您将不再拥有这些项目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -14013,6 +14593,9 @@
   "unlimitedCollections": {
     "message": "不限数量的集合"
   },
+  "unlimitedSharedFolders": {
+    "message": "不限数量的共享文件夹"
+  },
   "secureDataSharing": {
     "message": "安全数据共享"
   },
@@ -14194,7 +14777,7 @@
     }
   },
   "userLeftOrganizationWithName": {
-    "message": "User $ID$ left $ORGNAME$ vault",
+    "message": "用户 $ID$ 退出了 $ORGNAME$ 密码库",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -14219,7 +14802,7 @@
     "message": "因拒绝转移至组织所有权而被撤销。"
   },
   "userSelfRevokedOrganizationOwnershipWithName": {
-    "message": "Revoked for declining transfer to $ORGNAME$ vault ownership.",
+    "message": "因拒绝转移至 $ORGNAME$ 密码库所有权而被撤销。",
     "placeholders": {
       "orgname": {
         "content": "$1",
@@ -14240,7 +14823,7 @@
     "message": "联系您的组织所有者寻求帮助。"
   },
   "suspendedOwnerOrgMessage": {
-    "message": "要重新访问您的组织，请添加一个付款方式。"
+    "message": "要重新获取您的组织的访问权限，请添加一个付款方式。"
   },
   "deleteMembers": {
     "message": "删除成员"
@@ -14257,11 +14840,23 @@
   "freeFamiliesSponsorshipPolicyTitleV2": {
     "message": "禁用赞助的家庭版方案"
   },
+  "freeFamiliesSponsorshipTitleVfo1": {
+    "message": "Remove Sponsored Family Plan",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
+    "message": "Remove Sponsored Families Plan",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "不允许成员通过此组织兑换家庭版方案。"
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "不允许成员兑换由您的组织赞助的家庭版方案。"
+  },
+  "freeFamiliesSponsorshipDescVfo1": {
+    "message": "Remove the option for members to redeem a free Families plan.",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "使用银行账户付款仅对美国用户开放。您将被要求验证您的银行账户。我们将在 1-2 个工作日内进行一笔小额转账，请在组织的计费页面输入该转账的对账单描述符代码以验证银行账户。验证银行账户失败将会错过支付，您的订阅将暂停。"
@@ -14282,7 +14877,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "您无法移除仅拥有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -14992,7 +15587,7 @@
     "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "在项目旁边添加 3 个快速复制按钮，以将您的用户名、密码或验证码复制到剪贴板。"
   },
   "billingAddress": {
     "message": "计费地址"
@@ -15247,6 +15842,9 @@
   "familiesUnlimitedCollections": {
     "message": "不限数量的家庭集合"
   },
+  "familiesUnlimitedSharedFolders": {
+    "message": "不限数量的家庭共享文件夹"
+  },
   "familiesSharedStorage": {
     "message": "为重要的家庭信息提供共享存储"
   },
@@ -15261,6 +15859,15 @@
   },
   "limitedCollectionsV2": {
     "message": "最多 $COUNT$ 个集合",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "limitedSharedFoldersV2": {
+    "message": "最多 $COUNT$ 个共享文件夹",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -15406,8 +16013,16 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "禁止用户使用已声明域名的电子邮箱地址在组织外部创建账户。"
   },
+  "blockClaimedDomainAccountCreationDescVfo1": {
+    "message": "Prevent account creation from claimed domains.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
+  },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "阻止成员使用已声明的域名在组织外部创建 Bitwarden 账户。"
+  },
+  "blockClaimedDomainAccountCreationDescV2Vfo1": {
+    "message": "Block members from using your claimed domain to create Bitwarden accounts outside of your organization vault.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "必须先声明域名，然后才能激活此策略。"
@@ -15678,6 +16293,12 @@
   },
   "alreadyHaveSubscriptionSelfHostedMessage": {
     "message": "打开您的 Bitwarden 云账户的订阅页面，下载您的许可证文件。然后返回此界面，在下方上传该文件。"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV2": {
+    "message": "打开您的 Bitwarden 账户的订阅页面，下载您的许可证文件。然后返回此界面，在下方上传该文件。"
+  },
+  "alreadyHaveSubscriptionSelfHostedMessageV3": {
+    "message": "在您的云端环境中，登录您的 Bitwarden 账户，打开订阅页面，下载您的许可证文件。然后返回此界面，上传该文件。"
   },
   "viewAllPlans": {
     "message": "查看所有方案"
@@ -16000,7 +16621,7 @@
     "message": "时间段"
   },
   "of": {
-    "message": "of"
+    "message": "的"
   },
   "coachmarkImportTitle": {
     "message": "快速导入您的密码"
@@ -16535,148 +17156,148 @@
     "message": "PAM"
   },
   "pamAccessRules": {
-    "message": "Access rules"
+    "message": "访问规则"
   },
   "pamAccessRuleEnabled": {
-    "message": "Enabled"
+    "message": "已启用"
   },
   "pamAccessRuleEnabledHint": {
-    "message": "When disabled, the rule is inactive and does not restrict access."
+    "message": "禁用后，该规则将处于非有效状态，并且不会限制访问。"
   },
   "pamAccessRuleEnable": {
-    "message": "Enable rule"
+    "message": "启用规则"
   },
   "pamAccessRuleDisable": {
-    "message": "Disable rule"
+    "message": "禁用规则"
   },
   "pamAccessRuleEnableSuccess": {
-    "message": "Access rule enabled."
+    "message": "访问规则已启用。"
   },
   "pamAccessRuleDisableSuccess": {
-    "message": "Access rule disabled."
+    "message": "访问规则已禁用。"
   },
   "pamAccessRuleNotFound": {
-    "message": "Access rule not found."
+    "message": "未找到访问规则。"
   },
   "pamAccessRulesSubheading": {
-    "message": "Set rules to control who can request access to sensitive credentials, under what conditions, and for how long."
+    "message": "设置规则来控制谁可以在何种条件下以及多长时间内请求访问敏感的凭据。"
   },
   "pamAccessRuleNew": {
-    "message": "New rule"
+    "message": "新增规则"
   },
   "pamAccessRuleCreateTitle": {
-    "message": "New access rule"
+    "message": "新增访问规则"
   },
   "pamAccessRuleEditTitle": {
-    "message": "Edit access rule"
+    "message": "编辑访问规则"
   },
   "pamAccessRuleName": {
-    "message": "Name"
+    "message": "名称"
   },
   "pamAccessRuleNamePlaceholder": {
-    "message": "e.g. VPN + business hours"
+    "message": "例如：VPN + 工作时间"
   },
   "pamAccessRuleGeneralInfoHeading": {
-    "message": "General info"
+    "message": "常规信息"
   },
   "pamAccessRuleAccessDurationHeading": {
-    "message": "Access duration"
+    "message": "访问持续时间"
   },
   "pamAccessRuleOptionalConditionsHeading": {
-    "message": "Optional conditions"
+    "message": "可选条件"
   },
   "pamAccessRuleCollectionsSelect": {
-    "message": "Select collections"
+    "message": "选择集合"
   },
   "pamAccessRuleCollectionsHint": {
-    "message": "This access rule will apply to all selected collections."
+    "message": "此访问规则将适用于所有选定的集合。"
   },
   "pamAccessRuleCollectionsLoadError": {
-    "message": "Couldn't load collections. Refresh the page to try again."
+    "message": "无法加载集合。请刷新页面以重试。"
   },
   "pamAccessRuleDefaultDurationHint": {
-    "message": "This duration will be pre-filled in access requests."
+    "message": "此持续时间将预先填入到访问请求中。"
   },
   "pamAccessRuleDescription": {
-    "message": "Description"
+    "message": "描述"
   },
   "pamAccessRuleDefaultDuration": {
-    "message": "Default access duration"
+    "message": "默认访问持续时间"
   },
   "pamAccessRuleMaxDuration": {
-    "message": "Maximum access duration"
+    "message": "最大访问持续时间"
   },
   "pamAccessRuleMaxDurationNoCap": {
-    "message": "No cap"
+    "message": "无上限"
   },
   "pamAccessRuleMaxDurationHint": {
-    "message": "Any single lease is clamped to at most this long, whatever the requester asks for."
+    "message": "无论请求者申请多长时间，单次租约将被限制在此时长内。"
   },
   "pamAccessRuleDuration15m": {
-    "message": "15 minutes"
+    "message": "15 分钟"
   },
   "pamAccessRuleDuration30m": {
-    "message": "30 minutes"
+    "message": "30 分钟"
   },
   "pamAccessRuleDuration1h": {
-    "message": "1 hour"
+    "message": "1 小时"
   },
   "pamAccessRuleDuration2h": {
-    "message": "2 hours"
+    "message": "2 小时"
   },
   "pamAccessRuleDuration4h": {
-    "message": "4 hours"
+    "message": "4 小时"
   },
   "pamAccessRuleDuration8h": {
-    "message": "8 hours"
+    "message": "8 小时"
   },
   "pamAccessRuleDuration24h": {
-    "message": "24 hours"
+    "message": "24 小时"
   },
   "pamAccessRuleDuration7d": {
-    "message": "7 days"
+    "message": "7 天"
   },
   "pamAccessRuleSingleActiveLease": {
-    "message": "Only one user can hold an active lease at a time"
+    "message": "同一时间只能有一名用户持有有效租约"
   },
   "pamAccessRuleSingleActiveLeaseHint": {
-    "message": "New requests are queued until the current lease ends or is revoked."
+    "message": "新的请求将进入队列，直到当前租约结束或被撤销。"
   },
   "pamAccessRuleAllowExtensions": {
-    "message": "Allow lease extensions"
+    "message": "允许租约延期"
   },
   "pamAccessRuleAllowExtensionsHint": {
-    "message": "Members can extend an active lease once without a new approval, up to the maximum length below."
+    "message": "成员可以在无需重新审批的情况下，将有效租约延期一次，最长不超过下方的最大时长。"
   },
   "pamAccessRuleMaxExtensionLength": {
-    "message": "Maximum extension length"
+    "message": "最大延期时长"
   },
   "pamAccessRuleMaxExtensionLengthHint": {
-    "message": "The longest a single extension may run."
+    "message": "单次延期允许持续的最长时间。"
   },
   "pamAccessRuleConditionHumanApproval": {
-    "message": "Require approval"
+    "message": "人工批准"
   },
   "pamAccessRuleConditionIpAllowlist": {
-    "message": "Restrict by IP address"
+    "message": "通过 IP 地址限制"
   },
   "pamAccessRuleApprovers": {
-    "message": "Approvers"
+    "message": "审批人"
   },
   "pamAccessRuleApproversCollectionManagers": {
-    "message": "Collection managers"
+    "message": "集合管理员"
   },
   "pamAccessRuleCreated": {
-    "message": "Access rule created."
+    "message": "访问规则已创建。"
   },
   "pamAccessRuleUpdated": {
-    "message": "Access rule updated."
+    "message": "访问规则已更新。"
   },
   "pamAccessRuleDeleteConfirmTitle": {
-    "message": "Delete access rule?"
+    "message": "删除访问规则吗？"
   },
   "pamAccessRuleDeleteConfirmContent": {
-    "message": "Delete \"$NAME$\"? Any collections using this rule will have leasing disabled.",
+    "message": "删除「$NAME$」吗？使用此规则的所有集合将禁用租约功能。",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -16685,97 +17306,97 @@
     }
   },
   "pamNoAccessRulesYetTitle": {
-    "message": "No access rules yet"
+    "message": "尚无访问规则"
   },
   "pamNoAccessRulesYetDescription": {
-    "message": "Create a rule to add extra protection to sensitive collections."
+    "message": "创建规则，为敏感的集合添加额外的保护。"
   },
   "pamAccessRuleCreateCustom": {
-    "message": "Create custom rule"
+    "message": "创建自定义规则"
   },
   "pamAccessRulesStartFromTemplate": {
-    "message": "Start from a template"
+    "message": "从模板开始"
   },
   "pamAccessRuleUseTemplate": {
-    "message": "Use template"
+    "message": "使用模板"
   },
   "pamTemplateJustInTimeTitle": {
-    "message": "Just in time"
+    "message": "即时"
   },
   "pamTemplateJustInTimeSummary": {
-    "message": "Auto-approved • Expires after 1h • Audit logged"
+    "message": "自动批准 • 1 小时后过期 • 记录审计日志"
   },
   "pamTemplateJustInTimeName": {
-    "message": "Just-in-time access"
+    "message": "即时访问"
   },
   "pamTemplateApprovalRequiredTitle": {
-    "message": "Approval required"
+    "message": "需要批准"
   },
   "pamTemplateApprovalRequiredSummary": {
-    "message": "Human approval • 1 approver required • Audit logged"
+    "message": "人工批准 • 需要 1 名审批人 • 记录审计日志"
   },
   "pamTemplateApprovalRequiredName": {
-    "message": "Approval required"
+    "message": "需要批准"
   },
   "pamTemplateIpRestrictedTitle": {
-    "message": "IP-restricted"
+    "message": "IP 限制"
   },
   "pamTemplateIpRestrictedSummary": {
-    "message": "Auto-approved • IP Allowlist • Audit logged"
+    "message": "自动批准 • IP 允许列表 • 记录审计日志"
   },
   "pamTemplateIpRestrictedName": {
-    "message": "IP-restricted access"
+    "message": "IP 限制的访问"
   },
   "pamAccessRuleCollectionsColumn": {
-    "message": "Collections"
+    "message": "集合"
   },
   "pamAccessRuleCollectionsNone": {
-    "message": "Unassigned"
+    "message": "未分配"
   },
   "pamSearchRules": {
-    "message": "Search rules"
+    "message": "搜索规则"
   },
   "pamAccessRuleAppliesTo": {
-    "message": "Applies to"
+    "message": "适用于"
   },
   "pamAccessRuleConditionsColumn": {
-    "message": "Conditions"
+    "message": "条件"
   },
   "pamAccessWindow": {
-    "message": "Access window"
+    "message": "访问窗口"
   },
   "pamAccessRuleLastModified": {
-    "message": "Last modified"
+    "message": "最近修改"
   },
   "pamAccessRuleConditionAutoApproved": {
-    "message": "Auto-approved"
+    "message": "自动批准"
   },
   "pamAccessRuleConditionRequiresApproval": {
-    "message": "Requires approval"
+    "message": "需要批准"
   },
   "pamAccessRuleConditionIpRestricted": {
-    "message": "IP restricted"
+    "message": "IP 限制"
   },
   "pamAccessRulesNoResults": {
-    "message": "No access rules match your filters."
+    "message": "没有匹配您的筛选规则的访问规则。"
   },
   "pamAccessRuleBulkEnable": {
-    "message": "Enable"
+    "message": "启用"
   },
   "pamAccessRuleBulkDisable": {
-    "message": "Disable"
+    "message": "禁用"
   },
   "pamAccessRulesUpdated": {
-    "message": "Access rules updated."
+    "message": "访问规则已更新。"
   },
   "pamAccessRulesDeleted": {
-    "message": "Access rules deleted."
+    "message": "访问规则已删除。"
   },
   "pamAccessRuleBulkDeleteConfirmTitle": {
-    "message": "Delete access rules?"
+    "message": "删除访问规则吗？"
   },
   "pamAccessRuleBulkDeleteConfirmContent": {
-    "message": "$COUNT$ access rules will be permanently deleted. This action cannot be undone.",
+    "message": "$COUNT$ 条访问规则将被永久删除。此操作无法撤消。",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -16784,28 +17405,28 @@
     }
   },
   "accessRuleIpAllowlistHelpText": {
-    "message": "Only requests originating from these IP ranges will be allowed."
+    "message": "仅允许来自这些 IP 范围的请求。"
   },
   "accessRuleIpAllowlistCidrLabel": {
-    "message": "CIDR range"
+    "message": "CIDR 范围"
   },
   "accessRuleIpAllowlistCidrPlaceholder": {
-    "message": "e.g. 10.0.0.0/8"
+    "message": "例如：10.0.0.0.0/8"
   },
   "accessRuleIpAllowlistAddRow": {
-    "message": "Add CIDR range"
+    "message": "添加 CIDR 范围"
   },
   "accessRuleIpAllowlistRemoveRow": {
-    "message": "Remove CIDR range"
+    "message": "移除 CIDR 范围"
   },
   "accessRuleIpAllowlistAtLeastOne": {
-    "message": "Add at least one CIDR range."
+    "message": "添加至少一个 CIDR 范围。"
   },
   "accessRuleIpAllowlistInvalidCidr": {
-    "message": "Enter a valid CIDR range."
+    "message": "请输入一个有效的 CIDR 范围。"
   },
   "accessRuleIpAllowlistDuplicateCidr": {
-    "message": "This CIDR range has already been added."
+    "message": "此 CIDR 范围已添加。"
   },
   "paymentSuccessful": {
     "message": "付款成功"

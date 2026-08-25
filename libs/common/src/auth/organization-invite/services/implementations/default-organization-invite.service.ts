@@ -13,6 +13,8 @@ import { LogoutService } from "@bitwarden/auth/common";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 // @bitwarden/organization-invite-link imports back from @bitwarden/common (BaseResponse,
 // ApiService, etc.), so this is a circular dependency in the static import graph. It
 // resolves at runtime because both libraries reach each other only through abstractions
@@ -43,7 +45,6 @@ import { MasterPasswordPolicyOptions } from "../../../../admin-console/models/do
 import { Policy } from "../../../../admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "../../../../admin-console/models/request/organization-keys.request";
 import { FeatureFlag } from "../../../../enums/feature-flag.enum";
-import { EncryptService } from "../../../../key-management/crypto/abstractions/encrypt.service";
 import { ErrorResponse } from "../../../../models/response/error.response";
 import { ConfigService } from "../../../../platform/abstractions/config/config.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
@@ -99,6 +100,7 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     private readonly apiService: ApiService,
     private readonly logoutService: LogoutService,
     private readonly keyService: KeyService,
+    private readonly legacyCompatKeyService: LegacyCompatKeyService,
     private readonly encryptService: EncryptService,
     private readonly policyApiService: PolicyApiServiceAbstraction,
     private readonly policyService: PolicyService,
@@ -280,25 +282,27 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     if (e.variant !== "Api") {
       return { kind: "unexpected", errorMessage: e.message };
     }
-    // Fragile client-side coupling to `bitwarden-core::ApiError::Response`'s Display
-    // format; accepted for MVP. Planned follow-up in next milestones: refactor the SDK to expose a better typed
-    // error variant. If the format drifts before then, extraction fails
-    // and the caller drops to `unexpected` with the raw string.
+    // Fragile client-side coupling to the SDK's `bitwarden-api-base::Error::Response`
+    // Display format; accepted for MVP. Planned follow-up in next milestones: refactor
+    // the SDK to expose a better typed error variant. If any extraction step fails,
+    // the caller drops to `unexpected` with the raw string.
     //
-    // Current format: `Received error message from server: [<status> <reason>] <json-body>`
+    // Current format: `error in response: status code <status> <reason>: <json-body>`
     // where `<json-body>` is the full server error response (`{ "message": "...", ... }`).
-    // We capture the numeric status (reason phrase discarded) and JSON-parse the body to
-    // pull the bare `.message` string that `classifyOpenOrgInviteAcceptApiError` matches on.
-    // `[\s\S]` in lieu of the `s` (dotAll) flag, which requires ES2018+.
-    const match = e.message.match(
-      /^Received error message from server: \[(\d+)[^\]]*\] ([\s\S]+)$/,
-    );
-    if (match == null) {
+    // Extract the status via `status code (\d+)` and delimit the JSON body between the
+    // first `{` and last `}`, so the classifier stays intact if surrounding Display
+    // prefix or suffix text changes as long as those anchors remain.
+    const statusMatch = e.message.match(/status code (\d+)/);
+    const bodyStart = e.message.indexOf("{");
+    const bodyEnd = e.message.lastIndexOf("}");
+    if (statusMatch == null || bodyStart === -1 || bodyEnd <= bodyStart) {
       return { kind: "unexpected", errorMessage: e.message };
     }
-    const statusCode = Number(match[1]);
+    const statusCode = Number(statusMatch[1]);
     try {
-      const { message } = JSON.parse(match[2]) as { message?: unknown };
+      const { message } = JSON.parse(e.message.slice(bodyStart, bodyEnd + 1)) as {
+        message?: unknown;
+      };
       if (typeof message === "string") {
         return this.classifyOpenOrgInviteAcceptApiError(statusCode, message);
       }
@@ -641,8 +645,9 @@ export class DefaultOrganizationInviteService implements OrganizationInviteServi
     invite: DirectOrganizationInvite,
     userId: UserId,
   ): Promise<OrganizationUserAcceptInitRequest> {
-    const [encryptedOrgKey, orgKey] = await this.keyService.makeOrgKey<OrgKey>(userId);
-    const [orgPublicKey, encryptedOrgPrivateKey] = await this.keyService.makeKeyPair(orgKey);
+    const [encryptedOrgKey, orgKey] = await this.legacyCompatKeyService.makeOrgKey<OrgKey>(userId);
+    const [orgPublicKey, encryptedOrgPrivateKey] =
+      await this.legacyCompatKeyService.makeKeyPair(orgKey);
     const vfo1Enabled = await this.configService.getFeatureFlag(FeatureFlag.VFO1Foundation);
     const collection = await this.encryptService.encryptString(
       this.i18nService.t(vfo1Enabled ? "defaultSharedFolder" : "defaultCollection"),

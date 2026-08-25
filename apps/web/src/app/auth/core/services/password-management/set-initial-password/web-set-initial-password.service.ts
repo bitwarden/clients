@@ -12,12 +12,14 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import { UnlockService } from "@bitwarden/unlock";
 import { RouterService } from "@bitwarden/web-vault/app/core";
 
 export class WebSetInitialPasswordService
@@ -30,6 +32,7 @@ export class WebSetInitialPasswordService
     protected i18nService: I18nService,
     protected kdfConfigService: KdfConfigService,
     protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected masterPasswordApiService: MasterPasswordApiService,
     protected masterPasswordService: InternalMasterPasswordServiceAbstraction,
     protected organizationApiService: OrganizationApiServiceAbstraction,
@@ -39,6 +42,7 @@ export class WebSetInitialPasswordService
     private routerService: RouterService,
     protected accountCryptographicStateService: AccountCryptographicStateService,
     protected registerSdkService: RegisterSdkService,
+    protected unlockService: UnlockService,
   ) {
     super(
       apiService,
@@ -46,6 +50,7 @@ export class WebSetInitialPasswordService
       i18nService,
       kdfConfigService,
       keyService,
+      legacyCompatKeyService,
       masterPasswordApiService,
       masterPasswordService,
       organizationApiService,
@@ -53,6 +58,7 @@ export class WebSetInitialPasswordService
       userDecryptionOptionsService,
       accountCryptographicStateService,
       registerSdkService,
+      unlockService,
     );
   }
 

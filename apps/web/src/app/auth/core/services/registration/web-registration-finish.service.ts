@@ -1,82 +1,48 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
-import { firstValueFrom } from "rxjs";
-
 import {
   DefaultRegistrationFinishService,
   PasswordInputResult,
   RegistrationFinishService,
 } from "@bitwarden/auth/angular";
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
+import { OpenOrgInviteRequest } from "@bitwarden/common/auth/models/request/registration/open-org-invite.request";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import {
   OrganizationInviteService,
   OrgInviteKind,
 } from "@bitwarden/common/auth/organization-invite";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { asUuid, SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { UserKey } from "@bitwarden/common/types/key";
-import { KeyService } from "@bitwarden/key-management";
-import { UserMasterPasswordRegistrationRequest } from "@bitwarden/sdk-internal";
+// eslint-disable-next-line no-restricted-imports
+import { EncString, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
+import {
+  OrganizationId as SdkOrganizationId,
+  UserMasterPasswordRegistrationRequest,
+} from "@bitwarden/sdk-internal";
 
 export class WebRegistrationFinishService
   extends DefaultRegistrationFinishService
   implements RegistrationFinishService
 {
   constructor(
-    protected keyService: KeyService,
+    protected legacyCompatKeyService: LegacyCompatKeyService,
     protected accountApiService: AccountApiService,
     protected masterPasswordService: MasterPasswordServiceAbstraction,
     protected configService: ConfigService,
     protected sdkService: SdkService,
     private organizationInviteService: OrganizationInviteService,
-    private policyService: PolicyService,
   ) {
-    super(keyService, accountApiService, masterPasswordService, configService, sdkService);
-  }
-
-  // TODO PM-41523: delete this method + inline `OrganizationInviteService` usage in
-  // `RegistrationFinishComponent`. Required DI landscape change:
-  // (1) create a no-op `OrganizationInviteService` implementation in libs/angular and
-  //     register it in `jslib-services.module.ts`, replacing the current global binding
-  //     to `DefaultOrganizationInviteService`;
-  // (2) register `DefaultOrganizationInviteService` in web's core module only.
-  // Applies equally to `getMasterPasswordPolicyOptsFromOrgInvite` below.
-  override async getOrgNameFromOrgInvite(): Promise<string | null> {
-    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-    if (orgInvite == null) {
-      return null;
-    }
-
-    return orgInvite.organizationName;
-  }
-
-  // TODO PM-41523: delete this method too — see the plan on `getOrgNameFromOrgInvite` above.
-  // `OrganizationInviteService.getMasterPasswordPolicyOptionsForInvite(orgInvite)` is
-  // already cross-platform, so the component can do this read inline.
-  override async getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
-    // If there's a deep linked org invite, use it to get the password policies
-    const orgInvite = await this.organizationInviteService.getOrganizationInvite();
-
-    if (orgInvite == null) {
-      return null;
-    }
-
-    const policies = await this.organizationInviteService.getOrgPoliciesForInvite(orgInvite);
-
-    if (policies == null) {
-      return null;
-    }
-
-    const masterPasswordPolicyOpts: MasterPasswordPolicyOptions = await firstValueFrom(
-      this.policyService.masterPasswordPolicyOptions$(null, policies),
+    super(
+      legacyCompatKeyService,
+      accountApiService,
+      masterPasswordService,
+      configService,
+      sdkService,
     );
-
-    return masterPasswordPolicyOpts;
   }
 
   override async buildSdkRegisterRequest(
@@ -111,17 +77,29 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Org user id and token are included here only for validation and two factor purposes.
-    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
-    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
+    // Direct invites: per-user invite credentials are included for validation and
+    // two-factor purposes.
+    // Open invites: the invite link reference is included so the server can identify the
+    // invite link and apply any invite-link–gated behaviors during registration. The open
+    // invite itself is accepted via a separate flow after login.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organization_user_id = this.toOptionalSdkOrganizationId(
         orgInvite.organizationUserId,
       );
       registerRequest.org_invite_token = orgInvite.token;
+    } else if (
+      orgInvite?.kind === OrgInviteKind.Open &&
+      // Defense in depth: stale flag-on state may persist into a flag-off session.
+      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+      // guard clause.
+      (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))
+    ) {
+      registerRequest.open_org_invite = {
+        organization_id: asUuid<SdkOrganizationId>(orgInvite.organizationId),
+        code: orgInvite.inviteLinkCode,
+      };
     }
-    // Invite is accepted after login (on deep link redirect).
 
     if (orgSponsoredFreeFamilyPlanToken) {
       registerRequest.org_sponsored_free_family_plan_token = orgSponsoredFreeFamilyPlanToken;
@@ -190,15 +168,27 @@ export class WebRegistrationFinishService
     }
 
     // Org invites are deep linked. Non-existent accounts are redirected to the register page.
-    // Org user id and token are included here only for validation and two factor purposes.
-    // Open invites carry no direct-invite fields; they are accepted via a separate flow after
-    // login (deepLinkGuard replays /join/{code}?key={key}, authedHandler fires accept).
+    // Direct invites: per-user invite credentials are included for validation and
+    // two-factor purposes.
+    // Open invites: the invite link reference is included so the server can identify the
+    // invite link and apply any invite-link–gated behaviors during registration. The open
+    // invite itself is accepted via a separate flow after login.
     const orgInvite = await this.organizationInviteService.getOrganizationInvite();
     if (orgInvite?.kind === OrgInviteKind.Direct) {
       registerRequest.organizationUserId = orgInvite.organizationUserId;
       registerRequest.orgInviteToken = orgInvite.token;
+    } else if (
+      orgInvite?.kind === OrgInviteKind.Open &&
+      // Defense in depth: stale flag-on state may persist into a flag-off session.
+      // TODO: clean up when FeatureFlag.GenerateInviteLink is removed — drop this
+      // guard clause.
+      (await this.configService.getFeatureFlag(FeatureFlag.GenerateInviteLink))
+    ) {
+      registerRequest.openOrgInvite = new OpenOrgInviteRequest(
+        orgInvite.organizationId,
+        orgInvite.inviteLinkCode,
+      );
     }
-    // Invite is accepted after login (on deep link redirect).
 
     if (orgSponsoredFreeFamilyPlanToken) {
       registerRequest.orgSponsoredFreeFamilyPlanToken = orgSponsoredFreeFamilyPlanToken;

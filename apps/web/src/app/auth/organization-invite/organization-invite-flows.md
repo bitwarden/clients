@@ -142,8 +142,7 @@ silently exit (paste-URL MP-policy detour fired — see
 1. Click email link → new tab → `/accept-organization`
 2. `unauthedHandler` stashes invite → `/finish-signup?email=...`
 3. User completes registration form
-   - `WebRegistrationFinishService.getOrgNameFromOrgInvite` displays the org name
-   - `WebRegistrationFinishService.getMasterPasswordPolicyOptsFromOrgInvite` reads the stashed invite, fetches policies via `getOrgPoliciesForInvite(invite)`, and applies them to the password validator on the registration form
+   - `RegistrationFinishComponent.initOrgInviteFlowIfPresent` reads the stashed invite via `OrganizationInviteService.getOrganizationInvite()`, displays `invite.organizationName`, and applies the org's MP policy options to the password validator via `getMasterPasswordPolicyOptionsForInvite(invite)`
    - `buildRegisterRequest` attaches the invite token + `organizationUserId` to the server registration request for token validation
 4. Server creates the user; client auto-logs them in
 5. `deepLinkGuard` replays the persisted `/accept-organization` URL once auth status is `Unlocked` (see [Deep-link replay mechanism](#deep-link-replay-mechanism))
@@ -396,7 +395,7 @@ the email-verification round-trip.
 1. Unauthed user hits `/join/:orgId/:code?key=<key>` → `unauthedHandler`
    fetches status, stashes the open invite, routes to `/signup`.
 2. On registration-start, `RegistrationStartComponent.submit` calls its
-   private `sealOpenOrgInviteIfPresent(email)` (gated on
+   private `buildOpenOrgInviteRequestIfPresent(email)` (gated on
    `FeatureFlag.GenerateInviteLink`), which delegates to
    `OrganizationInviteService.sealOpenOrgInvite`. If a stashed open invite
    exists, the SDK seals `{ organizationId, inviteLinkCode, inviteKey }`
@@ -404,8 +403,8 @@ the email-verification round-trip.
    stores the paired high-entropy secret keyed by email in the
    sealed-secret record (see [Open-invite state and sealed-secret
    record](#open-invite-state-and-sealed-secret-record)). The sealed
-   blob is attached to the verification-email request as
-   `sealedOpenOrgInviteData`.
+   blob is attached to the verification-email request nested inside
+   `openOrgInvite: { organizationId, code, sealedOpenOrgInviteData }`.
 3. Server sends verification email; the link back to the client carries
    the sealed blob as a query param.
 4. User clicks verification link → `RegistrationFinishComponent`:
