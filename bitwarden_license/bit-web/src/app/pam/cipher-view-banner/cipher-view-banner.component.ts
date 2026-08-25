@@ -161,43 +161,6 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
 
-  // Parsed once per request change, like `activeLeaseExpiryMs` below: the per-second tick would
-  // otherwise re-parse the same ISO strings sixty times a minute. `null` covers both "no approved
-  // request" and an unparseable window.
-  private readonly approvedRequestWindow = computed(() => {
-    const request = this.approvedRequest();
-    if (request == null) {
-      return null;
-    }
-    const notBeforeMs = Date.parse(request.leaseNotBefore);
-    const notAfterMs = Date.parse(request.leaseNotAfter);
-    if (Number.isNaN(notBeforeMs) || Number.isNaN(notAfterMs)) {
-      return null;
-    }
-    return { request, notBeforeMs };
-  });
-
-  /**
-   * The approved request's activation window, or `null` before it opens or once it has — mirrors
-   * `startsNow`/the window pair in `my-requests-tab.component.ts` so the two surfaces agree on the
-   * same fields. `startsAt` is non-null only while the window hasn't opened yet; `DatePipe` throws
-   * on an unparseable value rather than rendering nothing, so an unparseable date renders no window
-   * text at all instead of blanking the whole banner.
-   */
-  protected readonly approvedAccessWindow = computed<{
-    startsAt: string | null;
-    endsAt: string;
-  } | null>(() => {
-    const window = this.approvedRequestWindow();
-    if (window == null) {
-      return null;
-    }
-    return {
-      startsAt: window.notBeforeMs > this.nowMs() ? window.request.leaseNotBefore : null,
-      endsAt: window.request.leaseNotAfter,
-    };
-  });
-
   /** The unified access-state pill, so this banner reads the same as the row and the Requests page. */
   protected readonly badge = computed(() => cipherAccessBadgeState(this.state()));
 
