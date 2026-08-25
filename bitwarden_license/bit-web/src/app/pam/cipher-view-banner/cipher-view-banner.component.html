@@ -1,5 +1,5 @@
 @if (activeLease(); as lease) {
-  <bit-card class="tw-mb-4" data-testid="cipher-view-banner-active">
+  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-active">
     <div class="tw-flex tw-items-start tw-gap-4">
       <bit-icon-tile icon="bwi-clock" variant="teal" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
@@ -49,7 +49,7 @@
     </div>
   </bit-card>
 } @else if (approvedRequest(); as request) {
-  <bit-card class="tw-mb-4" data-testid="cipher-view-banner-approved">
+  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-approved">
     <div class="tw-flex tw-items-start tw-gap-4">
       <bit-icon-tile icon="bwi-check-circle" variant="success" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
@@ -107,7 +107,7 @@
     </div>
   </bit-card>
 } @else if (pendingRequest()) {
-  <bit-card class="tw-mb-4" data-testid="cipher-view-banner-pending">
+  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-pending">
     <div class="tw-flex tw-items-start tw-gap-4">
       <bit-icon-tile icon="bwi-clock" variant="warning" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
@@ -130,7 +130,7 @@
     </div>
   </bit-card>
 } @else if (canRequestAccess()) {
-  <bit-card class="tw-mb-4" data-testid="cipher-view-banner-request">
+  <bit-card class="tw-mb-5 bit-compact:tw-mb-4" data-testid="cipher-view-banner-request">
     <div class="tw-flex tw-items-start tw-gap-4">
       <bit-icon-tile icon="bwi-key" variant="primary" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
