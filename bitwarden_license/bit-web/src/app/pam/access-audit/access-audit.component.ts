@@ -9,27 +9,34 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
-import { map } from "rxjs";
+import { ActivatedRoute, RouterLink } from "@angular/router";
+import { map, switchMap } from "rxjs";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { getById } from "@bitwarden/common/platform/misc/rxjs-operators";
 import {
   BadgeModule,
+  ButtonModule,
   CalloutModule,
   ChipFilterComponent,
   ChipFilterOption,
+  LinkModule,
+  NoItemsModule,
   SearchModule,
   TableModule,
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import { AccessNameResolverService } from "../access-requests/access-name-resolver.service";
 
-import { AuditRow, auditKindLabelKey, auditRowMatchesFilter, toAuditRow } from "./access-audit-row";
+import { AuditRow, auditRowMatchesFilter, toAuditRow } from "./access-audit-row";
 import { AuditApiService } from "./audit-api.service";
-import { AccessAuditEventKind } from "./responses/access-audit-event.response";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
 
@@ -56,9 +63,14 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    RouterLink,
     BadgeModule,
+    ButtonModule,
     CalloutModule,
     ChipFilterComponent,
+    HeaderModule,
+    LinkModule,
+    NoItemsModule,
     SearchModule,
     TableModule,
     TooltipDirective,
@@ -71,6 +83,8 @@ export class AccessAuditComponent implements OnInit {
   private readonly nameResolver = inject(AccessNameResolverService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly accountService = inject(AccountService);
+  private readonly organizationService = inject(OrganizationService);
 
   /**
    * The organization whose trail to show, from the route. `requireSync` holds because `params` emits
@@ -81,30 +95,51 @@ export class AccessAuditComponent implements OnInit {
     { requireSync: true },
   );
 
+  private readonly activeUserId$ = this.accountService.activeAccount$.pipe(getUserId);
+
+  /**
+   * Gates the empty state's "Access rules" link. This page's own guard, `canAccessEventLogs`, does
+   * not imply `canManageAccessRules` (the target route's guard) — an auditor holding only the events
+   * permission would follow the link into an "Access denied" bounce.
+   */
+  protected readonly canManageAccessRules = toSignal(
+    this.activeUserId$.pipe(
+      switchMap((userId) => this.organizationService.organizations$(userId)),
+      getById(this.organizationId()),
+      map((organization) => organization?.canManageAccessRules ?? false),
+    ),
+    { initialValue: false },
+  );
+
   protected readonly status = signal<AuditStatus>("loading");
   protected readonly rows = signal<AuditRow[]>([]);
 
   // --- Toolbar filters (client-side over the fetched window) ---
   protected readonly searchControl = new FormControl("", { nonNullable: true });
-  protected readonly kindControl = new FormControl<AccessAuditEventKind | null>(null);
+  protected readonly kindControl = new FormControl<string | null>(null);
 
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
   private readonly kindValue = toSignal(this.kindControl.valueChanges, { initialValue: null });
 
-  /** Event-kind chip options, limited to the kinds actually present in the trail, labelled and sorted. */
-  protected readonly kindOptions = computed<ChipFilterOption<AccessAuditEventKind>[]>(() =>
-    [...new Set(this.rows().map((row) => row.kind))]
-      .map((kind) => ({ label: this.i18nService.t(auditKindLabelKey(kind)), value: kind }))
+  /** Event-kind chip options, limited to the labels actually present in the trail, sorted. */
+  protected readonly kindOptions = computed<ChipFilterOption<string>[]>(() =>
+    [...new Set(this.rows().map((row) => row.kindLabelKey))]
+      .map((labelKey) => ({ label: this.i18nService.t(labelKey), value: labelKey }))
       .sort((a, b) => a.label.localeCompare(b.label)),
   );
 
   protected readonly filteredRows = computed(() =>
     this.rows().filter((row) =>
-      auditRowMatchesFilter(row, { text: this.searchText(), kind: this.kindValue() }),
+      auditRowMatchesFilter(row, { text: this.searchText(), kindLabelKey: this.kindValue() }),
     ),
   );
 
   async ngOnInit(): Promise<void> {
+    await this.load();
+  }
+
+  protected async load(): Promise<void> {
+    this.status.set("loading");
     try {
       const events = await this.auditApiService.listAccessAuditTrail(this.organizationId());
       // Only events naming both a cipher and its collection can be resolved to a local vault item.
