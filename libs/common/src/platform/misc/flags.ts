@@ -26,14 +26,14 @@ function getFlags<T>(envFlags: string | T): T {
 
 /**
  * Gets the value of a feature flag from environment.
- * All flags default to "on" (true).
+ * Flags default to "off" (false) when not populated.
  * Only use for shared code in `libs`, otherwise use the client-specific function.
  * @param flag The name of the feature flag to check
  * @returns The value of the flag
  */
 export function flagEnabled<Flags extends SharedFlags>(flag: keyof Flags): boolean {
   const flags = getFlags<Flags>(process.env.FLAGS) ?? ({} as Flags);
-  return flags[flag] == null || !!flags[flag];
+  return !!flags[flag];
 }
 
 /**
