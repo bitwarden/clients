@@ -2,8 +2,6 @@ import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
@@ -52,12 +50,8 @@ const ROWS: ApprovalRow[] = [
   row({ id: "req-4", cipherId: "cipher-2", requesterName: "You", reason: "Own request." }, false),
 ];
 
-/**
- * `canManageAccessRules` in any organization is the approval privilege, and it is what decides
- * whether this tab renders its table or the "unavailable" empty state.
- */
-function inbox(options: { rows?: ApprovalRow[]; loading?: boolean; canApprove?: boolean } = {}) {
-  const { rows = ROWS, loading = false, canApprove = true } = options;
+function inbox(options: { rows?: ApprovalRow[]; loading?: boolean } = {}) {
+  const { rows = ROWS, loading = false } = options;
   return moduleMetadata({
     imports: [ApprovalsTabComponent],
     providers: [
@@ -70,11 +64,6 @@ function inbox(options: { rows?: ApprovalRow[]; loading?: boolean; canApprove?: 
           cipherById$: of(names.cipherById),
           decide: () => Promise.resolve(),
         },
-      },
-      { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
-      {
-        provide: OrganizationService,
-        useValue: { organizations$: () => of([{ canManageAccessRules: canApprove }]) },
       },
       { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
       { provide: ToastService, useValue: { showToast: () => {} } },
@@ -112,14 +101,6 @@ export const Empty: Story = {
 /** The first load, before any row has arrived. */
 export const Loading: Story = {
   decorators: [inbox({ rows: [], loading: true })],
-};
-
-/**
- * A member with no approval privileges. The tab shows the unavailable state rather than an empty
- * inbox, which would read as "nothing to do today" to someone who will never have anything here.
- */
-export const Unavailable: Story = {
-  decorators: [inbox({ canApprove: false })],
 };
 
 /** A single request — the narrowest the table gets before the empty state takes over. */
