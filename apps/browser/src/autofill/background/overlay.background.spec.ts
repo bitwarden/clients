@@ -426,6 +426,24 @@ describe("OverlayBackground", () => {
     });
   });
 
+  describe("inline menu list port init message", () => {
+    it.each([true, false])(
+      "includes useLitComponents as %s when LitInlineMenuComponents is %s",
+      async (enabled) => {
+        overlayBackground.useLitInlineMenuComponents$ = of(enabled);
+
+        await initOverlayElementPorts({ initList: true, initButton: false });
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            command: "initAutofillInlineMenuList",
+            useLitComponents: enabled,
+          }),
+        );
+      },
+    );
+  });
+
   describe("when enableFillAssist is turned off", () => {
     const targetedTabId = 1;
     const heuristicTabId = 2;

@@ -12,7 +12,6 @@ import { ServerConfig } from "../platform/abstractions/config/server-config";
 export enum FeatureFlag {
   /* Admin Console Team */
   GenerateInviteLink = "pm-32497-generate-invite-link",
-  PolicyDrawers = "pm-34804-policy-drawers",
   StagedStatus = "pm-34423-staged-status",
   PM28365_ChangeMemberEmail = "pm-28365-change-member-email-no-mp",
 
@@ -30,7 +29,6 @@ export enum FeatureFlag {
 
   /* Autofill */
   UseUndeterminedCipherScenarioTriggeringLogic = "undetermined-cipher-scenario-logic",
-  EnableAutofillTriage = "enable-autofill-triage",
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
@@ -123,9 +121,6 @@ export enum FeatureFlag {
   /* Innovation */
   ElectronStorageCache = "pm-32783-electron-storage-cache",
 
-  /* Desktop */
-  DesktopSettingsDialog = "desktop-ui-settings-dialog",
-
   /* PAM */
   Pam = "pm-37044-pam-v-0",
 
@@ -150,13 +145,11 @@ export const DefaultFeatureFlagValue = {
   /* Admin Console Team */
   [FeatureFlag.GenerateInviteLink]: FALSE,
   [FeatureFlag.StagedStatus]: FALSE,
-  [FeatureFlag.PolicyDrawers]: FALSE,
   [FeatureFlag.PM28365_ChangeMemberEmail]: FALSE,
 
   /* Autofill */
   [FeatureFlag.FillAssistTargetingRules]: FALSE,
   [FeatureFlag.UseUndeterminedCipherScenarioTriggeringLogic]: FALSE,
-  [FeatureFlag.EnableAutofillTriage]: FALSE,
   [FeatureFlag.DefaultPasswordManagerPrompt]: FALSE,
   [FeatureFlag.LitInlineMenuComponents]: FALSE,
   [FeatureFlag.InlineMenuTypedSearch]: FALSE,
@@ -255,9 +248,6 @@ export const DefaultFeatureFlagValue = {
 
   /* Innovation */
   [FeatureFlag.ElectronStorageCache]: FALSE,
-
-  /* Desktop */
-  [FeatureFlag.DesktopSettingsDialog]: FALSE,
 
   /* PAM */
   [FeatureFlag.Pam]: FALSE,

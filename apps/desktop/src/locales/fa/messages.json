@@ -11,6 +11,9 @@
   "favorites": {
     "message": "مورد علاقه"
   },
+  "favoritesFilterTooltip": {
+    "message": "Mark items as favorites to filter them here."
+  },
   "unfavorite": {
     "message": "حذف از مورد علاقه"
   },
@@ -115,6 +118,9 @@
   },
   "myFolders": {
     "message": "پوشه‌های من"
+  },
+  "foldersFilterTooltip": {
+    "message": "Add folders to items to filter them here."
   },
   "addSharedFolder": {
     "message": "افزودن پوشه‌ی مشترک"
@@ -519,14 +525,8 @@
   "launch": {
     "message": "راه‌اندازی"
   },
-  "launchWebsiteForName": {
-    "message": "باز کردن وب‌سایت برای $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Launch website"
   },
   "copyValue": {
     "message": "کپی مقدار",
@@ -1193,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "کپی کد تأیید (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "کپی $FIELD$،$CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "کپی کلید خصوصی"
@@ -2018,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "نمایش عملیات کپی سریع در گاوصندوق"
   },
-  "copyNoteTitle": {
-    "message": "کپی یادداشت - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "جزئیاتی برای کپی کردن وجود ندارد"
   },
@@ -2142,16 +2118,6 @@
   "noSecurityCode": {
     "message": "بدون کد امنیتی"
   },
-  "copyDetailsTitle": {
-    "message": "جزئیات را برای $ITEMNAME$ کپی کن",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "کپی نام کاربری"
   },
@@ -2170,9 +2136,6 @@
     "message": "کپی کد امنیتی",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "شماره کارت"
-  },
   "premiumMembership": {
     "message": "عضویت ویژه"
   },
@@ -2182,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "شما می‌توانید عضویت خود را در نسخه وب گاوصندوق در bitwarden.com مدیریت کنید. آیا مایل به دیدن وب‌سایت هستید؟"
   },
-  "premiumRefresh": {
-    "message": "نوسازی عضویت"
-  },
-  "premiumNotCurrentMember": {
-    "message": "شما در حال حاظر کاربر ویژه نیستید."
-  },
-  "premiumSignUpAndGet": {
-    "message": "برای عضویت ویژه ثبت نام کنید و دریافت کنید:"
-  },
   "premiumSignUpStorage": {
     "message": "۱ گیگابایت فضای ذخیره‌سازی رمزنگاری شده برای پرونده‌های پیوست."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ فضای ذخیره‌سازی رمزگذاری شده برای پیوست‌های پرونده.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "گزینه‌های ورود اضافی دو مرحله‌ای مانند YubiKey و Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "گزارش‌های بهداشت کلمه عبور، سلامت حساب و نقض داده‌ها برای ایمن نگهداشتن گاوصندوق شما."
-  },
-  "premiumSignUpTotp": {
-    "message": "تولید کننده کد تأیید (2FA) از نوع TOTP برای ورودهای موجود در گاوصندوقتان."
-  },
-  "premiumSignUpSupport": {
-    "message": "اولویت پشتیبانی از مشتری."
-  },
-  "premiumSignUpFuture": {
-    "message": "تمام ویژگی‌های ویژه آینده. به زودی بیشتر!"
   },
   "premiumPurchase": {
     "message": "خرید ویژه"
   },
   "premiumPurchaseAlertV2": {
     "message": "می‌توانید نسخه ویژه را از تنظیمات حساب کاربری خود در برنامه وب Bitwarden خریداری کنید."
-  },
-  "premiumCurrentMember": {
-    "message": "شما یک عضو ویژه هستید!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "برای حمایتتان از Bitwarden سپاسگزاریم."
-  },
-  "premiumPrice": {
-    "message": "تمامش فقط $PRICE$ در سال!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "ماه"
@@ -2493,7 +2408,7 @@
     "message": "بررسی کنید که آیا کلمه عبور افشا شده است."
   },
   "passwordExposed": {
-    "message": "این کلمه عبور $VALUE$ بار در نقض داده‌ها افشا شده است. باید آن را تغییر دهید.",
+    "message": "این کلمه عبور در نشت‌های اطلاعاتی $VALUE$ بار افشا شده است. باید آن را تغییر دهید.",
     "placeholders": {
       "value": {
         "content": "$1",
@@ -2502,7 +2417,7 @@
     }
   },
   "passwordSafe": {
-    "message": "این کلمه عبور در هیچ یک از نقض‌های داده شناخته شده یافت نشد. استفاده از آن باید ایمن باشد."
+    "message": "این کلمه عبور در هیچ یک از نشت‌های اطلاعاتی شناخته شده پیدا نشده است. استفاده از آن باید امن باشد."
   },
   "baseDomain": {
     "message": "دامنه پایه",
@@ -3543,6 +3458,27 @@
   "moreOptions": {
     "message": "گزینه‌های بیشتر"
   },
+  "optionsForItem": {
+    "message": "Options for $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "No shared folder"
+  },
+  "filterByName": {
+    "message": "Filter by $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "زمان نشست شما به پایان رسید. لطفاً برگردید و دوباره وارد سیستم شوید."
   },
@@ -4081,16 +4017,16 @@
     "message": "کلمه عبور اصلی افشا شده"
   },
   "exposedMasterPasswordDesc": {
-    "message": "کلمه عبور در افشای داده پیدا شد. از یک کلمه عبور منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟"
+    "message": "کلمه عبور در نشت اطلاعاتی پیدا شده است. برای محافظت از حساب خود، از یک کلمه عبور منحصربه‌فرد استفاده کنید. آیا مطمئن هستید که می‌خواهید از یک کلمه عبور افشا شده استفاده کنید؟"
   },
   "weakAndExposedMasterPassword": {
     "message": "کلمه عبور اصلی ضعیف و افشا شده"
   },
   "weakAndBreachedMasterPasswordDesc": {
-    "message": "کلمه عبور ضعیف شناسایی و در یک افشای داده پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئنید که می‌خواهید از این کلمه عبور استفاده کنید؟"
+    "message": "کلمه عبور ضعیف شناسایی و در یک نشت اطلاعاتی پیدا شد. از یک کلمه عبور قوی و منحصربه‌فرد برای محافظت از حساب کاربری خود استفاده کنید. آیا مطمئن هستید که می‌خواهید از این کلمه عبور استفاده کنید؟"
   },
   "checkForBreaches": {
-    "message": "بررسی نقض‌های داده شناخته شده برای این کلمه عبور"
+    "message": "بررسی نشت‌های اطلاعاتی شناخته شده برای این کلمه عبور"
   },
   "loggedInExclamation": {
     "message": "وارد شده!"
@@ -5237,10 +5173,17 @@
     "message": "تغییر ایمیل حساب کاربری"
   },
   "passkeyLogin": {
-    "message": "با کلید عبور وارد می‌شوید؟"
+    "message": "با کلید عبور وارد می‌شوید؟",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "ذخیره کلید عبور؟"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "ذخیره به عنوان ورود جدید"
@@ -5252,7 +5195,11 @@
     "message": "ورود منطبق برای این وب‌سایت یافت نشد"
   },
   "overwritePasskey": {
-    "message": "بازنویسی کلید عبور؟"
+    "message": "بازنویسی کلید عبور؟",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "امکان ذخیره رمز عبور وجود ندارد"
@@ -6371,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

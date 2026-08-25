@@ -55,7 +55,12 @@ import {
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
-import { PermitCipherDetailsPopoverComponent } from "@bitwarden/vault";
+import { AutoUnlockService } from "@bitwarden/unlock";
+import {
+  PermitCipherDetailsPopoverComponent,
+  VaultCopyButtonsService,
+  ShowQuickCopyActionsDetailsPopoverComponent,
+} from "@bitwarden/vault";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { AutotypeShortcutComponent } from "../../autofill/components/autotype-shortcut.component";
@@ -98,6 +103,7 @@ import { NativeMessagingManifestService } from "../services/native-messaging-man
     SessionTimeoutSettingsComponent,
     PermitCipherDetailsPopoverComponent,
     PremiumBadgeComponent,
+    ShowQuickCopyActionsDetailsPopoverComponent,
   ],
 })
 export class SettingsDialogComponent implements OnInit {
@@ -111,6 +117,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private readonly messagingService = inject(MessagingService);
   private readonly keyService = inject(KeyService);
+  private readonly autoUnlockService = inject(AutoUnlockService);
   private readonly themeStateService = inject(ThemeStateService);
   private readonly domainSettingsService = inject(DomainSettingsService);
   private readonly dialogService = inject(DialogService);
@@ -127,6 +134,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly validationService = inject(ValidationService);
   private readonly billingAccountProfileStateService = inject(BillingAccountProfileStateService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly vaultCopyButtonsService = inject(VaultCopyButtonsService);
 
   protected readonly localeOptions: Option<string>[];
   protected readonly themeOptions: Option<string>[];
@@ -151,6 +159,12 @@ export class SettingsDialogComponent implements OnInit {
   protected readonly userHasMasterPassword = signal(false);
   protected readonly userHasPinSet = signal(false);
 
+  /** Controls whether the quick copy actions setting is shown */
+  protected readonly showQuickCopyActionsSetting = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM40435_QuickCopyIconSetting),
+    { initialValue: false },
+  );
+
   protected readonly pinEnabled = toSignal(
     this.accountService.activeAccount$.pipe(
       getUserId,
@@ -174,6 +188,7 @@ export class SettingsDialogComponent implements OnInit {
     clearClipboard: [null],
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
+    showQuickCopyActions: false,
     // App Settings
     runInBackground: false,
     openAtLogin: false,
@@ -273,6 +288,9 @@ export class SettingsDialogComponent implements OnInit {
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await firstValueFrom(this.desktopSettingsService.minimizeOnCopy$),
       enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
+      showQuickCopyActions: await firstValueFrom(
+        this.vaultCopyButtonsService.showQuickCopyActions$,
+      ),
       runInBackground: await firstValueFrom(this.desktopSettingsService.runInBackground$),
       openAtLogin: await firstValueFrom(this.desktopSettingsService.openAtLogin$),
       enableDuckDuckGoBrowserIntegration: await firstValueFrom(
@@ -437,7 +455,8 @@ export class SettingsDialogComponent implements OnInit {
     if (!enabled || !this.supportsBiometric()) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
       await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
-      await this.keyService.refreshAdditionalKeys(activeUserId);
+      await this.biometricsService.deleteBiometricUnlockKeyForUser(activeUserId);
+      await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
       return;
     }
 
@@ -475,7 +494,9 @@ export class SettingsDialogComponent implements OnInit {
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.biometricStateService.setPromptAutomatically(false, activeUserId);
     }
-    await this.keyService.refreshAdditionalKeys(activeUserId);
+    const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
+    await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
+    await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
 
     // Validate the key is stored in case biometrics fail.
     const biometricSet =
@@ -530,6 +551,12 @@ export class SettingsDialogComponent implements OnInit {
   protected async saveFavicons() {
     await this.domainSettingsService.setShowFavicons(this.form.value.enableFavicons);
     this.messagingService.send("refreshCiphers");
+  }
+
+  async saveQuickCopyActions() {
+    await this.vaultCopyButtonsService.setShowQuickCopyActions(
+      this.form.value.showQuickCopyActions,
+    );
   }
 
   protected async saveRunInBackground() {

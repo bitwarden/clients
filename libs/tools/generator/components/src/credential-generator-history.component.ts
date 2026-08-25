@@ -14,12 +14,7 @@ import {
   ifEnabledSemanticLoggerProvider,
 } from "@bitwarden/common/tools/log";
 import { UserId } from "@bitwarden/common/types/guid";
-import {
-  ColorPasswordModule,
-  IconButtonModule,
-  ItemModule,
-  NoItemsModule,
-} from "@bitwarden/components";
+import { ColorPasswordModule, IconButtonModule, ItemModule } from "@bitwarden/components";
 import {
   AlgorithmsByType,
   CredentialAlgorithm,
@@ -34,14 +29,7 @@ import { translate } from "./util";
 @Component({
   selector: "bit-credential-generator-history",
   templateUrl: "credential-generator-history.component.html",
-  imports: [
-    CommonModule,
-    ColorPasswordModule,
-    IconButtonModule,
-    NoItemsModule,
-    JslibModule,
-    ItemModule,
-  ],
+  imports: [CommonModule, ColorPasswordModule, IconButtonModule, JslibModule, ItemModule],
 })
 export class CredentialGeneratorHistoryComponent implements OnChanges, OnInit, OnDestroy {
   private readonly destroyed = new Subject<void>();

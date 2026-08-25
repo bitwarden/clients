@@ -38,6 +38,7 @@ import {
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 import { DomQueryService } from "./abstractions/dom-query.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { ShadowHostHydrationTracker } from "./shadow-host-hydration-tracker";
 
 type ResolveFieldTarget = {
   selectorAlternatives: string[];
@@ -82,21 +83,17 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
   private updateAfterMutationIdleCallback: number | NodeJS.Timeout | null = null;
   private pendingOverlaySetup: Map<Element, NodeJS.Timeout | number> = new Map();
   private readonly overlaySetupDelayMs = 100;
-  private shadowDomCheckTimeout: NodeJS.Timeout | number | null = null;
-  private pendingShadowDomCheck = false;
-  private pendingMutationAddedElements: Set<Element> = new Set();
-  private pendingMutationAddedElementsOverflowed = false;
-  // Caps the batch handed to suppressDescendantsInBatch; overflow → full-document scan fallback.
-  private readonly pendingMutationAddedElementsCap = 256;
+  // Constructed in the constructor body, not here: it closes over a field declared further down.
+  private readonly shadowTracker: ShadowHostHydrationTracker;
   private ownedExperienceTagNames: string[] = [];
   private readonly updateAfterMutationTimeout = 1000;
-  private readonly shadowDomCheckTimeoutMs = 500;
   private readonly shadowDomCheckDebounceMs = 300;
   private lastMutationTimestamp = 0;
   private mutationBurstCount = 0;
   private readonly mutationCooldownMs = 500;
   private readonly maxMutationWaitMs = 5000;
   private readonly formFieldQueryString;
+
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
     "hidden",
@@ -140,6 +137,12 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.domQueryService.setOwnedShadowHostPredicate(
       (host) => this.autofillOverlayContentService?.isElementInlineMenu(host) ?? false,
     );
+
+    this.shadowTracker = new ShadowHostHydrationTracker(
+      this.domQueryService,
+      this.mutationObserver,
+      () => this.debouncedRequirePageDetailsUpdate(),
+    );
   }
 
   /**
@@ -172,10 +175,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
       this.updateAfterMutationIdleCallback = null;
     }
-    if (this.shadowDomCheckTimeout) {
-      clearTimeout(this.shadowDomCheckTimeout);
-      this.shadowDomCheckTimeout = null;
-    }
     this.pendingOverlaySetup.forEach((timeout) => globalThis.clearTimeout(timeout));
     this.pendingOverlaySetup.clear();
     this.mutationObserver.disconnect();
@@ -184,15 +183,26 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.autofillFieldElements.clear();
     this.autofillFieldsByOpid.clear();
     this.elementInitializingIntersectionObserver.clear();
+    // Shadow-host tracking is monitoring-scoped; clear it so restart drops stale deadlines.
+    this.shadowTracker.reset();
     this.noFieldsFound = false;
     this.domRecentlyMutated = true;
-    this.pendingShadowDomCheck = false;
     this.currentLocationHref = "";
   }
 
   get autofillFormElements(): AutofillFormElements {
     return this._autofillFormElements;
   }
+
+  // Only refresh the latch when a fresh walk will consume it. Both arms are load-bearing; see
+  // ShadowHostHydrationTracker.hasHostsAwaitingShadowRoot for why parked hosts don't count.
+  prepareForExplicitCollection = () => {
+    if (this.noFieldsFound || this.shadowTracker.hasHostsAwaitingShadowRoot()) {
+      this.domQueryService.refreshShadowDomStateForUserRequest();
+      this.noFieldsFound = false;
+      this.domRecentlyMutated = true;
+    }
+  };
 
   /**
    * Builds the data for all forms and fields found within the page DOM.
@@ -1348,24 +1358,27 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     const formElements: HTMLFormElement[] = [];
     const formFieldElements: FormFieldElement[] = [];
 
-    const queriedElements = this.domQueryService.query<HTMLElement>(
-      globalThis.document.documentElement,
-      `form, ${this.formFieldQueryString}`,
-      (element: Element) => {
-        if (elementIsFormElement(element)) {
-          formElements.push(element);
-          return true;
-        }
+    // The collection walk is the only enrollment path for hosts that predate the observer.
+    const { elements: queriedElements, unresolvedHosts } =
+      this.domQueryService.queryWithUnresolvedShadowHosts<HTMLElement>(
+        globalThis.document.documentElement,
+        (element: Element) => {
+          if (elementIsFormElement(element)) {
+            formElements.push(element);
+            return true;
+          }
 
-        if (this.isElementFormFieldElement(element)) {
-          formFieldElements.push(element as FormFieldElement);
-          return true;
-        }
+          if (this.isElementFormFieldElement(element)) {
+            formFieldElements.push(element as FormFieldElement);
+            return true;
+          }
 
-        return false;
-      },
-      this.mutationObserver,
-    );
+          return false;
+        },
+        this.mutationObserver,
+      );
+
+    this.shadowTracker.reconcileFromScan(unresolvedHosts);
 
     if (formElements.length || formFieldElements.length) {
       return { formElements, formFieldElements };
@@ -1457,22 +1470,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     // attribute/character-data mutations can't introduce shadow roots.
     const hasAddedNodes = mutations.some((m) => (m.addedNodes?.length ?? 0) > 0);
     if (hasAddedNodes) {
-      this.collectAddedShadowRootCandidates(mutations);
-
-      if (!this.pendingShadowDomCheck) {
-        this.pendingShadowDomCheck = true;
-
-        if (this.shadowDomCheckTimeout) {
-          clearTimeout(this.shadowDomCheckTimeout);
-        }
-
-        this.shadowDomCheckTimeout = setTimeout(() => {
-          this.handleNewShadowRoots();
-          this.pendingShadowDomCheck = false;
-          this.pendingMutationAddedElements.clear();
-          this.pendingMutationAddedElementsOverflowed = false;
-        }, this.shadowDomCheckTimeoutMs);
-      }
+      this.shadowTracker.noteAddedNodes(mutations);
     }
 
     // Drain only when idle AND this batch added work; no-op drains are pure overhead.
@@ -1544,6 +1542,7 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
 
     // Reset shadow root tracking on navigation
     this.domQueryService.resetObservedShadowRoots();
+    this.shadowTracker.reset();
 
     this.updateAutofillElementsAfterMutation();
   }
@@ -1655,49 +1654,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
     this.updateAutofillElementsAfterMutation();
   }, this.shadowDomCheckDebounceMs);
 
-  /**
-   * Detects new shadow roots and schedules a page details update if any are found.
-   * This is called periodically to catch shadow roots added after initial page load.
-   * The update is debounced to prevent excessive collection triggers.
-   * @private
-   */
-  private handleNewShadowRoots = () => {
-    // Hosts added by mutation may have been removed during the 500ms debounce.
-    const connected: Element[] = [];
-    for (const element of this.pendingMutationAddedElements) {
-      if (element.isConnected) {
-        connected.push(element);
-      }
-    }
-    const hasNewShadowRoots = this.domQueryService.checkForNewShadowRoots(connected);
-    if (hasNewShadowRoots) {
-      this.debouncedRequirePageDetailsUpdate();
-    }
-  };
-
-  // Edge case: a plain element added empty and given `attachShadow()` later
-  // with no further child mutations is dropped here. Rare for autofill content;
-  // the next mutation cycle catches it.
-  private collectAddedShadowRootCandidates(mutations: MutationRecord[]) {
-    if (this.pendingMutationAddedElementsOverflowed) {
-      return;
-    }
-    for (const mutation of mutations) {
-      for (const node of mutation.addedNodes ?? []) {
-        if (!this.isShadowRootCandidate(node)) {
-          continue;
-        }
-        this.pendingMutationAddedElements.add(node);
-        if (this.pendingMutationAddedElements.size >= this.pendingMutationAddedElementsCap) {
-          this.pendingMutationAddedElementsOverflowed = true;
-          // Release element refs immediately; we won't process them this window.
-          this.pendingMutationAddedElements.clear();
-          return;
-        }
-      }
-    }
-  }
-
   private mutationAddsOrRemovesFormField(mutation: MutationRecord): boolean {
     return (
       this.nodeListContainsFormField(mutation.addedNodes) ||
@@ -1721,20 +1677,6 @@ export class CollectAutofillContentService implements CollectAutofillContentServ
       }
     }
     return false;
-  }
-
-  private isShadowRootCandidate(node: Node): node is Element {
-    if (!nodeIsElement(node)) {
-      return false;
-    }
-    if (node.shadowRoot) {
-      return true;
-    }
-    // Custom element — `attachShadow` may run after observation.
-    if (node.tagName.includes("-")) {
-      return true;
-    }
-    return node.firstElementChild !== null;
   }
 
   private setupTopLayerCandidateListener = (element: Element) => {

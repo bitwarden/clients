@@ -282,6 +282,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.initOverlayEventObservables();
   }
 
+  useLitInlineMenuComponents$ = this.configService.getFeatureFlag$(
+    FeatureFlag.LitInlineMenuComponents,
+  );
+
   /**
    * Sets up the extension message listeners and gets the settings for the
    * overlay's visibility and the user's authentication status.
@@ -381,7 +385,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
       .subscribe();
 
-    // Dump targeting rules' cached page details when Fill Assist becomes
+    // Dump targeting rules' cached page details when fill assist becomes
     // disabled, and signal content scripts to drop their own targeting-rules
     // caches so the next page-details collection re-evaluates which strategy
     // to use (targeted vs heuristic). Only act on a `true` -> `false`
@@ -3611,6 +3615,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       showInlineMenuAccountCreation,
       authStatus,
       extensionOrigin,
+      useLitComponents: isInlineMenuListPort
+        ? await firstValueFrom(this.useLitInlineMenuComponents$)
+        : undefined,
     });
     if (port.sender) {
       this.updateInlineMenuPosition(
