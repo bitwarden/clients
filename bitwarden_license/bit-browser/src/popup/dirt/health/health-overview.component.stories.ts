@@ -21,7 +21,7 @@ const atRiskReport = new VaultHealthReportView({
 });
 
 export default {
-  title: "Browser/DIRT/Health Overview",
+  title: "Browser/DIRT/Health/Health Overview",
   component: HealthOverviewComponent,
   decorators: [
     applicationConfig({

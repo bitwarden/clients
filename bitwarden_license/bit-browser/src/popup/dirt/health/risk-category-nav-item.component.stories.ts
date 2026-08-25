@@ -7,7 +7,7 @@ import { I18nMockService, ItemModule } from "@bitwarden/components";
 import { RiskCategoryNavItemComponent } from "./risk-category-nav-item.component";
 
 export default {
-  title: "Browser/DIRT/Risk Category Nav Item",
+  title: "Browser/DIRT/Health/Risk Category Nav Item",
   component: RiskCategoryNavItemComponent,
   decorators: [
     moduleMetadata({
