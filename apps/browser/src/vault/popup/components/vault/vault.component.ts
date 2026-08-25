@@ -45,11 +45,12 @@ import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loa
 import {
   ButtonModule,
   DialogService,
-  NoItemsModule,
+  StatusLockupComponent,
+  ScrollLayoutService,
+  SvgComponent,
   ToastService,
   TypographyModule,
   CalloutModule,
-  ScrollLayoutService,
 } from "@bitwarden/components";
 import {
   DecryptionFailureDialogComponent,
@@ -103,7 +104,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     PopupHeaderComponent,
     PopOutComponent,
     CurrentAccountComponent,
-    NoItemsModule,
+    StatusLockupComponent,
     JslibModule,
     CommonModule,
     AutofillVaultListItemsComponent,
@@ -115,6 +116,7 @@ type VaultState = UnionOfValues<typeof VaultState>;
     AtRiskPasswordCalloutComponent,
     CalloutModule,
     RouterModule,
+    SvgComponent,
     TypographyModule,
     VaultLoadingSkeletonComponent,
     VaultFadeInOutSkeletonComponent,

@@ -6,7 +6,7 @@ import { BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
-import { isSnapStore, isFlatpak, isLinux } from "../../../utils";
+import { isSnapStore, isFlatpak, isLinux } from "../../../main/platform-utils.main";
 import { OsBiometricService } from "../os-biometrics.service";
 
 const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>

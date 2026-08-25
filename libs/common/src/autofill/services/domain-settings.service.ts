@@ -330,7 +330,7 @@ export class DefaultDomainSettingsService implements DomainSettingsService {
       return null;
     }
 
-    // Fill Assist requires an unlocked vault
+    // Fill assist requires an unlocked vault
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     if (!activeAccount) {
       return null;
