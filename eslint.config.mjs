@@ -69,7 +69,7 @@ export default tseslint.config(
   ...storybook.configs["flat/recommended"],
   {
     // Everything in this config object targets our TypeScript files (Components, Directives, Pipes etc)
-    files: ["**/*.ts", "**/*.js"],
+    files: ["**/*.ts", "**/*.mts", "**/*.js"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.recommended,

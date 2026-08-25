@@ -1,0 +1,96 @@
+import { Meta, Canvas, Primary, Controls, Title, Description } from "@storybook/addon-docs/blocks";
+
+import * as stories from "./status-lockup.stories";
+
+<Meta of={stories} />
+
+```ts
+import { StatusLockupComponent } from "@bitwarden/components";
+```
+
+<Title />
+<Description />
+
+<Primary />
+<Controls />
+
+## Usage
+
+Use the status lockup to fill a content area when there is important context to communicate about
+the current view. This includes empty states, error states, permission restrictions, onboarding
+prompts, and completion confirmations.
+
+The status lockup should be the primary focus of the content area it occupies. Do not place it
+alongside other content that competes for attention — it is designed to stand alone as the sole
+message within its container.
+
+Use the base size for full-page layouts or tables where the status lockup has ample room to breathe.
+Use small size for narrower containers such as side panels, drawers, or secondary content areas. The
+component will automatically use the small size when the container is smaller than the md breakpoint
+(768px).
+
+## Content Slots
+
+All content is projected through named slots.
+
+- `[slot=graphic]` — optional graphic; typically an illustration or icon, such as a `<bit-svg>`
+  (sized to 80px by the layout) or a `<bit-icon-tile>`.
+- `[slot=title]` — required heading. Rendered as an `<h3>`.
+- `[slot=description]` — required supporting body copy explaining the state and what to do next.
+- `[slot=button]` — optional; one or more actions. Multiple buttons are spaced automatically.
+
+```html
+<bit-status-lockup>
+  <bit-svg slot="graphic" [content]="NoResults"></bit-svg>
+  <ng-container slot="title">{{ "noItemsFound" | i18n }}</ng-container>
+  <ng-container slot="description">{{ "noItemsFoundDesc" | i18n }}</ng-container>
+  <button slot="button" type="button" bitButton buttonType="secondary">
+    <bit-icon name="bwi-plus" />
+    {{ "newItem" | i18n }}
+  </button>
+</bit-status-lockup>
+```
+
+### Graphic
+
+The graphic is decorative. When no illustration fits the state, omit the slot entirely.
+
+#### Svg
+
+<Canvas of={stories.Default} />
+
+#### Icon Tile
+
+<Canvas of={stories.WithIconTile} />
+
+#### No Graphic
+
+<Canvas of={stories.NoGraphic} />
+
+### No Button
+
+<Canvas of={stories.NoButton} />
+
+## Sizes
+
+- `base` (default) — standard title size, for full-width containers.
+- `small` — reduced title size and reduced max width, for narrower containers or viewports under the
+  `md` breakpoint.
+
+<Canvas of={stories.Small} />
+
+### Responsive Behavior
+
+The component automatically switches to the `small` variant when the container is smaller than the
+md breakpoint.
+
+<Canvas of={stories.Responsive} />
+
+## Accessibility
+
+- The title renders as an `<h3>`. Verify it fits the surrounding heading hierarchy; if the status
+  layout sits under a different heading level, adjust the surrounding page structure rather than the
+  component.
+- If the graphic is decorative, use aria-hidden on it. If it should be announced to screenreaders,
+  add an accessible label.
+- Title, description, and button labels are all consumer-provided and must be localized.
