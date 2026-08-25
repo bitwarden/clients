@@ -50,8 +50,6 @@ import {
   requestedWindowSeconds,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
-import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatRemaining } from "../date/format-remaining";
@@ -97,7 +95,6 @@ import {
     IconTileComponent,
     ReactiveFormsModule,
     TypographyModule,
-    AccessStateBadgeComponent,
     DatePipe,
     DurationLongPipe,
     DurationShortPipe,
@@ -165,9 +162,6 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly activeLease = computed(() => this.state()?.activeLease);
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
-
-  /** The unified access-state pill, so this banner reads the same as the row and the Requests page. */
-  protected readonly badge = computed(() => cipherAccessBadgeState(this.state()));
 
   /**
    * How much access the approval granted, from the request's own activation window. This is the

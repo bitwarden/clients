@@ -26,13 +26,18 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { CipherViewComponent, CIPHER_VIEW_BANNER } from "@bitwarden/vault";
+import {
+  CipherViewComponent,
+  CIPHER_VIEW_BANNER,
+  ITEM_DETAILS_STATE_BADGE,
+} from "@bitwarden/vault";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
 import { AccessLeaseSdkService } from "../abstractions/access-lease-sdk.service";
 import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { LeasingErrorService } from "../abstractions/leasing-error.service";
+import { ItemDetailsStateBadgeComponent } from "../item-details-state-badge/item-details-state-badge.component";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 import {
   HOUR,
@@ -45,13 +50,14 @@ import {
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 /**
- * The composed cipher view, rather than the banner on its own. This is where the card ORDER is
- * visible, and the order is the only thing these stories exist to show: identity, then access, then
- * Autofill options, then Item history.
+ * The composed cipher view, rather than the banner on its own — this is where the card ORDER and
+ * the name-row badge are visible, and those are the only things these stories exist to show:
+ * the state badge opposite the item name, then identity, access, Autofill options, Item history.
  *
- * {@link OrdinaryLogin} is the load-bearing one. `cipher-view.component.html` renders every vault
- * item in the product, so a change to where the banner outlet sits has to leave an ungoverned item
- * untouched; that story is the ungoverned item, with no `CIPHER_VIEW_BANNER` bound at all.
+ * {@link OrdinaryLogin} is the load-bearing one. `cipher-view.component.html` and
+ * `item-details-v2.component.html` render every vault item in the product, so neither the banner
+ * outlet nor the badge outlet may leave a mark on an ungoverned item; that story is the ungoverned
+ * item, with neither `CIPHER_VIEW_BANNER` nor `ITEM_DETAILS_STATE_BADGE` bound at all.
  */
 
 function loginCipher(id: string, name: string, uri: string): CipherView {
@@ -68,6 +74,12 @@ function gatedCipher(): CipherView {
   const cipher = loginCipher("cipher-1", "Prod database", "https://db.example.com");
   cipher.organizationId = "org-1";
   cipher.partial = true;
+  return cipher;
+}
+
+function longNameGatedCipher(): CipherView {
+  const cipher = gatedCipher();
+  cipher.name = "production-eu-west-1-postgres-primary-readwrite-credentials-rotated-quarterly";
   return cipher;
 }
 
@@ -124,11 +136,16 @@ function provideStoryCipherView() {
   ];
 }
 
+/**
+ * Binds the real banner and the real name-row badge to their tokens, over one access state built at
+ * render time — the two seams read the same state, so a story showing them disagreeing is a bug.
+ */
 function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({
-    imports: [CipherViewBannerComponent],
+    imports: [CipherViewBannerComponent, ItemDetailsStateBadgeComponent],
     providers: [
       { provide: CIPHER_VIEW_BANNER, useValue: CipherViewBannerComponent },
+      { provide: ITEM_DETAILS_STATE_BADGE, useValue: ItemDetailsStateBadgeComponent },
       {
         provide: AccessRequestSdkService,
         useValue: {
@@ -187,12 +204,12 @@ export default {
 
 type Story = StoryObj<CipherViewComponent>;
 
-/** The resting state: the access card sits under the item's identity, above Autofill options. */
+/** The resting state: the "Privileged" badge on the name row, the access card under the identity. */
 export const RequestAccess: Story = {
   decorators: [gated(() => ({ badgeState: "privileged" }))],
 };
 
-/** A request is with an approver. The card grows, and the cards under it keep their places. */
+/** A request is with an approver: "Pending approval" on the name row, Cancel request in the card. */
 export const Pending: Story = {
   decorators: [
     gated(() => ({
@@ -205,7 +222,7 @@ export const Pending: Story = {
   ],
 };
 
-/** Approved but not yet started: the tallest of the three access cards. */
+/** Approved but not yet started: "Ready to use" on the name row, the tallest of the access cards. */
 export const Approved: Story = {
   decorators: [
     gated(() => ({
@@ -220,8 +237,26 @@ export const Approved: Story = {
 };
 
 /**
- * An ungoverned login with no banner bound. The card order here must be identical to what it was
- * before the outlet moved: identity, credentials, Autofill options, Item history.
+ * The narrow-width case the name row has to survive: the name is `tw-break-all tw-line-clamp-2` and
+ * now shares its row with a badge that must not be squeezed. Pending is the longest label.
+ */
+export const LongNameWithBadge: Story = {
+  args: { cipher: longNameGatedCipher() },
+  decorators: [
+    gated(() => ({
+      badgeState: "pending",
+      pendingRequest: accessRequest({
+        leaseNotBefore: liveFromNow(0),
+        leaseNotAfter: liveFromNow(HOUR),
+      }),
+    })),
+  ],
+};
+
+/**
+ * An ungoverned login with neither seam bound — the name row carries no badge and the card order is
+ * identical to what it was before either outlet existed: identity, credentials, Autofill options,
+ * Item history.
  */
 export const OrdinaryLogin: Story = {
   args: { cipher: ordinaryCipher() },

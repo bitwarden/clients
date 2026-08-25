@@ -3,11 +3,6 @@
     <div class="tw-flex tw-items-start tw-gap-4">
       <bit-icon-tile icon="bwi-clock" variant="teal" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <!--
-          No access-state badge here: the heading already carries the live countdown, and the badge's
-          "N left" / "Ending soon" pill would render a second copy of the same clock. The other three
-          states have no countdown in their heading, so they show the shared pill.
-        -->
         <div class="tw-flex tw-flex-col">
           <h3 bitTypography="h5" noMargin>
             {{ "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel() }}
@@ -69,16 +64,13 @@
         </div>
 
         <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
-          <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-            <app-pam-access-state-badge [state]="badge()" />
-            <span bitTypography="body2" data-testid="approved-access-window">
-              @if (approvedRequestStartsNow()) {
-                {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | date: "short") }}
-              } @else {
-                {{ request.leaseNotBefore | date: "short" }} &ndash;
-                {{ request.leaseNotAfter | date: "short" }}
-              }
-            </span>
+          <span bitTypography="body2" data-testid="approved-access-window">
+            @if (approvedRequestStartsNow()) {
+              {{ "pamWindowUntil" | i18n: (request.leaseNotAfter | date: "short") }}
+            } @else {
+              {{ request.leaseNotBefore | date: "short" }} &ndash;
+              {{ request.leaseNotAfter | date: "short" }}
+            }
           </span>
           <span class="tw-flex tw-items-center tw-gap-2">
             <button
@@ -114,7 +106,6 @@
         <h3 bitTypography="h5" noMargin>{{ "pamPendingRequestBannerHeading" | i18n }}</h3>
 
         <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
-          <app-pam-access-state-badge [state]="badge()" />
           <button
             type="button"
             bitButton
@@ -154,7 +145,6 @@
         }
 
         <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
-          <app-pam-access-state-badge [state]="badge()" />
           <button
             type="button"
             bitButton
