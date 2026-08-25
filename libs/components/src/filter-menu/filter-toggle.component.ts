@@ -14,6 +14,7 @@ import {
 
 import { BaseChipDirective } from "../chips/shared/base-chip.directive";
 import { ChipContentComponent } from "../chips/shared/chip-content.component";
+import { OverflowItemDirective } from "../overflow-list";
 import { BitwardenIcon } from "../shared/icon";
 
 import {
@@ -51,7 +52,11 @@ import {
     { provide: FILTER_CONTROL, useExisting: forwardRef(() => FilterToggleComponent) },
     { provide: FILTER_PRESENTER, useExisting: forwardRef(() => FilterToggleComponent) },
   ],
-  hostDirectives: [{ directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth"] }],
+  hostDirectives: [
+    { directive: BaseChipDirective, inputs: ["disabled", "size", "fullWidth"] },
+    // Lets a `bitOverflowList` ancestor measure the chip; inert with no such ancestor.
+    OverflowItemDirective,
+  ],
 })
 export class FilterToggleComponent implements FilterControl, FilterPresenter, OnInit {
   /** The chip's key — the property its boolean value occupies in the host's `filterValues`. */

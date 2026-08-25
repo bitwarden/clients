@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Yêu thích"
   },
+  "favoritesFilterTooltip": {
+    "message": "Đánh dấu các mục là yêu thích để lọc chúng tại đây."
+  },
   "unfavorite": {
     "message": "Bỏ thích"
   },
@@ -116,6 +119,9 @@
   "myFolders": {
     "message": "Thư mục của tôi"
   },
+  "foldersFilterTooltip": {
+    "message": "Thêm thư mục vào các mục để lọc chúng tại đây."
+  },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
   },
@@ -123,13 +129,13 @@
     "message": "Thư mục chia sẻ mới"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Tìm kiếm thư mục chia sẻ"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Tìm kiếm thư mục của tôi"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Xem thư mục chia sẻ - $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +144,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Xóa thư mục chia sẻ"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Xóa $COUNT$ thư mục chia sẻ",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +156,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Thư mục chia sẻ này sẽ bị xóa vĩnh viễn. Các mục trong thư mục sẽ không bị xóa."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Các thư mục chia sẻ này sẽ bị xóa vĩnh viễn. Các mục trong các thư mục sẽ không bị xóa."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Các mục và thư mục chia sẻ đã chọn sẽ bị xóa vĩnh viễn."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Đã xóa thư mục chia sẻ"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Đã xóa các thư mục chia sẻ"
   },
   "share": {
     "message": "Chia sẻ"
@@ -519,14 +525,8 @@
   "launch": {
     "message": "Khởi chạy"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Mở trang web"
   },
   "copyValue": {
     "message": "Sao chép giá trị",
@@ -545,10 +545,10 @@
     }
   },
   "minimizeOnCopyToClipboard": {
-    "message": "Thu nhỏ sau khi sao chép vào bảng nhớ tạm"
+    "message": "Thu nhỏ sau khi sao chép vào bộ nhớ tạm"
   },
   "minimizeOnCopyToClipboardDesc": {
-    "message": "Thu nhỏ ứng dụng sau khi sao chép thông tin của một mục vào bảng nhớ tạm."
+    "message": "Thu nhỏ ứng dụng sau khi sao chép thông tin của một mục vào bộ nhớ tạm."
   },
   "toggleVisibility": {
     "message": "Bật/tắt khả năng hiển thị"
@@ -1193,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Sao chép mã xác thực (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Sao chép $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Sao chép khóa riêng tư"
@@ -2005,31 +1991,21 @@
     "message": "Bảo mật"
   },
   "clearClipboard": {
-    "message": "Xóa bảng nhớ tạm",
+    "message": "Xóa bộ nhớ tạm",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
-    "message": "Tự động xóa mọi thứ đã sao chép khỏi bảng nhớ tạm.",
+    "message": "Tự động xóa mọi thứ đã sao chép khỏi bộ nhớ tạm.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "showIconsChangePasswordUrls": {
     "message": "Hiển thị biểu tượng trang web và truy xuất các URL đổi mật khẩu"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
-  },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
+    "message": "Hiển thị các thao tác sao chép nhanh trong kho lưu trữ"
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Không có chi tiết để sao chép"
   },
   "runInBackground": {
     "message": "Giữ Bitwarden chạy trong nền"
@@ -2128,29 +2104,19 @@
     "message": "Sao chép mã xác thực"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Không có tên đăng nhập"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Không có mật khẩu"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Không có mã xác minh"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Không có số"
   },
   "noSecurityCode": {
-    "message": "No security code"
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
+    "message": "Không có mã bảo mật"
   },
   "copyUsername": {
     "message": "Sao chép tên đăng nhập"
@@ -2170,9 +2136,6 @@
     "message": "Sao chép mã bảo mật",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "số thẻ"
-  },
   "premiumMembership": {
     "message": "Thành viên Cao Cấp"
   },
@@ -2182,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Bạn có thể quản lý tài khoản thành viên của mình trên trang web bitwarden.com. Bạn có muốn truy cập trang web bây giờ không?"
   },
-  "premiumRefresh": {
-    "message": "Làm mới thành viên"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Bạn hiện không phải là thành viên Cao cấp."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Đăng ký làm thành viên Cao cấp và nhận được:"
-  },
   "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Độ mạnh của mật khẩu, tình trạng bảo mật tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho lưu trữ của bạn."
-  },
-  "premiumSignUpTotp": {
-    "message": "Trình tạo mã xác minh TOTP (2FA) cho các mục đăng nhập trong kho của bạn."
-  },
-  "premiumSignUpSupport": {
-    "message": "Hỗ trợ khách hàng ưu tiên."
-  },
-  "premiumSignUpFuture": {
-    "message": "Tất cả các tính năng cao cấp trong tương lai. Nó sẽ sớm xuất hiện!"
   },
   "premiumPurchase": {
     "message": "Mua bản Cao Cấp"
   },
   "premiumPurchaseAlertV2": {
     "message": "Bạn có thể mua gói Cao cấp từ cài đặt tài khoản trên kho web Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Bạn là một thành viên Cao cấp!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Cảm ơn bạn đã hỗ trợ Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Tất cả chỉ với $PRICE$/năm!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "tháng"
@@ -3254,7 +3169,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkToClipboard": {
-    "message": "Sao chép liên kết Send vào bảng nhớ tạm",
+    "message": "Sao chép liên kết Send vào bộ nhớ tạm",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "copySendLinkOnSave": {
@@ -3541,7 +3456,28 @@
     "message": "Tùy chọn"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Tùy chọn khác"
+  },
+  "optionsForItem": {
+    "message": "Tùy chọn cho $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Không có thư mục chia sẻ nào"
+  },
+  "filterByName": {
+    "message": "Lọc theo $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Phiên đăng nhập của bạn đã hết hạn. Vui lòng quay trở lại và thử đăng nhập lại."
@@ -4568,6 +4504,79 @@
   "noFileChosen": {
     "message": "Chưa chọn tập tin nào"
   },
+  "noFileSelected": {
+    "message": "Chưa chọn tệp nào"
+  },
+  "fileChosen": {
+    "message": "Đã chọn tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Đã thêm tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "Đã thêm $COUNT$ tệp: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Đã xóa tệp: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "Đã tải lên 1 tệp"
+  },
+  "filesUploaded": {
+    "message": "Đã tải lên $COUNT$ tệp",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Các tệp đã tải lên"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Nhấp để tải lên hoặc kéo và thả"
+  },
+  "chooseFiles": {
+    "message": "Chọn tệp"
+  },
+  "maxFileSizeParam": {
+    "message": "Kích thước tệp tối đa: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "hoặc sao chép/dán nội dung của tập tin nhập"
   },
@@ -5119,7 +5128,7 @@
     "message": "Loại khóa SSH không được hỗ trợ"
   },
   "importSshKeyFromClipboard": {
-    "message": "Nhập khóa từ bảng nhớ tạm"
+    "message": "Nhập khóa từ bộ nhớ tạm"
   },
   "sshKeyImported": {
     "message": "Khóa SSH được nhập thành công"
@@ -5164,10 +5173,17 @@
     "message": "Đổi email tài khoản"
   },
   "passkeyLogin": {
-    "message": "Đăng nhập bằng mã khóa?"
+    "message": "Đăng nhập bằng mã khóa?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "Lưu mã khóa?"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "Lưu như đăng nhập mới"
@@ -5179,7 +5195,11 @@
     "message": "Không có đăng nhập khớp với trang web này"
   },
   "overwritePasskey": {
-    "message": "Ghi đè mã khoá?"
+    "message": "Ghi đè mã khoá?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "Không thể lưu mã khóa"
@@ -5242,7 +5262,7 @@
     }
   },
   "cannotRemoveViewOnlySharedFolders": {
-    "message": "You cannot remove shared folders with View only permissions: $SHAREDFOLDERS$",
+    "message": "Bạn không thể xóa các thư mục chia sẻ có quyền Chỉ xem: $SHAREDFOLDERS$",
     "placeholders": {
       "sharedfolders": {
         "content": "$1",
@@ -5349,22 +5369,22 @@
     "message": "Bitwarden sẽ sử dụng URI đăng nhập đã lưu để xác định biểu tượng hoặc URL đổi mật khẩu nào cần dùng nhằm cải thiện trải nghiệm của bạn. Không có thông tin nào được thu thập hay lưu lại khi bạn sử dụng dịch vụ này."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Thêm 3 nút sao chép nhanh bên cạnh các mục để sao chép tên đăng nhập, mật khẩu hoặc mã xác minh vào bộ nhớ tạm."
   },
   "assignToCollections": {
     "message": "Gán vào bộ sưu tập"
   },
   "addToSharedFolder": {
-    "message": "Add to shared folder"
+    "message": "Thêm vào thư mục chia sẻ"
   },
   "transferAndAdd": {
-    "message": "Transfer and add"
+    "message": "Chuyển và thêm"
   },
   "itemLower": {
-    "message": "item"
+    "message": "mục"
   },
   "itemsLower": {
-    "message": "items"
+    "message": "các mục"
   },
   "assignToTheseCollections": {
     "message": "Gán vào các bộ sưu tập này"
@@ -5373,13 +5393,13 @@
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem mục này."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
-    "message": "Only vault members with access to these shared folders will be able to see the item."
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy mục này."
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Chỉ những thành viên của tổ chức có quyền truy cập vào các bộ sưu tập này mới có thể xem các mục này."
   },
   "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
-    "message": "Only vault members with access to these shared folders will be able to see the items."
+    "message": "Chỉ các thành viên kho lưu trữ có quyền truy cập vào các thư mục chia sẻ này mới có thể nhìn thấy các mục này."
   },
   "noCollectionsAssigned": {
     "message": "Chưa có bộ sưu tập nào được gán"
@@ -5440,7 +5460,7 @@
     "message": "1 mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
   "personalItemVaultTransferWarningSingular": {
-    "message": "1 item will be permanently transferred to the selected vault. You will no longer own this item."
+    "message": "1 mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu mục này nữa."
   },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ được chuyển vĩnh viễn đến tổ chức đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
@@ -5452,7 +5472,7 @@
     }
   },
   "personalItemsVaultTransferWarningPlural": {
-    "message": "$PERSONAL_ITEMS_COUNT$ items will be permanently transferred to the selected vault. You will no longer own these items.",
+    "message": "$PERSONAL_ITEMS_COUNT$ mục sẽ bị chuyển vĩnh viễn sang kho lưu trữ đã chọn. Bạn sẽ không còn sở hữu các mục này nữa.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5477,31 +5497,31 @@
     "message": "Đã gán vào bộ sưu tập thành công"
   },
   "successfullyAddedSharedFolders": {
-    "message": "Successfully added shared folders"
+    "message": "Đã thêm thành công các thư mục chia sẻ"
   },
   "itemMovedToCollection": {
     "message": "Mục đã được di chuyển vào bộ sưu tập"
   },
   "itemAddedToSharedFolder": {
-    "message": "Item added to shared folder"
+    "message": "Đã thêm mục vào thư mục chia sẻ"
   },
   "itemMovedToCollections": {
     "message": "Mục đã được di chuyển vào các bộ sưu tập"
   },
   "itemAddedToSharedFolders": {
-    "message": "Item added to shared folders"
+    "message": "Đã thêm mục vào các thư mục chia sẻ"
   },
   "itemsMovedToCollection": {
     "message": "Các mục đã được di chuyển vào bộ sưu tập"
   },
   "itemsAddedToSharedFolder": {
-    "message": "Items added to shared folder"
+    "message": "Đã thêm các mục vào thư mục chia sẻ"
   },
   "itemsMovedToCollections": {
     "message": "Các mục đã được di chuyển vào các bộ sưu tập"
   },
   "itemsAddedToSharedFolders": {
-    "message": "Items added to shared folders"
+    "message": "Đã thêm các mục vào các thư mục chia sẻ"
   },
   "itemAssignedToCollections": {
     "message": "Mục đã được gán cho các bộ sưu tập"
@@ -6298,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

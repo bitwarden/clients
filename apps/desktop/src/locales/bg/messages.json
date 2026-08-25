@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Любими"
   },
+  "favoritesFilterTooltip": {
+    "message": "Отбелязвайте елементи като любими, за да ги филтрирате тук."
+  },
   "unfavorite": {
     "message": "Премахване от любимите"
   },
@@ -116,6 +119,9 @@
   "myFolders": {
     "message": "Моите папки"
   },
+  "foldersFilterTooltip": {
+    "message": "Добавете папки към елементите, за да ги филтрирате тук."
+  },
   "addSharedFolder": {
     "message": "Добавяне на споделена папка"
   },
@@ -123,13 +129,13 @@
     "message": "Нова споделена папка"
   },
   "searchSharedFolder": {
-    "message": "Search shared folder"
+    "message": "Търсене в споделената папка"
   },
   "searchMyFolder": {
-    "message": "Search My folders"
+    "message": "Търсене в моите папки"
   },
   "viewSharedFolderWithName": {
-    "message": "View shared folder - $NAME$",
+    "message": "Преглед на споделена папка — $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -138,10 +144,10 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "Изтриване на споделената папка"
   },
   "deleteSharedFoldersCount": {
-    "message": "Delete $COUNT$ shared folders",
+    "message": "Изтриване на $COUNT$ споделени папки",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -150,19 +156,19 @@
     }
   },
   "deleteSharedFolderKeepItemsDesc": {
-    "message": "This shared folder will be permanently deleted. The items in the folder won't be deleted."
+    "message": "Тази споделена папка ще бъде изтрита завинаги. Елементите в папката няма да бъдат изтрити."
   },
   "deleteSharedFoldersKeepItemsDesc": {
-    "message": "These shared folders will be permanently deleted. The items in the folders won't be deleted."
+    "message": "Тези споделени папки ще бъдат изтрити завинаги. Елементите в папките няма да бъдат изтрити."
   },
   "deleteItemsAndSharedFoldersDesc": {
-    "message": "The selected items and shared folders will be permanently deleted."
+    "message": "Избраните елементи и споделени папки ще бъдат изтрити завинаги."
   },
   "sharedFolderDeleted": {
-    "message": "Shared folder deleted"
+    "message": "Споделената папка е изтрита"
   },
   "sharedFoldersDeleted": {
-    "message": "Shared folders deleted"
+    "message": "Споделените папки са изтрити"
   },
   "share": {
     "message": "Споделяне"
@@ -519,14 +525,8 @@
   "launch": {
     "message": "Пускане"
   },
-  "launchWebsiteForName": {
-    "message": "Launch website for $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
+  "launchWebsite": {
+    "message": "Посещаване на уеб сайта"
   },
   "copyValue": {
     "message": "Копиране на стойността",
@@ -1193,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Код за потвърждаване (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Копиране на $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Копиране на частния ключ"
@@ -2016,20 +2002,10 @@
     "message": "Показване на иконките на уеб сайтовете и извличане на адресите за смяна на паролата"
   },
   "showQuickCopyActionsInVault": {
-    "message": "Show quick copy actions in vault"
-  },
-  "copyNoteTitle": {
-    "message": "Copy Note - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
+    "message": "Показване на действията за бързо копиране в трезора"
   },
   "noDetailsToCopy": {
-    "message": "No details to copy"
+    "message": "Няма подробности за копиране"
   },
   "runInBackground": {
     "message": "Поддържайте Битуорден работещ във фонов режим"
@@ -2128,29 +2104,19 @@
     "message": "Копиране на кода за потвърждаване"
   },
   "noUsername": {
-    "message": "No username"
+    "message": "Няма потребителско име"
   },
   "noPassword": {
-    "message": "No password"
+    "message": "Няма парола"
   },
   "noVerificationCode": {
-    "message": "No verification code"
+    "message": "Няма код за потвърждаване"
   },
   "noNumber": {
-    "message": "No number"
+    "message": "Няма номер"
   },
   "noSecurityCode": {
-    "message": "No security code"
-  },
-  "copyDetailsTitle": {
-    "message": "Copy details for $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
+    "message": "Няма код за сигурност"
   },
   "copyUsername": {
     "message": "Копиране на потребителското име"
@@ -2170,9 +2136,6 @@
     "message": "Копиране на кода за сигурност",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "номер на карта"
-  },
   "premiumMembership": {
     "message": "Платен абонамент"
   },
@@ -2182,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Можете да управлявате своя абонамент през уеб сайта bitwarden.com. Искате ли да се отвори?"
   },
-  "premiumRefresh": {
-    "message": "Опресняване на абонамента"
-  },
-  "premiumNotCurrentMember": {
-    "message": "В момента ползвате безплатен абонамент."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Платеният абонамент дава следните предимства:"
-  },
   "premiumSignUpStorage": {
     "message": "1 ГБ пространство за файлове, които се шифроват."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ пространство за файлове, които се шифрират.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Проверки в списъците с публикувани пароли, проверка на регистрациите и доклади за пробивите в сигурността, което спомага трезорът ви да е допълнително защитен."
-  },
-  "premiumSignUpTotp": {
-    "message": "Генериране на временни, еднократни кодове за двустепенно удостоверяване за регистрациите в трезора."
-  },
-  "premiumSignUpSupport": {
-    "message": "Приоритетна поддръжка."
-  },
-  "premiumSignUpFuture": {
-    "message": "Всички бъдещи ползи! Предстои въвеждането на още!"
   },
   "premiumPurchase": {
     "message": "Покупка на платен абонамент"
   },
   "premiumPurchaseAlertV2": {
     "message": "Можете да закупите платената версия от настройките на регистрацията си, в приложението по уеб на Битуорден."
-  },
-  "premiumCurrentMember": {
-    "message": "Честито, ползвате платен абонамент!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Благодарим ви за подкрепата на Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "И това само за $PRICE$ на година!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "месец"
@@ -3541,7 +3456,28 @@
     "message": "Настройки"
   },
   "moreOptions": {
-    "message": "More options"
+    "message": "Още настройки"
+  },
+  "optionsForItem": {
+    "message": "Опции за $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Няма споделена папка"
+  },
+  "filterByName": {
+    "message": "Филтриране по $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
   },
   "sessionTimeout": {
     "message": "Сесията Ви изтече. Моля, върнете се назад и се опитайте да влезете отново."
@@ -4568,6 +4504,79 @@
   "noFileChosen": {
     "message": "Не е избран файл"
   },
+  "noFileSelected": {
+    "message": "Няма избрани файлове"
+  },
+  "fileChosen": {
+    "message": "Избран файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Добавен файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ файла са добавени: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Премахната файл: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 файл е качен"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ файла са качени",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Качени файлове"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Щракнете за качване, или влачете и пуснете тук"
+  },
+  "chooseFiles": {
+    "message": "Изберете файлове"
+  },
+  "maxFileSizeParam": {
+    "message": "Максимален размер на файл: $SIZE$ МБ",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "или поставете съдържанието му"
   },
@@ -5164,10 +5173,17 @@
     "message": "Промяна на е-пощата"
   },
   "passkeyLogin": {
-    "message": "Вписване със секретен ключ?"
+    "message": "Вписване със секретен ключ?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Вписване със секретен ключ"
   },
   "savePasskeyQuestion": {
     "message": "Да се запази на секретният ключ?"
+  },
+  "savePasskey": {
+    "message": "Запазване на секретния ключ"
   },
   "saveNewPasskey": {
     "message": "Запазване като нов елемент за вписване"
@@ -5179,7 +5195,11 @@
     "message": "Няма записи за вписване отговарящи на този уеб сайт"
   },
   "overwritePasskey": {
-    "message": "Да се замени ли секретният ключ?"
+    "message": "Да се замени ли секретният ключ?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Замяна на секретния ключ"
   },
   "unableToSavePasskey": {
     "message": "Секретният ключ не може да бъде запазен"
@@ -5349,7 +5369,7 @@
     "message": "Битуорден ще използва запазените адреси за вписване, за да определи коя иконка или адрес за смяна на паролата да се ползва, за да улесни работата Ви. Никакви данни не се събират или съхраняват, когато използвате тази услуга."
   },
   "showQuickCopyActionsDetailsDescription": {
-    "message": "Add 3 quick copy buttons next to items to copy your username, password, or verification code to the clipboard."
+    "message": "Добавяне на 3 бутона за бързо копиране до елементите, с които могат да се копират потребителското име, паролата и кода за потвърждаване."
   },
   "assignToCollections": {
     "message": "Свързване с колекции"
@@ -6298,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "създаде нов секретен ключ за $RPID$, за $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "презапише секретен ключ за $RPID$, за $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "се впише като $USERNAME$ с Вашия секретен ключ за $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Потвърдете, че сте Вие, за да създадете нов секретен ключ за $RPID$, за $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Потвърдете, че сте Вие, за да презапишете секретен ключ за $RPID$, за $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Потвърдете, че сте Вие, за да се впишете като $USERNAME$ със секретния си ключ за $RPID$.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

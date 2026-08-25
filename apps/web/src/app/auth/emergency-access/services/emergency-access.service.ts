@@ -4,11 +4,6 @@ import { firstValueFrom } from "rxjs";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncryptedString,
-  EncString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { MasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
   MasterPasswordAuthenticationData,
@@ -23,14 +18,18 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { KeyService, UserKeyRotationKeyRecoveryProvider } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  EncryptedString,
+  EncryptService,
+  EncString,
   KdfConfig,
-  PBKDF2KdfConfig,
-  KeyService,
   KdfType,
-  UserKeyRotationKeyRecoveryProvider,
-} from "@bitwarden/key-management";
+  LegacyCompatKeyService,
+  PBKDF2KdfConfig,
+} from "@bitwarden/legacy-crypto";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
@@ -60,6 +59,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     private emergencyAccessApiService: EmergencyAccessApiService,
     private apiService: ApiService,
     private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private encryptService: EncryptService,
     private cipherService: CipherService,
     private logService: LogService,
@@ -198,7 +198,7 @@ export class EmergencyAccessService implements UserKeyRotationKeyRecoveryProvide
     try {
       this.logService.debug(
         "User's fingerprint: " +
-          (await this.keyService.getFingerprint(granteeId, publicKey)).join("-"),
+          (await this.legacyCompatKeyService.getFingerprint(granteeId, publicKey)).join("-"),
       );
     } catch {
       // Ignore errors since it's just a debug message
