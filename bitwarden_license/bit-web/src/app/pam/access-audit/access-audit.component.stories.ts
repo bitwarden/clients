@@ -135,7 +135,10 @@ function audit(options: { events?: AccessAuditEventResponse[]; fails?: boolean }
         provide: AccessNameResolverService,
         useValue: { resolveNames: () => Promise.resolve(names) },
       },
-      { provide: ActivatedRoute, useValue: { params: of({ organizationId: "org-1" }) } },
+      {
+        provide: ActivatedRoute,
+        useValue: { params: of({ organizationId: "org-1" }), data: of({}) },
+      },
       { provide: AccountService, useValue: { activeAccount$: of({ id: "user-1" }) } },
       {
         provide: OrganizationService,
