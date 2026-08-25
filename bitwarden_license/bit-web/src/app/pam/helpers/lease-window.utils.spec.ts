@@ -1,4 +1,5 @@
 import {
+  ACCESS_RULE_DURATION_PRESETS,
   DEFAULT_ACCESS_RULE_DURATION_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   pickDurationUnit,
@@ -6,6 +7,16 @@ import {
   snapToNearestAccessRuleDuration,
   snapToNearestDuration,
 } from "./lease-window.utils";
+
+describe("ACCESS_RULE_DURATION_PRESETS", () => {
+  it("labels the 24-hour preset to match what the list renders for the same value", () => {
+    // pickDurationUnit promotes 86400s to "1 day" in the list's Maximum duration cell
+    // (see pickDurationUnit below); the editor's own label must read the same way.
+    const preset = ACCESS_RULE_DURATION_PRESETS.find((p) => p.seconds === 24 * 60 * 60);
+
+    expect(preset?.labelKey).toBe("pamAccessRuleDuration1d");
+  });
+});
 
 describe("pickDurationUnit", () => {
   it("picks whole-day durations as days", () => {
