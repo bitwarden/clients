@@ -8,18 +8,12 @@ import {
   viewChild,
 } from "@angular/core";
 
-import { IconTileEmphasis, IconTileVariant } from "../icon-tile";
-import { BitwardenIcon } from "../shared/icon";
+import { IconTileOptions } from "../icon-tile";
 
 import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
 /** Icon tile configuration for a `bit-filter-option` row. */
-export interface FilterOptionIconTile {
-  icon: BitwardenIcon;
-  variant?: IconTileVariant;
-  emphasis?: IconTileEmphasis;
-  color?: string;
-}
+export type FilterOptionIconTile = IconTileOptions;
 
 /**
  * A selectable option inside a `bit-filter-menu`. It's **declarative**: it holds the

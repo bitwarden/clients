@@ -79,7 +79,7 @@
         [icon]="tile.icon"
         [variant]="tileVariant(option)"
         [color]="tileColor(option)"
-        [emphasis]="tile.emphasis"
+        [emphasis]="tile.emphasis ?? 'subtle'"
         size="xs"
       />
     }
