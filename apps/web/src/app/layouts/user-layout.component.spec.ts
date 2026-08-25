@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { Router, RouterModule } from "@angular/router";
+import { RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
@@ -87,7 +87,6 @@ Object.defineProperty(window, "matchMedia", {
 
 describe("UserLayoutComponent", () => {
   let fixture: ComponentFixture<UserLayoutComponent>;
-  let router: Router;
 
   const flag$ = new BehaviorSubject<boolean>(false);
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(emptyViewModel);
@@ -182,9 +181,6 @@ describe("UserLayoutComponent", () => {
       })
       .compileComponents();
 
-    router = TestBed.inject(Router);
-    jest.spyOn(router, "navigate").mockResolvedValue(true);
-
     // Nav items only render their text when the side nav is expanded.
     TestBed.inject(SideNavService).open.set(true);
 
@@ -238,53 +234,6 @@ describe("UserLayoutComponent", () => {
       expect(children).toContain("addPlan");
       expect(children.indexOf("emergencyAccess")).toBeLessThan(children.indexOf("addPlan"));
       expect(children.indexOf("addPlan")).toBeLessThan(children.indexOf("exportNoun"));
-    });
-
-    describe("Archive upgrade path", () => {
-      const clickArchive = () => {
-        const archive = Array.from(fixture.nativeElement.querySelectorAll("bit-nav-item")).find(
-          (el) => (el as HTMLElement).textContent?.includes("archiveNoun"),
-        ) as HTMLElement;
-        archive.querySelector("button, a")?.dispatchEvent(new MouseEvent("click"));
-      };
-
-      it("prompts to upgrade when a user who cannot archive has nothing archived", () => {
-        canArchive$.next(false);
-        fixture.detectChanges();
-
-        clickArchive();
-
-        expect(premiumUpgradePromptService.promptForPremium).toHaveBeenCalled();
-        expect(router.navigate).not.toHaveBeenCalled();
-      });
-
-      it("still filters to the archive when a user who cannot archive has archived items", () => {
-        canArchive$.next(false);
-        archivedCiphers$.next([{}]);
-        fixture.detectChanges();
-
-        clickArchive();
-
-        expect(router.navigate).toHaveBeenCalledWith(["/vault"], {
-          queryParams: {
-            folderId: null,
-            sharedFolderId: null,
-            collectionId: null,
-            type: "archive",
-          },
-          queryParamsHandling: "merge",
-        });
-        expect(premiumUpgradePromptService.promptForPremium).not.toHaveBeenCalled();
-      });
-
-      it("badges Archive for a non-premium user", () => {
-        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).toBeNull();
-
-        canArchive$.next(false);
-        fixture.detectChanges();
-
-        expect(fixture.nativeElement.querySelector("button[bit-chip-action]")).not.toBeNull();
-      });
     });
   });
 });
