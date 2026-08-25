@@ -159,9 +159,9 @@ describe("VaultPopupAutofillService", () => {
       expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
     });
 
-    it("emits `true` when the current tab is blocklisted by a targeting rule (a null host entry), which Fill Assist actively enforces", async () => {
+    it("emits `true` when the current tab is blocklisted by a targeting rule (a null host entry), which fill assist actively enforces", async () => {
       // A `null` host entry suppresses autofill on all of the host's pages; the matcher returns an
-      // empty array (not `null`), so Fill Assist is still considered active for the tab.
+      // empty array (not `null`), so fill assist is still considered active for the tab.
       targetingRulesSubject.next({ "example.com": null } as any);
 
       expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(true);
@@ -173,7 +173,7 @@ describe("VaultPopupAutofillService", () => {
       expect(await firstValueFrom(service.showFillAssistActiveBanner$)).toBe(false);
     });
 
-    it("emits `false` when Fill Assist is disabled, even if rules apply", async () => {
+    it("emits `false` when fill assist is disabled, even if rules apply", async () => {
       resolvedEnableFillAssistSubject.next(false);
       targetingRulesSubject.next(applicableTargetingRules);
 

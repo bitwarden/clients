@@ -13,6 +13,7 @@ import {
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { DEFAULT_FILL_ASSIST_RULES_URL } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -26,10 +27,6 @@ import {
   GlobalStateProvider,
   KeyDefinition,
 } from "@bitwarden/state";
-
-/** Fallback resource location when the server does not provide one */
-const DEFAULT_RESOURCE_BASE_URL =
-  "https://github.com/bitwarden/map-the-web/releases/latest/download";
 
 /** Client-owned manifest filename, resolved against the resource base URL */
 const MANIFEST_FILENAME = "manifest.json";
@@ -294,7 +291,7 @@ export class TargetingRulesDataService {
    */
   private async _resolveResourceBaseUrl(): Promise<string> {
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
-    const baseUrl = serverConfig?.environment?.fillAssistRules || DEFAULT_RESOURCE_BASE_URL;
+    const baseUrl = serverConfig?.environment?.fillAssistRules || DEFAULT_FILL_ASSIST_RULES_URL;
     return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   }
 }
