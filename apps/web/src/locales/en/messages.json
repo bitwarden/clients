@@ -18037,12 +18037,6 @@
   "pamAccessRuleDuration1d": {
     "message": "1 day"
   },
-  "pamAccessRuleDuration2d": {
-    "message": "2 days"
-  },
-  "pamAccessRuleDuration24h": {
-    "message": "24 hours"
-  },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
   },
