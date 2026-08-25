@@ -1,3 +1,5 @@
+<app-header [title]="'pamAuditLog' | i18n"></app-header>
+
 @switch (status()) {
   @case ("loading") {
     <p class="tw-text-muted">{{ "loading" | i18n }}</p>
@@ -5,12 +7,34 @@
   @case ("error") {
     <bit-callout type="danger" [title]="'errorOccurred' | i18n">
       {{ "pamAuditLoadError" | i18n }}
+      <button
+        type="button"
+        bitLink
+        linkType="danger"
+        class="tw-ms-2 tw-font-bold"
+        id="access-audit_button_retry"
+        (click)="load()"
+      >
+        {{ "tryAgain" | i18n }}
+      </button>
     </bit-callout>
   }
   @case ("empty") {
-    <bit-callout type="info" [title]="'pamAuditEmptyTitle' | i18n">
-      {{ "pamAuditEmptyMessage" | i18n }}
-    </bit-callout>
+    <bit-no-items>
+      <span slot="title">{{ "pamAuditEmptyTitle" | i18n }}</span>
+      <span slot="description">{{ "pamAuditEmptyMessage" | i18n }}</span>
+      @if (canManageAccessRules()) {
+        <a
+          slot="button"
+          bitButton
+          buttonType="secondary"
+          routerLink="../access-rules"
+          id="access-audit_link_access-rules"
+        >
+          {{ "pamAccessRules" | i18n }}
+        </a>
+      }
+    </bit-no-items>
   }
   @case ("ready") {
     <div class="tw-mb-4 tw-flex tw-items-center tw-gap-3">
