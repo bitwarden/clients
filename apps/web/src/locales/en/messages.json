@@ -17611,8 +17611,8 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Auto-approved • Expires after 1h • Audit logged"
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
   },
   "pamTemplateJustInTimeName": {
     "message": "Just-in-time access"
@@ -17620,8 +17620,8 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Approval required"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Human approval • 1 approver required • Audit logged"
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Approval required"
@@ -17629,8 +17629,8 @@
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-restricted"
   },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Auto-approved • IP Allowlist • Audit logged"
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
