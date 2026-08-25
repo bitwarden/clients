@@ -1,10 +1,7 @@
-<bit-card class="tw-mx-4 tw-my-3 tw-flex tw-flex-col tw-items-center">
+<bit-card class="tw-mb-2 tw-flex tw-flex-col tw-items-center">
   <dirt-at-risk-gauge [value]="atRiskCount()" [total]="totalCount()" />
 
-  <h2
-    bitTypography="body1"
-    class="tw-mb-0 tw-mt-2 tw-text-center tw-font-semibold tw-text-fg-heading"
-  >
+  <h2 bitTypography="body1" class="tw-mb-0 tw-text-center tw-font-semibold tw-text-fg-heading">
     {{ (isAtRisk() ? "yourVaultRiskIsHigh" : "yourVaultIsHealthy") | i18n }}
   </h2>
 
@@ -13,7 +10,7 @@
   </span>
 </bit-card>
 
-<bit-section-header class="tw-mx-4">
+<bit-section-header>
   <h2 bitTypography="h6">{{ "risksIdentified" | i18n }}</h2>
 </bit-section-header>
 
@@ -30,7 +27,24 @@
         [icon]="row.icon"
         [variant]="row.variant"
         [route]="row.route"
+        [locked]="locked()"
       />
+    </bit-item>
+  }
+
+  @if (locked()) {
+    <bit-item>
+      <button
+        type="button"
+        bitButton
+        buttonType="primary"
+        block
+        endIcon="bwi-external-link"
+        id="health-overview_button_upgrade"
+        (click)="upgrade.emit()"
+      >
+        {{ "upgradeToViewPasswords" | i18n }}
+      </button>
     </bit-item>
   }
 </bit-item-group>

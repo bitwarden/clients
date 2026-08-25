@@ -6,7 +6,7 @@ import { I18nMockService } from "@bitwarden/components";
 import { HealthScanErrorComponent } from "./health-scan-error.component";
 
 export default {
-  title: "Browser/DIRT/Health Scan Failure",
+  title: "Browser/DIRT/Health/Health Scan Failure",
   component: HealthScanErrorComponent,
   decorators: [
     moduleMetadata({

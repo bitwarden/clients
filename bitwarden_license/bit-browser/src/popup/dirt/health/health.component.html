@@ -12,7 +12,7 @@
   } @else if (scanFailed()) {
     <dirt-health-scan-error />
   } @else if (report(); as report) {
-    <dirt-health-overview [report]="report" />
+    <dirt-health-overview [report]="report" [locked]="locked()" (upgrade)="handleUpgrade()" />
   } @else {
     <dirt-health-scanning />
   }

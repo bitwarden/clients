@@ -21,6 +21,7 @@ describe("RiskCategoryNavItemComponent", () => {
       descriptionKeyNone: string;
       count: number;
       route: string;
+      locked: boolean;
     }> = {},
   ) {
     fixture = TestBed.createComponent(RiskCategoryNavItemComponent);
@@ -41,6 +42,7 @@ describe("RiskCategoryNavItemComponent", () => {
     fixture.componentRef.setInput("count", inputs.count ?? 0);
     fixture.componentRef.setInput("icon", "bwi-error");
     fixture.componentRef.setInput("route", inputs.route ?? "/health/exposed");
+    fixture.componentRef.setInput("locked", inputs.locked ?? false);
     fixture.detectChanges();
     await fixture.whenStable();
   }
@@ -142,5 +144,39 @@ describe("RiskCategoryNavItemComponent", () => {
 
     const anchor = fixture.nativeElement.querySelector("a[bit-item-content]") as HTMLAnchorElement;
     expect(anchor.getAttribute("href")).toBe("/health/reused");
+  });
+
+  describe("when locked", () => {
+    it("renders no link, so there is no route into the detail the user cannot access", async () => {
+      await initComponent({ locked: true, count: 3 });
+
+      expect(fixture.nativeElement.querySelector("a")).toBeNull();
+      expect(fixture.nativeElement.querySelector("[bit-item-content]")).not.toBeNull();
+    });
+
+    it("replaces the navigation chevron with a labelled lock", async () => {
+      await initComponent({ locked: true, count: 3 });
+
+      // The lock carries a label because it is the only thing distinguishing a
+      // locked row from a healthy one once the chevron is gone.
+      const lock = fixture.nativeElement.querySelector("bit-icon.bwi-lock");
+      expect(lock).not.toBeNull();
+      expect(lock.getAttribute("aria-label")).toBe("premiumSubscriptionRequired");
+      expect(fixture.nativeElement.querySelector("bit-icon.bwi-angle-right")).toBeNull();
+    });
+
+    it("still shows the category name, description and count", async () => {
+      await initComponent({ locked: true, count: 7 });
+
+      expect(text()).toContain("exposedPasswordsPlural");
+      expect(text()).toContain("7");
+      expect(text()).toContain("exposedPasswordsDesc");
+    });
+
+    it("keeps the category icon tile rather than swapping it for a lock", async () => {
+      await initComponent({ locked: true, count: 3 });
+
+      expect(tileIcon()?.classList).toContain("bwi-error");
+    });
   });
 });
