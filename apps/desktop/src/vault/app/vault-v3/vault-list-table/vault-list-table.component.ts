@@ -6,7 +6,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CalloutComponent, LinkModule } from "@bitwarden/components";
+import { ButtonModule, CalloutComponent, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CipherRowMenuHandlers,
@@ -24,6 +24,7 @@ import { VaultItemEvent } from "../vault-items/vault-item-event";
   templateUrl: "./vault-list-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ButtonModule,
     CalloutComponent,
     I18nPipe,
     LinkModule,
@@ -55,6 +56,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly onAddCipher = output<CipherType>();
   readonly onAddFolder = output<void>();
   readonly onAddItemDialog = output<void>();
+  readonly onImport = output<void>();
 
   private readonly cipherRowMenuHandlers = computed<CipherRowMenuHandlers<C>>(() => ({
     edit: (item) => this.onEvent.emit({ type: "editCipher", item }),

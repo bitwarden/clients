@@ -129,6 +129,7 @@ import {
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
+import { ImportDesktopComponent } from "../../../app/tools/import/import-desktop.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
@@ -977,6 +978,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     } else if (result.result === AddItemDialogResult.Folder) {
       await this.addFolder();
     }
+  }
+
+  protected openImport(): void {
+    this.dialogService.open(ImportDesktopComponent);
   }
 
   filterSearchText(searchText: string) {

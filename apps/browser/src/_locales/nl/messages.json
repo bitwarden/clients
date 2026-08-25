@@ -1088,6 +1088,12 @@
   "addedFolder": {
     "message": "Map is toegevoegd"
   },
+  "folderEdited": {
+    "message": "Map is bewerkt"
+  },
+  "enterAName": {
+    "message": "Vul een naam in."
+  },
   "twoStepLoginConfirmation": {
     "message": "Tweestapsaanmelding beschermt je account door je inlogpoging te bevestigen met een ander apparaat zoals een beveiligingscode, authenticatie-app, SMS, spraakoproep of e-mail. Je kunt Tweestapsaanmelding inschakelen in de webkluis op bitwarden.com. Wil je de website nu bezoeken?"
   },
@@ -5133,6 +5139,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Zie gedetailleerde $NAME$-instructies in ons",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Helpcentrum"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Het proces is precies hetzelfde als importeren uit Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "In de KeePassX desktop-applicatie, navigeer naar \"Database\" → \"Exporteren naar CSV-bestand\" en sla het CSV-bestand op."
+  },
+  "importAviraInstructions": {
+    "message": "In de Avira-webkluis, ga naar \"Instellingen\" → \"Mijn gegevens\" → \"Gegevens exporteren\" en sla het CSV-bestand op."
+  },
+  "importBlurInstructions": {
+    "message": "In de Blur-webkluis, klik op je gebruikersnaam bovenaan en ga naar \"Instellingen\" → \"Gegevens exporteren\", en klik vervolgens op \"CSV exporteren\" voor je \"Accounts\"."
+  },
+  "importSafeincloudInstructions": {
+    "message": "In de SafeInCloud desktop-applicatie, navigeer naar \"Bestand\" → \"Exporteren\" → \"Als XML\" en sla het XML-bestand op."
+  },
+  "importPadlockInstructions": {
+    "message": "In de Padlock desktop-applicatie, klik op het hamburgen-pictogram in de linkerbovenhoek en navigeer naar \"Instellingen\" → \"Exporteren\"-knop en sla het bestand \"Als CSV\" op."
+  },
+  "importKeepass2Instructions": {
+    "message": "In de KeePass 2 desktop-applicatie, navigeer naar \"Bestand\" → \"Exporteren\" en selecteer de optie \"KeePass XML (2.x)\"."
+  },
+  "importUpmInstructions": {
+    "message": "In de Universal Password Manager desktop-applicatie, navigeer naar \"Database\" → \"Exporteren\" en sla het CSV-bestand op."
+  },
+  "importSaferpassInstructions": {
+    "message": "In de SaferPass browser-extensie, klik het hamburger-pictogram linksbovenaan en navigeer naar \"Instellingen\". Klik op de knop \"Accounts exporteren\" en sla het CSV-bestand op."
+  },
+  "importMeldiumInstructions": {
+    "message": "In de Meldium-webkluis, navigeer naar \"Instellingen\". Vind de \"Gegevens exporteren-functie en klik op \"Mijn gegevens weergeven\" voor het opslaan van het CSV-bestand."
+  },
+  "importPassworddragonInstructions": {
+    "message": "In de Password Dragon desktop-applicatie, navigeer naar \"Bestand\" → \"Exporteren\" → \"Naar XML\". Kies in het dialoogvenster dat verschijnt \"Alle rijen\" en vink alle velden aan. Klik op de knop \"Exporteren\" en sla het XML-bestand op."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "In de Enpass desktop-applicatie, navigeer naar \"Bestand\" → \"Exporteren\" → \"Als CSV\". Klik \"OK\" op de waarschuwing en sla het CSV-bestand op. Let op dat het importeren alleen werkt als je Enpass op Engelstalig hebt ingesteld, dus stel je taalinstelling zo in."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "In de Enpass 6 desktop-applicatie, klik op de menuknop en navigeer naar \"Bestand\" → \"Exporteren\". Kies het \".json\"-bestandsformaat en sla het JSON-bestand op."
+  },
+  "importPwsafeInstructions": {
+    "message": "In de Password Safe desktop-applicatie, navigeer naar \"Bestand\" → \"Exporteren naar\" → \"XML-formaat...\" en sla het XML-bestand op."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Log in op Dashlane, klik op \"Mijn account\" → \"Instellingen\" → \"Bestand exporteren\" en kies \"Exporteren als CSV-bestand\". Dit resulteert in een zip-bestand met verschillende CSV-bestanden. Pak het archief uit en importeer ieder individueel CSV-bestand."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane ondersteunt het JSON-formaat niet langer. Gebruik dit alleen als je een bestaand JSON-bestand hebt om te importeren. Gebruik de CSV-importer bij het maken van nieuwe exports."
+  },
+  "importMsecureInstructions": {
+    "message": "In de mSecure desktop-applicatie, navigeer naar \"Bestand\" → \"Exporteren\" → \"CSV-bestand...\" en sla het CSV-bestand op."
+  },
+  "importStickypasswordInstructions": {
+    "message": "In de Sticky Password desktop-applicatie, navigeer naar \"Menu\" (rechtsboven) → \"Exporteren\" → \"Alles exporteren\". Kies voor de optie van het niet-versleutelde XML-formaat en sla het XML-bestand op."
+  },
+  "importTruekeyInstructions": {
+    "message": "In de true Key desktop-applicatie, klik het tandwiel-pictogram (rechtsboven) en navigeer naar \"Applicatieinstellingen\". Klik op de knop \"Exporteren\", voer je wachtwoord in en sla het CSV-bestand op."
+  },
+  "importClipperzInstructions": {
+    "message": "Log in op de Clipperz web-applicatie (clipperz.is/app). Klik op het hamburger-pictogram rechtsboven om de navigatiebalk te openen. Navigeer naar \"Data\" → \"Exporteren\". Klik op de knop \"download HTML+JSON\" om het HTML-bestand op te slaan."
+  },
+  "importRoboformInstructions": {
+    "message": "In de RoboForm Editor desktop-applicatie, navigeer naar \"RoboForm\" (linksboven) → \"Opties\" → \"Account & Gegevens\" en klik op de knop \"Exporteren\". Selecteer al je gegevens, verander het \"formaat\" naar \"CSV-bestand\" en klik op de knop \"Exporteren\" om het CSV-bestand op te slaan. Let op: RoboForm laat je alleen logingegevens exporteren. Andere gegevens worden niet geëxporteerd."
+  },
+  "importPassboltInstructions": {
+    "message": "Log in op de Passbolt-webkluis en navigeer naar \"Wachtwoorden\". Selecteer alle wachtwoorden die je wilt exporteren en klik op de knop \"Exporteren\" bovenaan de lijst. Kies het exportformaat \"csv (lastpass)\" en klik op de knop \"Exporteren\"."
+  },
+  "importAscendoInstructions": {
+    "message": "In de Ascendo DataKluis desktop-applicatie, navigeer naar \"Gereedschap\" → \"Exporteren\". Kies in het dialoogvenster dat verschijnt de optie \"Alle items (DVX, CSV)\". Klik op de knop \"OK\" om het CSV-bestand op te slaan."
+  },
+  "importPasswordbossInstructions": {
+    "message": "In de Password Boss desktop-applicatie, navigeer naar \"Bestand\" → \"Gegevens exporteren\" → \"Password Boss JSON - niet versleuteld\" en sla het JSON-bestand op."
+  },
+  "importZohoInstructions": {
+    "message": "Log in op de Zoho-webkluis (vault.zoho.com). Navigeer naar \"Gereedschappen\" → \"Geheimen exporteren\". Selecteer \"Alle geheimen\" en klik op de knop \"Zoho-kluisformaat CSV\". Selecteer alle gegevens en kopieer deze. Open in een tekstverwerker zoals Kladblok en plak de gegevens. Bewaar het bestand van de tekstverwerker als",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "In de SplashID Safe desktop-applicatie, klik op het SplashID blauwe slot-pictogram rechtsboven. Navigeer naar \"Exporteren → \"Als CSV-bestand expoteren\" en sla het CSV-bestand op."
+  },
+  "importPasskeepInstructions": {
+    "message": "In de PassKeep mobiele applicatie, navigeer naar Backup/Restore\". Vind de sectie \"CSV Backup/Restore\" en klik op \"Backup naar CSV\" om het CSV-bestand op te slaan."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Zorg ervoor dat je python-keyring en python-gnomekeyring hebt geïnstalleerd. Bewaar het",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "pythonscript op je bureaublad als",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Open de terminal en start",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "en dan",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Upload daarna het resulterende",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "bestand hier naar Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "In de Password Agent desktop-applicatie, navigeer naar \"Bestand\" → \"Expoteren\", klik op de knop \"Te exporteren velden\", vink alle velden aan, verander het \"Output-formaat\" naar \"CSV\" en klik op de knop \"Start\" om het CSV-bestand op te slaan."
+  },
+  "importPasspackInstructions": {
+    "message": "Log in op de Passpack-webkluis en navigeer naar \"Instellingen\" → \"Exporteren\", klik op de knop \"Download\" voor het opslaan van het CSV-bestand."
+  },
+  "importPassmanInstructions": {
+    "message": "Log in op de Passman-kluis en klik op \"Instellingen\" in de linderonderhoek. In het venster \"Instellingen\" omschakelen naar de tab \"Inloggegevens exporteren\" en kies voor \"JSON\" als exporttype. Voer de wachtwoordzin van je kluis en in klik op de knop \"Exporteren\" voor het opslaan van het JSON-bestand."
+  },
+  "importAvastCsvInstructions": {
+    "message": "In de Avast desktop-applicatie, navigeer naar \"Instellingen\" → \"Gegevens importeren/exporteren\". Klik op de knop \"Exporteren\" voor de optie \"Exporteren naar CSV-bestand\" voor het opslaan van het CSV-bestand."
+  },
+  "importAvastJsonInstructions": {
+    "message": "In de Avast desktop-applicatie, navigeer naar \"Instellingen\" → \"Gegevens importeren/exporteren\". Klik op de knop \"Exporteren\" voor de optie \"Exporteren naar JSON-bestand\" voor het opslaan van het JSON-bestand."
+  },
+  "importFsecureInstructions": {
+    "message": "In de F-Secure Key desktop-applicatie, navigeer naar \"Instellingen\" → \"Wachtwoorden exporteren\". Klik op de knop \"Exporteren\", voer je hoofdwachtwoord in en bewaar het FSK-bestand."
+  },
+  "importKasperskyInstructions": {
+    "message": "In de Kaspersky Password Manager desktop-applicatie, navigeer naar \"Instellingen\" → \"Importer/Exporter\". Vind de sectie \"Naar tekstbestand exporteren\" en klik op de knop \"Exporteren\" voor het opslaan van het TXT-bestand."
+  },
+  "importRemembearInstructions": {
+    "message": "In de RememBear desktop-applicatie, navigeer naar \"Instellingen\" → \"Account\" → \"Exporteren\". Voer je hoofdwachtwoord in en klik op de knop \"Toch exporteren\" voor het opslaan van het CSV-bestand."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "In de PasswordWallet desktop-applicatie, navigeer naar \"Bestand\" → \"Exporteren\" → \"Zichtbare items naar tekstbestand\". Voer je wachtwoord in en klik op de knop \"OK\" voor het opslaan van het TXT-bestand."
+  },
+  "importMykiInstructions": {
+    "message": "In de Myki desktop browser-extensie, navigeer naar \"Geavanceerd\" → \"Accounts exporteren\" en scan de QR-code met je mobiele apparaat. Verschillende CSV-bestanden worden opgeslagen in de download-map op je computer."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Exporteer je SecureSafe-wachtwoordkluis naar een kommagescheiden CSV-bestand."
+  },
+  "importLogmeonceInstructions": {
+    "message": "In de LogMeOnce browser-extensie, navigeer naar \"Menu openen\" → \"Exporteren naar\" en kies \"CSV-bestand\" voor het opslaan van het CSV-bestand."
+  },
+  "importBlackberryInstructions": {
+    "message": "In de BlackBerry Password Keeper desktop-applicatie, navigeer naar \"Instellingen\" → \"import/Exporter\". Selecteer \"Wachtwoorden exporteren\" en volg de instructies op het scherm voor het opslaan van het niet-versleutelde CSV-bestand."
+  },
+  "importButtercupInstructions": {
+    "message": "In de Buttercup desktop-applicatie en ontgrendel je kluis. Klik met de rechtermuisknop op het pictogram van je kluis en kies \"Exporteren\" voor het opslaan van het CSV-bestand."
+  },
+  "importCodebookInstructions": {
+    "message": "Open de Codebook desktop-applicatie en login. Navigeer naar \"Bestand\" → \"Alles exporteren\", kies \"Ja\" in het dialoogvenster en sla het CSV-bestand op."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open de nieuwste versie van de Encryptr desktop-applicatie en laat al je gegevens synchroniseren. Zodra de synchronisatie van je gegevens is afgerond, zal het download-pictogram rechtsboven roze worden. Klik op het download-pictogram en sla het CSV-bestand op."
+  },
+  "importYotiInstructions": {
+    "message": "In de Yoti browser-extensie, klik op \"Instellingen\", dan \"Opgeslagen inloggegevens exporteren\" en sla het CSV-bestand op."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in op de Psono-webkluis, klik op de dropdown \"Aangemeld als\", kies \"Anderen\". Ga naar het tabblad \"Exporteren\", kies het json exporttype en klik op Exporteren."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in op \"https://vault.passky.org\" → \"Importeren & Exporteren\" → \"Exporteren\" in de Passky-sectie. (\"Backup\" wordt niet ondersteund omdat deze is versleuteld)."
+  },
+  "importProtonpassInstructions": {
+    "message": "Ga in de ProtonPass browser-extensie naar Instellingen > Exporteren. Exporteer zonder PGP-versleuteling en sla het zip-bestand op."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Selecteer Database → Exporteer naar bestand...-menu. → Controleer binnen de exportopties of mapnamen en kolomtitels zijn aangevinkt. → Druk op Bladeren..- knop, kies het doelbestand en stel het type in op CSV-bestand."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open de FullClient, ga naar het hoofdmenu en selecteer Exporteren. Start de wizard voor het exporteren van wachtwoorden en volg de instructies om een CSV-bestand te exporteren."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in bij NordPass en open instellingen → Scroll naar beneden in de sectie Importeren en Exporteren en kies Gegevens exporteren → Voer je hoofdwachtwoord in en kies Doorgaan. → Bewaar het CSV-bestand op je apparaat."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "In de desktop-applicatie, ga naar Gereedschappen → Exporteren → Voer je hoofdwachtwoord in → Selecteer XML-formaat (*.xml) als Exportformaat → Klik op volgende → Kies welke items in de export opgenomen moeten worden → Klik op volgende om te exporteren naar de eerder gekozen locatie."
+  },
+  "importDelineaInstructions": {
+    "message": "Log in op Delinea, Zoek naar \"Importeren/exporteren\" -> selecteer \"Exporteren\" -> Selecteer \"XML\" als exportformaat -> Selecteer \"QuantumLock\" als authenticatortype -> voer je wachtwoord in en selecteer \"Exporteren\" om het XML-bestand op te slaan."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Log in op Delinea, Zoek naar \"Importeren/exporteren\" -> selecteer \"Exporteren\" -> Selecteer \"CSV\" als exportformaat -> Selecteer \"QuantumLock\" als authenticatortype -> voer je wachtwoord in en selecteer \"Exporteren\" om het CSV-bestand op te slaan."
+  },
   "confirmVaultImport": {
     "message": "Kluisimport bevestigen"
   },
@@ -5303,10 +5510,6 @@
   },
   "awaitingSSODesc": {
     "message": "Ga door met inloggen met de referenties van je bedrijf."
-  },
-  "seeDetailedInstructions": {
-    "message": "Zie gedetailleerde instructies op onze helpsite op",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Rechtstreeks vanuit LastPass importeren"
@@ -7732,10 +7935,10 @@
     "message": "Geen van je wachtwoorden zijn gevonden in datalekken"
   },
   "weakPasswordEmpty": {
-    "message": "All your passwords are strong."
+    "message": "Al je wachtwoorden zijn sterk."
   },
   "reusedPasswordEmpty": {
-    "message": "All your passwords are unique."
+    "message": "Al je wachtwoorden zijn uniek."
   },
   "youreAllSet": {
     "message": "Je bent helemaal klaar!"
