@@ -16,7 +16,7 @@ function makeJobRaw(overrides: Record<string, unknown> = {}): Record<string, unk
     Id: "job-1",
     Source: RotationSource.Scheduled,
     Status: RotationJobStatus.Succeeded,
-    CreatedAt: "2024-06-01T10:00:00Z",
+    CreationDate: "2024-06-01T10:00:00Z",
     Attempts: [],
     ...overrides,
   };
@@ -52,8 +52,8 @@ describe("RotationHistoryComponent", () => {
 
   describe("sortedJobs", () => {
     it("sorts jobs newest-first by createdAt", () => {
-      const older = makeJob({ Id: "job-old", CreatedAt: "2024-01-01T00:00:00Z" });
-      const newer = makeJob({ Id: "job-new", CreatedAt: "2024-06-01T00:00:00Z" });
+      const older = makeJob({ Id: "job-old", CreationDate: "2024-01-01T00:00:00Z" });
+      const newer = makeJob({ Id: "job-new", CreationDate: "2024-06-01T00:00:00Z" });
       setup([older, newer]);
       const sorted = (component as any).sortedJobs();
       expect(sorted[0].id).toBe("job-new");

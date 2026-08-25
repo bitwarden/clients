@@ -13,13 +13,13 @@ describe("RotationDaemonDetailsResponse", () => {
           Id: "job-1",
           Source: 0,
           Status: 2,
-          CreatedAt: "2026-07-01T00:00:00Z",
+          CreationDate: "2026-07-01T00:00:00Z",
           Attempts: [
             {
               Id: "attempt-1",
               Status: 1,
-              StartedAt: "2026-07-01T00:00:01Z",
-              EndedAt: "2026-07-01T00:00:05Z",
+              CreationDate: "2026-07-01T00:00:01Z",
+              ResolvedDate: "2026-07-01T00:00:05Z",
             },
           ],
         },

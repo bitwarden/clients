@@ -19,8 +19,8 @@ const makeAttemptRaw = (overrides: Record<string, unknown> = {}): Record<string,
   FailureReason: null as unknown,
   SyncState: RotationSyncState.TargetUpdated,
   SessionTermination: RotationSessionTermination.Terminated,
-  StartedAt: "2024-06-01T02:00:05Z",
-  EndedAt: "2024-06-01T02:00:10Z",
+  CreationDate: "2024-06-01T02:00:05Z",
+  ResolvedDate: "2024-06-01T02:00:10Z",
   ...overrides,
 });
 
@@ -28,7 +28,7 @@ const makeJobRaw = (overrides: Record<string, unknown> = {}): Record<string, unk
   Id: "job-uuid-1",
   Source: RotationSource.Scheduled,
   Status: RotationJobStatus.Succeeded,
-  CreatedAt: "2024-06-01T02:00:00Z",
+  CreationDate: "2024-06-01T02:00:00Z",
   Attempts: [makeAttemptRaw()],
   ...overrides,
 });
@@ -96,7 +96,7 @@ describe("RotationAttemptResponse", () => {
       FailureReason: "Connection refused",
       SyncState: RotationSyncState.TargetUnchanged,
       SessionTermination: null,
-      EndedAt: "2024-06-01T02:00:08Z",
+      ResolvedDate: "2024-06-01T02:00:08Z",
     });
 
     let response: RotationAttemptResponse;
@@ -127,9 +127,9 @@ describe("RotationAttemptResponse", () => {
       Status: RotationAttemptStatus.Executing,
       SyncState: null,
       SessionTermination: null,
-      // EndedAt absent
+      // ResolvedDate absent
     });
-    delete raw.EndedAt;
+    delete raw.ResolvedDate;
 
     it("defaults endedAt to null when absent", () => {
       const response = new RotationAttemptResponse(raw);
@@ -236,7 +236,7 @@ describe("RotationJobResponse", () => {
       Id: "job-uuid-no-attempts",
       Source: RotationSource.AccessEnd,
       Status: RotationJobStatus.TimedOut,
-      CreatedAt: "2024-06-03T00:00:00Z",
+      CreationDate: "2024-06-03T00:00:00Z",
     };
 
     it("defaults attempts to empty array when absent", () => {
