@@ -22,7 +22,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AsyncActionsModule,
   ButtonModule,
-  CalloutModule,
+  CardComponent,
   DialogService,
   FormFieldModule,
   IconModule,
@@ -90,7 +90,7 @@ import {
   imports: [
     AsyncActionsModule,
     ButtonModule,
-    CalloutModule,
+    CardComponent,
     FormFieldModule,
     IconModule,
     ReactiveFormsModule,

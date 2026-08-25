@@ -208,7 +208,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher({ partial: false }));
 
       expect(requestsApi.getCipherAccessState).not.toHaveBeenCalled();
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
 
     it("renders nothing when the PAM feature flag is off", async () => {
@@ -217,7 +217,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(requestsApi.getCipherAccessState).not.toHaveBeenCalled();
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
 
     it("reads access state for a leaseGated cipher whose partial data is gone", async () => {
@@ -232,7 +232,7 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
   });
 
@@ -442,6 +442,54 @@ describe("CipherViewBannerComponent", () => {
         until(ENDS_AT),
       );
     });
+  });
+
+  describe("the card container", () => {
+    // Each state is the same card in a different mood, so the tile's glyph is the only thing that
+    // distinguishes them structurally.
+    const cases: ReadonlyArray<[string, () => void, string, string]> = [
+      ["resting request-access", () => {}, "cipher-view-banner-request", "bwi-key"],
+      [
+        "pending request",
+        () =>
+          requestsApi.getCipherAccessState.mockResolvedValue(
+            accessState({ pendingRequest: requestView() }),
+          ),
+        "cipher-view-banner-pending",
+        "bwi-clock",
+      ],
+      [
+        "approved request",
+        () =>
+          requestsApi.getCipherAccessState.mockResolvedValue(
+            accessState({ approvedRequest: requestView() }),
+          ),
+        "cipher-view-banner-approved",
+        "bwi-check-circle",
+      ],
+      [
+        "active lease",
+        () =>
+          requestsApi.getCipherAccessState.mockResolvedValue(
+            accessState({ activeLease: leaseView() }),
+          ),
+        "cipher-view-banner-active",
+        "bwi-clock",
+      ],
+    ];
+
+    it.each(cases)(
+      "renders %s as a card with an icon tile",
+      async (_name, arrange, testId, glyph) => {
+        arrange();
+
+        await create(gatedCipher());
+
+        const card = query(`bit-card[data-testid="${testId}"]`);
+        expect(card).not.toBeNull();
+        expect(card?.querySelector(`bit-icon.${glyph}`)).not.toBeNull();
+      },
+    );
   });
 
   describe("the rule's terms, before the form is opened", () => {
