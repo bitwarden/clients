@@ -176,7 +176,7 @@ export class VaultPopupAutofillService {
 
   /**
    * Collects the tab's page details through the background AutofillOrchestrator — the
-   * sole sender of the collect (see PREWORK). The popup runs in the foreground and cannot
+   * sole sender of the collect. The popup runs in the foreground and cannot
    * call the orchestrator directly, so it round-trips through the background and receives
    * the settled page details in the response.
    */
@@ -189,7 +189,7 @@ export class VaultPopupAutofillService {
   }
 
   /**
-   * Emits `true` when Fill Assist targeting rules apply to the current tab.
+   * Emits `true` when fill assist targeting rules apply to the current tab.
    *
    * The vault popup only renders when the vault is unlocked, so the auth/unlock gating that
    * {@link DomainSettingsService.getTargetingRulesForUrl} performs is already guaranteed here.
@@ -212,7 +212,7 @@ export class VaultPopupAutofillService {
         return false;
       }
 
-      // A blocklisted tab suppresses all autofill, so Fill Assist is moot regardless of the
+      // A blocklisted tab suppresses all autofill, so fill assist is moot regardless of the
       // blocked-domains banner's shown/dismissed state.
       if (tabIsOnBlocklist) {
         return false;

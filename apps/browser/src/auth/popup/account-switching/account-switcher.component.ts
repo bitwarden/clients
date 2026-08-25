@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { Observable, Subject, firstValueFrom, map, of, startWith, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -24,6 +24,7 @@ import {
   SectionHeaderComponent,
   TypographyModule,
 } from "@bitwarden/components";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
@@ -127,13 +128,13 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async lock(userId: string) {
     this.loading = true;
-    await this.lockService.lock(userId as UserId);
+    await this.lockService.lock(userId as UserId, LockSource.Manual);
     await this.router.navigate(["lock"]);
   }
 
   async lockAll() {
     this.loading = true;
-    await this.lockService.lockAll();
+    await this.lockService.lockAll(LockSource.Manual);
     await this.router.navigate(["lock"]);
   }
 

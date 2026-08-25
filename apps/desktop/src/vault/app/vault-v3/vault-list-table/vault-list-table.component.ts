@@ -6,7 +6,7 @@ import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstraction
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { CalloutComponent, LinkModule } from "@bitwarden/components";
+import { ButtonModule, CalloutComponent, LinkModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CipherRowMenuHandlers,
@@ -14,7 +14,6 @@ import {
   NewCipherMenuComponent,
   VaultBatchBarService,
   VaultItemsTableComponent,
-  VaultItemsTableFilters,
   VaultItemsTableRowAction,
 } from "@bitwarden/vault";
 
@@ -25,6 +24,7 @@ import { VaultItemEvent } from "../vault-items/vault-item-event";
   templateUrl: "./vault-list-table.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    ButtonModule,
     CalloutComponent,
     I18nPipe,
     LinkModule,
@@ -45,22 +45,18 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   readonly ciphers = input.required<C[]>();
   readonly folders = input<FolderView[]>([]);
   readonly collections = input<CollectionView[]>([]);
+  readonly allCollections = input<CollectionView[]>([]);
   readonly organizations = input<Organization[]>([]);
   readonly loading = input<boolean>(false);
   readonly showPremiumCallout = input<boolean>(false);
   readonly canCreateCipher = input<boolean>(true);
   readonly showAddCipherBtn = input<boolean>(true);
-  readonly initialSearchText = input<string | undefined>(undefined);
 
   readonly onEvent = output<VaultItemEvent<C>>();
   readonly onAddCipher = output<CipherType>();
   readonly onAddFolder = output<void>();
   readonly onAddItemDialog = output<void>();
-
-  protected readonly initialFilterValues = computed<Partial<VaultItemsTableFilters>>(() => {
-    const search = this.initialSearchText();
-    return search ? { search } : {};
-  });
+  readonly onImport = output<void>();
 
   private readonly cipherRowMenuHandlers = computed<CipherRowMenuHandlers<C>>(() => ({
     edit: (item) => this.onEvent.emit({ type: "editCipher", item }),
@@ -70,7 +66,7 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   }));
 
   protected readonly rowActions = computed<VaultItemsTableRowAction<C>[]>(() =>
-    this.cipherRowMenuService.getRowActions<C>(this.collections(), this.cipherRowMenuHandlers()),
+    this.cipherRowMenuService.getRowActions<C>(this.allCollections(), this.cipherRowMenuHandlers()),
   );
 
   protected readonly itemAction = (item: C): void =>

@@ -4,11 +4,10 @@ import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom, map, Observable, switchMap } from "rxjs";
 
+import { NoResults } from "@bitwarden/assets/svg";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationSponsorshipApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/organizations/organization-sponsorship-api.service.abstraction";
 import { OrganizationSponsorshipInvitesResponse } from "@bitwarden/common/billing/models/response/organization-sponsorship-invites.response";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -21,14 +20,17 @@ import {
   DialogService,
   IconButtonModule,
   MenuModule,
-  NoItemsModule,
+  StatusLockupComponent,
   TableModule,
   ToastService,
   TypographyModule,
   IconComponent,
   IconModule,
+  SvgComponent,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { Vfo1I18nPipe } from "@bitwarden/vault";
 
@@ -48,7 +50,8 @@ import { AddSponsorshipDialogComponent } from "./add-sponsorship-dialog.componen
     I18nPipe,
     IconButtonModule,
     MenuModule,
-    NoItemsModule,
+    StatusLockupComponent,
+    SvgComponent,
     TableModule,
     TypographyModule,
     IconComponent,
@@ -63,6 +66,8 @@ export class FreeBitwardenFamiliesComponent implements OnInit {
 
   organizationId = "";
   organizationKey$: Observable<OrgKey>;
+
+  readonly noResultsSvg = NoResults;
 
   private locale: string = "";
 
