@@ -312,6 +312,7 @@ function createMockClient(): MockProxy<PasswordManagerClient> {
   client.platform.mockReturnValue({
     state: jest.fn().mockReturnValue(mock()),
     load_flags: jest.fn().mockReturnValue(mock()),
+    fido2: jest.fn().mockReturnValue(mock()),
     free: mock(),
     [Symbol.dispose]: jest.fn(),
   });

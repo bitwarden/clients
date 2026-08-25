@@ -192,6 +192,8 @@ import { DefaultGovModeService } from "@bitwarden/common/platform/services/defau
 import { Fido2ActiveRequestManager } from "@bitwarden/common/platform/services/fido2/fido2-active-request-manager";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
+import { SdkFido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/sdk-fido2-authenticator.service";
+import { SdkFido2CredentialStore } from "@bitwarden/common/platform/services/fido2/sdk-fido2-credential-store";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -1451,11 +1453,23 @@ export default class MainBackground {
     );
 
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
-    this.fido2AuthenticatorService = new Fido2AuthenticatorService(
+    // Behind PM8313_Fido2OperationsToSdk. With the flag off every operation delegates to the
+    // TypeScript authenticator below.
+    this.fido2AuthenticatorService = new SdkFido2AuthenticatorService(
+      new Fido2AuthenticatorService(
+        this.cipherService,
+        this.fido2UserInterfaceService,
+        this.syncService,
+        this.accountService,
+        this.logService,
+      ),
+      new SdkFido2CredentialStore(this.cipherService, this.accountService, this.sdkService),
       this.cipherService,
       this.fido2UserInterfaceService,
       this.syncService,
       this.accountService,
+      this.sdkService,
+      this.configService,
       this.logService,
     );
     this.fido2ActiveRequestManager = new Fido2ActiveRequestManager();
