@@ -156,7 +156,10 @@ export const Default: Story = {
   decorators: [myAccess()],
 };
 
-/** Nothing outstanding — each of the three sections carries its own empty line. */
+/**
+ * Nothing outstanding. Pending and Currently checked out carry their own empty state; Extension
+ * requests renders nothing at all — it never shows once `extensionRows()` is empty.
+ */
 export const Empty: Story = {
   decorators: [myAccess({ content: empty })],
 };
