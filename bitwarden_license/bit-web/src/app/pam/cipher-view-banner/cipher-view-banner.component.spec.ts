@@ -445,49 +445,43 @@ describe("CipherViewBannerComponent", () => {
   });
 
   describe("the card container", () => {
-    // Each state is the same card in a different mood, so the tile's glyph is the only thing that
-    // distinguishes them structurally.
-    const cases: ReadonlyArray<[string, () => void, string, string]> = [
-      ["resting request-access", () => {}, "cipher-view-banner-request", "bwi-key"],
-      [
-        "pending request",
-        () =>
-          requestsApi.getCipherAccessState.mockResolvedValue(
-            accessState({ pendingRequest: requestView() }),
-          ),
-        "cipher-view-banner-pending",
-        "bwi-clock",
-      ],
-      [
-        "approved request",
-        () =>
-          requestsApi.getCipherAccessState.mockResolvedValue(
-            accessState({ approvedRequest: requestView() }),
-          ),
-        "cipher-view-banner-approved",
-        "bwi-check-circle",
-      ],
-      [
-        "active lease",
-        () =>
-          requestsApi.getCipherAccessState.mockResolvedValue(
-            accessState({ activeLease: leaseView() }),
-          ),
-        "cipher-view-banner-active",
-        "bwi-clock",
-      ],
+    const cases: ReadonlyArray<{
+      name: string;
+      state: Partial<CipherAccessStateView>;
+      testId: string;
+      glyph: string;
+    }> = [
+      { name: "resting request-access", state: {}, testId: "request", glyph: "bwi-key" },
+      {
+        name: "pending request",
+        state: { pendingRequest: requestView() },
+        testId: "pending",
+        glyph: "bwi-clock",
+      },
+      {
+        name: "approved request",
+        state: { approvedRequest: requestView() },
+        testId: "approved",
+        glyph: "bwi-check-circle",
+      },
+      {
+        name: "active lease",
+        state: { activeLease: leaseView() },
+        testId: "active",
+        glyph: "bwi-clock",
+      },
     ];
 
     it.each(cases)(
-      "renders %s as a card with an icon tile",
-      async (_name, arrange, testId, glyph) => {
-        arrange();
+      "renders $name as a card with an icon tile",
+      async ({ state, testId, glyph }) => {
+        requestsApi.getCipherAccessState.mockResolvedValue(accessState(state));
 
         await create(gatedCipher());
 
-        const card = query(`bit-card[data-testid="${testId}"]`);
+        const card = query(`bit-card[data-testid="cipher-view-banner-${testId}"]`);
         expect(card).not.toBeNull();
-        expect(card?.querySelector(`bit-icon.${glyph}`)).not.toBeNull();
+        expect(card?.querySelector(`bit-icon-tile i.${glyph}`)).not.toBeNull();
       },
     );
   });

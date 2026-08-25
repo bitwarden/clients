@@ -26,6 +26,7 @@ import {
   DialogService,
   FormFieldModule,
   IconModule,
+  IconTileComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -93,6 +94,7 @@ import {
     CardComponent,
     FormFieldModule,
     IconModule,
+    IconTileComponent,
     ReactiveFormsModule,
     TypographyModule,
     AccessStateBadgeComponent,
