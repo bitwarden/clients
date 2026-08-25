@@ -149,17 +149,13 @@ fn merge_packaged(
         let pid = app.pids.first().copied().unwrap_or(0);
         let exe_path = process_image_path(pid);
 
-        // Fall back to the exe file name when the packaged app has no display name, so `filename`
-        // (the last-resort label) is still meaningful.
-        let filename = app
-            .display_name
-            .clone()
-            .or_else(|| {
-                exe_path
-                    .as_deref()
-                    .and_then(|p| p.file_name())
-                    .map(|s| s.to_string_lossy().into_owned())
-            })
+        // `filename` holds strictly the executable file name (empty when unresolvable), matching
+        // its contract so the exe-name filter steps apply to Source B too. The friendly label
+        // rides on `display_name`; `RunningApp::name()` prefers it and falls back to `filename`.
+        let filename = exe_path
+            .as_deref()
+            .and_then(|p| p.file_name())
+            .map(|s| s.to_string_lossy().into_owned())
             .unwrap_or_default();
 
         by_key.insert(
