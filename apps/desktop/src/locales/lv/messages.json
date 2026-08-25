@@ -5177,13 +5177,13 @@
     "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
   },
   "passkeyLogin2": {
-    "message": "Log in with passkey"
+    "message": "Pieteikties ar piekļuves atslēgu"
   },
   "savePasskeyQuestion": {
     "message": "Saglabāt piekļuves atslēgu?"
   },
   "savePasskey": {
-    "message": "Save passkey"
+    "message": "Saglabāt piekļuves atslēgu"
   },
   "saveNewPasskey": {
     "message": "Saglabāt kā jaunu pieteikšanās vienumu"
@@ -5199,7 +5199,7 @@
     "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
   },
   "overwritePasskey2": {
-    "message": "Overwrite passkey"
+    "message": "Pārrakstīt piekļuves atslēgu"
   },
   "unableToSavePasskey": {
     "message": "Nevar saglabāt piekļuves atslēgu"
@@ -6322,7 +6322,7 @@
     }
   },
   "confirmPasskeyRegistrationMacOS": {
-    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "message": "izveidot jaunu $RPID$ ($USERNAME$) piekļuves atslēgu",
     "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6336,7 +6336,7 @@
     }
   },
   "confirmPasskeyOverwriteMacOS": {
-    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "message": "pārrakstīt $RPID$ ($USERNAME$) piekļuves atslēgu",
     "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6350,7 +6350,7 @@
     }
   },
   "confirmPasskeyAssertionMacOS": {
-    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "message": "pieteikties kā'$USERNAME$ ar $RPID$ piekļuves atslēgu",
     "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
     "placeholders": {
       "rpId": {
@@ -6364,7 +6364,7 @@
     }
   },
   "confirmPasskeyRegistrationWindows": {
-    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "message": "Apliecini sevi, lai izveidotu jaunu $RPID$ ($USERNAME$) piekļuves atslēgu!",
     "description": "Prompt in Windows Hello to register a new passkey.",
     "placeholders": {
       "rpId": {
@@ -6378,7 +6378,7 @@
     }
   },
   "confirmPasskeyOverwriteWindows": {
-    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "message": "Apliecini sevi, lai pārrakstītu $RPID$ ($USERNAME$) piekļuves atslēgu!",
     "description": "Prompt in Windows Hello to overwrite an existing passkey.",
     "placeholders": {
       "rpId": {
@@ -6392,7 +6392,7 @@
     }
   },
   "confirmPasskeyAssertionWindows": {
-    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "message": "Apliecini sevi, lai pieteiktos kā'$USERNAME$ ar $RPID$ piekļuves atslēgu!",
     "description": "Prompt in Windows Hello to use an existing passkey.",
     "placeholders": {
       "rpId": {
