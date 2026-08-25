@@ -1,5 +1,14 @@
 import { mock, MockProxy } from "jest-mock-extended";
-import { combineLatest, filter, first, firstValueFrom, of, ReplaySubject, takeWhile } from "rxjs";
+import {
+  combineLatest,
+  filter,
+  first,
+  firstValueFrom,
+  of,
+  ReplaySubject,
+  takeWhile,
+  throwError,
+} from "rxjs";
 
 import {
   CollectionView,
@@ -102,7 +111,7 @@ describe("DefaultCollectionService", () => {
       // Arrange dependencies
       await setEncryptedState([encryptedCollection1, encryptedCollection2]);
       cryptoKeys.next({});
-      collectionEncryptionService.decryptMany.mockResolvedValue([collection1, collection2]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([collection1, collection2]));
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
@@ -183,7 +192,7 @@ describe("DefaultCollectionService", () => {
       const decryptedView2 = collectionViewDataFactory(org2);
       decryptedView2.id = collection2.id as CollectionId;
 
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView1, decryptedView2]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView1, decryptedView2]));
 
       // Emit a non-null value after the first undefined value has propagated
       // This will cause the collections to emit, calling done()
@@ -205,7 +214,7 @@ describe("DefaultCollectionService", () => {
 
     it("Decrypts one time for multiple simultaneous callers", async () => {
       const decryptedMock: CollectionView[] = [{ id: "col1" }] as CollectionView[];
-      collectionEncryptionService.decryptMany.mockResolvedValue(decryptedMock);
+      collectionEncryptionService.decryptMany.mockReturnValue(of(decryptedMock));
 
       jest
         .spyOn(collectionService as any, "encryptedCollections$")
@@ -271,7 +280,7 @@ describe("DefaultCollectionService", () => {
       decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState([collection1]);
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView]));
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
@@ -285,7 +294,7 @@ describe("DefaultCollectionService", () => {
 
     it("handles empty collections via SDK path", async () => {
       await setEncryptedState([]);
-      collectionEncryptionService.decryptMany.mockResolvedValue([]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([]));
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
@@ -306,7 +315,7 @@ describe("DefaultCollectionService", () => {
 
       await setEncryptedState([collection1, collection2]);
       // Return in reverse alphabetical order to verify sorting
-      collectionEncryptionService.decryptMany.mockResolvedValue([view1, view2]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([view1, view2]));
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
@@ -320,7 +329,7 @@ describe("DefaultCollectionService", () => {
       const decryptedView = collectionViewDataFactory(org1);
       decryptedView.id = collection1.id as CollectionId;
 
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView]));
 
       void setEncryptedState([collection1]).then(() => {
         // Emit null to simulate locked state (org keys unavailable)
@@ -346,7 +355,7 @@ describe("DefaultCollectionService", () => {
       decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState([collection1]);
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView]));
 
       // Emit null first (locked), then real keys (unlocked)
       cryptoKeys.next(null);
@@ -363,7 +372,9 @@ describe("DefaultCollectionService", () => {
       const collection1 = collectionDataFactory(org1);
 
       await setEncryptedState([collection1]);
-      collectionEncryptionService.decryptMany.mockRejectedValue(new Error("SDK not available"));
+      collectionEncryptionService.decryptMany.mockReturnValue(
+        throwError(() => new Error("SDK not available")),
+      );
 
       const result = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
@@ -379,8 +390,8 @@ describe("DefaultCollectionService", () => {
       await setEncryptedState([collection1]);
       // Fail the first attempt (e.g. the SDK is not ready yet), then succeed.
       collectionEncryptionService.decryptMany
-        .mockRejectedValueOnce(new Error("SDK not available"))
-        .mockResolvedValue([decryptedView]);
+        .mockReturnValueOnce(throwError(() => new Error("SDK not available")))
+        .mockReturnValue(of([decryptedView]));
 
       // First subscription hits the transient failure. The empty fallback is not cached.
       const firstResult = await firstValueFrom(collectionService.decryptedCollections$(userId));
@@ -400,7 +411,7 @@ describe("DefaultCollectionService", () => {
       decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState([collection1]);
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView]));
 
       const emissions: CollectionView[][] = [];
       const sub = collectionService
@@ -431,7 +442,7 @@ describe("DefaultCollectionService", () => {
       decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState([collection1]);
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView]));
 
       await collectionService.upsert(collection1, userId);
 
@@ -455,7 +466,7 @@ describe("DefaultCollectionService", () => {
       const updatedView = collectionViewDataFactory(org1);
       updatedView.id = collection1.id as CollectionId;
       updatedView.name = "UPDATED_DEC_NAME_" + collection1.id;
-      collectionEncryptionService.decryptMany.mockResolvedValue([updatedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([updatedView]));
 
       await collectionService.upsert(updatedCollection1, userId);
 
@@ -478,7 +489,7 @@ describe("DefaultCollectionService", () => {
       decryptedView.id = collection1.id as CollectionId;
 
       await setEncryptedState(null);
-      collectionEncryptionService.decryptMany.mockResolvedValue([decryptedView]);
+      collectionEncryptionService.decryptMany.mockReturnValue(of([decryptedView]));
 
       await collectionService.upsert(collection1, userId);
 

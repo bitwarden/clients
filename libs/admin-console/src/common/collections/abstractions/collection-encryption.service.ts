@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { Collection } from "@bitwarden/common/admin-console/models/collections/collection";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections/collection.view";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -12,17 +14,20 @@ export abstract class CollectionEncryptionService {
    * @param collection The encrypted collection object
    * @param userId The user ID whose keys will be used for decryption
    *
-   * @returns A promise that resolves to the decrypted collection view
+   * @returns An observable that emits the decrypted collection view
    */
-  abstract decrypt(collection: Collection, userId: UserId): Promise<CollectionView>;
+  abstract decrypt(collection: Collection, userId: UserId): Observable<CollectionView>;
 
   /**
    * Decrypts many collections using the SDK for the given userId.
    *
+   * Collections that fail to decrypt are logged and dropped from the result rather than
+   * aborting the rest of the batch.
+   *
    * @param collections The encrypted collection objects
    * @param userId The user ID whose keys will be used for decryption
    *
-   * @returns A promise that resolves to an array of decrypted collection views
+   * @returns An observable that emits an array of decrypted collection views
    */
-  abstract decryptMany(collections: Collection[], userId: UserId): Promise<CollectionView[]>;
+  abstract decryptMany(collections: Collection[], userId: UserId): Observable<CollectionView[]>;
 }
