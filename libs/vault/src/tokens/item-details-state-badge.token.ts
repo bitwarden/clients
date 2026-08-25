@@ -17,7 +17,9 @@ import { SafeInjectionToken } from "@bitwarden/ui-common";
  * The token holds the component CLASS — `item-details-v2` renders it with `NgComponentOutlet`,
  * passing the `cipher` as a single input — so `libs/vault` needs no dependency on the feature
  * library that implements the badge. The card renders for EVERY vault item, so an implementation
- * must render nothing for an item it does not govern.
+ * must render nothing for an item it does not govern, and it owns its own spacing: the card wraps
+ * the outlet in no element of its own, so a badge-less item leaves no empty flex child, and no
+ * margin, on the name row.
  */
 export const ITEM_DETAILS_STATE_BADGE = new SafeInjectionToken<Type<unknown>>(
   "ItemDetailsStateBadge",
