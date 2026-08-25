@@ -1,4 +1,11 @@
-import { ComponentRef, signal, WritableSignal } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ComponentRef,
+  input,
+  signal,
+  WritableSignal,
+} from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { of } from "rxjs";
@@ -14,8 +21,18 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+import { ITEM_DETAILS_STATE_BADGE } from "../../tokens/item-details-state-badge.token";
 
 import { ItemDetailsV2Component } from "./item-details-v2.component";
+
+@Component({
+  selector: "app-stub-state-badge",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  template: `<span data-testid="stub-state-badge">{{ cipher()?.name }}</span>`,
+})
+class StubStateBadgeComponent {
+  readonly cipher = input<CipherView | null>(null);
+}
 
 describe("ItemDetailsV2Component", () => {
   let component: ItemDetailsV2Component;
@@ -183,5 +200,56 @@ describe("ItemDetailsV2Component", () => {
 
       expect(personalVaultChip).toBeUndefined();
     });
+  });
+});
+
+describe("ItemDetailsV2Component state badge seam", () => {
+  const cipher = { id: "cipher1", name: "cipher name", collectionIds: [] } as unknown as CipherView;
+
+  async function render(badge: typeof StubStateBadgeComponent | null) {
+    await TestBed.configureTestingModule({
+      imports: [ItemDetailsV2Component],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, p1?: string) => (p1 ? `${key} ${p1}` : key) },
+        },
+        { provide: ConfigService, useValue: { getFeatureFlag$: () => of(false) } },
+        {
+          provide: EnvironmentService,
+          useValue: { environment$: of({ getIconsUrl: () => "https://icons.example.com" }) },
+        },
+        { provide: DomainSettingsService, useValue: { showFavicons$: of(true) } },
+        { provide: Vfo1TerminologyService, useFactory: () => ({ enabled: signal(false) }) },
+        ...(badge == null ? [] : [{ provide: ITEM_DETAILS_STATE_BADGE, useValue: badge }]),
+      ],
+    }).compileComponents();
+
+    const fixture = TestBed.createComponent(ItemDetailsV2Component);
+    fixture.componentRef.setInput("cipher", cipher);
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it("renders no badge element at all when no host provides the token", async () => {
+    const fixture = await render(null);
+
+    expect(
+      fixture.debugElement.query(By.css('[data-testid="item-details-state-badge"]')),
+    ).toBeNull();
+  });
+
+  it("renders the provided badge on the name row, after the item name", async () => {
+    const fixture = await render(StubStateBadgeComponent);
+
+    const badge = fixture.debugElement.query(By.css('[data-testid="stub-state-badge"]'));
+    expect(badge).not.toBeNull();
+    expect(badge.nativeElement.textContent.trim()).toBe(cipher.name);
+
+    const nameRow = fixture.debugElement.query(By.css('[data-testid="item-name"]')).nativeElement
+      .parentElement;
+    expect(nameRow.querySelector('[data-testid="item-details-state-badge"]')).not.toBeNull();
   });
 });

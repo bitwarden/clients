@@ -31,8 +31,12 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   dialog, the privilege check, and the route guard.
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
   states off `cipher_access_state()`, with an inline request form.
-- `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
-  vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
+- `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
+  access-state pill, and the two hosts that render it: a vault row, and the open item's
+  name row. The hosts differ only in how they refresh — the item-details one re-reads on
+  `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
+  once so a list of gated rows does not carry a subscription each. Which badge to show is
+  NOT decided here: the SDK ranks
   the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
   only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
@@ -123,7 +127,8 @@ several subjects describing different moments.
 
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
-binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER` (both `libs/vault`),
+binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER`, `ITEM_DETAILS_STATE_BADGE`
+(all `libs/vault`),
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
 collection rows show the "Privileged" pill via the shared per-org
 `GovernedCollectionsService` lookup), `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
