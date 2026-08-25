@@ -6,7 +6,7 @@ import { I18nMockService } from "@bitwarden/components";
 import { HealthScanningComponent } from "./health-scanning.component";
 
 export default {
-  title: "Browser/DIRT/Health Scan Progress",
+  title: "Browser/DIRT/Health/Health Scan Progress",
   component: HealthScanningComponent,
   decorators: [
     moduleMetadata({

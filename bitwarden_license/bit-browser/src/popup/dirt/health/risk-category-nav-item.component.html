@@ -1,13 +1,34 @@
-<a bit-item-content [routerLink]="route()" [truncate]="false">
-  <bit-icon-tile
-    slot="start"
-    [icon]="tileIcon()"
-    [variant]="tileVariant()"
-    [ariaLabel]="isHealthy() ? ('categoryHealthy' | i18n) : undefined"
-  />
+@if (locked()) {
+  <div bit-item-content [truncate]="false">
+    <bit-icon-tile
+      slot="start"
+      [icon]="tileIcon()"
+      [variant]="tileVariant()"
+      [ariaLabel]="isHealthy() ? ('categoryHealthy' | i18n) : undefined"
+    />
 
-  {{ labelKey() | i18n: count() }}
-  <span slot="secondary">{{ activeDescriptionKey() | i18n }}</span>
+    {{ labelKey() | i18n: count() }}
+    <span slot="secondary">{{ activeDescriptionKey() | i18n }}</span>
 
-  <bit-icon slot="end" name="bwi-angle-right" class="tw-text-fg-body-subtle" />
-</a>
+    <bit-icon
+      slot="end"
+      name="bwi-lock"
+      [ariaLabel]="'premiumSubscriptionRequired' | i18n"
+      class="tw-text-fg-heading"
+    />
+  </div>
+} @else {
+  <a bit-item-content [routerLink]="route()" [truncate]="false">
+    <bit-icon-tile
+      slot="start"
+      [icon]="tileIcon()"
+      [variant]="tileVariant()"
+      [ariaLabel]="isHealthy() ? ('categoryHealthy' | i18n) : undefined"
+    />
+
+    {{ labelKey() | i18n: count() }}
+    <span slot="secondary">{{ activeDescriptionKey() | i18n }}</span>
+
+    <bit-icon slot="end" name="bwi-angle-right" class="tw-text-fg-body-subtle" />
+  </a>
+}
