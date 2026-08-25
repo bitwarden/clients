@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject, input, signal } from "@angular/core";
+import { Component, Type, computed, inject, input, signal } from "@angular/core";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 import { toSignal } from "@angular/core/rxjs-interop";
 import { fromEvent, map, startWith } from "rxjs";
@@ -25,6 +25,7 @@ import {
 import { OrgIconDirective } from "../../components/org-icon.directive";
 import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
 import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
+import { ITEM_DETAILS_STATE_BADGE } from "../../tokens/item-details-state-badge.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -45,6 +46,15 @@ import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service"
 export class ItemDetailsV2Component {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
   protected readonly vfo1Enabled = this.vfo1TerminologyService.enabled;
+
+  /**
+   * Optional host-provided badge rendered on the item name row. Only the web vault provides one
+   * today (privileged-access state); elsewhere this is null and nothing renders.
+   * See {@link ITEM_DETAILS_STATE_BADGE}.
+   */
+  protected readonly stateBadgeComponent: Type<unknown> | null = inject(ITEM_DETAILS_STATE_BADGE, {
+    optional: true,
+  });
 
   readonly hideOwner = input<boolean>(false);
   readonly cipher = input.required<CipherView>();
