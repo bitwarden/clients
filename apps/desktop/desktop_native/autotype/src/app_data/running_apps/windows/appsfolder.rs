@@ -7,6 +7,7 @@
 
 use std::ffi::c_void;
 
+use tracing::warn;
 use windows::{
     core::{Interface, GUID, PWSTR},
     Win32::{
@@ -39,7 +40,11 @@ const BHID_ENUM_ITEMS: GUID = GUID::from_u128(0x94f60519_2850_4924_aa5a_d15e8486
 /// COM initialized by caller
 pub(super) fn load() -> AppRegistry {
     let mut map = AppRegistry::new();
-    let _ = load_into(&mut map);
+    if let Err(e) = load_into(&mut map) {
+        // Non-fatal, but degrades everything downstream: with an empty registry no AUMID resolves,
+        // so apps look unregistered and windowless packaged apps (Teams, Copilot) get filtered.
+        warn!(?e, "Failed to enumerate AppsFolder; app identities will be unresolved");
+    }
     map
 }
 
