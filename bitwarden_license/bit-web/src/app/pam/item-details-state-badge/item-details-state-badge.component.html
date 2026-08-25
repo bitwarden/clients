@@ -1,1 +1,5 @@
-<app-pam-access-state-badge [state]="badge()" />
+@if (badge()) {
+  <div class="tw-ml-2 tw-mt-2" data-testid="item-details-state-badge">
+    <app-pam-access-state-badge [state]="badge()" />
+  </div>
+}
