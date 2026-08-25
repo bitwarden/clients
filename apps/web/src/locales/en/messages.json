@@ -16943,8 +16943,8 @@
   "pamAccessRuleDuration8h": {
     "message": "8 hours"
   },
-  "pamAccessRuleDuration24h": {
-    "message": "24 hours"
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
