@@ -51,13 +51,13 @@ export class AutomationBiometricsService implements OsBiometricService {
   }
 
   private resolveRequests(id: string | undefined, approved: boolean): void {
-    let matches: PendingRequest[];
-    if (id == null) {
-      matches = this.pendingRequests.splice(0, this.pendingRequests.length);
-    } else {
-      const index = this.pendingRequests.findIndex((r) => r.id === id);
-      matches = index === -1 ? [] : this.pendingRequests.splice(index, 1);
-    }
+  let matches: PendingRequest[];                                                                                                
+  if (id == null) {                                                                                                             
+    matches = this.pendingRequests.splice(0, this.pendingRequests.length);                                                      
+  } else {                                                                                                                      
+    const index = this.pendingRequests.findIndex((r) => r.id === id);                                                           
+    matches = index === -1 ? [] : this.pendingRequests.splice(index, 1);                                                        
+  } 
     for (const request of matches) {
       request.resolve(approved);
     }
