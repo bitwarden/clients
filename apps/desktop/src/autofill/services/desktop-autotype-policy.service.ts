@@ -44,13 +44,13 @@ export class DesktopAutotypeDefaultSettingPolicy {
             distinctUntilChanged(),
           );
 
-            const policy$ = this.policyService
-              .policyAppliesToUser$(PolicyType.AutotypeDefaultSetting, userId)
-              .pipe(
-                map((applies) => (applies ? true : null)),
-                distinctUntilChanged(),
-                shareReplay({ bufferSize: 1, refCount: true }),
-              );
+          const policy$ = this.policyService
+            .policyAppliesToUser$(PolicyType.AutotypeDefaultSetting, userId)
+            .pipe(
+              map((applies) => (applies ? true : null)),
+              distinctUntilChanged(),
+              shareReplay({ bufferSize: 1, refCount: true }),
+            );
 
           return isUnlocked$.pipe(switchMap((unlocked) => (unlocked ? policy$ : of(null))));
         }),
