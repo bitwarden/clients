@@ -36,8 +36,8 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   name row. The hosts differ only in how they refresh — the item-details one re-reads on
   `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
   once so a list of gated rows does not carry a subscription each. Which badge to show is
-  NOT decided here: the SDK ranks
-  the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
+  NOT decided here: the SDK ranks the three states into
+  `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
   only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
 - `collection-access-rule-callout/` — names the rules governing a collection, inside the
