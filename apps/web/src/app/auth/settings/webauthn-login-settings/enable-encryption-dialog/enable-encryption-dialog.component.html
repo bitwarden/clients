@@ -24,10 +24,10 @@
       <p bitTypography="body1">{{ "useForVaultEncryptionInfo" | i18n }}</p>
 
       <ng-container formGroupName="userVerification">
-        <app-user-verification
+        <app-user-verification-form-input
           formControlName="secret"
           [(invalidSecret)]="invalidSecret"
-        ></app-user-verification>
+        ></app-user-verification-form-input>
       </ng-container>
     </ng-container>
   </ng-container>
