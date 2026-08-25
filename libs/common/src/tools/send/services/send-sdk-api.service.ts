@@ -118,9 +118,12 @@ export class SendSdkApiService implements SendApiServiceAbstraction {
   /**
    * Saves a send from its plaintext view — the preferred entry point for this service.
    *
-   * Nothing is encrypted client-side: the view goes straight to the SDK, which generates the
-   * send key and encrypts under it. This is what {@link save} cannot do, since it receives a
-   * payload already encrypted under a key the SDK will never use.
+   * The plaintext view goes straight into the SDK, which generates the send key and encrypts
+   * under it inside its own WASM boundary — this TypeScript code never sees the key or the
+   * ciphertext-generation step. (The SDK still runs in-process like the legacy TS path does;
+   * "client-side" isn't what distinguishes the two — owning key generation is.) This is what
+   * {@link save} cannot do, since it receives a payload already encrypted under a key the SDK
+   * will never use.
    *
    * New file sends take the two-step {@link createFileSend} path instead of the single
    * `create`/`edit` call every other send uses; the result is the same plaintext view either way.

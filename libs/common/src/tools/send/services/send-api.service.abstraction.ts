@@ -29,6 +29,12 @@ export abstract class SendApiService {
   /**
    * Persists a send.
    *
+   * @deprecated Prefer {@link saveView}: this method requires the caller to pre-encrypt, which
+   *   the SDK path can't use (see {@link saveView}'s doc comment for why). The only remaining
+   *   caller, `AddEditComponent` in `libs/angular/src/tools/send`, does not appear to be routed
+   *   in any app — worth confirming before relying on that, but it suggests this can likely be
+   *   removed outright rather than just deprecated.
+   *
    * @param sendData The encrypted send and (for file sends) its encrypted file buffer.
    * @param plaintextPassword The plaintext password the caller collected for this save, when the
    *   user set or changed the password. `SendService.encrypt` consumes the plaintext to derive the
@@ -46,9 +52,12 @@ export abstract class SendApiService {
    * which the SDK path cannot use: the SDK generates the send key itself, so a client-encrypted
    * payload has to be decrypted straight back to plaintext (and a pre-encrypted file buffer is
    * unusable outright, since its key would never match the one the SDK generates). Handing over
-   * the plaintext view lets each implementation encrypt exactly once, where it can:
-   * - legacy encrypts client-side via `SendService.encrypt`, then posts the wire form.
-   * - the SDK path forwards the view to the SDK, which encrypts under its own generated key.
+   * the plaintext view lets each implementation encrypt exactly once, where it can. Both generate
+   * their own send key and encrypt in-process — "client-side" isn't what distinguishes them,
+   * owning key generation is:
+   * - legacy generates the key and encrypts in this TypeScript code, via `SendService.encrypt`.
+   * - the SDK path forwards the view into the SDK, which generates the key and encrypts inside
+   *   its own WASM boundary — this TypeScript code never sees the key or the ciphertext.
    *
    * @param view The plaintext send to persist. A `null` `id` creates; otherwise edits.
    * @param file The plaintext file bytes for a file send create, or `null`. Ignored on edit —

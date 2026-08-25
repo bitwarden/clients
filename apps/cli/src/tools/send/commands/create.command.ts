@@ -163,10 +163,12 @@ export class SendCreateCommand {
       }
 
       const sendView = SendResponse.toView(req);
-      // Hand over the plaintext view and let the API service encrypt: the legacy path encrypts
-      // client-side, while the SDK path encrypts under the send key it generates itself. The
-      // plaintext password rides along so the SDK path can derive the send password over that
-      // same key; the legacy path ignores it.
+      // Hand over the plaintext view and let the API service encrypt: both paths generate their
+      // own send key and encrypt in-process, but the legacy path does so in this TypeScript code
+      // (SendService.encrypt), while the SDK path does it inside the SDK's own WASM boundary,
+      // where this code never sees the key or the ciphertext-generation step. The plaintext
+      // password rides along so the SDK path can derive the send password over that same key;
+      // the legacy path ignores it.
       const savedSend = await this.sendApiService.saveView(sendView, fileBuffer, password);
       const newSend = await this.sendService.getFromState(savedSend.id);
       const activeUserId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
