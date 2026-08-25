@@ -1088,6 +1088,12 @@
   "addedFolder": {
     "message": "Qovluq əlavə edildi"
   },
+  "folderEdited": {
+    "message": "Qovluğa düzəliş edildi"
+  },
+  "enterAName": {
+    "message": "Bir ad daxil edin."
+  },
   "twoStepLoginConfirmation": {
     "message": "İki addımlı giriş, təhlükəsizlik açarı, kimlik doğrulayıcı tətbiq, SMS, telefon zəngi və ya e-poçt kimi digər cihazlarla girişinizi doğrulamanızı tələb edərək hesabınızı daha da güvənli edir. İki addımlı giriş, bitwarden.com veb seyfində qurula bilər. Veb saytı indi ziyarət etmək istəyirsiniz?"
   },
@@ -5133,6 +5139,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "$NAME$ təlimatlarına burada baxın:",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Kömək Mərkəzi"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Proses, Google Chrome-dan daxilə köçürmə prosesi ilə eynidir.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "KeePassX masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"CSV faylına köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importAviraInstructions": {
+    "message": "Avira veb seyfində \"Ayarlar\" → \"Verilərim\" → \"Veriləri xaricə köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importBlurInstructions": {
+    "message": "Blur veb seyfində ən üstdəki istifadəçi adınıza klikləyin və \"Ayarlar\" → \"Veriləri xaricə köçür\"ü seçin, sonra \"Hesablar\"ınız üçün \"CSV xaricə köçürmə\"yə klikləyin."
+  },
+  "importSafeincloudInstructions": {
+    "message": "SafeInCloud masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML olaraq\"ı seçin və XML faylını saxlayın."
+  },
+  "importPadlockInstructions": {
+    "message": "Padlock masaüstü tətbiqini istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\" → \"Xaricə köçür\" düyməsinə basın və faylı \"CSV olaraq\" saxlayın."
+  },
+  "importKeepass2Instructions": {
+    "message": "KeePass 2 masaüstü tətbiqini istifadə edərək, \"Fayl\" → \"Xaricə köçür\"ü seçin və \"KeePass XML (2.x)\" seçimini edin."
+  },
+  "importUpmInstructions": {
+    "message": "Universal Password Manager masaüstü tətbiqini istifadə edərək \"Veri bazası\" → \"Xaricə köçür\"ü seçin və CSV faylını saxlayın."
+  },
+  "importSaferpassInstructions": {
+    "message": "SaferPass brauzer uzantısını istifadə edərək, sol üst küncdəki 3 xətt ikonuna klikləyin və \"Ayarlar\"a gedin. CSV faylını saxlamaq üçün \"Hesabları xaricə köçür\" düyməsinə klikləyin."
+  },
+  "importMeldiumInstructions": {
+    "message": "Meldium veb seyfini istifadə edərək, \"Ayarlar\"a gedin. \"Veriləri xaricə köçür\" funksiyasını tapın və CSV faylını saxlamaq üçün \"Mənə verilərimi göstər\"ə klikləyin."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Password Dragon masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML olaraq\"ı seçin. Açılan pəncərədə \"Bütün sətirlər\"i seçin və bütün xanaları işarələyin. \"Xaricə köçür\" düyməsinə klikləyin və XML faylını saxlayın."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Enpass masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"CSV olaraq\"ı seçin. Xəbərdarlıq mesajı üçün \"Oldu\"nu seçin və CSV faylını saxlayın. Nəzərə alın ki, daxilə köçürmə, yalnız Enpass ingiliscə olaraq ayarlandığı zaman xaricə köçürülən faylları dəstəkləyir, ona görə də ayarlarınızı buna uyğun qurun."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "EnPass 6 masaüstü tətbiqini istifadə edərək menyu düyməsinə klikləyin və \"Fayl\" → \"Xaricə köçür\"ü seçin. \".json\" fayl formatını seçin və JSON faylını saxlayın."
+  },
+  "importPwsafeInstructions": {
+    "message": "Password Safe masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"XML formatı...\"nı seçin və XML faylını saxlayın."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Dashlane-ə giriş edin, \"Hesabım\" → \"Ayarlar\" → \"Faylı xaricə köçür\"ə klikləyin və \"CSV faylı kimi xaricə köçür\"ü seçin. Bu proseslə müxtəlif CSV fayllarını ehtiva edən bir zip arxivi endiriləcək. Arxivi açın və hər bir CSV faylını ayrıca daxilə köçürün."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane artıq JSON formatını dəstəkləmir. Bunu yalnız daxilə köçürüləcək JSON faylı mövcud olduğu zaman istifadə edin. Yeni xaricə köçürmələr yaradarkən CSV daxilə köçürücünü istifadə edin."
+  },
+  "importMsecureInstructions": {
+    "message": "nSecure masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Xaricə köçür\" → \"CSV faylı...\"nı seçin və CSV faylını saxlayın."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Sticky Password masaüstü tətbiqini istifadə edərək, \"Menyu\" (üst sağda) → \"Xaricə köçür\" → \"Hamısını xaricə köçür\"ü seçin. Şifrələnməmiş XML formatını seçin və XML faylını saxlayın."
+  },
+  "importTruekeyInstructions": {
+    "message": "True Key masaüstü tətbiqini istifadə edərək, sağ üstdəki dişli çarx ikonuna klikləyin və \"Tətbiq ayarları\"na gedin. \"Xaricə köçür\" düyməsinə klikləyin, parolunuzu daxil edin və CSV faylını saxlayın."
+  },
+  "importClipperzInstructions": {
+    "message": "Clipperz veb tətbiqinə (clipperz.is/app) giriş edin. Naviqasiya çubuğunu genişləndirmək üçün sağ üst küncdəki 3 xətt menyu ikonuna klikləyin. \"Verilər\" → \"Xaricə köçür\"ü seçin. HTML faylını saxlamaq üçün \"HTML+JSON endir\" düyməsinə klikləyin."
+  },
+  "importRoboformInstructions": {
+    "message": "RoboForm Editor masaüstü tətbiqini istifadə etmək üçün sol üstdəki \"RoboForm\" → \"Seçimlər\" → \"Hesab və verilər\"ə gedin və \"Xaricə köçür\" düyməsinə klikləyin. Verilərinizin hamısını seçin, \"Format\"ı \"CSV faylı\" kimi dəyişdirin və sonra CSV faylını saxlamaq üçün \"Xaricə köçür\" düyməsinə klikləyin. Qeyd: RoboForm, yalnız giriş etmə məlumatlarını xaricə köçürməyinizə icazə verir. Digər elementlər xaricə köçürülməyəcək."
+  },
+  "importPassboltInstructions": {
+    "message": "Passbolt veb seyfində giriş edin və \"Parollar\" bölməsinə gedin. Xaricə köçürmək istədiyiniz bütün parolları seçin və ən üstdəki \"Xaricə köçür\" düyməsinə klikləyin. \"csv (lastpass)\" xaricə köçürmə formatını seçin və \"Xaricə köçür\" düyməsinə klikləyin."
+  },
+  "importAscendoInstructions": {
+    "message": "Ascendo DataVault masaüstü tətbiqini istifadə edərək, \"Alətlər\" → \"Xaricə köçür\"ə gedin. Açılan pəncərədə \"Bütün elementlər (DVX, CSV)\" seçimini edin. CSV faylını saxlamaq üçün \"Oldu\" düyməsinə klikləyin."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Password Boss masaüstü tətbiqini istifadə edərək \"Fayl\" → \"Veriləri xaricə köçür\" → \"Password Boss JSON - şifrələnməmiş\"i seçin və JSON faylını saxlayın."
+  },
+  "importZohoInstructions": {
+    "message": "Zoho veb seyfində (vault.zoho.com) giriş edin. \"Alətlər\" → \"Sirrləri xaricə köçür\"ü seçin. \"Bütün sirrlər\"i seçin və \"Zoho Seyf Formatı CSV\" düyməsinə klikləyin. Mətn sahəsindəki veriləri seçib kopyalayın. Notepad kimi mətn redaktoru açın və veriləri yapışdırın. Həmin verilər olan faylı mətn redaktorunda bu formatda saxlayın",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "Using the SplashID Safe desktop application, click on the SplashID blue lock logo in the top right corner. Navigate to \"Export\" → \"Export as CSV\" and save the CSV file."
+  },
+  "importPasskeepInstructions": {
+    "message": "Using the PassKeep mobile app, navigate to \"Backup/Restore\". Locate the \"CSV Backup/Restore\" section and click \"Backup to CSV\" to save the CSV file."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Make sure you have python-keyring and python-gnomekeyring installed. Save the",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring Import/Export"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python script to your desktop as",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Open terminal and run",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "and then",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Then upload the resulting",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "file here to Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Using the Password Agent desktop application navigate to \"File\" → \"Export\", select the \"Fields to export\" button and check all of the fields, change the \"Output format\" to \"CSV\", and then click the \"Start\" button to save the CSV file."
+  },
+  "importPasspackInstructions": {
+    "message": "Log into the Passpack website vault and navigate to \"Settings\" → \"Export\", then click the \"Download\" button to save the CSV file."
+  },
+  "importPassmanInstructions": {
+    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to CSV file\" option to save the CSV file."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Open the Avast Passwords desktop application and navigate to \"Settings\" → \"Import/export data\". Select the \"Export\" button for the \"Export to JSON file\" option to save the JSON file."
+  },
+  "importFsecureInstructions": {
+    "message": "Open the F-Secure KEY desktop application and navigate to \"Settings\" → \"Export Passwords\". Select the \"Export\" button, enter your master password, and save the FSK file."
+  },
+  "importKasperskyInstructions": {
+    "message": "Open the Kaspersky Password Manager desktop application and navigate to \"Settings\" → \"Import/Export\". Locate the \"Export to text file\" section and select the \"Export\" button to save the TXT file."
+  },
+  "importRemembearInstructions": {
+    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+  },
+  "importMykiInstructions": {
+    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Export your SecureSafe password safe to a CSV file with a comma delimiter."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Open the LogMeOnce browser extension, then navigate to \"Open Menu\" → \"Export To\" and select \"CSV File\" to save the CSV file."
+  },
+  "importBlackberryInstructions": {
+    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+  },
+  "importButtercupInstructions": {
+    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+  },
+  "importCodebookInstructions": {
+    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+  },
+  "importYotiInstructions": {
+    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+  },
+  "importProtonpassInstructions": {
+    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “XML” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the XML file."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Log in to Delinea, search for “Import/Export” -> select “Export” -> Select “CSV” as Export format -> Select “QuantumLock” as Authenticator type -> enter your password and select “Export” to save the CSV file."
+  },
   "confirmVaultImport": {
     "message": "Seyfi daxilə köçürməyi təsdiqlə"
   },
@@ -5303,10 +5510,6 @@
   },
   "awaitingSSODesc": {
     "message": "Lütfən şirkət kimlik məlumatlarınızı istifadə edərək giriş etməyə davam edin."
-  },
-  "seeDetailedInstructions": {
-    "message": "Kömək saytımızda detallı təlimatlara baxın",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {
     "message": "Birbaşa \"LastPass\"dan daxilə köçür"
@@ -7709,17 +7912,17 @@
     "message": "Bu girişlərdəki parollar təkrar istifadə olunub. Kiminsə sadəcə bir parol istifadə edərək birdən çox hesaba erişməsini önləmək üçün hər hesaba unikal bir parol təyin edin."
   },
   "deleteAtRiskItemDescription": {
-    "message": "Deleting this login removes it from your vault but doesn't fix the risk. To protect your account, change your password first."
+    "message": "Bu girişi silsəniz, sadəcə seyfinizdən xaric olunacaq, ancaq risk həll olunmayacaq. Hesabınızı qorumaq üçün əvvəlcə parolunuzu dəyişdirməlisiniz."
   },
   "passwordHasAdditionalRisks": {
-    "message": "This password has additional risks:"
+    "message": "Bu parol üçün əlavə risklər var:"
   },
   "reused": {
-    "message": "Reused",
+    "message": "Təkrar ist. olunub",
     "description": "ex. A password that is reused across multiple logins."
   },
   "xTimes": {
-    "message": "$COUNT$ times",
+    "message": "$COUNT$ dəfə",
     "description": "The number of times a password is reused. ex. 6 times",
     "placeholders": {
       "count": {

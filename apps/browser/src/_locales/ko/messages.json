@@ -521,7 +521,7 @@
     "message": "공유 폴더 없음"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "$NAME$ 필터",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -533,7 +533,7 @@
     "message": "항목을 즐겨찾기에 추가하면 여기에 분류됩니다."
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "항목을 필터링 하려면 여기에 폴더를 추가하세요."
   },
   "editItemWithName": {
     "message": "항목 편집 - $NAME$",
@@ -785,7 +785,7 @@
     "message": "문제가 발생했나요?"
   },
   "downloadDiagnosticReportWith": {
-    "message": "Download then share the diagnostic report with"
+    "message": "진단 보고서를 다운로드한 후 공유하세요"
   },
   "bitwardenSupport": {
     "message": "Bitwarden 지원",
@@ -1088,6 +1088,12 @@
   "addedFolder": {
     "message": "폴더 추가함"
   },
+  "folderEdited": {
+    "message": "폴더 편집"
+  },
+  "enterAName": {
+    "message": "이름을 입력하세요."
+  },
   "twoStepLoginConfirmation": {
     "message": "2단계 인증은 보안 키, 인증 앱, SMS, 전화 통화 등의 다른 기기로 사용자의 로그인 시도를 검증하여 사용자의 계정을 더욱 안전하게 만듭니다. 2단계 인증은 bitwarden.com 웹 보관함에서 활성화할 수 있습니다. 지금 웹 사이트를 방문하시겠습니까?"
   },
@@ -1242,7 +1248,7 @@
     "message": "클립보드 설정 업데이트됨"
   },
   "clipboardSettingUpdatedMessage": {
-    "message": "Your clipboard timeout is set to the default, which has been updated to 5 minutes for added security."
+    "message": "보안을 위해 클립보드 시간 제한 기본값을 5분으로 업데이트했습니다."
   },
   "jumpToSetting": {
     "message": "설정으로 이동"
@@ -1660,7 +1666,7 @@
     "message": "기능 사용할 수 없음"
   },
   "legacyEncryptionUnsupported": {
-    "message": "Legacy encryption is no longer supported. Please contact support to recover your account."
+    "message": "구식 암호화는 더 이상 지원하지 않습니다. 계정을 복구하려면 지원 서비스에 문의해 주세요."
   },
   "premiumMembership": {
     "message": "프리미엄 멤버십"
@@ -1966,7 +1972,7 @@
     "message": "양식 필드에 자동 완성 제안 표시"
   },
   "howDoesBitwardenProtectFromPhishing": {
-    "message": "How does Bitwarden protect your data from phishing?"
+    "message": "Bitwarden은 피싱으로부터 데이터를 어떻게 보호하나요?"
   },
   "currentWebsite": {
     "message": "현재 웹사이트"
@@ -2903,7 +2909,7 @@
     "message": "정말 계정의 암호화 키를 회전하시겠습니까?"
   },
   "updateEncryptionKeyWarning": {
-    "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
+    "message": "암호화 키를 업데이트하고난 후 현재 사용 중인 모든 Bitwarden 애플리케이션(예. 모바일 앱 혹은 브라우저 확장 기능)에서 로그아웃 후 다시 로그인해야 합니다. 재로그인하지 않으면 (새 암호화 키를 다운로드받는 경우) 데이터 손실이 발생할 수 있습니다. 자동으로 로그아웃을 시도하지만 지연될 수 있습니다."
   },
   "updateEncryptionKeyAccountExportWarning": {
     "message": "Any account restricted exports you have saved will become invalid."
@@ -2915,7 +2921,7 @@
     "message": "암호화 키 회전 시 영향"
   },
   "changePasswordDelegationMasterPasswordPolicyInEffect": {
-    "message": "One or more organization policies require the master password to meet the following requirements:"
+    "message": "하나 이상의 단체 정책이 마스터 비밀번호가 다음 사항을 따르도록 요구합니다:"
   },
   "pin": {
     "message": "PIN",
@@ -2934,7 +2940,7 @@
     "message": "Bitwarden 잠금해제에 사용될 PIN 코드를 설정합니다. 이 애플리케이션에서 완전히 로그아웃할 경우 PIN 설정이 초기화됩니다."
   },
   "setPinCode": {
-    "message": "You can use this PIN to unlock Bitwarden. Your PIN will be reset if you ever fully log out of the application."
+    "message": "이 PIN을 사용해 Bitwarden의 잠금을 해제할 수 있습니다. 이 애플리케이션에서 완전히 로그아웃할 경우 PIN이 초기화됩니다."
   },
   "pinRequired": {
     "message": "PIN 코드가 필요합니다."
@@ -3136,7 +3142,7 @@
     "message": "새 마스터 비밀번호가 정책 요구 사항을 따르지 않습니다."
   },
   "receiveMarketingEmails": {
-    "message": "Receive updates from Bitwarden in your inbox."
+    "message": "받은 편지함에서 Bitwarden의 최신 소식을 받아 보세요."
   },
   "unsubscribe": {
     "message": "구독 취소"
@@ -3163,7 +3169,7 @@
     "message": "개인 정보 보호 정책"
   },
   "yourNewPasswordCannotBeTheSameAsYourCurrentPassword": {
-    "message": "Your new password cannot be the same as your current password."
+    "message": "새 비밀번호는 현재 비밀번호와 같을 수 없습니다."
   },
   "hintEqualsPassword": {
     "message": "비밀번호 힌트는 비밀번호와 같을 수 없습니다."
@@ -3293,7 +3299,7 @@
     "message": "Bitwarden은 이 도메인들에 대해 로그인 정보를 저장할 것인지 묻지 않습니다. 페이지를 새로고침해야 변경된 내용이 적용됩니다."
   },
   "blockedDomainsDesc": {
-    "message": "Autofill and other related features will not be offered for these websites. You must refresh the page for changes to take effect."
+    "message": "해당 웹사이트에서는 자동 채우기나 관련 기타 기능들을 사용하지 않습니다. 페이지를 새로고침해야 변경된 내용이 적용됩니다."
   },
   "autofillBlockedNoticeV2": {
     "message": "이 웹사이트에서 자동 완성이 차단되었습니다."
@@ -3425,7 +3431,7 @@
     "message": "Bitwarden 보관함 페이지 레이아웃에 대한 삽화."
   },
   "generatePasswordSlideDesc": {
-    "message": "Quickly generate a strong, unique password with the Bitwarden autofill menu on the at-risk site.",
+    "message": "위험한 사이트에서 Bitwarden 자동 채우기 메뉴로 강력하고 고유한 비밀번호를 빠르게 생성합니다.",
     "description": "Description of the generate password slide on the at-risk password page carousel"
   },
   "generatePasswordSlideImgAltPeriod": {
@@ -3435,7 +3441,7 @@
     "message": "Bitwarden에서 업데이트"
   },
   "updateInBitwardenSlideDesc": {
-    "message": "Bitwarden will then prompt you to update the password in the password manager.",
+    "message": "그 후 Bitwarden에서 비밀번호 관리자의 비밀번호를 업데이트할지 물어볼 것입니다.",
     "description": "Description of the update in Bitwarden slide on the at-risk password page carousel"
   },
   "updateInBitwardenSlideImgAltPeriod": {
@@ -4284,7 +4290,7 @@
     "message": "요청 전송됨"
   },
   "loginRequestApprovedForEmailOnDevice": {
-    "message": "Login request approved for $EMAIL$ on $DEVICE$",
+    "message": "$DEVICE$에서 $EMAIL$ 로그인 요청이 승인되었습니다",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -4297,7 +4303,7 @@
     }
   },
   "youDeniedLoginAttemptFromAnotherDevice": {
-    "message": "You denied a login attempt from another device. If this was you, try to log in with the device again."
+    "message": "다른 기기에서 로그인 시도를 거부했습니다. 본인이시라면, 기기로 로그인을 다시 시도하세요."
   },
   "device": {
     "message": "기기"
@@ -4529,7 +4535,7 @@
     "message": "로그인 완료 불가"
   },
   "loginOnTrustedDeviceOrAskAdminToAssignPassword": {
-    "message": "You need to log in on a trusted device or ask your administrator to assign you a password."
+    "message": "신뢰할 수 있는 기기에서 로그인하거나 관리자에게 비밀번호를 할당하도록 요청해야 합니다."
   },
   "ssoIdentifierRequired": {
     "message": "조직의 SSO 식별자가 필요합니다"
@@ -4605,13 +4611,13 @@
     "message": "조직을 신뢰하지 않습니다"
   },
   "emergencyAccessTrustWarning": {
-    "message": "For the security of your account, only confirm if you have granted emergency access to this user and their fingerprint matches what is displayed in their account"
+    "message": "계정의 보안을 위해, 해당 사용자에게 긴급 접근 권한을 주었으며 지문 구절이 해당 사용자의 계정에 표시되는 것과 일치하는 경우에만 확인하세요"
   },
   "orgTrustWarning": {
-    "message": "For the security of your account, only proceed if you are a member of this organization, have account recovery enabled, and the fingerprint displayed below matches the organization's fingerprint."
+    "message": "계정의 보안을 위해, 본인이 해당 조직의 구성원이며, 계정 복구 설정이 켜져 있으며, 아래의 지문 구절이 조직의 지문과 일치하는 경우에만 진행하세요."
   },
   "orgTrustWarning1": {
-    "message": "This organization has an Enterprise policy that will enroll you in account recovery. Enrollment will allow organization administrators to change your password. Only proceed if you recognize this organization and the fingerprint phrase displayed below matches the organization's fingerprint."
+    "message": "이 조직에는 계정 복구 설정에 등록하는 기업 정책이 있습니다. 등록하면 조직 관리자가 비밀번호를 변경할 수 있습니다. 이 조직을 알고 있으며 아래에 표시된 지문 구절이 조직의 지문과 일치하는 경우에만 진행하세요."
   },
   "trustUser": {
     "message": "신뢰하는 사용자"
@@ -4682,7 +4688,7 @@
     "message": "하나 이상의 이메일이 유효하지 않습니다."
   },
   "sendEmailsCharacterLimitReached": {
-    "message": "Email recipient list cannot exceed 2,500 characters. Remove one or more recipients to continue."
+    "message": "이메일 수신인 목록은 2500자를 초과할 수 없습니다. 계속하려면 하나 이상의 수신인을 지우세요."
   },
   "inputTrimValidator": {
     "message": "입력에는 공백만 포함해서는 안 됩니다.",
@@ -4958,7 +4964,7 @@
     }
   },
   "importPartialErrorDescription": {
-    "message": "The following items could not be read and will not be included in your import:"
+    "message": "다음 항목들을 읽을 수 없으며 가져오기에 포함되지 않습니다:"
   },
   "importSkipReasonSshKeyParse": {
     "message": "이 SSH 키는 가져올 수 없음"
@@ -5133,6 +5139,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "$NAME$ 지침을 확인하세요:",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "도움말 센터"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "절차는 Google Chrome에서 가져올 때와 완전히 동일합니다.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "KeePassX 데스크톱 애플리케이션에서, \"데이터베이스\" → \"CSV 파일로 내보내기\"로 이동하여 CSV 파일로 저장하세요."
+  },
+  "importAviraInstructions": {
+    "message": "Avira 웹 보관함에서, \"설정\" → \"내 데이터\" → \"데이터 내보내기\"로 이동하여 CSV 파일로 저장하세요."
+  },
+  "importBlurInstructions": {
+    "message": "Blur 웹 보관함에서, 상단의 사용자 이름을 누르고 \"설정\" → \"데이터 내보내기\"로 이동한 뒤, 자신의 \"계정\"에 대해 \"CSV 내보내기\"를 누르세요."
+  },
+  "importSafeincloudInstructions": {
+    "message": "SafeInCloud 데스크톱 애플리케이션에서, \"파일\" → \"내보내기\" → \"XML로\"로 이동하여 XML 파일로 저장하세요."
+  },
+  "importPadlockInstructions": {
+    "message": "Padlock 데스크톱 애플리케이션에서, 좌상단 구석의 메뉴 아이콘을 누르고 \"설정\" → \"내보내기\" 버튼으로 이동하여 \"XML로\" 파일을 저장하세요."
+  },
+  "importKeepass2Instructions": {
+    "message": "KeePass 2 데스크톱 애플리케이션에서, \"파일\" → \"내보내기\"로 이동하여 \"KeePass XML (2.x)\"를 선택하세요."
+  },
+  "importUpmInstructions": {
+    "message": "Universal Password Manager 데스크톱 애플리케이션에서, \"데이터베이스\" → \"내보내기\"로 이동하여 CSV 파일로 저장하세요."
+  },
+  "importSaferpassInstructions": {
+    "message": "SaferPass 브라우저 확장에서, 좌상단 구석의 메뉴 아이콘을 누르고 \"설정\"으로 이동하세요. \"계정 내보내기\" 버튼을 눌러 CSV 파일로 저장하세요."
+  },
+  "importMeldiumInstructions": {
+    "message": "Meldium 웹 보관함에서, 설정으로 이동하세요. \"데이터 내보내기\" 기능으로 이동하여 \"내 데이터 보기\"를 눌러 CSV 파일로 저장하세요."
+  },
+  "importPassworddragonInstructions": {
+    "message": "Password Dragon 데스크톱 애플리케이션에서, \"파일\" → \"내보내기\" → \"XML로\"로 이동하세요. 대화 상자가 나타나면 \"모든 행\"을 선택하고 모든 칸에 체크하세요. \"내보내기\" 버튼을 눌러 XML 파일로 저장하세요."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "Enpass 데스크톱 애플리케이션에서, \"파일\" → \"내보내기\" → \"CSV로\"로 이동하세요. 경고가 나타나면 \"확인\"을 누르고 CSV 파일로 저장하세요. Enpass를 영어로 설정했을 때 내보낸 파일만 가져오기를 지원하므로, 설정을 올바르게 조정하세요."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "Enpass 6 데스크톱 애플리케이션에서, 메뉴 버튼을 누르고 \"파일\" → \"내보내기\"로 이동하세요. \".json\" 파일 형식을 선택하고 JSON 파일로 저장하세요."
+  },
+  "importPwsafeInstructions": {
+    "message": "Password Safe 데스크톱 애플리케이션에서, \"파일\" → \"내보내기\" → \"XML 형식...\"으로 이동하여 XML 파일로 저장하세요."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Dashlane으로 로그인한 뒤, \"내 계정\" → \"설정 → \"파일 내보내기\"를 누르고 \"CSV 파일로 내보내기\"를 선택하세요. 여러 CSV 파일이 담긴 ZIP 압축 파일이 다운로드될 것입니다. 파일의 압축을 해제하고 CSV 파일을 각각 가져오세요."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane은 더 이상 JSON 형식을 지원하지 않습니다. 가져올 JSON 파일이 이미 있는 경우에만 이용하세요. 새 내보내기를 생성하려 한다면 CSV 가져오기를 이용하세요."
+  },
+  "importMsecureInstructions": {
+    "message": "mSecure 데스크톱 애플리케이션에서, \"파일\" → \"내보내기\" → \"CSV 파일...\"로 이동하여 CSV 파일로 저장하세요."
+  },
+  "importStickypasswordInstructions": {
+    "message": "Sticky Password 데스크톱 애플리케이션에서, \"메뉴\" (우상단) → \"내보내기\" → \"모두 내보내기\"로 이동하세요. 암호화되지 않은 XML 형식을 선택하고 XML 파일로 저장하세요."
+  },
+  "importTruekeyInstructions": {
+    "message": "True Key 데스크톱 애플리케이션에서, (우상단) 톱니바퀴 아이콘을 누르고 \"앱 설정\"으로 이동하세요. \"내보내기\" 버튼을 누르고, 비밀번호를 입력하여 CSV 파일로 저장하세요."
+  },
+  "importClipperzInstructions": {
+    "message": "Clipperz 웹 애플리케이션(clipperz.is/app)에 로그인하세요. 우상단의 메뉴 아이콘을 눌러 탐색 바를 확장하세요. \"데이터\" → \"내보내기\"로 이동하세요. \"HTML+JSON 다운로드\" 버튼을 눌러 HTML 파일로 저장하세요."
+  },
+  "importRoboformInstructions": {
+    "message": "RoboForm Editor 데스크톱 앱에서, \"RoboForm\" (좌상단) → \"설정\" → \"계정 및 데이터\"로 이동하고 \"내보내기\" 버튼을 누르세요. 데이터를 모두 선택하고, \"형식\"을 \"CSV 파일\"로 변경하고 \"내보내기\" 버튼을 눌러 CSV 파일로 저장하세요. 참고: RoboForm은 로그인 정보만 내보내기를 지원합니다. 다른 항목들은 내보내지지 않을 것입니다."
+  },
+  "importPassboltInstructions": {
+    "message": "Passbolt 웹 보관함으로 로그인하고 \"비밀번호\" 목록으로 이동하세요. 내보낼 비밀번호를 모두 선택하고 목록 상단의 \"내보내기\" 버튼을 누르세요. \"csv (lastpass)\" 내보내기 형식을 선택하고 \"내보내기\" 버튼을 누르세요."
+  },
+  "importAscendoInstructions": {
+    "message": "Ascendo DataVault 데스크톱 애플리케이션에서, \"도구\" → \"내보내기\"로 이동하세요. 대화 상자가 나타나면 \"모든 항목 (DVX, CSV)\"을 선택하세요. \"확인\" 버튼을 눌러 CSV 파일로 저장하세요."
+  },
+  "importPasswordbossInstructions": {
+    "message": "Password Boss 데스크톱 애플리케이션에서, \"파일\" → \"데이터 내보내기\" → \"Password Boss JSON - 암호화되지 않음\"으로 이동하여 JSON 파일로 저장하세요."
+  },
+  "importZohoInstructions": {
+    "message": "Zoho 웹 보관함(vault.zoho.com)에 로그인하세요. \"도구 → \"비밀 내보내기\"로 이동하세요. \"모든 비밀\"을 선택하고 \"Zoho 보관함 형식 CSV\" 버튼을 누르세요. 텍스트 영역에서 데이터를 선택하고 복사하세요. 메모장 등 텍스트 편집기를 열어 데이터를 붙여 넣으세요. 텍스트 편집기의 데이터를 이렇게 저장하세요:",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "SplashID Safe 데스크톱 애플리케이션에서, 우상단 구석의 SplashID 푸른 바위 아이콘을 누르세요. \"내보내기\" → \"CSV로 내보내기\"로 이동하여 CSV 파일로 저장하세요."
+  },
+  "importPasskeepInstructions": {
+    "message": "PassKeep 모바일 앱에서, \"백업/복원\"으로 이동하세요. \"CSV 백업/복원\" 영역으로 이동해 \"CSV로 백업\"을 눌러 CSV 파일로 저장하세요."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "python-keyring 및 python-gnomekeyring이 설치되었는지 확인하세요.",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "GNOME Keyring 가져오기/내보내기"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "python 스크립트를 데스크톱에",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": "라는 이름으로 저장하세요. 터미널을 열고",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "명령과",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": "명령을 실행하세요. 그리고 결과로 나온",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "파일을 Bitwarden으로 업로드하세요.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "Password Agent 데스크톱 애플리케이션에서 \"파일\" → \"내보내기\"로 이동하고, \"내보낼 필드\" 버튼을 누른 뒤 모든 필드를 선택하고, \"출력 형식\"을 \"CSV\"로 바꾼 뒤, \"시작\" 버튼을 눌러 CSV 파일로 저장하세요."
+  },
+  "importPasspackInstructions": {
+    "message": "Passpack 웹사이트 보관함에 로그인하고 \"설정\" → \"내보내기\"로 이동한 뒤, \"다운로드\" 버튼을 눌러 CSV 파일로 저장하세요."
+  },
+  "importPassmanInstructions": {
+    "message": "Open your Passman vault and click on \"Settings\" in the bottom left corner. In the \"Settings\" window switch to the \"Export credentials\" tab and choose \"JSON\" as the export type. Enter your vault's passphrase and click the \"Export\" button to save the JSON file."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Avast Passwords 데스크톱 애플리케이션을 열고 \"설정\" → \"데이터 가져오기/내보내기\"로 이동하세요. \"내보내기\" 버튼에서 \"CSV 파일로 내보내기\"를 선택하여 CSV 파일로 저장하세요."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Avast Passwords 데스크톱 애플리케이션을 열고 \"설정\" → \"데이터 가져오기/내보내기\"로 이동하세요. \"내보내기\" 버튼에서 \"JSON 파일로 내보내기\"를 선택하여 JSON 파일로 저장하세요."
+  },
+  "importFsecureInstructions": {
+    "message": "F-Secure KEY 데스크톱 애플리케이션을 열고 \"설정\" → \"비밀번호 내보내기\"로 이동하세요. \"내보내기\" 버튼을 선택하고, 마스터 비밀번호를 입력하여, FSK 파일로 저장하세요."
+  },
+  "importKasperskyInstructions": {
+    "message": "Kaspersky Password Manager 데스크톱 애플리케이션을 열고 \"설정\" → \"가져오기/내보내기\"로 이동하세요. \"텍스트 파일로 내보내기\" 영역으로 이동하고 \"내보내기\" 버튼을 선택하여 TXT 파일로 저장하세요."
+  },
+  "importRemembearInstructions": {
+    "message": "Open the RememBear desktop application and navigate to \"Settings\" → \"Account\" → \"Export\". Enter your master password and select the \"Export Anyway\" button to save the CSV file."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Open the PasswordWallet desktop application and navigate to \"File\" → \"Export\" → \"Visible entries to text file\". Enter your password and select the \"Ok\" button to save the TXT file."
+  },
+  "importMykiInstructions": {
+    "message": "Open the Myki desktop browser extension and navigate to \"Advanced\" → \"Export Accounts\" and then scan the QR code with your mobile device. Various CSV files will then be saved to your computer's downloads folder."
+  },
+  "importSecuresafeInstructions": {
+    "message": "SecureSafe 비밀번호를 쉼표로 구분된 CSV 파일로 내보내세요."
+  },
+  "importLogmeonceInstructions": {
+    "message": "LogMeOnce 브라우저 확장을 열고, \"메뉴 열기\" → \"내보내기\"로 이동한 뒤 \"CSV 파일\"을 선택하여 CSV 파일로 저장하세요."
+  },
+  "importBlackberryInstructions": {
+    "message": "Open the BlackBerry Password Keeper application, then navigate to \"Settings\" → \"Import/Export\". Select \"Export Passwords\" and follow the instructions on screen to save the unencrypted CSV file."
+  },
+  "importButtercupInstructions": {
+    "message": "Open the Buttercup desktop application and unlock your vault. Right click on your vault's icon and select \"Export\" to save the CSV file."
+  },
+  "importCodebookInstructions": {
+    "message": "Open the Codebook desktop application and log in. Navigate to \"File\" → \"Export all\", then click \"Yes\" on the dialog and save the CSV file."
+  },
+  "importEncryptrInstructions": {
+    "message": "Open the newest version of the Encryptr desktop application and allow all of your data to sync. Once syncing of your data is complete, the download icon in the top right corner will turn pink. Click the download icon and save the CSV file."
+  },
+  "importYotiInstructions": {
+    "message": "From the Yoti browser extension, click on \"Settings\", then \"Export Saved Logins\" and save the CSV file."
+  },
+  "importPsonoInstructions": {
+    "message": "Log in to the Psono web vault, click on the \"Signed in as\"-dropdown, select \"Others\". Go to the \"Export\"-tab and select the json type export and then click on Export."
+  },
+  "importPasskyInstructions": {
+    "message": "Log in to \"https://vault.passky.org\" → \"Import & Export\" → \"Export\" in the Passky section. (\"Backup\" is unsupported as it is encrypted)."
+  },
+  "importProtonpassInstructions": {
+    "message": "In the ProtonPass browser extension, go to Settings > Export. Export without PGP encryption and save the zip file."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Select Database → Export to file... menu. → Within the export options, ensure Folder names and Column titles is checked. → Press Browse... button and choose the target file and set its type to CSV file."
+  },
+  "importNetwrixInstructions": {
+    "message": "Open the FullClient, go to the Main Menu and select Export. Start the export passwords wizard and follow the instructions to export a CSV file."
+  },
+  "importNordpassInstructions": {
+    "message": "Log in to NordPass and open Settings → Scroll down to the Import and Export section and select Export items → Enter your Master Password and select Continue. → Save the CSV file on your device."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "On the desktop application, go to Tools → Export → Enter your master password → Select XML Format (*.xml) as Export format → Click on next → Choose which entries should be included in the export → Click on next to export into the location previously chosen."
+  },
+  "importDelineaInstructions": {
+    "message": "Delinea에 로그인하고, “가져오기/내보내기” 검색 -> “내보내기” 선택 -> “XML”을 출력 형식으로 선택 -> “QuantumLock”를 인증 유형으로 선택 -> 비밀번호를 입력하고 “내보내기”를 선택하여 XML 파일로 저장하세요."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Delinea에 로그인하고, “가져오기/내보내기” 검색 -> “내보내기” 선택 -> “CSV”을 출력 형식으로 선택 -> “QuantumLock”를 인증 유형으로 선택 -> 비밀번호를 입력하고 “내보내기”를 선택하여 CSV 파일로 저장하세요."
+  },
   "confirmVaultImport": {
     "message": "보관함 가져오기 확인"
   },
@@ -5304,10 +5511,6 @@
   "awaitingSSODesc": {
     "message": "회사 자격 증명을 사용하여 계속 로그인해 주세요."
   },
-  "seeDetailedInstructions": {
-    "message": "도움말 사이트에서 자세한 지침을 확인하세요",
-    "description": "This is followed a by a hyperlink to the help website."
-  },
   "importDirectlyFromLastPass": {
     "message": "LastPass에서 직접 가져오기"
   },
@@ -5372,10 +5575,10 @@
     "message": "SSO 인증 필요"
   },
   "keeperSsoDesc": {
-    "message": "Your Keeper account requires SSO authentication. Complete the sign-in in the browser window that was opened, then paste the token shown on the page."
+    "message": "Keeper 계정에서 SSO 인증 수단을 요구합니다. 열린 브라우저 창에서 로그인을 완료한 뒤, 페이지에 표시된 토큰을 붙여넣으세요."
   },
   "keeperSsoAutoCaptureDesc": {
-    "message": "Complete the sign-in in the browser tab that was opened. The token will be captured automatically."
+    "message": "열린 브라우저 탭에서 로그인을 완료하세요. 토큰은 자동으로 캡처됩니다."
   },
   "ssoToken": {
     "message": "SSO 토큰"
@@ -5393,7 +5596,7 @@
     "message": "기기 승인 필요"
   },
   "selectApprovalMethodDesc": {
-    "message": "Approve this device by selecting a method below"
+    "message": "아래 방법 중 하나를 선택하여 이 기기를 승인하세요"
   },
   "keeperPush": {
     "message": "Keeper 푸시"
@@ -5405,19 +5608,19 @@
     "message": "이메일 인증"
   },
   "approvalEmailDesc": {
-    "message": "Please check your email and enter the verification code below"
+    "message": "이메일을 확인하고 아래에 인증 코드를 입력하세요"
   },
   "otherDeviceApprovalPushDesc": {
-    "message": "Keeper Push notification sent to approved device"
+    "message": "Keeper 푸시 알림이 승인된 기기에 전송되었습니다"
   },
   "keeperPushSent": {
     "message": "Keeper 푸시 전송됨"
   },
   "approvalRequestWillBeCanceled": {
-    "message": "Approval request will be canceled"
+    "message": "승인 요청이 취소됩니다"
   },
   "pendingApprovalCancelConfirmation": {
-    "message": "Are you sure you want to leave? Your admin approval request will be canceled."
+    "message": "정말로 떠나시겠습니까? 관리자 승인 요청이 취소됩니다."
   },
   "cancelRequest": {
     "message": "요청 취소"
@@ -5498,19 +5701,19 @@
     "message": "Duo 인증"
   },
   "duoPushWaiting": {
-    "message": "Approve the Duo push notification on your device."
+    "message": "기기에서 Duo 푸시 알림을 승인하세요."
   },
   "duoSmsWaiting": {
-    "message": "A text message has been sent to your phone. Enter the code in the Duo app to continue."
+    "message": "텍스트 메시지가 휴대전화로 전송되었습니다. 계속하려면 Duo 앱에서 코드를 입력하세요."
   },
   "duoVoiceWaiting": {
-    "message": "Answer the phone call from Duo and follow the instructions."
+    "message": "Duo 전화 통화에 응답하고 안내사항을 따르세요."
   },
   "tryAnotherMethod": {
     "message": "다른 방법 시도"
   },
   "keeperUnsupported2faMethod": {
-    "message": "Your Keeper account requires a two-factor authentication method that is not currently supported by the direct importer."
+    "message": "Keeper 계정에서 2단계 인증 수단을 요구하며 현재 직접 가져오기 도구에서 이를 지원하지 않습니다."
   },
   "switchAccount": {
     "message": "계정 전환"
@@ -5575,11 +5778,11 @@
     "description": "Explains to the user that URI match detection determines how Bitwarden suggests autofill options, and clarifies that this default strategy applies when no specific match detection is set for a login item."
   },
   "regExAdvancedOptionWarning": {
-    "message": "\"Regular expression\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"정규 표현식\"은 자격 증명 노출 위험이 증가하는 고급 옵션입니다.",
     "description": "Content for dialog which warns a user when selecting 'regular expression' matching strategy as a cipher match strategy"
   },
   "startsWithAdvancedOptionWarning": {
-    "message": "\"Starts with\" is an advanced option with increased risk of exposing credentials.",
+    "message": "\"다음으로 시작\"은 자격 증명 노출 위험이 증가하는 고급 옵션입니다.",
     "description": "Content for dialog which warns a user when selecting 'starts with' matching strategy as a cipher match strategy"
   },
   "uriMatchWarningDialogLink": {
@@ -5668,10 +5871,10 @@
     "description": "Link text to browser autofill settings in the default password manager setting hint."
   },
   "defaultPasswordManagerPromptStep2AfterAllow": {
-    "message": "from the browser prompt to give Bitwarden permission to change your settings."
+    "message": "브라우저의 대화 상자에서 Bitwarden에 설정 변경 권한을 부여하세요."
   },
   "defaultPasswordManagerPromptStep3": {
-    "message": "We'll turn off your browser's built-in password manager so you can enjoy a secure login experience."
+    "message": "안전한 로그인 환경을 즐기실 수 있도록 브라우저 내장 비밀번호 관리자를 끄게 됩니다."
   },
   "defaultPasswordManagerSuccessToast": {
     "message": "Bitwarden을 브라우저 기본 비밀번호 관리자로 지정함"
@@ -5881,7 +6084,7 @@
     "message": "피싱 감지"
   },
   "enablePhishingDetectionDesc": {
-    "message": "Display warning before accessing suspected phishing sites"
+    "message": "피싱 의심 사이트에 접속하기 전 경고 표시"
   },
   "notifications": {
     "message": "알림"
@@ -6959,11 +7162,11 @@
     "message": "사이트로 이동 (비권장)"
   },
   "phishingPageExplanation1": {
-    "message": "This site was found in ",
+    "message": "이 사이트는 개인정보 및 민감정보를 탈취하는 것으로 알려진 피싱 사이트의 오픈 소스 목록인 ",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name follows this."
   },
   "phishingPageExplanation2": {
-    "message": ", an open-source list of known phishing sites used for stealing personal and sensitive information.",
+    "message": "에서 발견되었습니다.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence. A proper name precedes this."
   },
   "phishingPageLearnMore": {
@@ -6991,7 +7194,7 @@
     "message": "자동 완성으로 시간 절약"
   },
   "newLoginNudgeBodyOne": {
-    "message": "Include a",
+    "message": "이 로그인 정보를 자동 채우기 제안으로 표시하도록",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -7001,7 +7204,7 @@
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
   "newLoginNudgeBodyTwo": {
-    "message": "so this login appears as an autofill suggestion.",
+    "message": "항목을 포함시키세요.",
     "description": "This is in multiple parts to allow for bold text in the middle of the sentence.",
     "example": "Include a Website so this login appears as an autofill suggestion."
   },
@@ -7040,24 +7243,24 @@
     "message": "빠르게 비밀번호 생성"
   },
   "generatorNudgeBodyOne": {
-    "message": "Easily create strong and unique passwords by clicking on",
+    "message": "로그인을 안전하게 보호하려면",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyTwo": {
-    "message": "to help you keep your logins secure.",
+    "message": "버튼을 클릭해 강력하고 고유한 비밀번호를 손쉽게 만드세요.",
     "description": "Two part message",
     "example": "Easily create strong and unique passwords by clicking on {icon} to help you keep your logins secure."
   },
   "generatorNudgeBodyAria": {
-    "message": "Easily create strong and unique passwords by clicking on the Generate password button to help you keep your logins secure.",
+    "message": "로그인을 안전하게 보호하려면 비밀번호 생성 버튼을 클릭해 강력하고 고유한 비밀번호를 손쉽게 만드세요.",
     "description": "Aria label for the body content of the generator nudge"
   },
   "aboutThisSetting": {
     "message": "설정 정보"
   },
   "permitCipherDetailsDescription": {
-    "message": "Bitwarden will use saved login URIs to identify which icon or change password URL should be used to improve your experience. No information is collected or saved when you use this service."
+    "message": "Bitwarden이 사용자 경험을 개선하기 위해 저장된 로그인 URI를 사용하여 어떤 아이콘이나 비밀번호 변경 URL을 사용해야 하는지 파악합니다. 이 서비스를 사용할 때 수집되거나 저장되는 정보는 없습니다."
   },
   "showQuickCopyActionsDetailsDescription": {
     "message": "항목 옆에 사용자 이름, 비밀번호, 인증 코드를 클립보드로 복사할 수 있는 빠른 복사 버튼 3개를 추가합니다."
@@ -7361,13 +7564,13 @@
     "message": "켜면 Bitwarden 웹 보관함과 잠금 해제 상태를 공유합니다."
   },
   "sharedUnlockUnavailableUntrustedDevice": {
-    "message": "Shared unlock is not available because you chose not to remember this device. To enable this setting, try logging in again."
+    "message": "이 기기를 기억하지 않기로 선택했기 때문에 잠금 해제 상태 공유를 이용할 수 없습니다. 기억 설정을 켜려면 다시 로그인하세요."
   },
   "newPermissionNeeded": {
     "message": "새 권한 필요"
   },
   "sharedUnlockDesktopPermissionDesc": {
-    "message": "To use shared unlock, Bitwarden needs permission to communicate with the desktop app. When you continue, your browser will ask you to approve it."
+    "message": "잠금 해제 상태 공유를 사용하려면, Bitwarden이 데스크톱 앱과 상호작용할 권한이 필요합니다. 계속 진행하면 브라우저에서 승인을 요청할 것입니다."
   },
   "sharedUnlockDesktopPermissionWarning": {
     "message": "Bitwarden을 잠그고 다시 불러옵니다. 승인한 뒤에는 확장을 다시 불러오며 보관함이 잠기게 됩니다."
@@ -7508,7 +7711,7 @@
     "message": "사이드 내비게이션"
   },
   "skipLink": {
-    "message": "Skip link"
+    "message": "링크 건너뛰기"
   },
   "callout": {
     "message": "알림 상자",
@@ -7732,10 +7935,10 @@
     "message": "데이터 유출에서 확인된 비밀번호가 없습니다."
   },
   "weakPasswordEmpty": {
-    "message": "All your passwords are strong."
+    "message": "모든 비밀번호가 강력합니다."
   },
   "reusedPasswordEmpty": {
-    "message": "All your passwords are unique."
+    "message": "모든 비밀번호가 고유합니다."
   },
   "youreAllSet": {
     "message": "모두 완료했습니다!"
