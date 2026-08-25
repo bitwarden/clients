@@ -3,15 +3,13 @@ import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import { combineLatest, filter, map, take } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { TabsModule, ToastService, TypographyModule } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
-import { hasApprovalPrivileges$ } from "../approvals/approval-privileges";
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 
 import { MyAccessService } from "./my-access.service";
@@ -44,8 +42,6 @@ import { MyAccessService } from "./my-access.service";
 export class AccessRequestsComponent implements OnInit {
   private readonly myAccess = inject(MyAccessService);
   private readonly inbox = inject(ApproverInboxService);
-  private readonly accountService = inject(AccountService);
-  private readonly organizationService = inject(OrganizationService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
@@ -66,10 +62,7 @@ export class AccessRequestsComponent implements OnInit {
     { initialValue: 0 },
   );
 
-  private readonly approvalPrivileges$ = hasApprovalPrivileges$(
-    this.accountService,
-    this.organizationService,
-  );
+  private readonly approvalPrivileges$ = inject(ApprovalPrivilegeService).canApprove$;
 
   /** Whether to render the Approvals tab at all. */
   protected readonly canApprove = toSignal(this.approvalPrivileges$, { initialValue: false });

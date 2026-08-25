@@ -8,7 +8,7 @@ export type UserForApproval = { id: string };
  * Whether `currentUser` may decide `request` — that is, whether it is somebody else's.
  *
  * This is ONLY the self-approval rule. Whether the viewer has approval privileges at all is a
- * separate question answered by `hasApprovalPrivileges$`, and the server enforces both regardless.
+ * separate question answered by `ApprovalPrivilegeService`, and the server enforces both regardless.
  * The parameter types are structural on purpose: this stays free of any dependency on the request or
  * account models so it can be unit-tested with two object literals.
  */
