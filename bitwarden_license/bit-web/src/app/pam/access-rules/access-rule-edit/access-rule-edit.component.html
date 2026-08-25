@@ -201,14 +201,13 @@
               formControlName="humanApprovalEnabled"
             />
             <bit-label>{{ "pamAccessRuleConditionHumanApproval" | i18n }}</bit-label>
+            @if (formGroup.controls.humanApprovalEnabled.value) {
+              <bit-hint
+                >{{ "pamAccessRuleApprovers" | i18n }}:
+                {{ "pamAccessRuleApproversCollectionManagers" | i18n }}</bit-hint
+              >
+            }
           </bit-form-control>
-
-          @if (formGroup.controls.humanApprovalEnabled.value) {
-            <p bitTypography="body2" class="tw-ml-7 tw-mb-4 tw--mt-3 tw-text-muted">
-              {{ "pamAccessRuleApprovers" | i18n }}:
-              {{ "pamAccessRuleApproversCollectionManagers" | i18n }}
-            </p>
-          }
 
           <bit-form-control>
             <input
