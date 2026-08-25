@@ -17221,9 +17221,6 @@
   "pamMyRequestsGroupCheckedOut": {
     "message": "Currently checked out"
   },
-  "pamMyRequestsExtensionsEmpty": {
-    "message": "No extension requests"
-  },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
   },
