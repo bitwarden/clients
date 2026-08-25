@@ -1,18 +1,10 @@
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, bufferCount, firstValueFrom, lastValueFrom, of, take } from "rxjs";
 
-import { ClientType } from "@bitwarden/client-type";
 import { EncryptedOrganizationKeyData } from "@bitwarden/common/admin-console/models/data/encrypted-organization-key.data";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import {
-  EncString,
-  EncryptedString,
-} from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import { USER_KEY } from "@bitwarden/common/key-management/state-definitions";
-import { UnsignedPublicKey } from "@bitwarden/common/key-management/types";
 import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
 import { VAULT_TIMEOUT } from "@bitwarden/common/key-management/vault-timeout/services/vault-timeout-settings.state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -21,7 +13,6 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { USER_ENCRYPTED_ORGANIZATION_KEYS } from "@bitwarden/common/platform/services/key-state/org-keys.state";
 import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/services/key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
@@ -36,10 +27,20 @@ import {
   FakeStateProvider,
   FakeSingleUserState,
 } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, ProviderId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, MasterKey, ProviderKey } from "@bitwarden/common/types/key";
+// eslint-disable-next-line no-restricted-imports
+import {
+  CryptoFunctionService,
+  CsprngArray,
+  EncryptedString,
+  EncryptService,
+  EncString,
+  SymmetricCryptoKey,
+  UnsignedPublicKey,
+} from "@bitwarden/legacy-crypto";
 
+import { BiometricsService } from "./biometrics/biometric.service";
 import { DefaultKeyService } from "./key.service";
 
 describe("keyService", () => {
@@ -51,6 +52,7 @@ describe("keyService", () => {
   const logService = mock<LogService>();
   const stateService = mock<StateService>();
   const accountCryptographicStateService = mock<AccountCryptographicStateService>();
+  const biometricsService = mock<BiometricsService>();
   let stateProvider: FakeStateProvider;
 
   const mockUserId = Utils.newGuid() as UserId;
@@ -77,13 +79,12 @@ describe("keyService", () => {
       stateService,
       stateProvider,
       accountCryptographicStateService,
+      biometricsService,
     );
   });
 
   const setUserKeyState = (userId: UserId, userKey: UserKey | null) => {
-    stateProvider.singleUser
-      .getFake(userId, USER_KEY)
-      .nextState(userKey == null ? null : ({ "": userKey } as Record<string, UserKey>));
+    stateProvider.singleUser.getFake(userId, USER_KEY).nextState(userKey);
   };
 
   afterEach(() => {
@@ -92,64 +93,6 @@ describe("keyService", () => {
 
   it("instantiates", () => {
     expect(keyService).not.toBeFalsy();
-  });
-
-  describe("refreshAdditionalKeys", () => {
-    test.each([null as unknown as UserId, undefined as unknown as UserId])(
-      "throws when the provided userId is %s",
-      async (userId) => {
-        await expect(keyService.refreshAdditionalKeys(userId)).rejects.toThrow(
-          "UserId is required",
-        );
-      },
-    );
-
-    it("throws error if user key not found", async () => {
-      setUserKeyState(mockUserId, null);
-
-      await expect(keyService.refreshAdditionalKeys(mockUserId)).rejects.toThrow(
-        "No user key found for: " + mockUserId,
-      );
-    });
-
-    it("refreshes additional keys when user key is available", async () => {
-      const mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      setUserKeyState(mockUserId, mockUserKey);
-      const setUserKeySpy = jest.spyOn(keyService, "setUserKey");
-
-      await keyService.refreshAdditionalKeys(mockUserId);
-
-      expect(setUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
-    });
-  });
-
-  describe("getUserKey", () => {
-    let mockUserKey: UserKey;
-
-    beforeEach(() => {
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-    });
-
-    it("retrieves the key state of the requested user", async () => {
-      await keyService.getUserKey(mockUserId);
-
-      expect(stateProvider.mock.getUserState$).toHaveBeenCalledWith(USER_KEY, mockUserId);
-    });
-
-    it("returns the User Key if available", async () => {
-      setUserKeyState(mockUserId, mockUserKey);
-
-      const userKey = await keyService.getUserKey(mockUserId);
-
-      expect(userKey).toEqual(mockUserKey);
-    });
-
-    it("returns nullish if the user key is not set", async () => {
-      const userKey = await keyService.getUserKey(mockUserId);
-
-      expect(userKey).toBeFalsy();
-    });
   });
 
   describe("hasUserKey", () => {
@@ -196,71 +139,6 @@ describe("keyService", () => {
       everHadUserKeyState.nextState(null);
 
       expect(await firstValueFrom(keyService.everHadUserKey$(mockUserId))).toBe(false);
-    });
-  });
-
-  describe("setUserKey", () => {
-    let mockUserKey: UserKey;
-    let everHadUserKeyState: FakeSingleUserState<boolean>;
-
-    beforeEach(() => {
-      const mockRandomBytes = new Uint8Array(64) as CsprngArray;
-      mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
-      everHadUserKeyState = stateProvider.singleUser.getFake(mockUserId, USER_EVER_HAD_USER_KEY);
-
-      // Initialize storage
-      everHadUserKeyState.nextState(null);
-    });
-
-    it("should set everHadUserKey if key is not null to true", async () => {
-      await keyService.setUserKey(mockUserKey, mockUserId);
-
-      expect(await firstValueFrom(everHadUserKeyState.state$)).toBe(true);
-    });
-
-    describe("Auto Key refresh", () => {
-      it("sets an Auto key if vault timeout is set to 'never'", async () => {
-        await stateProvider.setUserState(VAULT_TIMEOUT, VaultTimeoutStringType.Never, mockUserId);
-
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.keyB64, {
-          userId: mockUserId,
-        });
-      });
-
-      it("sets an Auto key if vault timeout is set to 10 minutes and is Cli", async () => {
-        await stateProvider.setUserState(VAULT_TIMEOUT, 10, mockUserId);
-        platformUtilService.getClientType.mockReturnValue(ClientType.Cli);
-
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(mockUserKey.keyB64, {
-          userId: mockUserId,
-        });
-      });
-
-      it("clears the Auto key if vault timeout is set to 10 minutes", async () => {
-        await stateProvider.setUserState(VAULT_TIMEOUT, 10, mockUserId);
-
-        await keyService.setUserKey(mockUserKey, mockUserId);
-
-        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
-          userId: mockUserId,
-        });
-      });
-    });
-
-    it("throws if key is null", async () => {
-      await expect(keyService.setUserKey(null as unknown as UserKey, mockUserId)).rejects.toThrow(
-        "No key provided.",
-      );
-    });
-
-    it("throws if userId is null", async () => {
-      await expect(keyService.setUserKey(mockUserKey, null as unknown as UserId)).rejects.toThrow(
-        "No userId provided.",
-      );
     });
   });
 
@@ -659,9 +537,7 @@ describe("keyService", () => {
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
       const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
-      userKeyState.nextState(
-        fakeUserKey == null ? null : ({ "": fakeUserKey } as Record<string, UserKey>),
-      );
+      userKeyState.nextState(fakeUserKey);
       return [fakeUserKey, fakeMasterKey];
     }
 
@@ -692,85 +568,6 @@ describe("keyService", () => {
       expect(key).toEqual({
         privateKey: "private key",
         publicKey: Utils.fromUtf8ToArray("public key") as UnsignedPublicKey,
-      });
-    });
-  });
-
-  describe("getUserKeyFromStorage", () => {
-    let mockUserKey: UserKey;
-    let validateUserKeySpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      mockUserKey = new SymmetricCryptoKey(new Uint8Array(64)) as UserKey;
-      validateUserKeySpy = jest.spyOn(keyService, "validateUserKey");
-    });
-
-    afterEach(() => {
-      validateUserKeySpy.mockRestore();
-    });
-
-    describe("input validation", () => {
-      const invalidUserIdTestCases = [
-        { keySuffix: KeySuffixOptions.Auto, userId: null as unknown as UserId },
-        { keySuffix: KeySuffixOptions.Auto, userId: undefined as unknown as UserId },
-        { keySuffix: KeySuffixOptions.Pin, userId: null as unknown as UserId },
-        { keySuffix: KeySuffixOptions.Pin, userId: undefined as unknown as UserId },
-      ];
-
-      test.each(invalidUserIdTestCases)(
-        "throws when keySuffix is $keySuffix and userId is $userId",
-        async ({ keySuffix, userId }) => {
-          await expect(keyService.getUserKeyFromStorage(keySuffix, userId)).rejects.toThrow(
-            "UserId is required",
-          );
-        },
-      );
-    });
-
-    describe("with Pin keySuffix", () => {
-      it("returns null and doesn't validate the key", async () => {
-        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Pin, mockUserId);
-
-        expect(result).toBeNull();
-        expect(validateUserKeySpy).not.toHaveBeenCalled();
-      });
-    });
-
-    describe("with Auto keySuffix", () => {
-      it("returns validated key from storage when key exists and is valid", async () => {
-        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.keyB64);
-        validateUserKeySpy.mockResolvedValue(true);
-
-        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);
-
-        expect(result).toEqual(mockUserKey);
-        expect(validateUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
-        expect(stateService.getUserKeyAutoUnlock).toHaveBeenCalledWith({
-          userId: mockUserId,
-        });
-      });
-
-      it("returns null when no key is found in storage", async () => {
-        stateService.getUserKeyAutoUnlock.mockResolvedValue(null as unknown as string);
-
-        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);
-
-        expect(result).toBeNull();
-        expect(validateUserKeySpy).not.toHaveBeenCalled();
-      });
-
-      it("clears stored keys when userKey validation fails", async () => {
-        stateService.getUserKeyAutoUnlock.mockResolvedValue(mockUserKey.keyB64);
-        validateUserKeySpy.mockResolvedValue(false);
-
-        const result = await keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, mockUserId);
-
-        expect(result).toEqual(mockUserKey);
-        expect(validateUserKeySpy).toHaveBeenCalledWith(mockUserKey, mockUserId);
-        expect(logService.warning).toHaveBeenCalledWith("Invalid key, throwing away stored keys");
-        expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(null, {
-          userId: mockUserId,
-        });
       });
     });
   });

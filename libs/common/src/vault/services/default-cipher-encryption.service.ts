@@ -30,6 +30,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           };
         }),
         catchError((error: unknown) => {
@@ -57,6 +58,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return results.map((encryptionContext) => ({
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           }));
         }),
         catchError((error: unknown) => {
@@ -90,6 +92,7 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           };
         }),
         catchError((error: unknown) => {
@@ -119,6 +122,8 @@ export class DefaultCipherEncryptionService implements CipherEncryptionService {
           return {
             cipher: Cipher.fromSdkCipher(encryptionContext.cipher)!,
             encryptedFor: uuidAsString(encryptionContext.encryptedFor) as UserId,
+            // Rotation encrypts under the new key, so this is the new key's id, not the current one.
+            encryptedByKeyId: encryptionContext.encryptedByKeyId,
           };
         }),
         catchError((error: unknown) => {

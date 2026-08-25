@@ -8,6 +8,7 @@ import {
   ViewContainerRef,
   WritableSignal,
   computed,
+  inject,
   signal,
   viewChild,
 } from "@angular/core";
@@ -18,7 +19,6 @@ import { map, of, startWith, switchMap } from "rxjs";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   DIALOG_DATA,
@@ -28,13 +28,15 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { SharedModule } from "../../../../shared";
+import { policyDrawerDescriptionKeys, policyDrawerTitleKeys } from "../base-policy-edit.component";
 import {
   PolicyEditDialogComponent,
   PolicyEditDialogData,
   PolicyEditDialogResult,
-} from "../policy-edit-dialog.component";
+} from "../policy-edit-drawer.component";
 
 import { PolicyStep } from "./models";
 
@@ -53,52 +55,37 @@ export class MultiStepPolicyEditDialogComponent
     { read: ViewContainerRef },
   );
 
+  readonly formGroup = this.formBuilder.group({});
+
   protected readonly policySteps: WritableSignal<PolicyStep[]> = signal([]);
   readonly currentStep: WritableSignal<number> = signal(0);
 
   private readonly currentStepConfig = computed(() => this.policySteps()[this.currentStep()]);
 
-  /**
-   * True when this dialog is showing the v2/drawer experience for this policy (badge header,
-   * v2 component, no "Edit policy" label). This is only the case when the policy defines a `v2`
-   * component AND the dialog was actually opened as a drawer - i.e. the `PolicyDrawers` flag is
-   * on. `dialogRef.isDrawer` is only true when {@link PoliciesComponent.edit} called
-   * `openDrawer()`, which only happens when that flag is enabled, so this keeps the v2 look from
-   * leaking into the plain modal dialog used when the flag is off.
-   */
-  protected readonly isV2 = computed(() => !!this.dialogRef.isDrawer && !!this.policy.v2);
+  private readonly terminology = inject(Vfo1TerminologyService);
+
+  private readonly dialogTitleKeys = computed<[string, string]>(() =>
+    policyDrawerTitleKeys(this.policy),
+  );
 
   protected readonly dialogTitle = computed(() => {
     if (this.currentStepConfig()?.titleContent?.()) {
       return undefined;
     }
-    return this.isV2() ? this.i18nService.t(this.policy.name) : this.i18nService.t("editPolicy");
+    const [legacy, next] = this.dialogTitleKeys();
+    return this.i18nService.t(this.terminology.enabled() ? next : legacy);
   });
 
-  protected readonly dialogSubtitle = computed(() => {
-    if (this.currentStepConfig()?.titleContent?.() || this.isV2()) {
-      return undefined;
-    }
-    return this.i18nService.t(this.policy.name);
+  protected readonly showDescription = computed(() => this.policy.showDescription);
+
+  private readonly dialogDescriptionKeys = computed<[string, string]>(() =>
+    policyDrawerDescriptionKeys(this.policy),
+  );
+
+  protected readonly descriptionKey = computed(() => {
+    const [legacy, next] = this.dialogDescriptionKeys();
+    return this.terminology.enabled() ? next : legacy;
   });
-
-  /**
-   * Whether to render `policy.description` in the dialog body. Only consults `policy.v2`'s
-   * override when {@link isV2} is true - v1 always uses the plain top-level fields so a
-   * `v2`-only override (e.g. because the v2 component renders its own description) can't hide
-   * the description from the v1 modal.
-   */
-  protected readonly showDescription = computed(() =>
-    this.isV2()
-      ? (this.policy.v2?.showDescription ?? this.policy.showDescription)
-      : this.policy.showDescription,
-  );
-
-  protected readonly descriptionKey = computed(() =>
-    this.isV2()
-      ? (this.policy.v2?.description ?? this.policy.description)
-      : this.policy.description,
-  );
 
   protected readonly saveDisabled = toSignal(
     toObservable(this.currentStepConfig).pipe(
@@ -130,7 +117,6 @@ export class MultiStepPolicyEditDialogComponent
     toastService: ToastService,
     keyService: KeyService,
     dialogService: DialogService,
-    configService: ConfigService,
     authService: AuthService,
   ) {
     super(
@@ -144,14 +130,13 @@ export class MultiStepPolicyEditDialogComponent
       toastService,
       keyService,
       dialogService,
-      configService,
       authService,
     );
   }
 
   override async ngAfterViewInit() {
     const policyResponse = await this.load();
-    this.policyEnabled.set(policyResponse.enabled);
+    this.policyEnabled.set(this.policy.enabled(policyResponse));
     this.loading.set(false);
 
     const policyFormRef = this.policyFormViewRef();
@@ -159,12 +144,7 @@ export class MultiStepPolicyEditDialogComponent
       throw new Error("Template not initialized.");
     }
 
-    // Load the v2 component only when this dialog is actually rendering the v2/drawer
-    // experience (see isV2 above) - otherwise fall back to the standard component so the flag-off
-    // modal keeps looking like the original dialog.
-    const componentRef = policyFormRef.createComponent(
-      this.isV2() ? this.data.policy.v2!.component : this.data.policy.component,
-    );
+    const componentRef = policyFormRef.createComponent(this.data.policy.component);
     componentRef.setInput("policyResponse", policyResponse);
     componentRef.setInput("policy", this.data.policy);
     componentRef.setInput("currentStep", this.currentStep);
@@ -176,7 +156,7 @@ export class MultiStepPolicyEditDialogComponent
     // Setting policySteps triggers currentStepConfig to recompute, which re-evaluates saveDisabled.
     this.policySteps.set(component.policySteps ?? []);
 
-    await this.setupDiscardGuard();
+    this.setupDiscardGuard();
   }
 
   override readonly submit = async () => {
@@ -215,16 +195,6 @@ export class MultiStepPolicyEditDialogComponent
         message: error.message,
       });
     }
-  };
-
-  static override readonly open = (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => {
-    return dialogService.open<PolicyEditDialogResult, PolicyEditDialogData>(
-      MultiStepPolicyEditDialogComponent,
-      config,
-    );
   };
 
   static readonly openDrawer = (

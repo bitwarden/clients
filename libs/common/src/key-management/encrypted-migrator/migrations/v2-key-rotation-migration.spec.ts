@@ -3,13 +3,14 @@ import { of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { UserKeyRotationServiceAbstraction } from "@bitwarden/user-crypto-management";
 
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SyncService } from "../../../platform/sync";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -31,6 +32,11 @@ describe("V2KeyRotationMigration", () => {
   const mockSdkService = mock<SdkService>();
 
   let sut: V2KeyRotationMigration;
+  let mockUserCryptoMgmt: {
+    get_untrusted_organization_public_keys: jest.Mock;
+    get_untrusted_emergency_access_public_keys: jest.Mock;
+    should_regenerate_public_key_encryption_key_pair: jest.Mock;
+  };
 
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const mockMasterPassword = "masterPassword";
@@ -63,7 +69,7 @@ describe("V2KeyRotationMigration", () => {
     emergencyKeys?: unknown[];
     shouldRegenerate?: boolean;
   } = {}) => {
-    const mockUserCryptoMgmt = {
+    mockUserCryptoMgmt = {
       get_untrusted_organization_public_keys: jest.fn().mockResolvedValue(orgKeys),
       get_untrusted_emergency_access_public_keys: jest.fn().mockResolvedValue(emergencyKeys),
       should_regenerate_public_key_encryption_key_pair: jest
@@ -173,6 +179,16 @@ describe("V2KeyRotationMigration", () => {
 
       expect(result).toBe("noMigrationNeeded");
       expect(mockSyncService.fullSync).toHaveBeenCalledWith(false);
+    });
+
+    it("requests untrusted organization public keys for a CreateIfNeeded rotation", async () => {
+      arrangeHappyPath();
+
+      await sut.needsMigration(mockUserId);
+
+      expect(mockUserCryptoMgmt.get_untrusted_organization_public_keys).toHaveBeenCalledWith(
+        "CreateIfNeeded",
+      );
     });
 
     it("returns 'noMigrationNeeded' when user has granted emergency access", async () => {

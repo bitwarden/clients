@@ -1,11 +1,10 @@
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { AttachmentView as SdkAttachmentView } from "@bitwarden/sdk-internal";
 
 import { mockFromJson } from "../../../../spec";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
 import { AttachmentView } from "./attachment.view";
-
-jest.mock("../../../platform/models/domain/symmetric-crypto-key");
 
 describe("AttachmentView", () => {
   it("fromJSON initializes nested objects", () => {
