@@ -1491,7 +1491,6 @@ export default class MainBackground {
       this.messagingService,
       systemUtilsServiceReloadCallback,
       this.vaultTimeoutSettingsService,
-      this.biometricStateService,
       this.accountService,
       this.logService,
       this.authService,
@@ -1564,15 +1563,11 @@ export default class MainBackground {
       this.autofillOrchestrator,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
-      this.keyService,
-      this.legacyCompatKeyService,
       this.encryptService,
       this.cryptoFunctionService,
-      this.messagingService,
       this.appIdService,
       this.platformUtilsService,
       this.logService,
-      this.biometricStateService,
       this.accountService,
     );
     this.commandsBackground = new CommandsBackground(

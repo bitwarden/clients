@@ -2,10 +2,6 @@
 // @ts-strict-ignore
 import { firstValueFrom, map, timeout } from "rxjs";
 
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
-// eslint-disable-next-line no-restricted-imports
-import { BiometricStateService } from "@bitwarden/key-management";
-
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
@@ -27,7 +23,6 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
     private messagingService: MessagingService,
     private reloadCallback: () => Promise<void> = null,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private biometricStateService: BiometricStateService,
     private accountService: AccountService,
     private logService: LogService,
     private authService: AuthService,
@@ -72,47 +67,33 @@ export class DefaultProcessReloadService implements ProcessReloadServiceAbstract
   }
 
   private async executeProcessReload() {
-    const biometricLockedFingerprintValidated = await firstValueFrom(
-      this.biometricStateService.fingerprintValidated$,
+    clearInterval(this.reloadInterval);
+    this.reloadInterval = null;
+
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((a) => a?.id),
+        timeout(500),
+      ),
     );
-    if (!biometricLockedFingerprintValidated) {
-      clearInterval(this.reloadInterval);
-      this.reloadInterval = null;
-
-      const activeUserId = await firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          map((a) => a?.id),
-          timeout(500),
-        ),
+    // Replace current active user if they will be logged out on reload
+    if (activeUserId != null) {
+      const timeoutAction = await firstValueFrom(
+        this.vaultTimeoutSettingsService
+          .getVaultTimeoutActionByUserId$(activeUserId)
+          .pipe(timeout(500)), // safety feature to avoid this call hanging and stopping process reload from clearing memory
       );
-      // Replace current active user if they will be logged out on reload
-      if (activeUserId != null) {
-        const timeoutAction = await firstValueFrom(
-          this.vaultTimeoutSettingsService
-            .getVaultTimeoutActionByUserId$(activeUserId)
-            .pipe(timeout(500)), // safety feature to avoid this call hanging and stopping process reload from clearing memory
+      if (timeoutAction === VaultTimeoutAction.LogOut) {
+        const nextUser = await firstValueFrom(
+          this.accountService.nextUpAccount$.pipe(map((account) => account?.id ?? null)),
         );
-        if (timeoutAction === VaultTimeoutAction.LogOut) {
-          const nextUser = await firstValueFrom(
-            this.accountService.nextUpAccount$.pipe(map((account) => account?.id ?? null)),
-          );
-          await this.accountService.switchAccount(nextUser);
-        }
+        await this.accountService.switchAccount(nextUser);
       }
-
-      this.messagingService.send("reloadProcess");
-      if (this.reloadCallback != null) {
-        await this.reloadCallback();
-      }
-      return;
-    } else {
-      this.logService.info(
-        "[Process Reload Service] Desktop ipc fingerprint validated, preventing process reload",
-      );
     }
 
-    if (this.reloadInterval == null) {
-      this.reloadInterval = setInterval(async () => await this.executeProcessReload(), 1000);
+    this.messagingService.send("reloadProcess");
+    if (this.reloadCallback != null) {
+      await this.reloadCallback();
     }
   }
 

@@ -72,7 +72,6 @@ describe("ElectronKeyService", () => {
         await keyService.setUserKey(userKey, mockUserId);
 
         expect(biometricService.setBiometricProtectedUnlockKeyForUser).not.toHaveBeenCalled();
-        expect(biometricStateService.setEncryptedClientKeyHalf).not.toHaveBeenCalled();
         expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(mockUserId);
       });
 
@@ -85,7 +84,6 @@ describe("ElectronKeyService", () => {
           mockUserId,
           userKey,
         );
-        expect(biometricStateService.setEncryptedClientKeyHalf).not.toHaveBeenCalled();
         expect(biometricStateService.getBiometricUnlockEnabled).toHaveBeenCalledWith(mockUserId);
       });
     });

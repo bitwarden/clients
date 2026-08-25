@@ -3183,12 +3183,6 @@
   "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
   },
-  "desktopSyncVerificationTitle": {
-    "message": "Desktop sync verification"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Please verify that the desktop application shows this fingerprint: "
-  },
   "desktopIntegrationDisabledTitle": {
     "message": "Browser integration is not set up"
   },
@@ -7079,12 +7073,6 @@
         "example": "Work, Personal"
       }
     }
-  },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
   },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
