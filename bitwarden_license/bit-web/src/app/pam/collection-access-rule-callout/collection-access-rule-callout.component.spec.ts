@@ -197,7 +197,6 @@ describe("CollectionAccessRuleCalloutComponent", () => {
     const href = (fixture.nativeElement.querySelector("a") as HTMLAnchorElement).getAttribute(
       "href",
     );
-    expect(href).toContain("/organizations/org-1/pam/access-rules");
-    expect(href).toContain("accessRuleId=rule-1");
+    expect(href).toBe("/organizations/org-1/pam/access-rules/rule-1");
   });
 });
