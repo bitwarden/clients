@@ -228,11 +228,14 @@
           [class.tw-min-h-0]="isFill()"
           [(bitSyncScrollLeft)]="horizontalScroll"
         >
-          @for (item of renderItems(); track trackRenderItem($index, item)) {
-            <ng-container
-              *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
-            ></ng-container>
-          }
+          <!-- Sizes to the scrolled content, so row borders and fills span the full row width. -->
+          <div class="tw-w-fit tw-min-w-full">
+            @for (item of renderItems(); track trackRenderItem($index, item)) {
+              <ng-container
+                *ngTemplateOutlet="renderItemTpl; context: { item: item, forceHeight: false }"
+              ></ng-container>
+            }
+          </div>
         </div>
       }
     } @else {

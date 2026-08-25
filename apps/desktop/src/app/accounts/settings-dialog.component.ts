@@ -55,6 +55,7 @@ import {
 import { KeyService, BiometricStateService, BiometricsStatus } from "@bitwarden/key-management";
 import { SessionTimeoutSettingsComponent } from "@bitwarden/key-management-ui";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { AutoUnlockService } from "@bitwarden/unlock";
 import {
   PermitCipherDetailsPopoverComponent,
   VaultCopyButtonsService,
@@ -116,6 +117,7 @@ export class SettingsDialogComponent implements OnInit {
   private readonly autofillSettingsService = inject(AutofillSettingsServiceAbstraction);
   private readonly messagingService = inject(MessagingService);
   private readonly keyService = inject(KeyService);
+  private readonly autoUnlockService = inject(AutoUnlockService);
   private readonly themeStateService = inject(ThemeStateService);
   private readonly domainSettingsService = inject(DomainSettingsService);
   private readonly dialogService = inject(DialogService);
@@ -453,7 +455,8 @@ export class SettingsDialogComponent implements OnInit {
     if (!enabled || !this.supportsBiometric()) {
       this.form.controls.biometric.setValue(false, { emitEvent: false });
       await this.biometricStateService.setBiometricUnlockEnabled(false, activeUserId);
-      await this.keyService.refreshAdditionalKeys(activeUserId);
+      await this.biometricsService.deleteBiometricUnlockKeyForUser(activeUserId);
+      await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
       return;
     }
 
@@ -493,7 +496,7 @@ export class SettingsDialogComponent implements OnInit {
     }
     const userKey = await firstValueFrom(this.keyService.userKey$(activeUserId));
     await this.biometricsService.setBiometricProtectedUnlockKeyForUser(activeUserId, userKey);
-    await this.keyService.refreshAdditionalKeys(activeUserId);
+    await this.autoUnlockService.refreshAutoUnlockKey(activeUserId);
 
     // Validate the key is stored in case biometrics fail.
     const biometricSet =

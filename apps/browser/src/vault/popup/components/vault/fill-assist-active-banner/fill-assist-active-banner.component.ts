@@ -15,7 +15,7 @@ import { VaultPopupAutofillService } from "../../../services/vault-popup-autofil
 })
 export class FillAssistActiveBannerComponent {
   /**
-   * Flag indicating that Fill Assist targeting rules are in effect for the current tab.
+   * Flag indicating that fill assist targeting rules are in effect for the current tab.
    */
   private readonly fillAssistActive = toSignal(
     this.vaultPopupAutofillService.showFillAssistActiveBanner$,
@@ -29,7 +29,7 @@ export class FillAssistActiveBannerComponent {
   protected readonly dismissed = signal(false);
 
   /**
-   * The banner is shown while Fill Assist is active and the user has not dismissed it this session.
+   * The banner is shown while fill assist is active and the user has not dismissed it this session.
    */
   protected readonly showBanner = computed(() => this.fillAssistActive() && !this.dismissed());
 
