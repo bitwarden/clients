@@ -120,7 +120,6 @@ export class AppComponent implements OnDestroy, OnInit {
           }
           case "locked":
             await this.router.navigate(["/"]);
-            await this.processReloadService.startProcessReload();
             break;
           case "lockedUrl":
             break;
@@ -268,8 +267,6 @@ export class AppComponent implements OnDestroy, OnInit {
       if (redirect) {
         await this.router.navigate(["/"]);
       }
-
-      await this.processReloadService.startProcessReload();
 
       // Normally we would need to reset the loading state to false or remove the layout_frontend
       // class from the body here, but the process reload completely reloads the app so

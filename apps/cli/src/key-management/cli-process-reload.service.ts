@@ -5,6 +5,5 @@ import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-managemen
  * This is NOOP since there is no effective way to process reload the CLI.
  */
 export class CliProcessReloadService extends ProcessReloadServiceAbstraction {
-  async startProcessReload(): Promise<void> {}
-  async cancelProcessReload(): Promise<void> {}
+  async reloadProcess(): Promise<void> {}
 }

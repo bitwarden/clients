@@ -303,8 +303,6 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
-        this.processReloadService.cancelProcessReload();
-
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
           await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);

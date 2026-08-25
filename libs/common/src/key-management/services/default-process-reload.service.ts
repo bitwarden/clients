@@ -1,5 +1,3 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
 import { firstValueFrom, timeout } from "rxjs";
 
 import { AccountService } from "../../auth/abstractions/account.service";
@@ -16,89 +14,95 @@ import { UserId } from "../../types/guid";
 import { ProcessReloadServiceAbstraction } from "../abstractions/process-reload.service";
 import { PinServiceAbstraction } from "../pin/pin.service.abstraction";
 
-export class DefaultProcessReloadService implements ProcessReloadServiceAbstraction {
-  private reloadInterval: any = null;
+/**
+ * Safety timeout for state reads, so a hanging call cannot stop the process
+ * reload from clearing memory.
+ */
+const STATE_READ_TIMEOUT_MS = 500;
 
+export class DefaultProcessReloadService implements ProcessReloadServiceAbstraction {
   constructor(
     private pinService: PinServiceAbstraction,
     private messagingService: MessagingService,
-    private reloadCallback: () => Promise<void> = null,
+    private reloadCallback: (() => Promise<void>) | null = null,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private accountService: AccountService,
     private logService: LogService,
     private authService: AuthService,
   ) {}
 
-  async startProcessReload(): Promise<void> {
-    const accounts = await firstValueFrom(this.accountService.accounts$);
-    if (accounts != null) {
-      const keys = Object.keys(accounts);
-      if (keys.length > 0) {
-        for (const userId of keys) {
-          let status = await firstValueFrom(this.authService.authStatusFor$(userId as UserId));
-          status = await this.authService.getAuthStatus(userId);
-          if (status === AuthenticationStatus.Unlocked) {
-            this.logService.info(
-              "[Process Reload Service] User unlocked, preventing process reload",
-            );
-            return;
-          }
-        }
-      }
-    }
-
-    // A reloadInterval has already been set and is executing
-    if (this.reloadInterval != null) {
+  async reloadProcess(): Promise<void> {
+    if (await this.isAnyUserUnlocked()) {
+      this.logService.info("[Process Reload Service] User unlocked, preventing process reload");
       return;
     }
 
-    // If there is an active user, check if they have an ephemeral PIN. If so, prevent process reload upon lock.
-    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
-    if (userId != null) {
-      if ((await this.pinService.getPinLockType(userId)) === "AfterFirstUnlock") {
-        this.logService.info(
-          "[Process Reload Service] Ephemeral pin active, preventing process reload",
-        );
-        return;
-      }
+    if (await this.isAnyPinInAfuMode()) {
+      this.logService.info(
+        "[Process Reload Service] Ephemeral pin active, preventing process reload",
+      );
+      return;
     }
 
-    this.cancelProcessReload();
-    await this.executeProcessReload();
+    await this.performLogoutsForVaultTimeoutLogoutUsers();
+    await this.performProcessReload();
   }
 
-  private async executeProcessReload() {
-    clearInterval(this.reloadInterval);
-    this.reloadInterval = null;
+  private async isAnyUserUnlocked(): Promise<boolean> {
+    const accounts = await firstValueFrom(this.accountService.accounts$);
 
-    const activeUserId = await firstValueFrom(
-      this.accountService.activeAccount$.pipe(getOptionalUserId, timeout(500)),
-    );
-    // Replace current active user if they will be logged out on reload
-    if (activeUserId != null) {
-      const timeoutAction = await firstValueFrom(
-        this.vaultTimeoutSettingsService
-          .getVaultTimeoutActionByUserId$(activeUserId)
-          .pipe(timeout(500)), // safety feature to avoid this call hanging and stopping process reload from clearing memory
-      );
-      if (timeoutAction === VaultTimeoutAction.LogOut) {
-        const nextUser = await firstValueFrom(
-          this.accountService.nextUpAccount$.pipe(getOptionalUserId),
-        );
-        await this.accountService.switchAccount(nextUser);
+    for (const userId of Object.keys(accounts ?? {})) {
+      const status = await this.authService.getAuthStatus(userId as UserId);
+      if (status === AuthenticationStatus.Unlocked) {
+        return true;
       }
     }
 
+    return false;
+  }
+
+  /** An ephemeral (after-first-unlock) pin cannot survive a process reload, so it blocks one. */
+  private async isAnyPinInAfuMode(): Promise<boolean> {
+    const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getOptionalUserId));
+    if (userId == null) {
+      return false;
+    }
+
+    return (await this.pinService.getPinLockType(userId)) === "AfterFirstUnlock";
+  }
+
+  /**
+   * The active user is logged out on reload when their vault timeout action is
+   * log out, so switch to the next account up before reloading.
+   */
+  private async performLogoutsForVaultTimeoutLogoutUsers(): Promise<void> {
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(getOptionalUserId, timeout(STATE_READ_TIMEOUT_MS)),
+    );
+    if (activeUserId == null) {
+      return;
+    }
+
+    const timeoutAction = await firstValueFrom(
+      this.vaultTimeoutSettingsService
+        .getVaultTimeoutActionByUserId$(activeUserId)
+        .pipe(timeout(STATE_READ_TIMEOUT_MS)),
+    );
+    if (timeoutAction !== VaultTimeoutAction.LogOut) {
+      return;
+    }
+
+    const nextUser = await firstValueFrom(
+      this.accountService.nextUpAccount$.pipe(getOptionalUserId),
+    );
+    await this.accountService.switchAccount(nextUser);
+  }
+
+  private async performProcessReload(): Promise<void> {
     this.messagingService.send("reloadProcess");
+
     if (this.reloadCallback != null) {
       await this.reloadCallback();
-    }
-  }
-
-  cancelProcessReload(): void {
-    if (this.reloadInterval != null) {
-      clearInterval(this.reloadInterval);
-      this.reloadInterval = null;
     }
   }
 }

@@ -206,7 +206,6 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
-            this.processReloadService.cancelProcessReload();
             break;
           case "loggedOut":
             this.modalService.closeAll();
@@ -214,7 +213,6 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
-            await this.processReloadService.startProcessReload();
             break;
           case "authBlocked":
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -244,15 +242,6 @@ export class AppComponent implements OnInit, OnDestroy {
             }
             await this.updateAppMenu();
             await this.systemService.clearPendingClipboard();
-            await this.processReloadService.startProcessReload();
-            break;
-          case "startProcessReload":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.processReloadService.startProcessReload();
-            break;
-          case "cancelProcessReload":
-            this.processReloadService.cancelProcessReload();
             break;
           case "reloadProcess":
             ipc.platform.reloadProcess();
@@ -772,7 +761,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     // This must come last otherwise the logout will prematurely trigger
     // a process reload before all the state service user data can be cleaned up
-    this.authService.logOut(async () => {}, userBeingLoggedOut);
+    this.authService.logOut(async () => {
+      // Wipe the current process to clear active secrets in memory.
+      await this.processReloadService.reloadProcess();
+    }, userBeingLoggedOut);
   }
 
   private async recordActivity() {

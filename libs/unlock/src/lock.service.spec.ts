@@ -87,16 +87,29 @@ describe("DefaultLockService", () => {
         }),
       );
 
-      const lockSpy = jest.spyOn(sut, "lock").mockResolvedValue(undefined);
+      const lockSpy = jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
 
       await sut.lockAll(LockSource.Manual);
 
       // Non-Active users should be called first
-      expect(lockSpy).toHaveBeenNthCalledWith(1, mockUser2, LockSource.Manual);
-      expect(lockSpy).toHaveBeenNthCalledWith(2, mockUser3, LockSource.Manual);
+      expect(lockSpy).toHaveBeenNthCalledWith(1, mockUser2, LockSource.Manual, true);
+      expect(lockSpy).toHaveBeenNthCalledWith(2, mockUser3, LockSource.Manual, true);
 
       // Active user should be called last
-      expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual);
+      expect(lockSpy).toHaveBeenNthCalledWith(3, mockUser1, LockSource.Manual, true);
+    });
+
+    it("reloads the process once, after all users are locked", async () => {
+      processReloadService.reloadProcess.mockClear();
+      jest
+        .spyOn(sut as unknown as { lockUser: () => Promise<void> }, "lockUser")
+        .mockResolvedValue(undefined);
+
+      await sut.lockAll(LockSource.Manual);
+
+      expect(processReloadService.reloadProcess).toHaveBeenCalledTimes(1);
     });
   });
 
