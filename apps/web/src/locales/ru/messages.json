@@ -906,6 +906,24 @@
   "editFolder": {
     "message": "Изменить папку"
   },
+  "editFolderNamed": {
+    "message": "Изменить $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
+  "deleteFolderNamed": {
+    "message": "Удалить $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Social"
+      }
+    }
+  },
   "editWithName": {
     "message": "Изменить $ITEM$: $NAME$",
     "placeholders": {
@@ -1064,6 +1082,9 @@
   },
   "allItems": {
     "message": "Все элементы"
+  },
+  "allVaultItems": {
+    "message": "Все элементы хранилища"
   },
   "favorites": {
     "message": "Избранные"
@@ -2026,6 +2047,36 @@
   "deletedFolder": {
     "message": "Папка удалена"
   },
+  "folderEdited": {
+    "message": "Папка изменена"
+  },
+  "foldersDeleted": {
+    "message": "Папки удалены"
+  },
+  "deleteFoldersCount": {
+    "message": "Удалить папок: $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteFolderDescription": {
+    "message": "При удалении папки $NAME$ она будет удалена из всех элементов, к которым она была применена. Сами элементы при этом удалены не будут.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Banking"
+      }
+    }
+  },
+  "deleteFoldersDescription": {
+    "message": "При удалении этих папок они будут удалены из всех элементов, к которым они были применены. Сами элементы при этом удалены не будут."
+  },
+  "enterAName": {
+    "message": "Введите название."
+  },
   "editInfo": {
     "message": "Изменить информацию"
   },
@@ -2479,6 +2530,9 @@
   },
   "newVault": {
     "message": "Новое хранилище"
+  },
+  "addPlan": {
+    "message": "Добавить план"
   },
   "noOrganizationsList": {
     "message": "Вы не являетесь участником какой-либо организации. Организации позволяют безопасно обмениваться элементами с другими пользователями."
@@ -3361,6 +3415,207 @@
       }
     }
   },
+  "importHelpCenterInstructions": {
+    "message": "Ознакомьтесь с подробной инструкцией по $NAME$ на нашем сайте",
+    "description": "Followed by a hyperlink whose text is importHelpCenterLinkText, e.g. 'See detailed Safari instructions in our Help Center'.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Safari"
+      }
+    }
+  },
+  "importHelpCenterLinkText": {
+    "message": "Центр поддержки"
+  },
+  "importChromiumAliasPreamble": {
+    "message": "Этот процесс полностью аналогичен импорту из Google Chrome.",
+    "description": "Shown for Chromium-based browsers other than Chrome, immediately before importHelpCenterInstructions."
+  },
+  "importKeepassxInstructions": {
+    "message": "В приложении KeePassX для компьютера перейдите в меню База данных → Экспорт в файл CSV и сохраните файл CSV."
+  },
+  "importAviraInstructions": {
+    "message": "В веб-хранилище Avira перейдите в раздел Настройки → Мои данные → Экспорт данных и сохраните файл в формате CSV."
+  },
+  "importBlurInstructions": {
+    "message": "В веб-хранилище Blur выберите свое имя пользователя в верхней части страницы и перейдите в раздел Настройки → Экспорт данных, после чего нажмите Экспорт в CSV для вашего аккаунта."
+  },
+  "importSafeincloudInstructions": {
+    "message": "В приложении SafeInCloud для компьютера перейдите в меню Файл → Экспорт → Как XML и сохраните файл XML."
+  },
+  "importPadlockInstructions": {
+    "message": "В приложении Padlock для компьютера нажмите на значок меню в левом верхнем углу, перейдите в раздел Настройки → Экспорт и сохраните файл в формате CSV."
+  },
+  "importKeepass2Instructions": {
+    "message": "В приложении KeePass 2 для компьютера перейдите в меню Файл → Экспорт и выберите вариант KeePass XML (2.x)."
+  },
+  "importUpmInstructions": {
+    "message": "В приложении Universal Password Manager для компьютера перейдите в раздел База данных → Экспорт и сохраните файл в формате CSV."
+  },
+  "importSaferpassInstructions": {
+    "message": "В расширении для браузера SaferPass нажмите на значок меню в левом верхнем углу и перейдите в раздел Настройки. Нажмите кнопку Экспорт аккаунтов, чтобы сохранить файл в формате CSV."
+  },
+  "importMeldiumInstructions": {
+    "message": "Войдите в веб-хранилище Meldium и перейдите в раздел Настройки. Найдите функцию Экспорт данных и нажмите Показать мои данные, чтобы сохранить файл в формате CSV."
+  },
+  "importPassworddragonInstructions": {
+    "message": "В приложении Password Dragon для компьютера перейдите в меню Файл → Экспорт → В XML. В появившемся диалоговом окне выберите Все строки и установите флажки во всех полях. Нажмите кнопку Экспорт и сохраните файл XML."
+  },
+  "importEnpassCsvInstructions": {
+    "message": "В приложении Enpass для компьютера перейдите в меню Файл → Экспорт → Как CSV. Нажмите ОК в окне предупреждения и сохраните файл CSV. Обратите внимание, что импортер поддерживает только файлы, экспортированные при установленном в Enpass английском языке, поэтому настройте язык соответствующим образом."
+  },
+  "importEnpassJsonInstructions": {
+    "message": "В настольном приложении Enpass 6 нажмите кнопку меню и перейдите в раздел Файл → Экспорт. Выберите формат файла .json и сохраните файл."
+  },
+  "importPwsafeInstructions": {
+    "message": "В приложении Password Safe для компьютера перейдите в меню Файл → Экспорт → Формат XML... и сохраните файл XML."
+  },
+  "importDashlaneCsvInstructions": {
+    "message": "Войдите в Dashlane, нажмите Моя учетная запись → Настройки → Экспорт файла и выберите Экспорт в формат CSV. В результате будет загружен ZIP-архив, содержащий несколько CSV-файлов. Разархивируйте архив и импортируйте каждый CSV-файл по отдельности."
+  },
+  "importDashlaneJsonInstructions": {
+    "message": "Dashlane больше не поддерживает формат JSON. Используйте его только в том случае, если у вас уже есть файл JSON для импорта. При создании новых экспортов используйте импортер CSV."
+  },
+  "importMsecureInstructions": {
+    "message": "В приложении mSecure для компьютера перейдите в меню Файл → Экспорт → Файл CSV... и сохраните файл CSV."
+  },
+  "importStickypasswordInstructions": {
+    "message": "В приложении Sticky Password для компьютера перейдите в Меню (в правом верхнем углу) → Экспорт → Экспорт всего. Выберите вариант XML (незашифрованный формат) и сохраните файл XML."
+  },
+  "importTruekeyInstructions": {
+    "message": "В приложении True Key для компьютера нажмите на значок шестеренки (в правом верхнем углу), а затем перейдите в раздел Настройки приложения. Нажмите кнопку Экспорт, введите пароль и сохраните файл в формате CSV."
+  },
+  "importClipperzInstructions": {
+    "message": "Войдите в веб-приложение Clipperz (clipperz.is/app). Нажмите на значок меню в правом верхнем углу, чтобы развернуть панель навигации. Перейдите в раздел Данные → Экспорт. Нажмите кнопку Скачать HTML+JSON, чтобы сохранить файл HTML."
+  },
+  "importRoboformInstructions": {
+    "message": "В приложении RoboForm Editor для компьютера перейдите в раздел RoboForm (в левом верхнем углу) → Настройки → Учетная запись и данные и нажмите кнопку Экспорт. Выберите все свои данные, измените Формат на Файл CSV, а затем нажмите кнопку Экспорт, чтобы сохранить файл CSV. Примечание: RoboForm позволяет экспортировать только логины. Остальные элементы экспортированы не будут."
+  },
+  "importPassboltInstructions": {
+    "message": "Войдите в веб-хранилище Passbolt и перейдите в раздел Пароли. Выберите все пароли, которые хотите экспортировать, и нажмите кнопку Экспорт в верхней части списка. Выберите формат экспорта csv (lastpass) и нажмите кнопку Экспорт."
+  },
+  "importAscendoInstructions": {
+    "message": "В приложении Ascendo DataVault для компьютера перейдите в меню Инструменты → Экспорт. В появившемся диалоговом окне выберите вариант Все элементы (DVX, CSV). Нажмите кнопку ОК, чтобы сохранить файл CSV."
+  },
+  "importPasswordbossInstructions": {
+    "message": "В приложении Password Boss для компьютера перейдите в меню Файл → Экспорт данных → Password Boss JSON — без шифрования и сохраните файл JSON."
+  },
+  "importZohoInstructions": {
+    "message": "Войдите в веб-хранилище Zoho (vault.zoho.com). Перейдите в раздел Инструменты → Экспорт секретов. Выберите Все секреты и нажмите кнопку CSV в формате Zoho Vault. Выделите и скопируйте данные из текстового поля. Откройте текстовый редактор, например Блокнот, и вставьте данные. Сохраните данные из текстового редактора как",
+    "description": "Followed by a literal filename (zoho_export.csv) rendered as code, then a period."
+  },
+  "importSplashidInstructions": {
+    "message": "В приложении SplashID Safe для компьютера щелкните синий значок замка SplashID в правом верхнем углу. Перейдите в меню Экспорт → Экспорт в формат CSV и сохраните файл CSV."
+  },
+  "importPasskeepInstructions": {
+    "message": "В мобильном приложении PassKeep перейдите в раздел Резервное копирование/Восстановление. Найдите раздел Резервное копирование/Восстановление в формате CSV и нажмите Создать резервную копию в формате CSV, чтобы сохранить файл CSV."
+  },
+  "importGnomeInstructionsIntro": {
+    "message": "Убедитесь, что у вас установлены пакеты python-keyring и python-gnomekeyring. Сохраните ",
+    "description": "Followed by a hyperlink whose text is importGnomeInstructionsLinkText."
+  },
+  "importGnomeInstructionsLinkText": {
+    "message": "скрипт Python для импорта/экспорта ключей GNOME Keyring"
+  },
+  "importGnomeInstructionsScriptLabel": {
+    "message": "на рабочий стол с расширением",
+    "description": "Followed by a literal filename (pw_helper.py) rendered as code."
+  },
+  "importGnomeInstructionsRunTerminal": {
+    "message": ". Откройте терминал и запустите",
+    "description": "Follows the pw_helper.py filename; followed by a terminal command rendered as code."
+  },
+  "importGnomeInstructionsAndThen": {
+    "message": "а затем",
+    "description": "Between two terminal commands rendered as code."
+  },
+  "importGnomeInstructionsUploadResult": {
+    "message": ". Затем загрузите полученный файл",
+    "description": "Followed by a literal filename (my_passwords.json) rendered as code."
+  },
+  "importGnomeInstructionsFileHere": {
+    "message": "сюда, в Bitwarden.",
+    "description": "Follows the my_passwords.json filename."
+  },
+  "importPasswordagentInstructions": {
+    "message": "В приложении Password Agent для компьютера перейдите в меню Файл → Экспорт, нажмите кнопку Поля для экспорта и отметьте все поля, измените Формат вывода на CSV, а затем нажмите кнопку Старт, чтобы сохранить файл CSV."
+  },
+  "importPasspackInstructions": {
+    "message": "Войдите в хранилище сайта Passpack, перейдите в раздел Настройки → Экспорт, а затем нажмите кнопку Скачать, чтобы сохранить файл в формате CSV."
+  },
+  "importPassmanInstructions": {
+    "message": "Откройте хранилище Passman и нажмите Настройки в левом нижнем углу. В окне Настройки перейдите на вкладку Экспорт учетных данных и выберите JSON в качестве типа экспорта. Введите парольную фразу вашего хранилища и нажмите кнопку Экспорт, чтобы сохранить файл JSON."
+  },
+  "importAvastCsvInstructions": {
+    "message": "Откройте приложение Avast Passwords на компьютере и перейдите в раздел Настройки → Импорт/экспорт данных. Нажмите кнопку Экспорт напротив пункта Экспорт в файл CSV, чтобы сохранить файл CSV."
+  },
+  "importAvastJsonInstructions": {
+    "message": "Откройте приложение Avast Passwords на компьютере и перейдите в раздел Настройки → Импорт/экспорт данных. Нажмите кнопку Экспорт напротив пункта Экспорт в файл JSON, чтобы сохранить файл JSON."
+  },
+  "importFsecureInstructions": {
+    "message": "Откройте приложение F-Secure KEY для компьютера и перейдите в раздел Настройки → Экспорт паролей. Нажмите кнопку Экспорт, введите мастер-пароль и сохраните файл FSK."
+  },
+  "importKasperskyInstructions": {
+    "message": "Откройте приложение Kaspersky Password Manager для компьютера и перейдите в раздел Настройки → Импорт/экспорт. Найдите раздел Экспорт в текстовый файл и нажмите кнопку Экспорт, чтобы сохранить файл TXT."
+  },
+  "importRemembearInstructions": {
+    "message": "Откройте приложение RememBear для компьютера и перейдите в раздел Настройки →Аккаунт → Экспорт. Введите мастер-пароль и нажмите кнопку Экспортировать в любом случае, чтобы сохранить файл в формате CSV."
+  },
+  "importPasswordwalletInstructions": {
+    "message": "Откройте приложение PasswordWallet для компьютера и перейдите в меню Файл → Экспорт → Видимые записи в текстовый файл. Введите пароль и нажмите кнопку ОК, чтобы сохранить файл TXT."
+  },
+  "importMykiInstructions": {
+    "message": "Откройте расширение Myki для браузера на компьютере, перейдите в раздел Дополнительно → Экспорт учетных записей, а затем сосканируйте QR-код с помощью мобильного устройства. После этого в папку Загрузки на вашем компьютере будут сохранены несколько файлов в формате CSV."
+  },
+  "importSecuresafeInstructions": {
+    "message": "Экспортируйте хранилище паролей SecureSafe в файл CSV с разделителем запятой."
+  },
+  "importLogmeonceInstructions": {
+    "message": "Откройте расширение для браузера LogMeOnce, затем выберите Открыть меню → Экспорт в и нажмите Файл CSV, чтобы сохранить файл CSV."
+  },
+  "importBlackberryInstructions": {
+    "message": "Откройте приложение BlackBerry Password Keeper, затем перейдите в Настройки → Импорт/Экспорт. Выберите Экспорт паролей и следуйте инструкциям на экране, чтобы сохранить незашифрованный файл в формате CSV."
+  },
+  "importButtercupInstructions": {
+    "message": "Откройте приложение Buttercup для компьютера и разблокируйте хранилище. Щелкните правой кнопкой мыши по значку хранилища и выберите Экспорт, чтобы сохранить файл в формате CSV."
+  },
+  "importCodebookInstructions": {
+    "message": "Откройте приложение Codebook для компьютера и авторизуйтесь. Перейдите в меню Файл → Экспортировать все, затем нажмите Да в появившемся диалоговом окне и сохраните файл в формате CSV."
+  },
+  "importEncryptrInstructions": {
+    "message": "Откройте последнюю версию приложения Encryptr для компьютера и разрешите синхронизацию всех ваших данных. По завершении синхронизации значок загрузки в правом верхнем углу станет розовым. Нажмите на значок загрузки и сохраните файл в формате CSV."
+  },
+  "importYotiInstructions": {
+    "message": "В расширении Yoti для браузера нажмите Настройки, затем Экспорт сохраненных данных для входа и сохраните файл в формате CSV."
+  },
+  "importPsonoInstructions": {
+    "message": "Войдите в веб-хранилище Psono, щелкните раскрывающийся список Авторизован как и выберите Другие. Перейдите на вкладку Экспорт, выберите формат JSON, а затем нажмите Экспорт."
+  },
+  "importPasskyInstructions": {
+    "message": "Войдите на https:/vault.passky.org → Импорт и экспорт → Экспорт в разделе Passky. (Функция резервного копирования не поддерживается, так как данные зашифрованы)."
+  },
+  "importProtonpassInstructions": {
+    "message": "В расширении для браузера ProtonPass перейдите в раздел Настройки > Экспорт. Выполните экспорт без шифрования PGP и сохраните файл в формате ZIP."
+  },
+  "importPasswordxpInstructions": {
+    "message": "Выберите в меню База данных → Экспорт в файл.... → В настройках экспорта убедитесь, что установлен флажок Названия папок и заголовки столбцов. → Нажмите кнопку Обзор..., выберите целевой файл и установите его тип как CSV-файл."
+  },
+  "importNetwrixInstructions": {
+    "message": "Откройте FullClient, перейдите в главное меню и выберите пункт Экспорт. Запустите мастер экспорта паролей и следуйте инструкциям, чтобы экспортировать файл в формате CSV."
+  },
+  "importNordpassInstructions": {
+    "message": "Войдите в NordPass и откройте Настройки → Прокрутите вниз до раздела Импорт и экспорт и выберите Экспорт элементов → Введите мастер-пароль и нажмите Продолжить → Сохраните файл CSV на своем устройстве."
+  },
+  "importPassworddepot17Instructions": {
+    "message": "В приложении для компьютера перейдите в меню Инструменты → Экспорт → введите мастер-пароль → выберите формат XML (*.xml) в качестве формата экспорта → нажмите Далее → выберите записи, которые необходимо включить в экспорт → нажмите Далее, чтобы экспортировать данные в ранее выбранное место."
+  },
+  "importDelineaInstructions": {
+    "message": "Войдите в Delinea, найдите раздел Импорт/Экспорт -> выберите Экспорт -> выберите XML в качестве формата экспорта -> выберите QuantumLock в качестве типа аутентификатора -> введите свой пароль и нажмите Экспорт, чтобы сохранить файл XML."
+  },
+  "importDelineaCsvInstructions": {
+    "message": "Войдите в Delinea, найдите раздел Импорт/Экспорт -> выберите Экспорт -> выберите CSV в качестве формата экспорта -> выберите QuantumLock в качестве типа аутентификатора -> введите свой пароль и нажмите Экспорт, чтобы сохранить файл CSV."
+  },
   "options": {
     "message": "Опции"
   },
@@ -3487,6 +3742,10 @@
   },
   "restrictedItemTypePolicyDescV2": {
     "message": "Не позволять пользователям создавать и хранить кредитные карты в своих хранилищах. При включении этой политики существующие карты будут автоматически скрыты."
+  },
+  "restrictedItemTypePolicyDescVfo1": {
+    "message": "Не позволять пользователям создавать и хранить кредитные карты. При включении этой политики существующие карты будут автоматически скрыты.",
+    "description": "VFO1 terminology variant of 'restrictedItemTypePolicyDescV2'"
   },
   "restrictCardTypeImport": {
     "message": "Невозможно импортировать элементы карт"
@@ -7394,6 +7653,10 @@
   "passwordGeneratorPolicyDescV2": {
     "message": "Выберите набор минимальных требований к паролям, создаваемым пользователями."
   },
+  "passwordGeneratorPolicyDescVfo1": {
+    "message": "Установить требования к генератору паролей.",
+    "description": "VFO1 terminology variant of 'passwordGeneratorPolicyDescV2', shown in the policies list"
+  },
   "generatedPassword": {
     "message": "Сгенерированный пароль"
   },
@@ -7642,14 +7905,26 @@
   "singleOrg": {
     "message": "Одна организация"
   },
+  "singleOrgVfo1": {
+    "message": "Членство в одной организации",
+    "description": "VFO1 terminology variant of 'singleOrg'"
+  },
   "singleOrgDesc": {
     "message": "Запретить пользователям присоединяться к другим организациям."
   },
   "singleOrgPolicyDesc": {
     "message": "Запретить членам организации присоединяться к другим организациям. Эта политика необходима для организаций, в которых включена проверка домена."
   },
+  "singleOrgPolicyDescVfo1": {
+    "message": "Запретить пользователям присоединяться к другим общим хранилищам или хранилищам организации.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDesc'"
+  },
   "singleOrgPolicyDescV2": {
     "message": "Члены этой организации не могут вступать в другие организации. При включении этой политики у существующих пользователей, принадлежащим к другим организациям, будет отозван доступ. Эта политика не будет применяться к владельцам и администраторам."
+  },
+  "singleOrgPolicyDescV2Vfo1": {
+    "message": "Пользователи не могут присоединяться к хранилищам других организаций. При включении этой политики у существующих пользователей, принадлежащим к другим организациям, будет отозван доступ. Эта политика не будет применяться к владельцам и администраторам.",
+    "description": "VFO1 terminology variant of 'singleOrgPolicyDescV2'"
   },
   "singleOrgBlockCreateMessage": {
     "message": "Политика вашей текущей организации не позволяет вам присоединиться к более чем одной организации. Пожалуйста, свяжитесь с администраторами вашей организации или авторизуйтесь под другим аккаунтом Bitwarden."
@@ -7659,6 +7934,18 @@
   },
   "requireSso": {
     "message": "Требовать авторизацию через единый вход (SSO)"
+  },
+  "requireSsoVfo1": {
+    "message": "Требовать SSO",
+    "description": "VFO1 terminology variant of 'requireSso', shown in the policies list"
+  },
+  "requireSsoPolicyDescListVfo1": {
+    "message": "Требовать от пользователей авторизацию через единый вход (SSO).",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policies list"
+  },
+  "requireSsoPolicyDescV2Vfo1": {
+    "message": "Требовать от пользователей авторизации с использованием единого входа. Эта политика не будет применяться к владельцам и администраторам.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyDescV2', shown in the policy edit drawer"
   },
   "requireSsoPolicyDesc": {
     "message": "Требовать от участников входа с помощью единой корпоративной авторизации."
@@ -7677,6 +7964,10 @@
   },
   "requireSsoPolicyReqV2": {
     "message": "Перед включением этой политики необходимо включить политику единой организации."
+  },
+  "requireSsoPolicyReqV2Vfo1": {
+    "message": "Перед включением этой политики необходимо включить политику членства единой организации.",
+    "description": "VFO1 terminology variant of 'requireSsoPolicyReqV2'"
   },
   "requireSsoPolicyReqError": {
     "message": "Не включена политика единой организации."
@@ -8064,8 +8355,16 @@
   "centralizeDataOwnership": {
     "message": "Централизация ответственности за организацию"
   },
+  "centralizeDataOwnershipVfo1": {
+    "message": "Централизованное управление организацией",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnership'"
+  },
   "centralizeDataOwnershipDesc": {
     "message": "Все элементы пользователя будут принадлежать и управляться организацией. Администраторы и владельцы не участвуют в этом процессе. "
+  },
+  "centralizeDataOwnershipDescVfo1": {
+    "message": "Требовать от пользователей сохранять элементы в хранилище организации, удалив их персональное хранилище.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipDesc', shown in the policies list"
   },
   "centralizeDataOwnershipContentAnchor": {
     "message": "Узнайте больше о централизованном владении",
@@ -8101,11 +8400,23 @@
   "centralizeDataOwnershipDescV2": {
     "message": "Все элементы участников будут находиться в собственности организации и управляться ею. Данная политика не будет применяться к владельцам и администраторам. Узнайте больше о "
   },
+  "centralizeDataOwnershipDescV3": {
+    "message": "Все элементы участников будут находиться в собственности организации и управляться ею. Данная политика не будет применяться к владельцам и администраторам. ",
+    "description": "Replaces centralizeDataOwnershipDescV2 to avoid duplicating the 'Learn more about' text already present in the adjacent centralizeDataOwnershipContentAnchor link"
+  },
   "centralizeDataOwnershipBenefit3V2": {
     "message": "Предоставьте всем пользователям выделенное пространство “Мои элементы” для управления их собственными логинами."
   },
+  "centralizeDataOwnershipBenefit3Vfo1": {
+    "message": "Предоставьте всем пользователям выделенное пространство Мои элементы для управления их собственными логинами.",
+    "description": "VFO1 terminology variant of 'centralizeDataOwnershipBenefit3V2'"
+  },
   "promptUsersToMoveItemsV2": {
     "message": "Предложить пользователям переместить их элементы хранилища в организацию"
+  },
+  "promptUsersToMoveItemsVfo1": {
+    "message": "Предложить пользователям переместить их элементы \"Мое хранилище\" в организацию",
+    "description": "VFO1 terminology variant of 'promptUsersToMoveItemsV2'"
   },
   "organizationDataOwnership": {
     "message": "Принудительное соблюдение прав собственности на данные организации"
@@ -8151,6 +8462,10 @@
     "message": "Новые пользователи, приглашенные в организацию, будут автоматически подтверждены, когда устройство администратора будет разблокировано.",
     "description": "This is the description of the policy as it appears in the 'Policies' page"
   },
+  "autoConfirmDescriptionVfo1": {
+    "message": "Новые пользователи, приглашенные в хранилище организации, будут автоматически подтверждены, когда устройство администратора будет разблокировано.",
+    "description": "VFO1 terminology variant of 'autoConfirmDescription', shown in the policies list"
+  },
   "howToTurnOnAutoConfirm": {
     "message": "Как включить автоматическое подтверждение пользователя"
   },
@@ -8172,6 +8487,10 @@
     "message": "Новые пользователи, приглашенные в организацию, будут автоматически подтверждены, когда устройство администратора будет разблокировано. Перед включением этой политики, пожалуйста, ознакомьтесь со следующими условиями и согласитесь с ними: ",
     "description": "This is the description of the policy as it appears inside the policy edit dialog"
   },
+  "autoConfirmPolicyEditDescriptionVfo1": {
+    "message": "Новые пользователи, приглашенные в хранилище организации, будут автоматически подтверждены, когда устройство администратора будет разблокировано. Перед включением этой политики, пожалуйста, ознакомьтесь со следующими условиями и согласитесь с ними: ",
+    "description": "VFO1 terminology variant of 'autoConfirmPolicyEditDescription'"
+  },
   "autoConfirmAcceptSecurityRiskTitle": {
     "message": "Потенциальные риски безопасности. "
   },
@@ -8185,11 +8504,23 @@
   "autoConfirmSingleOrgRequired": {
     "message": "Требуется политика единой организации. "
   },
+  "autoConfirmSingleOrgRequiredVfo1": {
+    "message": "Требуется политика хранилища единой организации. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequired'"
+  },
   "autoConfirmSingleOrgRequiredDesc": {
     "message": "Все участники должны принадлежать только этой организации для активации этой автоматизации."
   },
+  "autoConfirmSingleOrgRequiredDescVfo1": {
+    "message": "Для активации этой автоматизации все пользователи должны принадлежать только к данному хранилищу организации.",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgRequiredDesc'"
+  },
   "autoConfirmSingleOrgExemption": {
     "message": "Политика единой организации распространяется на все роли. "
+  },
+  "autoConfirmSingleOrgExemptionVfo1": {
+    "message": "Политика хранилища единой организации распространяется на все роли. ",
+    "description": "VFO1 terminology variant of 'autoConfirmSingleOrgExemption'"
   },
   "autoConfirmNoEmergencyAccess": {
     "message": "Нет экстренного доступа. "
@@ -8329,6 +8660,10 @@
     "message": "Управление Send",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
   },
+  "manageSendAndShareVfo1": {
+    "message": "Управление Send и общим доступом",
+    "description": "VFO1 terminology variant of 'manageSend', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
+  },
   "sendControlsPolicyDesc": {
     "message": "Настройте параметры создания и редактирования Send, включая возможность их удаления.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
@@ -8336,6 +8671,10 @@
   "sendControlsPolicyDescV4": {
     "message": "Управляйте тем, как участники используют функцию Send. Эта политика будет применяться к Send, созданным после ее включения. Администраторы и владельцы группы исключаются из-под действия этой политики.",
     "description": "'Send' is the name of a Bitwarden feature (used in the plural here) and should not be translated."
+  },
+  "sendControlsPolicyDescVfo1": {
+    "message": "Установите настройки Send.",
+    "description": "VFO1 terminology variant of 'sendControlsPolicyDescV4', shown in the policies list. 'Send' is the name of a Bitwarden feature and should not be translated."
   },
   "sendOptions": {
     "message": "Параметры Send",
@@ -8357,6 +8696,10 @@
   },
   "uriMatchDetectionPolicyDesc": {
     "message": "Определяет, когда логины будут предлагаться для автозаполнения. Администраторы и владельцы освобождаются от этой политики."
+  },
+  "uriMatchDetectionPolicyDescVfo1": {
+    "message": "Установить обнаружение совпадений URI по умолчанию для всех элементов, созданных участниками.",
+    "description": "VFO1 terminology variant of 'uriMatchDetectionPolicyDesc', shown in the policies list"
   },
   "uriMatchDetectionPolicyDescV2": {
     "message": "Задайте умолчание, какие части адреса сайта (URI) должны совпадать, чтобы Bitwarden предложил логин для автозаполнения. Эта политика не будет применяться к владельцам и администраторам."
@@ -8771,11 +9114,19 @@
   "accountRecoveryPolicy": {
     "message": "Управление восстановлением аккаунта"
   },
+  "accountRecoveryPolicyDescVfo1": {
+    "message": "Разрешить администраторам сбрасывать мастер-пароли пользователей.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicyDescV2', shown in the policies list"
+  },
   "accountRecoverySingleOrgRequirementDesc": {
     "message": "Перед активацией этой политики необходимо включить политику Единого входа (SSO)."
   },
   "accountRecoveryPolicySingleOrgReqV2": {
     "message": "Перед включением этой политики необходимо включить политику единой организации."
+  },
+  "accountRecoveryPolicySingleOrgReqV2Vfo1": {
+    "message": "Перед включением этой политики необходимо включить политику членства единой организации.",
+    "description": "VFO1 terminology variant of 'accountRecoveryPolicySingleOrgReqV2'"
   },
   "accountRecoveryPolicyDescV3Part1": {
     "message": "Разрешить администраторам помогать участникам восстанавливать доступ к своим аккаунтам, если они зарегистрированы в "
@@ -9148,6 +9499,10 @@
   "automaticAppLoginWithSSODescV2": {
     "message": "Когда пользователи запускают приложение через вашего провайдера аутентификации, их учетные данные  будут автоматически заполнены и отправлены, что обеспечивает безопасную авторизацию одним щелчком мыши."
   },
+  "automaticAppLoginWithSSODescListVfo1": {
+    "message": "Формы авторизаций будут автоматически заполняться и отправляться для приложений, запущенных с помощью настроенного провайдера идентификационных данных.",
+    "description": "VFO1 terminology variant of 'automaticAppLoginWithSSODescV2', shown in the policies list"
+  },
   "automaticAppLoginIdpHostLabel": {
     "message": "Хост провайдера идентификации"
   },
@@ -9162,6 +9517,10 @@
   },
   "sessionTimeoutPolicyDescription": {
     "message": "Установите максимальный тайм-аут сессии для всех участников, кроме владельцев."
+  },
+  "sessionTimeoutPolicyDescriptionVfo1": {
+    "message": "Установить максимальный тайм-аут хранилища для пользователей.",
+    "description": "VFO1 terminology variant of 'sessionTimeoutPolicyDescription', shown in the policies list"
   },
   "maximumAllowedTimeout": {
     "message": "Максимально допустимый тайм-аут"
@@ -9278,6 +9637,14 @@
   "disablePersonalVaultExportDescriptionV2": {
     "message": "Не разрешать пользователям экспортировать данные из своих личных хранилищ. Эта политика не распространяется на владельцев и администраторов."
   },
+  "disablePersonalVaultExportDescriptionVfo1": {
+    "message": "Не разрешать пользователям экспортировать данные из хранилища. Данное правило не будет применяться к владельцам и администраторам.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescriptionV2'"
+  },
+  "disablePersonalVaultExportDescriptionListVfo1": {
+    "message": "Не разрешать пользователям экспортировать данные из хранилища.",
+    "description": "VFO1 terminology variant of 'disablePersonalVaultExportDescription', shown in the policies list"
+  },
   "vaultExportDisabled": {
     "message": "Экспорт хранилища отключен"
   },
@@ -9292,6 +9659,10 @@
   },
   "activateAutofillPolicyDescription": {
     "message": "Включить автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых участников."
+  },
+  "activateAutofillPolicyDescriptionVfo1": {
+    "message": "Автоматически заполнять логины на сайтах и в приложениях.",
+    "description": "VFO1 terminology variant of 'activateAutofillPolicyDescription', shown in the policies list"
   },
   "activateAutofillPolicyDescV2": {
     "message": "Включите автозаполнение при загрузке страницы в расширении браузера для всех существующих и новых пользователей. Имейте в виду, что скомпрометированные или ненадежные сайты могут"
@@ -12338,7 +12709,7 @@
     "message": "Бесплатные организации из 2 человек"
   },
   "freePlanWithSharedVault": {
-    "message": "Free plan with shared vault"
+    "message": "Бесплатный план с общим хранилищем"
   },
   "unlimitedSecrets": {
     "message": "Неограниченные секреты"
@@ -12675,10 +13046,6 @@
         "example": "Unique ID"
       }
     }
-  },
-  "seeDetailedInstructions": {
-    "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
-    "description": "This is followed a by a hyperlink to the help website."
   },
   "getStartedWithYourVault": {
     "message": "Начните работу с вашим хранилищем"
@@ -14473,11 +14840,23 @@
   "freeFamiliesSponsorshipPolicyTitleV2": {
     "message": "Удалить спонсорский план Family"
   },
+  "freeFamiliesSponsorshipTitleVfo1": {
+    "message": "Удалить спонсорский план Family",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the policies list"
+  },
+  "freeFamiliesSponsorshipPolicyTitleV2Vfo1": {
+    "message": "Удалить спонсорский план Family",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyTitleV2', shown in the drawer title"
+  },
   "freeFamiliesSponsorshipPolicyDesc": {
     "message": "Не разрешать участникам выкупать план Families через эту организацию."
   },
   "freeFamiliesSponsorshipPolicyDescV2": {
     "message": "Не разрешать пользователям использовать план Family, спонсируемый вашей организацией."
+  },
+  "freeFamiliesSponsorshipDescVfo1": {
+    "message": "Отключить возможность для пользователей воспользоваться бесплатным тарифным планом Family.",
+    "description": "VFO1 terminology variant of 'freeFamiliesSponsorshipPolicyDescV2', shown in the policies list"
   },
   "verifyBankAccountWithStatementDescriptorWarning": {
     "message": "Оплата с помощью банковского счета доступна только для клиентов в США. Вам потребуется подтвердить свой банковский счет. Мы сделаем микродепозит в течение следующих 1-2 рабочих дней. Введите код дескриптора выписки из этого депозита на странице выставления счетов организации, чтобы подтвердить банковский счет. Неподтверждение банковского счета приведет к пропуску платежа и приостановке подписки."
@@ -15634,8 +16013,16 @@
   "blockClaimedDomainAccountCreationDesc": {
     "message": "Запретите пользователям создавать аккаунты за пределами вашей организации, используя адреса email из заявленных доменов."
   },
+  "blockClaimedDomainAccountCreationDescVfo1": {
+    "message": "Запретить создание аккаунтов для заявленных доменов.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDesc', shown in the policies list"
+  },
   "blockClaimedDomainAccountCreationDescV2": {
     "message": "Запретить пользователям использовать заявленный вами домен для создания аккаунтов Bitwarden за пределами вашей организации."
+  },
+  "blockClaimedDomainAccountCreationDescV2Vfo1": {
+    "message": "Запретить пользователям использовать заявленный вами домен для создания аккаунтов Bitwarden за пределами хранилища вашей организации.",
+    "description": "VFO1 terminology variant of 'blockClaimedDomainAccountCreationDescV2'"
   },
   "blockClaimedDomainAccountCreationPrerequisite": {
     "message": "Перед активацией этой политики необходимо заявить домен."
