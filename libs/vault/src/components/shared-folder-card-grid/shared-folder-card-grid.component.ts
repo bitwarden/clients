@@ -8,9 +8,9 @@ import {
   inject,
   input,
   linkedSignal,
-  output,
   untracked,
 } from "@angular/core";
+import { RouterLink } from "@angular/router";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -54,14 +54,22 @@ const COUNT_TOKEN = "\uFFFC";
 // The toggle sits below the grid it controls, so `aria-controls` has to point at the list by id.
 let nextId = 0;
 
+/** A single child folder, resolved to the route its card links to. */
+type SharedFolderCard = {
+  id: string;
+  name: string;
+  commands: unknown[];
+};
+
 /**
  * Renders the direct child folders of the shared folder currently in view as a responsive card
- * grid. Activating a card emits {@link folderSelected} rather than navigating: the host owns what
- * drilling in means, since the filter it narrows lives in the vault items table this grid sits
- * above, not in the URL.
+ * grid. Each card is an anchor built from the host's {@link folderRoute}, so click, Enter, and
+ * cmd/ctrl and middle-click all behave like ordinary links — each client keeps deciding what a
+ * shared folder's URL looks like.
  *
- * The component is presentational: it fetches nothing, navigates nowhere, and has no loading state.
- * Hosts pass the children they have already derived, and an empty list renders nothing.
+ * The component is presentational: it fetches nothing, resolves no route of its own, and has no
+ * loading state. Hosts pass the children they have already derived, and an empty list renders
+ * nothing.
  */
 @Component({
   selector: "vault-shared-folder-card-grid",
@@ -74,6 +82,7 @@ let nextId = 0;
     ItemModule,
     LinkModule,
     NgTemplateOutlet,
+    RouterLink,
     TypographyModule,
     AccordionComponent,
   ],
@@ -92,10 +101,14 @@ export class SharedFolderCardGridComponent {
   readonly parentName = input.required<string>();
 
   /**
-   * Emits the child folder whose card was activated. The host narrows its own view to that folder,
-   * which is what feeds this grid its next set of children.
+   * The `routerLink` commands a child folder's card links to. The host owns the URL a shared folder
+   * lives at, and navigating there is what feeds this grid its next set of children.
+   *
+   * Must be a stable reference: a new function on each change detection pass would rebuild every
+   * card's route. Read any signals it needs inside the function — {@link cards} calls it, so the
+   * cards re-resolve when they change.
    */
-  readonly folderSelected = output<CollectionView>();
+  readonly folderRoute = input.required<(folder: CollectionView) => unknown[]>();
 
   protected readonly gridTemplateColumns = GRID_TEMPLATE_COLUMNS;
 
@@ -115,12 +128,18 @@ export class SharedFolderCardGridComponent {
   });
 
   /**
-   * The child collections themselves, unwrapped from their tree nodes. The tree names each node by
-   * its own path segment rather than its full path, so a card shows the folder's own name.
+   * The child collections unwrapped from their tree nodes, each resolved to its own route. The tree
+   * names each node by its own path segment rather than its full path, so a card shows the folder's
+   * own name.
    */
-  private readonly cards = computed<CollectionView[]>(() =>
-    this.folders().map((child) => child.node),
-  );
+  private readonly cards = computed<SharedFolderCard[]>(() => {
+    const route = this.folderRoute();
+    return this.folders().map(({ node }) => ({
+      id: node.id,
+      name: node.name,
+      commands: route(node),
+    }));
+  });
 
   protected readonly count = computed(() => this.cards().length);
 

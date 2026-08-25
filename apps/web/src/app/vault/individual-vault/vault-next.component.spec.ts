@@ -44,6 +44,13 @@ describe("VaultNextComponent", () => {
   const organizationId = "1b2c3d4e-5f60-4a1b-8c2d-3e4f5a6b7c8d" as OrganizationId;
   const otherOrganizationId = "9a8b7c6d-5e4f-4a3b-8c2d-1e2f3a4b5c6d" as OrganizationId;
 
+  // The `:collectionId` segment only names a guid, so the shared folders the drill-in tests use
+  // need real ones rather than readable stand-ins.
+  const departmentsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+  const designId = "aaaa2222-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+  const engineeringId = "aaaa3333-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+  const platformId = "aaaa4444-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
+
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
@@ -100,9 +107,17 @@ describe("VaultNextComponent", () => {
     type: VaultNavItemType.Organization,
   });
 
-  /** Navigates the page to a vault scope, as the `:vaultId` route segment would. */
-  const scopeTo = (vaultId?: string) => {
-    paramMap$.next(convertToParamMap(vaultId == null ? {} : { vaultId }));
+  /**
+   * Navigates the page to a vault scope, as the `:vaultId` and `:collectionId` route segments
+   * would.
+   */
+  const scopeTo = (vaultId?: string, collectionId?: string) => {
+    paramMap$.next(
+      convertToParamMap({
+        ...(vaultId == null ? {} : { vaultId }),
+        ...(collectionId == null ? {} : { collectionId }),
+      }),
+    );
     fixture.detectChanges();
   };
 
@@ -532,14 +547,14 @@ describe("VaultNextComponent", () => {
   });
 
   describe("shared folder card grid", () => {
-    const collection = (id: string, name: string) =>
-      new CollectionView({ id: id as CollectionId, organizationId, name });
+    const collection = (id: CollectionId, name: string) =>
+      new CollectionView({ id, organizationId, name });
 
     // Nesting is carried in the name, so the tree is derived rather than declared.
-    const departments = collection("departments", "Departments");
-    const design = collection("design", "Departments/Design");
-    const engineering = collection("engineering", "Departments/Engineering");
-    const platform = collection("platform", "Departments/Engineering/Platform");
+    const departments = collection(departmentsId, "Departments");
+    const design = collection(designId, "Departments/Design");
+    const engineering = collection(engineeringId, "Departments/Engineering");
+    const platform = collection(platformId, "Departments/Engineering/Platform");
 
     beforeEach(() => {
       collections$.next([departments, design, engineering, platform]);
@@ -547,59 +562,127 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
     });
 
-    /** Stands in for the table reporting its Shared folders chip selection. */
-    const filterTo = (...collectionIds: string[]) => {
-      component().trackSharedFolderFilter(collectionIds);
-      fixture.detectChanges();
-    };
-
     const childNames = () =>
       component()
         .childSharedFolders()
         .map((child: TreeNode<CollectionView>) => child.node.name);
 
-    it("has nothing to show until the chip narrows to a folder", () => {
+    it("has nothing to show until the route drills into a folder", () => {
+      scopeTo(organizationId);
+
       expect(childNames()).toEqual([]);
       expect(component().sharedFolderName()).toBe("");
     });
 
-    it("shows the direct children of the folder the chip names", () => {
-      filterTo("departments");
+    it("shows the direct children of the folder the route names", () => {
+      scopeTo(organizationId, departmentsId);
 
       expect(childNames()).toEqual(["Design", "Engineering"]);
       expect(component().sharedFolderName()).toBe("Departments");
     });
 
     it("titles a nested folder by its own name and shows only its own children", () => {
-      filterTo("engineering");
+      scopeTo(organizationId, engineeringId);
 
       expect(childNames()).toEqual(["Platform"]);
       expect(component().sharedFolderName()).toBe("Engineering");
     });
 
     it("shows no children for a leaf folder", () => {
-      filterTo("platform");
+      scopeTo(organizationId, platformId);
 
       expect(childNames()).toEqual([]);
       expect(component().sharedFolderName()).toBe("Platform");
     });
 
-    // Several selected folders name no single parent for the grid to title itself with.
-    it("stays away while the chip holds more than one folder", () => {
-      filterTo("departments", "engineering");
+    // The guard turns these away, so reaching one means it was bypassed — see `vaultScope`.
+    it("stays away for a folder segment the scope cannot hold", () => {
+      scopeTo(MY_VAULT_ROUTE, departmentsId);
 
       expect(childNames()).toEqual([]);
       expect(component().sharedFolderName()).toBe("");
     });
 
-    // The grid resolves against the scoped collections, the same set the chip offers, so it can
-    // never surface a child the chip couldn't have selected.
-    it("resolves nothing for a folder outside the scoped vault", () => {
-      scopeTo(MY_VAULT_ROUTE);
-      filterTo("departments");
+    it("stays away for a folder outside the scoped vault", () => {
+      scopeTo(otherOrganizationId, departmentsId);
 
       expect(childNames()).toEqual([]);
       expect(component().sharedFolderName()).toBe("");
+    });
+
+    describe("the route each card links to", () => {
+      it("links a child folder to itself within the same vault", () => {
+        scopeTo(organizationId, departmentsId);
+
+        expect(component().sharedFolderRoute(engineering)).toEqual([
+          "/vault",
+          organizationId,
+          engineeringId,
+        ]);
+      });
+
+      // A folder's route names the vault it lives in, not the path taken to it.
+      it("replaces the folder segment rather than nesting under it", () => {
+        scopeTo(organizationId, engineeringId);
+
+        expect(component().sharedFolderRoute(platform)).toEqual([
+          "/vault",
+          organizationId,
+          platformId,
+        ]);
+      });
+
+      // The grid renders no cards under one, so this route is never actually linked to.
+      it("falls back to the vault itself for a scope that can hold no folder", () => {
+        scopeTo(MY_VAULT_ROUTE);
+
+        expect(component().sharedFolderRoute(engineering)).toEqual(["/vault", MY_VAULT_ROUTE]);
+      });
+    });
+  });
+
+  describe("scoped collections", () => {
+    const collection = (id: CollectionId, name: string) =>
+      new CollectionView({ id, organizationId, name });
+
+    const engineering = collection(engineeringId, "Departments/Engineering");
+    const platform = collection(platformId, "Departments/Engineering/Platform");
+    const design = collection(designId, "Departments/Design");
+
+    beforeEach(() => {
+      collections$.next([design, engineering, platform]);
+      fixture.detectChanges();
+    });
+
+    it("offers the collections of the vault the page is scoped to", () => {
+      scopeTo(organizationId);
+
+      expect(component().scopedCollections()).toEqual([design, engineering, platform]);
+    });
+
+    // An item belongs to as many shared folders as it was assigned to, so a row in the folder being
+    // viewed may live in others too — the column has to be able to name them, and the chip to
+    // offer them.
+    it("keeps the whole vault on offer once the route drills into a folder", () => {
+      scopeTo(organizationId, engineeringId);
+
+      expect(component().scopedCollections()).toEqual([design, engineering, platform]);
+    });
+  });
+
+  describe("rows for a shared folder", () => {
+    it("keeps only the drilled-into folder's items", () => {
+      const inFolder = buildCipher({ id: "in-folder", collectionIds: [engineeringId] });
+      const inChildFolder = buildCipher({ id: "in-child", collectionIds: [platformId] });
+      const elsewhere = buildCipher({ id: "elsewhere", collectionIds: [designId] });
+      for (const cipher of [inFolder, inChildFolder, elsewhere]) {
+        cipher.organizationId = organizationId;
+      }
+
+      ciphers$.next([inFolder, inChildFolder, elsewhere]);
+      scopeTo(organizationId, engineeringId);
+
+      expect(component().ciphers()).toEqual([inFolder]);
     });
   });
 

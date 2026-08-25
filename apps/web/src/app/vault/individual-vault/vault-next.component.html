@@ -8,7 +8,7 @@
 <vault-shared-folder-card-grid
   [folders]="childSharedFolders()"
   [parentName]="sharedFolderName()"
-  (folderSelected)="drillIntoSharedFolder($event)"
+  [folderRoute]="sharedFolderRoute"
 ></vault-shared-folder-card-grid>
 
 <vault-items-table
@@ -21,7 +21,6 @@
   [organizationId]="scopedOrganizationId()"
   [itemAction]="itemAction"
   [copyPresentation]="copyPresentation()"
-  (sharedFolderFilterChange)="trackSharedFolderFilter($event)"
 >
   <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
     @if (showItemCreation()) {

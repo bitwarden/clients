@@ -18,6 +18,7 @@ import {
   organizationInScope,
   parseVaultScope,
   resolveVaultScope,
+  scopedSharedFolderId,
   TRASH_ROUTE,
   VaultScope,
   vaultScopeCommands,
@@ -26,16 +27,23 @@ import {
 
 const organizationId = "1b2c3d4e-5f60-4a1b-8c2d-3e4f5a6b7c8d" as OrganizationId;
 const otherOrganizationId = "9a8b7c6d-5e4f-4a3b-8c2d-1e2f3a4b5c6d" as OrganizationId;
+const collectionId = "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f" as CollectionId;
 
 const myVaultScope: VaultScope = { type: VaultScopeType.MyVault };
 const organizationScope: VaultScope = { type: VaultScopeType.Organization, organizationId };
+const sharedFolderScope: VaultScope = {
+  type: VaultScopeType.Organization,
+  organizationId,
+  collectionId,
+};
 const trashScope: VaultScope = { type: VaultScopeType.Trash };
 const archiveScope: VaultScope = { type: VaultScopeType.Archive };
 
-const buildCipher = (cipherOrganizationId?: string) => {
+const buildCipher = (cipherOrganizationId?: string, collectionIds: string[] = []) => {
   const cipher = new CipherView();
   cipher.id = "cipher-1";
   cipher.organizationId = cipherOrganizationId ?? null;
+  cipher.collectionIds = collectionIds;
   return cipher;
 };
 
@@ -92,6 +100,34 @@ describe("parseVaultScope", () => {
     expect(parseVaultScope("myVault")).toBeNull();
     expect(parseVaultScope("")).toBeNull();
   });
+
+  describe("collection segment", () => {
+    it("drills an organization vault into the shared folder it names", () => {
+      expect(parseVaultScope(organizationId, collectionId)).toEqual(sharedFolderScope);
+    });
+
+    it("reads an absent collection segment as the whole vault", () => {
+      expect(parseVaultScope(organizationId, null)).toEqual(organizationScope);
+      expect(parseVaultScope(organizationId, undefined)).toEqual(organizationScope);
+    });
+
+    // A shared folder belongs to an organization, so no other scope can hold one.
+    it("rejects a collection alongside any other vault", () => {
+      expect(parseVaultScope(undefined, collectionId)).toBeNull();
+      expect(parseVaultScope(MY_VAULT_ROUTE, collectionId)).toBeNull();
+      expect(parseVaultScope(TRASH_ROUTE, collectionId)).toBeNull();
+      expect(parseVaultScope(ARCHIVE_ROUTE, collectionId)).toBeNull();
+    });
+
+    it("rejects a collection segment that is no guid", () => {
+      expect(parseVaultScope(organizationId, "engineering")).toBeNull();
+      expect(parseVaultScope(organizationId, "")).toBeNull();
+    });
+
+    it("rejects a collection under a vault it has already rejected", () => {
+      expect(parseVaultScope("acme-corp", collectionId)).toBeNull();
+    });
+  });
 });
 
 describe("isPersonalOnly", () => {
@@ -118,7 +154,7 @@ describe("isPersonalOnly", () => {
 
 describe("resolveVaultScope", () => {
   it("resolves All items to the personal vault for a personal-only account", () => {
-    expect(resolveVaultScope(undefined, personalNav)).toEqual(myVaultScope);
+    expect(resolveVaultScope(undefined, null, personalNav)).toEqual(myVaultScope);
   });
 
   it("leaves All items alone for an account with more than one vault", () => {
@@ -127,18 +163,22 @@ describe("resolveVaultScope", () => {
       buildNavItem(organizationId, VaultNavItemType.Organization),
     ]);
 
-    expect(resolveVaultScope(undefined, nav)).toEqual(ALL_ITEMS_SCOPE);
+    expect(resolveVaultScope(undefined, null, nav)).toEqual(ALL_ITEMS_SCOPE);
   });
 
   it("leaves All items alone until the account's vaults load", () => {
-    expect(resolveVaultScope(undefined, undefined)).toEqual(ALL_ITEMS_SCOPE);
+    expect(resolveVaultScope(undefined, null, undefined)).toEqual(ALL_ITEMS_SCOPE);
   });
 
   it("passes every other segment through untouched", () => {
-    expect(resolveVaultScope(TRASH_ROUTE, personalNav)).toEqual(trashScope);
-    expect(resolveVaultScope(ARCHIVE_ROUTE, personalNav)).toEqual(archiveScope);
-    expect(resolveVaultScope(organizationId, personalNav)).toEqual(organizationScope);
-    expect(resolveVaultScope("acme-corp", personalNav)).toBeNull();
+    expect(resolveVaultScope(TRASH_ROUTE, null, personalNav)).toEqual(trashScope);
+    expect(resolveVaultScope(ARCHIVE_ROUTE, null, personalNav)).toEqual(archiveScope);
+    expect(resolveVaultScope(organizationId, null, personalNav)).toEqual(organizationScope);
+    expect(resolveVaultScope("acme-corp", null, personalNav)).toBeNull();
+  });
+
+  it("keeps the shared folder a drilled-in segment names", () => {
+    expect(resolveVaultScope(organizationId, collectionId, personalNav)).toEqual(sharedFolderScope);
   });
 });
 
@@ -149,6 +189,7 @@ describe("vaultScopeCommands", () => {
     [organizationScope, ["/vault", organizationId]],
     [trashScope, ["/vault", TRASH_ROUTE]],
     [archiveScope, ["/vault", ARCHIVE_ROUTE]],
+    [sharedFolderScope, ["/vault", organizationId, collectionId]],
   ])("builds the route for %p", (scope: VaultScope, expected: string[]) => {
     expect(vaultScopeCommands(scope)).toEqual(expected);
   });
@@ -160,10 +201,27 @@ describe("vaultScopeCommands", () => {
       organizationScope,
       trashScope,
       archiveScope,
+      sharedFolderScope,
     ]) {
-      const [, segment] = vaultScopeCommands(scope);
-      expect(parseVaultScope(segment)).toEqual(scope);
+      const [, segment, collectionSegment] = vaultScopeCommands(scope);
+      expect(parseVaultScope(segment, collectionSegment)).toEqual(scope);
     }
+  });
+});
+
+describe("scopedSharedFolderId", () => {
+  it("names the folder an organization vault has drilled into", () => {
+    expect(scopedSharedFolderId(sharedFolderScope)).toBe(collectionId);
+  });
+
+  it.each([
+    ["All items", ALL_ITEMS_SCOPE],
+    ["the personal vault", myVaultScope],
+    ["a whole organization vault", organizationScope],
+    ["trash", trashScope],
+    ["the archive", archiveScope],
+  ])("names no folder for %s", (_name, scope: VaultScope) => {
+    expect(scopedSharedFolderId(scope)).toBeUndefined();
   });
 });
 
@@ -182,6 +240,43 @@ describe("cipherInScope", () => {
     expect(cipherInScope(buildCipher(organizationId), organizationScope)).toBe(true);
     expect(cipherInScope(buildCipher(otherOrganizationId), organizationScope)).toBe(false);
     expect(cipherInScope(buildCipher(), organizationScope)).toBe(false);
+  });
+
+  describe("a vault drilled into a shared folder", () => {
+    it("keeps the folder's own ciphers", () => {
+      expect(cipherInScope(buildCipher(organizationId, [collectionId]), sharedFolderScope)).toBe(
+        true,
+      );
+    });
+
+    it("keeps a cipher that belongs to the folder among others", () => {
+      const cipher = buildCipher(organizationId, ["other-collection", collectionId]);
+
+      expect(cipherInScope(cipher, sharedFolderScope)).toBe(true);
+    });
+
+    // A child folder's items arrive with the drill-in to the child.
+    it("drops ciphers in the organization but outside the folder", () => {
+      expect(
+        cipherInScope(buildCipher(organizationId, ["other-collection"]), sharedFolderScope),
+      ).toBe(false);
+      expect(cipherInScope(buildCipher(organizationId), sharedFolderScope)).toBe(false);
+    });
+
+    it("drops ciphers from another organization that names the same folder", () => {
+      const cipher = buildCipher(otherOrganizationId, [collectionId]);
+
+      expect(cipherInScope(cipher, sharedFolderScope)).toBe(false);
+    });
+
+    it("drops the folder's trashed and archived ciphers", () => {
+      expect(
+        cipherInScope(trashed(buildCipher(organizationId, [collectionId])), sharedFolderScope),
+      ).toBe(false);
+      expect(
+        cipherInScope(archived(buildCipher(organizationId, [collectionId])), sharedFolderScope),
+      ).toBe(false);
+    });
   });
 
   it.each([

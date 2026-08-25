@@ -3,7 +3,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
   output,
@@ -277,16 +276,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
-
-  /**
-   * Emits the Shared folders chip's selection — collection ids — whenever it changes.
-   *
-   * For a host that renders its own folder navigation beside the table, such as the shared folder
-   * card grid, and has to follow the drill-in the chip already represents rather than tracking a
-   * selection of its own that could drift from it. {@link setSharedFolderFilter} moves it the other
-   * way.
-   */
-  readonly sharedFolderFilterChange = output<string[]>();
 
   /**
    * {@link ciphers} ordered by name serving as the table's implicit secondary sort.
@@ -571,26 +560,12 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly tableComponent = viewChild(BitTableV2Component);
 
   /**
-   * The chips' live values. Cast because a view query erases the table's generics, so its
+   * The live search term. Cast because a view query erases the table's generics, so its
    * `filterValues()` comes back as an untyped record.
    */
-  private readonly liveFilterValues = computed(
-    () => this.tableComponent()?.filterValues() as VaultItemsTableFilters | undefined,
-  );
-
-  /** The live search term. */
-  private readonly searchTerm = computed(() => this.liveFilterValues()?.search ?? "");
-
-  /**
-   * The collections the Shared folders chip currently filters to.
-   *
-   * Compared by contents rather than by reference: every chip shares one `filterValues()` record,
-   * so editing an unrelated chip would otherwise hand this a fresh array holding the same ids and
-   * make {@link sharedFolderFilterChange} report a change that never happened.
-   */
-  private readonly sharedFolderFilter = computed(
-    () => this.liveFilterValues()?.sharedFolder ?? [],
-    { equal: (a, b) => a.length === b.length && a.every((id, index) => id === b[index]) },
+  private readonly searchTerm = computed(
+    () =>
+      (this.tableComponent()?.filterValues() as VaultItemsTableFilters | undefined)?.search ?? "",
   );
 
   /** Reads the signals above, so all of them have to be declared before this. */
@@ -599,24 +574,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.searchTerm,
     this.organizationId,
   );
-
-  constructor() {
-    // Surface the Shared folders chip's selection for a host rendering its own folder navigation
-    // beside the table — see `sharedFolderFilterChange`.
-    effect(() => this.sharedFolderFilterChange.emit(this.sharedFolderFilter()));
-  }
-
-  /**
-   * Narrows the Shared folders chip to one collection, replacing whatever it held — the same
-   * drill-in {@link filterTo} performs for a row's chip, for a host that reaches the table from
-   * outside its template and so has no `#vaultTable` reference to hand it.
-   */
-  setSharedFolderFilter(collectionId: string): void {
-    this.tableComponent()
-      ?.filterControls()
-      .find((control: FilterControl) => control.key() === VAULT_FILTER_KEYS.sharedFolder)
-      ?.setValue([collectionId]);
-  }
 
   /**
    * The single client-side predicate `bit-table-v2` derives everything from: the visible rows,

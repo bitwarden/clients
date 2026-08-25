@@ -1,3 +1,4 @@
+import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
 import { getByRole, userEvent } from "storybook/test";
 
@@ -66,6 +67,7 @@ export default {
   component: SharedFolderCardGridComponent,
   decorators: [
     moduleMetadata({
+      imports: [RouterTestingModule],
       providers: [
         {
           provide: I18nService,
@@ -89,6 +91,8 @@ export default {
   args: {
     folders: DEFAULT_FOLDERS,
     parentName: "Departments",
+    // Stands in for a host that routes a folder to `/vault/<org>/<folder>`.
+    folderRoute: (folder: CollectionView) => ["/vault", folder.organizationId, folder.id],
   },
 } as Meta<SharedFolderCardGridComponent>;
 

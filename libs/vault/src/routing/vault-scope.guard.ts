@@ -14,6 +14,11 @@ import { VaultNavService } from "../services/vault-nav.service";
  *
  * The nav view model, rather than the organization list, decides membership: the two disagree on
  * provider organizations, and the guard should admit exactly what the nav can highlight.
+ *
+ * A `:collectionId` segment drilling the vault into a shared folder is admitted with its vault —
+ * see {@link parseVaultScope} for the pairings that name no destination. Whether the collection
+ * itself is one the user can reach is left to the page, which resolves it against the collections
+ * it already loads.
  */
 export const vaultScopeGuard: CanActivateFn = async (route) => {
   const router = inject(Router);
@@ -21,7 +26,7 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
 
   const allItems = () => router.createUrlTree(["/vault"]);
 
-  const scope = parseVaultScope(route.paramMap.get("vaultId"));
+  const scope = parseVaultScope(route.paramMap.get("vaultId"), route.paramMap.get("collectionId"));
   if (scope == null) {
     return allItems();
   }

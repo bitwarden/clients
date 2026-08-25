@@ -59,13 +59,16 @@ describe("vaultScopeGuard", () => {
     organizationDataOwnership = false,
   ): VaultsNavViewModel => ({ vaults, organizationDataOwnership });
 
-  const makeRoute = (vaultId?: string): ActivatedRouteSnapshot =>
+  const makeRoute = (vaultId?: string, collectionId?: string): ActivatedRouteSnapshot =>
     mock<ActivatedRouteSnapshot>({
-      paramMap: convertToParamMap(vaultId == null ? {} : { vaultId }),
+      paramMap: convertToParamMap({
+        ...(vaultId == null ? {} : { vaultId }),
+        ...(collectionId == null ? {} : { collectionId }),
+      }),
     });
 
-  const runGuard = (vaultId?: string) =>
-    TestBed.runInInjectionContext(() => vaultScopeGuard(makeRoute(vaultId), state));
+  const runGuard = (vaultId?: string, collectionId?: string) =>
+    TestBed.runInInjectionContext(() => vaultScopeGuard(makeRoute(vaultId, collectionId), state));
 
   beforeEach(() => {
     router = mock<Router>();
@@ -121,6 +124,31 @@ describe("vaultScopeGuard", () => {
   it("redirects to All items for a segment that names no destination", async () => {
     await expect(runGuard("acme-corp")).resolves.toBe(allItemsUrlTree);
     expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
+  });
+
+  describe("a vault drilled into a shared folder", () => {
+    const collectionId = "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f";
+
+    it("allows a folder under an organization the user is a member of", async () => {
+      await expect(runGuard(organizationId, collectionId)).resolves.toBe(true);
+    });
+
+    it("redirects to All items for a folder under an organization the user has left", async () => {
+      await expect(runGuard(otherOrganizationId, collectionId)).resolves.toBe(allItemsUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
+    });
+
+    // A shared folder belongs to an organization, so no other vault can be drilled into one.
+    it("redirects to All items for a folder under a vault that can hold none", async () => {
+      await expect(runGuard(MY_VAULT_ROUTE, collectionId)).resolves.toBe(allItemsUrlTree);
+      await expect(runGuard(TRASH_ROUTE, collectionId)).resolves.toBe(allItemsUrlTree);
+      await expect(runGuard(ARCHIVE_ROUTE, collectionId)).resolves.toBe(allItemsUrlTree);
+    });
+
+    it("redirects to All items for a folder segment that names no collection", async () => {
+      await expect(runGuard(organizationId, "engineering")).resolves.toBe(allItemsUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
+    });
   });
 
   it("does not resolve the account's vaults for a segment it can reject outright", async () => {
