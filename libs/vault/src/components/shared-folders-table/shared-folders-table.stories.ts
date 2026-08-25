@@ -2,7 +2,12 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { ButtonModule, DialogModule, I18nMockService, NoItemsModule } from "@bitwarden/components";
+import {
+  ButtonModule,
+  DialogModule,
+  I18nMockService,
+  StatusLockupComponent,
+} from "@bitwarden/components";
 
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 import { SharedFoldersTableComponent } from "./shared-folders-table.component";
@@ -71,7 +76,7 @@ export default {
       // `DialogModule` for its `DialogService` provider: `bit-table-toolbar` injects it for the
       // small-screen filter dialog. Apps get it from their own module graph; a story has to
       // supply it.
-      imports: [ButtonModule, DialogModule, NoItemsModule],
+      imports: [ButtonModule, DialogModule, StatusLockupComponent],
       providers: [
         {
           provide: I18nService,
@@ -166,13 +171,13 @@ export const CustomEmptyState: Story = {
           [rowActions]="rowActions"
           (add)="add()"
         >
-          <bit-no-items slot="empty">
+          <bit-status-lockup slot="empty">
             <span slot="title">No shared folders yet</span>
             <span slot="description">Share vault items with your team by adding a folder.</span>
             <button slot="button" type="button" bitButton buttonType="primary" (click)="add()">
               Add shared folder
             </button>
-          </bit-no-items>
+          </bit-status-lockup>
         </vault-shared-folders-table>
       </div>
     `,
