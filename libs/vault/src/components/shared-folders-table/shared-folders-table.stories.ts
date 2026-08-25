@@ -80,7 +80,7 @@ export default {
               // Toolbar
               search: "Search",
               resetSearch: "Reset search",
-              addSharedFolder: "Add shared folder",
+              add: "Add",
               itemCount: (count) => `${count} items`,
               clearAll: "Clear all",
               filter: "Filter",
