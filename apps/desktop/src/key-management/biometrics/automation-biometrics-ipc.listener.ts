@@ -3,24 +3,12 @@ import { ipcMain } from "electron";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { BiometricsStatus } from "@bitwarden/key-management";
 
+import {
+  AUTOMATION_BIOMETRIC_CHANNEL,
+  AutomationBiometricAction,
+  AutomationBiometricMessage,
+} from "./automation-biometric-message";
 import { AutomationBiometricsService } from "./automation-biometrics.service";
-
-export const AutomationBiometricAction = Object.freeze({
-  SetStatus: "setStatus",
-  ListPending: "listPending",
-  Approve: "approve",
-  Deny: "deny",
-} as const);
-export type AutomationBiometricAction =
-  (typeof AutomationBiometricAction)[keyof typeof AutomationBiometricAction];
-
-export type AutomationBiometricMessage = {
-  action: AutomationBiometricAction;
-  status?: BiometricsStatus;
-  id?: string;
-};
-
-export const AUTOMATION_BIOMETRIC_CHANNEL = "automation.biometric";
 
 /**
  * Registers the IPC channel that lets the renderer-side automation driver control the

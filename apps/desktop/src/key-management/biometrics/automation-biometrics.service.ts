@@ -4,15 +4,11 @@ import { BiometricsStatus } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
+import {
+  AutomationBiometricRequest,
+  AutomationBiometricRequestType,
+} from "./automation-biometric-message";
 import { OsBiometricService } from "./os-biometrics.service";
-
-export type AutomationBiometricRequestType = "authenticate" | "unlock";
-
-export interface AutomationBiometricRequest {
-  id: string;
-  type: AutomationBiometricRequestType;
-  userId?: UserId;
-}
 
 interface PendingRequest extends AutomationBiometricRequest {
   resolve: (approved: boolean) => void;
