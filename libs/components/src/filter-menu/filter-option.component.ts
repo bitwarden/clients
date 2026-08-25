@@ -8,16 +8,32 @@ import {
   viewChild,
 } from "@angular/core";
 
-import { IconTileOptions } from "../icon-tile";
+import { IconTileEmphasis, IconTileVariant } from "../icon-tile";
+import { BitwardenIcon } from "../shared/icon";
 
 import { FILTER_ENTRY, FilterEntry } from "./filter-tokens";
 
+/** Icon tile configuration for a `bit-filter-option` row. */
+export interface FilterOptionIconTile {
+  icon: BitwardenIcon;
+  variant?: IconTileVariant;
+  emphasis?: IconTileEmphasis;
+  color?: string;
+}
+
 /**
  * A selectable option inside a `bit-filter-menu`. It's **declarative**: it holds the
- * `value`, optional `count`, `iconTile`, and `disabled` state, and captures its projected
- * label text — it renders no visible UI of its own. The chip draws the actual row (indicator,
- * tile, label, count) and handles selection, so the same options render independently in the
- * popover and the responsive filter dialog without sharing one set of projected nodes.
+ * `value`, optional `count`, and `disabled` state, and captures its projected label text —
+ * it renders no visible UI of its own. The chip draws the actual row (indicator, tile, label,
+ * count) and handles selection, so the same options render independently in the popover and
+ * the responsive filter dialog without sharing one set of projected nodes.
+ *
+ * @example
+ * ```html
+ * <bit-filter-option [value]="'login'" [iconTile]="{ icon: 'bwi-globe', variant: 'teal' }">
+ *   Login
+ * </bit-filter-option>
+ * ```
  */
 @Component({
   selector: "bit-filter-option",
@@ -43,8 +59,8 @@ export class FilterOptionComponent<T = unknown> implements FilterEntry {
   /** Whether the option is selectable. */
   readonly disabled = input(false, { transform: booleanAttribute });
 
-  /** Renders a leading icon tile on the row. The chip forces `size="xs"` so rows line up. */
-  readonly iconTile = input<IconTileOptions>();
+  /** Optional icon tile shown at the start of the option row. */
+  readonly iconTile = input<FilterOptionIconTile>();
 
   private readonly labelEl = viewChild<ElementRef<HTMLElement>>("label");
 
