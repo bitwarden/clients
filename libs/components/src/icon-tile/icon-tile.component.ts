@@ -92,32 +92,23 @@ export class IconTileComponent {
   readonly icon = input.required<BitwardenIcon>();
 
   /**
-   * The visual theme of the icon tile.
-   *
-   * Exposed as a `model` so a parent that renders a projected tile can drive the variant
-   * programmatically while consumers can still bind it declaratively.
+   * The visual theme of the icon tile
    */
-  readonly variant = model<IconTileVariant>("primary");
+  readonly variant = input<IconTileVariant>("primary");
 
   /**
    * Optional custom hex color (e.g. `#175ddc`) — typically used to match a user's avatar color.
    * When set, it takes precedence over `variant`/`emphasis`: the fill matches the color, the
    * foreground (icon) color is chosen for contrast, and the border is the color adjusted ±15%
    * lightness.
-   *
-   * Exposed as a `model` so a parent that renders a projected tile can drive the color
-   * programmatically while consumers can still bind it declaratively.
    */
-  readonly color = model<string>();
+  readonly color = input<string>();
 
   /**
    * Emphasis level for the decorative color families (`brand`, `teal`, `green`, `orange`, `red`,
    * `purple`, `gray`). Ignored by the semantic variants, which render the same regardless.
-   *
-   * Exposed as a `model` so a parent that renders a projected tile can drive the emphasis
-   * programmatically while consumers can still bind it declaratively.
    */
-  readonly emphasis = model<IconTileEmphasis>("subtle");
+  readonly emphasis = input<IconTileEmphasis>("subtle");
 
   /**
    * The size of the icon tile.
