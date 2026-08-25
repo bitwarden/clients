@@ -14,7 +14,7 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 import { isGovernedCipher } from "../helpers/governed-cipher";
 
 /**
- * Binds `ITEM_DETAILS_STATE_BADGE` for the open item — the access-state pill on the item-details
+ * Binds `ITEM_DETAILS_STATE_BADGE` for the open item: the access-state pill on the item-details
  * card's name row. Encapsulates every PAM dependency so `libs/vault` stays PAM-free: pass the open
  * `cipher`, get the shared badge (or nothing) back. The recipe, copy and countdown live in
  * {@link AccessStateBadgeComponent}, so this reads the same as the vault row and the Requests page.
@@ -27,13 +27,13 @@ import { isGovernedCipher } from "../helpers/governed-cipher";
  *
  * The item-details card renders for EVERY vault item, so an ungoverned cipher must cost nothing:
  * {@link isGovernedCipher} keeps a plain item from firing a PAM read, and a null state renders no
- * element — not even the spacing wrapper, which lives here rather than in `libs/vault` so an
+ * element, not even the spacing wrapper. That wrapper lives here rather than in `libs/vault` so an
  * ungoverned item gets no empty flex child on its name row.
  *
  * An ACTIVE lease deliberately shows no pill here. The cipher-view banner heading directly below
  * carries the same countdown from its own interval (`cipher-view-banner.component.ts:122,329`), and
- * two independent one-second timers drift apart across a minute boundary — one reading "12m left"
- * while the other reads "11m left", and under five minutes the pill escalating to the danger
+ * two independent one-second timers drift apart across a minute boundary. One reads "12m left"
+ * while the other reads "11m left", and under five minutes the pill escalates to the danger
  * "Ending soon" wording while the heading stays neutral. The other four states have no countdown in
  * the banner, so they badge normally.
  */
@@ -67,8 +67,8 @@ export class ItemDetailsStateBadgeComponent {
             map(cipherAccessBadgeState),
             map((badge) => (badge?.kind === "active" ? null : badge)),
             catchError((e: unknown) => {
-              // An unreadable access state renders no pill rather than an error — the item itself is
-              // still useful, and the banner below behaves the same way.
+              // An unreadable access state renders no pill rather than an error: the item itself
+              // is still useful, and the banner below behaves the same way.
               this.logService.error(e);
               return of(null);
             }),
