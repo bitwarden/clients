@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService, Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
@@ -23,6 +24,7 @@ import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault
 import { ViewPasswordHistoryService } from "@bitwarden/common/vault/abstractions/view-password-history.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { TaskService } from "@bitwarden/common/vault/tasks";
 
 import { CIPHER_VIEW_BANNER } from "../tokens/cipher-view-banner.token";
@@ -226,6 +228,123 @@ describe("CipherViewComponent", () => {
       expect(banner).not.toBeNull();
       const instance = banner.componentInstance as TestBannerComponent;
       expect(instance.cipher()).toBe(cipher);
+    });
+  });
+
+  describe("card order in the real template", () => {
+    async function setupRealTemplate(provideBanner: boolean): Promise<void> {
+      TestBed.resetTestingModule();
+      await TestBed.configureTestingModule({
+        imports: [CipherViewComponent],
+        providers: [
+          { provide: AccountService, useValue: mockAccountService },
+          { provide: OrganizationService, useValue: mockOrganizationService },
+          { provide: CollectionService, useValue: mockCollectionService },
+          { provide: FolderService, useValue: mockFolderService },
+          { provide: TaskService, useValue: mockTaskService },
+          { provide: PlatformUtilsService, useValue: mockPlatformUtilsService },
+          { provide: ChangeLoginPasswordService, useValue: mockChangeLoginPasswordService },
+          { provide: CipherService, useValue: mockCipherService },
+          { provide: ViewPasswordHistoryService, useValue: mockViewPasswordHistoryService },
+          { provide: I18nService, useValue: mockI18nService },
+          { provide: LogService, useValue: mockLogService },
+          { provide: CipherRiskService, useValue: mockCipherRiskService },
+          {
+            provide: BillingAccountProfileStateService,
+            useValue: mockBillingAccountProfileStateService,
+          },
+          { provide: VaultSettingsService, useValue: mockVaultSettingsService },
+          { provide: ConfigService, useValue: mockConfigService },
+          ...(provideBanner
+            ? [{ provide: CIPHER_VIEW_BANNER, useValue: TestBannerComponent }]
+            : []),
+        ],
+        schemas: [NO_ERRORS_SCHEMA],
+      })
+        // `schemas` has to ride on the component's own metadata, not on the TestBed module: this is
+        // a standalone component, and a standalone component resolves schemas from its definition.
+        .overrideComponent(CipherViewComponent, {
+          set: {
+            imports: [CommonModule, JslibModule, TestBannerComponent],
+            schemas: [NO_ERRORS_SCHEMA],
+          },
+        })
+        .compileComponents();
+
+      fixture = TestBed.createComponent(CipherViewComponent);
+      component = fixture.componentInstance;
+    }
+
+    function loginCipher(): CipherView {
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.name = "Test Login";
+      cipher.type = CipherType.Login;
+      cipher.login.username = "ada";
+      cipher.login.uris = [{ uri: "https://example.com" } as LoginUriView];
+      return cipher;
+    }
+
+    const SECTIONS = [
+      "bit-callout",
+      "app-item-details-v2",
+      "test-cipher-view-banner",
+      "app-login-credentials-view",
+      "app-autofill-options-view",
+      "app-item-history-v2",
+    ].join(",");
+
+    function renderedSections(): string[] {
+      return Array.from((fixture.nativeElement as HTMLElement).querySelectorAll(SECTIONS)).map(
+        (element) => element.tagName.toLowerCase(),
+      );
+    }
+
+    it("renders the gated banner between the item details and the login credentials", async () => {
+      await setupRealTemplate(true);
+      fixture.componentRef.setInput("cipher", loginCipher());
+      fixture.detectChanges();
+
+      expect(renderedSections()).toEqual([
+        "app-item-details-v2",
+        "test-cipher-view-banner",
+        "app-login-credentials-view",
+        "app-autofill-options-view",
+        "app-item-history-v2",
+      ]);
+    });
+
+    it("renders no banner and an unchanged order for an ordinary cipher", async () => {
+      await setupRealTemplate(false);
+      fixture.componentRef.setInput("cipher", loginCipher());
+      fixture.detectChanges();
+
+      expect(renderedSections()).toEqual([
+        "app-item-details-v2",
+        "app-login-credentials-view",
+        "app-autofill-options-view",
+        "app-item-history-v2",
+      ]);
+    });
+
+    it("keeps the general vault callouts above the item details", async () => {
+      await setupRealTemplate(true);
+      const cipher = new CipherView();
+      cipher.id = "cipher-id";
+      cipher.name = "Expired card";
+      cipher.type = CipherType.Card;
+      cipher.card.cardholderName = "Ada Lovelace";
+      cipher.card.expMonth = "1";
+      cipher.card.expYear = "2020";
+      fixture.componentRef.setInput("cipher", cipher);
+      fixture.detectChanges();
+
+      expect(renderedSections()).toEqual([
+        "bit-callout",
+        "app-item-details-v2",
+        "test-cipher-view-banner",
+        "app-item-history-v2",
+      ]);
     });
   });
 

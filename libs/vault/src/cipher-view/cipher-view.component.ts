@@ -87,8 +87,8 @@ export class CipherViewComponent {
   readonly cipher = input.required<CipherView>();
 
   /**
-   * Optional host-provided banner rendered above the cipher's details. Only the web
-   * vault provides one today (privileged-access gating); elsewhere this is null and
+   * Optional host-provided banner rendered directly below the cipher's details. Only the
+   * web vault provides one today (privileged-access gating); elsewhere this is null and
    * nothing renders. See {@link CIPHER_VIEW_BANNER}.
    */
   protected readonly bannerComponent: Type<unknown> | null = inject(CIPHER_VIEW_BANNER, {
