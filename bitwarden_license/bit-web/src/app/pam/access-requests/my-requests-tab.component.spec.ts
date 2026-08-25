@@ -10,8 +10,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
-import { LeasingErrorService } from "..";
-
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
@@ -76,7 +74,6 @@ describe("MyRequestsTabComponent", () => {
     cancel: jest.Mock;
     endLease: jest.Mock;
   };
-  let leasingErrorService: MockProxy<LeasingErrorService>;
   let toastService: MockProxy<ToastService>;
 
   function create(): void {
@@ -103,8 +100,6 @@ describe("MyRequestsTabComponent", () => {
       cancel: jest.fn().mockResolvedValue(undefined),
       endLease: jest.fn().mockResolvedValue(undefined),
     };
-    leasingErrorService = mock<LeasingErrorService>();
-    leasingErrorService.isLeasingError.mockReturnValue(false);
     toastService = mock<ToastService>();
 
     await TestBed.configureTestingModule({
@@ -112,7 +107,6 @@ describe("MyRequestsTabComponent", () => {
       providers: [
         provideRouter([]),
         { provide: MyAccessService, useValue: myAccess },
-        { provide: LeasingErrorService, useValue: leasingErrorService },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -197,7 +191,6 @@ describe("MyRequestsTabComponent", () => {
         ),
         { name: "AccessRequestError", variant: "Api" },
       );
-      leasingErrorService.isLeasingError.mockReturnValue(true);
       myAccess.activate.mockRejectedValue(error);
       create();
 
@@ -224,12 +217,11 @@ describe("MyRequestsTabComponent", () => {
       });
     });
 
-    it("falls back to the generic message for a leasing error that isn't the Api variant", async () => {
+    it("falls back to the generic message for an AccessRequestError-shaped failure", async () => {
       const error = Object.assign(new Error("internal detail"), {
         name: "AccessRequestError",
         variant: "SingleActiveLease",
       });
-      leasingErrorService.isLeasingError.mockReturnValue(true);
       myAccess.activate.mockRejectedValue(error);
       create();
 
