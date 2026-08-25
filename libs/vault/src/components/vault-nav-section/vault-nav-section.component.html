@@ -1,6 +1,7 @@
 @if (vaultNav(); as nav) {
   @if (nav.vaults.length > 1) {
     <bit-nav-item
+      class="tw-mb-2"
       [text]="'allItems' | i18n"
       [route]="allItemsRoute"
       [routerLinkActiveOptions]="allItemsActiveOptions"
