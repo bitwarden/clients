@@ -911,11 +911,11 @@ describe("DefaultSyncService", () => {
   describe("syncUpsertSend", () => {
     const sendGuid = Utils.newGuid();
 
-    const notification = {
-      id: sendGuid,
-      userId: user1,
-      revisionDate: new Date("2025-01-02T00:00:00.000Z"),
-    } as SyncSendNotification;
+    const notification = new SyncSendNotification({
+      Id: sendGuid,
+      UserId: user1,
+      RevisionDate: "2025-01-02T00:00:00.000Z",
+    });
 
     beforeEach(() => {
       accountService.activeAccount$ = of({ id: user1 } as Account);
