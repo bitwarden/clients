@@ -137,7 +137,6 @@ export class ProductSwitcherService {
     switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
   );
 
-  /** Whether the active user's environment is the Gov cloud. */
   isGovMode$ = clientIsGovMode$(this.accountService, this.govModeService, this.logService);
 
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -289,8 +288,6 @@ export class ProductSwitcherService {
         if (acOrg) {
           bento.push(products.ac);
         } else {
-          // Organizations on the Gov cloud are sales-provisioned, so self-serve creation is
-          // unavailable.
           if (!userHasSingleOrgPolicy && !isGovMode) {
             other.push(products.orgs);
           }

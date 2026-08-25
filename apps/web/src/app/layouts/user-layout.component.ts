@@ -76,10 +76,6 @@ export class UserLayoutComponent implements OnInit {
   private readonly govModeService = inject(GovModeService);
   private readonly logService = inject(LogService);
 
-  /**
-   * Whether the active account is on the Gov cloud. Used to hide the self-serve "Add plan" entry
-   * point — organizations on the Gov cloud are sales-provisioned.
-   */
   protected readonly isGovMode = toSignal(
     clientIsGovMode$(this.accountService, this.govModeService, this.logService),
     { initialValue: false },

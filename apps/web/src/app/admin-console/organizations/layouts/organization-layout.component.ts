@@ -100,8 +100,6 @@ export class OrganizationLayoutComponent {
     ),
   );
 
-  // Hidden when the single-org policy applies, or on the Gov cloud, where organizations are
-  // sales-provisioned (no self-serve creation).
   readonly hideNewOrgButton$: Observable<boolean> = combineLatest([
     this.userId$.pipe(
       switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),

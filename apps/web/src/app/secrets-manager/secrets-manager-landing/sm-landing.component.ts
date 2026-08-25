@@ -50,9 +50,8 @@ export class SMLandingComponent implements OnInit {
         clientIsGovMode$(this.accountService, this.govModeService, this.logService),
       )
     ) {
-      // Organizations on the Gov cloud are sales-provisioned, so there is no self-serve flow to
-      // send this person to. RequestSMAccessComponent redirects no-org Gov users here, so this
-      // branch must never link back to /request-sm-access.
+      // RequestSMAccessComponent redirects no-org Gov users here, so this branch must never link
+      // back to /request-sm-access.
       this.showTryItNow = false;
     } else {
       // Person is not part of any orgs they need to be in an organization in order to use SM

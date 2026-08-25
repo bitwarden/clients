@@ -264,9 +264,6 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       ),
     );
 
-    // Organizations on the Gov cloud are sales-provisioned, so self-serve creation is unavailable.
-    // clientIsGovMode$ fails open, so an error can't take down the filter sidebar or kill the
-    // policy-refresh subscription.
     const isGovMode = await firstValueFrom(
       clientIsGovMode$(this.accountService, this.govModeService, this.logService),
     );

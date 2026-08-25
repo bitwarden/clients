@@ -57,8 +57,8 @@ export class RequestSMAccessComponent implements OnInit {
       .sort((a, b) => a.name.localeCompare(b.name));
 
     if (this.organizations === null || this.organizations.length < 1) {
-      // Self-serve organization creation is blocked on the Gov cloud (govModeBlockedGuard would
-      // bounce them with an access-denied toast), so send them back to the landing page instead.
+      // govModeBlockedGuard would bounce a Gov user off /create-organization with an
+      // access-denied toast, so send them back to the landing page instead.
       const isGovMode = await firstValueFrom(
         clientIsGovMode$(this.accountService, this.govModeService, this.logService),
       );
