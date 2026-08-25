@@ -54,39 +54,28 @@ import { CipherViewBannerComponent } from "./cipher-view-banner.component";
  * untouched; that story is the ungoverned item, with no `CIPHER_VIEW_BANNER` bound at all.
  */
 
+function loginCipher(id: string, name: string, uri: string): CipherView {
+  const cipher = new CipherView();
+  cipher.id = id;
+  cipher.name = name;
+  cipher.type = CipherType.Login;
+  cipher.login.uris = [Object.assign(new LoginUriView(), { uri })];
+  return cipher;
+}
+
 /** A governed item, still unrevealed: `partial` is what marks it, and it carries no credentials. */
 function gatedCipher(): CipherView {
-  const cipher = new CipherView();
-  cipher.id = "cipher-1";
-  cipher.name = "Prod database";
-  cipher.type = CipherType.Login;
+  const cipher = loginCipher("cipher-1", "Prod database", "https://db.example.com");
   cipher.organizationId = "org-1";
   cipher.partial = true;
-  cipher.login.uris = [Object.assign(new LoginUriView(), { uri: "https://db.example.com" })];
   return cipher;
 }
 
 function ordinaryCipher(): CipherView {
-  const cipher = new CipherView();
-  cipher.id = "cipher-9";
-  cipher.name = "Example account";
-  cipher.type = CipherType.Login;
+  const cipher = loginCipher("cipher-9", "Example account", "https://example.com");
   cipher.login.username = "ada.lovelace";
   cipher.login.password = "correct-horse-battery-staple";
-  cipher.login.uris = [Object.assign(new LoginUriView(), { uri: "https://example.com" })];
   return cipher;
-}
-
-/**
- * Only the PAM flag is on. `VFO1Foundation` and `PM32016RemoveAtRiskCallout` are read by the cipher
- * view and its item-details child, and blanket-enabling every flag would silently swap the
- * terminology and drop the at-risk callout — neither of which these stories are about.
- */
-function stubConfigService() {
-  return {
-    provide: ConfigService,
-    useValue: { getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.Pam) },
-  };
 }
 
 /**
@@ -95,7 +84,13 @@ function stubConfigService() {
  */
 function provideStoryCipherView() {
   return [
-    stubConfigService(),
+    // Only the PAM flag is on. `VFO1Foundation` and `PM32016RemoveAtRiskCallout` are read by the
+    // cipher view and its item-details child, and blanket-enabling every flag would silently swap
+    // the terminology and drop the at-risk callout — neither of which these stories are about.
+    {
+      provide: ConfigService,
+      useValue: { getFeatureFlag$: (flag: FeatureFlag) => of(flag === FeatureFlag.Pam) },
+    },
     provideRouter([]),
     DatePipe,
     {
@@ -129,10 +124,8 @@ function provideStoryCipherView() {
   ];
 }
 
-type AccessState = Record<string, unknown> | null;
-
 /** Binds the real banner to the token, over an access state built at render time. */
-function gated(state: () => AccessState) {
+function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({
     imports: [CipherViewBannerComponent],
     providers: [
