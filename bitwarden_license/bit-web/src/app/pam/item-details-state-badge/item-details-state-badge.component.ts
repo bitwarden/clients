@@ -27,12 +27,21 @@ import { isGovernedCipher } from "../helpers/governed-cipher";
  *
  * The item-details card renders for EVERY vault item, so an ungoverned cipher must cost nothing:
  * {@link isGovernedCipher} keeps a plain item from firing a PAM read, and a null state renders no
- * element.
+ * element — not even the spacing wrapper, which lives here rather than in `libs/vault` so an
+ * ungoverned item gets no empty flex child on its name row.
+ *
+ * An ACTIVE lease deliberately shows no pill here. The cipher-view banner heading directly below
+ * carries the same countdown from its own interval (`cipher-view-banner.component.ts:122,329`), and
+ * two independent one-second timers drift apart across a minute boundary — one reading "12m left"
+ * while the other reads "11m left", and under five minutes the pill escalating to the danger
+ * "Ending soon" wording while the heading stays neutral. The other four states have no countdown in
+ * the banner, so they badge normally.
  */
 @Component({
   selector: "app-pam-item-details-state-badge",
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AccessStateBadgeComponent],
+  host: { class: "tw-shrink-0" },
   templateUrl: "./item-details-state-badge.component.html",
 })
 export class ItemDetailsStateBadgeComponent {
@@ -56,6 +65,7 @@ export class ItemDetailsStateBadgeComponent {
         switchMap(() =>
           from(this.accessRequestSdkService.getCipherAccessState(cipherId)).pipe(
             map(cipherAccessBadgeState),
+            map((badge) => (badge?.kind === "active" ? null : badge)),
             catchError((e: unknown) => {
               // An unreadable access state renders no pill rather than an error — the item itself is
               // still useful, and the banner below behaves the same way.

@@ -233,12 +233,17 @@ describe("ItemDetailsV2Component state badge seam", () => {
 
   afterEach(() => TestBed.resetTestingModule());
 
-  it("renders no badge element at all when no host provides the token", async () => {
+  function nameRow(fixture: ComponentFixture<ItemDetailsV2Component>): HTMLElement {
+    return fixture.debugElement.query(By.css('[data-testid="item-name"]')).nativeElement
+      .parentElement;
+  }
+
+  it("adds nothing to the name row when no host provides the token", async () => {
     const fixture = await render(null);
 
-    expect(
-      fixture.debugElement.query(By.css('[data-testid="item-details-state-badge"]')),
-    ).toBeNull();
+    const row = nameRow(fixture);
+    expect(fixture.debugElement.query(By.css("app-stub-state-badge"))).toBeNull();
+    expect(row.lastElementChild).toBe(row.querySelector('[data-testid="item-name"]'));
   });
 
   it("renders the provided badge on the name row, after the item name", async () => {
@@ -248,8 +253,7 @@ describe("ItemDetailsV2Component state badge seam", () => {
     expect(badge).not.toBeNull();
     expect(badge.nativeElement.textContent.trim()).toBe(cipher.name);
 
-    const nameRow = fixture.debugElement.query(By.css('[data-testid="item-name"]')).nativeElement
-      .parentElement;
-    expect(nameRow.querySelector('[data-testid="item-details-state-badge"]')).not.toBeNull();
+    const row = nameRow(fixture);
+    expect(row.lastElementChild?.contains(badge.nativeElement)).toBe(true);
   });
 });
