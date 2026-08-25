@@ -20,16 +20,27 @@
     (selectedChange)="handleSelectionChange($event)"
   >
     @if (showAddCipherBtn()) {
-      <vault-new-cipher-menu
-        slot="toolbar"
-        [canCreateCipher]="canCreateCipher()"
-        [canCreateFolder]="true"
-        [canCreateSshKey]="true"
-        [disabled]="!canCreateCipher()"
-        (cipherAdded)="onAddCipher.emit($event)"
-        (folderAdded)="onAddFolder.emit()"
-        (onAddItemDialog)="onAddItemDialog.emit()"
-      />
+      <div slot="toolbar" class="tw-flex tw-items-center tw-gap-3">
+        <button
+          id="vault-list-table_button_import"
+          type="button"
+          bitButton
+          startIcon="bwi-download"
+          buttonType="secondary"
+          (click)="onImport.emit()"
+        >
+          {{ "importNoun" | i18n }}
+        </button>
+        <vault-new-cipher-menu
+          [canCreateCipher]="canCreateCipher()"
+          [canCreateFolder]="true"
+          [canCreateSshKey]="true"
+          [disabled]="!canCreateCipher()"
+          (cipherAdded)="onAddCipher.emit($event)"
+          (folderAdded)="onAddFolder.emit()"
+          (onAddItemDialog)="onAddItemDialog.emit()"
+        />
+      </div>
     }
   </vault-items-table>
 </div>
