@@ -20,6 +20,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
+// FIXME: migrate to a non-legacy service
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService } from "@bitwarden/legacy-crypto";
 
