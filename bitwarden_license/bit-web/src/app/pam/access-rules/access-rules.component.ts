@@ -28,6 +28,7 @@ import {
   TableDataSource,
   TableModule,
   ToastService,
+  TooltipDirective,
   TypographyModule,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
@@ -77,6 +78,7 @@ import { ApprovalMethodPipe } from "./approval-method.pipe";
     MenuModule,
     SearchModule,
     TableModule,
+    TooltipDirective,
     TypographyModule,
     I18nPipe,
     RelativeTimePipe,
@@ -310,6 +312,10 @@ export class AccessRulesComponent {
     }
     try {
       await this.accessRules.delete(rule);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamAccessRuleDeleted"),
+      });
     } catch (e) {
       this.showError(e);
     }
@@ -382,7 +388,7 @@ export class AccessRulesComponent {
       },
       acceptButtonText: { key: "delete" },
       cancelButtonText: { key: "cancel" },
-      type: "warning",
+      type: "danger",
     });
     if (!confirmed) {
       return;
