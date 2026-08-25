@@ -1,3 +1,5 @@
+import { CdkVirtualScrollViewport } from "@angular/cdk/scrolling";
+import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
@@ -13,6 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { SearchService } from "@bitwarden/common/vault/abstractions/search.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -24,7 +27,12 @@ import {
   SearchTextDebounceInterval,
 } from "@bitwarden/common/vault/services/search.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
-import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
+import {
+  BitTableV2Component,
+  ButtonModule,
+  DialogService,
+  FilterControl,
+} from "@bitwarden/components";
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
@@ -73,10 +81,62 @@ function cipherListView(overrides: Partial<CipherListView> = {}): CipherListView
   } as unknown as CipherListView;
 }
 
+/** Projects conditional toolbar actions the supported way — inside a static `slot="toolbar"`. */
+@Component({
+  selector: "test-wrapped-toolbar-host",
+  template: `
+    <vault-items-table [ciphers]="[]">
+      <div slot="toolbar">
+        @if (show()) {
+          <button id="toolbar-action" type="button">Add</button>
+        }
+      </div>
+    </vault-items-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent],
+})
+class WrappedToolbarHostComponent {
+  readonly show = signal(true);
+}
+
+/** Projects the same actions with the control flow block itself as the projected node. */
+@Component({
+  selector: "test-bare-toolbar-host",
+  template: `
+    <vault-items-table [ciphers]="[]">
+      @if (show()) {
+        <button slot="toolbar" id="toolbar-action" type="button" bitButton>Import</button>
+        <span slot="toolbar" id="toolbar-second">Add</span>
+      }
+    </vault-items-table>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [VaultItemsTableComponent, ButtonModule],
+})
+class BareToolbarHostComponent {
+  readonly show = signal(true);
+}
+
 describe("VaultItemsTableComponent", () => {
   let fixture: ComponentFixture<VaultItemsTableComponent<CipherViewLike>>;
   let component: VaultItemsTableComponent<CipherViewLike>;
   let searchService: DefaultSearchService;
+
+  // CDK's CdkVirtualScrollViewport.ngOnInit() defers initialization in a Promise.resolve().then(),
+  // which never resolves during synchronous fixture.detectChanges() calls in JSDOM. Patch it to
+  // run synchronously so the scroll strategy attaches and sets the rendered range before
+  // CdkVirtualForOf.ngDoCheck() runs, allowing rows to appear in the same detectChanges() call.
+  const originalNgOnInit = CdkVirtualScrollViewport.prototype.ngOnInit;
+  beforeAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = function (this: CdkVirtualScrollViewport) {
+      (this as any)["_measureViewportSize"]();
+      (this as any)["_scrollStrategy"].attach(this);
+    };
+  });
+  afterAll(() => {
+    CdkVirtualScrollViewport.prototype.ngOnInit = originalNgOnInit;
+  });
 
   beforeEach(async () => {
     const accountService = mock<AccountService>();
@@ -113,6 +173,7 @@ describe("VaultItemsTableComponent", () => {
         { provide: CopyCipherFieldService, useValue: mock<CopyCipherFieldService>() },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
+        { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
       ],
     }).compileComponents();
 
@@ -176,6 +237,31 @@ describe("VaultItemsTableComponent", () => {
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("Amazon");
     expect(text).toContain("Apple ID");
+  });
+
+  describe("projected toolbar content", () => {
+    /** The projected action, as it lands inside the rendered toolbar. */
+    const toolbarAction = (host: ComponentFixture<unknown>) =>
+      host.nativeElement.querySelector("bit-table-toolbar #toolbar-action");
+
+    it("reaches the toolbar when it is conditional within a static slot element", () => {
+      const host = TestBed.createComponent(WrappedToolbarHostComponent);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).not.toBeNull();
+
+      host.componentInstance.show.set(false);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).toBeNull();
+    });
+
+    it("drops a multi-node control flow block projected as the slot itself", () => {
+      const host = TestBed.createComponent(BareToolbarHostComponent);
+      host.detectChanges();
+
+      expect(toolbarAction(host)).toBeNull();
+    });
   });
 
   describe("filtering", () => {
@@ -875,6 +961,62 @@ describe("VaultItemsTableComponent", () => {
     });
   });
 
+  describe("multi-select chip seeding from a scalar (URL param normalization)", () => {
+    // When a multi-select chip is seeded from a single URL query param, the router decodes
+    // it as a scalar string rather than an array. setValue() must normalize it so the chip
+    // is active and filters correctly.
+
+    beforeEach(() => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme" } as Organization,
+      ]);
+      fixture.componentRef.setInput("collections", [
+        { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+      ]);
+      fixture.componentRef.setInput("folders", [{ id: "folder-1", name: "Work" } as FolderView]);
+      fixture.componentRef.setInput("ciphers", [
+        cipherView({
+          id: "a",
+          name: "Match",
+          organizationId: "org-1" as never,
+          collectionIds: ["col-1"] as never,
+          folderId: "folder-1" as never,
+        }),
+        cipherView({
+          id: "b",
+          name: "No match",
+          organizationId: undefined,
+          collectionIds: [] as never,
+        }),
+      ]);
+      fixture.detectChanges();
+    });
+
+    it("vault chip seeded with a scalar string filters correctly", () => {
+      filterControl("vault").setValue("org-1");
+      fixture.detectChanges();
+
+      expect(filterControl("vault").active()).toBe(true);
+      expect(filteredNames()).toEqual(["Match"]);
+    });
+
+    it("sharedFolder chip seeded with a scalar string filters correctly", () => {
+      filterControl("sharedFolder").setValue("col-1");
+      fixture.detectChanges();
+
+      expect(filterControl("sharedFolder").active()).toBe(true);
+      expect(filteredNames()).toEqual(["Match"]);
+    });
+
+    it("folder chip seeded with a scalar string filters correctly", () => {
+      filterControl("folder").setValue("folder-1");
+      fixture.detectChanges();
+
+      expect(filterControl("folder").active()).toBe(true);
+      expect(filteredNames()).toEqual(["Match"]);
+    });
+  });
+
   describe("grouping shared folders", () => {
     /** Builds `count` collections, split across "org-1" and "org-2", each with a distinct name. */
     function manyCollections(count: number): CollectionView[] {
@@ -1178,5 +1320,15 @@ describe("VaultItemsTableComponent", () => {
         expect(clearAllButton().nativeElement.classList).toContain("tw-hidden");
       }));
     });
+  });
+
+  it("always applies the flex fill host classes", () => {
+    fixture.detectChanges();
+
+    const host = fixture.nativeElement as HTMLElement;
+    expect(host.classList).toContain("tw-flex");
+    expect(host.classList).toContain("tw-flex-col");
+    expect(host.classList).toContain("tw-flex-1");
+    expect(host.classList).toContain("tw-min-h-0");
   });
 });

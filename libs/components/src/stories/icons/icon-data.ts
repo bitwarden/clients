@@ -37,6 +37,10 @@ const statusIndicators = [
 
 const bitwardenObjects = [
   {
+    id: "bwi-admin-console",
+    usage: "Admin console icon",
+  },
+  {
     id: "bwi-bank",
     usage: "Indicates a bank account item type.",
   },
@@ -278,6 +282,10 @@ const directionalMenuIndicators = [
     usage: "If used in collapse/expand section, indicates expanded state.",
   },
   {
+    id: "bwi-collapse-nav",
+    usage: "Used in side nav to show section is collapsible",
+  },
+  {
     id: "bwi-down-solid",
     usage: "Expanded selection. Click to collapse the associated section.",
   },
@@ -294,6 +302,10 @@ const directionalMenuIndicators = [
     id: "bwi-ellipsis-v",
     usage:
       "More options. Use the vertical version for menus that effect groups of items, content, or data, or full pages.",
+  },
+  {
+    id: "bwi-expand-nav",
+    usage: "Used in side nav to show section is expandable",
   },
   {
     id: "bwi-grid",
@@ -400,6 +412,10 @@ const miscObjects = [
     usage: "Edit action.",
   },
   {
+    id: "bwi-pin",
+    usage: "Pin action.",
+  },
+  {
     id: "bwi-provider",
     usage: "Can be used to indicate an item or action related to a provider.",
   },
@@ -422,6 +438,10 @@ const miscObjects = [
   {
     id: "bwi-universal-access",
     usage: "Indicates accessbility-related settings and actions.",
+  },
+  {
+    id: "bwi-unpin",
+    usage: "Unpin action.",
   },
   {
     id: "bwi-user",

@@ -2860,7 +2860,10 @@ describe("CollectAutofillContentService", () => {
       jest.useFakeTimers();
       collectAutofillContentService["currentLocationHref"] = window.location.href;
       jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-      jest.spyOn(collectAutofillContentService as any, "collectAddedShadowRootCandidates");
+      const noteAddedNodesSpy = jest.spyOn(
+        collectAutofillContentService["shadowTracker"],
+        "noteAddedNodes",
+      );
       const attributeMutation: MutationRecord = {
         type: "attributes",
         addedNodes: document.querySelectorAll("nothing"),
@@ -2875,10 +2878,7 @@ describe("CollectAutofillContentService", () => {
 
       collectAutofillContentService["handleMutationObserverMutation"]([attributeMutation]);
 
-      expect(
-        collectAutofillContentService["collectAddedShadowRootCandidates"],
-      ).not.toHaveBeenCalled();
-      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
+      expect(noteAddedNodesSpy).not.toHaveBeenCalled();
       jest.useRealTimers();
     });
 
@@ -2936,7 +2936,7 @@ describe("CollectAutofillContentService", () => {
       jest.useRealTimers();
     });
 
-    it("schedules a debounced check for new shadow roots", () => {
+    it("hands batches that added nodes to the shadow host tracker", () => {
       jest.useFakeTimers();
       const div = document.createElement("div");
       document.body.appendChild(div);
@@ -2953,53 +2953,17 @@ describe("CollectAutofillContentService", () => {
         target: document.body,
       };
       collectAutofillContentService["currentLocationHref"] = window.location.href;
-      collectAutofillContentService["pendingShadowDomCheck"] = false;
 
       jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-      jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
+      const noteAddedNodesSpy = jest.spyOn(
+        collectAutofillContentService["shadowTracker"],
+        "noteAddedNodes",
+      );
 
       collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
 
-      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(true);
-      expect(collectAutofillContentService["shadowDomCheckTimeout"]).not.toBeNull();
+      expect(noteAddedNodesSpy).toHaveBeenCalledWith([mutationRecord]);
 
-      // Fast-forward time to trigger the debounced check
-      jest.advanceTimersByTime(500);
-
-      expect(domQueryService.checkForNewShadowRoots).toHaveBeenCalled();
-      expect(collectAutofillContentService["pendingShadowDomCheck"]).toBe(false);
-
-      jest.useRealTimers();
-    });
-
-    it("does not schedule duplicate shadow root checks when already pending", () => {
-      jest.useFakeTimers();
-      const div = document.createElement("div");
-      document.body.appendChild(div);
-
-      const mutationRecord: MutationRecord = {
-        type: "childList",
-        addedNodes: document.querySelectorAll("div"),
-        attributeName: null,
-        attributeNamespace: null,
-        nextSibling: null,
-        oldValue: null,
-        previousSibling: null,
-        removedNodes: document.querySelectorAll("nonexistent"),
-        target: document.body,
-      };
-      collectAutofillContentService["currentLocationHref"] = window.location.href;
-      collectAutofillContentService["pendingShadowDomCheck"] = true;
-
-      const initialTimeout = setTimeout(() => {}, 500);
-      collectAutofillContentService["shadowDomCheckTimeout"] = initialTimeout;
-
-      collectAutofillContentService["handleMutationObserverMutation"]([mutationRecord]);
-
-      // Should not change the timeout since check is already pending
-      expect(collectAutofillContentService["shadowDomCheckTimeout"]).toBe(initialTimeout);
-
-      clearTimeout(initialTimeout);
       jest.useRealTimers();
     });
 
@@ -3063,139 +3027,149 @@ describe("CollectAutofillContentService", () => {
       }, 350);
     });
 
-    describe("collectAddedShadowRootCandidates (filter at observation)", () => {
-      const buildMutation = (added: Node[]): MutationRecord =>
-        ({
-          type: "childList",
-          addedNodes: added as unknown as NodeList,
-          attributeName: null,
-          attributeNamespace: null,
-          nextSibling: null,
-          oldValue: null,
-          previousSibling: null,
-          removedNodes: document.querySelectorAll("nonexistent"),
-          target: document.body,
-        }) as MutationRecord;
-
+    describe("late hydration wiring", () => {
       beforeEach(() => {
-        collectAutofillContentService["pendingMutationAddedElements"].clear();
-        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = false;
-      });
-
-      it("retains elements that already have a shadowRoot", () => {
-        const host = document.createElement("div");
-        host.attachShadow({ mode: "open" });
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([host])]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(host)).toBe(true);
-      });
-
-      it("retains custom-element hosts by hyphenated tag name", () => {
-        const widget = document.createElement("my-widget");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([widget]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(widget)).toBe(
-          true,
-        );
-      });
-
-      it("retains a shadow host adopted from an iframe realm (PM-39772)", () => {
-        const iframe = document.createElement("iframe");
-        document.body.appendChild(iframe);
-        // Cross-realm host: constructor comes from the iframe's realm, so
-        // top-frame `host instanceof Element` returns false.
-        const host = iframe.contentDocument!.createElement("foreign-host");
-        host.attachShadow({ mode: "open" });
-
-        // Precondition: confirm the cross-realm condition — if this fails,
-        // jsdom didn't give us a foreign realm and the regression can't fire.
-        expect(host instanceof Element).toBe(false);
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([host])]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(host)).toBe(true);
-      });
-
-      it("retains plain elements that have descendants", () => {
-        const parent = document.createElement("section");
-        parent.appendChild(document.createElement("span"));
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([parent]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(parent)).toBe(
-          true,
-        );
-      });
-
-      it("skips pure-leaf, non-custom elements with no children", () => {
-        const span = document.createElement("span");
-        const input = document.createElement("input");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([span, input]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-      });
-
-      it("skips non-Element nodes (text)", () => {
-        const text = document.createTextNode("hello");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation([text])]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-      });
-
-      it("trips the overflow flag at the cap and releases element refs", () => {
-        const cap = collectAutofillContentService["pendingMutationAddedElementsCap"];
-        const widgets = Array.from({ length: cap + 50 }, () => document.createElement("my-widget"));
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([buildMutation(widgets)]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(true);
-        // Overflow path clears the Set immediately so refs don't linger until the debounce fires.
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-      });
-
-      it("is a no-op once overflow has been tripped (later batches are ignored)", () => {
-        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = true;
-        const widget = document.createElement("my-widget");
-
-        collectAutofillContentService["collectAddedShadowRootCandidates"]([
-          buildMutation([widget]),
-        ]);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].has(widget)).toBe(
-          false,
-        );
-      });
-
-      it("resets pending state and overflow flag after the debounced check fires", () => {
         jest.useFakeTimers();
         collectAutofillContentService["currentLocationHref"] = window.location.href;
-        collectAutofillContentService["pendingShadowDomCheck"] = false;
-        jest.spyOn(domQueryService, "checkMutationsInShadowRoots").mockReturnValue(false);
-        jest.spyOn(domQueryService, "checkForNewShadowRoots").mockReturnValue(false);
+        domQueryService["knownShadowRoots"].clear();
+        domQueryService["pageContainsShadowDom"] = false;
+      });
 
-        const widget = document.createElement("my-widget");
-        document.body.appendChild(widget);
-        collectAutofillContentService["pendingMutationAddedElementsOverflowed"] = true;
-        collectAutofillContentService["pendingMutationAddedElements"].add(widget);
-
-        collectAutofillContentService["handleMutationObserverMutation"]([buildMutation([widget])]);
-        jest.advanceTimersByTime(500);
-
-        expect(collectAutofillContentService["pendingMutationAddedElements"].size).toBe(0);
-        expect(collectAutofillContentService["pendingMutationAddedElementsOverflowed"]).toBe(false);
-
-        document.body.removeChild(widget);
+      afterEach(() => {
         jest.useRealTimers();
+      });
+
+      it("feeds the collection walk's unresolved hosts to the tracker", async () => {
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: unknown) =>
+            Promise.resolve(
+              command === "getUrlAutofillTargetingRules" ? { result: null } : undefined,
+            ),
+          );
+        const reconcileSpy = jest.spyOn(
+          collectAutofillContentService["shadowTracker"],
+          "reconcileFromScan",
+        );
+
+        const pageDetailsPromise = collectAutofillContentService.getPageDetails();
+        await jest.advanceTimersByTimeAsync(200);
+        await pageDetailsPromise;
+
+        expect(reconcileSpy).toHaveBeenCalledWith(expect.any(Set));
+      });
+
+      it("enrolls pre-existing un-hydrated hosts during collection and recovers without any mutations", async () => {
+        customElements.define("preexisting-login", class extends HTMLElement {});
+        jest
+          .spyOn(collectAutofillContentService as any, "sendExtensionMessage")
+          .mockImplementation((command: unknown) =>
+            Promise.resolve(
+              command === "getUrlAutofillTargetingRules" ? { result: null } : undefined,
+            ),
+          );
+        const checkSpy = jest.spyOn(domQueryService, "checkForNewShadowRoots");
+        const host = document.createElement("preexisting-login");
+        document.body.appendChild(host);
+
+        // No mutation events: the host predates observer attachment (the SPA
+        // rendered before the first collection ran).
+        const pageDetailsPromise = collectAutofillContentService.getPageDetails();
+        await jest.advanceTimersByTimeAsync(200);
+        await pageDetailsPromise;
+
+        expect(
+          collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].has(host),
+        ).toBe(true);
+
+        const shadowRoot = host.attachShadow({ mode: "open" });
+        shadowRoot.appendChild(Object.assign(document.createElement("input"), { type: "text" }));
+
+        // Cover the next backoff retry regardless of rounds consumed so far.
+        await jest.advanceTimersByTimeAsync(2000);
+
+        expect(checkSpy).toHaveLastReturnedWith(expect.objectContaining({ foundNewRoot: true }));
+        expect(collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].size).toBe(
+          0,
+        );
+
+        document.body.removeChild(host);
+      });
+
+      it("resets the tracker when monitoring stops", () => {
+        const resetSpy = jest.spyOn(collectAutofillContentService["shadowTracker"], "reset");
+
+        collectAutofillContentService.startMonitoring();
+        collectAutofillContentService.stopMonitoring();
+
+        expect(resetSpy).toHaveBeenCalled();
+      });
+
+      it("resets the tracker on navigation", () => {
+        const resetSpy = jest.spyOn(collectAutofillContentService["shadowTracker"], "reset");
+
+        collectAutofillContentService["handleWindowLocationMutation"]();
+
+        expect(resetSpy).toHaveBeenCalled();
+      });
+
+      it("bypasses a cached empty result on explicit collection", () => {
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = true;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(domQueryService.refreshShadowDomStateForUserRequest).toHaveBeenCalled();
+        expect(collectAutofillContentService["noFieldsFound"]).toBe(false);
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
+      });
+
+      it("serves the populated cache on explicit collection without an O(document) shadow scan", () => {
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
+        // The refresh must not run when a populated cache will be served — otherwise every
+        // explicit collection on a shadow-free page pays a querySelectorAll("*") scan for a
+        // latch that goes unused that round (the fill path lands here).
+        expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
+      });
+
+      it("keeps serving the populated cache when only hosts are awaiting definition", () => {
+        // Steady state on framework pages: every unregistered component selector (<app-root>,
+        // <mat-form-field>, …) parks in hostsAwaitingDefinition permanently. That must NOT force
+        // the O(document) refresh (or discard the field cache) on the fill path — real late
+        // hydration is picked up when a parked host flips :defined and is promoted into the
+        // awaiting-shadow-root pool, which is the arm that still gates.
+        jest.spyOn(domQueryService, "refreshShadowDomStateForUserRequest");
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["shadowTracker"]["hostsAwaitingDefinition"].set(
+          document.createElement("app-root"),
+          Date.now() + 60000,
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(domQueryService.refreshShadowDomStateForUserRequest).not.toHaveBeenCalled();
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(false);
+      });
+
+      it("forces a fresh query on explicit collection while shadow hosts are unresolved", () => {
+        collectAutofillContentService["noFieldsFound"] = false;
+        collectAutofillContentService["domRecentlyMutated"] = false;
+        collectAutofillContentService["shadowTracker"]["hostsAwaitingShadowRoot"].set(
+          document.createElement("pending-host"),
+          3,
+        );
+
+        collectAutofillContentService.prepareForExplicitCollection();
+
+        expect(collectAutofillContentService["domRecentlyMutated"]).toBe(true);
       });
     });
   });

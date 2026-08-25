@@ -1,14 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { catchError, of, switchMap, take } from "rxjs";
+import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
 
-import { RiskCategory } from "@bitwarden/bit-common/dirt/vault-health/models";
-import { VaultHealthReportService } from "@bitwarden/bit-common/dirt/vault-health/services";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
+import {
+  RiskCategory,
+  VaultHealthReportView,
+} from "@bitwarden/bit-common/dirt/vault-health/models";
 import {
   BitwardenIcon,
   CardComponent,
@@ -78,8 +73,8 @@ const RISK_CATEGORY_ROWS: readonly {
  * The body of the Health tab for a premium user: the At-Risk Gauge with its
  * heading and count, and the three risk categories.
  *
- * Renders the vault-health report produced by {@link VaultHealthReportService},
- * which owns the categorization, highest-risk-wins deduplication, and score.
+ * Presentational — it renders the report it is given and fetches nothing. The
+ * Health tab root runs the scan and only mounts this once the report resolves.
  */
 @Component({
   selector: "dirt-health-overview",
@@ -96,48 +91,16 @@ const RISK_CATEGORY_ROWS: readonly {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HealthOverviewComponent {
-  private readonly accountService = inject(AccountService);
-  private readonly cipherService = inject(CipherService);
-  private readonly vaultHealthReportService = inject(VaultHealthReportService);
-  private readonly logService = inject(LogService);
-
-  /**
-   * The latest scan's result, or null while it is still running or after it
-   * failed. `take(1)` scans once per Health tab open rather than on every
-   * vault change, since each scan does a breach lookup.
-   *
-   * TODO(PM-39223): add the scan trigger, loading and failure state.
-   */
-  private readonly report = toSignal(
-    this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) =>
-        this.cipherService.cipherViews$(userId).pipe(
-          filterOutNullish(),
-          take(1),
-          switchMap((ciphers) =>
-            this.vaultHealthReportService.buildVaultHealthReport$(ciphers, userId),
-          ),
-        ),
-      ),
-      catchError((error: unknown) => {
-        this.logService.error(error);
-        return of(null);
-      }),
-    ),
-    { initialValue: null },
-  );
-
-  /** True once a scan result is available to render. */
-  protected readonly hasReport = computed(() => this.report() != null);
+  /** The completed scan result to render. The Health tab root owns the scan. */
+  readonly report = input.required<VaultHealthReportView>();
 
   /** Unique logins at risk in any category — the gauge's value. */
-  protected readonly atRiskCount = computed(() => this.report()?.atRiskCount ?? 0);
+  protected readonly atRiskCount = computed(() => this.report().atRiskCount);
 
   /** Personal-vault logins with a password — the gauge's total. */
-  protected readonly totalCount = computed(() => this.report()?.totalCount ?? 0);
+  protected readonly totalCount = computed(() => this.report().totalCount);
 
-  /** Drives the heading and the count line; the gauge derives its own colour. */
+  /** Drives the heading; the gauge derives its own colour. */
   protected readonly isAtRisk = computed(() => this.atRiskCount() > 0);
 
   /**
@@ -146,10 +109,10 @@ export class HealthOverviewComponent {
    * than disappearing.
    */
   protected readonly categoryRows = computed(() => {
-    const categoryItems = this.report()?.categoryItems;
+    const categoryItems = this.report().categoryItems;
     return RISK_CATEGORY_ROWS.map((row) => ({
       ...row,
-      count: categoryItems?.[row.category]?.length ?? 0,
+      count: categoryItems[row.category].length,
     }));
   });
 }

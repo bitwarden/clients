@@ -1,20 +1,38 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, model } from "@angular/core";
 
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
+import {
+  DecorativeColors,
+  DecorativeEmphasis,
+  DecorativeVariant,
+  decorativeColors,
+} from "../shared/decorative-colors";
 import { BitwardenIcon } from "../shared/icon";
 
-export type IconTileVariant =
-  "primary" | "success" | "danger" | "warning" | "subtle" | "dark" | "contrast";
+type SemanticVariant = "primary" | "success" | "danger" | "warning" | "dark";
+
+export type IconTileVariant = SemanticVariant | DecorativeVariant;
+
+export type IconTileEmphasis = DecorativeEmphasis;
 
 export type IconTileSize = "xs" | "sm" | "base" | "lg" | "xl";
 
-const variantStyles: Record<IconTileVariant, string[]> = {
-  primary: ["tw-bg-bg-brand-soft", "tw-border-border-brand-soft", "tw-text-fg-brand"],
-  success: ["tw-bg-bg-success-medium", "tw-border-border-success-soft", "tw-text-fg-success"],
-  danger: ["tw-bg-bg-danger-medium", "tw-border-border-danger-soft", "tw-text-fg-danger"],
-  warning: ["tw-bg-bg-warning-medium", "tw-border-border-warning-soft", "tw-text-fg-warning"],
-  subtle: ["tw-bg-bg-quaternary", "tw-border-border-base", "tw-text-fg-body"],
-  dark: ["tw-bg-bg-contrast", "tw-border-border-strong", "tw-text-fg-contrast"],
-  contrast: ["tw-bg-bg-primary", "tw-border-border-base", "tw-text-fg-heading"],
+// Semantic variants that render identically to a decorative family, always at subtle emphasis.
+const decorativeAliases: Partial<Record<IconTileVariant, DecorativeVariant>> = {
+  primary: "brand",
+  success: "green",
+  danger: "red",
+  warning: "orange",
+};
+
+// Semantic variants with no decorative equivalent; unaffected by emphasis.
+const uniqueVariantColors: Partial<Record<IconTileVariant, DecorativeColors>> = {
+  dark: {
+    background: "var(--color-bg-contrast)",
+    border: "var(--color-border-strong)",
+    text: "var(--color-fg-contrast)",
+  },
 };
 
 const sizeStyles: Record<IconTileSize, { container: string[]; icon: string[] }> = {
@@ -63,6 +81,9 @@ const borderRadius: Record<IconTileSize, string[]> = {
   selector: "bit-icon-tile",
   templateUrl: "icon-tile.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    class: "tw-inline-flex",
+  },
 })
 export class IconTileComponent {
   /**
@@ -76,17 +97,63 @@ export class IconTileComponent {
   readonly variant = input<IconTileVariant>("primary");
 
   /**
-   * The size of the icon tile
+   * Optional custom hex color (e.g. `#175ddc`) — typically used to match a user's avatar color.
+   * When set, it takes precedence over `variant`/`emphasis`: the fill matches the color, the
+   * foreground (icon) color is chosen for contrast, and the border is the color adjusted ±15%
+   * lightness.
    */
-  readonly size = input<IconTileSize>("base");
+  readonly color = input<string>();
+
+  /**
+   * Emphasis level for the decorative color families (`brand`, `teal`, `green`, `orange`, `red`,
+   * `purple`, `gray`). Ignored by the semantic variants, which render the same regardless.
+   */
+  readonly emphasis = input<IconTileEmphasis>("subtle");
+
+  /**
+   * The size of the icon tile.
+   *
+   * Exposed as a `model` so a parent that renders a projected tile (e.g. `bit-breadcrumb`)
+   * can drive the size programmatically while consumers can still bind it declaratively.
+   */
+  readonly size = model<IconTileSize>("base");
 
   /**
    * Optional aria-label for accessibility when the icon has semantic meaning
    */
   readonly ariaLabel = input<string>();
 
-  protected readonly containerClasses = computed(() => {
+  /** The background, border, and foreground colors applied to the tile as inline styles. */
+  protected readonly colorStyles = computed<DecorativeColors>(() => {
+    const custom = this.color()?.trim();
+    if (custom) {
+      // "black" or "white" — svgTextFill omits `!important` so the value is valid in a style binding.
+      const text = Utils.pickTextColorBasedOnBgColor(custom, 135, true);
+      // Dark foreground -> darken the border 15%; white foreground -> lighten the border 15%.
+      const borderLightness = text === "black" ? "calc(l - 15)" : "calc(l + 15)";
+      return {
+        background: custom,
+        border: `hsl(from ${custom} h s ${borderLightness})`,
+        text,
+      };
+    }
+
     const variant = this.variant();
+    const unique = uniqueVariantColors[variant];
+    if (unique) {
+      return unique;
+    }
+
+    const alias = decorativeAliases[variant];
+    if (alias) {
+      // Semantic variants ignore emphasis — always render the subtle triple.
+      return decorativeColors(alias, "subtle");
+    }
+
+    return decorativeColors(variant as DecorativeVariant, this.emphasis());
+  });
+
+  protected readonly containerClasses = computed(() => {
     const size = this.size();
 
     return [
@@ -95,7 +162,6 @@ export class IconTileComponent {
       "tw-justify-center",
       "tw-flex-shrink-0",
       "tw-border",
-      ...(variantStyles[variant] ?? []),
       ...sizeStyles[size].container,
       ...borderRadius[size],
     ];
