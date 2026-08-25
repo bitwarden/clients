@@ -244,14 +244,36 @@ describe("AccessRuleEditComponent — page furniture", () => {
     expect(section.querySelectorAll("input")).toHaveLength(1);
   });
 
-  it("links the event logs at the organization's reporting route", async () => {
+  it("hangs the approvers hint off the human-approval checkbox once it is ticked", async () => {
+    const fixture = await render({});
+    const checkbox = fixture.nativeElement.querySelector(
+      "#access-rule-edit_checkbox_human-approval",
+    ) as HTMLInputElement;
+
+    // The hint sits in bit-form-control's `bit-hint` projection slot behind an `@if`, so it has to
+    // be asserted through the rendered control rather than the template: content projection out of
+    // a control-flow block is where this silently stops working.
+    const control = checkbox.closest("bit-form-control") as HTMLElement;
+    expect(control.querySelector("bit-hint")).toBeNull();
+
+    checkbox.click();
+    fixture.detectChanges();
+
+    const hint = control.querySelector("bit-hint");
+    expect(hint).not.toBeNull();
+    expect(hint!.textContent!.replace(/\s+/g, " ").trim()).toBe(
+      "pamAccessRuleApprovers: pamAccessRuleApproversCollectionManagers",
+    );
+  });
+
+  it("links the event log notice at the organization's PAM audit route", async () => {
     const fixture = await render({});
 
     const link = fixture.nativeElement.querySelector(
       "#access-rule-edit_anchor_event-logs",
     ) as HTMLAnchorElement | null;
     expect(link).not.toBeNull();
-    expect(link!.getAttribute("href")).toBe("/organizations/org-1/reporting/events");
+    expect(link!.getAttribute("href")).toBe("/organizations/org-1/pam/audit");
   });
 
   it("drops the event log notice for an organization without event log access", async () => {
