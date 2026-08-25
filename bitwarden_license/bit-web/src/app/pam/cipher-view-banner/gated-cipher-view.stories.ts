@@ -50,7 +50,7 @@ import {
 import { CipherViewBannerComponent } from "./cipher-view-banner.component";
 
 /**
- * The composed cipher view, rather than the banner on its own — this is where the card ORDER and
+ * The composed cipher view, rather than the banner on its own. This is where the card ORDER and
  * the name-row badge are visible, and those are the only things these stories exist to show:
  * the state badge opposite the item name, then identity, access, Autofill options, Item history.
  *
@@ -146,7 +146,7 @@ function provideStoryCipherView() {
 
 /**
  * Binds the real banner and the real name-row badge to their tokens, over one access state built at
- * render time — the two seams read the same state, so a story showing them disagreeing is a bug.
+ * render time. The two seams read the same state, so a story showing them disagreeing is a bug.
  * There is no active-lease story because that state badges only in the banner heading; see
  * `ItemDetailsStateBadgeComponent` for why.
  */
@@ -250,7 +250,7 @@ export const LongNameWithBadge: Story = {
 };
 
 /**
- * An ungoverned login with neither seam bound — the name row carries no badge and the card order is
+ * An ungoverned login with neither seam bound. The name row carries no badge and the card order is
  * identical to what it was before either outlet existed: identity, credentials, Autofill options,
  * Item history.
  */
