@@ -1,21 +1,14 @@
-import { filter, firstValueFrom, map } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
-import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
-import {
-  VAULT_TIMEOUT,
-  VaultTimeoutStringType,
-} from "@bitwarden/common/key-management/vault-timeout";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { asUuid } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Ref } from "@bitwarden/common/platform/misc/reference-counting/rc";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { MasterKey } from "@bitwarden/common/types/key";
@@ -23,7 +16,6 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
-  KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
@@ -38,9 +30,10 @@ import {
   V2UpgradeToken,
   WrappedAccountCryptographicState,
 } from "@bitwarden/sdk-internal";
-import { StateProvider, StateService } from "@bitwarden/state";
+import { StateProvider } from "@bitwarden/state";
 import { UserId } from "@bitwarden/user-core";
 
+import { AutoUnlockService } from "./auto-unlock.service";
 import { UnlockSource } from "./unlock-source.enum";
 import { UnlockService } from "./unlock.service";
 
@@ -69,11 +62,9 @@ export class DefaultUnlockService implements UnlockService {
     private stateProvider: StateProvider,
     private logService: LogService,
     private biometricsService: BiometricsService,
-    private platformUtilsService: PlatformUtilsService,
-    private stateService: StateService,
     private biometricStateService: BiometricStateService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
-    private keyService: KeyService,
+    private autoUnlockService: AutoUnlockService,
   ) {}
 
   registerOnUnlockAction(
@@ -187,7 +178,7 @@ export class DefaultUnlockService implements UnlockService {
       return false;
     }
 
-    const userKey = await this.keyService.getUserKeyFromStorage(KeySuffixOptions.Auto, userId);
+    const userKey = await this.autoUnlockService.getAutoUnlockKey(userId);
     if (userKey == null) {
       return false;
     }
@@ -317,27 +308,11 @@ export class DefaultUnlockService implements UnlockService {
     if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$(userId))) {
       await this.biometricsService.setBiometricProtectedUnlockKeyForUser(userId, userKey);
     }
-    if (await this.shouldStoreUserKeyAutoUnlock(userId)) {
-      await this.stateService.setUserKeyAutoUnlock(userKey.toBase64(), { userId: userId });
-    }
+    await this.autoUnlockService.setAutoUnlockKey(userId, userKey);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
 
     for (const action of this.onUnlockActions) {
       await action(userId, userKey, source);
     }
-  }
-
-  private async shouldStoreUserKeyAutoUnlock(userId: UserId): Promise<boolean> {
-    if (this.platformUtilsService.getClientType() === ClientType.Cli) {
-      return true;
-    }
-
-    const vaultTimeout = await firstValueFrom(
-      this.stateProvider
-        .getUserState$(VAULT_TIMEOUT, userId)
-        .pipe(filter((timeout) => timeout != null)),
-    );
-
-    return vaultTimeout == VaultTimeoutStringType.Never;
   }
 }

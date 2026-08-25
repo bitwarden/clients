@@ -319,7 +319,13 @@ import {
   DefaultStateService,
   InlineDerivedStateProvider,
 } from "@bitwarden/state-internal";
-import { DefaultUnlockService, LockService, UnlockService } from "@bitwarden/unlock";
+import {
+  AutoUnlockService,
+  DefaultAutoUnlockService,
+  DefaultUnlockService,
+  LockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -565,6 +571,7 @@ export default class MainBackground {
   sharedUnlockFollowerService: SharedUnlockFollowerService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
   unlockService: UnlockService;
+  autoUnlockService: AutoUnlockService;
 
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
@@ -823,6 +830,14 @@ export default class MainBackground {
       browserBiometricsService,
     );
 
+    this.autoUnlockService = new DefaultAutoUnlockService(
+      this.keyService,
+      this.stateService,
+      this.stateProvider,
+      this.platformUtilsService,
+      this.logService,
+    );
+
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
       this.masterPasswordService,
       this.keyGenerationService,
@@ -864,7 +879,7 @@ export default class MainBackground {
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.userDecryptionOptionsService,
-      this.keyService,
+      this.autoUnlockService,
       this.tokenService,
       this.policyService,
       this.biometricStateService,
@@ -1004,11 +1019,9 @@ export default class MainBackground {
       this.stateProvider,
       this.logService,
       this.biometricsService,
-      this.platformUtilsService,
-      this.stateService,
       this.biometricStateService,
       this.v2UpgradeTokenStateService,
-      this.keyService,
+      this.autoUnlockService,
     );
     void browserBiometricsService.setUnlockService(this.unlockService);
 

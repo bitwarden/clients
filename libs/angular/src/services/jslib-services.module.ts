@@ -416,6 +416,8 @@ import {
 } from "@bitwarden/state-internal";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 import {
+  AutoUnlockService,
+  DefaultAutoUnlockService,
   DefaultLockService,
   LockService,
   DefaultUnlockService,
@@ -1053,11 +1055,20 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       LogService,
       BiometricsService,
-      PlatformUtilsServiceAbstraction,
-      StateServiceAbstraction,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      AutoUnlockService,
+    ],
+  }),
+  safeProvider({
+    provide: AutoUnlockService,
+    useClass: DefaultAutoUnlockService,
+    deps: [
       KeyService,
+      StateServiceAbstraction,
+      StateProvider,
+      PlatformUtilsServiceAbstraction,
+      LogService,
     ],
   }),
   safeProvider({
@@ -1071,7 +1082,7 @@ const safeProviders: SafeProvider[] = [
     deps: [
       AccountServiceAbstraction,
       UserDecryptionOptionsServiceAbstraction,
-      KeyService,
+      AutoUnlockService,
       TokenServiceAbstraction,
       PolicyServiceAbstraction,
       BiometricStateService,
