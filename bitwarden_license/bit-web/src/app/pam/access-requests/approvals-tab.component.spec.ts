@@ -14,6 +14,7 @@ import { DialogService, ToastService } from "@bitwarden/components";
 import type { AccessRequestView } from "../abstractions/access-lease";
 import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { tableColumnVisibility } from "../testing/table-columns";
 
 import { emptyResolvedNames } from "./access-name-resolver.service";
 import { ApprovalsTabComponent } from "./approvals-tab.component";
@@ -243,6 +244,20 @@ describe("ApprovalsTabComponent", () => {
 
       expect(dialogService.open).not.toHaveBeenCalled();
       expect(inbox.decide).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("reflowing beside the drawer", () => {
+    it("sheds its secondary columns as the pane narrows, keeping the item and the decision buttons", () => {
+      inbox.inboxRows$.next([row()]);
+      create();
+
+      const [table] = tableColumnVisibility(fixture.nativeElement);
+
+      expect(table).toEqual({
+        header: [null, "@lg", "@2xl", "@4xl", "@3xl", null],
+        body: [null, "@lg", "@2xl", "@4xl", "@3xl", null],
+      });
     });
   });
 

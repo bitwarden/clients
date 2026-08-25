@@ -27,9 +27,11 @@
       <tr>
         <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
         <th bitCell bitSortable="status">{{ "pamColumnStatus" | i18n }}</th>
-        <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
-        <th bitCell>{{ "pamColumnComment" | i18n }}</th>
-        <th bitCell bitSortable="resolvedAt" default="desc">{{ "pamColumnResolved" | i18n }}</th>
+        <th bitCell class="tw-hidden @2xl:tw-table-cell">{{ "pamColumnResolver" | i18n }}</th>
+        <th bitCell class="tw-hidden @3xl:tw-table-cell">{{ "pamColumnComment" | i18n }}</th>
+        <th bitCell bitSortable="resolvedAt" default="desc" class="tw-hidden @lg:tw-table-cell">
+          {{ "pamColumnResolved" | i18n }}
+        </th>
         @if (showingManaged()) {
           <th bitCell>{{ "pamColumnActions" | i18n }}</th>
         }
@@ -90,21 +92,23 @@
             </span>
           }
         </td>
-        <td bitCell>
+        <td bitCell class="tw-hidden @2xl:tw-table-cell">
           @if (row.resolverLabelKey) {
             {{ row.resolverLabelKey | i18n }}
           } @else {
             {{ row.resolverName }}
           }
         </td>
-        <td bitCell>
+        <td bitCell class="tw-hidden @3xl:tw-table-cell">
           @if (row.approverComment) {
-            {{ row.approverComment }}
+            <div class="tw-line-clamp-2 tw-max-w-xs tw-break-words" [title]="row.approverComment">
+              {{ row.approverComment }}
+            </div>
           } @else {
             <span class="tw-text-muted">&mdash;</span>
           }
         </td>
-        <td bitCell>
+        <td bitCell class="tw-hidden @lg:tw-table-cell">
           @if (row.resolvedAt) {
             <span class="tw-whitespace-nowrap" [title]="row.resolvedAt | date: 'medium'">
               {{ row.resolvedAt | relativeTime }}

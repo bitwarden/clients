@@ -267,7 +267,9 @@ describe("AccessRequestRouteComponent", () => {
 
       create();
 
-      const entry = fixture.nativeElement.querySelector("bit-item-group bit-item") as HTMLElement;
+      const entry = fixture.nativeElement.querySelector(
+        '[data-testid="access-request-decision"]',
+      ) as HTMLElement;
       expect(entry).not.toBeNull();
       expect(entry.textContent).toContain("Ada");
       expect(entry.textContent).toContain("pamStatusDenied");
@@ -345,9 +347,7 @@ describe("AccessRequestRouteComponent", () => {
 
       const decisions = component["decisions"]();
       expect(decisions[1].labelKey).toBe("pamAuditKindLeaseEndedByHolder");
-      // Neutral, not danger: a holder closing their own lease is not a denial.
-      expect(decisions[1].variant).toBe("subtle");
-      expect(decisions[0].variant).toBe("success");
+      expect(decisions[0].labelKey).toBe("pamStatusApproved");
       expect(text()).not.toContain("pamStatusDenied");
     });
 
@@ -365,6 +365,50 @@ describe("AccessRequestRouteComponent", () => {
       create();
 
       expect(component["decisions"]()[1].labelKey).toBe("pamAuditKindLeaseRevoked");
+    });
+
+    it("leads an entry with its verdict and demotes the actor to the supporting line", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          decisions: [humanDecision({ id: "approver-1", name: "Ada" })],
+        }),
+      );
+
+      create();
+
+      const entry = fixture.nativeElement.querySelector(
+        '[data-testid="access-request-decision"]',
+      ) as HTMLElement;
+      const lines = Array.from(entry.children) as HTMLElement[];
+      const verdict = lines.findIndex((line) => line.textContent?.includes("pamStatusApproved"));
+      const actor = lines.findIndex((line) => line.textContent?.includes("Ada"));
+
+      expect(verdict).toBe(0);
+      expect(actor).toBeGreaterThan(verdict);
+      expect(lines[verdict].className).not.toContain("tw-text-muted");
+      expect(lines[actor].className).toContain("tw-text-muted");
+    });
+
+    it("spends no badge on a log entry, leaving the header pill as the drawer's only status badge", () => {
+      detail.request$.next(
+        request({
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "revoked",
+          decisions: [automaticDecision(), selfEndDecision("user-1")],
+        }),
+      );
+
+      create();
+
+      const entries = fixture.nativeElement.querySelectorAll(
+        '[data-testid="access-request-decision"]',
+      ) as NodeListOf<HTMLElement>;
+
+      expect(entries).toHaveLength(2);
+      entries.forEach((entry) => expect(entry.querySelector("[bitBadge]")).toBeNull());
+      expect(fixture.nativeElement.querySelectorAll("[bitBadge]")).toHaveLength(1);
     });
   });
 

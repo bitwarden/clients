@@ -12,6 +12,7 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { tableColumnVisibility } from "../testing/table-columns";
 
 import { HistoryTabComponent } from "./history-tab.component";
 import { MyAccessRequestRow } from "./my-access-row";
@@ -312,6 +313,32 @@ describe("HistoryTabComponent", () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain("pamMyRequestsHistoryEmpty");
+  });
+
+  describe("reflowing beside the drawer", () => {
+    it("keeps the item and the status badge, dropping the comment first and the resolved date last", () => {
+      myRows$.next([historyRow()]);
+      create();
+
+      const [table] = tableColumnVisibility(fixture.nativeElement);
+
+      expect(table).toEqual({
+        header: [null, null, "@2xl", "@3xl", "@lg"],
+        body: [null, null, "@2xl", "@3xl", "@lg"],
+      });
+    });
+
+    it("never hides the managed scope's actions column", () => {
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      create();
+      showManaged();
+
+      const [table] = tableColumnVisibility(fixture.nativeElement);
+
+      expect(table.header).toHaveLength(6);
+      expect(table.header[5]).toBeNull();
+      expect(table.body).toEqual(table.header);
+    });
   });
 
   function drawerLinks(): RouterLink[] {

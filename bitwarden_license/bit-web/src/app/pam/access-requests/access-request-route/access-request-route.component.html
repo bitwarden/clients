@@ -77,30 +77,27 @@
           <bit-section-header>
             <h2 bitTypography="h4">{{ "pamAccessRequestDecisionLogTitle" | i18n }}</h2>
           </bit-section-header>
-          <bit-item-group>
+          <ol class="tw-m-0 tw-flex tw-list-none tw-flex-col tw-gap-4 tw-p-0">
             @for (decision of decisions(); track $index) {
-              <bit-item>
-                <bit-item-content [truncate]="false">
+              <li data-testid="access-request-decision">
+                <div bitTypography="body2" class="tw-font-medium">
+                  {{ decision.labelKey | i18n }}
+                </div>
+                <div bitTypography="helper" class="tw-text-muted">
                   @if (decision.automatic) {
-                    {{ "pamResolverAccessRule" | i18n }}
-                  } @else {
-                    {{ decision.who }}
+                    {{ "pamResolverAccessRule" | i18n
+                    }}<span aria-hidden="true">&nbsp;&middot;&nbsp;</span>
+                  } @else if (decision.who) {
+                    {{ decision.who }}<span aria-hidden="true">&nbsp;&middot;&nbsp;</span>
                   }
-
-                  <span bitBadge slot="default-trailing" [variant]="decision.variant">{{
-                    decision.labelKey | i18n
-                  }}</span>
-
-                  <ng-container slot="secondary">
-                    <div>{{ decision.decidedAt | date: "medium" }}</div>
-                    @if (decision.comment) {
-                      <div class="tw-mt-1">{{ decision.comment }}</div>
-                    }
-                  </ng-container>
-                </bit-item-content>
-              </bit-item>
+                  {{ decision.decidedAt | date: "medium" }}
+                </div>
+                @if (decision.comment) {
+                  <p bitTypography="body2" class="tw-mb-0 tw-mt-1">{{ decision.comment }}</p>
+                }
+              </li>
             }
-          </bit-item-group>
+          </ol>
         </bit-section>
       }
     } @else if (notFound()) {

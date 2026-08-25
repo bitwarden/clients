@@ -11,6 +11,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { tableColumnVisibility } from "../testing/table-columns";
+
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 import { MyRequestsTabComponent } from "./my-requests-tab.component";
@@ -258,6 +260,43 @@ describe("MyRequestsTabComponent", () => {
 
       expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
       expect(fixture.nativeElement.textContent).toContain("pamMyRequestsPendingEmpty");
+    });
+  });
+
+  describe("reflowing beside the drawer", () => {
+    function everyTable() {
+      pendingRows$.next([requestRow({ id: "req-pending", status: "pending" })]);
+      extensionRows$.next([requestRow({ id: "req-ext", status: "pending" })]);
+      leases$.next([leaseRow()]);
+      create();
+      return tableColumnVisibility(fixture.nativeElement);
+    }
+
+    it("keeps the item and actions columns at every container width", () => {
+      const tables = everyTable();
+
+      expect(tables).toHaveLength(3);
+      for (const { header, body } of tables) {
+        expect(header[0]).toBeNull();
+        expect(header[header.length - 1]).toBeNull();
+        expect(body[0]).toBeNull();
+        expect(body[body.length - 1]).toBeNull();
+      }
+    });
+
+    it("hides a header and its cells at the same container width, so no row shifts a column", () => {
+      for (const { header, body } of everyTable()) {
+        expect(body).toEqual(header);
+      }
+    });
+
+    it("drops the submitted date before the requested window, which is the narrower loss", () => {
+      const [pending] = everyTable();
+
+      expect(pending).toEqual({
+        header: [null, "@lg", "@2xl", null],
+        body: [null, "@lg", "@2xl", null],
+      });
     });
   });
 

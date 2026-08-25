@@ -40,10 +40,17 @@
       <ng-container header>
         <tr>
           <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-          <th bitCell bitSortable="requester">{{ "pamInboxRequester" | i18n }}</th>
-          <th bitCell>{{ "pamInboxWindow" | i18n }}</th>
-          <th bitCell>{{ "pamInboxReason" | i18n }}</th>
-          <th bitCell bitSortable="submittedAtMs" default="asc">
+          <th bitCell bitSortable="requester" class="tw-hidden @lg:tw-table-cell">
+            {{ "pamInboxRequester" | i18n }}
+          </th>
+          <th bitCell class="tw-hidden @2xl:tw-table-cell">{{ "pamInboxWindow" | i18n }}</th>
+          <th bitCell class="tw-hidden @4xl:tw-table-cell">{{ "pamInboxReason" | i18n }}</th>
+          <th
+            bitCell
+            bitSortable="submittedAtMs"
+            default="asc"
+            class="tw-hidden @3xl:tw-table-cell"
+          >
             {{ "pamColumnSubmitted" | i18n }}
           </th>
           <th bitCell>{{ "pamColumnActions" | i18n }}</th>
@@ -72,19 +79,19 @@
               </div>
             </div>
           </td>
-          <td bitCell>
+          <td bitCell class="tw-hidden @lg:tw-table-cell">
             <div>{{ row.requester }}</div>
             @if (row.requesterEmail && row.requesterEmail !== row.requester) {
               <div class="tw-text-xs tw-text-muted">{{ row.requesterEmail }}</div>
             }
           </td>
-          <td bitCell>
+          <td bitCell class="tw-hidden @2xl:tw-table-cell">
             <span class="tw-whitespace-nowrap" [title]="row.exactWindow">
               {{ row.duration.key | i18n: row.duration.value }},
               {{ row.relativeStart.key | i18n: row.relativeStart.value }}
             </span>
           </td>
-          <td bitCell>
+          <td bitCell class="tw-hidden @4xl:tw-table-cell">
             @if (row.reason) {
               <div class="tw-line-clamp-2 tw-max-w-xs tw-break-words" [title]="row.reason">
                 {{ row.reason }}
@@ -93,13 +100,13 @@
               <span class="tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
             }
           </td>
-          <td bitCell>
+          <td bitCell class="tw-hidden @3xl:tw-table-cell">
             <span class="tw-whitespace-nowrap" [title]="row.request.submittedAt | date: 'medium'">
               {{ row.elapsed.key | i18n: row.elapsed.value }}
             </span>
           </td>
           <td bitCell>
-            <div class="tw-flex tw-gap-2">
+            <div class="tw-flex tw-flex-col tw-gap-2 @sm:tw-flex-row">
               <button
                 type="button"
                 bitButton

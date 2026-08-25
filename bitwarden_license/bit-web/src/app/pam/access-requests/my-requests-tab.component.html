@@ -27,8 +27,15 @@
         <ng-container header>
           <tr>
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
-            <th bitCell bitSortable="submittedAt" default="desc">
+            <th bitCell class="tw-hidden @lg:tw-table-cell">
+              {{ "pamColumnRequestedWindow" | i18n }}
+            </th>
+            <th
+              bitCell
+              bitSortable="submittedAt"
+              default="desc"
+              class="tw-hidden @2xl:tw-table-cell"
+            >
               {{ "pamColumnSubmitted" | i18n }}
             </th>
             <th bitCell class="tw-w-32">
@@ -63,7 +70,7 @@
                 </div>
               </div>
             </td>
-            <td bitCell>
+            <td bitCell class="tw-hidden @lg:tw-table-cell">
               @if (startsNow(row)) {
                 {{ "pamWindowUntil" | i18n: (row.leaseNotAfter | date: "short") }}
               } @else {
@@ -71,9 +78,11 @@
                 {{ row.leaseNotAfter | date: "short" }}
               }
             </td>
-            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+            <td bitCell class="tw-hidden @2xl:tw-table-cell">
+              {{ row.submittedAt | date: "short" }}
+            </td>
             <td bitCell>
-              <div class="tw-flex tw-items-start tw-gap-2">
+              <div class="tw-flex tw-flex-col tw-items-start tw-gap-2 @sm:tw-flex-row">
                 @if (canStart(row)) {
                   <div class="tw-flex tw-flex-col tw-items-start tw-gap-1">
                     <button
@@ -124,8 +133,15 @@
         <ng-container header>
           <tr>
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
-            <th bitCell bitSortable="submittedAt" default="desc">
+            <th bitCell class="tw-hidden @lg:tw-table-cell">
+              {{ "pamColumnRequestedWindow" | i18n }}
+            </th>
+            <th
+              bitCell
+              bitSortable="submittedAt"
+              default="desc"
+              class="tw-hidden @2xl:tw-table-cell"
+            >
               {{ "pamColumnSubmitted" | i18n }}
             </th>
             <th bitCell class="tw-w-32">
@@ -160,11 +176,13 @@
                 </div>
               </div>
             </td>
-            <td bitCell>
+            <td bitCell class="tw-hidden @lg:tw-table-cell">
               {{ row.leaseNotBefore | date: "short" }} &ndash;
               {{ row.leaseNotAfter | date: "short" }}
             </td>
-            <td bitCell>{{ row.submittedAt | date: "short" }}</td>
+            <td bitCell class="tw-hidden @2xl:tw-table-cell">
+              {{ row.submittedAt | date: "short" }}
+            </td>
             <td bitCell>
               @if (canCancel(row)) {
                 <button
@@ -199,8 +217,10 @@
         <ng-container header>
           <tr>
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell>{{ "pamColumnWindow" | i18n }}</th>
-            <th bitCell bitSortable="notAfter" default="asc">{{ "pamColumnRemaining" | i18n }}</th>
+            <th bitCell class="tw-hidden @2xl:tw-table-cell">{{ "pamColumnWindow" | i18n }}</th>
+            <th bitCell bitSortable="notAfter" default="asc" class="tw-hidden @sm:tw-table-cell">
+              {{ "pamColumnRemaining" | i18n }}
+            </th>
             <th bitCell class="tw-w-32">
               <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
             </th>
@@ -248,10 +268,10 @@
                 </div>
               </div>
             </td>
-            <td bitCell>
+            <td bitCell class="tw-hidden @2xl:tw-table-cell">
               {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
             </td>
-            <td bitCell>
+            <td bitCell class="tw-hidden @sm:tw-table-cell">
               <app-pam-access-state-badge [state]="leaseBadgeState(lease.id)" />
             </td>
             <td bitCell>
