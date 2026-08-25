@@ -1,66 +1,72 @@
 @if (activeLease(); as lease) {
   <bit-card class="tw-mb-4" data-testid="cipher-view-banner-active">
     <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile icon="bwi-clock" variant="teal" />
+      <bit-icon-tile icon="bwi-clock" variant="teal" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
         <!--
           No access-state badge here: the heading already carries the live countdown, and the badge's
           "N left" / "Ending soon" pill would render a second copy of the same clock. The other three
           states have no countdown in their heading, so they show the shared pill.
         -->
-        <h3 bitTypography="h5" noMargin>
-          {{ "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel() }}
-        </h3>
-
-        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
-          <span bitTypography="body2" data-testid="active-lease-ends-at">
+        <div class="tw-flex tw-flex-col">
+          <h3 bitTypography="h5" noMargin>
+            {{ "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel() }}
+          </h3>
+          <span
+            bitTypography="helper"
+            class="tw-text-fg-body-subtle"
+            data-testid="active-lease-ends-at"
+          >
             {{ "pamWindowUntil" | i18n: (lease.notAfter | date: "short") }}
           </span>
-          <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
-            @if (canExtendLease()) {
-              <button
-                type="button"
-                bitButton
-                buttonType="secondary"
-                size="small"
-                [bitAction]="extendLease"
-                id="pam-cipher-view-banner_button_extend"
-              >
-                {{ "pamExtendLeaseButton" | i18n }}
-              </button>
-            }
+        </div>
+
+        <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
+          @if (canExtendLease()) {
             <button
               type="button"
               bitButton
-              buttonType="danger"
+              buttonType="secondary"
               size="small"
-              [bitAction]="endLease"
-              id="pam-cipher-view-banner_button_end"
+              [bitAction]="extendLease"
+              id="pam-cipher-view-banner_button_extend"
             >
-              {{ "pamEndLeaseButton" | i18n }}
+              {{ "pamExtendLeaseButton" | i18n }}
             </button>
-          </span>
-        </div>
+          }
+          <button
+            type="button"
+            bitButton
+            buttonType="danger"
+            size="small"
+            [bitAction]="endLease"
+            id="pam-cipher-view-banner_button_end"
+          >
+            {{ "pamEndLeaseButton" | i18n }}
+          </button>
+        </span>
       </div>
     </div>
   </bit-card>
 } @else if (approvedRequest(); as request) {
   <bit-card class="tw-mb-4" data-testid="cipher-view-banner-approved">
     <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile icon="bwi-check-circle" variant="success" />
+      <bit-icon-tile icon="bwi-check-circle" variant="success" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <h3 bitTypography="h5" noMargin>{{ "pamApprovedRequestBannerHeading" | i18n }}</h3>
+        <div class="tw-flex tw-flex-col">
+          <h3 bitTypography="h5" noMargin>{{ "pamApprovedRequestBannerHeading" | i18n }}</h3>
 
-        @if (approvedDurationSeconds(); as grantedSeconds) {
-          <p
-            bitTypography="body2"
-            class="tw-m-0 tw-flex tw-items-center tw-gap-2"
-            data-testid="cipher-view-banner-approved-duration"
-          >
-            <bit-icon name="bwi-clock" />
-            {{ "pamApprovedRequestBannerDuration" | i18n: (grantedSeconds | durationLong) }}
-          </p>
-        }
+          @if (approvedDurationSeconds(); as grantedSeconds) {
+            <p
+              bitTypography="helper"
+              class="tw-m-0 tw-flex tw-items-center tw-gap-2 tw-text-fg-body-subtle"
+              data-testid="cipher-view-banner-approved-duration"
+            >
+              <bit-icon name="bwi-clock" />
+              {{ "pamApprovedRequestBannerDuration" | i18n: (grantedSeconds | durationLong) }}
+            </p>
+          }
+        </div>
 
         <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
           <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
@@ -103,7 +109,7 @@
 } @else if (pendingRequest()) {
   <bit-card class="tw-mb-4" data-testid="cipher-view-banner-pending">
     <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile icon="bwi-clock" variant="warning" />
+      <bit-icon-tile icon="bwi-clock" variant="warning" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
         <h3 bitTypography="h5" noMargin>{{ "pamPendingRequestBannerHeading" | i18n }}</h3>
 
@@ -126,13 +132,15 @@
 } @else if (canRequestAccess()) {
   <bit-card class="tw-mb-4" data-testid="cipher-view-banner-request">
     <div class="tw-flex tw-items-start tw-gap-4">
-      <bit-icon-tile icon="bwi-key" variant="primary" />
+      <bit-icon-tile icon="bwi-key" variant="primary" size="sm" />
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
-        <h3 bitTypography="h5" noMargin>{{ "pamRequestAccessBannerHeading" | i18n }}</h3>
+        <div class="tw-flex tw-flex-col">
+          <h3 bitTypography="h5" noMargin>{{ "pamRequestAccessBannerHeading" | i18n }}</h3>
 
-        <p bitTypography="body2" class="tw-m-0">
-          {{ "pamRequestAccessBannerBody" | i18n }}
-        </p>
+          <p bitTypography="helper" class="tw-m-0 tw-text-fg-body-subtle">
+            {{ "pamRequestAccessBannerBody" | i18n }}
+          </p>
+        </div>
 
         @if (restingRequestTerms(); as terms) {
           <p
