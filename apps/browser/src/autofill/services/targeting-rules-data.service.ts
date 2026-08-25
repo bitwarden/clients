@@ -13,7 +13,6 @@ import {
 } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { DEFAULT_FILL_ASSIST_RULES_URL } from "@bitwarden/common/autofill/constants";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { TargetingRulesByDomain } from "@bitwarden/common/autofill/types";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
@@ -204,6 +203,11 @@ export class TargetingRulesDataService {
     }
 
     const resourceBaseUrl = await this._resolveResourceBaseUrl();
+
+    if (!resourceBaseUrl) {
+      this.logService.warning("Server config provided no resource URL, clearing rules cache.");
+    }
+
     const manifestUrl = new URL(MANIFEST_FILENAME, resourceBaseUrl);
 
     // Step 1: Fetch the lightweight manifest to check if the data has changed
@@ -284,14 +288,21 @@ export class TargetingRulesDataService {
   }
 
   /**
-   * Resolves the resource base URL from the server config, falling back to
-   * the hardcoded default. The trailing slash is enforced so that relative
-   * resolution (`new URL(filename, baseUrl)`) treats the value as a directory
-   * rather than dropping its final path segment.
+   * Resolves the resource base URL from the server config, or `undefined` when
+   * the server supplies no value.
+   *
+   * The trailing slash is enforced so that relative resolution
+   * (`new URL(filename, baseUrl)`) treats the value as a directory rather than
+   * dropping its final path segment.
    */
-  private async _resolveResourceBaseUrl(): Promise<string> {
+  private async _resolveResourceBaseUrl(): Promise<string | undefined> {
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
-    const baseUrl = serverConfig?.environment?.fillAssistRules || DEFAULT_FILL_ASSIST_RULES_URL;
+    const baseUrl = serverConfig?.environment?.fillAssistRules?.trim();
+
+    if (!baseUrl) {
+      return undefined;
+    }
+
     return baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
   }
 }
