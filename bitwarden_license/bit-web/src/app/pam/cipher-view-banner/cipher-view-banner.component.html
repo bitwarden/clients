@@ -162,138 +162,142 @@
     </div>
 
     @if (requestFormExpanded()) {
-      <hr class="tw-my-4 tw-border-t tw-border-border-base" />
+      <div class="tw-text-fg-body">
+        <hr class="tw-my-4 tw-border-t tw-border-border-base" />
 
-      @if (loadingRequestForm()) {
-        <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
-      } @else if (requestMode() !== null) {
-        <p bitTypography="body2" class="tw-mb-4 tw-mt-0 tw-text-fg-body">
-          @if (requestMode() === "automatic") {
-            {{ "requestAccessModalAutomaticDescription" | i18n }}
-          } @else {
-            {{ "requestAccessModalHumanDescription" | i18n }}
-          }
-        </p>
-
-        @if (requestMode() === "automatic") {
-          <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
-            <bit-form-field>
-              <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
-              <select
-                bitInput
-                formControlName="durationSeconds"
-                id="pam-cipher-view-banner_select_duration"
-              >
-                @for (option of durationOptions(); track option.seconds) {
-                  <option [value]="option.seconds">
-                    {{
-                      option.labelKey ? (option.labelKey | i18n) : (option.seconds | durationShort)
-                    }}
-                  </option>
-                }
-              </select>
-            </bit-form-field>
-
-            <bit-form-field>
-              <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
-              <textarea
-                bitInput
-                rows="3"
-                formControlName="reason"
-                [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
-                id="pam-cipher-view-banner_textarea_automatic-reason"
-              ></textarea>
-              <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
-            </bit-form-field>
-          </form>
-        } @else {
-          <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
-            <bit-form-field>
-              <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
-              <input
-                bitInput
-                type="date"
-                formControlName="date"
-                id="pam-cipher-view-banner_input_date"
-              />
-            </bit-form-field>
-
-            <div class="tw-grid tw-grid-cols-2 tw-gap-3">
-              <bit-form-field>
-                <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="time"
-                  formControlName="start"
-                  id="pam-cipher-view-banner_input_start"
-                />
-              </bit-form-field>
-              <bit-form-field>
-                <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
-                <input
-                  bitInput
-                  type="time"
-                  formControlName="end"
-                  id="pam-cipher-view-banner_input_end"
-                />
-              </bit-form-field>
-            </div>
-
-            @if (windowEndBeforeStart()) {
-              <p
-                bitTypography="helper"
-                class="tw-text-danger"
-                data-testid="window-end-before-start"
-              >
-                {{ "requestAccessModalEndBeforeStart" | i18n }}
-              </p>
-            } @else if (windowExceedsMax()) {
-              <p bitTypography="helper" class="tw-text-danger" data-testid="window-exceeds-max">
-                {{
-                  "requestAccessModalWindowExceedsMax" | i18n: (maxWindowSeconds() | durationLong)
-                }}
-              </p>
+        @if (loadingRequestForm()) {
+          <p bitTypography="body2" class="tw-m-0">{{ "loading" | i18n }}</p>
+        } @else if (requestMode() !== null) {
+          <p bitTypography="body2" class="tw-mb-4 tw-mt-0">
+            @if (requestMode() === "automatic") {
+              {{ "requestAccessModalAutomaticDescription" | i18n }}
+            } @else {
+              {{ "requestAccessModalHumanDescription" | i18n }}
             }
+          </p>
 
-            <bit-form-field>
-              <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
-              <textarea
-                bitInput
-                rows="3"
-                formControlName="reason"
-                [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
-                id="pam-cipher-view-banner_textarea_human-reason"
-              ></textarea>
-              <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
-            </bit-form-field>
-          </form>
+          @if (requestMode() === "automatic") {
+            <form [formGroup]="automaticForm" class="tw-flex tw-flex-col tw-gap-4">
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalDuration" | i18n }}</bit-label>
+                <select
+                  bitInput
+                  formControlName="durationSeconds"
+                  id="pam-cipher-view-banner_select_duration"
+                >
+                  @for (option of durationOptions(); track option.seconds) {
+                    <option [value]="option.seconds">
+                      {{
+                        option.labelKey
+                          ? (option.labelKey | i18n)
+                          : (option.seconds | durationShort)
+                      }}
+                    </option>
+                  }
+                </select>
+              </bit-form-field>
+
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
+                <textarea
+                  bitInput
+                  rows="3"
+                  formControlName="reason"
+                  [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+                  id="pam-cipher-view-banner_textarea_automatic-reason"
+                ></textarea>
+                <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+              </bit-form-field>
+            </form>
+          } @else {
+            <form [formGroup]="humanForm" class="tw-flex tw-flex-col tw-gap-4">
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalDate" | i18n }}</bit-label>
+                <input
+                  bitInput
+                  type="date"
+                  formControlName="date"
+                  id="pam-cipher-view-banner_input_date"
+                />
+              </bit-form-field>
+
+              <div class="tw-grid tw-grid-cols-2 tw-gap-3">
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalStart" | i18n }}</bit-label>
+                  <input
+                    bitInput
+                    type="time"
+                    formControlName="start"
+                    id="pam-cipher-view-banner_input_start"
+                  />
+                </bit-form-field>
+                <bit-form-field>
+                  <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
+                  <input
+                    bitInput
+                    type="time"
+                    formControlName="end"
+                    id="pam-cipher-view-banner_input_end"
+                  />
+                </bit-form-field>
+              </div>
+
+              @if (windowEndBeforeStart()) {
+                <p
+                  bitTypography="helper"
+                  class="tw-text-danger"
+                  data-testid="window-end-before-start"
+                >
+                  {{ "requestAccessModalEndBeforeStart" | i18n }}
+                </p>
+              } @else if (windowExceedsMax()) {
+                <p bitTypography="helper" class="tw-text-danger" data-testid="window-exceeds-max">
+                  {{
+                    "requestAccessModalWindowExceedsMax" | i18n: (maxWindowSeconds() | durationLong)
+                  }}
+                </p>
+              }
+
+              <bit-form-field>
+                <bit-label>{{ "requestAccessModalReasonRequired" | i18n }}</bit-label>
+                <textarea
+                  bitInput
+                  rows="3"
+                  formControlName="reason"
+                  [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
+                  id="pam-cipher-view-banner_textarea_human-reason"
+                ></textarea>
+                <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
+              </bit-form-field>
+            </form>
+          }
         }
-      }
 
-      @if (requestError(); as error) {
-        <p
-          bitTypography="helper"
-          class="tw-mb-0 tw-mt-3 tw-text-danger"
-          data-testid="request-error"
-        >
-          {{ error }}
-        </p>
-      }
-
-      @if (requestMode() !== null) {
-        <div class="tw-mt-4 tw-flex tw-justify-end">
-          <button
-            type="button"
-            bitButton
-            buttonType="primary"
-            size="small"
-            [bitAction]="submitRequest"
-            id="pam-cipher-view-banner_button_request-submit"
+        @if (requestError(); as error) {
+          <p
+            bitTypography="helper"
+            class="tw-mb-0 tw-mt-3 tw-text-danger"
+            data-testid="request-error"
           >
-            {{ "requestAccessModalSubmit" | i18n }}
-          </button>
-        </div>
-      }
+            {{ error }}
+          </p>
+        }
+
+        @if (requestMode() !== null) {
+          <div class="tw-mt-4 tw-flex tw-justify-end">
+            <button
+              type="button"
+              bitButton
+              buttonType="primary"
+              size="small"
+              [bitAction]="submitRequest"
+              id="pam-cipher-view-banner_button_request-submit"
+            >
+              {{ "requestAccessModalSubmit" | i18n }}
+            </button>
+          </div>
+        }
+      </div>
     }
   </bit-card>
 }
