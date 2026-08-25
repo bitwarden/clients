@@ -2,7 +2,6 @@
 // @ts-strict-ignore
 import { firstValueFrom } from "rxjs";
 
-import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountApiService } from "@bitwarden/common/auth/abstractions/account-api.service";
 import { RegisterFinishRequest } from "@bitwarden/common/auth/models/request/registration/register-finish.request";
 import { assertNonNullish, assertTruthy } from "@bitwarden/common/auth/utils";
@@ -32,14 +31,6 @@ export class DefaultRegistrationFinishService implements RegistrationFinishServi
     protected configService: ConfigService,
     protected sdkService: SdkService,
   ) {}
-
-  getOrgNameFromOrgInvite(): Promise<string | null> {
-    return null;
-  }
-
-  getMasterPasswordPolicyOptsFromOrgInvite(): Promise<MasterPasswordPolicyOptions | null> {
-    return null;
-  }
 
   async finishRegistration(
     email: string,
