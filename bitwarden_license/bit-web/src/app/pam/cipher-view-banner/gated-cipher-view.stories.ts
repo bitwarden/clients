@@ -139,6 +139,8 @@ function provideStoryCipherView() {
 /**
  * Binds the real banner and the real name-row badge to their tokens, over one access state built at
  * render time — the two seams read the same state, so a story showing them disagreeing is a bug.
+ * There is no active-lease story because that state badges only in the banner heading; see
+ * `ItemDetailsStateBadgeComponent` for why.
  */
 function gated(state: () => Record<string, unknown>) {
   return moduleMetadata({
