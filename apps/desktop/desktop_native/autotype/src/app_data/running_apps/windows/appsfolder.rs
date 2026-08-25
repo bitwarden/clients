@@ -43,7 +43,10 @@ pub(super) fn load() -> AppRegistry {
     if let Err(e) = load_into(&mut map) {
         // Non-fatal, but degrades everything downstream: with an empty registry no AUMID resolves,
         // so apps look unregistered and windowless packaged apps (Teams, Copilot) get filtered.
-        warn!(?e, "Failed to enumerate AppsFolder; app identities will be unresolved");
+        warn!(
+            ?e,
+            "Failed to enumerate AppsFolder; app identities will be unresolved"
+        );
     }
     map
 }
