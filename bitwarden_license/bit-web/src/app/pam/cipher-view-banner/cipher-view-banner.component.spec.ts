@@ -146,6 +146,10 @@ describe("CipherViewBannerComponent", () => {
     toastService = mock<ToastService>();
 
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
+    // The resting banner pre-checks on its own to render the rule's maximum duration, so every
+    // test needs a resolved pre-check even when it never opens the form. Upstream dropped this
+    // stub when nothing pre-checked at rest; that is no longer true.
+    requestsApi.preCheck.mockResolvedValue(preCheck());
     leasingErrors.isLeasingError.mockReturnValue(false);
 
     // The real fan-out, not a mock: the notify-then-re-read path is the behaviour under test.
