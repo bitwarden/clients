@@ -79,9 +79,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
         cipher,
         extraField.fieldName,
         this.getExtraFieldValue(extraField),
-        extraField.type == "hidden" || extraField.type == "totp"
-          ? FieldType.Hidden
-          : FieldType.Text,
+        this.getExtraFieldType(extraField),
       );
     }
   }
@@ -342,6 +340,10 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
         : field.data.content;
   }
 
+  private getExtraFieldType(field: ProtonPassItemExtraField) {
+    return field.type === "totp" || field.type === "hidden" ? FieldType.Hidden : FieldType.Text;
+  }
+
   private hasExtraFields(fieldNames: string[], item: ProtonPassItem) {
     return fieldNames.every((fn) => item.data.extraFields.some((f) => f.fieldName === fn));
   }
@@ -359,13 +361,13 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     cipher: CipherView,
     extraFields: ProtonPassItemExtraField[],
   ) {
-    for (const extraField of extraFields) {
-      const fieldMapValue = this.bankAccountFieldMap.get(extraField.fieldName);
-      const fieldValue = this.getExtraFieldValue(extraField);
+    for (const field of extraFields) {
+      const fieldMapValue = this.bankAccountFieldMap.get(field.fieldName);
+      const fieldValue = this.getExtraFieldValue(field);
       if (fieldMapValue && !this.isNullOrWhitespace(fieldValue)) {
         cipher.bankAccount[fieldMapValue] = fieldValue;
       } else {
-        this.processKvp(cipher, extraField.fieldName, fieldValue);
+        this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
       }
     }
   }
@@ -381,10 +383,10 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     cipher: CipherView,
     extraFields: ProtonPassItemExtraField[],
   ) {
-    for (const extraField of extraFields) {
-      const fieldMapValue = this.driversLicenseFieldMap.get(extraField.fieldName);
-      const fieldValue = this.getExtraFieldValue(extraField);
-      if (extraField.fieldName === "Full Name" && !this.isNullOrWhitespace(fieldValue)) {
+    for (const field of extraFields) {
+      const fieldMapValue = this.driversLicenseFieldMap.get(field.fieldName);
+      const fieldValue = this.getExtraFieldValue(field);
+      if (field.fieldName === "Full Name" && !this.isNullOrWhitespace(fieldValue)) {
         const [firstName, middleName, lastName] = this.getFullName(fieldValue);
         cipher.driversLicense.firstName = firstName;
         cipher.driversLicense.middleName = middleName;
@@ -392,7 +394,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
       } else if (fieldMapValue && !this.isNullOrWhitespace(fieldValue)) {
         cipher.driversLicense[fieldMapValue] = fieldValue;
       } else {
-        this.processKvp(cipher, extraField.fieldName, fieldValue);
+        this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
       }
     }
   }
@@ -405,10 +407,10 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
     ["Issuing Authority", "issuingAuthority"],
   ]);
   private processPassportExtraFields(cipher: CipherView, extraFields: ProtonPassItemExtraField[]) {
-    for (const extraField of extraFields) {
-      const fieldMapValue = this.passportFieldMap.get(extraField.fieldName);
-      const fieldValue = this.getExtraFieldValue(extraField);
-      if (extraField.fieldName === "Full Name" && !this.isNullOrWhitespace(fieldValue)) {
+    for (const field of extraFields) {
+      const fieldMapValue = this.passportFieldMap.get(field.fieldName);
+      const fieldValue = this.getExtraFieldValue(field);
+      if (field.fieldName === "Full Name" && !this.isNullOrWhitespace(fieldValue)) {
         const [firstName, middleName, lastName] = this.getFullName(fieldValue);
         cipher.passport.givenName = firstName;
         if (!this.isNullOrWhitespace(middleName)) {
@@ -418,7 +420,7 @@ export class ProtonPassJsonImporter extends BaseImporter implements Importer {
       } else if (fieldMapValue && !this.isNullOrWhitespace(fieldValue)) {
         cipher.passport[fieldMapValue] = fieldValue;
       } else {
-        this.processKvp(cipher, extraField.fieldName, fieldValue);
+        this.processKvp(cipher, field.fieldName, fieldValue, this.getExtraFieldType(field));
       }
     }
   }
