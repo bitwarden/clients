@@ -12,7 +12,7 @@
           {{ "pamActiveLeaseBannerTitle" | i18n: leaseRemainingLabel() }}
         </h3>
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
           <span bitTypography="body2" data-testid="active-lease-ends-at">
             {{ "pamWindowUntil" | i18n: (lease.notAfter | date: "short") }}
           </span>
@@ -62,7 +62,7 @@
           </p>
         }
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
           <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
             <app-pam-access-state-badge [state]="badge()" />
             <span bitTypography="body2" data-testid="approved-access-window">
@@ -107,7 +107,7 @@
       <div class="tw-flex tw-min-w-0 tw-grow tw-flex-col tw-gap-2 tw-text-fg-body">
         <h3 bitTypography="h5" noMargin>{{ "pamPendingRequestBannerHeading" | i18n }}</h3>
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
           <app-pam-access-state-badge [state]="badge()" />
           <button
             type="button"
@@ -145,7 +145,7 @@
           </p>
         }
 
-        <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
+        <div class="tw-flex tw-flex-col tw-items-start tw-gap-2">
           <app-pam-access-state-badge [state]="badge()" />
           <button
             type="button"
