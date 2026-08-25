@@ -11,6 +11,7 @@ import { AccessRefreshService } from "../abstractions/access-refresh.service";
 import { AccessRequestSdkService } from "../abstractions/access-request-sdk.service";
 import { AccessBadgeState, cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
+import { isGovernedCipher } from "../helpers/governed-cipher";
 
 /**
  * Binds `ITEM_DETAILS_STATE_BADGE` for the open item — the access-state pill on the item-details
@@ -25,7 +26,8 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
  * once per gated row for a state nobody is acting on, which is why the row host reads once instead.
  *
  * The item-details card renders for EVERY vault item, so an ungoverned cipher must cost nothing:
- * the guard below keeps a plain item from firing a PAM read, and a null state renders no element.
+ * {@link isGovernedCipher} keeps a plain item from firing a PAM read, and a null state renders no
+ * element.
  */
 @Component({
   selector: "app-pam-item-details-state-badge",
@@ -46,12 +48,7 @@ export class ItemDetailsStateBadgeComponent {
     this.configService.getFeatureFlag$(FeatureFlag.Pam),
   ]).pipe(
     switchMap(([cipher, enabled]) => {
-      if (
-        !enabled ||
-        cipher == null ||
-        cipher.id == null ||
-        !(cipher.partial || cipher.leaseGated === true)
-      ) {
+      if (!enabled || cipher == null || cipher.id == null || !isGovernedCipher(cipher)) {
         return of(null);
       }
       const cipherId = String(cipher.id);
