@@ -144,7 +144,7 @@
     }
   },
   "deleteSharedFolder": {
-    "message": "Delete shared folder"
+    "message": "공유 폴더 삭제"
   },
   "deleteSharedFoldersCount": {
     "message": "Delete $COUNT$ shared folders",
