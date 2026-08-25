@@ -8,14 +8,14 @@
     <bit-tab-link route="my-requests" [berryValue]="myRequestsCount()">{{
       "pamTabMyRequests" | i18n
     }}</bit-tab-link>
-    <bit-tab-link route="history" [berryValue]="historyCount()">{{
-      "pamTabHistory" | i18n
-    }}</bit-tab-link>
+    <bit-tab-link route="history">{{ "pamTabHistory" | i18n }}</bit-tab-link>
   </bit-tab-nav-bar>
 </app-header>
 
-<p bitTypography="body1" class="tw-mb-6 tw-text-muted">
-  {{ "pamAccessRequestsSubtitle" | i18n }}
-</p>
+@if (canApprove()) {
+  <p bitTypography="body1" class="tw-mb-6 tw-text-muted">
+    {{ "pamAccessRequestsSubtitle" | i18n }}
+  </p>
+}
 
 <router-outlet></router-outlet>
