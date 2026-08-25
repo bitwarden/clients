@@ -275,10 +275,10 @@ describe("keyService", () => {
   });
 
   describe("cipherDecryptionKeys$", () => {
-    let accountStateSubject: BehaviorSubject<any>;
+    let accountStateSubject: BehaviorSubject<WrappedAccountCryptographicState | null>;
 
     beforeEach(() => {
-      accountStateSubject = new BehaviorSubject(null);
+      accountStateSubject = new BehaviorSubject<WrappedAccountCryptographicState | null>(null);
       accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
         accountStateSubject.asObservable(),
       );
@@ -286,8 +286,10 @@ describe("keyService", () => {
       encryptService.unwrapDecapsulationKey.mockImplementation((encryptedPrivateKey, userKey) => {
         return Promise.resolve(fakePrivateKeyDecryption(encryptedPrivateKey, userKey));
       });
-      encryptService.unwrapSymmetricKey.mockImplementation((encryptedPrivateKey, userKey) => {
-        return Promise.resolve(new SymmetricCryptoKey(new Uint8Array(64)));
+      encryptService.unwrapSymmetricKey.mockImplementation((encryptedOrgKey, providerKey) => {
+        return Promise.resolve(
+          new SymmetricCryptoKey(fakeOrgKeyDecryption(encryptedOrgKey, providerKey.toEncoded())),
+        );
       });
 
       encryptService.decapsulateKeyUnsigned.mockImplementation((data, privateKey) => {
@@ -438,6 +440,7 @@ describe("keyService", () => {
       const org2Key = decryptionKeys!.orgKeys![org2Id];
       expect(org2Key).not.toBeNull();
       expect(org2Key.toEncoded()).toHaveLength(64);
+      expect(org2Key.keyB64).toContain("provider1Key");
     });
 
     it("returns a stream that pays attention to updates of all data", async () => {
@@ -515,7 +518,7 @@ describe("keyService", () => {
       expect(emittedValues[4]).toEqual({
         userKey: initialUserKey,
         orgKeys: {
-          [org1Id]: expect.anything(),
+          [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
         },
       });
 
@@ -523,9 +526,15 @@ describe("keyService", () => {
       expect(emittedValues[5]).toEqual({
         userKey: updatedUserKey,
         orgKeys: {
-          [org1Id]: expect.anything(),
+          [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
         },
       });
+
+      // The org key is decrypted with the user key, so the out of band update must produce a new
+      // org key rather than replaying the one decrypted with the previous user key
+      expect(emittedValues[5]!.orgKeys![org1Id].keyB64).not.toEqual(
+        emittedValues[4]!.orgKeys![org1Id].keyB64,
+      );
     });
   });
 
