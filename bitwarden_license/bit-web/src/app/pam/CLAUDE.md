@@ -35,7 +35,9 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   access-state pill, and the two hosts that render it: a vault row, and the open item's
   name row. The hosts differ only in how they refresh — the item-details one re-reads on
   `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
-  once so a list of gated rows does not carry a subscription each. Which badge to show is
+  once so a list of gated rows does not carry a subscription each. The item-details host
+  also drops the `active` state, because the banner heading under it already runs that
+  countdown on its own timer. Which badge to show is
   NOT decided here: the SDK ranks the three states into
   `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
   only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
