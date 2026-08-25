@@ -1,6 +1,6 @@
 import { Params } from "@angular/router";
 
-import { AccountWarning } from "@bitwarden/assets/svg";
+import { TwoFactorAuthEmailIcon } from "@bitwarden/assets/svg";
 
 import { SsoLoginFailedErrorKind } from "./sso-login-failed-error-kind.type";
 import { SsoLoginFailedUi } from "./sso-login-failed-ui.type";
@@ -19,8 +19,8 @@ export function getSsoLoginFailedUi(
     case SsoLoginFailedErrorKind.StagedOrgUserDirectInviteSent:
       return {
         anonLayoutData: {
-          pageTitle: { key: "checkYourEmail" },
-          pageIcon: AccountWarning,
+          pageTitle: { key: "inviteSentToEmail" },
+          pageIcon: TwoFactorAuthEmailIcon,
         },
         bodyMessage: {
           key: "ssoStagedOrgUserDirectInviteEmailSent",

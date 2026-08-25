@@ -1,12 +1,13 @@
 <p bitTypography="body1" class="tw-text-main tw-mb-4">
   {{ bodyMessage() }}
 </p>
-<a
-  bitButton
-  block
-  buttonType="primary"
-  [routerLink]="'/login'"
-  data-testid="sso-login-failed-return-button"
->
-  {{ "returnToLogin" | i18n }}
-</a>
+<div class="tw-flex tw-justify-center">
+  <a
+    bitButton
+    buttonType="primary"
+    [routerLink]="'/login'"
+    data-testid="sso-login-failed-return-button"
+  >
+    {{ "returnToLogin" | i18n }}
+  </a>
+</div>
