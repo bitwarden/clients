@@ -160,7 +160,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     // Add popstate listener to listen for browser back button clicks
     window.addEventListener("popstate", this.handlePopState);
 
-    await this.defaultOnInit();
+    const redirected = await this.defaultOnInit();
+    if (redirected) {
+      // defaultOnInit navigated to another route. Skip everything below
+      return;
+    }
 
     if (this.clientType === ClientType.Desktop) {
       await this.desktopOnInit();
@@ -189,7 +193,12 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private async defaultOnInit(): Promise<void> {
+  /**
+   * Runs the shared default init. Returns `true` when the client-specific
+   * `handleQueryParamErrors` navigated away from /login, so callers can skip
+   * any further init that would be torn down immediately.
+   */
+  private async defaultOnInit(): Promise<boolean> {
     const params = await firstValueFrom(this.activatedRoute.queryParams);
     const paramEmailIsSet = this.applyEmailFromQueryParams(params);
 
@@ -208,9 +217,15 @@ export class LoginComponent implements OnInit, OnDestroy {
       ? await this.loginComponentService.handleQueryParamErrors?.(params)
       : undefined;
 
+    // Handler already navigated to another route; stop running the rest of init
+    // so we don't set up subscriptions/state that Angular is about to tear down.
+    if (queryParamResult?.kind === "redirected") {
+      return true;
+    }
+
     // Auto-progress when the hook signals it. Via continuePressed (not continue) so its
     // pushState lets back-button return to email entry rather than the SSO callback URL.
-    if (queryParamResult?.autoSubmit && paramEmailIsSet) {
+    if (queryParamResult?.kind === "auto-submit" && paramEmailIsSet) {
       await this.continuePressed(queryParamResult.mpEntryLayoutOverride);
     }
 
@@ -236,6 +251,8 @@ export class LoginComponent implements OnInit, OnDestroy {
           this.prefetchPasswordPreloginData();
         }
       });
+
+    return false;
   }
 
   /**
