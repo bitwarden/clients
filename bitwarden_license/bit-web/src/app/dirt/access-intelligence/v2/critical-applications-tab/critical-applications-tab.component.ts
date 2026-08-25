@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
-import { combineLatest, debounceTime, take } from "rxjs";
+import { combineLatest, debounceTime, map, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -89,13 +89,18 @@ export class CriticalApplicationsTabComponent {
 
   protected readonly drawerState = this.drawerStateService.drawerState;
 
-  protected readonly unassignedCipherIds = toSignal(
-    this.securityTasksService.unassignedCriticalCipherIds$,
+  protected readonly atRiskCipherIds = toSignal(
+    this.accessIntelligenceService.report$.pipe(
+      map(
+        (report) =>
+          report?.getCriticalAtRiskApplications().flatMap((app) => app.getAtRiskCipherIds()) ?? [],
+      ),
+    ),
     { initialValue: [] },
   );
 
   protected readonly enableRequestPasswordChange = computed(
-    () => this.unassignedCipherIds().length > 0,
+    () => this.atRiskCipherIds().length > 0,
   );
 
   protected readonly helpMembersOpen = computed(
@@ -209,7 +214,7 @@ export class CriticalApplicationsTabComponent {
     }
 
     this.securityTasksService
-      .requestPasswordChangeForCriticalApplications$(orgId, this.unassignedCipherIds())
+      .requestPasswordChangeForCriticalApplications$(orgId, this.atRiskCipherIds())
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
