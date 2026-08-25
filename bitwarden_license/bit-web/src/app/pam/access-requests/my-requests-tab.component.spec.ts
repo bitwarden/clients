@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter, RouterLink } from "@angular/router";
+import { ActivatedRoute, Params, provideRouter, RouterLink } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -268,11 +268,34 @@ describe("MyRequestsTabComponent", () => {
       .filter((link) => link.queryParams?.requestId != null);
   }
 
-  it("opens a request with replaceUrl from every section, so Back leaves the page instead of unwinding opened requests", () => {
+  /** Put the tab in the state it is in while a request drawer is showing over it. */
+  function showRequestDrawer(requestId: string | null): void {
+    const queryParams = TestBed.inject(ActivatedRoute).queryParams as BehaviorSubject<Params>;
+    queryParams.next(requestId == null ? {} : { requestId });
+    fixture.detectChanges();
+  }
+
+  /** Every section's row link, so neither rule can be fixed on one section and missed on another. */
+  function showAllSections(): void {
     pendingRows$.next([requestRow({ id: "req-pending", status: "pending" })]);
     extensionRows$.next([requestRow({ id: "req-ext", status: "pending" })]);
     leases$.next([leaseRow()]);
     create();
+  }
+
+  it("pushes from every section when a request is opened, so Back has the list to return to", () => {
+    showAllSections();
+
+    const links = drawerLinks();
+
+    expect(links).toHaveLength(3);
+    expect(links.some((link) => link.replaceUrl)).toBe(false);
+  });
+
+  it("replaces in every section once a drawer is showing, so Back does not unwind every request that was opened", () => {
+    showAllSections();
+
+    showRequestDrawer("req-showing");
 
     const links = drawerLinks();
 

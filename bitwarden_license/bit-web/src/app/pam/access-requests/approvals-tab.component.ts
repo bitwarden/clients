@@ -36,6 +36,8 @@ import { ApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.component";
 
+import { requestDrawerShowing } from "./request-drawer-showing";
+
 /**
  * "Approvals" tab — the requests awaiting the caller's decision, oldest first.
  *
@@ -72,6 +74,12 @@ export class ApprovalsTabComponent {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+
+  /**
+   * Whether a request drawer is already showing, which makes a row link replace instead of push —
+   * see {@link requestDrawerShowing}.
+   */
+  protected readonly drawerShowing = requestDrawerShowing();
 
   /** Ids currently being decided, so a second click on the same row is a no-op. */
   private readonly deciding = signal<Set<string>>(new Set());

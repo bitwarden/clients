@@ -1,4 +1,5 @@
 import { importProvidersFrom } from "@angular/core";
+import { provideRouter } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
 
@@ -143,6 +144,8 @@ export default {
         provideStoryChangeDetection(),
         importProvidersFrom(PreloadedEnglishI18nModule),
         provideStoryLogService(),
+        // The row links are routerLinks, and their replaceUrl reads the route's query params.
+        provideRouter([]),
       ],
     }),
   ],

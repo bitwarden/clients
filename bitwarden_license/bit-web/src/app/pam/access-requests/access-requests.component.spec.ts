@@ -136,7 +136,7 @@ describe("AccessRequestsComponent", () => {
       expect(ref.close).toHaveBeenCalled();
     });
 
-    it("clears the request from the URL when the drawer closes, keeping the current tab", async () => {
+    it("closes over the drawer's entry, clearing the request but keeping the tab and history depth", async () => {
       const ref = drawerRef();
       queryParams$.next({ requestId: "req-1" });
       openDrawer.mockResolvedValue(ref);
@@ -144,12 +144,44 @@ describe("AccessRequestsComponent", () => {
 
       ref.closed.next(undefined);
 
+      // Replace, not push: the entry being written over is the drawer's own, so Back cannot reopen
+      // the request the reader just dismissed, and repeated opens cannot pile up entries.
       expect(router.navigate).toHaveBeenCalledWith([], {
         queryParams: { requestId: null },
         queryParamsHandling: "merge",
         replaceUrl: true,
       });
       expect(router.navigate.mock.calls[0][1]).not.toHaveProperty("relativeTo");
+    });
+
+    it("does not navigate when opening a request, so the list keeps its own history entry", async () => {
+      // The regression this pins: the drawer used to be opened with `replaceUrl`, which destroyed
+      // the list's entry and left Back to escape the app entirely. Opening is the row link's
+      // navigation alone — the shell only reacts to the param it lands on.
+      queryParams$.next({ requestId: "req-1" });
+      openDrawer.mockResolvedValue(drawerRef());
+
+      await create();
+
+      expect(openDrawer).toHaveBeenCalledTimes(1);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("closes the drawer when Back pops the request out of the URL, without navigating again", async () => {
+      const ref = drawerRef();
+      queryParams$.next({ requestId: "req-1" });
+      openDrawer.mockResolvedValue(ref);
+      await create();
+
+      // What browser Back does: the popped entry is the bare list, so the param simply goes away.
+      queryParams$.next({});
+      await settle();
+      ref.closed.next(undefined);
+
+      expect(ref.close).toHaveBeenCalled();
+      // Back has already moved history; writing the cleared URL again would strand the reader an
+      // entry deeper than the list they just returned to.
+      expect(router.navigate).not.toHaveBeenCalled();
     });
 
     it("ignores a superseded drawer's close, so it cannot wipe the request that replaced it", async () => {

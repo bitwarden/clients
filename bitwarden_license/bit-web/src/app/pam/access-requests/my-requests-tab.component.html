@@ -52,7 +52,7 @@
                     [routerLink]="[]"
                     [queryParams]="{ requestId: row.id }"
                     queryParamsHandling="merge"
-                    [replaceUrl]="true"
+                    [replaceUrl]="drawerShowing()"
                     >{{ row.cipherName ?? row.cipherId }}</a
                   >
                   @if (row.collectionName) {
@@ -149,7 +149,7 @@
                     [routerLink]="[]"
                     [queryParams]="{ requestId: row.id }"
                     queryParamsHandling="merge"
-                    [replaceUrl]="true"
+                    [replaceUrl]="drawerShowing()"
                     >{{ row.cipherName ?? row.cipherId }}</a
                   >
                   @if (row.collectionName) {
@@ -222,7 +222,7 @@
                     [routerLink]="[]"
                     [queryParams]="{ requestId: lease.requestId }"
                     queryParamsHandling="merge"
-                    [replaceUrl]="true"
+                    [replaceUrl]="drawerShowing()"
                     >{{ lease.cipherName ?? lease.cipherId }}</a
                   >
                   @if (lease.collectionName) {

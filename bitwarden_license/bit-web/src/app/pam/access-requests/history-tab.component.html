@@ -51,7 +51,7 @@
                 [routerLink]="[]"
                 [queryParams]="{ requestId: row.id }"
                 queryParamsHandling="merge"
-                [replaceUrl]="true"
+                [replaceUrl]="drawerShowing()"
                 >{{ row.cipherName ?? row.cipherId }}</a
               >
               @if (row.collectionName) {

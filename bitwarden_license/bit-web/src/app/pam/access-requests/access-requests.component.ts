@@ -51,9 +51,19 @@ import { MyAccessService } from "./my-access.service";
  *
  * The shell also owns the request drawer: a `requestId` query param names the request showing in
  * {@link AccessRequestRouteComponent}, so a row link only has to add the param and the reader stays
- * on their own tab. Both ends of that round trip navigate with `replaceUrl` — the row links as well
- * as the close handler — so opening and closing a request leaves the history depth unchanged and
- * browser Back does not walk through every request that was opened.
+ * on their own tab. That param is also what makes browser Back close the drawer, so the two ends of
+ * the round trip navigate differently:
+ *  - Opening from the bare list PUSHES, leaving the list's own history entry intact behind the
+ *    drawer's. Back therefore pops back to the list, the param goes away, and {@link syncDrawer}
+ *    closes the drawer — the reader lands on the list they came from, still inside the app.
+ *  - Opening a second request while the drawer is showing REPLACES (the row links bind their
+ *    `replaceUrl` to `requestDrawerShowing()`), so at most one drawer entry ever sits above the
+ *    list and Back does not walk through every request that was opened.
+ *  - The close handler REPLACES, dropping the param from that single drawer entry rather than
+ *    stacking another. Back after an explicit close cannot reopen what was just closed.
+ *
+ * A deep link (`/pam/requests/:id`) arrives through a redirect, which never pushes an entry of its
+ * own, so Back from a cold-loaded drawer does not bounce through the redirect.
  */
 @Component({
   selector: "pam-access-requests",

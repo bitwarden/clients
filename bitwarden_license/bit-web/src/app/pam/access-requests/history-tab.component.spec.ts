@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
-import { provideRouter, RouterLink } from "@angular/router";
+import { ActivatedRoute, Params, provideRouter, RouterLink } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -321,13 +321,29 @@ describe("HistoryTabComponent", () => {
       .filter((link) => link.queryParams?.requestId != null);
   }
 
-  it("opens a request with replaceUrl, so Back leaves the page instead of unwinding opened requests", () => {
+  /** Put the tab in the state it is in while a request drawer is showing over it. */
+  function showRequestDrawer(requestId: string | null): void {
+    const queryParams = TestBed.inject(ActivatedRoute).queryParams as BehaviorSubject<Params>;
+    queryParams.next(requestId == null ? {} : { requestId });
+    fixture.detectChanges();
+  }
+
+  it("pushes when a request is opened from the list, so Back has the list to return to", () => {
     myRows$.next([historyRow()]);
     create();
 
     const links = drawerLinks();
 
     expect(links.length).toBeGreaterThan(0);
-    expect(links.every((link) => link.replaceUrl)).toBe(true);
+    expect(links.some((link) => link.replaceUrl)).toBe(false);
+  });
+
+  it("replaces once a drawer is showing, so Back does not unwind every request that was opened", () => {
+    myRows$.next([historyRow()]);
+    create();
+
+    showRequestDrawer("req-showing");
+
+    expect(drawerLinks().every((link) => link.replaceUrl)).toBe(true);
   });
 });

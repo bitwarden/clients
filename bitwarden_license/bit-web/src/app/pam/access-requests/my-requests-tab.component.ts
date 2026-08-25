@@ -43,6 +43,7 @@ import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
 import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
+import { requestDrawerShowing } from "./request-drawer-showing";
 
 /** A row carrying the id + collection fields the toolbar filters against. */
 type FilterableRow = {
@@ -94,6 +95,12 @@ export class MyRequestsTabComponent implements OnInit {
   private readonly dialogService = inject(DialogService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly ngZone = inject(NgZone);
+
+  /**
+   * Whether a request drawer is already showing, which makes a row link replace instead of push —
+   * see {@link requestDrawerShowing}.
+   */
+  protected readonly drawerShowing = requestDrawerShowing();
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   /** Ids of approved requests currently being activated (prevents double-click). */

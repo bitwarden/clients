@@ -35,6 +35,7 @@ import { RelativeTimePipe } from "../date/relative-time.pipe";
 
 import { MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
+import { requestDrawerShowing } from "./request-drawer-showing";
 
 /** Which side of the history the table is showing. */
 const HistoryScope = Object.freeze({ Mine: "mine", Managed: "managed" } as const);
@@ -84,6 +85,12 @@ export class HistoryTabComponent {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+
+  /**
+   * Whether a request drawer is already showing, which makes a row link replace instead of push —
+   * see {@link requestDrawerShowing}.
+   */
+  protected readonly drawerShowing = requestDrawerShowing();
 
   protected readonly HistoryScope = HistoryScope;
   protected readonly scope = signal<HistoryScope>(HistoryScope.Mine);
