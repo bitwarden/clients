@@ -80,7 +80,13 @@ export const TOKEN_MEMORY = new StateDefinition("token", "memory");
 export const SEND_ACCESS_DISK = new StateDefinition("sendAccess", "disk");
 export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
+/**
+ * Shared disk (session on web) storage for both organization-invite variants (direct and open).
+ */
 export const ORGANIZATION_INVITE_DISK = new StateDefinition("organizationInvite", "disk");
+export const OPEN_ORG_INVITE_DISK_LOCAL = new StateDefinition("openOrgInvite", "disk", {
+  web: "disk-local",
+});
 export const VAULT_TIMEOUT_SETTINGS_DISK_LOCAL = new StateDefinition(
   "vaultTimeoutSettings",
   "disk",
@@ -103,6 +109,7 @@ export const AUTOFILL_SETTINGS_DISK = new StateDefinition("autofillSettings", "d
 export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSettingsLocal", "disk", {
   web: "disk-local",
 });
+export const WEBMAPPER_DISK = new StateDefinition("webmapper", "disk");
 
 export const AUTOTYPE_SETTINGS_DISK = new StateDefinition("autotypeSettings", "disk");
 
@@ -123,10 +130,7 @@ export const ACCESS_INTELLIGENCE_WELCOME_DIALOG_DISK = new StateDefinition(
     web: "disk-local",
   },
 );
-export const HEALTH_TAB_VIEWED_DISK = new StateDefinition("healthTabViewed", "disk", {
-  web: "disk-local",
-});
-export const RUN_HEALTH_SCAN_DISK = new StateDefinition("runHealthScan", "disk", {
+export const BROWSER_HEALTH_DISK = new StateDefinition("browserHealth", "disk", {
   web: "disk-local",
 });
 
@@ -225,7 +229,9 @@ export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
 });
 
 export const BANNERS_DISMISSED_DISK = new StateDefinition("bannersDismissed", "disk");
-export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk");
+export const VAULT_APPEARANCE = new StateDefinition("vaultAppearance", "disk", {
+  web: "disk-local",
+});
 export const SECURITY_TASKS_DISK = new StateDefinition("securityTasks", "disk");
 export const AT_RISK_PASSWORDS_PAGE_DISK = new StateDefinition("atRiskPasswordsPage", "disk");
 export const NOTIFICATION_DISK = new StateDefinition("notifications", "disk");

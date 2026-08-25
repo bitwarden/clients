@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { map } from "rxjs/operators";
 
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -45,7 +46,7 @@ export class CoachmarkService {
   /** Whether the tour is currently running */
   readonly isRunning = computed(() => this.activeStepId() !== null);
 
-  /** The applicable steps for the current user (filtered by organization membership) */
+  /** The applicable steps for the current user (filtered by organization membership and collection access) */
   private readonly applicableSteps = signal<CoachmarkStep[]>([]);
 
   constructor(
@@ -56,6 +57,7 @@ export class CoachmarkService {
     private router: Router,
     private configService: ConfigService,
     private vfo1TerminologyService: Vfo1TerminologyService,
+    private collectionService: CollectionService,
   ) {}
 
   /**
@@ -113,7 +115,8 @@ export class CoachmarkService {
 
   /**
    * Starts the coachmark tour if it hasn't been completed yet.
-   * The tour will display steps based on user type (org vs non-org).
+   * The tour will display steps the user can reach, based on organization membership
+   * and whether they have any collections.
    */
   async startTour(): Promise<void> {
     if (this.isRunning()) {
@@ -140,11 +143,20 @@ export class CoachmarkService {
       return;
     }
 
-    const hasOrganizations = await firstValueFrom(
-      this.organizationService.hasOrganizations(account.id),
-    );
+    const [hasOrganizations, hasCollections] = await Promise.all([
+      firstValueFrom(this.organizationService.hasOrganizations(account.id)),
+      firstValueFrom(
+        this.collectionService
+          .decryptedCollections$(account.id)
+          .pipe(map((collections) => collections.length > 0)),
+      ),
+    ]);
 
-    const steps = COACHMARK_STEPS.filter((step) => !step.requiresOrganization || hasOrganizations);
+    const steps = COACHMARK_STEPS.filter(
+      (step) =>
+        (!step.requiresOrganization || hasOrganizations) &&
+        (!step.requiresCollections || hasCollections),
+    );
 
     if (steps.length === 0) {
       return;

@@ -14,6 +14,7 @@ import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/an
 import {
   GeneratorActive,
   GeneratorInactive,
+  NoResults,
   SendActive,
   SendInactive,
   SettingsActive,
@@ -42,10 +43,11 @@ import {
   I18nMockService,
   IconButtonModule,
   ItemModule,
-  NoItemsModule,
+  StatusLockupComponent,
   SearchModule,
   SectionComponent,
   ScrollLayoutDirective,
+  SvgComponent,
 } from "@bitwarden/components";
 
 import { VaultLoadingSkeletonComponent } from "../../../vault/popup/components/vault-loading-skeleton/vault-loading-skeleton.component";
@@ -723,7 +725,7 @@ export default {
         MockSettingsPageComponent,
         MockVaultPagePoppedComponent,
         MockVaultTablePageComponent,
-        NoItemsModule,
+        StatusLockupComponent,
         VaultComponent,
         ScrollingModule,
         ItemModule,
@@ -731,6 +733,7 @@ export default {
         IconButtonModule,
         ChipActionComponent,
         VaultLoadingSkeletonComponent,
+        SvgComponent,
       ],
       providers: [
         popupLayoutI18nProvider,
@@ -987,7 +990,10 @@ export const PoppedOut: Story = {
 
 export const CenteredContent: Story = {
   render: (args) => ({
-    props: args,
+    props: {
+      icon: NoResults,
+      ...args,
+    },
     template: /* HTML */ `
       <extension-container>
         <popup-tab-navigation>
@@ -997,10 +1003,11 @@ export const CenteredContent: Story = {
               class="tw-h-full tw-flex tw-items-center tw-justify-center tw-text-main tw-flex-col"
             >
               <h2 bitTypography="h2" class="tw-mb-6">Page with no content</h2>
-              <bit-no-items>
+              <bit-status-lockup>
+                <bit-svg slot="graphic" [content]="icon"></bit-svg>
                 <ng-container slot="title">Before centering a div</ng-container>
                 <ng-container slot="description">One must first center oneself</ng-container>
-              </bit-no-items>
+              </bit-status-lockup>
             </div>
           </popup-page>
         </popup-tab-navigation>

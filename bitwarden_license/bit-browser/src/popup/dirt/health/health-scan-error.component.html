@@ -1,0 +1,16 @@
+<div
+  class="tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-center tw-px-6 tw-text-center"
+  role="alert"
+>
+  <div class="tw-mb-4 tw-size-24 tw-content-center">
+    <bit-svg [content]="illustration" aria-hidden="true"></bit-svg>
+  </div>
+
+  <h2 bitTypography="body1" class="tw-mb-1 tw-font-medium tw-text-fg-heading">
+    {{ "healthScanFailed" | i18n }}
+  </h2>
+
+  <p bitTypography="body2" class="tw-mb-0 tw-text-fg-body-subtle">
+    {{ "healthScanFailedDescription" | i18n }}
+  </p>
+</div>

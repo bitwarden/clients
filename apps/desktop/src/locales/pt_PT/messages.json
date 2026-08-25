@@ -11,6 +11,9 @@
   "favorites": {
     "message": "Favoritos"
   },
+  "favoritesFilterTooltip": {
+    "message": "Marque itens como favoritos para os filtrar aqui."
+  },
   "unfavorite": {
     "message": "Remover dos favoritos"
   },
@@ -116,11 +119,56 @@
   "myFolders": {
     "message": "As minhas pastas"
   },
+  "foldersFilterTooltip": {
+    "message": "Adicione pastas aos itens para os filtrar aqui."
+  },
   "addSharedFolder": {
     "message": "Adicionar pasta partilhada"
   },
   "newSharedFolder": {
     "message": "Nova pasta partilhada"
+  },
+  "searchSharedFolder": {
+    "message": "Pesquisar pasta partilhada"
+  },
+  "searchMyFolder": {
+    "message": "Pesquisar as minhas pastas"
+  },
+  "viewSharedFolderWithName": {
+    "message": "Ver pasta partilhada - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "Eliminar pasta partilhada"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "Eliminar $COUNT$ pastas partilhadas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "Esta pasta partilhada será eliminada permanentemente. Os itens da pasta não serão eliminados."
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "Estas pastas partilhadas serão eliminadas permanentemente. Os itens das pastas não serão eliminados."
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "Os itens e as pastas partilhadas selecionados serão eliminados permanentemente."
+  },
+  "sharedFolderDeleted": {
+    "message": "Pasta partilhada eliminada"
+  },
+  "sharedFoldersDeleted": {
+    "message": "Pastas partilhadas eliminadas"
   },
   "share": {
     "message": "Partilhar"
@@ -476,6 +524,9 @@
   },
   "launch": {
     "message": "Iniciar"
+  },
+  "launchWebsite": {
+    "message": "Abrir site"
   },
   "copyValue": {
     "message": "Copiar valor",
@@ -1143,20 +1194,6 @@
   "copyVerificationCodeTotp": {
     "message": "Copiar código de verificação (TOTP)"
   },
-  "copyFieldCipherName": {
-    "message": "Copiar $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
-  },
   "copyPrivateKey": {
     "message": "Copiar chave privada"
   },
@@ -1355,7 +1392,7 @@
     "message": "Prima a sua YubiKey para se autenticar"
   },
   "logInWithPasskey": {
-    "message": "Iniciar sessão com a chave de acesso"
+    "message": "Iniciar sessão com chave de acesso"
   },
   "loginWithDevice": {
     "message": "Iniciar sessão com o dispositivo"
@@ -1964,6 +2001,12 @@
   "showIconsChangePasswordUrls": {
     "message": "Mostrar ícones de sites e recuperar URLs de alteração de palavra-passe"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "Mostrar ações rápidas de cópia no cofre"
+  },
+  "noDetailsToCopy": {
+    "message": "Não há detalhes para copiar"
+  },
   "runInBackground": {
     "message": "Manter o Bitwarden em execução em segundo plano"
   },
@@ -2060,6 +2103,21 @@
   "copyVerificationCode": {
     "message": "Copiar código de verificação"
   },
+  "noUsername": {
+    "message": "Sem nome de utilizador"
+  },
+  "noPassword": {
+    "message": "Sem palavras-passe"
+  },
+  "noVerificationCode": {
+    "message": "Sem código de verificação"
+  },
+  "noNumber": {
+    "message": "Sem número"
+  },
+  "noSecurityCode": {
+    "message": "Sem código de segurança"
+  },
   "copyUsername": {
     "message": "Copiar nome de utilizador"
   },
@@ -2078,9 +2136,6 @@
     "message": "Copiar código de segurança",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "número do cartão"
-  },
   "premiumMembership": {
     "message": "Subscrição Premium"
   },
@@ -2090,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Pode gerir a sua subscrição no cofre web em bitwarden.com. Pretende visitar o site agora?"
   },
-  "premiumRefresh": {
-    "message": "Atualizar subscrição"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Atualmente, não é um membro Premium."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Subscreva uma subscrição Premium e obtenha:"
-  },
   "premiumSignUpStorage": {
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ de armazenamento encriptado para anexos de ficheiros.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Relatórios de segurança de palavras-passe, estado das contas e fugas de dados para manter o seu cofre seguro."
-  },
-  "premiumSignUpTotp": {
-    "message": "Gerador de códigos de verificação TOTP (2FA) para credenciais no seu cofre."
-  },
-  "premiumSignUpSupport": {
-    "message": "Prioridade no apoio ao cliente."
-  },
-  "premiumSignUpFuture": {
-    "message": "Todas as futuras funcionalidades Premium. Mais em breve!"
   },
   "premiumPurchase": {
     "message": "Adquirir Premium"
   },
   "premiumPurchaseAlertV2": {
     "message": "Pode adquirir o Premium a partir das definições da sua conta na aplicação web do Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "É um membro Premium!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Obrigado por apoiar o Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Tudo por apenas $PRICE$ /ano!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "mês"
@@ -3448,6 +3455,30 @@
   "options": {
     "message": "Opções"
   },
+  "moreOptions": {
+    "message": "Mais opções"
+  },
+  "optionsForItem": {
+    "message": "Opções para $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "Nenhuma pasta partilhada"
+  },
+  "filterByName": {
+    "message": "Filtrar por $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "A sua sessão expirou. Por favor, volte atrás e tente iniciar sessão novamente."
   },
@@ -4473,6 +4504,79 @@
   "noFileChosen": {
     "message": "Nenhum ficheiro escolhido"
   },
+  "noFileSelected": {
+    "message": "Nenhum ficheiro selecionado"
+  },
+  "fileChosen": {
+    "message": "Ficheiro escolhido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "Ficheiro adicionado: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "$COUNT$ ficheiros adicionados: $FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "Ficheiro removido: $FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 ficheiro carregado"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ ficheiros carregados",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "Ficheiros carregados"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "Clique para carregar ou arraste e largue"
+  },
+  "chooseFiles": {
+    "message": "Escolher ficheiros"
+  },
+  "maxFileSizeParam": {
+    "message": "Tamanho máx. do ficheiro: $SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
   "orCopyPasteFileContents": {
     "message": "ou faça copiar/colar o conteúdo do ficheiro de importação"
   },
@@ -5069,25 +5173,36 @@
     "message": "Alterar o e-mail da conta"
   },
   "passkeyLogin": {
-    "message": "Iniciar sessão com a chave de acesso?"
+    "message": "Iniciar sessão com chave de acesso?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Iniciar sessão com chave de acesso"
   },
   "savePasskeyQuestion": {
-    "message": "Guardar a chave de acesso?"
+    "message": "Guardar chave de acesso?"
+  },
+  "savePasskey": {
+    "message": "Guardar chave de acesso"
   },
   "saveNewPasskey": {
     "message": "Guardar como nova credencial"
   },
   "savePasskeyNewLogin": {
-    "message": "Guarde a chave de acesso como uma nova credencial"
+    "message": "Guardar chave de acesso como nova credencial"
   },
   "noMatchingLoginsForSite": {
     "message": "Sem credenciais correspondentes para este site"
   },
   "overwritePasskey": {
-    "message": "Substituir chave de acesso?"
+    "message": "Substituir chave de acesso?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Substituir chave de acesso"
   },
   "unableToSavePasskey": {
-    "message": "Não é possível guardar a chave de acesso"
+    "message": "Não foi possível guardar a chave de acesso"
   },
   "alreadyContainsPasskey": {
     "message": "Este item já contém uma chave de acesso. Tem a certeza de que pretende substituir a chave de acesso atual?"
@@ -5138,9 +5253,18 @@
     "message": "Não tem as permissões necessárias para realizar esta ação."
   },
   "cannotRemoveViewOnlyCollections": {
-    "message": "Não é possível remover coleções com permissões de Apenas visualização: $COLLECTIONS$",
+    "message": "Não pode remover coleções com permissões apenas de visualização: $COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "Não pode remover pastas partilhadas com permissões apenas de visualização: $SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -5244,8 +5368,23 @@
   "permitCipherDetailsDescription": {
     "message": "O Bitwarden utilizará os URIs de credenciais guardadas para identificar qual o ícone ou URL de alteração de palavra-passe que deve ser utilizado para melhorar a sua experiência. Nenhuma informação é recolhida ou guardada quando utiliza este serviço."
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "Adiciona 3 botões de cópia rápida junto aos itens para copiar o nome de utilizador, a palavra-passe ou o código de verificação para a área de transferência."
+  },
   "assignToCollections": {
     "message": "Atribuir às coleções"
+  },
+  "addToSharedFolder": {
+    "message": "Adicionar à pasta partilhada"
+  },
+  "transferAndAdd": {
+    "message": "Transferir e adicionar"
+  },
+  "itemLower": {
+    "message": "item"
+  },
+  "itemsLower": {
+    "message": "itens"
   },
   "assignToTheseCollections": {
     "message": "Atribuir a estas coleções"
@@ -5253,8 +5392,14 @@
   "bulkCollectionAssignmentDialogDescriptionSingular": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver o item."
   },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver o item."
+  },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
     "message": "Apenas os membros da organização com acesso a estas coleções poderão ver os itens."
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "Apenas os membros do cofre com acesso a estas pastas partilhadas poderão ver os itens."
   },
   "noCollectionsAssigned": {
     "message": "Não foram atribuídas quaisquer coleções"
@@ -5314,8 +5459,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 item será transferido permanentemente para a organização selecionada. Deixará de ser o proprietário deste item."
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 item será transferido permanentemente para o cofre selecionado. Deixará de ser o proprietário deste item."
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para a organização selecionada. Deixará de ser o proprietário destes itens.",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ itens serão transferidos permanentemente para o cofre selecionado. Deixará de ser o proprietário destes itens.",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5339,17 +5496,32 @@
   "successfullyAssignedCollections": {
     "message": "Coleções atribuídas com sucesso"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "Pastas partilhadas adicionadas com sucesso"
+  },
   "itemMovedToCollection": {
     "message": "Item movido para a coleção"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "Item adicionado à pasta partilhada"
   },
   "itemMovedToCollections": {
     "message": "Item movido para as coleções"
   },
+  "itemAddedToSharedFolders": {
+    "message": "Item adicionado à pastas partilhadas"
+  },
   "itemsMovedToCollection": {
     "message": "Itens movidos para a coleção"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "Itens adicionados à pasta partilhada"
+  },
   "itemsMovedToCollections": {
     "message": "Itens movidos para as coleções"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "Itens adicionados às pastas partilhadas"
   },
   "itemAssignedToCollections": {
     "message": "Item atribuído a coleções"
@@ -5839,7 +6011,7 @@
     "message": "Falha na verificação do utilizador."
   },
   "domainNotAllowed": {
-    "message": "Incluir apenas os seguintes domínios: $DOMAINS$. Por favor, reveja e tente novamente",
+    "message": "Inclua apenas os seguintes domínios: $DOMAINS$. Reveja-os e tente novamente",
     "placeholders": {
       "domains": {
         "content": "$1"
@@ -6146,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "criar uma nova chave de acesso de $RPID$ para $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "substituir uma chave de acesso de $RPID$ para $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "iniciar sessão como $USERNAME$ com a sua chave de acesso de $RPID$",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verifique a sua identidade para criar uma nova chave de acesso $RPID$ para $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verifique a sua identidade para substituir uma chave de acesso $RPID$ de $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verifique a sua identidade para iniciar sessão como $USERNAME$ com a sua chave de acesso $RPID$.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }
