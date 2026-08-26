@@ -66,6 +66,7 @@ import { AdvancedUriOptionDialogComponent } from "@bitwarden/vault";
 
 import { AutofillBrowserSettingsService } from "../../../autofill/services/autofill-browser-settings.service";
 import { BrowserApi } from "../../../platform/browser/browser-api";
+import { devFlagEnabled } from "../../../platform/flags";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.component";
@@ -140,8 +141,18 @@ export class AutofillComponent implements OnInit {
     defaultAutofill: new FormControl(),
   });
 
+  /**
+   * Gates the settings UI for controlling if `data-bwignore` and
+   * `data-bwautofill` attributes should be honored by autofill heuristics.
+   */
+  protected bitwardenAutofillAttributesSettingsVisible = devFlagEnabled(
+    "useBitwardenAutofillAttributes",
+  );
+
   protected additionalOptionsForm = new FormGroup({
     enableFillAssist: new FormControl(),
+    honorBitwardenIgnoreAttribute: new FormControl(),
+    honorBitwardenAutofillAttribute: new FormControl(),
     enableContextMenuItem: new FormControl(),
     enableAutoTotpCopy: new FormControl(),
     clearClipboard: new FormControl(),
@@ -321,6 +332,36 @@ export class AutofillComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((value) => {
         void this.domainSettingsService.setEnableFillAssist(value);
+      });
+
+    const honorBitwardenIgnoreAttribute = await firstValueFrom(
+      this.autofillSettingsService.honorBitwardenIgnoreAttribute$,
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenIgnoreAttribute.patchValue(
+      honorBitwardenIgnoreAttribute,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenIgnoreAttribute.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setHonorBitwardenIgnoreAttribute(value);
+      });
+
+    const honorBitwardenAutofillAttribute = await firstValueFrom(
+      this.autofillSettingsService.honorBitwardenAutofillAttribute$,
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenAutofillAttribute.patchValue(
+      honorBitwardenAutofillAttribute,
+      { emitEvent: false },
+    );
+
+    this.additionalOptionsForm.controls.honorBitwardenAutofillAttribute.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        void this.autofillSettingsService.setHonorBitwardenAutofillAttribute(value);
       });
 
     this.enableContextMenuItem = await firstValueFrom(
