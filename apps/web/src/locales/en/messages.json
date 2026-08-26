@@ -18588,9 +18588,6 @@
       }
     }
   },
-  "pamRequestAccessBannerBody": {
-    "message": "Credentials are masked until access is granted."
-  },
   "pamRequestAccessBannerHeading": {
     "message": "You can request access"
   },
@@ -19744,8 +19741,8 @@
   "pamApprovedRequestBannerTitle": {
     "message": "Your access is approved — start it when you're ready"
   },
-  "pamRequestAccessBannerTitle": {
-    "message": "This item requires a lease. Request access to view or edit it."
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
   },
   "pamRequestAccessButton": {
     "message": "Request access"
