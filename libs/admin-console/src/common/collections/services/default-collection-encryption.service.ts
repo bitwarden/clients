@@ -6,7 +6,6 @@ import {
   map,
   of,
   switchMap,
-  tap,
   throwError,
 } from "rxjs";
 
@@ -75,10 +74,9 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     collections: Collection[],
     userId: UserId,
   ): Observable<CollectionDecryptionResult> {
-    const startTime = performance.now();
-
     return this.sdkService.userClient$(userId).pipe(
       concatMap(async (sdk) => {
+        const startTime = performance.now();
         using ref = sdk.take();
 
         const success: CollectionView[] = [];
@@ -93,24 +91,13 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
           }
         }
 
-        return { success, failure };
+        const result = { success, failure };
+        this.measureDecrypt(startTime, "v1, one at a time", collections.length, result);
+        return result;
       }),
       catchError((error: unknown) => {
         this.logService.error(`Failed to decrypt collections in batch: ${error}`);
         return throwError(() => (error instanceof Error ? error : new Error(String(error))));
-      }),
-      tap((result) => {
-        this.logService.measure(
-          startTime,
-          "Admin Console",
-          "DefaultCollectionEncryptionService",
-          "decryptManyWithFailures (v1, one at a time)",
-          [
-            ["Items", collections.length],
-            ["Successes", result.success.length],
-            ["Failures", result.failure.length],
-          ],
-        );
       }),
     );
   }
@@ -125,41 +112,59 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
     collections: Collection[],
     userId: UserId,
   ): Observable<CollectionDecryptionResult> {
-    const startTime = performance.now();
-
     return this.sdkService.userClient$(userId).pipe(
       concatMap(async (sdk) => {
+        const startTime = performance.now();
         using ref = sdk.take();
 
         const collectionMap = this.buildCollectionMap(collections);
 
-        const result: DecryptCollectionListResult = ref.value
+        const sdkResult: DecryptCollectionListResult = ref.value
           .vault()
           .collections()
           .decrypt_list_with_failures(collections.map((c) => c.toSdkCollection()));
 
-        return {
-          success: this.mapDecryptedSuccesses(result.successes, collectionMap),
-          failure: this.mapDecryptedFailures(result.failures),
+        const result = {
+          success: this.mapDecryptedSuccesses(sdkResult.successes, collectionMap),
+          failure: this.mapDecryptedFailures(sdkResult.failures),
         };
+        this.measureDecrypt(
+          startTime,
+          "v2, decrypt_list_with_failures",
+          collections.length,
+          result,
+        );
+        return result;
       }),
       catchError((error: unknown) => {
         this.logService.error(`Failed to decrypt collections in batch: ${error}`);
         return throwError(() => (error instanceof Error ? error : new Error(String(error))));
       }),
-      tap((result) => {
-        this.logService.measure(
-          startTime,
-          "Admin Console",
-          "DefaultCollectionEncryptionService",
-          "decryptManyWithFailures (v2, decrypt_list_with_failures)",
-          [
-            ["Items", collections.length],
-            ["Successes", result.success.length],
-            ["Failures", result.failure.length],
-          ],
-        );
-      }),
+    );
+  }
+
+  /**
+   * Records how long a single decrypt took. `startTime` must be captured inside the
+   * `concatMap` rather than when the pipeline is built: `userClient$` re-emits on unlock and on
+   * key re-emission, so a `startTime` closed over at build time would make every emission after
+   * the first report elapsed session time instead of decrypt duration.
+   */
+  private measureDecrypt(
+    startTime: DOMHighResTimeStamp,
+    variant: string,
+    itemCount: number,
+    result: CollectionDecryptionResult,
+  ): void {
+    this.logService.measure(
+      startTime,
+      "Admin Console",
+      "DefaultCollectionEncryptionService",
+      `decryptManyWithFailures (${variant})`,
+      [
+        ["Items", itemCount],
+        ["Successes", result.success.length],
+        ["Failures", result.failure.length],
+      ],
     );
   }
 

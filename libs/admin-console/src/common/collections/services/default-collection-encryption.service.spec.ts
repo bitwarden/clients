@@ -1,4 +1,4 @@
-import { firstValueFrom, of } from "rxjs";
+import { firstValueFrom, lastValueFrom, of, toArray } from "rxjs";
 
 import {
   Collection,
@@ -87,6 +87,7 @@ describe("DefaultCollectionEncryptionService", () => {
 
   let mockDecrypt: jest.Mock;
   let mockDecryptListWithFailures: jest.Mock;
+  let mockSdk: { take: jest.Mock };
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -109,7 +110,7 @@ describe("DefaultCollectionEncryptionService", () => {
       },
       [Symbol.dispose]: jest.fn(),
     };
-    const mockSdk = { take: jest.fn().mockReturnValue(mockRef) };
+    mockSdk = { take: jest.fn().mockReturnValue(mockRef) };
 
     (sdkService.userClient$ as jest.Mock).mockReturnValue(of(mockSdk));
     service = new DefaultCollectionEncryptionService(sdkService, logService, configService);
@@ -284,6 +285,23 @@ describe("DefaultCollectionEncryptionService", () => {
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
       });
+
+      it("times each emission of userClient$ separately", async () => {
+        // userClient$ is long-lived and re-emits on unlock and key re-emission. A startTime
+        // captured when the pipeline was built would be reused for every later emission, so
+        // measure would report elapsed session time rather than decrypt duration.
+        jest.spyOn(performance, "now").mockReturnValueOnce(1000).mockReturnValueOnce(2000);
+        (sdkService.userClient$ as jest.Mock).mockReturnValue(of(mockSdk, mockSdk));
+
+        const collection = makeCollection();
+        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+        mockDecryptListWithFailures.mockReturnValue(makeResult([makeSdkCollectionView()]));
+
+        await lastValueFrom(service.decryptManyWithFailures([collection], userId).pipe(toArray()));
+
+        const startTimes = (logService.measure as jest.Mock).mock.calls.map(([start]) => start);
+        expect(startTimes).toEqual([1000, 2000]);
+      });
     });
   });
 
@@ -395,6 +413,22 @@ describe("DefaultCollectionEncryptionService", () => {
         expect(logService.error).toHaveBeenCalledWith(
           expect.stringContaining("Failed to decrypt collections in batch"),
         );
+      });
+
+      it("times each emission of userClient$ separately", async () => {
+        // See the equivalent test on the enabled path - both variants capture startTime inside
+        // concatMap so that a re-emitting userClient$ does not inflate later measurements.
+        jest.spyOn(performance, "now").mockReturnValueOnce(1000).mockReturnValueOnce(2000);
+        (sdkService.userClient$ as jest.Mock).mockReturnValue(of(mockSdk, mockSdk));
+
+        const collection = makeCollection();
+        jest.spyOn(collection, "toSdkCollection").mockReturnValue(stubSdkCollection);
+        mockDecrypt.mockReturnValue(makeSdkCollectionView());
+
+        await lastValueFrom(service.decryptManyWithFailures([collection], userId).pipe(toArray()));
+
+        const startTimes = (logService.measure as jest.Mock).mock.calls.map(([start]) => start);
+        expect(startTimes).toEqual([1000, 2000]);
       });
     });
   });
