@@ -146,6 +146,15 @@ Add a seam rather than importing PAM from OSS code.
 `pam-routing.module.ts` (admin console) guards every route with
 `canAccessFeature(FeatureFlag.Pam)`; `access-rules` additionally requires
 `organizationPermissionsGuard((org) => org.canManageAccessRules)`.
+
+**Authoring a rule and deciding a request against it are separate authorities — do not
+collapse them into one check.** `canManageAccessRules` (Admin/Owner) gates the rules admin
+UI and nothing else; the approver surfaces gate on Manage over a collection
+(`hasApprovalPrivileges` / `ApprovalPrivilegeService`), mirroring the server's `ApproverCollectionAccessQuery`, which is
+what actually authorizes the inbox read and the decision. Reusing the rules permission as a
+proxy for "is an approver" locks every non-admin collection manager out of an inbox the
+server would have served them.
+
 `access-requests/access-requests-routing.module.ts` (user-scoped) additionally guards the
 `approvals` tab with `canViewApprovalsGuard`, which redirects a non-approver to
 `my-requests` rather than blocking. Mounting these modules and calling `providePam()` from

@@ -1,15 +1,14 @@
 import { inject } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivateFn, Router } from "@angular/router";
-import { map, take } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 
-import { hasApprovalPrivileges$ } from "./approval-privileges";
+import { ApprovalPrivilegeService } from "./approval-privilege.service";
 
 /**
  * Gates the Access requests page's `approvals` tab: users with approval privileges
- * ({@link hasApprovalPrivileges$}) pass, everyone else is redirected to the sibling `my-requests`
+ * ({@link ApprovalPrivilegeService}) pass, everyone else is redirected to the sibling `my-requests`
  * tab.
  *
  * The redirect matters beyond blocking a deep link. The shell's empty-path route lands on
@@ -17,25 +16,31 @@ import { hasApprovalPrivileges$ } from "./approval-privileges";
  * tab that is hidden from their own tab bar. Redirecting rather than returning `false` keeps them on
  * a page that has something for them instead of a dead end.
  *
+ * The first sync is awaited before deciding. The privilege is derived from synced collection state,
+ * and on a cold load (a bookmark, a hard refresh, a link from a notification) a guard reading it
+ * straight away sees "no collections yet" and bounces a genuine approver to `my-requests` — the very
+ * symptom this guard was fixed to stop producing. `organizationPermissionsGuard` waits the same way
+ * for the same reason, which is why the sibling `access-rules` route never had this problem.
+ *
  * The URL tree is rebuilt from the matched path rather than hardcoded, so the guard still works if
  * these routes are ever mounted somewhere other than `/pam`.
  */
-export const canViewApprovalsGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
+export const canViewApprovalsGuard: CanActivateFn = async (route: ActivatedRouteSnapshot) => {
   const router = inject(Router);
-  const accountService = inject(AccountService);
-  const organizationService = inject(OrganizationService);
+  const syncService = inject(SyncService);
+  const approvalPrivileges = inject(ApprovalPrivilegeService);
 
-  return hasApprovalPrivileges$(accountService, organizationService).pipe(
-    take(1),
-    map((privileged) => {
-      if (privileged) {
-        return true;
-      }
-      const segments = route.pathFromRoot.flatMap((snapshot) =>
-        snapshot.url.map((segment) => segment.path),
-      );
-      segments[segments.length - 1] = "my-requests";
-      return router.createUrlTree(["/", ...segments]);
-    }),
+  if ((await syncService.getLastSync()) == null) {
+    await syncService.fullSync(false);
+  }
+
+  if (await firstValueFrom(approvalPrivileges.canApprove$)) {
+    return true;
+  }
+
+  const segments = route.pathFromRoot.flatMap((snapshot) =>
+    snapshot.url.map((segment) => segment.path),
   );
+  segments[segments.length - 1] = "my-requests";
+  return router.createUrlTree(["/", ...segments]);
 };
