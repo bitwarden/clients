@@ -37,6 +37,7 @@ import {
   currentlyInSandboxedIframe,
   debounce,
   elementIsFillableFormField,
+  elementIsInputElement,
   elementIsSelectElement,
   getAttributeBoolean,
   isReadonlyOrDisabledFormFieldElement,
@@ -850,7 +851,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers when the form field element receives an input event. This method will
    * store the modified form element data for use when the user attempts to add a new
-   * vault item. It also acts to remove the inline menu list while the user is typing.
+   * vault item. Typing within a login username field filters the inline menu list to
+   * ciphers matching the typed value; typing in any other field removes the inline
+   * menu list.
    *
    * @param formFieldElement - The form field element that triggered the input event.
    */
@@ -867,6 +870,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    if (this.isFilterableLoginUsernameField(formFieldElement)) {
+      await this.sendExtensionMessage("updateInlineMenuListFilter", {
+        filterValue: formFieldElement.value ?? "",
+      });
+
+      if (!formFieldElement.value) {
+        await this.sendExtensionMessage("openAutofillInlineMenu");
+      }
+      return;
+    }
+
     await this.sendExtensionMessage("closeAutofillInlineMenu", {
       overlayElement: AutofillOverlayElement.List,
       forceCloseInlineMenu: true,
@@ -876,6 +890,105 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       await this.sendExtensionMessage("openAutofillInlineMenu");
     }
   }
+
+  /**
+   * Identifies whether typing in the field should filter the inline menu list of login
+   * ciphers rather than close it. This applies to username fields on login forms, where
+   * the typed value narrows the list to ciphers containing that value.
+   *
+   * @param formFieldElement - The form field element that triggered the input event.
+   */
+  private isFilterableLoginUsernameField(
+    formFieldElement: ElementWithOpId<FillableFormFieldElement>,
+  ): boolean {
+    if (this.elementIsPasswordField(formFieldElement)) {
+      return false;
+    }
+
+    const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    return autofillFieldData?.inlineMenuFillType === CipherType.Login;
+  }
+
+  /**
+   * Identifies whether the form field element is a password input.
+   *
+   * @param formFieldElement - The form field element to check.
+   */
+  private elementIsPasswordField(formFieldElement: FormFieldElement): boolean {
+    return elementIsInputElement(formFieldElement) && formFieldElement.type === "password";
+  }
+
+  /**
+   * Attempts to detect the username associated with a focused password field. Multi-step
+   * login pages often carry the username entered on a previous step in a hidden or
+   * pre-filled input on the password step. The detected value lets the inline menu
+   * surface the matching login cipher at the top of the list.
+   */
+  private getDetectedUsernameFromPage(): string {
+    const userFilledUsername =
+      this.userFilledFields?.[AutofillFieldQualifier.username]?.value?.trim();
+    if (userFilledUsername) {
+      return userFilledUsername;
+    }
+
+    let detectedUsername = "";
+    let detectedRank = Number.MAX_SAFE_INTEGER;
+    const inputElements = globalThis.document.querySelectorAll("input");
+    for (let index = 0; index < inputElements.length; index++) {
+      const inputElement = inputElements[index];
+      const value = inputElement.value?.trim();
+      if (!value || inputElement === this.mostRecentlyFocusedField) {
+        continue;
+      }
+
+      const rank = this.getUsernameCandidateRank(inputElement);
+      if (rank !== null && rank < detectedRank) {
+        detectedRank = rank;
+        detectedUsername = value;
+      }
+    }
+
+    return detectedUsername;
+  }
+
+  /**
+   * Ranks an input element as a candidate for holding the page's username value.
+   * Lower ranks indicate stronger candidates; `null` disqualifies the element.
+   *
+   * @param inputElement - The input element to rank.
+   */
+  private getUsernameCandidateRank(inputElement: HTMLInputElement): number | null {
+    const type = (inputElement.getAttribute("type") || "text").toLowerCase();
+    if (!AutofillOverlayContentService.usernameCandidateInputTypes.has(type)) {
+      return null;
+    }
+
+    const autocomplete = inputElement.getAttribute("autocomplete")?.toLowerCase() || "";
+    if (autocomplete.includes("username") || autocomplete.includes("email")) {
+      return 0;
+    }
+
+    if (type === "email") {
+      return 1;
+    }
+
+    const identifier = `${inputElement.name || ""} ${inputElement.id || ""}`.toLowerCase();
+    if (AutofillOverlayContentService.usernameCandidateKeywords.test(identifier)) {
+      return type === "hidden" ? 2 : 3;
+    }
+
+    return null;
+  }
+
+  private static readonly usernameCandidateInputTypes = new Set([
+    "text",
+    "email",
+    "tel",
+    "hidden",
+    "search",
+  ]);
+
+  private static readonly usernameCandidateKeywords = /user|email|login|account|identifier/;
 
   /**
    * Stores the modified form element data for use when the user attempts to add a new
@@ -1078,6 +1191,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     const autofillFieldData = this.formFieldElements.get(formFieldElement);
+    const isPasswordField = this.elementIsPasswordField(formFieldElement);
 
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
@@ -1087,6 +1201,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       accountCreationFieldType: autofillFieldData?.accountCreationFieldType,
       focusedFieldForm: autofillFieldData?.form ?? undefined,
       focusedFieldOpid: autofillFieldData?.opid,
+      isPasswordField,
+      detectedUsername: isPasswordField ? this.getDetectedUsernameFromPage() : undefined,
     };
 
     const allFields = this.formFieldElements;

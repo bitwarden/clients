@@ -155,6 +155,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private currentInlineMenuCiphersCount: number = 0;
   private currentAddNewItemData: CurrentAddNewItemData | null = null;
   private focusedFieldData: FocusedFieldData | null = null;
+  private inlineMenuListFilterValue: string = "";
+  private capturedUsernameByTab: Record<number, string> = {};
   private allFieldData: AutofillField[] = [];
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -177,6 +179,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
       this.checkIsInlineMenuCiphersPopulated(sender),
     updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
+    updateInlineMenuListFilter: ({ message, sender }) =>
+      this.updateInlineMenuListFilter(message, sender),
     updateIsFieldCurrentlyFocused: ({ message, sender }) =>
       this.updateIsFieldCurrentlyFocused(message, sender),
     checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
@@ -403,6 +407,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     this.clearGeneratedPassword$.next();
     this.focusedFieldData = null;
+    this.inlineMenuListFilterValue = "";
   }
 
   /**
@@ -513,6 +518,116 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (refocusField) {
       await BrowserApi.tabSendMessage(currentTab, { command: "focusMostRecentlyFocusedField" });
     }
+  }
+
+  /**
+   * Handles a typed value within a login username field. Stores the value as the active
+   * inline menu list filter and as the tab's captured username, then rebuilds the list
+   * so it only presents ciphers matching the typed value. The captured username persists
+   * across page navigation within the tab, allowing multi-step login pages to rank the
+   * matching cipher at the top of the list on the password step.
+   *
+   * @param message - The extension message containing the typed filter value
+   * @param sender - The sender of the extension message
+   */
+  private async updateInlineMenuListFilter(
+    { filterValue }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (!sender.tab || !this.senderFrameHasFocusedField(sender)) {
+      return;
+    }
+
+    this.inlineMenuListFilterValue = filterValue ?? "";
+
+    const tabId = sender.tab.id;
+    if (tabId !== null && tabId !== undefined) {
+      const capturedUsername = this.inlineMenuListFilterValue.trim();
+      if (capturedUsername) {
+        this.capturedUsernameByTab[tabId] = capturedUsername;
+      } else {
+        delete this.capturedUsernameByTab[tabId];
+      }
+    }
+
+    await this.updateInlineMenuListCiphers(sender.tab);
+  }
+
+  /**
+   * Gets the active inline menu list filter. The filter only applies while the focused
+   * field is a field the user types a username into; password fields ignore it.
+   */
+  private getInlineMenuListFilter(): string {
+    if (this.focusedFieldData?.isPasswordField) {
+      return "";
+    }
+
+    return this.inlineMenuListFilterValue.trim().toLowerCase();
+  }
+
+  /**
+   * Identifies whether the cipher matches the inline menu list filter through a
+   * case-insensitive substring match against its name or login username.
+   *
+   * @param cipher - The cipher to check against the filter
+   * @param filter - The lowercased filter value
+   */
+  private cipherMatchesInlineMenuListFilter(cipher: CipherView, filter: string): boolean {
+    if (cipher.name?.toLowerCase().includes(filter)) {
+      return true;
+    }
+
+    return !!cipher.login?.username?.toLowerCase().includes(filter);
+  }
+
+  /**
+   * Gets the username hint for a focused password field. Prefers the username detected
+   * within the page itself, falling back to the username most recently typed within the
+   * tab (e.g. on the previous step of a multi-step login page).
+   */
+  private getFocusedFieldUsernameHint(): string {
+    if (
+      !this.focusedFieldData?.isPasswordField ||
+      !this.focusedFieldMatchesFillType(CipherType.Login)
+    ) {
+      return "";
+    }
+
+    const detectedUsername = this.focusedFieldData.detectedUsername?.trim();
+    if (detectedUsername) {
+      return detectedUsername.toLowerCase();
+    }
+
+    const tabId = this.focusedFieldData.tabId;
+    const capturedUsername =
+      tabId !== null && tabId !== undefined ? this.capturedUsernameByTab[tabId] : undefined;
+    return capturedUsername ? capturedUsername.toLowerCase() : "";
+  }
+
+  /**
+   * Ranks how well a cipher's login username matches the username hint. Lower ranks sort
+   * earlier: exact matches first, partial matches second, all other ciphers last.
+   *
+   * @param cipher - The cipher to rank
+   * @param usernameHint - The lowercased username hint
+   */
+  private getUsernameHintMatchRank(cipher: CipherView, usernameHint: string): number {
+    if (cipher.type !== CipherType.Login) {
+      return 2;
+    }
+
+    const username = cipher.login?.username?.toLowerCase();
+    if (!username) {
+      return 2;
+    }
+    if (username === usernameHint) {
+      return 0;
+    }
+    if (username.includes(usernameHint) || usernameHint.includes(username)) {
+      return 1;
+    }
+
+    return 2;
   }
 
   /**
@@ -714,8 +829,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
     const passkeysEnabled = await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
 
+    const usernameHint = this.getFocusedFieldUsernameHint();
+    if (usernameHint) {
+      // Stable sort preserves the last-used ordering within each match rank.
+      inlineMenuCiphersArray = [...inlineMenuCiphersArray].sort(
+        ([, cipherA], [, cipherB]) =>
+          this.getUsernameHintMatchRank(cipherA, usernameHint) -
+          this.getUsernameHintMatchRank(cipherB, usernameHint),
+      );
+    }
+    const listFilter = this.getInlineMenuListFilter();
+
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
+
+      if (listFilter && !this.cipherMatchesInlineMenuListFilter(cipher, listFilter)) {
+        continue;
+      }
 
       switch (cipher.type) {
         case CipherType.Card:
@@ -1435,6 +1565,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (!cipher) {
       return;
     }
+
+    // Remember the filled username for the tab so that a subsequent password-only
+    // step within a multi-step login flow ranks this cipher at the top of the list.
+    if (tabId !== undefined && cipher.type === CipherType.Login && cipher.login?.username) {
+      this.capturedUsernameByTab[tabId] = cipher.login.username;
+    }
+
     if (usePasskey && cipher.login?.hasFido2Credentials) {
       const credentialId = cipher.login.fido2Credentials[0]?.credentialId;
       if (credentialId) {
@@ -2060,6 +2197,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
     this.allFieldData = allFieldsRect ?? [];
     this.isFieldCurrentlyFocused = true;
+
+    if (
+      previousFocusedFieldData?.focusedFieldOpid !== focusedFieldData.focusedFieldOpid ||
+      previousFocusedFieldData?.tabId !== sender.tab.id ||
+      previousFocusedFieldData?.frameId !== frameId
+    ) {
+      this.inlineMenuListFilterValue = "";
+    }
 
     if (this.shouldUpdatePasswordGeneratorMenuOnFieldFocus()) {
       this.updateInlineMenuGeneratedPasswordOnFocus(sender.tab).catch((error) =>
@@ -3331,7 +3476,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     BrowserApi.messageListener("overlay.background", this.handleExtensionMessage);
     BrowserApi.addListener(chrome.webNavigation.onCommitted, this.handleWebNavigationOnCommitted);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handlePortOnConnect);
+    BrowserApi.addListener(chrome.tabs.onRemoved, this.handleTabOnRemoved);
   }
+
+  /**
+   * Clears tab-scoped state when a tab is removed. The captured username is intentionally
+   * kept across page navigation within a tab so that multi-step login pages can rank the
+   * matching cipher first; it is only released once the tab closes.
+   *
+   * @param tabId - The id of the removed tab
+   */
+  private handleTabOnRemoved = (tabId: number) => {
+    delete this.capturedUsernameByTab[tabId];
+  };
 
   /**
    * Handles extension messages sent to the extension background.

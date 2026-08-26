@@ -48,6 +48,8 @@ export type FocusedFieldData = {
   showPasskeys?: boolean;
   focusedFieldForm?: string;
   focusedFieldOpid?: string;
+  isPasswordField?: boolean;
+  detectedUsername?: string;
 };
 
 export type InlineMenuElementPosition = {
@@ -155,6 +157,7 @@ export type OverlayBackgroundExtensionMessage = {
   focusedFieldData?: FocusedFieldData;
   allFieldsRect?: AutofillField[];
   isOpeningFullInlineMenu?: boolean;
+  filterValue?: string;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
   iframeSrc?: string;
@@ -245,6 +248,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   triggerAutofillOverlayReposition: ({ sender }: BackgroundSenderParam) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  updateInlineMenuListFilter: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateIsFieldCurrentlyFocused: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsFieldCurrentlyFocused: () => boolean;
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;

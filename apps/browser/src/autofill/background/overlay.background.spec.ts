@@ -2166,6 +2166,152 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("updateInlineMenuListFilter message handler", () => {
+      const tab = createChromeTabMock({ id: 2 });
+      const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: 0 });
+      let filterLoginCipher1: CipherView;
+      let filterLoginCipher2: CipherView;
+
+      beforeEach(async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+        await initOverlayElementPorts();
+        filterLoginCipher1 = mock<CipherView>({
+          id: "id-1",
+          name: "Example Site",
+          type: CipherType.Login,
+          login: { username: "tomkaio@example.com", uri: "https://example.com" },
+        });
+        filterLoginCipher2 = mock<CipherView>({
+          id: "id-2",
+          name: "Example Site",
+          type: CipherType.Login,
+          login: { username: "alice@example.com", uri: "https://example.com" },
+        });
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["inline-menu-cipher-0", filterLoginCipher1],
+          ["inline-menu-cipher-1", filterLoginCipher2],
+        ]);
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          tabId: tab.id,
+          frameId: sender.frameId,
+        });
+      });
+
+      it("filters the inline menu list ciphers by a substring match of the typed value", async () => {
+        sendMockExtensionMessage(
+          { command: "updateInlineMenuListFilter", filterValue: "tom" },
+          sender,
+        );
+        await flushPromises();
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+          expect.objectContaining({
+            command: "updateAutofillInlineMenuListCiphers",
+            ciphers: [
+              expect.objectContaining({
+                login: expect.objectContaining({ username: "tomkaio@example.com" }),
+              }),
+            ],
+          }),
+        );
+      });
+
+      it("skips updating the list when the sender frame does not contain the focused field", async () => {
+        const otherSender = mock<chrome.runtime.MessageSender>({
+          tab: createChromeTabMock({ id: 3 }),
+          frameId: 0,
+        });
+
+        sendMockExtensionMessage(
+          { command: "updateInlineMenuListFilter", filterValue: "tom" },
+          otherSender,
+        );
+        await flushPromises();
+
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith(
+          expect.objectContaining({ command: "updateAutofillInlineMenuListCiphers" }),
+        );
+      });
+
+      it("ranks the cipher matching the tab's captured username first on a password field", async () => {
+        sendMockExtensionMessage(
+          { command: "updateInlineMenuListFilter", filterValue: "alice@example.com" },
+          sender,
+        );
+        await flushPromises();
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          tabId: tab.id,
+          frameId: sender.frameId,
+          isPasswordField: true,
+        });
+        const cipherData = await overlayBackground["getInlineMenuCipherData"]();
+
+        expect(cipherData[0].login?.username).toBe("alice@example.com");
+        expect(cipherData[1].login?.username).toBe("tomkaio@example.com");
+      });
+
+      it("prefers the username detected within the page over the tab's captured username", async () => {
+        sendMockExtensionMessage(
+          { command: "updateInlineMenuListFilter", filterValue: "alice@example.com" },
+          sender,
+        );
+        await flushPromises();
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          tabId: tab.id,
+          frameId: sender.frameId,
+          isPasswordField: true,
+          detectedUsername: "tomkaio@example.com",
+        });
+        const cipherData = await overlayBackground["getInlineMenuCipherData"]();
+
+        expect(cipherData[0].login?.username).toBe("tomkaio@example.com");
+        expect(cipherData[1].login?.username).toBe("alice@example.com");
+      });
+
+      it("does not apply the typed filter while a password field is focused", async () => {
+        sendMockExtensionMessage(
+          { command: "updateInlineMenuListFilter", filterValue: "tom" },
+          sender,
+        );
+        await flushPromises();
+
+        overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({
+          tabId: tab.id,
+          frameId: sender.frameId,
+          isPasswordField: true,
+        });
+        const cipherData = await overlayBackground["getInlineMenuCipherData"]();
+
+        expect(cipherData).toHaveLength(2);
+      });
+
+      it("resets the typed filter when a different field is focused", async () => {
+        sendMockExtensionMessage(
+          { command: "updateInlineMenuListFilter", filterValue: "tom" },
+          sender,
+        );
+        await flushPromises();
+        expect(overlayBackground["inlineMenuListFilterValue"]).toBe("tom");
+
+        sendMockExtensionMessage(
+          {
+            command: "updateFocusedFieldData",
+            focusedFieldData: createFocusedFieldDataMock({
+              tabId: tab.id,
+              frameId: sender.frameId,
+              focusedFieldOpid: "different-field-opid",
+            }),
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["inlineMenuListFilterValue"]).toBe("");
+      });
+    });
+
     describe("updateFocusedFieldData message handler", () => {
       it("sends a message to the sender frame to unset the most recently focused field data when the currently focused field does not belong to the sender", async () => {
         const tab = createChromeTabMock({ id: 2 });
