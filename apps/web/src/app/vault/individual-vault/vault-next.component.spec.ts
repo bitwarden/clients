@@ -648,6 +648,54 @@ describe("VaultNextComponent", () => {
     });
 
     /**
+     * The service reads the trash off `?type=trash`, which this page doesn't use — it scopes by
+     * route segment. Without telling the service, Restore never appears and Delete soft-deletes
+     * items that are already in the trash.
+     */
+    it("tells the batch bar when the page is scoped to the trash", () => {
+      scopeTo(TRASH_ROUTE);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.inTrash).toBe(true);
+    });
+
+    it("reports not-trash for every other scope", () => {
+      scopeTo(MY_VAULT_ROUTE);
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.inTrash).toBe(false);
+    });
+
+    /**
+     * Every side-nav destination renders this one component, so moving between them changes only
+     * the `:vaultId` param — Angular reuses the component and the table, and the table's selection
+     * survives. Landing on Trash with items from My vault still checked would offer Archive and
+     * make a permanent delete act on the wrong items.
+     */
+    it("clears the selection when the side nav scopes the page elsewhere", () => {
+      scopeTo(MY_VAULT_ROUTE);
+      batchBarService.clearSelection.mockClear();
+
+      scopeTo(TRASH_ROUTE);
+
+      expect(batchBarService.clearSelection).toHaveBeenCalled();
+    });
+
+    /** The page is already scoped when it renders, so that first resolution must not clear. */
+    it("does not clear on the page's initial render", () => {
+      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
+    });
+
+    it("does not clear when the same scope re-emits", () => {
+      scopeTo(TRASH_ROUTE);
+      batchBarService.clearSelection.mockClear();
+
+      scopeTo(TRASH_ROUTE);
+
+      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
+    });
+
+    /**
      * The unscoped collections, not the scoped ones the table's chip lists: assigning an item to a
      * collection isn't limited to the collections this page happens to show.
      */
@@ -656,16 +704,6 @@ describe("VaultNextComponent", () => {
 
       const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
       expect(config.allCollections).toEqual(component().collections());
-    });
-
-    /** A completed action leaves rows selected that were just deleted, archived, or moved. */
-    it("clears the selection once a bulk action completes", () => {
-      fixture.detectChanges();
-      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
-
-      (batchBarService.completed$ as Subject<void>).next();
-
-      expect(batchBarService.clearSelection).toHaveBeenCalled();
     });
   });
 });

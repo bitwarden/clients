@@ -86,6 +86,16 @@ export interface VaultBatchBarConfig {
   hasCiphers: boolean;
   /** Should be populated when isOrgVault is true. Used to apply org-specific permission checks and admin API paths. */
   organization?: Organization;
+  /**
+   * Whether the page is showing trashed items.
+   *
+   * Omit to let the service read it off `RoutedVaultFilterService`'s `?type=trash`, which is how
+   * the vaults that filter through query params express it. A host that scopes to the trash some
+   * other way — a route segment, say — has to set this, or every trash-dependent action is wrong:
+   * Restore never appears, Delete soft-deletes instead of deleting permanently, and Archive,
+   * Add to folder, and Assign to collections are offered for items already in the trash.
+   */
+  inTrash?: boolean;
 }
 
 /**
@@ -132,10 +142,17 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
   private readonly config = signal<VaultBatchBarConfig>(this.defaultConfig);
 
-  readonly inTrash = toSignal(
+  /** The route filter's own view of the trash, for hosts that express it as `?type=trash`. */
+  private readonly filterInTrash = toSignal(
     this.routedVaultFilterService.filter$.pipe(map((f) => f.type === "trash")),
     { initialValue: false },
   );
+
+  /**
+   * Whether the page is showing trashed items — the host's {@link VaultBatchBarConfig.inTrash}
+   * when it sets one, otherwise the route filter's `?type=trash`.
+   */
+  readonly inTrash = computed(() => this.config().inTrash ?? this.filterInTrash());
 
   private readonly showBulkAddToFolder = computed(
     () => !this.inTrash() && !this.config().isOrgVault,

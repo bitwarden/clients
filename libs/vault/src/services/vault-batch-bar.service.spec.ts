@@ -189,6 +189,50 @@ describe("VaultBatchBarService", () => {
     });
   });
 
+  describe("inTrash", () => {
+    /**
+     * Vaults that filter through query params express the trash as `?type=trash`. Ones that scope
+     * by route segment can't, so the config wins when it says — otherwise Restore never appears
+     * and Delete soft-deletes items already in the trash.
+     */
+    it("reads the route filter when the config says nothing", () => {
+      filterSubject.next({ type: "trash" });
+
+      expect(service.inTrash()).toBe(true);
+    });
+
+    it("is false when neither the filter nor the config says trash", () => {
+      expect(service.inTrash()).toBe(false);
+    });
+
+    it("takes the config's answer over the filter's", () => {
+      service.setConfig(makeConfig({ inTrash: true }));
+
+      expect(service.inTrash()).toBe(true);
+    });
+
+    it("lets the config say a filtered-to-trash page is not trash", () => {
+      filterSubject.next({ type: "trash" });
+      service.setConfig(makeConfig({ inTrash: false }));
+
+      expect(service.inTrash()).toBe(false);
+    });
+
+    /** `bulkDelete` reads `inTrash()` for `permanent`, so this decides soft vs permanent delete. */
+    it("makes bulkDelete permanent when the config says trash", async () => {
+      service.setConfig(makeConfig({ inTrash: true }));
+      service.selection.select(makeCipherItem());
+      mockCipherAuthorizationService.canDeleteCipher$.mockReturnValue(of(true));
+      mockBulkDeleteDialogOpen.mockResolvedValue(BulkDeleteDialogResult.Canceled);
+
+      await service.bulkDelete();
+
+      expect(mockBulkDeleteDialogOpen).toHaveBeenCalledWith(
+        expect.objectContaining({ permanent: true }),
+      );
+    });
+  });
+
   describe("registerSelection()", () => {
     /** A host-owned selection source, standing in for a list component's own selection model. */
     function sourceDouble(initial: VaultItem<CipherView>[] = []) {

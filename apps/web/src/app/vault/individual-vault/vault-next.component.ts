@@ -4,9 +4,10 @@ import {
   computed,
   effect,
   inject,
+  signal,
   untracked,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
@@ -71,6 +72,11 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
  *
  * Not yet wired: the `?itemId=&action=` deep link that opens an item on load. The archive's
  * "premium subscription ended" callout has nowhere to surface yet.
+ *
+ * Bulk actions need no `completed$` subscription, unlike the hosts that hold their rows in a
+ * plain array and reload them by hand: the rows here derive from `cipherListViews$`, which
+ * re-emits off cipher state, and `VaultBatchBarService` clears its own selection before every
+ * `completed$` emission.
  */
 @Component({
   selector: "app-vault-next",
@@ -273,23 +279,49 @@ export class VaultNextComponent {
   private readonly configureBatchBar = effect(() => {
     const collections = this.collections();
     const hasCiphers = this.ciphers().length > 0;
+    // This page scopes to the trash with a route segment, not the `?type=trash` the service reads
+    // off `RoutedVaultFilterService` — so it has to say so, or Restore never appears and Delete
+    // soft-deletes items that are already in the trash.
+    const inTrash = this.vaultScope().type === VaultScopeType.Trash;
     untracked(() =>
       this.batchBarService.setConfig({
         isOrgVault: false,
         allCollections: collections,
         hasCiphers,
+        inTrash,
       }),
     );
   });
 
-  constructor() {
-    // A completed bulk action leaves the list stale — the rows it acted on are deleted, archived,
-    // or moved. `cipherListViews$` is the source of truth and re-emits on its own once the vault
-    // state settles, so this only has to clear the selection's hold on the acted-on rows.
-    this.batchBarService.completed$.pipe(takeUntilDestroyed()).subscribe(() => {
-      this.batchBarService.clearSelection();
+  /**
+   * Drops the selection when the side nav scopes the page elsewhere.
+   *
+   * Every destination renders this one component, so moving between them changes only the
+   * `:vaultId` param — Angular reuses the component and the table, and the table's selection
+   * model holds its rows independently of the ones in scope. Without this the bar stays up
+   * across the move and its actions run against items from the vault just left: landing on
+   * Trash with items from My vault still selected offers Archive, and a delete there is
+   * permanent.
+   *
+   * `VaultBatchBarService` guards the equivalent case for the legacy vault by watching
+   * `RoutedVaultFilterService.filter$`, but that filter doesn't carry this page's scope.
+   */
+  private readonly lastScopeKey = signal<string | undefined>(undefined);
+
+  private readonly clearSelectionOnScopeChange = effect(() => {
+    // `resolveVaultScope` builds a fresh object each run, so compare on the values that identify
+    // a destination rather than on reference.
+    const scope = this.vaultScope();
+    const key = `${scope.type}:${scope.type === VaultScopeType.Organization ? scope.organizationId : ""}`;
+    untracked(() => {
+      // Skip the first run: nothing is selected yet, so clearing would be a no-op that reads as
+      // intentional to the next person.
+      if (this.lastScopeKey() !== undefined && this.lastScopeKey() !== key) {
+        this.batchBarService.clearSelection();
+      }
+      this.lastScopeKey.set(key);
     });
-  }
+  });
 
   protected readonly copyPresentation = toSignal(
     this.copyButtonsService.showQuickCopyActions$.pipe(
