@@ -85,7 +85,9 @@ class MockHealthScanningComponent {}
   template: ``,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-class MockHealthScanErrorComponent {}
+class MockHealthScanErrorComponent {
+  readonly retry = output<void>();
+}
 
 describe("HealthComponent", () => {
   const userId = Utils.newGuid() as UserId;
@@ -170,6 +172,12 @@ describe("HealthComponent", () => {
   /** The scan failure view, rendered when a scan does not complete. */
   function scanError(): HTMLElement | null {
     return fixture.nativeElement.querySelector("dirt-health-scan-error");
+  }
+
+  /** The scan failure view's instance, for driving its retry output. */
+  function scanErrorComponent(): MockHealthScanErrorComponent | null {
+    const el = fixture.debugElement.query((n) => n.name === "dirt-health-scan-error");
+    return el ? (el.componentInstance as MockHealthScanErrorComponent) : null;
   }
 
   /** Settles the scan pipeline and re-renders. */
@@ -494,9 +502,8 @@ describe("HealthComponent", () => {
 
     it("retries after a previous generation failed", async () => {
       // A failed scan is not something to reuse: there is no report to preserve
-      // and no build to follow. The failure view offers no retry control, so
-      // reusing the error would strand the user on it for the life of the popup,
-      // and a popped-out window can live for hours.
+      // and no build to follow. Reusing the error would put the user on the
+      // failure view on arrival and make them retry by hand to see anything.
       hasRunScan$.next(true);
       published.next({ userId, status: VaultHealthReportStatus.Error, report: null });
       publishesOnBuild(new VaultHealthReportView({ totalCount: 5, atRiskCount: 1 }));
@@ -605,6 +612,37 @@ describe("HealthComponent", () => {
 
       expect(scanning()).not.toBeNull();
       expect(overview()).toBeNull();
+    });
+  });
+
+  describe("scan failure retry", () => {
+    /** Fails the first scan through the service, leaving the failure view up. */
+    async function initFailed() {
+      hasRunScan$.next(true);
+      publishesErrorOnBuild();
+
+      await initComponent();
+      await settle();
+    }
+
+    it("starts a new scan on retry", async () => {
+      // The first-visit trigger has already completed by the time the failure
+      // view is up, so the retry needs its own path into the scan pipeline.
+      await initFailed();
+      expect(scanError()).not.toBeNull();
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(1);
+
+      publishesOnBuild(new VaultHealthReportView({ totalCount: 12, atRiskCount: 3 }));
+      scanErrorComponent()!.retry.emit();
+      await settle();
+
+      expect(reportService.buildVaultHealthReport).toHaveBeenCalledTimes(2);
+      expect(reportService.buildVaultHealthReport).toHaveBeenLastCalledWith(
+        expect.anything(),
+        userId,
+      );
+      expect(scanError()).toBeNull();
+      expect(overview()?.report().atRiskCount).toBe(3);
     });
   });
 

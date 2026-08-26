@@ -35,4 +35,25 @@ describe("HealthScanErrorComponent", () => {
   it("announces the failure assertively", () => {
     expect(fixture.nativeElement.querySelector('[role="alert"]')).not.toBeNull();
   });
+
+  describe("retry button", () => {
+    /** The failure view's "Try again" CTA. */
+    function retryButton(): HTMLButtonElement {
+      return fixture.nativeElement.querySelector("button");
+    }
+
+    it("offers a retry button", () => {
+      expect(retryButton()).not.toBeNull();
+      expect(retryButton().textContent).toContain("tryAgain");
+    });
+
+    it("emits a retry event when the button is clicked", () => {
+      const retry = jest.fn();
+      fixture.componentInstance.retry.subscribe(retry);
+
+      retryButton().click();
+
+      expect(retry).toHaveBeenCalledTimes(1);
+    });
+  });
 });

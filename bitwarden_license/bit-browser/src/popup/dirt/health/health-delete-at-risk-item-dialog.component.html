@@ -1,13 +1,15 @@
-<bit-simple-dialog hideIcon>
-  <div bitDialogTitle class="tw-text-left">{{ "deleteItem" | i18n }}</div>
-  <div bitDialogContent class="tw-flex tw-flex-col tw-gap-2 tw-w-full">
-    <p class="tw-text-left">
+<bit-simple-dialog>
+  <div bitDialogTitle>{{ "deleteItem" | i18n }}</div>
+  <div bitDialogContent class="tw-flex tw-flex-col tw-w-full">
+    <p bitTypography="body1">
       {{ "deleteAtRiskItemDescription" | i18n }}
     </p>
     @if (additionalRisks().showWeak || additionalRisks().showReused) {
       <bit-section>
-        <bit-section-header>
-          <p>{{ "passwordHasAdditionalRisks" | i18n }}</p>
+        <bit-section-header class="tw-flex tw-justify-center">
+          <p bitTypography="body1">
+            {{ "passwordHasAdditionalRisks" | i18n }}
+          </p>
         </bit-section-header>
         <bit-card class="tw-flex tw-flex-col tw-gap-4 tw-justify-start tw-items-start">
           @if (additionalRisks().showWeak) {
