@@ -170,6 +170,26 @@ export const ApprovedReadyToStart: Story = {
   ],
 };
 
+/**
+ * The same state reached the other way: a human approver approved a window the requester chose,
+ * which can open in the future. The granted duration is the window's length either way.
+ */
+export const ApprovedByApprover: Story = {
+  decorators: [
+    pam({
+      mode: "human",
+      state: () => ({
+        badgeState: "ready",
+        approvedRequest: accessRequest({
+          status: "approved",
+          leaseNotBefore: liveFromNow(20 * HOUR),
+          leaseNotAfter: liveFromNow(23 * HOUR),
+        }),
+      }),
+    }),
+  ],
+};
+
 /** A running lease, with the countdown ticking and the rule allowing extensions. */
 export const ActiveLease: Story = {
   args: { cipher: leasedCipher() },
