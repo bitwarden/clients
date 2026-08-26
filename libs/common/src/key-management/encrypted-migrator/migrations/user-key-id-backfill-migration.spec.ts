@@ -24,6 +24,18 @@ describe("UserKeyIdBackfillMigration", () => {
   const mockUserId = "00000000-0000-0000-0000-000000000000" as UserId;
   const HOUR_MS = 1000 * 60 * 60;
 
+  /**
+   * Fabricates the shape the SDK produces for a `KeyIdBackfillError`. The name and variant
+   * fields are what `isKeyIdBackfillError` uses to identify the error.
+   */
+  const makeBackfillError = (variant: string, message: string): Error => {
+    const error = new Error(message);
+    error.name = "KeyIdBackfillError";
+    (error as Error & { variant: string }).variant = variant;
+
+    return error;
+  };
+
   // SDK reference chain: sdk.take() -> ref.value.user_crypto_management().user_key_id_backfill()
   const needsBackfill = jest.fn();
   const backfill = jest.fn();
@@ -148,7 +160,9 @@ describe("UserKeyIdBackfillMigration", () => {
 
     it("starts the cooldown when the server rejects the backfill", async () => {
       // e.g. a server too old to know the backfill endpoint answers with a 404
-      backfill.mockRejectedValue(new Error("404 Not Found"));
+      backfill.mockRejectedValue(
+        makeBackfillError("Api", "error in response: status code 404 Not Found: {}"),
+      );
 
       await expect(sut.runMigrations(mockUserId)).rejects.toThrow("404 Not Found");
 
@@ -156,6 +170,19 @@ describe("UserKeyIdBackfillMigration", () => {
         stateProvider.getUser(mockUserId, USER_KEY_ID_BACKFILL_COOLDOWN).state$,
       );
       expect(cooldown).not.toBeNull();
+    });
+
+    it("does not start the cooldown when the backfill fails locally", async () => {
+      backfill.mockRejectedValue(
+        makeBackfillError("UserKeyNotAvailable", "user key is not available"),
+      );
+
+      await expect(sut.runMigrations(mockUserId)).rejects.toThrow("user key is not available");
+
+      const cooldown = await firstValueFrom(
+        stateProvider.getUser(mockUserId, USER_KEY_ID_BACKFILL_COOLDOWN).state$,
+      );
+      expect(cooldown).toBeNull();
     });
 
     it("does not start the cooldown when the backfill succeeds", async () => {

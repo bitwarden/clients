@@ -1,6 +1,7 @@
 import { firstValueFrom } from "rxjs";
 
 import { LogService } from "@bitwarden/logging";
+import { isKeyIdBackfillError } from "@bitwarden/sdk-internal";
 
 import { assertNonNullish } from "../../../auth/utils";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
@@ -16,9 +17,9 @@ import { withPasswordManagerSdk } from "../../utils";
 import { EncryptedMigration, MigrationRequirement } from "./encrypted-migration";
 
 /**
- * Timestamp of the last failed backfill attempt. Servers older than the one introducing the
- * backfill endpoint answer with a 404, which would otherwise make the migration retry on every
- * scheduler tick.
+ * Timestamp of the last backfill attempt that failed against the server. Servers older than the
+ * one introducing the backfill endpoint answer with a 404, which would otherwise make the
+ * migration retry on every scheduler tick.
  */
 export const USER_KEY_ID_BACKFILL_COOLDOWN = new UserKeyDefinition<Date>(
   ENCRYPTED_MIGRATION_DISK,
@@ -56,9 +57,13 @@ export class UserKeyIdBackfillMigration implements EncryptedMigration {
         await sdk.user_crypto_management().user_key_id_backfill();
       });
     } catch (error) {
-      // The server may not support the backfill endpoint at all; back off instead of retrying
-      // on every scheduler tick.
-      await this.startCooldown(userId);
+      // Only server-side failures back off: the server may not support the backfill endpoint at
+      // all, which would otherwise be retried on every scheduler tick. The remaining variants
+      // (`UserKeyNotAvailable`, `NoKeyId`, `StateBridgeNotRegistered`) are local conditions that
+      // resolve on their own.
+      if (isKeyIdBackfillError(error) && error.variant === "Api") {
+        await this.startCooldown(userId);
+      }
       throw error;
     }
   }
