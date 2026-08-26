@@ -116,19 +116,26 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     const nativeOptions: CredentialCreationOptions = {
       publicKey: credentialOptions.options,
     };
-    // TODO: Remove `any` when typescript typings add support for PRF
     nativeOptions.publicKey.extensions = {
-      prf: {},
-    } as any;
+      prf: { eval: { first: await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt() } },
+    };
 
     try {
       const response = await this.navigatorCredentials.create(nativeOptions);
       if (!(response instanceof PublicKeyCredential)) {
         return undefined;
       }
-      // TODO: Remove `any` when typescript typings add support for PRF
-      const supportsPrf = Boolean((response.getClientExtensionResults() as any).prf?.enabled);
-      return new PendingWebauthnLoginCredentialView(credentialOptions, response, supportsPrf);
+
+      const prfExtensionOutput = response.getClientExtensionResults().prf;
+      const supportsPrf = Boolean(prfExtensionOutput?.enabled);
+      const prfResult = prfExtensionOutput?.results?.first;
+
+      return new PendingWebauthnLoginCredentialView(
+        credentialOptions,
+        response,
+        supportsPrf,
+        prfResult,
+      );
     } catch (error) {
       this.logService?.error(error);
       return undefined;
@@ -139,6 +146,10 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
    * Create a key set from the given pending credential. The credential must support PRF.
    * This will trigger the browsers WebAuthn API to generate a PRF-output.
    *
+   * If the authenticator only supports returning PRF responses on .get() and
+   * not on .create(), then the user will be prompted to assert their credential
+   * again.
+   *
    * @param pendingCredential A credential created using `createCredential`.
    * @param userId The target users id.
    * @returns A key set that can be saved to the server. Undefined is returned if the credential doesn't support PRF.
@@ -147,6 +158,28 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
     pendingCredential: PendingWebauthnLoginCredentialView,
     userId: UserId,
   ): Promise<PrfKeySet | undefined> {
+    const prfResult =
+      pendingCredential.prfResult ?? (await this.requestPrfCredential(pendingCredential));
+
+    if (!prfResult) {
+      return undefined;
+    }
+
+    try {
+      const symmetricPrfKey = await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(
+        prfResult as ArrayBuffer,
+      );
+      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
+      return await this.rotateableKeySetService.createKeySet(symmetricPrfKey, userKey);
+    } catch (error) {
+      this.logService?.error(error);
+      return undefined;
+    }
+  }
+
+  private async requestPrfCredential(
+    pendingCredential: PendingWebauthnLoginCredentialView,
+  ): Promise<BufferSource | undefined> {
     const nativeOptions: CredentialRequestOptions = {
       publicKey: {
         challenge: pendingCredential.createOptions.options.challenge,
@@ -155,10 +188,9 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
         timeout: pendingCredential.createOptions.options.timeout,
         userVerification:
           pendingCredential.createOptions.options.authenticatorSelection.userVerification,
-        // TODO: Remove `any` when typescript typings add support for PRF
         extensions: {
           prf: { eval: { first: await this.webAuthnLoginPrfKeyService.getLoginWithPrfSalt() } },
-        } as any,
+        },
       },
     };
 
@@ -168,17 +200,7 @@ export class WebauthnLoginAdminService implements UserKeyRotationDataProvider<We
         return undefined;
       }
 
-      // TODO: Remove `any` when typescript typings add support for PRF
-      const prfResult = (response.getClientExtensionResults() as any).prf?.results?.first;
-
-      if (prfResult === undefined) {
-        return undefined;
-      }
-
-      const symmetricPrfKey =
-        await this.webAuthnLoginPrfKeyService.createSymmetricKeyFromPrf(prfResult);
-      const userKey = await firstValueFrom(this.keyService.userKey$(userId));
-      return await this.rotateableKeySetService.createKeySet(symmetricPrfKey, userKey);
+      return response.getClientExtensionResults().prf?.results?.first;
     } catch (error) {
       this.logService?.error(error);
       return undefined;

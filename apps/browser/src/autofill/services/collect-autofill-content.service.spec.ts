@@ -25,6 +25,8 @@ jest.mock("../utils", () => {
   return {
     ...utils,
     debounce: jest.fn((fn) => fn),
+    // Implementation is (re)installed per test; see the top-level beforeEach.
+    sendExtensionMessage: jest.fn(),
     // Call-through spy so scheduling tests can assert on it without changing behavior.
     requestIdleCallbackPolyfill: jest.fn((cb, opts) => utils.requestIdleCallbackPolyfill(cb, opts)),
   };
@@ -41,6 +43,9 @@ const mockLoginForm = `
 
 const waitForIdleCallback = () => new Promise((resolve) => globalThis.requestIdleCallback(resolve));
 
+const { sendExtensionMessage: actualSendExtensionMessage } =
+  jest.requireActual<typeof autofillUtils>("../utils");
+
 describe("CollectAutofillContentService", () => {
   const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
   const domElementVisibilityService = new DomElementVisibilityService();
@@ -54,7 +59,28 @@ describe("CollectAutofillContentService", () => {
   let collectAutofillContentService: CollectAutofillContentService;
   const mockIntersectionObserver = mock<IntersectionObserver>();
 
+  /**
+   * Opts into the page-controlled `data-bwignore` and `data-bwautofill` attributes,
+   * which are unhonored by default.
+   */
+  const honorBitwardenAttributes = () => {
+    collectAutofillContentService["honorBitwardenIgnoreAttribute"] = true;
+    collectAutofillContentService["honorBitwardenAutofillAttribute"] = true;
+    collectAutofillContentService["formFieldQueryString"] =
+      collectAutofillContentService["buildFormFieldQueryString"]();
+  };
+
   beforeEach(() => {
+    // The constructor's one-time settings fetch runs before any per-instance spy can be
+    // installed, so that one command is answered here. Everything else calls through,
+    // since the chrome.runtime.sendMessage stub never invokes its callback.
+    jest
+      .mocked(autofillUtils.sendExtensionMessage)
+      .mockImplementation(async (command: string, options?: Record<string, any>) =>
+        command === "getBitwardenAutofillAttributeSettings"
+          ? null
+          : actualSendExtensionMessage(command, options),
+      );
     globalThis.requestIdleCallback = jest.fn((cb, options) => setTimeout(cb, 100));
     globalThis.cancelIdleCallback = jest.fn((id) => clearTimeout(id));
     document.body.innerHTML = mockLoginForm;
@@ -1111,6 +1137,10 @@ describe("CollectAutofillContentService", () => {
   });
 
   describe("getAutofillFieldElements", () => {
+    beforeEach(() => {
+      honorBitwardenAttributes();
+    });
+
     it("returns all form elements from the targeted document if no limit is set", () => {
       document.body.innerHTML = `
       <div id="root">
@@ -1300,6 +1330,79 @@ describe("CollectAutofillContentService", () => {
         inputRadioA,
         inputRadioB,
       ]);
+    });
+  });
+
+  describe("Bitwarden autofill attribute settings", () => {
+    const attributeMarkup = `
+      <div>
+        <input type="text" id="ignored-input" data-bwignore />
+        <textarea id="ignored-textarea" data-bwignore></textarea>
+        <select id="ignored-select" data-bwignore></select>
+        <span id="marked-span" data-bwautofill></span>
+      </div>
+    `;
+
+    it("collects `data-bwignore` fields and skips `data-bwautofill` spans by default", () => {
+      document.body.innerHTML = attributeMarkup;
+
+      const formElements = collectAutofillContentService["getAutofillFieldElements"]();
+
+      expect(formElements).toEqual([
+        document.getElementById("ignored-input"),
+        document.getElementById("ignored-textarea"),
+        document.getElementById("ignored-select"),
+      ]);
+    });
+
+    it("skips `data-bwignore` fields and collects `data-bwautofill` spans once both settings are honored", () => {
+      document.body.innerHTML = attributeMarkup;
+      honorBitwardenAttributes();
+
+      const formElements = collectAutofillContentService["getAutofillFieldElements"]();
+
+      expect(formElements).toEqual([document.getElementById("marked-span")]);
+    });
+
+    it("applies each setting independently", () => {
+      document.body.innerHTML = attributeMarkup;
+      collectAutofillContentService["honorBitwardenIgnoreAttribute"] = true;
+      collectAutofillContentService["formFieldQueryString"] =
+        collectAutofillContentService["buildFormFieldQueryString"]();
+
+      expect(collectAutofillContentService["getAutofillFieldElements"]()).toEqual([]);
+    });
+
+    it("adopts the fetched settings and rebuilds the field query string", async () => {
+      jest.mocked(autofillUtils.sendExtensionMessage).mockResolvedValue({
+        result: {
+          honorBitwardenIgnoreAttribute: true,
+          honorBitwardenAutofillAttribute: true,
+        },
+      });
+
+      await collectAutofillContentService["fetchAndSetBitwardenAttributeSettings"]();
+
+      expect(collectAutofillContentService["honorBitwardenIgnoreAttribute"]).toBe(true);
+      expect(collectAutofillContentService["honorBitwardenAutofillAttribute"]).toBe(true);
+      expect(collectAutofillContentService["formFieldQueryString"]).toContain(
+        "span[data-bwautofill]",
+      );
+      expect(collectAutofillContentService["formFieldQueryString"]).toContain(
+        ":not([data-bwignore])",
+      );
+    });
+
+    it("leaves both attributes unhonored when the settings fetch fails", async () => {
+      jest
+        .mocked(autofillUtils.sendExtensionMessage)
+        .mockRejectedValue(new Error("no receiving end"));
+
+      await collectAutofillContentService["fetchAndSetBitwardenAttributeSettings"]();
+
+      expect(collectAutofillContentService["honorBitwardenIgnoreAttribute"]).toBe(false);
+      expect(collectAutofillContentService["honorBitwardenAutofillAttribute"]).toBe(false);
+      expect(collectAutofillContentService["formFieldQueryString"]).not.toContain("data-bw");
     });
   });
 
@@ -3900,6 +4003,10 @@ describe("CollectAutofillContentService", () => {
   describe("mutationAddsOrRemovesFormField (relevance gate)", () => {
     // Containers we append to body for real NodeList construction; torn down after each test.
     const createdContainers: HTMLElement[] = [];
+
+    beforeEach(() => {
+      honorBitwardenAttributes();
+    });
 
     const makeContainer = (): HTMLElement => {
       const container = document.createElement("div");
