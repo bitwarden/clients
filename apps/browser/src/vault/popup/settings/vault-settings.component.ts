@@ -22,6 +22,7 @@ import {
   ToastOptions,
   ToastService,
 } from "@bitwarden/components";
+import { Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { FORCE_TARGETING_RULES_UPDATE_COMMAND } from "../../../autofill/services/targeting-rules-data.service";
 import { PopOutComponent } from "../../../platform/popup/components/pop-out.component";
@@ -43,6 +44,7 @@ import { PopupPageComponent } from "../../../platform/popup/layout/popup-page.co
     BerryComponent,
     PremiumBadgeComponent,
     SpinnerComponent,
+    Vfo1I18nPipe,
   ],
   providers: [
     { provide: PremiumUpgradePromptService, useClass: BrowserPremiumUpgradePromptService },

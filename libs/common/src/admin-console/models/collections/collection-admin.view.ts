@@ -1,5 +1,6 @@
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService, EncString } from "@bitwarden/legacy-crypto";
+
 import { OrgKey } from "../../../types/key";
 import { Organization } from "../domain/organization";
 

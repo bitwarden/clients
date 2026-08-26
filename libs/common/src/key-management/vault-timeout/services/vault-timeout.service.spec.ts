@@ -5,7 +5,8 @@ import { BehaviorSubject, from, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
+import { LockService, LockSource } from "@bitwarden/unlock";
 
 import { FakeAccountService, mockAccountServiceWith, mockAccountInfoWith } from "../../../../spec";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
@@ -158,7 +159,7 @@ describe("VaultTimeoutService", () => {
   };
 
   const expectUserToHaveLocked = (userId: string) => {
-    expect(lockService.lock).toHaveBeenCalledWith(userId);
+    expect(lockService.lock).toHaveBeenCalledWith(userId, LockSource.VaultTimeout);
   };
 
   const expectUserToHaveLoggedOut = (userId: string) => {
@@ -166,7 +167,7 @@ describe("VaultTimeoutService", () => {
   };
 
   const expectNoAction = (userId: string) => {
-    expect(lockService.lock).not.toHaveBeenCalledWith(userId);
+    expect(lockService.lock).not.toHaveBeenCalledWith(userId, LockSource.VaultTimeout);
     expect(logoutService.logout).not.toHaveBeenCalledWith(userId, "vaultTimeout");
   };
 

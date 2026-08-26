@@ -174,7 +174,7 @@ export class VaultPopupAutofillService {
   );
 
   /**
-   * Emits `true` when Fill Assist targeting rules apply to the current tab.
+   * Emits `true` when fill assist targeting rules apply to the current tab.
    *
    * The vault popup only renders when the vault is unlocked, so the auth/unlock gating that
    * {@link DomainSettingsService.getTargetingRulesForUrl} performs is already guaranteed here.
@@ -197,7 +197,7 @@ export class VaultPopupAutofillService {
         return false;
       }
 
-      // A blocklisted tab suppresses all autofill, so Fill Assist is moot regardless of the
+      // A blocklisted tab suppresses all autofill, so fill assist is moot regardless of the
       // blocked-domains banner's shown/dismissed state.
       if (tabIsOnBlocklist) {
         return false;
@@ -298,7 +298,7 @@ export class VaultPopupAutofillService {
     }
 
     try {
-      const totpCode = await this.autofillService.doAutoFill({
+      const result = await this.autofillService.doAutoFill({
         tab,
         cipher,
         pageDetails,
@@ -307,20 +307,34 @@ export class VaultPopupAutofillService {
         allowTotpAutofill: true,
       });
 
-      if (totpCode != null) {
-        this.platformUtilService.copyToClipboard(totpCode, { window: window });
+      if (!result.didAutofill) {
+        this._reportAutofillFailure();
+        return false;
       }
-    } catch {
-      this.toastService.showToast({
-        variant: "error",
-        title: null,
-        message: this.i18nService.t("autofillError"),
-      });
+
+      if (result.totp != null) {
+        this.platformUtilService.copyToClipboard(result.totp, { window: window });
+      }
+    } catch (e: unknown) {
+      // unexpected error occurred during autofill
+      this._reportAutofillFailure(e);
       return false;
     }
-    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
 
+    await this.handleAutofillSuggestionUsed({ cipherId: cipher.id });
     return true;
+  }
+
+  private _reportAutofillFailure(e?: unknown) {
+    if (e) {
+      this.logService.error(e);
+    }
+
+    this.toastService.showToast({
+      variant: "error",
+      title: null,
+      message: this.i18nService.t("autofillError"),
+    });
   }
 
   private async _closePopup(cipher: CipherView, tab: chrome.tabs.Tab | null) {
