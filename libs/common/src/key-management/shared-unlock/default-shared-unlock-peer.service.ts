@@ -34,11 +34,13 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
       this.environmentService,
     );
 
-    this.peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
-    // Disbabled until a follow-up sdk pr adds shared unlock peer destination settings
+    const peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
+    this.peer = peer;
+
+    // Disabled until a follow-up sdk pr adds shared unlock peer destination settings
     return;
 
-    await this.peer.start();
+    await peer.start();
 
     this.lockService.registerOnLockAction(async (userId, source) => {
       // A peer locked us. Announcing it back would send it around the hierarchy again.
@@ -46,7 +48,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
         return;
       }
 
-      await this.peer!.handle_device_event({
+      await peer.handle_device_event({
         ManualLock: {
           user_id: asUuid(userId),
         },
@@ -59,7 +61,7 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
         return;
       }
 
-      await this.peer!.handle_device_event({
+      await peer.handle_device_event({
         ManualUnlock: {
           user_id: asUuid(userId),
           user_key: userKey.toSdk(),

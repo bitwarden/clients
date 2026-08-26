@@ -294,10 +294,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
-    if (this.unlockOptions?.biometrics.enabled) {
-      await this.handleBiometricsUnlockEnabled(activeAccount.id);
-    }
-
     // Every unlock of this user continues from here, except
     // for master password, as a policy evaluation has to be run
     this.unlockService.unlocked$
@@ -315,6 +311,10 @@ export class LockComponent implements OnInit, OnDestroy {
           void this.continueAfterSettingUserKey();
         });
       });
+
+    if (this.unlockOptions?.biometrics.enabled) {
+      await this.handleBiometricsUnlockEnabled(activeAccount.id);
+    }
   }
 
   private resetDataOnActiveAccountChange() {
