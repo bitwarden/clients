@@ -31,6 +31,15 @@ import { AccessRequestSdkService } from "..";
  * or translate them.
  */
 export class AccessRequestsSdkService implements AccessRequestSdkService {
+  /**
+   * Reads for the same cipher that are still in flight, so concurrent callers share one SDK
+   * round trip. Several surfaces ask about the same row in the same render pass — the vault-row
+   * access badge and the sidebar's "Controlled access" narrowing, per row — and the SDK caches
+   * nothing. Entries are dropped the moment the read settles, so this collapses simultaneous
+   * duplicates without ever serving a stale access state.
+   */
+  private readonly cipherAccessStateReads = new Map<string, Promise<CipherAccessStateView>>();
+
   constructor(
     private sdkService: SdkService,
     private accountService: AccountService,
@@ -101,7 +110,20 @@ export class AccessRequestsSdkService implements AccessRequestSdkService {
     );
   }
 
-  async getCipherAccessState(cipherId: string): Promise<CipherAccessStateView> {
+  getCipherAccessState(cipherId: string): Promise<CipherAccessStateView> {
+    const inFlight = this.cipherAccessStateReads.get(cipherId);
+    if (inFlight != null) {
+      return inFlight;
+    }
+
+    const read = this.readCipherAccessState(cipherId).finally(() =>
+      this.cipherAccessStateReads.delete(cipherId),
+    );
+    this.cipherAccessStateReads.set(cipherId, read);
+    return read;
+  }
+
+  private async readCipherAccessState(cipherId: string): Promise<CipherAccessStateView> {
     const id = asUuid<SdkCipherId>(cipherId);
     const userId = await firstValueFrom(this.accountService.activeAccount$.pipe(getUserId));
     return firstValueFrom(
