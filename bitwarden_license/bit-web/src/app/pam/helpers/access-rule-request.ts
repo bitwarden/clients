@@ -33,6 +33,15 @@ export const ACCESS_RULE_DESCRIPTION_MAX_LENGTH = 512;
 export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
 
 /**
+ * The longest description the edit form accepts. Unlike the name's bound this is NOT a storage
+ * limit — `dbo.AccessRule.Description` is `NVARCHAR(MAX)` and the server's `AccessRuleRequestModel`
+ * declares no `StringLength` — it is a product bound, so one rule's prose cannot dominate the rules
+ * list. A rule already stored with a longer description fails this on load and has to be shortened
+ * before it can be saved again.
+ */
+export const ACCESS_RULE_DESCRIPTION_MAX_LENGTH = 512;
+
+/**
  * The edit form's `getRawValue()`, declared structurally so this helper stays testable without a
  * TestBed. `collections` carries only the `id` the request needs.
  */

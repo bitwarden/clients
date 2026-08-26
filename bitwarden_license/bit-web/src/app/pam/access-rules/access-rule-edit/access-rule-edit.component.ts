@@ -52,6 +52,7 @@ import {
   AccessRuleId,
   AccessRuleView,
   AccessCondition,
+  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_DURATION_PRESETS,
   ACCESS_RULE_NAME_MAX_LENGTH,
   accessRuleDeleteConfirmOptions,
@@ -205,7 +206,7 @@ export class AccessRuleEditComponent {
 
   protected readonly formGroup = this.formBuilder.nonNullable.group({
     name: ["", [Validators.required, Validators.maxLength(ACCESS_RULE_NAME_MAX_LENGTH)]],
-    description: [""],
+    description: ["", [Validators.maxLength(ACCESS_RULE_DESCRIPTION_MAX_LENGTH)]],
     collections: [[] as SelectItemView[], [Validators.required]],
     defaultLeaseDurationSeconds: [
       snapToNearestAccessRuleDuration(undefined),
