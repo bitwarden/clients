@@ -218,12 +218,12 @@ type StoryArgs = {
   simplifiedItemActionEnabled?: boolean;
   /** Legacy (flag-off) setting: whether clicking an autofill suggestion fills it. Defaults to on. */
   clickItemsToAutofillVaultView?: boolean;
-  /** Filters to restore into the chips on story load. */
+  /** Filters to restore into the chips on story load — ids, matching what `restoreFilters$` emits. */
   appliedFilters?: {
     cipherType?: CipherType | null;
-    organization?: Organization[];
-    collection?: CollectionView[];
-    folder?: FolderView[];
+    organization?: string[];
+    collection?: string[];
+    folder?: string[];
   };
   /** Sections rendered collapsed. Defaults to all expanded. */
   collapsedSections?: VaultSection[];
@@ -303,7 +303,7 @@ const buildProviders = (args: StoryArgs) => {
       useValue: {
         restoreFilters$: () => of(args.appliedFilters ?? {}),
         saveFilters: () => {},
-        selectedOrganizations: signal<Organization[]>([]),
+        selectedOrganizations: signal<string[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
         collections$: of(COLLECTION_OPTIONS),
@@ -630,8 +630,8 @@ export const ActiveFilters: Story = {
         loading: false,
         appliedFilters: {
           cipherType: CipherType.Login,
-          organization: [ORGANIZATION_OPTIONS[1].value],
-          folder: [FOLDER_OPTIONS[0].value, FOLDER_OPTIONS[1].value],
+          organization: [ORGANIZATION_OPTIONS[1].value.id],
+          folder: [FOLDER_OPTIONS[0].value.id, FOLDER_OPTIONS[1].value.id],
         },
       }),
     }),
