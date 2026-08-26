@@ -111,6 +111,17 @@
       {{ "pamRequestAccessBannerBody" | i18n }}
     </p>
 
+    @if (restingRequestTerms(); as terms) {
+      <p
+        bitTypography="body2"
+        class="tw-mb-3 tw-mt-0 tw-flex tw-items-center tw-gap-2"
+        data-testid="cipher-view-banner-max-duration"
+      >
+        <bit-icon name="bwi-clock" />
+        {{ terms.messageKey | i18n: (terms.maxSeconds | durationLong) }}
+      </p>
+    }
+
     <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
       <app-pam-access-state-badge [state]="badge()" />
       <button
