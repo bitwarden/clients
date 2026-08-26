@@ -9,7 +9,7 @@ import {
   untracked,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, RouterLink } from "@angular/router";
+import { ActivatedRoute } from "@angular/router";
 import { filter, lastValueFrom, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -81,7 +81,6 @@ import {
     TableModule,
     BadgeComponent,
     BreadcrumbsModule,
-    RouterLink,
   ],
 })
 export class OrgPasskeyReportComponent {
