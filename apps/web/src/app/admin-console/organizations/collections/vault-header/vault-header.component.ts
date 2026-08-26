@@ -24,7 +24,14 @@ import {
   SimpleDialogOptions,
   IconModule,
 } from "@bitwarden/components";
-import { NewCipherMenuComponent, All, RoutedVaultFilterModel } from "@bitwarden/vault";
+import {
+  NewCipherMenuComponent,
+  All,
+  RoutedVaultFilterModel,
+  Vfo1I18nPipe,
+  Vfo1IconPipe,
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
 
 import { HeaderModule } from "../../../../layouts/header/header.module";
 import { SharedModule } from "../../../../shared";
@@ -44,6 +51,8 @@ import { CollectionDialogTabType } from "../../shared/components/collection-dial
     JslibModule,
     NewCipherMenuComponent,
     IconModule,
+    Vfo1IconPipe,
+    Vfo1I18nPipe,
   ],
 })
 export class VaultHeaderComponent {
@@ -52,6 +61,7 @@ export class VaultHeaderComponent {
   private readonly collectionAdminService = inject(CollectionAdminService);
   private readonly router = inject(Router);
   private readonly accountService = inject(AccountService);
+  private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
   protected readonly All = All;
   protected readonly Unassigned = Unassigned;
@@ -95,7 +105,8 @@ export class VaultHeaderComponent {
   readonly openAddItemDialogEvent = output();
 
   protected readonly title = computed(() => {
-    const headerType = this.i18nService.t("collections").toLowerCase();
+    const collectionsKey = this.vfo1TerminologyService.enabled() ? "sharedFolders" : "collections";
+    const headerType = this.i18nService.t(collectionsKey).toLowerCase();
 
     const collection = this.collection();
     if (collection != null) {
@@ -108,11 +119,13 @@ export class VaultHeaderComponent {
 
     return this.organization().name
       ? `${this.organization().name} ${headerType}`
-      : this.i18nService.t("collections");
+      : this.i18nService.t(collectionsKey);
   });
 
   protected readonly icon = computed(() =>
-    this.filter().collectionId !== undefined ? "bwi-collection-shared" : "",
+    this.filter().collectionId !== undefined
+      ? this.vfo1TerminologyService.iconClass("bwi-collection-shared")
+      : "",
   );
 
   protected readonly showBreadcrumbs = computed(
@@ -144,14 +157,17 @@ export class VaultHeaderComponent {
 
   private async showFreeOrgUpgradeDialog(): Promise<void> {
     const org = this.organization();
+    const vfo1Enabled = this.vfo1TerminologyService.enabled();
+    const contentKey = org.canEditSubscription
+      ? vfo1Enabled
+        ? "freeOrgMaxSharedFolderReachedManageBilling"
+        : "freeOrgMaxCollectionReachedManageBilling"
+      : vfo1Enabled
+        ? "freeOrgMaxSharedFolderReachedNoManageBilling"
+        : "freeOrgMaxCollectionReachedNoManageBilling";
     const orgUpgradeSimpleDialogOpts: SimpleDialogOptions = {
       title: this.i18nService.t("upgradeOrganization"),
-      content: this.i18nService.t(
-        org.canEditSubscription
-          ? "freeOrgMaxCollectionReachedManageBilling"
-          : "freeOrgMaxCollectionReachedNoManageBilling",
-        org.maxCollections,
-      ),
+      content: this.i18nService.t(contentKey, org.maxCollections),
       type: "primary",
     };
 
@@ -234,10 +250,19 @@ export class VaultHeaderComponent {
 
   protected readonly canCreateCipher = computed(() => {
     const org = this.organization();
+    if (org && !org.enabled) {
+      return false;
+    }
     if (org?.isProviderUser && !org?.isMember) {
       return false;
     }
     return true;
+  });
+
+  /** Whether the "New" button should be disabled because the organization is suspended. */
+  protected readonly isOrganizationSuspended = computed(() => {
+    const org = this.organization();
+    return !!org && !org.enabled;
   });
 
   handleDeleteCollection() {

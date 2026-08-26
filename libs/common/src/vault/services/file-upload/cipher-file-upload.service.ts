@@ -1,9 +1,11 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 
+// eslint-disable-next-line no-restricted-imports
+import { EncArrayBuffer, EncString, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ErrorResponse } from "../../../models/response/error.response";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import {
@@ -11,8 +13,7 @@ import {
   FileUploadService,
   UploadOptions,
 } from "../../../platform/abstractions/file-upload/file-upload.service";
-import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { FileUploadType } from "../../../platform/enums";
 import { CipherId, UserId } from "../../../types/guid";
 import { CipherSdkService } from "../../abstractions/cipher-sdk.service";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "../../abstractions/file-upload/cipher-file-upload.service";
@@ -72,6 +73,56 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
     return response;
   }
 
+  async uploadPrepared(
+    cipherId: string,
+    attachmentId: string,
+    uploadUrl: string,
+    fileUploadType: FileUploadType,
+    encFileName: EncString,
+    encData: EncArrayBuffer,
+    userId: UserId,
+    isAdmin: boolean,
+    options?: UploadOptions,
+  ): Promise<void> {
+    const progressEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.PM34410AttachmentUploadProgress,
+    );
+    const opts = progressEnabled ? options : undefined;
+
+    try {
+      await this.fileUploadService.upload(
+        { url: uploadUrl, fileUploadType },
+        encFileName,
+        encData,
+        {
+          postDirect: (data: FormData) =>
+            this.apiService.postAttachmentFile(cipherId, attachmentId, data, opts),
+          renewFileUploadUrl: async () =>
+            await this.cipherSdkService.renewAttachmentUploadUrl(
+              cipherId as CipherId,
+              attachmentId,
+              userId,
+            ),
+          rollback: async () => {
+            await this.cipherSdkService.deleteAttachmentWithServer(
+              cipherId as CipherId,
+              attachmentId,
+              userId,
+              isAdmin,
+            );
+          },
+        },
+        opts,
+      );
+    } catch (e) {
+      if (e instanceof ErrorResponse) {
+        throw new Error((e as ErrorResponse).getSingleMessage());
+      } else {
+        throw e;
+      }
+    }
+  }
+
   private generateMethods(
     uploadData: AttachmentUploadDataResponse,
     response: CipherResponse,
@@ -81,7 +132,7 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
   ): FileUploadApiMethods {
     return {
       postDirect: this.generatePostDirectCallback(uploadData, isAdmin, options),
-      renewFileUploadUrl: this.generateRenewFileUploadUrlCallback(uploadData, response, isAdmin),
+      renewFileUploadUrl: this.generateRenewFileUploadUrlCallback(uploadData, response),
       rollback: this.generateRollbackCallback(response, uploadData, isAdmin, userId),
     };
   }
@@ -105,7 +156,6 @@ export class CipherFileUploadService implements CipherFileUploadServiceAbstracti
   private generateRenewFileUploadUrlCallback(
     uploadData: AttachmentUploadDataResponse,
     response: CipherResponse,
-    isAdmin: boolean,
   ) {
     return async () => {
       const renewResponse = await this.apiService.renewAttachmentUploadUrl(

@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -17,7 +17,7 @@ import {
   RestrictedCipherType,
   RestrictedItemTypesService,
 } from "@bitwarden/common/vault/services/restricted-item-types.service";
-import { ButtonModule, DialogService, MenuModule, NoItemsModule } from "@bitwarden/components";
+import { ButtonModule, DialogService, MenuModule } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
 import { FakeGlobalStateProvider } from "@bitwarden/state-test-utils";
 
@@ -71,7 +71,6 @@ describe("NewItemDropdownComponent", () => {
         RouterLink,
         ButtonModule,
         MenuModule,
-        NoItemsModule,
         NewItemDropdownComponent,
       ],
       providers: [
@@ -200,6 +199,21 @@ describe("NewItemDropdownComponent", () => {
         type: CipherType.BankAccount.toString(),
         collectionId: "777-888-999",
       });
+    });
+  });
+
+  describe("cipherMenuItems$", () => {
+    it("includes cipher menu items by default", async () => {
+      const items = await firstValueFrom(component.cipherMenuItems$);
+      expect(items.length).toBeGreaterThan(0);
+    });
+
+    it("returns no cipher menu items when canCreateCipher is false, e.g. because the organization is suspended", async () => {
+      fixture.componentRef.setInput("canCreateCipher", false);
+      fixture.detectChanges();
+
+      const items = await firstValueFrom(component.cipherMenuItems$);
+      expect(items).toEqual([]);
     });
   });
 

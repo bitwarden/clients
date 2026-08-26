@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
-import { combineLatest, debounceTime, take } from "rxjs";
+import { combineLatest, debounceTime, map, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -21,7 +21,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   LinkModule,
-  NoItemsModule,
+  PopoverModule,
   SearchModule,
   TableDataSource,
   ToastService,
@@ -31,6 +31,8 @@ import { SharedModule } from "@bitwarden/web-vault/app/shared";
 import { PipesModule } from "@bitwarden/web-vault/app/vault/individual-vault/pipes/pipes.module";
 
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
+import { AccessIntelligenceCoachmarkComponent } from "../../onboarding/access-intelligence-coachmark.component";
+import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { ReportLoadingComponent } from "../../shared/report-loading.component";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 import {
@@ -51,11 +53,12 @@ import {
     ReportLoadingComponent,
     LinkModule,
     SearchModule,
-    NoItemsModule,
     PipesModule,
+    PopoverModule,
     SharedModule,
     ApplicationsTableV2Component,
     TypographyModule,
+    AccessIntelligenceCoachmarkComponent,
   ],
 })
 export class CriticalApplicationsTabComponent {
@@ -66,6 +69,7 @@ export class CriticalApplicationsTabComponent {
   private readonly i18nService = inject(I18nService);
   private readonly router = inject(Router);
   private readonly toastService = inject(ToastService);
+  private readonly coachmarkService = inject(AccessIntelligenceCoachmarkService);
 
   readonly organizationId = input.required<OrganizationId>();
 
@@ -85,13 +89,22 @@ export class CriticalApplicationsTabComponent {
 
   protected readonly drawerState = this.drawerStateService.drawerState;
 
-  protected readonly unassignedCipherIds = toSignal(
-    this.securityTasksService.unassignedCriticalCipherIds$,
+  protected readonly atRiskCipherIds = toSignal(
+    this.accessIntelligenceService.report$.pipe(
+      map(
+        (report) =>
+          report?.getCriticalAtRiskApplications().flatMap((app) => app.getAtRiskCipherIds()) ?? [],
+      ),
+    ),
     { initialValue: [] },
   );
 
   protected readonly enableRequestPasswordChange = computed(
-    () => this.unassignedCipherIds().length > 0,
+    () => this.atRiskCipherIds().length > 0,
+  );
+
+  protected readonly helpMembersOpen = computed(
+    () => this.coachmarkService.activeStepId() === "helpMembers",
   );
 
   protected readonly applicationSummary = computed(() => {
@@ -151,21 +164,21 @@ export class CriticalApplicationsTabComponent {
   }
 
   protected openCriticalAtRiskMembersDrawer(): void {
-    this.drawerStateService.openDrawer(
+    this.drawerStateService.toggleDrawer(
       DrawerType.CriticalAtRiskMembers,
       "criticalAppsAtRiskMembers",
     );
   }
 
   protected openCriticalAtRiskAppsDrawer(): void {
-    this.drawerStateService.openDrawer(
+    this.drawerStateService.toggleDrawer(
       DrawerType.CriticalAtRiskApps,
       "criticalAppsAtRiskApplications",
     );
   }
 
   readonly showAppAtRiskMembers = (applicationName: string): void => {
-    this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
+    this.drawerStateService.toggleDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
   readonly removeCriticalApplication = (hostname: string): void => {
@@ -201,7 +214,7 @@ export class CriticalApplicationsTabComponent {
     }
 
     this.securityTasksService
-      .requestPasswordChangeForCriticalApplications$(orgId, this.unassignedCipherIds())
+      .requestPasswordChangeForCriticalApplications$(orgId, this.atRiskCipherIds())
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

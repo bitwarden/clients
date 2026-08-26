@@ -16,14 +16,13 @@ import {
   SendOtp,
   SendTokenService,
 } from "@bitwarden/common/auth/send-access";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
-import { SendAccessResponse } from "@bitwarden/common/tools/send/models/response/send-access.response";
 import { SEND_KDF_ITERATIONS } from "@bitwarden/common/tools/send/send-kdf";
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { AnonLayoutWrapperDataService, ToastService } from "@bitwarden/components";
+// eslint-disable-next-line no-restricted-imports
+import { CryptoFunctionService } from "@bitwarden/legacy-crypto";
 
 import { SharedModule } from "../../../shared";
 
@@ -41,9 +40,7 @@ export class SendAuthComponent implements OnInit {
   protected readonly key = input.required<string>();
 
   protected accessGranted = output<{
-    response?: SendAccessResponse;
-    request?: SendAccessRequest;
-    accessToken?: SendAccessToken;
+    accessToken: SendAccessToken;
   }>();
 
   authType = AuthType;

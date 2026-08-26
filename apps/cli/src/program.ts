@@ -267,9 +267,15 @@ export class Program extends BaseProgram {
         await this.exitIfNotAuthed();
         const userId = (await firstValueFrom(this.serviceContainer.accountService.activeAccount$))
           ?.id;
-        await this.serviceContainer.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(
-          userId,
-        );
+        // A failed auto-unlock is reported as a locked vault rather than an errored command.
+        try {
+          await this.serviceContainer.unlockService.unlockWithAutoUnlockKey(userId);
+        } catch (e) {
+          this.serviceContainer.logService.error(
+            "[Program] Failed to unlock with the never-lock key",
+            e,
+          );
+        }
 
         const authStatus = await this.serviceContainer.authService.getAuthStatus();
         if (authStatus === AuthenticationStatus.Unlocked) {
@@ -289,7 +295,6 @@ export class Program extends BaseProgram {
           await this.exitIfNotAuthed();
           const command = new UnlockCommand(
             this.serviceContainer.accountService,
-            this.serviceContainer.cryptoFunctionService,
             this.serviceContainer.logService,
             this.serviceContainer.keyConnectorService,
             this.serviceContainer.environmentService,
@@ -507,7 +512,8 @@ export class Program extends BaseProgram {
           this.serviceContainer.syncService,
           this.serviceContainer.accountService,
           this.serviceContainer.authService,
-          this.serviceContainer.userAutoUnlockKeyService,
+          this.serviceContainer.unlockService,
+          this.serviceContainer.logService,
         );
         const response = await command.run();
         this.processResponse(response);

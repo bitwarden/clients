@@ -5,33 +5,23 @@ import { firstValueFrom, map } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import {
-  CollectionData,
-  CollectionDetailsResponse,
-} from "@bitwarden/common/admin-console/models/collections";
-import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
-import { SecurityStateService } from "@bitwarden/common/key-management/security-state/abstractions/security-state.service";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService } from "@bitwarden/key-management";
-import { EncString as SdkEncString } from "@bitwarden/sdk-internal";
+import { KeyService } from "@bitwarden/key-management";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import {
-  InternalUserDecryptionOptionsServiceAbstraction,
-  UserDecryptionOptions,
-  WebAuthnPrfUserDecryptionOption,
-} from "../../../../auth/src/common";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../../../../auth/src/common";
 // FIXME: remove `src` and fix import
 // eslint-disable-next-line no-restricted-imports
 import { LogoutReason } from "../../../../auth/src/common/types";
 import { ApiService } from "../../abstractions/api.service";
 import { InternalOrganizationServiceAbstraction } from "../../admin-console/abstractions/organization/organization.service.abstraction";
-import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service.abstraction";
+import { InternalNewPolicyService } from "../../admin-console/abstractions/policy/new-policy.service";
 import { InternalPolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../admin-console/abstractions/provider.service";
 import { OrganizationUserType } from "../../admin-console/enums";
+import { CollectionData, CollectionDetailsResponse } from "../../admin-console/models/collections";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
@@ -44,10 +34,11 @@ import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { DomainSettingsService } from "../../autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "../../billing/abstractions";
+import { FeatureFlag } from "../../enums/feature-flag.enum";
 import { KeyConnectorService } from "../../key-management/key-connector/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { UserDecryptionResponse } from "../../key-management/models/response/user-decryption.response";
-import { V2UpgradeTokenStateService } from "../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
+import { withPasswordManagerSdk } from "../../key-management/utils";
 import { DomainsResponse } from "../../models/response/domains.response";
 import { ProfileResponse } from "../../models/response/profile.response";
 import { SendData } from "../../tools/send/models/data/send.data";
@@ -62,7 +53,9 @@ import { CipherData } from "../../vault/models/data/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { CipherResponse } from "../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../vault/models/response/folder.response";
+import { ConfigService } from "../abstractions/config/config.service";
 import { LogService } from "../abstractions/log.service";
+import { SdkService } from "../abstractions/sdk/sdk.service";
 import { MessageSender } from "../messaging";
 import { StateProvider } from "../state";
 
@@ -108,10 +101,8 @@ export class DefaultSyncService extends CoreSyncService {
     tokenService: TokenService,
     authService: AuthService,
     stateProvider: StateProvider,
-    private securityStateService: SecurityStateService,
-    private kdfConfigService: KdfConfigService,
-    private accountCryptographicStateService: AccountCryptographicStateService,
-    private readonly v2UpgradeTokenStateService: V2UpgradeTokenStateService,
+    private configService: ConfigService,
+    private sdkService: SdkService,
   ) {
     super(
       tokenService,
@@ -187,9 +178,14 @@ export class DefaultSyncService extends CoreSyncService {
 
       const response = await this.inFlightApiCalls.sync;
 
-      await this.cipherService.clear(response.profile.id);
+      // The crypto sync handler *MUST* be the first sync handler to run. It reserves
+      // the option to reject a sync, should the data be inconsitent. In this case, it will throw.
+      await this.runCryptoSyncHandler(
+        response.profile.id,
+        response.profile,
+        response.userDecryption,
+      );
 
-      await this.syncUserDecryption(response.profile.id, response.userDecryption);
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders, response.profile.id);
       await this.syncCollections(response.collections, response.profile.id);
@@ -246,27 +242,11 @@ export class DefaultSyncService extends CoreSyncService {
       throw new Error("Stamp has changed");
     }
 
-    // Users with no master password will not have a key.
+    // This is for key-connector users
     if (response?.key) {
       await this.masterPasswordService.setMasterKeyEncryptedUserKey(response.key, response.id);
     }
 
-    // Cleanup: Only the first branch should be kept after the server always returns accountKeys https://bitwarden.atlassian.net/browse/PM-21768
-    if (response.accountKeys != null) {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        response.accountKeys.toWrappedAccountCryptographicState(),
-        response.id,
-      );
-    } else {
-      await this.accountCryptographicStateService.setAccountCryptographicState(
-        {
-          V1: {
-            private_key: response.privateKey as SdkEncString,
-          },
-        },
-        response.id,
-      );
-    }
     await this.keyService.setProviderKeys(response.providers, response.id);
     await this.keyService.setOrgKeys(
       response.organizations,
@@ -279,6 +259,12 @@ export class DefaultSyncService extends CoreSyncService {
     await this.accountService.setAccountEmailVerified(response.id, response.emailVerified);
     await this.accountService.setAccountCreationDate(response.id, new Date(response.creationDate));
     await this.accountService.setAccountVerifyNewDeviceLogin(response.id, response.verifyDevices);
+
+    if (
+      await this.configService.getFeatureFlag(FeatureFlag.PM30806_SelfServiceChangeEmailCommand)
+    ) {
+      await this.accountService.setAccountEmail(response.id, response.email);
+    }
 
     await this.billingAccountProfileStateService.setHasPremium(
       response.premiumPersonally,
@@ -391,6 +377,7 @@ export class DefaultSyncService extends CoreSyncService {
   }
 
   private async syncCiphers(response: CipherResponse[], userId: UserId) {
+    await this.cipherService.clear(userId);
     const ciphers: { [id: string]: CipherData } = {};
     response.forEach((c) => {
       ciphers[c.id] = new CipherData(c);
@@ -451,68 +438,23 @@ export class DefaultSyncService extends CoreSyncService {
     return await this.newPolicyService.replace(policies, userId);
   }
 
-  private async syncUserDecryption(
+  /**
+   * Runs the SDK's crypto sync handler.
+   *
+   * Hands the handler the crypto parts of the sync response and lets it decide what to do
+   * with each. Failures propagate: the handler reserves the option to reject a sync when the data
+   * is inconsistent, in which case no further sync handlers run.
+   */
+  private async runCryptoSyncHandler(
     userId: UserId,
+    profile: ProfileResponse,
     userDecryption: UserDecryptionResponse | undefined,
   ) {
-    if (userDecryption == null) {
-      return;
-    }
-    if (userDecryption.masterPasswordUnlock != null) {
-      const masterPasswordUnlockData =
-        userDecryption.masterPasswordUnlock.toMasterPasswordUnlockData();
-      await this.masterPasswordService.setMasterPasswordUnlockData(
-        masterPasswordUnlockData,
-        userId,
-      );
-      await this.kdfConfigService.setKdfConfig(userId, masterPasswordUnlockData.kdf);
-    }
-
-    // Update WebAuthn PRF options if present
-    if (userDecryption.webAuthnPrfOptions != null && userDecryption.webAuthnPrfOptions.length > 0) {
-      try {
-        // Only update if this is the active user, since setUserDecryptionOptions()
-        // operates on the active user's state
-        const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
-
-        if (activeAccount?.id !== userId) {
-          return;
-        }
-
-        // Get current options without blocking if they don't exist yet
-        const currentUserDecryptionOptions = await firstValueFrom(
-          this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
-        ).catch((): UserDecryptionOptions | null => {
-          return null;
-        });
-
-        if (currentUserDecryptionOptions != null) {
-          // Update the PRF options while preserving other decryption options
-          const updatedOptions = Object.assign(
-            new UserDecryptionOptions(),
-            currentUserDecryptionOptions,
-          );
-          updatedOptions.webAuthnPrfOptions = userDecryption.webAuthnPrfOptions
-            .map((option) => WebAuthnPrfUserDecryptionOption.fromResponse(option))
-            .filter((option) => option !== undefined);
-
-          await this.userDecryptionOptionsService.setUserDecryptionOptionsById(
-            activeAccount.id,
-            updatedOptions,
-          );
-        }
-      } catch (error) {
-        this.logService.error("[Sync] Failed to update WebAuthn PRF options:", error);
-      }
-    }
-
-    if (userDecryption.v2UpgradeToken != null) {
-      await this.v2UpgradeTokenStateService.setV2UpgradeToken(
-        userDecryption.v2UpgradeToken.toV2UpgradeToken(),
-        userId,
-      );
-    } else {
-      await this.v2UpgradeTokenStateService.clearV2UpgradeToken(userId);
-    }
+    await withPasswordManagerSdk(userId, this.sdkService, (sdk) =>
+      sdk.crypto_sync_handler().on_sync({
+        userDecryption: userDecryption?.toSdk(),
+        accountCryptographicState: profile.accountKeys?.toWrappedAccountCryptographicState(),
+      }),
+    );
   }
 }

@@ -234,6 +234,39 @@ export const ossPolicyEditRegister: BasePolicyEditDefinition[] = [
 
 **Note**: Use `ossPolicyEditRegister` for open-source policies and `bitPolicyEditRegister` for Bitwarden Licensed policies.
 
+The drawer header always shows an **On/Off** badge reflecting the saved policy state alongside
+the policy name as the title. The `policySteps` property on `BasePolicyEditComponent` defaults to
+a single step that saves the policy, so no override is needed for simple policies.
+
+#### Multi-Step Policy Workflow
+
+For policies that need additional steps before saving — for example, to enable a prerequisite policy or show a confirmation screen — override `policySteps` with a custom array. Each entry can declare:
+
+- `sideEffect` — async function called on submit for that step
+- `titleContent`, `bodyContent`, `footerContent` — optional signal-returning functions that provide per-step template overrides
+
+The dialog advances to the next step on each submit and closes after the final step.
+
+```typescript
+import { PolicyStep } from "../policy-edit-dialogs/models";
+
+export class YourMultiStepPolicyComponent extends BasePolicyEditComponent {
+  override readonly policySteps: PolicyStep[] = [
+    {
+      titleContent: this.step0Title,
+      bodyContent: this.step0Body,
+      footerContent: this.step0Footer,
+      sideEffect: () => this.enablePrerequisitePolicy(),
+    },
+    {
+      sideEffect: () => this.savePolicy(),
+    },
+  ];
+}
+```
+
+See `auto-confirm-policy.component.ts` for a real-world multi-step example.
+
 ## Testing Your Policy
 
 1. Build and run the application

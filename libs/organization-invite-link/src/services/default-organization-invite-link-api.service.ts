@@ -1,8 +1,6 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 
 import { OrganizationInviteLinkApiService } from "../abstractions/organization-invite-link-api.service";
-import { OrganizationInviteLinkCreateRequest } from "../models/requests/organization-invite-link-create.request";
-import { OrganizationInviteLinkRefreshRequest } from "../models/requests/organization-invite-link-refresh.request";
 import { OrganizationInviteLinkUpdateRequest } from "../models/requests/organization-invite-link-update.request";
 import { OrganizationInviteLinkValidateEmailDomainRequest } from "../models/requests/organization-invite-link-validate-email-domain.request";
 import { OrganizationInviteLinkStatusResponseModel } from "../models/responses/organization-invite-link-status.response";
@@ -11,34 +9,6 @@ import { OrganizationInviteLinkResponseModel } from "../models/responses/organiz
 
 export class DefaultOrganizationInviteLinkApiService implements OrganizationInviteLinkApiService {
   constructor(private apiService: ApiService) {}
-
-  async create(
-    organizationId: string,
-    request: OrganizationInviteLinkCreateRequest,
-  ): Promise<OrganizationInviteLinkResponseModel> {
-    const r = await this.apiService.send(
-      "POST",
-      `/organizations/${organizationId}/invite-link`,
-      request,
-      true,
-      true,
-    );
-    return new OrganizationInviteLinkResponseModel(r);
-  }
-
-  async refresh(
-    organizationId: string,
-    request: OrganizationInviteLinkRefreshRequest,
-  ): Promise<OrganizationInviteLinkResponseModel> {
-    const r = await this.apiService.send(
-      "POST",
-      `/organizations/${organizationId}/invite-link/refresh`,
-      request,
-      true,
-      true,
-    );
-    return new OrganizationInviteLinkResponseModel(r);
-  }
 
   async get(organizationId: string): Promise<OrganizationInviteLinkResponseModel> {
     const r = await this.apiService.send(
@@ -51,7 +21,7 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkResponseModel(r);
   }
 
-  async update(
+  async updateAllowedDomains(
     organizationId: string,
     request: OrganizationInviteLinkUpdateRequest,
   ): Promise<OrganizationInviteLinkResponseModel> {
@@ -88,11 +58,14 @@ export class DefaultOrganizationInviteLinkApiService implements OrganizationInvi
     return new OrganizationInviteLinkValidateEmailDomainResponse(r);
   }
 
-  async getStatus(code: string): Promise<OrganizationInviteLinkStatusResponseModel> {
+  async getStatus(
+    organizationId: string,
+    code: string,
+  ): Promise<OrganizationInviteLinkStatusResponseModel> {
     const r = await this.apiService.send(
       "POST",
       `/organizations/invite-link/status`,
-      { code },
+      { organizationId, code },
       false,
       true,
     );

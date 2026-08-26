@@ -44,7 +44,9 @@ import {
   Translation,
 } from "@bitwarden/components";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/generator-legacy";
-import { DEFAULT_KDF_CONFIG, KdfConfig, KdfConfigService } from "@bitwarden/key-management";
+import { KdfConfigService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG, KdfConfig } from "@bitwarden/legacy-crypto";
 
 import { PasswordCalloutComponent } from "../password-callout/password-callout.component";
 import { compareInputs, ValidationGoal } from "../validators/compare-inputs.validator";
@@ -127,8 +129,7 @@ export class InputPasswordComponent implements OnInit {
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent:
-    | PasswordStrengthV2Component
-    | undefined = undefined;
+    PasswordStrengthV2Component | undefined = undefined;
 
   // FIXME(https://bitwarden.atlassian.net/browse/CL-903): Migrate to Signals
   // eslint-disable-next-line @angular-eslint/prefer-output-emitter-ref
@@ -346,7 +347,7 @@ export class InputPasswordComponent implements OnInit {
       // Note: ChangePasswordDelegation (Emergency Access Takeover, Account Recovery) early-returns
       // this component only collects the password for those flows. Salt determination
       // is handled by the parent caller's service, which supplies the target user's email to
-      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.resetMasterPassword).
+      // emailToSalt() (see EmergencyAccessService.takeover, OrganizationUserResetPasswordService.recoverAccount).
       //
       // TODO: PM-32059 — When salt is disconnected from email (Stage 3), replace
       // this.masterPasswordService.emailToSalt(this.email) with a KM-originated salt.

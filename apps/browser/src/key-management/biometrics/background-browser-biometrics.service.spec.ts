@@ -24,16 +24,21 @@ describe("background browser biometrics service tests", function () {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.useFakeTimers();
     service = new BackgroundBrowserBiometricsService(
       () => nativeMessagingBackground,
       () => mockConfigService,
       logService,
-      keyService,
+      () => keyService,
       biometricStateService,
       messagingService,
-      vaultTimeoutSettingsService,
+      () => vaultTimeoutSettingsService,
       () => null as any,
     );
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   describe("canEnableBiometricUnlock", () => {

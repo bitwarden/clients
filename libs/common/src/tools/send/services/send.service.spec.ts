@@ -4,6 +4,14 @@ import { firstValueFrom, of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import {
+  EncryptService,
+  EncString,
+  KeyGenerationService,
+  LegacyCompatKeyService,
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import {
   FakeAccountService,
@@ -13,14 +21,10 @@ import {
   mockAccountServiceWith,
   mockAccountInfoWith,
 } from "../../../../spec";
-import { KeyGenerationService } from "../../../key-management/crypto";
-import { EncryptService } from "../../../key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "../../../key-management/crypto/models/enc-string";
 import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { EnvironmentService } from "../../../platform/abstractions/environment.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
 import { SelfHostedEnvironment } from "../../../platform/services/default-environment.service";
 import { UserId } from "../../../types/guid";
@@ -46,6 +50,7 @@ import {
 
 describe("SendService", () => {
   const keyService = mock<KeyService>();
+  const legacyCompatKeyService = mock<LegacyCompatKeyService>();
   const i18nService = mock<I18nService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
@@ -70,7 +75,11 @@ describe("SendService", () => {
       get: () => of(new SelfHostedEnvironment({ webVault: "https://example.com" })),
     });
 
-    (window as any).bitwardenContainerService = new ContainerService(keyService, encryptService);
+    (window as any).bitwardenContainerService = new ContainerService(
+      keyService,
+      encryptService,
+      legacyCompatKeyService,
+    );
 
     accountService.activeAccountSubject.next({
       id: mockUserId,
@@ -601,7 +610,7 @@ describe("SendService", () => {
       sendView.expirationDate = null;
 
       keyService.userKey$.mockReturnValue(of(userKey));
-      keyService.makeSendKey.mockResolvedValue(mockCryptoKey);
+      legacyCompatKeyService.makeSendKey.mockResolvedValue(mockCryptoKey);
       encryptService.encryptBytes.mockResolvedValue({ encryptedString: "encryptedKey" } as any);
       encryptService.encryptString.mockResolvedValue({ encryptedString: "encrypted" } as any);
     });

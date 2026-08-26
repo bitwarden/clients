@@ -14,6 +14,7 @@ export * from "./login/login.component";
 export * from "./login/login-secondary-content.component";
 export * from "./login/login-component.service";
 export * from "./login/default-login-component.service";
+export * from "./login/handle-query-param-errors-result.type";
 
 // login decryption options
 export * from "./login-decryption-options/login-decryption-options.component";
@@ -47,9 +48,6 @@ export * from "./user-verification/user-verification-form-input.component";
 export * from "./sso/sso.component";
 export * from "./sso/sso-component.service";
 export * from "./sso/default-sso-component.service";
-
-// self hosted environment configuration dialog
-export * from "./self-hosted-env-config-dialog/self-hosted-env-config-dialog.component";
 
 // two factor auth
 export * from "./two-factor-auth";

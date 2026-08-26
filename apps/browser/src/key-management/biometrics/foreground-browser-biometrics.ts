@@ -1,14 +1,16 @@
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 import { BiometricsCommands, BiometricsService, BiometricsStatus } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 export class ForegroundBrowserBiometricsService extends BiometricsService {
   shouldAutopromptNow = true;
 
-  constructor() {
+  constructor(private platformUtilsService: PlatformUtilsService) {
     super();
   }
 
@@ -62,12 +64,18 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
   }
 
   async canEnableBiometricUnlock(): Promise<boolean> {
+    const needsPermissionPrompt =
+      !(await BrowserApi.permissionsGranted(["nativeMessaging"])) &&
+      !this.platformUtilsService.isSafari();
     return (
-      await BrowserApi.sendMessageWithResponse<{
-        result: boolean;
-        error: string;
-      }>(BiometricsCommands.CanEnableBiometricUnlock)
-    ).result;
+      needsPermissionPrompt ||
+      (
+        await BrowserApi.sendMessageWithResponse<{
+          result: boolean;
+          error: string;
+        }>(BiometricsCommands.CanEnableBiometricUnlock)
+      ).result
+    );
   }
   async setBiometricProtectedUnlockKeyForUser(
     userId: UserId,
@@ -78,4 +86,5 @@ export class ForegroundBrowserBiometricsService extends BiometricsService {
   async hasPersistentKey(userId: UserId): Promise<boolean> {
     return false;
   }
+  async deleteBiometricUnlockKeyForUser(userId: UserId): Promise<void> {}
 }

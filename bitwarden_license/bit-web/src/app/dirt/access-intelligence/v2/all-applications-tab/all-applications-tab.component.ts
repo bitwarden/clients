@@ -21,7 +21,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   LinkModule,
-  NoItemsModule,
   SearchModule,
   TableDataSource,
   ToastService,
@@ -50,7 +49,6 @@ import {
     LinkModule,
     SearchModule,
     PipesModule,
-    NoItemsModule,
     SharedModule,
     ApplicationsTableV2Component,
     TypographyModule,
@@ -153,15 +151,15 @@ export class AllApplicationsTabComponent {
   }
 
   protected openOrgAtRiskMembersDrawer(): void {
-    this.drawerStateService.openDrawer(DrawerType.OrgAtRiskMembers, "allAppsOrgAtRiskMembers");
+    this.drawerStateService.toggleDrawer(DrawerType.OrgAtRiskMembers, "allAppsOrgAtRiskMembers");
   }
 
   protected openOrgAtRiskAppsDrawer(): void {
-    this.drawerStateService.openDrawer(DrawerType.OrgAtRiskApps, "allAppsOrgAtRiskApplications");
+    this.drawerStateService.toggleDrawer(DrawerType.OrgAtRiskApps, "allAppsOrgAtRiskApplications");
   }
 
   readonly showAppAtRiskMembers = (applicationName: string): void => {
-    this.drawerStateService.openDrawer(DrawerType.AppAtRiskMembers, applicationName);
+    this.drawerStateService.toggleDrawer(DrawerType.AppAtRiskMembers, applicationName);
   };
 
   readonly onCheckboxChange = ({

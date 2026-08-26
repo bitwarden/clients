@@ -1,7 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { SECURITY_TASKS_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
-
+import { SECURITY_TASKS_DISK, UserKeyDefinition } from "../../../platform/state";
 import { SecurityTaskData } from "../models/security-task.data";
 
 export const SECURITY_TASKS = UserKeyDefinition.array<SecurityTaskData>(

@@ -1,10 +1,12 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
+import * as fs from "fs";
 import { once } from "node:events";
+import { pathToFileURL } from "node:url";
 import * as path from "path";
 import * as url from "url";
 
-import { app, BrowserWindow, ipcMain, nativeTheme, screen, session } from "electron";
+import { app, BrowserWindow, ipcMain, nativeTheme, screen, session, protocol, net } from "electron";
 import { concatMap, firstValueFrom, pairwise } from "rxjs";
 
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,22 +20,93 @@ import { SafeShell } from "../platform/main/safe-shell.main";
 import { WindowState } from "../platform/models/domain/window-state";
 import { applyMainWindowStyles, applyPopupModalStyles } from "../platform/popup-modal-styles";
 import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
+import { cleanUserAgent, isDev } from "../utils";
+
 import {
-  cleanUserAgent,
-  isDev,
   isLinux,
   isMac,
   isMacAppStore,
-  isSnapStore,
   isWindows,
-} from "../utils";
+  SNAP_STORE_NAMES,
+  SNAP_MOUNT_DIRS,
+} from "./platform-utils.main";
+import { resolveProtocolPath } from "./protocol";
+
+// customFileOrigin = `${customFileScheme}://${customFileHost}`
+const customFileScheme = "bw-desktop-file";
+const customFileHost = "bundle";
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: customFileScheme,
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+    },
+  },
+]);
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
+
+/**
+ * Every path prefix a Bitwarden snap's real binary can sit under — one per snap name per snapd
+ * mount root, e.g. `/snap/bitwarden/` and `/var/lib/snapd/snap/bitwarden-beta/`. See
+ * {@link SNAP_MOUNT_DIRS} for why there is more than one root.
+ *
+ * The trailing slash matters: without it, `bitwarden` would also match a hypothetical
+ * `bitwarden-evil` snap. (The cgroup check below guards the same edge with `(?![\w-])`.)
+ */
+const SNAP_EXEC_PATH_PREFIXES = SNAP_MOUNT_DIRS.flatMap((dir) =>
+  SNAP_STORE_NAMES.map((name) => `${dir}/${name}/`),
+);
+
+/**
+ * Whether this process is *actually running inside* snap's strict confinement sandbox.
+ *
+ * Distinct from `isSnapStore()` in ./platform-utils.main, which answers "was this build
+ * installed from the Snap Store?" by reading the `SNAP` / `SNAP_NAME` env vars. Env vars are
+ * attacker-controlled and leak into child processes, so `isSnapStore()` can be made to return
+ * `true` for a process that is not confined at all.
+ *
+ * This function instead uses two signals a caller cannot set from the environment:
+ * `process.execPath` (the real binary path, under the snap's read-only mount) and the snap
+ * cgroup snapd places the process in. Prefer it over `isSnapStore()` for any decision that
+ * must not be spoofable — notably whether to enable process isolation, which breaks the
+ * xdg-desktop-portal file picker under confinement.
+ *
+ * Unconfirmed detection returns `false` (treated as not-snap), so isolation is applied rather
+ * than skipped.
+ *
+ * Lives here rather than alongside `isSnapStore()` because reading the cgroup needs `fs`, and
+ * platform-utils.main is bundled into the sandboxed preload where Node builtins fail to load.
+ */
+export function isConfinedSnap() {
+  if (!isLinux()) {
+    return false;
+  }
+
+  // Is the running binary under one of our snaps' read-only mounts? execPath is the real,
+  // canonicalized path of the current executable, so — unlike SNAP / SNAP_NAME — nothing in the
+  // caller's environment can fake it.
+  if (!SNAP_EXEC_PATH_PREFIXES.some((prefix) => process.execPath.startsWith(prefix))) {
+    return false;
+  }
+  try {
+    const cgroup = fs.readFileSync("/proc/self/cgroup", "utf8");
+    const CONFINED_SNAP_CGROUP = new RegExp(`snap\\.(${SNAP_STORE_NAMES.join("|")})(?![\\w-])`);
+    return CONFINED_SNAP_CGROUP.test(cgroup);
+  } catch {
+    return false; // can't confirm -> treat as not-snap -> isolate
+  }
+}
+
 export class WindowMain {
   win: BrowserWindow;
   isQuitting = false;
   isClosing = false;
+  private isReloading = false;
 
   private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
@@ -52,6 +125,7 @@ export class WindowMain {
     private shell: SafeShell,
     private argvCallback: (argv: string[]) => void = null,
     private createWindowCallback: (win: BrowserWindow) => void,
+    private focusWindowCallback: () => Promise<void> | void = null,
   ) {}
 
   init(show: boolean = true): Promise<any> {
@@ -63,22 +137,38 @@ export class WindowMain {
         return;
       }
 
-      this.logService.info("Reloading render process");
-      // User might have changed theme, ensure the window is updated.
-      this.win.setBackgroundColor(await this.getBackgroundColor());
-
-      // By default some linux distro collect core dumps on crashes which gets written to disk.
-      if (this.enableRendererProcessForceCrashReload) {
-        const crashEvent = once(this.win.webContents, "render-process-gone");
-        this.win.webContents.forcefullyCrashRenderer();
-        await crashEvent;
+      // LockService can fire reload-process concurrently for each user account.
+      // Skip duplicates so we don't race the crash + reload sequence with itself.
+      if (this.isReloading) {
+        this.logService.info("Reload already in progress, skipping duplicate request");
+        return;
       }
+      this.isReloading = true;
+      try {
+        this.logService.info("Reloading render process");
+        // User might have changed theme, ensure the window is updated.
+        this.win.setBackgroundColor(await this.getBackgroundColor());
 
-      this.win.webContents.reloadIgnoringCache();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.session.clearCache();
-      this.logService.info("Render process reloaded");
+        // By default some linux distro collect core dumps on crashes which gets written to disk.
+        if (this.enableRendererProcessForceCrashReload) {
+          const crashEvent = once(this.win.webContents, "render-process-gone");
+          this.win.webContents.forcefullyCrashRenderer();
+          await crashEvent;
+
+          // Workaround for electron/electron#48661: yielding one event-loop tick
+          // before reloading lets the crashed renderer fully tear down so the
+          // subsequent reloadIgnoringCache() reliably spawns a new renderer.
+          await new Promise((resolve) => setImmediate(resolve));
+        }
+
+        this.win.webContents.reloadIgnoringCache();
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.session.clearCache();
+        this.logService.info("Render process reloaded");
+      } finally {
+        this.isReloading = false;
+      }
     });
 
     ipcMain.on("window-focus", () => {
@@ -134,8 +224,11 @@ export class WindowMain {
             return;
           } else {
             app.on("second-instance", (event, argv, workingDirectory) => {
-              // Someone tried to run a second instance, we should focus our window.
-              if (this.win != null) {
+              // Someone tried to run a second instance (e.g. launching from the desktop
+              // icon or terminal while already running). Always bring us to the foreground.
+              if (this.focusWindowCallback != null) {
+                void this.focusWindowCallback();
+              } else if (this.win != null) {
                 if (this.win.isMinimized() || !this.win.isVisible()) {
                   this.win.show();
                 }
@@ -162,9 +255,12 @@ export class WindowMain {
         // initialization and is ready to create browser windows.
         // Some APIs can only be used after this event occurs.
         app.on("ready", async () => {
+          this.session = session.fromPartition("persist:bitwarden", { cache: false });
+          this.setupAppProtocol();
+
           if (!isDev()) {
             // This currently breaks the file portal for snap https://github.com/flatpak/xdg-desktop-portal/issues/785
-            if (!isSnapStore()) {
+            if (!isConfinedSnap()) {
               this.logService.info(
                 "[Process Isolation] Isolating process from debuggers and memory dumps",
               );
@@ -211,7 +307,9 @@ export class WindowMain {
         app.on("activate", async () => {
           // On OS X it's common to re-create a window in the app when the
           // dock icon is clicked and there are no other windows open.
-          if (this.win == null) {
+          if (this.focusWindowCallback != null) {
+            await this.focusWindowCallback();
+          } else if (this.win == null) {
             await this.createWindow();
           } else {
             // Show the window when clicking on Dock icon
@@ -234,6 +332,57 @@ export class WindowMain {
     }
   }
 
+  private getWindowUrl(partial: Partial<url.UrlObject> = {}): string {
+    // TODO(PM-33211): The custom file scheme only works on servers that support it for CORS (>=2026.3.0).
+    // We have it disabled by default until self-hosted users are updated to maintain compatibility.
+    // When removing this, remember to disable the [FuseV1Options.GrantFileProtocolExtraPrivileges] fuse in after-pack.js.
+    if (process.env.BITWARDEN_USE_CUSTOM_FILE_SCHEME !== "true") {
+      return url.format({
+        protocol: "file:",
+        pathname: path.join(__dirname, "/index.html"),
+        slashes: true,
+        ...partial,
+      });
+    }
+
+    return url.format({
+      protocol: customFileScheme,
+      host: customFileHost,
+      pathname: "index.html",
+      slashes: true,
+      ...partial,
+    });
+  }
+
+  /**
+   * Whether the URL is our own renderer bundle. Accepts both schemes {@link getWindowUrl} can
+   * emit (`file:` and `bw-desktop-file:`) so navigation guards need not know the active build mode.
+   */
+  private isLocalBundleUrl(url: string): boolean {
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(url);
+    } catch {
+      return false;
+    }
+
+    if (parsedUrl.protocol === "file:") {
+      // TODO(PM-33211): remove this branch once the custom-scheme cutover lands. An app no longer
+      // served over file: would keep only a permissive file: attack surface here.
+      //
+      // Check the full path, not the filename: file://attacker.com/index.html would pass a suffix test.
+      // (Hash/query live outside pathname, so index.html#/passkeys still matches.)
+      const bundlePathname = pathToFileURL(path.join(__dirname, "/index.html")).pathname;
+      return parsedUrl.host === "" && parsedUrl.pathname === bundlePathname;
+    }
+
+    if (parsedUrl.protocol === `${customFileScheme}:`) {
+      return parsedUrl.hostname === customFileHost;
+    }
+
+    return false;
+  }
+
   // TODO: REMOVE ONCE WE CAN STOP USING FAKE POP UP BTN FROM TRAY
   // Only used for development
   async loadUrl(targetPath: string, modal: boolean = false) {
@@ -244,22 +393,38 @@ export class WindowMain {
 
     await this.desktopSettingsService.setModalMode(modal);
     await this.win.loadURL(
-      url.format({
-        protocol: "file:",
-        //pathname: `${__dirname}/index.html`,
-        pathname: path.join(__dirname, "/index.html"),
-        slashes: true,
-        hash: targetPath,
-        query: {
-          redirectUrl: targetPath,
-        },
-      }),
+      this.getWindowUrl({ hash: targetPath, query: { redirectUrl: targetPath } }),
       {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
       },
     );
     this.win.once("ready-to-show", () => {
       this.win.show();
+    });
+  }
+
+  /**
+   * Register a custom bw-desktop-file:// protocol handler to serve the renderer's bundled files following Electron's
+   * guidance to use custom schemes for loading local content. Requests to bw-desktop-file://bundle/<path> are
+   * resolved against __dirname (the built output directory) and validated to prevent directory traversal.
+   *
+   * References:
+   *  https://www.electronjs.org/docs/latest/tutorial/security#18-avoid-usage-of-the-file-protocol-and-prefer-usage-of-custom-protocols
+   *  https://www.electronjs.org/docs/latest/api/protocol#protocolhandlescheme-handler
+   */
+  private setupAppProtocol() {
+    this.session.protocol.handle(customFileScheme, (req) => {
+      try {
+        const safePath = resolveProtocolPath(req.url, customFileHost, __dirname);
+        if (safePath !== null) {
+          return net.fetch(pathToFileURL(safePath).toString());
+        }
+      } catch (e) {
+        this.logService.error(`Error handling protocol request for ${req.url}`, e);
+      }
+
+      this.logService.error(`Invalid app protocol request: ${req.url}`);
+      return new Response("bad", { status: 400, headers: { "content-type": "text/html" } });
     });
   }
 
@@ -277,8 +442,6 @@ export class WindowMain {
       this.defaultHeight,
     );
     this.enableAlwaysOnTop = await firstValueFrom(this.desktopSettingsService.alwaysOnTop$);
-
-    this.session = session.fromPartition("persist:bitwarden", { cache: false });
 
     // Create the browser window.
     this.win = new BrowserWindow({
@@ -335,17 +498,12 @@ export class WindowMain {
     }
 
     if (template === "full-app") {
+      // and load the index.html of the app.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       void this.win
-        .loadURL(
-          url.format({
-            protocol: "file:",
-            pathname: path.join(__dirname, "/index.html"),
-            slashes: true,
-          }),
-          {
-            userAgent: cleanUserAgent(this.win.webContents.userAgent),
-          },
-        )
+        .loadURL(this.getWindowUrl(), {
+          userAgent: cleanUserAgent(this.win.webContents.userAgent),
+        })
         .then(() => {
           if (isDev()) {
             this.win.webContents.openDevTools();
@@ -354,10 +512,7 @@ export class WindowMain {
     } else {
       // we're in modal mode - load the passkeys page
       await this.win.loadURL(
-        url.format({
-          protocol: "file:",
-          pathname: path.join(__dirname, "/index.html"),
-          slashes: true,
+        this.getWindowUrl({
           hash: "/passkeys",
           query: {
             redirectUrl: "/passkeys",
@@ -415,6 +570,24 @@ export class WindowMain {
       void this.shell.openExternal(url, UrlType.WebUrl);
 
       return { action: "deny" };
+    });
+
+    // The main window must only ever show the local bundle. Cancelling a
+    // foreign navigation stops the preload re-running and re-exposing
+    // main functions, like window.ipc, on the attacker's page.
+    this.win.webContents.on("will-navigate", (event, url) => {
+      if (!this.isLocalBundleUrl(url)) {
+        event.preventDefault();
+        void this.shell.openExternal(url, UrlType.WebUrl);
+      }
+    });
+
+    // Same purpose as above, but for server-issued redirects
+    this.win.webContents.on("will-redirect", (event, url) => {
+      if (!this.isLocalBundleUrl(url)) {
+        event.preventDefault();
+        void this.shell.openExternal(url, UrlType.WebUrl);
+      }
     });
 
     firstValueFrom(this.desktopSettingsService.preventScreenshots$)

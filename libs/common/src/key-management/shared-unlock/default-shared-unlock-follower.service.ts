@@ -1,16 +1,18 @@
-// eslint-disable-next-line no-restricted-imports
-import { LockService } from "@bitwarden/auth/common";
+import { firstValueFrom, Observable, Subject } from "rxjs";
+
+import { ClientType } from "@bitwarden/client-type";
 // eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SharedUnlockFollower } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid } from "../../platform/abstractions/sdk/sdk.service";
 import { IpcService } from "../../platform/ipc";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
@@ -21,6 +23,8 @@ import { pollForUnlockEvents } from "./unlock-state-poll";
 
 export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerService {
   private follower: SharedUnlockFollower | null = null;
+  private _externalUnlock$ = new Subject<UserId>();
+  readonly externalUnlock$: Observable<UserId> = this._externalUnlock$.asObservable();
 
   constructor(
     private ipcService: IpcService,
@@ -43,7 +47,8 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
-      this.sharedUnlockSettingsService,
+      (userId) => this.enabled(userId),
+      (userId) => this._externalUnlock$.next(userId),
     );
 
     this.follower = SharedUnlockFollower.try_new(this.ipcService.client, sharedUnlockDriver);
@@ -70,7 +75,17 @@ export class DefaultSharedUnlockFollowerService implements SharedUnlockFollowerS
   }
 
   private async enabled(userId: UserId): Promise<boolean> {
-    return await this.sharedUnlockSettingsService.allowSharingUnlockState(userId);
+    if (await firstValueFrom(this.sharedUnlockSettingsService.unlockSharingDisabled$(userId))) {
+      return false;
+    }
+
+    if (this.platformUtilsService.getClientType() === ClientType.Browser) {
+      return await firstValueFrom(
+        this.sharedUnlockSettingsService.allowSharingUnlockStateWithDesktop$(userId),
+      );
+    } else {
+      return true;
+    }
   }
 
   private async onUnlock(userId: UserId, userKey: SymmetricCryptoKey): Promise<void> {

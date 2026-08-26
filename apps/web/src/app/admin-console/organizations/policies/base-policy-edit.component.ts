@@ -1,36 +1,35 @@
 import { Directive, OnInit, Signal, inject, input, signal } from "@angular/core";
 import { FormControl, FormGroup } from "@angular/forms";
-import { Observable, firstValueFrom, of, switchMap } from "rxjs";
+import { Observable, defer, firstValueFrom, of, switchMap } from "rxjs";
 import { Constructor } from "type-fest";
 
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { SavePolicyRequest } from "@bitwarden/common/admin-console/models/request/save-policy.request";
 import { PolicyStatusResponse } from "@bitwarden/common/admin-console/models/response/policy-status.response";
+import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { assertNonNullish } from "@bitwarden/common/auth/utils";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { getById } from "@bitwarden/common/platform/misc";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { OrgKey } from "@bitwarden/common/types/key";
 import { DialogConfig, DialogRef, DialogService } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 
 import { PolicyCategory } from "./pipes/policy-category";
-import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-dialog.component";
 import type { PolicyStep, PolicyStepResult } from "./policy-edit-dialogs/models";
+import type { PolicyEditDialogData, PolicyEditDialogResult } from "./policy-edit-drawer.component";
 
 /**
  * Interface for policy dialog components.
  * Any component that implements this interface can be used as a custom policy edit dialog.
  */
 export interface PolicyDialogComponent {
-  open: (
-    dialogService: DialogService,
-    config: DialogConfig<PolicyEditDialogData>,
-  ) => DialogRef<PolicyEditDialogResult>;
-  openDrawer?: (
+  openDrawer: (
     dialogService: DialogService,
     config: DialogConfig<PolicyEditDialogData>,
   ) => Promise<DialogRef<PolicyEditDialogResult> | undefined>;
@@ -46,10 +45,33 @@ export abstract class BasePolicyEditDefinition {
    */
   abstract name: string;
   /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link name}, shown in the
+   * policies list when {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to {@link name}
+   * when not set.
+   */
+  nameVfo1?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link name} used in the
+   * drawer/dialog title. Falls back to {@link nameVfo1} when not set.
+   */
+  drawerNameVfo1?: string;
+  /**
    * i18n string for the policy description.
-   * This is shown in the list of policies.
+   * This is shown in the list of policies and in the policy edit drawer.
    */
   abstract description: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link description}, shown in
+   * the policies list when {@link FeatureFlag.VFO1Foundation} is enabled. Falls back to
+   * {@link description} when not set.
+   */
+  descriptionVfo1?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link description} used in the
+   * drawer/dialog body. Falls back to {@link descriptionVfo1} when not set.
+   */
+  drawerDescriptionVfo1?: string;
+
   /**
    * The PolicyType enum that this policy represents.
    */
@@ -82,10 +104,30 @@ export abstract class BasePolicyEditDefinition {
   showDescription: boolean = true;
 
   /**
-   * Optional i18n key for a warning callout rendered above the enable/disable toggle.
-   * Used by {@link SimpleTogglePolicyComponent} to avoid per-policy component boilerplate.
+   * Optional i18n key for a warning callout rendered by {@link PolicyEditDrawerComponent}
+   * above the policy form.
    */
   warningKey?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link warningKey}. Falls back
+   * to {@link warningKey} when not set.
+   */
+  warningKeyVfo1?: string;
+
+  /**
+   * Optional i18n key for a prerequisite info callout rendered by {@link PolicyEditDrawerComponent}
+   * above the policy form.
+   */
+  prerequisiteKey?: string;
+  /**
+   * Optional i18n key for the VFO1 "vault terminology" variant of {@link prerequisiteKey}. Falls
+   * back to {@link prerequisiteKey} when not set.
+   */
+  prerequisiteKeyVfo1?: string;
+  /** URL for an optional "learn more" link inside the prerequisite callout. */
+  prerequisiteLinkHref?: string;
+  /** i18n key for the text of {@link prerequisiteLinkHref}. */
+  prerequisiteLinkTextKey?: string;
 
   /**
    * A method that determines whether to display this policy in the Admin Console Policies page.
@@ -97,24 +139,82 @@ export abstract class BasePolicyEditDefinition {
   display$(organization: Organization, configService: ConfigService): Observable<boolean> {
     return of(true);
   }
+
+  /**
+   * Logic for displaying the policy status in the Admin Console.
+   * If this returns true, the policy is shown as enabled. If false, it is shown as disabled.
+   * This uses the `policy.enabled` value by default, which is appropriate for most cases.
+   * You may wish to override this if the UI does not perfectly match the data model, e.g.
+   * you wish to determine policy status based on a `policy.data` value.
+
+   * Note: this only affects policy editing in Admin Console, it does not affect its enforcement.
+   */
+  enabled(policy: PolicyResponse | PolicyStatusResponse): boolean {
+    return policy.enabled;
+  }
 }
 
 /**
- * A component used to edit the policy settings in Admin Console. It is rendered inside the PolicyEditDialogComponent.
+ * Returns the [legacy, VFO1] i18n key pair for a policy's title in the policies list.
+ * Used by {@link PoliciesComponent}.
+ */
+export function policyTitleKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.name, policy.nameVfo1 ?? policy.name];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's title in the drawer/dialog.
+ * Falls back to {@link policyTitleKeys} when no drawer-specific VFO1 key is set.
+ * Used by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
+ */
+export function policyDrawerTitleKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.name, policy.drawerNameVfo1 ?? policy.nameVfo1 ?? policy.name];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's description in the policies list.
+ * Used by {@link PoliciesComponent}.
+ */
+export function policyDescriptionKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [policy.description, policy.descriptionVfo1 ?? policy.description];
+}
+
+/**
+ * Returns the [legacy, VFO1] i18n key pair for a policy's description in the drawer/dialog body.
+ * Falls back to {@link policyDescriptionKeys} when no drawer-specific VFO1 key is set.
+ * Used by {@link PolicyEditDrawerComponent} and {@link MultiStepPolicyEditDialogComponent}.
+ */
+export function policyDrawerDescriptionKeys(policy: BasePolicyEditDefinition): [string, string] {
+  return [
+    policy.description,
+    policy.drawerDescriptionVfo1 ?? policy.descriptionVfo1 ?? policy.description,
+  ];
+}
+
+/**
+ * A component used to edit the policy settings in Admin Console. It is rendered inside the PolicyEditDrawerComponent.
  * This should contain the form controls used to edit the policy (including the Enabled checkbox) and any additional
  * warnings or callouts.
  * See existing implementations as a guide.
  */
 @Directive()
 export abstract class BasePolicyEditComponent implements OnInit {
+  protected readonly accountService = inject(AccountService);
+  protected readonly organizationServcie = inject(OrganizationService);
+  protected readonly keyService = inject(KeyService);
+  protected readonly policyApiService = inject(PolicyApiServiceAbstraction);
+
   readonly policyResponse = input<PolicyStatusResponse | undefined>(undefined);
   readonly policy = input<BasePolicyEditDefinition | undefined>(undefined);
   readonly currentStep = input<Signal<number>>(signal(0));
   readonly organizationId = input<string | undefined>(undefined);
-
-  protected readonly accountService = inject(AccountService);
-  protected readonly keyService = inject(KeyService);
-  protected readonly policyApiService = inject(PolicyApiServiceAbstraction);
+  readonly organization$ = defer(() =>
+    this.accountService.activeAccount$.pipe(
+      getUserId,
+      switchMap((userId) => this.organizationServcie.organizations$(userId)),
+      getById(this.organizationId() ?? this.policyResponse()?.organizationId),
+    ),
+  );
 
   /**
    * Whether the policy is enabled.
@@ -128,8 +228,9 @@ export abstract class BasePolicyEditComponent implements OnInit {
 
   /**
    * Optional multi-step configuration for policies that require multiple steps to complete.
+   * Defaults to a single step that saves the policy.
    */
-  policySteps?: PolicyStep[];
+  policySteps: PolicyStep[] = [{ sideEffect: () => this.savePolicy() }];
 
   ngOnInit(): void {
     this.enabled.setValue(this.policyResponse()?.enabled ?? false);
@@ -173,9 +274,7 @@ export abstract class BasePolicyEditComponent implements OnInit {
 
     const orgKey = orgKeys[this.organizationId() as OrganizationId];
 
-    if (orgKey == null) {
-      throw new Error("No encryption key for this organization.");
-    }
+    assertNonNullish(orgKey, "No encryption key for this organization.");
 
     const request = await this.buildRequest(orgKey);
 

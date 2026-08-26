@@ -1,8 +1,7 @@
-import { InjectionToken } from "@angular/core";
-
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { UnionOfValues } from "@bitwarden/common/vault/types/union-of-values";
+import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 export interface BulkDeleteDialogParams {
   cipherIds?: string[];
@@ -24,4 +23,4 @@ export interface BulkDeleteDialogRef {
   open(params: BulkDeleteDialogParams): Promise<BulkDeleteDialogResult>;
 }
 
-export const BULK_DELETE_DIALOG = new InjectionToken<BulkDeleteDialogRef>("BULK_DELETE_DIALOG");
+export const BULK_DELETE_DIALOG = new SafeInjectionToken<BulkDeleteDialogRef>("BULK_DELETE_DIALOG");

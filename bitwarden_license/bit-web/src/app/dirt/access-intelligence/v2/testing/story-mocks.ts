@@ -10,7 +10,6 @@ import {
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import { TaskMetrics } from "@bitwarden/bit-common/dirt/reports/risk-insights/services";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { Theme, ThemeTypes } from "@bitwarden/common/platform/enums";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
@@ -21,6 +20,7 @@ import { DialogService, I18nMockService } from "@bitwarden/components";
 
 import { ChartExportService } from "../../../shared/chart-export.service";
 import { TrendWidgetData } from "../../activity/trend-widget/trend-widget.component";
+import { AccessIntelligenceCoachmarkStepId } from "../../onboarding/access-intelligence-coachmark-step";
 import { RiskOverTimeService } from "../../services/risk-over-time.service";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
 
@@ -221,7 +221,7 @@ export class MockAccessIntelligenceDataService {
  * Mock DrawerStateService for Storybook stories.
  */
 export class MockDrawerStateService {
-  openDrawer = action("openDrawer");
+  toggleDrawer = action("toggleDrawer");
   closeDrawer = action("closeDrawer");
   readonly drawerState = signal(null);
 }
@@ -284,6 +284,9 @@ export class MockDialogService {
   openSimpleDialog = () => Promise.resolve(true);
 }
 
+export class MockAccessIntelligenceCoachmarkService {
+  readonly activeStepId = signal<AccessIntelligenceCoachmarkStepId | null>(null);
+}
 /**
  * Mock ConfigService for Storybook stories.
  */
@@ -341,7 +344,6 @@ export function themeToolbarDecorator(theme$: BehaviorSubject<Theme>) {
 }
 
 export type TrendMockOptions = {
-  flagEnabled?: boolean;
   data?: TrendWidgetData;
   loading?: boolean;
   error?: string | null;
@@ -349,23 +351,16 @@ export type TrendMockOptions = {
 
 /**
  * Builds the providers that drive the activity-tab trend chart in Storybook
- * stories: the ConfigService feature flag, the RiskOverTimeService data source,
- * and the theming + chart dependencies the rendered {@link TrendWidgetComponent}
- * needs (via {@link buildChartThemeProviders}).
+ * stories: the RiskOverTimeService data source and the theming + chart
+ * dependencies the rendered {@link TrendWidgetComponent} needs (via
+ * {@link buildChartThemeProviders}).
  */
 export function buildTrendChartProviders({
-  flagEnabled = false,
   data = emptyTrendData,
   loading = false,
   error = null,
 }: TrendMockOptions = {}) {
   return [
-    {
-      provide: ConfigService,
-      useValue: {
-        getFeatureFlag$: () => of(flagEnabled),
-      },
-    },
     {
       provide: RiskOverTimeService,
       useValue: {

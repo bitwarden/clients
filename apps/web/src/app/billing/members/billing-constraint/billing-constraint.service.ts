@@ -20,6 +20,8 @@ export interface SeatLimitResult {
   shouldShowUpgradeDialog?: boolean;
 }
 
+export type SeatLimitAction = "invite" | "restore";
+
 @Injectable()
 export class BillingConstraintService {
   constructor(
@@ -61,7 +63,11 @@ export class BillingConstraintService {
     return { canAddUsers: true };
   }
 
-  async seatLimitReached(result: SeatLimitResult, organization: Organization): Promise<boolean> {
+  async seatLimitReached(
+    result: SeatLimitResult,
+    organization: Organization,
+    action: SeatLimitAction = "invite",
+  ): Promise<boolean> {
     if (result.canAddUsers) {
       return false;
     }
@@ -81,7 +87,7 @@ export class BillingConstraintService {
           // If the plan was successfully changed, the seat limit is no longer blocking
           return dialogResult !== ChangePlanDialogResultType.Submitted;
         } else {
-          await this.showSeatLimitReachedDialog(organization);
+          await this.showSeatLimitReachedDialog(organization, action);
           return true;
         }
 
@@ -108,12 +114,17 @@ export class BillingConstraintService {
     return result;
   }
 
-  private async showSeatLimitReachedDialog(organization: Organization): Promise<void> {
-    const dialogContent = this.getSeatLimitReachedDialogContent(organization);
+  private async showSeatLimitReachedDialog(
+    organization: Organization,
+    action: SeatLimitAction,
+  ): Promise<void> {
+    const dialogContent = this.getSeatLimitReachedDialogContent(organization, action);
     const acceptButtonText = this.getSeatLimitReachedDialogAcceptButtonText(organization);
 
     const orgUpgradeSimpleDialogOpts = {
-      title: this.i18nService.t("upgradeOrganization"),
+      title: this.i18nService.t(
+        action === "restore" ? "cannotRestoreAccessError" : "upgradeOrganization",
+      ),
       content: dialogContent,
       type: "primary" as const,
       acceptButtonText,
@@ -140,8 +151,11 @@ export class BillingConstraintService {
     });
   }
 
-  private getSeatLimitReachedDialogContent(organization: Organization): string {
-    const productKey = this.getProductKey(organization);
+  private getSeatLimitReachedDialogContent(
+    organization: Organization,
+    action: SeatLimitAction,
+  ): string {
+    const productKey = this.getProductKey(organization, action);
     return this.i18nService.t(productKey, organization.seats);
   }
 
@@ -159,7 +173,7 @@ export class BillingConstraintService {
     return this.i18nService.t("upgrade");
   }
 
-  private getProductKey(organization: Organization): string {
+  private getProductKey(organization: Organization, action: SeatLimitAction): string {
     const manageBillingText = organization.canEditSubscription
       ? "ManageBilling"
       : "NoManageBilling";
@@ -178,7 +192,8 @@ export class BillingConstraintService {
       default:
         throw new Error(`Unsupported product type: ${organization.productTierType}`);
     }
-    return `${product}InvLimitReached${manageBillingText}`;
+    const actionText = action === "restore" ? "Restore" : "Inv";
+    return `${product}${actionText}LimitReached${manageBillingText}`;
   }
 
   async navigateToPaymentMethod(organization: Organization): Promise<void> {

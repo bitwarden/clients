@@ -4,10 +4,16 @@ import { of } from "rxjs";
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import { PasswordInputResult } from "@bitwarden/auth/angular";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Account } from "@bitwarden/common/auth/abstractions/account.service";
 import { MasterPasswordApiService } from "@bitwarden/common/auth/abstractions/master-password-api.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import {
+  OrganizationInvite,
+  OrganizationInviteService,
+} from "@bitwarden/common/auth/organization-invite";
 import { MasterPasswordUnlockService } from "@bitwarden/common/key-management/master-password/abstractions/master-password-unlock.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import {
@@ -20,7 +26,9 @@ import {
 import { makeSymmetricCryptoKey, mockAccountInfoWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
-import { DEFAULT_KDF_CONFIG, KeyService } from "@bitwarden/key-management";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { DEFAULT_KDF_CONFIG } from "@bitwarden/legacy-crypto";
 
 import {
   ChangePasswordService,
@@ -33,6 +41,8 @@ describe("DefaultChangePasswordService", () => {
   let masterPasswordApiService: MockProxy<MasterPasswordApiService>;
   let masterPasswordService: MockProxy<InternalMasterPasswordServiceAbstraction>;
   let masterPasswordUnlockService: MockProxy<MasterPasswordUnlockService>;
+  let policyService: MockProxy<PolicyService>;
+  let organizationInviteService: MockProxy<OrganizationInviteService>;
 
   let sut: ChangePasswordService;
 
@@ -52,12 +62,16 @@ describe("DefaultChangePasswordService", () => {
     masterPasswordApiService = mock<MasterPasswordApiService>();
     masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
     masterPasswordUnlockService = mock<MasterPasswordUnlockService>();
+    policyService = mock<PolicyService>();
+    organizationInviteService = mock<OrganizationInviteService>();
 
     sut = new DefaultChangePasswordService(
       keyService,
       masterPasswordApiService,
       masterPasswordService,
       masterPasswordUnlockService,
+      policyService,
+      organizationInviteService,
     );
   });
 
@@ -140,7 +154,7 @@ describe("DefaultChangePasswordService", () => {
             "currentMasterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
         };
 
-        request = PasswordRequest.newConstructor(
+        request = new PasswordRequest(
           currentAuthenticationData.masterPasswordAuthenticationHash,
           newAuthenticationData,
           newUnlockData,
@@ -373,6 +387,111 @@ describe("DefaultChangePasswordService", () => {
 
       // Assert
       expect(shouldNavigateToRoot).toBe(false);
+    });
+  });
+
+  describe("resolveMasterPasswordPolicyOptions()", () => {
+    const stateOptions = { minLength: 10 } as MasterPasswordPolicyOptions;
+    const inviteOptions = { minLength: 14 } as MasterPasswordPolicyOptions;
+    const combinedOptions = { minLength: 14 } as MasterPasswordPolicyOptions;
+    const invite = { token: "tok" } as OrganizationInvite;
+
+    it("returns the combined options when both state and invite contribute MP requirements", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        inviteOptions,
+      );
+      policyService.combineMasterPasswordPolicyOptions.mockReturnValue(combinedOptions);
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(combinedOptions);
+      expect(policyService.masterPasswordPolicyOptions$).toHaveBeenCalledWith(userId);
+      expect(
+        organizationInviteService.getMasterPasswordPolicyOptionsForInvite,
+      ).toHaveBeenCalledWith(invite);
+      expect(policyService.combineMasterPasswordPolicyOptions).toHaveBeenCalledWith(
+        stateOptions,
+        inviteOptions,
+      );
+    });
+
+    it("returns undefined when both sources contribute and the combiner returns undefined", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        inviteOptions,
+      );
+      policyService.combineMasterPasswordPolicyOptions.mockReturnValue(undefined);
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBeUndefined();
+    });
+
+    it("returns the invite options when state has no MP policy", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        inviteOptions,
+      );
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(inviteOptions);
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns the state options when there is no stashed invite", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(stateOptions);
+      expect(
+        organizationInviteService.getMasterPasswordPolicyOptionsForInvite,
+      ).not.toHaveBeenCalled();
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns the state options when the invite has no MP policy", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(stateOptions));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        undefined,
+      );
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBe(stateOptions);
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when state has no MP policy and the stashed invite's org also has none", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(invite);
+      organizationInviteService.getMasterPasswordPolicyOptionsForInvite.mockResolvedValue(
+        undefined,
+      );
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBeUndefined();
+      expect(policyService.combineMasterPasswordPolicyOptions).not.toHaveBeenCalled();
+    });
+
+    it("returns undefined when neither state nor invite contribute any MP policy", async () => {
+      policyService.masterPasswordPolicyOptions$.mockReturnValue(of(undefined));
+      organizationInviteService.getOrganizationInvite.mockResolvedValue(null);
+
+      const result = await sut.resolveMasterPasswordPolicyOptions(userId);
+
+      expect(result).toBeUndefined();
+      expect(
+        organizationInviteService.getMasterPasswordPolicyOptionsForInvite,
+      ).not.toHaveBeenCalled();
     });
   });
 });

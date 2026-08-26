@@ -1,8 +1,8 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { formatArgsForCodeSnippet } from "@bitwarden/storybook";
 
-import { formatArgsForCodeSnippet } from "../../../../.storybook/format-args-for-code-snippet";
 import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 import { LinkModule } from "../link";
@@ -92,6 +92,26 @@ export const TitleBannerBase: Story = {
             <button bitButton type="button" [buttonType]="variant + 'Outline'" size="small">Cancel</button>
             <button bitButton type="button" [buttonType]="variant" size="small">Continue</button>
           </ng-container>
+        </bit-banner>
+      `,
+    };
+  },
+  args: {
+    variant: "primary",
+  },
+};
+
+export const TitleBannerNoActions: Story = {
+  render: (args) => {
+    return {
+      props: args,
+      template: /*html*/ `
+        <bit-banner
+          [variant]="variant"
+          title="Integration is the key"
+          (dismiss)="dismiss($event)"
+        >
+          Bitwarden is the most trusted password manager. With many tools to make your work even more efficient.
         </bit-banner>
       `,
     };

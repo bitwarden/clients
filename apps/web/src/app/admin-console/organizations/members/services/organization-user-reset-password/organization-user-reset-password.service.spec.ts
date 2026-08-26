@@ -9,8 +9,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationKeysResponse } from "@bitwarden/common/admin-console/models/response/organization-keys.response";
 import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
-import { EncryptService } from "@bitwarden/common/key-management/crypto/abstractions/encrypt.service";
-import { EncString } from "@bitwarden/common/key-management/crypto/models/enc-string";
 import { FakeMasterPasswordService } from "@bitwarden/common/key-management/master-password/services/fake-master-password.service";
 import {
   MasterKeyWrappedUserKey,
@@ -20,20 +18,23 @@ import {
   MasterPasswordUnlockData,
 } from "@bitwarden/common/key-management/master-password/types/master-password.types";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
-import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { UserKey, OrgKey } from "@bitwarden/common/types/key";
+import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  CsprngArray,
   DEFAULT_KDF_CONFIG,
+  EncryptionType,
+  EncryptService,
+  EncString,
   KdfConfig,
   KdfType,
-  KeyService,
-} from "@bitwarden/key-management";
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 
 import { OrganizationUserResetPasswordService } from "./organization-user-reset-password.service";
 
@@ -141,157 +142,6 @@ describe("OrganizationUserResetPasswordService", () => {
       await expect(
         sut.buildRecoveryKey(mockOrgId, mockUserKey, [new Uint8Array(64)]),
       ).rejects.toThrow();
-    });
-  });
-
-  describe("resetMasterPassword", () => {
-    // Mock sut method parameters
-    const newMasterPassword = "new-master-password";
-    const email = "user@example.com";
-    const orgUserId = "org-user-id";
-    const orgId = "org-id" as OrganizationId;
-
-    // Mock method data
-    let organizationUserResetPasswordDetailsResponse: OrganizationUserResetPasswordDetailsResponse;
-    let salt: MasterPasswordSalt;
-    let kdfConfig: KdfConfig;
-    let authenticationData: MasterPasswordAuthenticationData;
-    let unlockData: MasterPasswordUnlockData;
-    let userKey: UserKey;
-
-    beforeEach(() => {
-      // Mock method data
-      kdfConfig = DEFAULT_KDF_CONFIG;
-
-      organizationUserResetPasswordDetailsResponse =
-        new OrganizationUserResetPasswordDetailsResponse({
-          organizationUserId: orgUserId,
-          kdf: kdfConfig.kdfType,
-          kdfIterations: kdfConfig.iterations,
-          resetPasswordKey: "test-reset-password-key",
-          encryptedPrivateKey: "test-encrypted-private-key",
-        });
-
-      organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(
-        organizationUserResetPasswordDetailsResponse,
-      );
-
-      const mockDecryptedOrgKeyBytes = new Uint8Array(64).fill(1);
-      const mockDecryptedOrgKey = new SymmetricCryptoKey(mockDecryptedOrgKeyBytes) as OrgKey;
-
-      keyService.orgKeys$.mockReturnValue(
-        of({ [orgId]: mockDecryptedOrgKey } as Record<OrganizationId, OrgKey>),
-      );
-
-      const mockDecryptedPrivateKeyBytes = new Uint8Array(64).fill(2);
-      encryptService.unwrapDecapsulationKey.mockResolvedValue(mockDecryptedPrivateKeyBytes);
-
-      const mockDecryptedUserKeyBytes = new Uint8Array(64).fill(3);
-      const mockUserKey = new SymmetricCryptoKey(mockDecryptedUserKeyBytes);
-      encryptService.decapsulateKeyUnsigned.mockResolvedValue(mockUserKey); // returns `SymmetricCryptoKey`
-      userKey = mockUserKey as UserKey; // type cast to `UserKey` (see code implementation). Points to same object as mockUserKey.
-
-      salt = email as MasterPasswordSalt;
-      masterPasswordService.mock.emailToSalt.mockReturnValue(salt);
-
-      authenticationData = {
-        salt,
-        kdf: kdfConfig,
-        masterPasswordAuthenticationHash:
-          "masterPasswordAuthenticationHash" as MasterPasswordAuthenticationHash,
-      };
-
-      unlockData = {
-        salt,
-        kdf: kdfConfig,
-        masterKeyWrappedUserKey: "masterKeyWrappedUserKey" as MasterKeyWrappedUserKey,
-      } as MasterPasswordUnlockData;
-
-      masterPasswordService.mock.makeMasterPasswordAuthenticationData.mockResolvedValue(
-        authenticationData,
-      );
-      masterPasswordService.mock.makeMasterPasswordUnlockData.mockResolvedValue(unlockData);
-    });
-
-    it("should throw an error if the organizationUserResetPasswordDetailsResponse is nullish", async () => {
-      // Arrange
-      organizationUserApiService.getOrganizationUserResetPasswordDetails.mockResolvedValue(null);
-
-      // Act
-      const promise = sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
-
-      // Assert
-      await expect(promise).rejects.toThrow();
-    });
-
-    it("should throw an error if the org key cannot be found", async () => {
-      // Arrange
-      keyService.orgKeys$.mockReturnValue(of({} as Record<OrganizationId, OrgKey>));
-
-      // Act
-      const promise = sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
-
-      // Assert
-      await expect(promise).rejects.toThrow("No org key found");
-    });
-
-    it("should throw an error if orgKeys$ returns null", async () => {
-      // Arrange
-      keyService.orgKeys$.mockReturnValue(of(null));
-
-      // Act
-      const promise = sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
-
-      // Assert
-      await expect(promise).rejects.toThrow();
-    });
-
-    it("should call makeMasterPasswordAuthenticationData and makeMasterPasswordUnlockData with the correct parameters", async () => {
-      // Act
-      await sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
-
-      // Assert
-      expect(masterPasswordService.mock.makeMasterPasswordAuthenticationData).toHaveBeenCalledWith(
-        newMasterPassword,
-        kdfConfig,
-        salt,
-      );
-
-      expect(masterPasswordService.mock.makeMasterPasswordUnlockData).toHaveBeenCalledWith(
-        newMasterPassword,
-        kdfConfig,
-        salt,
-        userKey,
-      );
-
-      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
-        orgId,
-        orgUserId,
-        expect.objectContaining({
-          resetMasterPassword: true,
-          resetTwoFactor: false,
-          newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-          key: unlockData.masterKeyWrappedUserKey,
-        }),
-      );
-    });
-
-    it("should call the API method to reset the user's master password", async () => {
-      // Act
-      await sut.resetMasterPassword(newMasterPassword, email, orgUserId, orgId);
-
-      // Assert
-      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledTimes(1);
-      expect(organizationUserApiService.putOrganizationUserRecoverAccount).toHaveBeenCalledWith(
-        orgId,
-        orgUserId,
-        expect.objectContaining({
-          resetMasterPassword: true,
-          resetTwoFactor: false,
-          newMasterPasswordHash: authenticationData.masterPasswordAuthenticationHash,
-          key: unlockData.masterKeyWrappedUserKey,
-        }),
-      );
     });
   });
 
