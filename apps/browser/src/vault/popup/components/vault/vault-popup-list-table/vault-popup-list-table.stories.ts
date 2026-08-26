@@ -37,20 +37,12 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import {
-  MY_VAULT,
-  NO_FOLDER,
-  PasswordRepromptService,
-  VaultCopyButtonsService,
-} from "@bitwarden/vault";
+import { MY_VAULT, PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
 
 import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
-import {
-  FilterOptionCounts,
-  VaultPopupListTableFiltersService,
-} from "../../../services/vault-popup-list-table-filters.service";
+import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import { VaultSection } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
@@ -271,34 +263,6 @@ const CIPHER_TYPE_OPTIONS = [
   { value: CipherType.SecureNote, label: "Note" },
 ];
 
-/**
- * Option counts derived from the story's own ciphers, so they can't drift from the rows on screen.
- * Mirrors the real service: counts are absolute, so the applied filters don't narrow them.
- */
-const buildOptionCounts = (ciphers: PopupCipherViewLike[]): FilterOptionCounts => {
-  const counts: FilterOptionCounts = {
-    cipherType: new Map<CipherType, number>(),
-    organization: new Map<string, number>(),
-    collection: new Map<string, number>(),
-    folder: new Map<string, number>(),
-  };
-
-  const increment = <K>(map: Map<K, number>, key: K) => {
-    map.set(key, (map.get(key) ?? 0) + 1);
-  };
-
-  for (const cipher of ciphers) {
-    increment(counts.cipherType, (cipher as CipherView).type);
-    increment(counts.organization, cipher.organizationId ?? MY_VAULT);
-    for (const collectionId of cipher.collectionIds ?? []) {
-      increment(counts.collection, collectionId);
-    }
-    increment(counts.folder, cipher.folderId ?? NO_FOLDER);
-  }
-
-  return counts;
-};
-
 const buildProviders = (args: StoryArgs) => {
   const autoFillCiphers$ = new BehaviorSubject(args.autoFillCiphers);
   const favoriteCiphers$ = new BehaviorSubject(args.favoriteCiphers);
@@ -344,14 +308,6 @@ const buildProviders = (args: StoryArgs) => {
         organizations$: of(ORGANIZATION_OPTIONS),
         collections$: of(COLLECTION_OPTIONS),
         folders$: of(FOLDER_OPTIONS),
-        // Counted across every section, so the chip counts cover the whole list.
-        filterOptionCounts$: of(
-          buildOptionCounts([
-            ...args.autoFillCiphers,
-            ...args.favoriteCiphers,
-            ...args.filteredCiphers,
-          ]),
-        ),
       },
     },
     {

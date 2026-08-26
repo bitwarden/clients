@@ -459,14 +459,6 @@ const buildProviders = (args: StoryArgs) => {
         organizations$: of(FILTER_ORGANIZATION_OPTIONS),
         collections$: of(FILTER_COLLECTION_OPTIONS),
         folders$: of(FILTER_FOLDER_OPTIONS),
-        // Empty maps, so the chips' option counts fall back to zero; counts against real ciphers
-        // are exercised in the list-table stories.
-        filterOptionCounts$: of({
-          cipherType: new Map(),
-          organization: new Map(),
-          collection: new Map(),
-          folder: new Map(),
-        }),
       },
     },
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },

@@ -43,10 +43,7 @@ import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vau
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
-import {
-  FilterOptionCounts,
-  VaultPopupListTableFiltersService,
-} from "../../../services/vault-popup-list-table-filters.service";
+import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -131,13 +128,6 @@ describe("VaultPopupListTableComponent", () => {
   const collections$ = new BehaviorSubject<ChipFilterOption<CollectionView>[]>([]);
   const folders$ = new BehaviorSubject<ChipFilterOption<FolderView>[]>([]);
 
-  const filterOptionCounts$ = new BehaviorSubject<FilterOptionCounts>({
-    cipherType: new Map(),
-    organization: new Map(),
-    collection: new Map(),
-    folder: new Map(),
-  });
-
   const vaultPopupListTableFiltersService = {
     restoreFilters$: jest.fn().mockReturnValue(of({})),
     saveFilters: jest.fn(),
@@ -146,7 +136,6 @@ describe("VaultPopupListTableComponent", () => {
     organizations$: organizations$.asObservable(),
     collections$: collections$.asObservable(),
     folders$: folders$.asObservable(),
-    filterOptionCounts$: filterOptionCounts$.asObservable(),
   };
 
   const compactModeEnabled$ = new BehaviorSubject<boolean>(false);

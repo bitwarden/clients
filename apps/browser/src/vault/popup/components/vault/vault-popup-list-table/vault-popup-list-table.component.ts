@@ -63,10 +63,7 @@ import {
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
-import {
-  FilterOptionCounts,
-  VaultPopupListTableFiltersService,
-} from "../../../services/vault-popup-list-table-filters.service";
+import { VaultPopupListTableFiltersService } from "../../../services/vault-popup-list-table-filters.service";
 import {
   VaultPopupListTableService,
   VaultTableRow,
@@ -272,37 +269,6 @@ export class VaultPopupListTableComponent {
     }
     return [...groups.values()].sort((a, b) => a.name.localeCompare(b.name));
   });
-
-  /**
-   * Item counts per filter option. The table can't derive these itself: `bit-table-v2` counts its
-   * own rows after the `[filter]` predicate is applied, so every unselected option would read
-   * zero. The service counts the whole vault instead.
-   */
-  private readonly optionCounts = toSignal(this.listFiltersService.filterOptionCounts$, {
-    initialValue: {
-      cipherType: new Map(),
-      organization: new Map(),
-      collection: new Map(),
-      folder: new Map(),
-    } as FilterOptionCounts,
-  });
-
-  protected cipherTypeCount(type: CipherType): number {
-    return this.optionCounts().cipherType.get(type) ?? 0;
-  }
-
-  protected organizationCount(organization: Organization): number {
-    return this.optionCounts().organization.get(organization.id) ?? 0;
-  }
-
-  protected collectionCount(collection: CollectionView): number {
-    return this.optionCounts().collection.get(collection.id) ?? 0;
-  }
-
-  /** "Items with no folder" has no id, so it counts under {@link NO_FOLDER}. */
-  protected folderCount(folder: FolderView): number {
-    return this.optionCounts().folder.get(folder.id ?? NO_FOLDER) ?? 0;
-  }
 
   protected readonly itemHeight = toSignal(
     this.compactModeService.enabled$.pipe(map((enabled) => (enabled ? 53 : 59))),

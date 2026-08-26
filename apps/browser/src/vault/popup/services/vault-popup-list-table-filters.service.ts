@@ -33,7 +33,6 @@ import {
   CIPHER_MENU_ITEMS,
   DIALOG_CIPHER_MENU_ITEMS,
 } from "@bitwarden/common/vault/types/cipher-menu-items";
-import { CipherViewLikeUtils } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { BitwardenIcon, ChipFilterOption } from "@bitwarden/components";
 import { MY_VAULT, NO_FOLDER, Vfo1TerminologyService } from "@bitwarden/vault";
 
@@ -41,20 +40,6 @@ import { PopupCipherViewLike } from "../views/popup-cipher.view";
 
 /** Nesting delimiter for folder path segments. */
 const NESTING_DELIMITER = "/";
-
-/**
- * Per-option item counts for each filter dimension. Shown as faceted counts next to
- * each `bit-filter-menu` option in the vault popup list table toolbar.
- */
-export type FilterOptionCounts = {
-  cipherType: Map<CipherType, number>;
-  /** Keyed by organization id, or {@link MY_VAULT} for personally-owned ciphers. */
-  organization: Map<string, number>;
-  /** Keyed by collection id. */
-  collection: Map<string, number>;
-  /** Keyed by folder id, or {@link NO_FOLDER} for ciphers with no folder. */
-  folder: Map<string, number>;
-};
 
 /** Persisted filter state for the view cache. */
 interface CachedTableFilterState {
@@ -200,58 +185,6 @@ export class VaultPopupListTableFiltersService {
       }),
     );
   }
-
-  // ── Filter option counts ─────────────────────────────────────────────────
-
-  /**
-   * Per-option item counts computed from the full vault (before any filter is applied).
-   * The table cannot derive these itself because `bit-table-v2` counts its own rows —
-   * already narrowed upstream — so every unselected option would read zero.
-   *
-   * Keyed by string id; sentinels {@link MY_VAULT} and {@link NO_FOLDER}
-   * cover the personally-owned and no-folder cases respectively.
-   */
-  filterOptionCounts$: Observable<FilterOptionCounts> = this.activeUserId$.pipe(
-    switchMap((userId) =>
-      this.cipherService
-        .cipherListViews$(userId)
-        .pipe(filter((ciphers): ciphers is NonNullable<typeof ciphers> => ciphers != null)),
-    ),
-    map((ciphers) => (ciphers ? (Object.values(ciphers) as PopupCipherViewLike[]) : [])),
-    map((ciphers) => {
-      const counts: FilterOptionCounts = {
-        cipherType: new Map(),
-        organization: new Map(),
-        collection: new Map(),
-        folder: new Map(),
-      };
-
-      for (const cipher of ciphers) {
-        if (CipherViewLikeUtils.isDeleted(cipher)) {
-          continue;
-        }
-
-        const type = CipherViewLikeUtils.getType(cipher);
-        counts.cipherType.set(type, (counts.cipherType.get(type) ?? 0) + 1);
-
-        const orgKey = idString(cipher.organizationId) ?? MY_VAULT;
-        counts.organization.set(orgKey, (counts.organization.get(orgKey) ?? 0) + 1);
-
-        for (const colId of cipher.collectionIds ?? []) {
-          const colKey = idString(colId);
-          if (colKey) {
-            counts.collection.set(colKey, (counts.collection.get(colKey) ?? 0) + 1);
-          }
-        }
-
-        const folderKey = idString(cipher.folderId) ?? NO_FOLDER;
-        counts.folder.set(folderKey, (counts.folder.get(folderKey) ?? 0) + 1);
-      }
-
-      return counts;
-    }),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
 
   // ── Filter chip options ──────────────────────────────────────────────────
 
