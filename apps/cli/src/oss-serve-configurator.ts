@@ -62,6 +62,7 @@ export class OssServeConfigurator {
       this.serviceContainer.totpService,
       this.serviceContainer.auditService,
       this.serviceContainer.keyService,
+      this.serviceContainer.legacyCompatKeyService,
       this.serviceContainer.encryptService,
       this.serviceContainer.searchService,
       this.serviceContainer.apiService,
@@ -123,7 +124,8 @@ export class OssServeConfigurator {
       this.serviceContainer.syncService,
       this.serviceContainer.accountService,
       this.serviceContainer.authService,
-      this.serviceContainer.userAutoUnlockKeyService,
+      this.serviceContainer.unlockService,
+      this.serviceContainer.logService,
     );
     this.deleteCommand = new DeleteCommand(
       this.serviceContainer.cipherService,

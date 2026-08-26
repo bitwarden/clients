@@ -11,6 +11,9 @@
   "favorites": {
     "message": "收藏夹"
   },
+  "favoritesFilterTooltip": {
+    "message": "将项目标记为收藏以在此处筛选它们。"
+  },
   "unfavorite": {
     "message": "取消收藏"
   },
@@ -105,16 +108,67 @@
     "message": "已共享"
   },
   "sharedFolder": {
-    "message": "共享的文件夹"
+    "message": "共享文件夹"
   },
   "sharedFolders": {
-    "message": "共享的文件夹"
+    "message": "共享文件夹"
   },
   "myFolder": {
     "message": "我的文件夹"
   },
   "myFolders": {
     "message": "我的文件夹"
+  },
+  "foldersFilterTooltip": {
+    "message": "将文件夹添加到项目以在此处筛选它们。"
+  },
+  "addSharedFolder": {
+    "message": "添加共享文件夹"
+  },
+  "newSharedFolder": {
+    "message": "新增共享文件夹"
+  },
+  "searchSharedFolder": {
+    "message": "搜索共享文件夹"
+  },
+  "searchMyFolder": {
+    "message": "搜索我的文件夹"
+  },
+  "viewSharedFolderWithName": {
+    "message": "查看共享文件夹 - $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Shared folder 1"
+      }
+    }
+  },
+  "deleteSharedFolder": {
+    "message": "删除共享文件夹"
+  },
+  "deleteSharedFoldersCount": {
+    "message": "删除 $COUNT$ 个共享文件夹",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "deleteSharedFolderKeepItemsDesc": {
+    "message": "此共享文件夹将被永久删除。文件夹中的项目将不会被删除。"
+  },
+  "deleteSharedFoldersKeepItemsDesc": {
+    "message": "这些共享文件夹将被永久删除。文件夹中的项目将不会被删除。"
+  },
+  "deleteItemsAndSharedFoldersDesc": {
+    "message": "所选项目和共享文件夹将被永久删除。"
+  },
+  "sharedFolderDeleted": {
+    "message": "共享文件夹已删除"
+  },
+  "sharedFoldersDeleted": {
+    "message": "共享文件夹已删除"
   },
   "share": {
     "message": "共享"
@@ -142,7 +196,7 @@
     "message": "欢迎回来"
   },
   "moveToOrgDesc": {
-    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转让给该组织。移动后，您将不再是此项目的直接所有者。"
+    "message": "选择一个您想将此项目移至的组织。移动到组织会将该项目的所有权转移给该组织。移动后，您将不再是此项目的直接所有者。"
   },
   "attachments": {
     "message": "附件"
@@ -470,6 +524,9 @@
   },
   "launch": {
     "message": "前往"
+  },
+  "launchWebsite": {
+    "message": "打开网站"
   },
   "copyValue": {
     "message": "复制值",
@@ -878,6 +935,60 @@
   "owner": {
     "message": "所有者"
   },
+  "sharedFolderAriaLabel": {
+    "message": "共享文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "collectionAriaLabel": {
+    "message": "集合 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "marketing"
+      }
+    }
+  },
+  "myFolderAriaLabel": {
+    "message": "我的文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "banking"
+      }
+    }
+  },
+  "folderAriaLabel": {
+    "message": "文件夹 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "networking"
+      }
+    }
+  },
+  "ownerAriaLabel": {
+    "message": "所有者 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "vaultAriaLabel": {
+    "message": "密码库 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
   "addField": {
     "message": "添加字段"
   },
@@ -1082,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "复制验证码 (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "复制 $CIPHERNAME$ 中的 $FIELD$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "复制私钥"
@@ -1904,6 +2001,12 @@
   "showIconsChangePasswordUrls": {
     "message": "显示网站图标并获取更改密码的 URL"
   },
+  "showQuickCopyActionsInVault": {
+    "message": "在密码库中显示快速复制操作"
+  },
+  "noDetailsToCopy": {
+    "message": "没有可复制的详细信息"
+  },
   "runInBackground": {
     "message": "保持 Bitwarden 在后台运行"
   },
@@ -2000,6 +2103,21 @@
   "copyVerificationCode": {
     "message": "复制验证码"
   },
+  "noUsername": {
+    "message": "没有用户名"
+  },
+  "noPassword": {
+    "message": "没有密码"
+  },
+  "noVerificationCode": {
+    "message": "没有验证码"
+  },
+  "noNumber": {
+    "message": "没有号码"
+  },
+  "noSecurityCode": {
+    "message": "没有安全码"
+  },
   "copyUsername": {
     "message": "复制用户名"
   },
@@ -2018,9 +2136,6 @@
     "message": "复制安全码",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "卡号"
-  },
   "premiumMembership": {
     "message": "高级版成员资格"
   },
@@ -2030,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "您可以在 bitwarden.com 网页密码库管理您的成员资格。现在要访问此网站吗？"
   },
-  "premiumRefresh": {
-    "message": "刷新成员资格"
-  },
-  "premiumNotCurrentMember": {
-    "message": "您目前不是高级版成员。"
-  },
-  "premiumSignUpAndGet": {
-    "message": "注册高级版成员资格并获得："
-  },
   "premiumSignUpStorage": {
     "message": "1 GB 文件附件加密存储空间。"
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ 文件附件加密存储空间。",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "专有的两步登录选项，例如 YubiKey 和 Duo。"
-  },
-  "premiumSignUpReports": {
-    "message": "密码健康、账户体检以及数据泄露报告，保障您的密码库安全。"
-  },
-  "premiumSignUpTotp": {
-    "message": "用于密码库中登录项目的 TOTP 验证码 (2FA) 生成器。"
-  },
-  "premiumSignUpSupport": {
-    "message": "优先客户支持。"
-  },
-  "premiumSignUpFuture": {
-    "message": "未来的更多高级版功能。敬请期待！"
   },
   "premiumPurchase": {
     "message": "购买高级版"
   },
   "premiumPurchaseAlertV2": {
     "message": "您可以在 Bitwarden 网页 App 的账户设置中购买高级版。"
-  },
-  "premiumCurrentMember": {
-    "message": "您是高级版成员！"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "感谢您支持 Bitwarden。"
-  },
-  "premiumPrice": {
-    "message": "所有功能仅需 $PRICE$ /年！",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "月"
@@ -2149,6 +2216,92 @@
   },
   "selectAll": {
     "message": "选择所有"
+  },
+  "selectAllRows": {
+    "message": "选择所有行"
+  },
+  "selectRow": {
+    "message": "选择行"
+  },
+  "showingItemRange": {
+    "message": "显示 $START$ - $END$ / $TOTAL$",
+    "placeholders": {
+      "start": {
+        "content": "$1",
+        "example": "1"
+      },
+      "end": {
+        "content": "$2",
+        "example": "10"
+      },
+      "total": {
+        "content": "$3",
+        "example": "50"
+      }
+    }
+  },
+  "rowsPerPage": {
+    "message": "每页行数"
+  },
+  "rowsPerPageOption": {
+    "message": "每页 $COUNT$ 行",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "itemCount": {
+    "message": "$COUNT$ 个项目",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "12"
+      }
+    }
+  },
+  "all": {
+    "message": "全部"
+  },
+  "clearAll": {
+    "message": "清除全部"
+  },
+  "done": {
+    "message": "完成"
+  },
+  "filter": {
+    "message": "筛选"
+  },
+  "filtersSelected": {
+    "message": "已选择 $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "previousPage": {
+    "message": "上一页"
+  },
+  "nextPage": {
+    "message": "下一页"
+  },
+  "goToPage": {
+    "message": "跳转至..."
+  },
+  "ofPageCount": {
+    "message": "/ $COUNT$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "15"
+      }
+    }
+  },
+  "noMatchingItems": {
+    "message": "没有匹配的项目"
   },
   "selected": {
     "message": "已选择"
@@ -2392,9 +2545,6 @@
   },
   "filePasswordConfirmationMismatch": {
     "message": "「文件密码」和「确认文件密码」不匹配。"
-  },
-  "done": {
-    "message": "完成"
   },
   "warning": {
     "message": "警告",
@@ -3305,6 +3455,30 @@
   "options": {
     "message": "选项"
   },
+  "moreOptions": {
+    "message": "更多选项"
+  },
+  "optionsForItem": {
+    "message": "$NAME$ 的选项",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Google Login"
+      }
+    }
+  },
+  "noSharedFolder": {
+    "message": "没有共享文件夹"
+  },
+  "filterByName": {
+    "message": "筛选为 $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Engineering"
+      }
+    }
+  },
   "sessionTimeout": {
     "message": "您的会话已超时。请返回然后尝试重新登录。"
   },
@@ -3615,6 +3789,14 @@
         "example": "JustTrust.us"
       }
     }
+  },
+  "forwarderWebsitePrefix": {
+    "message": "添加网站前缀",
+    "description": "Labels the option to use the current website as a prefix for Fastmail masked email addresses"
+  },
+  "forwarderWebsitePrefixHint": {
+    "message": "启用后，当前网站的域名将被用作生成电子邮箱地址的前缀",
+    "description": "Hint text for the website prefix option in Fastmail forwarder settings"
   },
   "hostname": {
     "message": "主机名",
@@ -4220,8 +4402,29 @@
       }
     }
   },
+  "importPartialErrorTitleSingular": {
+    "message": "$COUNT$ 个项目将被跳过",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "1"
+      }
+    }
+  },
   "importPartialErrorDescription": {
     "message": "以下项目无法读取，将不会包含在您的导入中："
+  },
+  "importSkipReasonSshKeyParse": {
+    "message": "此 SSH 密钥无法导入"
+  },
+  "importSkipReasonUnsupportedType": {
+    "message": "不受支持的项目类型"
+  },
+  "importSkipReasonGeneric": {
+    "message": "此项目无法导入"
+  },
+  "identifier": {
+    "message": "标识符"
   },
   "contact": {
     "message": "联系人"
@@ -4300,6 +4503,79 @@
   },
   "noFileChosen": {
     "message": "未选择文件"
+  },
+  "noFileSelected": {
+    "message": "未选择文件"
+  },
+  "fileChosen": {
+    "message": "已选择文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "fileAdded": {
+    "message": "已添加文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "filesAdded": {
+    "message": "已添加 $COUNT$ 个文件：$FILE_NAMES$",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      },
+      "file_names": {
+        "content": "$2",
+        "example": "a.txt, b.txt, c.txt"
+      }
+    }
+  },
+  "fileRemoved": {
+    "message": "已移除文件：$FILE_NAME$",
+    "placeholders": {
+      "file_name": {
+        "content": "$1",
+        "example": "image.png"
+      }
+    }
+  },
+  "oneFileUploaded": {
+    "message": "1 个文件已上传"
+  },
+  "filesUploaded": {
+    "message": "$COUNT$ 个文件已上传",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "uploadedFiles": {
+    "message": "已上传文件"
+  },
+  "clickToUploadOrDragAndDrop": {
+    "message": "点击上传或拖放至此"
+  },
+  "chooseFiles": {
+    "message": "选择文件"
+  },
+  "maxFileSizeParam": {
+    "message": "最大文件大小：$SIZE$ MB",
+    "placeholders": {
+      "size": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
   },
   "orCopyPasteFileContents": {
     "message": "或复制/粘贴要导入的文件内容"
@@ -4390,7 +4666,7 @@
     "message": "与 Keeper 通信时出现问题。请再次尝试导入。"
   },
   "includeSharedFolders": {
-    "message": "包含共享的文件夹"
+    "message": "包含共享文件夹"
   },
   "lastPassEmail": {
     "message": "LastPass Email"
@@ -4695,6 +4971,12 @@
   "removePasskey": {
     "message": "移除通行密钥"
   },
+  "deletePasskey": {
+    "message": "删除通行密钥"
+  },
+  "deletePasskeyConfirmation": {
+    "message": "此通行密钥将从您的登录项目中永久删除，无法撤销！"
+  },
   "passkeyRemoved": {
     "message": "通行密钥已移除"
   },
@@ -4891,10 +5173,17 @@
     "message": "更改账户电子邮箱"
   },
   "passkeyLogin": {
-    "message": "使用通行密钥登录吗？"
+    "message": "使用通行密钥登录吗？",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "保存通行密钥吗？"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "保存为新的登录"
@@ -4906,7 +5195,11 @@
     "message": "没有匹配此站点的登录"
   },
   "overwritePasskey": {
-    "message": "覆盖通行密钥吗？"
+    "message": "覆盖通行密钥吗？",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "无法保存通行密钥"
@@ -4963,6 +5256,15 @@
     "message": "您无法移除仅具有「查看」权限的集合：$COLLECTIONS$",
     "placeholders": {
       "collections": {
+        "content": "$1",
+        "example": "Work, Personal"
+      }
+    }
+  },
+  "cannotRemoveViewOnlySharedFolders": {
+    "message": "您无法移除仅拥有「查看」权限的共享文件夹：$SHAREDFOLDERS$",
+    "placeholders": {
+      "sharedfolders": {
         "content": "$1",
         "example": "Work, Personal"
       }
@@ -5066,17 +5368,38 @@
   "permitCipherDetailsDescription": {
     "message": "Bitwarden 将使用已保存的登录 URI 来确定应使用的图标或更改密码的 URL，以提升您的使用体验。使用此服务时不会收集或保存任何信息。"
   },
+  "showQuickCopyActionsDetailsDescription": {
+    "message": "在项目旁边添加 3 个快速复制按钮，以将您的用户名、密码或验证码复制到剪贴板。"
+  },
   "assignToCollections": {
     "message": "分配到集合"
+  },
+  "addToSharedFolder": {
+    "message": "添加到共享文件夹"
+  },
+  "transferAndAdd": {
+    "message": "转移并添加"
+  },
+  "itemLower": {
+    "message": "项目"
+  },
+  "itemsLower": {
+    "message": "项目"
   },
   "assignToTheseCollections": {
     "message": "分配到这些集合"
   },
   "bulkCollectionAssignmentDialogDescriptionSingular": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这个项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到此项目。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionSingular": {
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到此项目。"
   },
   "bulkCollectionAssignmentDialogDescriptionPlural": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到这些项目。"
+  },
+  "bulkVaultSharedFolderAssignmentDialogDescriptionPlural": {
+    "message": "只有拥有这些共享文件夹访问权限的密码库成员才能看到这些项目。"
   },
   "noCollectionsAssigned": {
     "message": "未分配任何集合"
@@ -5085,7 +5408,7 @@
     "message": "分配"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "只有具有这些集合访问权限的组织成员才能看到这些项目。"
+    "message": "只有拥有这些集合访问权限的组织成员才能看到这些项目。"
   },
   "bulkCollectionAssignmentWarning": {
     "message": "您选择了 $TOTAL_COUNT$ 个项目。其中的 $READONLY_COUNT$ 个项目由于您没有编辑权限，无法进行更新。",
@@ -5136,8 +5459,20 @@
   "personalItemTransferWarningSingular": {
     "message": "1 个项目将永久转移到所选组织。您将不再拥有该项目。"
   },
+  "personalItemVaultTransferWarningSingular": {
+    "message": "1 个项目将永久转移到所选密码库。您将不再拥有该项目。"
+  },
   "personalItemsTransferWarningPlural": {
     "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选组织。您将不再拥有这些项目。",
+    "placeholders": {
+      "personal_items_count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "personalItemsVaultTransferWarningPlural": {
+    "message": "$PERSONAL_ITEMS_COUNT$ 个项目将永久转移到所选密码库。您将不再拥有这些项目。",
     "placeholders": {
       "personal_items_count": {
         "content": "$1",
@@ -5161,17 +5496,32 @@
   "successfullyAssignedCollections": {
     "message": "成功分配了集合"
   },
+  "successfullyAddedSharedFolders": {
+    "message": "成功添加了共享文件夹"
+  },
   "itemMovedToCollection": {
     "message": "项目已移动到集合"
+  },
+  "itemAddedToSharedFolder": {
+    "message": "项目已添加到共享文件夹"
   },
   "itemMovedToCollections": {
     "message": "项目已移动到集合"
   },
+  "itemAddedToSharedFolders": {
+    "message": "项目已添加到共享文件夹"
+  },
   "itemsMovedToCollection": {
     "message": "项目已移动到集合"
   },
+  "itemsAddedToSharedFolder": {
+    "message": "项目已添加到共享文件夹"
+  },
   "itemsMovedToCollections": {
     "message": "项目已移动到集合"
+  },
+  "itemsAddedToSharedFolders": {
+    "message": "项目已添加到共享文件夹"
   },
   "itemAssignedToCollections": {
     "message": "已分配至集合的项目"
@@ -5968,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "为 $USERNAME$ 创建新的通行密钥 $RPID$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "覆盖 $USERNAME$ 的通行密钥 $RPID$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "使用您的通行密钥 $RPID$，以 $USERNAME$ 身份登录",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "验证是您本人以为 $USERNAME$ 创建新的通行密钥 $RPID$。",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "验证是您本人以覆盖 $USERNAME$ 的通行密钥 $RPID$。",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "验证是您本人以使用您的通行密钥 $RPID$，以 $USERNAME$ 身份登录。",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

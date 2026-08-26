@@ -5,21 +5,35 @@ export type TaxIdType = Readonly<{
   description: string;
   example: string;
   impactsTaxCalculation: boolean;
+  format?: RegExp;
 }>;
 
-export const getTaxIdTypeForCountry = (country: string): TaxIdType | null => {
+export const normalizeTaxIdValue = (value: string): string =>
+  value.replace(/\s+/g, "").toUpperCase();
+
+export const findTaxIdTypeByValue = (
+  types: ReadonlyArray<TaxIdType>,
+  value: string,
+): TaxIdType | undefined => types.find((type) => type.format?.test(normalizeTaxIdValue(value)));
+
+export const getTaxIdTypeForCountry = (country: string, value?: string): TaxIdType | null => {
   const types = taxIdTypes.filter((type) => type.iso === country);
+
   if (types.length === 0) {
     return null;
-  } else if (types.length === 1) {
-    return types[0];
-  } else {
-    const impactful = types.find((taxIdType) => taxIdType.impactsTaxCalculation);
-    if (!impactful) {
-      return types[0];
-    }
-    return impactful;
   }
+  if (types.length === 1) {
+    return types[0];
+  }
+
+  if (value) {
+    const matched = findTaxIdTypeByValue(types, value);
+    if (matched) {
+      return matched;
+    }
+  }
+
+  return types.find((type) => type.impactsTaxCalculation) ?? types[0];
 };
 
 export const taxIdTypes: ReadonlyArray<TaxIdType> = [
@@ -78,6 +92,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Australian Business Number (AU ABN)",
     example: "12345678912",
     impactsTaxCalculation: true,
+    format: /^[0-9]{11}$/,
   },
   {
     country: "Australia",
@@ -86,6 +101,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Australian Taxation Office Reference Number",
     example: "123456789123",
     impactsTaxCalculation: false,
+    format: /^[0-9]{12}$/,
   },
   {
     country: "Austria",
@@ -182,6 +198,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Brazilian CNPJ number",
     example: "01.234.456/5432-10",
     impactsTaxCalculation: false,
+    format: /^[0-9]{2}\.?[0-9]{3}\.?[0-9]{3}\/?[0-9]{4}-?[0-9]{2}$/,
   },
   {
     country: "Brazil",
@@ -190,6 +207,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Brazilian CPF number",
     example: "123.456.789-87",
     impactsTaxCalculation: false,
+    format: /^[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[0-9]{2}$/,
   },
   {
     country: "Bulgaria",
@@ -198,6 +216,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Bulgaria Unified Identification Code",
     example: "123456789",
     impactsTaxCalculation: false,
+    format: /^[0-9]{9}$/,
   },
   {
     country: "Bulgaria",
@@ -206,6 +225,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "European VAT number",
     example: "BG0123456789",
     impactsTaxCalculation: true,
+    format: /^BG[0-9]{9,10}$/,
   },
   {
     country: "Burkina Faso",
@@ -235,9 +255,10 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     country: "Canada",
     iso: "CA",
     code: "ca_bn",
-    description: "Canadian BN",
+    description: "Canadian Business Number",
     example: "123456789",
     impactsTaxCalculation: false,
+    format: /^[0-9]{9}$/,
   },
   {
     country: "Canada",
@@ -246,6 +267,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Canadian GST/HST number",
     example: "123456789RT0002",
     impactsTaxCalculation: true,
+    format: /^[0-9]{9}RT[0-9]{4}$/,
   },
   {
     country: "Canada",
@@ -254,6 +276,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Canadian PST number (British Columbia)",
     example: "PST-1234-5678",
     impactsTaxCalculation: false,
+    format: /^PST-[0-9]{4}-[0-9]{4}$/,
   },
   {
     country: "Canada",
@@ -262,6 +285,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Canadian PST number (Manitoba)",
     example: "123456-7",
     impactsTaxCalculation: false,
+    format: /^[0-9]{6}-[0-9]{1}$/,
   },
   {
     country: "Canada",
@@ -270,6 +294,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Canadian PST number (Saskatchewan)",
     example: "1234567",
     impactsTaxCalculation: false,
+    format: /^[0-9]{7}$/,
   },
   {
     country: "Canada",
@@ -278,6 +303,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Canadian QST number (Québec)",
     example: "1234567890TQ1234",
     impactsTaxCalculation: true,
+    format: /^[0-9]{10}TQ[0-9]{4}$/,
   },
   {
     country: "Cape Verde",
@@ -334,6 +360,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "European VAT number",
     example: "HR12345678912",
     impactsTaxCalculation: true,
+    format: /^HR[0-9]{11}$/,
   },
   {
     country: "Croatia",
@@ -342,6 +369,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Croatian Personal Identification Number",
     example: "12345678901",
     impactsTaxCalculation: false,
+    format: /^[0-9]{11}$/,
   },
   {
     country: "Cyprus",
@@ -454,6 +482,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "German Tax Number (Steuernummer)",
     example: "1234567890",
     impactsTaxCalculation: false,
+    format: /^[0-9]{10}$/,
   },
   {
     country: "Germany",
@@ -462,6 +491,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "European VAT number",
     example: "DE123456789",
     impactsTaxCalculation: true,
+    format: /^DE[0-9]{9}$/,
   },
   {
     country: "Greece",
@@ -494,6 +524,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "European VAT number",
     example: "HU12345678",
     impactsTaxCalculation: true,
+    format: /^HU[0-9]{8}$/,
   },
   {
     country: "Hungary",
@@ -502,6 +533,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Hungary tax number (adószám)",
     example: "12345678-1-23",
     impactsTaxCalculation: false,
+    format: /^[0-9]{8}-?[0-9]-?[0-9]{2}$/,
   },
   {
     country: "Iceland",
@@ -555,26 +587,29 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     country: "Japan",
     iso: "JP",
     code: "jp_cn",
-    description: "Japanese Corporate Number (*Hōjin Bangō*)",
+    description: "Japanese Corporate Number (Hōjin Bangō)",
     example: "1234567891234",
     impactsTaxCalculation: false,
+    format: /^[0-9]{13}$/,
   },
   {
     country: "Japan",
     iso: "JP",
     code: "jp_rn",
     description:
-      "Japanese Registered Foreign Businesses' Registration Number (*Tōroku Kokugai Jigyōsha no Tōroku Bangō*)",
+      "Japanese Registered Foreign Businesses' Registration Number (Tōroku Kokugai Jigyōsha no Tōroku Bangō)",
     example: "12345",
     impactsTaxCalculation: false,
+    format: /^[0-9]{5}$/,
   },
   {
     country: "Japan",
     iso: "JP",
     code: "jp_trn",
-    description: "Japanese Tax Registration Number (*Tōroku Bangō*)",
+    description: "Japanese Tax Registration Number (Tōroku Bangō)",
     example: "T1234567891234",
     impactsTaxCalculation: true,
+    format: /^T[0-9]{13}$/,
   },
   {
     country: "Kazakhstan",
@@ -623,6 +658,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Liechtensteinian UID number",
     example: "CHE123456789",
     impactsTaxCalculation: false,
+    format: /^CHE[0-9]{9}$/,
   },
   {
     country: "Liechtenstein",
@@ -631,6 +667,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Liechtensteinian VAT number",
     example: "12345",
     impactsTaxCalculation: true,
+    format: /^[0-9]{5}$/,
   },
   {
     country: "Lithuania",
@@ -655,14 +692,16 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Malaysian FRP number",
     example: "12345678",
     impactsTaxCalculation: false,
+    format: /^[0-9]{8}$/,
   },
   {
     country: "Malaysia",
     iso: "MY",
     code: "my_itn",
-    description: "Malaysian ITN",
+    description: "Malaysian Income Tax Number",
     example: "C 1234567890",
     impactsTaxCalculation: false,
+    format: /^[A-Z]{1} ?[0-9]{10}$/,
   },
   {
     country: "Malaysia",
@@ -671,6 +710,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Malaysian SST number",
     example: "A12-3456-78912345",
     impactsTaxCalculation: false,
+    format: /^[A-Z]{1}[0-9]{2}-?[0-9]{4}-?[0-9]{8}$/,
   },
   {
     country: "Malta",
@@ -767,6 +807,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Norwegian VAT number",
     example: "123456789MVA",
     impactsTaxCalculation: true,
+    format: /^[0-9]{9}MVA$/,
   },
   {
     country: "Norway",
@@ -775,6 +816,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Norwegian VAT on e-commerce number",
     example: "1234567",
     impactsTaxCalculation: false,
+    format: /^[0-9]{7}$/,
   },
   {
     country: "Oman",
@@ -823,6 +865,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "European VAT number",
     example: "RO1234567891",
     impactsTaxCalculation: true,
+    format: /^RO[0-9]{2,10}$/,
   },
   {
     country: "Romania",
@@ -831,22 +874,25 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Romanian tax ID number",
     example: "1234567890123",
     impactsTaxCalculation: false,
+    format: /^[0-9]{13}$/,
   },
   {
     country: "Russia",
     iso: "RU",
     code: "ru_inn",
-    description: "Russian INN",
+    description: "Russian Taxpayer Identification Number (INN)",
     example: "1234567891",
     impactsTaxCalculation: true,
+    format: /^[0-9]{10,12}$/,
   },
   {
     country: "Russia",
     iso: "RU",
     code: "ru_kpp",
-    description: "Russian KPP",
+    description: "Russian Tax Registration Reason Code (KPP)",
     example: "123456789",
     impactsTaxCalculation: true,
+    format: /^[0-9]{9}$/,
   },
   {
     country: "Saudi Arabia",
@@ -876,17 +922,19 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     country: "Singapore",
     iso: "SG",
     code: "sg_gst",
-    description: "Singaporean GST",
+    description: "Singaporean GST number",
     example: "M12345678X",
     impactsTaxCalculation: true,
+    format: /^[A-Z]{1}[0-9]{8}[A-Z]{1}$/,
   },
   {
     country: "Singapore",
     iso: "SG",
     code: "sg_uen",
-    description: "Singaporean UEN",
+    description: "Singaporean Unique Entity Number (UEN)",
     example: "123456789F",
     impactsTaxCalculation: false,
+    format: /^[0-9]{9}[A-Z]{1}$/,
   },
   {
     country: "Slovakia",
@@ -903,6 +951,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "European VAT number",
     example: "SI12345678",
     impactsTaxCalculation: true,
+    format: /^SI[0-9]{8}$/,
   },
   {
     country: "Slovenia",
@@ -911,6 +960,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Slovenia tax number (davčna številka)",
     example: "12345678",
     impactsTaxCalculation: false,
+    format: /^[0-9]{8}$/,
   },
   {
     country: "South Africa",
@@ -935,6 +985,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Spanish NIF number (previously Spanish CIF number)",
     example: "A12345678",
     impactsTaxCalculation: false,
+    format: /^[A-Z]{1}[0-9]{8}$/,
   },
   {
     country: "Spain",
@@ -943,6 +994,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "European VAT number",
     example: "ESA1234567Z",
     impactsTaxCalculation: true,
+    format: /^ES[A-Z]{1}[0-9]{7}[A-Z]{1}$/,
   },
   {
     country: "Suriname",
@@ -967,6 +1019,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Switzerland UID number",
     example: "CHE-123.456.789 HR",
     impactsTaxCalculation: false,
+    format: /^CHE-?[0-9]{3}\.?[0-9]{3}\.?[0-9]{3} ?HR$/,
   },
   {
     country: "Switzerland",
@@ -975,6 +1028,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Switzerland VAT number",
     example: "CHE-123.456.789 MWST",
     impactsTaxCalculation: true,
+    format: /^CHE-?[0-9]{3}\.?[0-9]{3}\.?[0-9]{3} ?MWST$/,
   },
   {
     country: "Taiwan",
@@ -1047,6 +1101,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Northern Ireland VAT number",
     example: "XI123456789",
     impactsTaxCalculation: true,
+    format: /^XI[0-9]{9}$/,
   },
   {
     country: "United Kingdom",
@@ -1055,6 +1110,8 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "United Kingdom VAT number",
     example: "GB123456789",
     impactsTaxCalculation: true,
+    // Folds the server TaxService's prefixed and unprefixed gb_vat rows so a bare 9-digit value resolves to gb_vat, not the XI eu_vat row.
+    format: /^(?:GB)?[0-9]{9}$/,
   },
   {
     country: "United States",
@@ -1079,6 +1136,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Uzbekistan TIN Number",
     example: "123456789",
     impactsTaxCalculation: false,
+    format: /^[0-9]{9}$/,
   },
   {
     country: "Uzbekistan",
@@ -1087,6 +1145,7 @@ export const taxIdTypes: ReadonlyArray<TaxIdType> = [
     description: "Uzbekistan VAT Number",
     example: "123456789012",
     impactsTaxCalculation: true,
+    format: /^[0-9]{12}$/,
   },
   {
     country: "Venezuela",

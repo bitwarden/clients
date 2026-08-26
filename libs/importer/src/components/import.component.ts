@@ -6,6 +6,7 @@ import {
   Component,
   DestroyRef,
   EventEmitter,
+  inject,
   Inject,
   input,
   Input,
@@ -15,7 +16,7 @@ import {
   Output,
   ViewChild,
 } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import * as JSZip from "jszip";
@@ -44,6 +45,8 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -61,6 +64,7 @@ import {
   CalloutModule,
   CardComponent,
   DialogService,
+  FileUploadComponent,
   FormFieldModule,
   IconButtonModule,
   RadioButtonModule,
@@ -69,13 +73,14 @@ import {
   SelectModule,
   ToastService,
   LinkModule,
+  BitwardenIcon,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { Importer } from "../importers/importer";
 import { KeeperCsvImporter } from "../importers/keeper/keeper-csv-importer";
 import { KeeperJsonImporter } from "../importers/keeper/keeper-json-importer";
-import { ImporterMetadata, DataLoader, Loader, Instructions } from "../metadata";
+import { DataLoader, Loader } from "../metadata";
 import {
   CredentialKind,
   ImportOption,
@@ -84,6 +89,7 @@ import {
   SdkImportCredentials,
 } from "../models";
 import {
+  ImporterCapabilities,
   ImportCollectionServiceAbstraction,
   ImportMetadataServiceAbstraction,
   ImportServiceAbstraction,
@@ -116,6 +122,7 @@ import { ImportLastPassComponent } from "./lastpass";
     IconButtonModule,
     SelectModule,
     CalloutModule,
+    FileUploadComponent,
     ReactiveFormsModule,
     ImportChromeComponent,
     ImportLastPassComponent,
@@ -132,11 +139,25 @@ import { ImportLastPassComponent } from "./lastpass";
 export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   DefaultCollectionType = CollectionTypes.DefaultUserCollection;
 
+  // `Vfo1TerminologyService` and `Vfo1IconPipe` cannot be imported here because
+  // `@bitwarden/vault` depends on `@bitwarden/importer`, creating a circular
+  // module dependency at the webpack level. ConfigService is used directly instead.
+  private readonly configService = inject(ConfigService);
+  private readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    { initialValue: false },
+  );
+
+  protected collectionIcon(type: number): BitwardenIcon {
+    if (type === CollectionTypes.DefaultUserCollection) {
+      return "bwi-user";
+    }
+    return this.vfo1Enabled() ? "bwi-shared-folder" : "bwi-collection-shared";
+  }
+
   featuredImportOptions: ImportOption[];
   importOptions: ImportOption[];
   format: ImportType = null;
-  fileSelected: File;
-  keyFileSelected: File | null = null;
   showKeyFile = false;
 
   folders$: Observable<FolderView[]>;
@@ -215,7 +236,8 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     targetSelector: [null],
     format: [null as ImportType | null, [Validators.required]],
     fileContents: [],
-    file: [],
+    file: [null as File | null],
+    keyFile: [null as File | null],
     kdbxPassword: [""],
     lastPassType: ["direct" as "csv" | "direct"],
     // FIXME: once the flag is disabled this should initialize to `Strategy.browser`
@@ -257,12 +279,10 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
-  private importer$ = new BehaviorSubject<ImporterMetadata | undefined>(undefined);
-
-  /** emits `true` when the chromium instruction block should be visible. */
-  protected readonly showChromiumInstructions$ = this.importer$.pipe(
-    map((importer) => importer?.instructions === Instructions.chromium),
-  );
+  /** loaders available for the selected `format` on this client/machine. Everything else about
+   *  an importer (name, instructions, accepted file types, ...) is static — see
+   *  `selectedImportOption`, which reads directly from `importOptions`. */
+  protected readonly importer$ = new BehaviorSubject<ImporterCapabilities | undefined>(undefined);
 
   /** emits `true` when direct browser import is available. */
   // FIXME: use the capabilities list to populate `chromiumLoader` and replace the explicit
@@ -551,7 +571,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected async performImport() {
-    if (this.importService.isSdkImporter(this.format)) {
+    if (this.selectedImportOption?.sdk != null) {
       await this.performSdkImport();
       return;
     }
@@ -670,7 +690,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     const credentials = await this.collectSdkCredentials(
-      this.importService.credentialKindFor(this.format),
+      this.selectedImportOption?.sdk?.credentialKind,
     );
     if (credentials == null) {
       // Credentials dialog dismissed.
@@ -721,8 +741,9 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
       }
       case CredentialKind.passwordWithKeyFile: {
         // KDBX collects the master password and optional key file inline in the main dialog.
-        const keyFile = this.keyFileSelected
-          ? new Uint8Array(await this.keyFileSelected.arrayBuffer())
+        const selectedKeyFile = this.formGroup.controls.keyFile.value;
+        const keyFile = selectedKeyFile
+          ? new Uint8Array(await selectedKeyFile.arrayBuffer())
           : null;
         return {
           kind: "passwordWithKeyFile",
@@ -736,31 +757,29 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async getSelectedFileBytes(): Promise<Uint8Array | null> {
-    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const file = fileEl?.files?.[0] ?? this.fileSelected;
+    const file = this.formGroup.controls.file.value;
     if (file == null) {
       return null;
     }
     return new Uint8Array(await file.arrayBuffer());
   }
 
-  /** File-picker `accept` hint for the selected SDK importer, if any. */
-  protected get acceptedFileTypes(): string | null {
-    return this.importService.sdkFileTypeHint(this.format) ?? null;
+  /** File-picker `accept` hint for the selected SDK importer, if any. Distinct from
+   *  `ImportOption.acceptedFileTypes` (the full per-vendor list); this is only the narrower
+   *  SDK-specific hint the native file input currently restricts on. */
+  protected get fileInputAcceptHint(): string | null {
+    const fileTypes = this.selectedImportOption?.sdk?.fileTypes;
+    return fileTypes ? fileTypes.map((type) => `.${type}`).join(",") : null;
+  }
+
+  /** The full metadata record for the selected `format`, or `undefined` before one is chosen. */
+  protected get selectedImportOption(): ImportOption | undefined {
+    return this.format == null ? undefined : this.importService.getImportOption(this.format);
   }
 
   getFormatInstructionTitle() {
-    if (this.format == null) {
-      return null;
-    }
-
-    const results = this.featuredImportOptions
-      .concat(this.importOptions)
-      .filter((o) => o.id === this.format);
-    if (results.length > 0) {
-      return this.i18nService.t("instructionsFor", results[0].name);
-    }
-    return null;
+    const option = this.selectedImportOption;
+    return option ? this.i18nService.t("instructionsFor", option.name) : null;
   }
 
   protected handleChromeImportError(error: string) {
@@ -772,13 +791,13 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   protected setImportOptions() {
-    this.featuredImportOptions = [...this.importService.featuredImportOptions];
+    this.featuredImportOptions = this.importService.importOptions.filter((o) => o.featuredImporter);
 
     // The unified `keeper` entry covers csv/json via the Method dropdown,
     // so hide the standalone variants from the UI. They remain in the option
     // list for non-UI consumers (CLI) and for backward compatibility.
-    const visibleRegularOptions = this.importService.regularImportOptions.filter(
-      (o) => o.id !== "keepercsv" && o.id !== "keeperjson",
+    const visibleRegularOptions = this.importService.importOptions.filter(
+      (o) => !o.featuredImporter && o.id !== "keepercsv" && o.id !== "keeperjson",
     );
 
     this.importOptions = [...visibleRegularOptions].sort((a, b) => {
@@ -796,16 +815,6 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
         ? this.i18nService.collator.compare(a.name, b.name)
         : a.name.localeCompare(b.name);
     });
-  }
-
-  setSelectedFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.fileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
-  }
-
-  setKeyFile(event: Event) {
-    const fileInputEl = <HTMLInputElement>event.target;
-    this.keyFileSelected = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
   }
 
   addKeyFile() {
@@ -832,7 +841,7 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
     } else {
       passwordControl.clearValidators();
       passwordControl.setValue("");
-      this.keyFileSelected = null;
+      this.formGroup.controls.keyFile.setValue(null);
       this.showKeyFile = false;
     }
     passwordControl.updateValueAndValidity();
@@ -929,13 +938,12 @@ export class ImportComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   private async setImportContents(): Promise<string> {
-    const fileEl = document.getElementById("import_input_file") as HTMLInputElement;
-    const files = fileEl?.files;
+    const selectedFile = this.formGroup.controls.file.value;
     let fileContents = this.formGroup.controls.fileContents.value;
 
-    if (files != null && files.length > 0) {
+    if (selectedFile != null) {
       try {
-        const content = await this.getFileContents(files[0]);
+        const content = await this.getFileContents(selectedFile);
         if (content != null) {
           fileContents = content;
         }

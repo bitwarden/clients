@@ -20,10 +20,6 @@ import {
   OrganizationUserService,
 } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import {
-  OrganizationUserStatusType,
-  OrganizationUserType,
-} from "@bitwarden/common/admin-console/enums";
 import { PermissionsApi } from "@bitwarden/common/admin-console/models/api/permissions.api";
 import {
   CollectionAccessSelectionView,
@@ -44,6 +40,8 @@ import {
   DialogService,
   ToastService,
 } from "@bitwarden/components";
+import { OrganizationUserStatusType, OrganizationUserType } from "@bitwarden/sdk-internal";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import {
   GroupApiService,
@@ -210,6 +208,7 @@ export class MemberDialogComponent implements OnDestroy {
     private toastService: ToastService,
     private deleteManagedMemberWarningService: DeleteManagedMemberWarningService,
     private organizationUserService: OrganizationUserService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {
     this.organization$ = accountService.activeAccount$.pipe(
       getUserId,
@@ -402,8 +401,9 @@ export class MemberDialogComponent implements OnDestroy {
     }
     this.isRevoked = userDetails.status === OrganizationUserStatusType.Revoked;
     this.showNoMasterPasswordWarning =
-      userDetails.status > OrganizationUserStatusType.Invited &&
-      userDetails.hasMasterPassword === false;
+      [OrganizationUserStatusType.Accepted, OrganizationUserStatusType.Confirmed].includes(
+        userDetails.status,
+      ) && userDetails.hasMasterPassword === false;
     const allCollectionsPermissions = {
       createNewCollections: userDetails.permissions.createNewCollections,
       editAnyCollection: userDetails.permissions.editAnyCollection,
@@ -554,6 +554,7 @@ export class MemberDialogComponent implements OnDestroy {
       collections,
       groups,
       accessSecretsManager: this.formGroup.value.accessSecretsManager,
+      accessPam: false,
       resetPasswordEnrolled: false,
       hasMasterPassword: false,
       claimedByOrganization: false,
@@ -722,7 +723,9 @@ export class MemberDialogComponent implements OnDestroy {
         placeholders: [this.params.name],
       },
       content: {
-        key: "deleteOrganizationUserWarningDesc",
+        key: this.vfo1TerminologyService.enabled()
+          ? "deleteOrganizationUserWarningDescSharedFolders"
+          : "deleteOrganizationUserWarningDesc",
         placeholders: [this.params.name],
       },
       type: "warning",

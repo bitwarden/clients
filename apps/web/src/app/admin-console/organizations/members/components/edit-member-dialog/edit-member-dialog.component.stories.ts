@@ -1,6 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { of } from "rxjs";
+import { getByText, userEvent } from "storybook/test";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -14,11 +15,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { OrganizationMetadataServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-metadata.service.abstraction";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ProblemDetailsErrorResponse } from "@bitwarden/common/models/response/problem-details-error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
+import { Vfo1TerminologyService } from "@bitwarden/vault";
 import { BillingConstraintService } from "@bitwarden/web-vault/app/billing/members/billing-constraint/billing-constraint.service";
 
 import { PreloadedEnglishI18nModule } from "../../../../../core/tests";
@@ -63,6 +66,7 @@ function mockUserDetails(
     ssoExternalId: "",
     permissions: new PermissionsApi(),
     accessSecretsManager: false,
+    accessPam: false,
     resetPasswordEnrolled: false,
     hasMasterPassword: true,
     claimedByOrganization: false,
@@ -162,7 +166,11 @@ function makeOrganizationService(org: Organization) {
   return { organizations$: () => of([org]) };
 }
 
-type StoryArgs = { detailsTabEnabled: boolean };
+type StoryArgs = {
+  detailsTabEnabled: boolean;
+  /** Toggles the vfo1-foundation flag - "Collection" copy becomes "Shared folder" copy. */
+  vfo1FoundationEnabled: boolean;
+};
 
 const sharedDecorators = [
   moduleMetadata({
@@ -180,10 +188,13 @@ const sharedDecorators = [
         provide: DeleteManagedMemberWarningService,
         useValue: mockDeleteManagedMemberWarningService,
       },
-      { provide: BillingConstraintService, useValue: mockBillingConstraintService },
       {
         provide: OrganizationMetadataServiceAbstraction,
         useValue: mockOrganizationMetadataService,
+      },
+      {
+        provide: BillingConstraintService,
+        useValue: mockBillingConstraintService,
       },
       { provide: ValidationService, useValue: mockValidationService },
       { provide: LogService, useValue: mockLogService },
@@ -204,9 +215,15 @@ export default {
       description: "Toggle between the legacy Role tab and the new Details tab (PM-28365)",
       name: "Details tab (flag on)",
     },
+    vfo1FoundationEnabled: {
+      control: "boolean",
+      description: 'Toggle the vfo1-foundation flag ("Collection" → "Shared folder" copy).',
+      name: "Shared folder terminology (flag on)",
+    },
   },
   args: {
     detailsTabEnabled: false,
+    vfo1FoundationEnabled: false,
   },
 } as Meta<StoryArgs>;
 
@@ -217,7 +234,7 @@ function makeRender(
   org: Organization,
   userDetails?: OrganizationUserAdminView,
 ): Story["render"] {
-  return ({ detailsTabEnabled }) => ({
+  return ({ detailsTabEnabled, vfo1FoundationEnabled }) => ({
     moduleMetadata: {
       providers: [
         {
@@ -235,6 +252,13 @@ function makeRender(
         },
         { provide: OrganizationService, useValue: makeOrganizationService(org) },
         { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        {
+          provide: Vfo1TerminologyService,
+          useValue: {
+            enabled: () => vfo1FoundationEnabled,
+            iconClass: (icon: string) => icon,
+          },
+        },
         ...(userDetails
           ? [
               {
@@ -316,6 +340,33 @@ export const CollectionsTab: Story = {
   ),
 };
 
+// ─── Flag ON (vfo1-foundation: "Collection" → "Shared folder" terminology) ───
+
+/**
+ * Collections tab with the vfo1-foundation flag on — renders "Shared folder" terminology,
+ * including the role hint text and the tab/column labels.
+ */
+export const CollectionsTabSharedFolderTerminology: Story = {
+  args: { vfo1FoundationEnabled: true },
+  render: makeRender(
+    defaultParams({ initialTab: MemberDialogTab.Collections }),
+    mockOrganization(),
+  ),
+};
+
+/**
+ * Custom permissions with the vfo1-foundation flag on — the nested-checkbox labels
+ * ("Manage all shared folders", "Create new shared folders", etc.) use the new terminology
+ * while the underlying form-control names are unchanged.
+ */
+export const WithCustomPermissionsSharedFolderTerminology: Story = {
+  args: { vfo1FoundationEnabled: true },
+  render: makeRender(
+    defaultParams(),
+    mockOrganization({ useCustomPermissions: true, productTierType: ProductTierType.Enterprise }),
+  ),
+};
+
 // ─── Flag ON (new Details tab design) ────────────────────────────────────────
 
 /**
@@ -379,4 +430,75 @@ export const DetailsTabWithGroups: Story = {
     mockOrganization({ useGroups: true }),
     mockUserDetails({ groups: ["grp-1"] }),
   ),
+};
+
+/**
+ * Details tab with email editing enabled — member is claimed by the org and has no master
+ * password, so the email field is editable.
+ */
+export const DetailsTabEditEmail: Story = {
+  args: { detailsTabEnabled: true },
+  render: makeRender(
+    defaultParams({ claimedByOrganization: true, hasMasterPassword: false }),
+    mockOrganization({ productTierType: ProductTierType.Enterprise }),
+    mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
+  ),
+};
+
+/**
+ * Details tab — server rejects the email change with a domain-not-claimed error, showing the
+ * inline field error after submit.
+ */
+export const DetailsTabEditEmailError: Story = {
+  args: { detailsTabEnabled: true },
+  render: ({ detailsTabEnabled }) => ({
+    moduleMetadata: {
+      providers: [
+        {
+          provide: DIALOG_DATA,
+          useValue: defaultParams({
+            claimedByOrganization: true,
+            hasMasterPassword: false,
+            initialTab: detailsTabEnabled ? MemberDialogTab.Details : MemberDialogTab.Role,
+          }),
+        },
+        {
+          provide: OrganizationService,
+          useValue: makeOrganizationService(
+            mockOrganization({ productTierType: ProductTierType.Enterprise }),
+          ),
+        },
+        { provide: ConfigService, useValue: makeConfigService(detailsTabEnabled) },
+        {
+          provide: UserAdminService,
+          useValue: {
+            ...mockUserAdminService,
+            get: () =>
+              Promise.resolve(
+                mockUserDetails({ claimedByOrganization: true, hasMasterPassword: false }),
+              ),
+            saveV2: () =>
+              Promise.reject(
+                new ProblemDetailsErrorResponse(
+                  {
+                    errors: {
+                      email: [
+                        { type: "new_email_domain_not_claimed", detail: "Domain not claimed" },
+                      ],
+                    },
+                  },
+                  400,
+                ),
+              ),
+          },
+        },
+      ],
+    },
+    template: `<app-edit-member-dialog></app-edit-member-dialog>`,
+  }),
+  play: async ({ canvasElement }) => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const submitButton = getByText(canvasElement, "Save");
+    await userEvent.click(submitButton);
+  },
 };
