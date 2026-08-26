@@ -9,6 +9,7 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -65,6 +66,7 @@ describe("VaultPopupItemsService", () => {
   const vaultAutofillServiceMock = mock<VaultPopupAutofillService>();
   const syncServiceMock = mock<SyncService>();
   const vaultPopupListFiltersServiceMock = mock<VaultPopupListFiltersService>();
+  const configServiceMock = mock<ConfigService>();
   let filters$: BehaviorSubject<PopupListFilter>;
 
   const inlineMenuFieldQualificationServiceMock = mock<InlineMenuFieldQualificationService>();
@@ -110,6 +112,7 @@ describe("VaultPopupItemsService", () => {
     searchService.searchCiphers.mockImplementation(
       async (userId, _organizationId, _query, ciphers) => ciphers!,
     );
+    configServiceMock.getFeatureFlag$.mockReturnValue(of(false));
     cipherServiceMock.filterCiphersForUrl.mockImplementation(async (ciphers) =>
       ciphers.filter((c) => ["0", "1"].includes(uuidAsString(c.id))),
     );
@@ -139,6 +142,7 @@ describe("VaultPopupItemsService", () => {
       cipherType: null,
     });
     vaultPopupListFiltersServiceMock.filters$ = filters$;
+    vaultPopupListFiltersServiceMock.filterFunction$ = of((ciphers) => ciphers);
 
     mockCollections = [
       { id: "col1", name: "Collection 1" } as CollectionView,
@@ -168,6 +172,7 @@ describe("VaultPopupItemsService", () => {
         { provide: VaultPopupAutofillService, useValue: vaultAutofillServiceMock },
         { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersServiceMock },
         { provide: SyncService, useValue: syncServiceMock },
+        { provide: ConfigService, useValue: configServiceMock },
         { provide: AccountService, useValue: mockAccountServiceWith("UserId" as UserId) },
         {
           provide: InlineMenuFieldQualificationService,
