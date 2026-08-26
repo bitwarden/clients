@@ -14,7 +14,7 @@
         [collections]="collections"
         [isAdminConsole]="formConfig.isAdminConsole"
       >
-        @if (showShareButton()) {
+        @if (showShareButton$ | async) {
           <button
             type="button"
             class="tw-mt-4"

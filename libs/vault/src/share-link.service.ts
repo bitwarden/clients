@@ -184,7 +184,9 @@ export class ShareLinkService {
         if (c.collectionIds.length === 0) {
           return true;
         }
-        return c.collectionIds.some((cId) => collections.some((c) => c.id === cId && !c.readOnly));
+        return c.collectionIds.some((cId) =>
+          collections.some((col) => col.id === cId && !col.readOnly),
+        );
       }),
     );
   }

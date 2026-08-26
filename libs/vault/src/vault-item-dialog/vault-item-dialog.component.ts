@@ -321,9 +321,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
-  protected readonly showShareButton = toSignal(
-    this.shareLinkService.cipherCanBeShared(this.cipher),
-  );
+  protected showShareButton$: Observable<boolean>;
 
   constructor(
     @Inject(DIALOG_DATA) protected params: VaultItemDialogParams,
@@ -393,6 +391,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
         this.loadForm = false;
         this.updateTitle();
       }
+
+      this.showShareButton$ = this.shareLinkService.cipherCanBeShared(this.cipher);
 
       await this.eventCollectionService.collect(
         EventType.Cipher_ClientViewed,
