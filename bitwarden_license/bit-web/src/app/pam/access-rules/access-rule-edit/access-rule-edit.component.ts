@@ -45,6 +45,7 @@ import {
   TypographyModule,
   ContainerComponent,
 } from "@bitwarden/components";
+import { isGuid } from "@bitwarden/guid";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import {
@@ -186,12 +187,12 @@ export class AccessRuleEditComponent {
     () => this.existing()?.name ?? this.i18nService.t(this.pageTypeKey),
   );
 
-  protected readonly eventLogRoute = ["/organizations", this.organizationId, "reporting", "events"];
+  protected readonly eventLogRoute = ["/organizations", this.organizationId, "pam", "audit"];
 
   /**
    * Gates the footer notice. `canManageAccessRules` (this page's guard) does not imply access to
    * event logs: `canAccessEventLogs` also requires the organization's `useEvents` entitlement, and
-   * without it the reporting route bounces the admin straight back out.
+   * without it the PAM audit route's own guard bounces the admin straight back out.
    */
   protected readonly canAccessEventLogs = toSignal(
     this.activeUserId$.pipe(
@@ -291,16 +292,35 @@ export class AccessRuleEditComponent {
 
   /** Fetch the rule under edit; on a stale/inaccessible id (or any other failure), toast and route back. */
   private async loadRule(): Promise<AccessRuleView | null> {
+    // `accessRuleId` is the raw route param branded as an `AccessRuleId` at the field, so it is
+    // only a *claimed* id until checked. `uuidAsString` unwraps the brand (a no-op at runtime) to
+    // hand `isGuid` the plain string it takes.
+    if (!isGuid(uuidAsString(this.accessRuleId!))) {
+      return await this.ruleNotFound();
+    }
     try {
       return await this.pamApi.getAccessRule(this.organizationId, this.accessRuleId!);
     } catch (e) {
-      const message = isAccessRuleNotFound(e)
-        ? this.i18nService.t("pamAccessRuleNotFound")
-        : this.i18nService.t(accessRuleErrorMessageKey(e));
-      this.toastService.showToast({ variant: "error", message });
+      if (isAccessRuleNotFound(e)) {
+        return await this.ruleNotFound();
+      }
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t(accessRuleErrorMessageKey(e)),
+      });
       await this.navigateToList();
       return null;
     }
+  }
+
+  /** Toast and route back to the list for an id that does not resolve to a rule, malformed or not. */
+  private async ruleNotFound(): Promise<null> {
+    this.toastService.showToast({
+      variant: "error",
+      message: this.i18nService.t("pamAccessRuleNotFound"),
+    });
+    await this.navigateToList();
+    return null;
   }
 
   private applyRule(rule: AccessRuleView): void {

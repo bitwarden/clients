@@ -27,7 +27,7 @@ import {
 
 import { CoachmarkService } from "../../../../components/coachmark";
 
-import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./vault-filter-gated-collection-indicator.token";
+import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./pam/vault-filter-gated-collection-indicator.token";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
