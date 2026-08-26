@@ -1,5 +1,5 @@
 # Automation-driver
 
-Library exposing `AutomationDriver` — a dev-only hook into the client for machine interaction with Bitwarden clients.
-In dev mode, the automation-driver is exposed to dev-tools, which allows at runtime to perform certain actions automatically
-by end-to-end tests and automated scripts or agents.
+Library exposing `AutomationDriver` — a hook into the client for machine interaction with Bitwarden clients.
+It is attached to the global object in all builds, and lets end-to-end tests, automated scripts, and
+agents drive the client at runtime through dev-tools.
