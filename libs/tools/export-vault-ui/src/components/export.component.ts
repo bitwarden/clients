@@ -10,6 +10,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  signal,
   ViewChild,
   Optional,
 } from "@angular/core";
@@ -18,6 +19,7 @@ import { Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
+  distinctUntilChanged,
   firstValueFrom,
   map,
   merge,
@@ -200,6 +202,9 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   readonly skippedAttachmentCount = model(0);
 
+  /** PAM-gated ("partial") items the currently-selected export scope would leave out. */
+  protected readonly excludedGatedItemCount = signal(0);
+
   // TODO: Fix this the next time the file is edited.
   // eslint-disable-next-line @angular-eslint/prefer-signals
   @ViewChild(PasswordStrengthV2Component) passwordStrengthComponent: PasswordStrengthV2Component;
@@ -265,6 +270,11 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
   ) {}
 
   async ngOnInit() {
+    // Must precede observeFormSelections(): in the Admin Console host the organizationId
+    // subject already holds a value, so its subscription emits immediately - before
+    // initOrganizationOnly() would otherwise have set this.
+    this.onlyManagedCollections = !this.organizationId;
+
     this.observeFormState();
     this.observePolicyStatus();
     this.observeFormSelections();
@@ -348,6 +358,34 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
         }
         // Admin Console: organizationId is already set via @Input, no update needed
       });
+
+    // Recompute the PAM-gated exclusion count whenever the selected vault changes, so the
+    // warning is on screen before the user exports rather than after the file is saved.
+    combineLatest([
+      this.accountService.activeAccount$.pipe(getUserId),
+      this._organizationId$.pipe(distinctUntilChanged()),
+    ])
+      .pipe(
+        switchMap(async ([userId, organizationId]) => {
+          // Zero for My Vault (the individual export skips organization ciphers, and gated
+          // ciphers are always organization ciphers) and for the Admin Console, which exports
+          // through the API under org-wide permissions and so withholds nothing.
+          if (!organizationId || !this.onlyManagedCollections) {
+            return 0;
+          }
+          try {
+            return await this.exportService.getManagedExportGatedItemCount(userId, organizationId);
+          } catch (e) {
+            // Caught per emission rather than with a pipe-level catchError: that would complete
+            // the stream, so one transient failure would stop the warning updating for every
+            // later vault selection. A failed count must not block the export.
+            this.logService.error(e);
+            return 0;
+          }
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((count) => this.excludedGatedItemCount.set(count));
 
     // Set up dynamic format options based on the organizationId observable
     // This is the single source of truth for both export contexts
@@ -442,8 +480,6 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
     );
     this.exportForm.controls.vaultSelector.patchValue(this.organizationId);
     this.exportForm.controls.vaultSelector.disable();
-
-    this.onlyManagedCollections = false;
   }
 
   // Initialize component to support individual and organizational exports
@@ -676,6 +712,13 @@ export class ExportComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get fileEncryptionType() {
     return this.exportForm.get("fileEncryptionType").value;
+  }
+
+  get excludedGatedItemsMessage(): string {
+    const count = this.excludedGatedItemCount();
+    return count === 1
+      ? this.i18nService.t("exportExcludedGatedItem")
+      : this.i18nService.t("exportExcludedGatedItems", count);
   }
 
   get skippedAttachmentMessage(): string {
