@@ -5,15 +5,12 @@ import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { getNestedCollectionTree } from "@bitwarden/common/admin-console/utils/collection-utils";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
@@ -39,8 +36,6 @@ import {
   collectionInScope,
   organizationInScope,
   resolveVaultScope,
-  scopedSharedFolderId,
-  vaultScopeCommands,
   VaultScopeType,
 } from "@bitwarden/vault";
 
@@ -185,14 +180,15 @@ export class VaultNextComponent {
   );
 
   /**
-   * The collections the table resolves its Shared folders column and chip from. The chip lists
-   * whatever this holds rather than deriving its options from the rows, so a scoped page has to
-   * narrow it or it offers folders none of its items could be in.
+   * The collections the table resolves its Shared folders column and chip from, and the card grid
+   * derives its tree from. The chip lists whatever this holds rather than deriving its options from
+   * the rows, so a scoped page has to narrow it or it offers folders none of its items could be in.
    *
    * Narrowed to the vault only, never to the shared folder in view: an item belongs to as many
    * shared folders as it was assigned to, so a row in the folder being viewed may live in others
    * too — narrowing this would drop those from its Shared folders column and leave the chip unable
-   * to offer them.
+   * to offer them. The grid needs the whole vault for the same reason: the folder it drills into
+   * has to be findable in the tree.
    *
    * The unscoped {@link collections} still back the row actions, which assign an item to any
    * collection the user can reach — not just the ones this page shows.
@@ -213,50 +209,6 @@ export class VaultNextComponent {
     const scope = this.vaultScope();
     return scope.type === VaultScopeType.Organization ? scope.organizationId : undefined;
   });
-
-  /**
-   * {@link scopedCollections} as a tree — the collections of the vault the drill-in sits inside, so
-   * the grid can never surface a folder outside it.
-   */
-  private readonly collectionTree = computed(() =>
-    getNestedCollectionTree(this.scopedCollections()),
-  );
-
-  private readonly sharedFolderNode = computed(() => {
-    const collectionId = scopedSharedFolderId(this.vaultScope());
-    if (collectionId == null) {
-      return undefined;
-    }
-    // Predates strict null checks: a miss comes back as `null` despite the signature.
-    return ServiceUtils.getTreeNodeObjectFromList(this.collectionTree(), collectionId) ?? undefined;
-  });
-
-  /** The direct children of the shared folder in view — the cards the grid renders. */
-  protected readonly childSharedFolders = computed(() => this.sharedFolderNode()?.children ?? []);
-
-  /**
-   * The name of the shared folder in view, titling the grid. The tree names each node by its own
-   * path segment, so this is the folder's own name rather than its full path.
-   */
-  protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
-
-  /**
-   * The route a child shared folder's card links to: this vault, drilled into that folder. Following
-   * it re-derives the scope and with it the rows and the grid's next set of children.
-   *
-   * A folder's route names the vault it lives in rather than the path taken to it, so drilling
-   * deeper replaces the segment — see {@link vaultScopeCommands}. A scope that can hold no folder
-   * links to itself, which the grid never renders a card for anyway.
-   *
-   * Bound as an input, so it must be a stable reference rather than a method — see the grid's
-   * `folderRoute`.
-   */
-  protected readonly sharedFolderRoute = (folder: CollectionView): string[] => {
-    const scope = this.vaultScope();
-    return vaultScopeCommands(
-      scope.type === VaultScopeType.Organization ? { ...scope, collectionId: folder.id } : scope,
-    );
-  };
 
   /**
    * Whether the page offers the toolbar's Import and New item actions. New items cannot be created

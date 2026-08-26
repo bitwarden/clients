@@ -14,7 +14,6 @@ import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/gu
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
-import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
@@ -46,7 +45,6 @@ describe("VaultNextComponent", () => {
 
   // The `:collectionId` segment only names a guid, so the shared folders the drill-in tests use
   // need real ones rather than readable stand-ins.
-  const departmentsId = "aaaa1111-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
   const designId = "aaaa2222-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
   const engineeringId = "aaaa3333-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
   const platformId = "aaaa4444-bbbb-4ccc-8ddd-eeee11112222" as CollectionId;
@@ -543,101 +541,6 @@ describe("VaultNextComponent", () => {
       fixture.detectChanges();
 
       expect(component().copyPresentation()).toBe("expanded");
-    });
-  });
-
-  describe("shared folder card grid", () => {
-    const collection = (id: CollectionId, name: string) =>
-      new CollectionView({ id, organizationId, name });
-
-    // Nesting is carried in the name, so the tree is derived rather than declared.
-    const departments = collection(departmentsId, "Departments");
-    const design = collection(designId, "Departments/Design");
-    const engineering = collection(engineeringId, "Departments/Engineering");
-    const platform = collection(platformId, "Departments/Engineering/Platform");
-
-    beforeEach(() => {
-      collections$.next([departments, design, engineering, platform]);
-      organizations$.next([buildOrganization(organizationId, "Acme corporation")]);
-      fixture.detectChanges();
-    });
-
-    const childNames = () =>
-      component()
-        .childSharedFolders()
-        .map((child: TreeNode<CollectionView>) => child.node.name);
-
-    it("has nothing to show until the route drills into a folder", () => {
-      scopeTo(organizationId);
-
-      expect(childNames()).toEqual([]);
-      expect(component().sharedFolderName()).toBe("");
-    });
-
-    it("shows the direct children of the folder the route names", () => {
-      scopeTo(organizationId, departmentsId);
-
-      expect(childNames()).toEqual(["Design", "Engineering"]);
-      expect(component().sharedFolderName()).toBe("Departments");
-    });
-
-    it("titles a nested folder by its own name and shows only its own children", () => {
-      scopeTo(organizationId, engineeringId);
-
-      expect(childNames()).toEqual(["Platform"]);
-      expect(component().sharedFolderName()).toBe("Engineering");
-    });
-
-    it("shows no children for a leaf folder", () => {
-      scopeTo(organizationId, platformId);
-
-      expect(childNames()).toEqual([]);
-      expect(component().sharedFolderName()).toBe("Platform");
-    });
-
-    // The guard turns these away, so reaching one means it was bypassed — see `vaultScope`.
-    it("stays away for a folder segment the scope cannot hold", () => {
-      scopeTo(MY_VAULT_ROUTE, departmentsId);
-
-      expect(childNames()).toEqual([]);
-      expect(component().sharedFolderName()).toBe("");
-    });
-
-    it("stays away for a folder outside the scoped vault", () => {
-      scopeTo(otherOrganizationId, departmentsId);
-
-      expect(childNames()).toEqual([]);
-      expect(component().sharedFolderName()).toBe("");
-    });
-
-    describe("the route each card links to", () => {
-      it("links a child folder to itself within the same vault", () => {
-        scopeTo(organizationId, departmentsId);
-
-        expect(component().sharedFolderRoute(engineering)).toEqual([
-          "/vault",
-          organizationId,
-          engineeringId,
-        ]);
-      });
-
-      // A folder's route names the vault it lives in, not the path taken to it.
-      it("replaces the folder segment rather than nesting under it", () => {
-        scopeTo(organizationId, engineeringId);
-
-        expect(component().sharedFolderRoute(platform)).toEqual([
-          "/vault",
-          organizationId,
-          platformId,
-        ]);
-      });
-
-      // The grid renders no cards under one, so this route is never actually linked to.
-      it("falls back to the vault itself for a scope that can hold no folder", () => {
-        scopeTo(MY_VAULT_ROUTE);
-
-        expect(component().sharedFolderRoute(engineering)).toEqual(["/vault", MY_VAULT_ROUTE]);
-      });
     });
   });
 
