@@ -52,6 +52,18 @@ function requestView(overrides: Partial<AccessRequestView> = {}): AccessRequestV
 }
 
 /**
+ * The activation window the server resolves at submit, as an override for {@link requestView}.
+ * `startsInSeconds` covers the human-approval route, whose window can open in the future.
+ */
+function grantedWindow(lengthSeconds: number, startsInSeconds = 0): Partial<AccessRequestView> {
+  const startMs = Date.now() + startsInSeconds * 1000;
+  return {
+    leaseNotBefore: new Date(startMs).toISOString(),
+    leaseNotAfter: new Date(startMs + lengthSeconds * 1000).toISOString(),
+  } as unknown as Partial<AccessRequestView>;
+}
+
+/**
  * The badge the SDK would rank for a state assembled from the parts below. Mirrored here — rather
  * than spelled out at every call site — so a fixture built from `activeLease`/`approvedRequest`/
  * `pendingRequest` stays a faithful stand-in for a real response, which always carries both the
@@ -255,8 +267,46 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
+      expect(text()).toContain("pamApprovedRequestBannerHeading");
       expect(query("#pam-cipher-view-banner_button_start")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_cancel-approved")).not.toBeNull();
+    });
+
+    it("states the granted duration from the approved request's own window", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-approved-duration"]')?.textContent).toContain(
+        "pamApprovedRequestBannerDuration 1 hour",
+      );
+    });
+
+    // The human-approval route resolves the window from the requester's chosen start and end,
+    // which can sit wholly in the future.
+    it("states the granted duration for a window that has not opened yet", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3 * 3600, 24 * 3600)) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-approved-duration"]')?.textContent).toContain(
+        "pamApprovedRequestBannerDuration 3 hours",
+      );
+    });
+
+    it("renders no duration line when the window does not resolve to a positive span", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(0)) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
+      expect(query('[data-testid="cipher-view-banner-approved-duration"]')).toBeNull();
     });
 
     it("shows the countdown and End for an active lease, hiding Extend when the rule forbids it", async () => {
