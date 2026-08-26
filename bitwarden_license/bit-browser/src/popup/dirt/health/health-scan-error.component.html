@@ -6,5 +6,8 @@
     <bit-svg slot="graphic" [content]="illustration"></bit-svg>
     <ng-container slot="title">{{ "healthScanFailed" | i18n }}</ng-container>
     <ng-container slot="description">{{ "healthScanFailedDescription" | i18n }}</ng-container>
+    <button slot="button" bitButton type="button" buttonType="primary" (click)="onRetryClick()">
+      {{ "tryAgain" | i18n }}
+    </button>
   </bit-status-lockup>
 </div>
