@@ -722,7 +722,7 @@ describe("SubscriptionCardComponent", () => {
       expect(component.canceled()).toBeUndefined();
     });
 
-    it("should compute nextCharge as undefined (not available in SubscriptionPreview)", () => {
+    it("should compute nextCharge as undefined", () => {
       setupComponent({
         ...baseSubscription,
         status: "active",
