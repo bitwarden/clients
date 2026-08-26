@@ -7426,6 +7426,9 @@
       }
     }
   },
+  "ssoNoSeatsAvailableMessage": {
+    "message": "This organization is not able to accept new members at the moment. Contact your admin for assistance."
+  },
   "inviteSentToEmail": {
     "message": "Invite sent to email"
   },
