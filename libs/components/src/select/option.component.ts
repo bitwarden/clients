@@ -17,7 +17,18 @@ export class OptionComponent<T = unknown> implements MappedOptionComponent<T> {
    * Renders a `bit-icon-tile` in place of the plain `icon`. Takes precedence when both are set.
    * The tile is always rendered at the `xs` size so all options line up.
    */
-  readonly iconTile = input<IconTileOptions>();
+  // Structural equality prevents a re-render loop: afterRenderEffect reads this signal and writes
+  // `items`, so a new object reference every render would cycle indefinitely.
+  readonly iconTile = input<IconTileOptions>(undefined, {
+    equal: (a, b) =>
+      a === b ||
+      (a != null &&
+        b != null &&
+        a.icon === b.icon &&
+        a.variant === b.variant &&
+        a.color === b.color &&
+        a.emphasis === b.emphasis),
+  });
 
   readonly value = input.required<T>();
 
