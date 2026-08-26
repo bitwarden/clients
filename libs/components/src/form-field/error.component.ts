@@ -53,7 +53,9 @@ export class BitErrorComponent {
           return error[1]?.message;
         }
 
-        return error;
+        // Fall back to the error key. Never the `[key, details]` tuple — an unrecognised or
+        // absent error stringifies it into punctuation ("," for a control with no errors).
+        return error[0] ?? "";
     }
   }
 }
