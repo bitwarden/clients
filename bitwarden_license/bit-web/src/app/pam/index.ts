@@ -43,6 +43,7 @@ export { AccessEventService } from "./abstractions/access-event.service";
 export { LeasingErrorService } from "./abstractions/leasing-error.service";
 
 export {
+  ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
   ACCESS_RULE_NAME_MAX_LENGTH,
   accessRuleToFormValue,
   accessRuleToRequest,
