@@ -122,9 +122,8 @@ export class VaultFilterSectionComponent {
       filterNode?.node.id === "AllCollections" &&
       (isCollectionSelected || collectionId === "AllCollections");
 
-    // A `controlledAccess` id the host no longer offers — a stale bookmark, a hand-edited param,
-    // or the last organization with the feature leaving view — draws no row and narrows nothing,
-    // so the vault is back to its unfiltered state and "All items" has to carry the selection.
+    // An id the host no longer offers draws no row and narrows nothing, so "All items" carries
+    // the selection instead.
     const strandedControlledAccess =
       filterNode?.node.id === "AllItems" &&
       cipherTypeId == null &&
