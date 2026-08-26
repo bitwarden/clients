@@ -9,6 +9,7 @@ import {
   TrackByFunction,
 } from "@angular/core";
 
+import { NoFolders, NoResults } from "@bitwarden/assets/svg";
 import {
   BitCellComponent,
   BitCellDefDirective,
@@ -21,6 +22,7 @@ import {
   BulkActionsBarComponent,
   ButtonModule,
   defineTable,
+  FilterControl,
   FilterMenuModule,
   IconButtonModule,
   IconModule,
@@ -30,6 +32,8 @@ import {
   SelectionConfig,
   SkeletonTextComponent,
   SortFn,
+  StatusLockupComponent,
+  SvgComponent,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -57,6 +61,13 @@ export const SHARED_FOLDERS_COLUMNS = Object.freeze([
 
 /** Passed as `defineTable`'s second type parameter. */
 export type SharedFoldersTableColumn = (typeof SHARED_FOLDERS_COLUMNS)[number];
+
+/**
+ * The `filterValues` key `bit-table-v2` reserves for a projected `bit-search` (its module-private
+ * `SEARCH_FILTER_KEY`). Mirrored here so the empty state's Clear all can skip it and clear chip
+ * filters only, matching the toolbar's own `clearAll()`.
+ */
+const SEARCH_FILTER_KEY = "search";
 
 /** The shape of {@link BitTableV2Component.filterValues} for this table. */
 export type SharedFoldersTableFilters = {
@@ -122,6 +133,8 @@ export type SharedFoldersTableFilters = {
     MenuModule,
     SearchModule,
     SkeletonTextComponent,
+    StatusLockupComponent,
+    SvgComponent,
   ],
 })
 export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolderRow> {
@@ -216,6 +229,28 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
 
   /**
+   * Whether the table has rows at all, separating "filtered down to nothing" from "no shared
+   * folders yet" — the two cases the one empty state has to cover.
+   */
+  private readonly hasRows = computed(() => this.sharedFolders().length > 0);
+
+  /**
+   * Empty-state copy. A single `slot="empty"` has to cover both cases, so each branch resolves to
+   * an i18n key rather than wrapping the slots in an `@if`: content projection only matches the
+   * static top-level nodes of projected content, so anything inside a conditional block never
+   * reaches its slot. The graphic branches through a binding for the same reason.
+   */
+  protected readonly emptyTitleKey = computed(() =>
+    this.hasRows() ? "noMatchingItems" : "noSharedFoldersAdded",
+  );
+
+  protected readonly emptyDescriptionKey = computed(() =>
+    this.hasRows() ? "clearFiltersOrTryAnother" : "noSharedFoldersAddedDescription",
+  );
+
+  protected readonly emptyIcon = computed(() => (this.hasRows() ? NoResults : NoFolders));
+
+  /**
    * Orders the permissions column by {@link SHARED_FOLDER_PERMISSIONS} rather than by label. The
    * default accessor would sort on the raw permission — an internal, untranslated string — putting
    * the rows in an order that reads as arbitrary in every locale.
@@ -243,6 +278,28 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
    */
   private matchesPermissions(row: R, permissions: SharedFolderPermission[] | undefined): boolean {
     return !permissions?.length || permissions.includes(row.permissions);
+  }
+
+  /**
+   * Whether at least one chip filter is active, excluding the reserved {@link SEARCH_FILTER_KEY}.
+   */
+  protected hasActiveChipFilters(
+    table: BitTableV2Component<R, SharedFoldersTableColumn, SharedFoldersTableFilters>,
+  ): boolean {
+    return table
+      .filterControls()
+      .some((control: FilterControl) => control.key() !== SEARCH_FILTER_KEY && control.active());
+  }
+
+  /** Clears every chip filter, leaving the search term untouched. */
+  protected clearChipFilters(
+    table: BitTableV2Component<R, SharedFoldersTableColumn, SharedFoldersTableFilters>,
+  ): void {
+    for (const control of table.filterControls()) {
+      if (control.key() !== SEARCH_FILTER_KEY) {
+        control.setValue(undefined);
+      }
+    }
   }
 
   /** The actions visible for `row`, honouring each action's optional `show` predicate. */

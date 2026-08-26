@@ -137,6 +137,75 @@ describe("SharedFoldersTableComponent", () => {
     ).toEqual(["name", "permissions", "items", "options"]);
   });
 
+  describe("the empty state", () => {
+    /** The empty state's Clear all button, hidden rather than removed while no chip is active. */
+    function clearFiltersButton(): HTMLButtonElement {
+      const button = fixture.nativeElement.querySelector(
+        "#shared-folders-table_button_clear-filters",
+      ) as HTMLButtonElement | null;
+      if (!button) {
+        throw new Error("The empty state's Clear all button is not rendered");
+      }
+      return button;
+    }
+
+    it("invites the client's Add button when there are no shared folders at all", () => {
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(text).toContain("noSharedFoldersAdded");
+      expect(text).toContain("noSharedFoldersAddedDescription");
+    });
+
+    it("switches to the no-matches copy once rows are filtered down to none", () => {
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a", name: "Engineering" })]);
+      fixture.detectChanges();
+
+      searchControl().setValue("finance");
+      fixture.detectChanges();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(bitTable().filtered()).toEqual([]);
+      expect(text).toContain("noMatchingItems");
+      expect(text).toContain("clearFiltersOrTryAnother");
+    });
+
+    it("offers Clear all only while a chip filter is active", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", name: "Engineering", permissions: SharedFolderPermission.Manage }),
+        row({ id: "b", name: "Finance", permissions: SharedFolderPermission.View }),
+      ]);
+      fixture.detectChanges();
+
+      // A search term alone leaves nothing for Clear all to clear.
+      searchControl().setValue("nothing matches this");
+      fixture.detectChanges();
+      expect(clearFiltersButton().classList).toContain("tw-hidden");
+
+      filterControl("permissions").setValue([SharedFolderPermission.View]);
+      fixture.detectChanges();
+      expect(clearFiltersButton().classList).not.toContain("tw-hidden");
+    });
+
+    it("clears the chip filters without disturbing the search term", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", name: "Engineering", permissions: SharedFolderPermission.Manage }),
+        row({ id: "b", name: "Finance", permissions: SharedFolderPermission.View }),
+      ]);
+      fixture.detectChanges();
+
+      searchControl().setValue("engineering");
+      filterControl("permissions").setValue([SharedFolderPermission.View]);
+      fixture.detectChanges();
+
+      clearFiltersButton().click();
+      fixture.detectChanges();
+
+      expect(filterControl("permissions").active()).toBe(false);
+      expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Engineering" })]);
+    });
+  });
+
   describe("filtering", () => {
     it("matches everything when the search is empty", () => {
       expect(applyFilter(row(), {})).toBe(true);

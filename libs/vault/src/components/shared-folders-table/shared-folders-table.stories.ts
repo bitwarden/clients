@@ -2,12 +2,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
-  ButtonModule,
-  DialogModule,
-  I18nMockService,
-  StatusLockupComponent,
-} from "@bitwarden/components";
+import { DialogModule, I18nMockService } from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
@@ -108,7 +103,7 @@ export default {
       // `DialogModule` for its `DialogService` provider: `bit-table-toolbar` injects it for the
       // small-screen filter dialog. Apps get it from their own module graph; a story has to
       // supply it.
-      imports: [ButtonModule, DialogModule, StatusLockupComponent],
+      imports: [DialogModule],
       providers: [
         {
           provide: I18nService,
@@ -152,9 +147,13 @@ export default {
               selectionCleared: "Selection cleared",
               selectedLowercase: "selected",
               additionalActions: "Additional actions",
-              // The table's default empty state
+              // Empty state
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
+              clearFiltersOrTryAnother: "Clear filters or try another search term",
+              noSharedFoldersAdded: "No shared folders added",
+              noSharedFoldersAddedDescription:
+                "Add a shared folder to securely share vault items with other members.",
             }),
         },
       ],
@@ -207,35 +206,11 @@ export const NoBulkActions: Story = {
   args: { bulkActions: [] },
 };
 
-/** An empty `sharedFolders` array, falling back to the table's default empty state. */
+/**
+ * With no rows at all the empty state invites the host's Add button. Search or filter the
+ * populated table down to nothing instead and the same slot switches to the no-matches copy,
+ * with a Clear all that leaves the search term alone.
+ */
 export const Empty: Story = {
   args: { sharedFolders: [] },
-};
-
-/**
- * Project a `slot="empty"` element to replace the default empty state with copy — and a call to
- * action — of the host's own.
- */
-export const CustomEmptyState: Story = {
-  args: { sharedFolders: [] },
-  render: (args) => ({
-    props: { ...args, add: action("add") },
-    template: /* HTML */ `
-      <div class="tw-bg-background-alt tw-p-6">
-        <vault-shared-folders-table
-          [sharedFolders]="sharedFolders"
-          [rowActions]="rowActions"
-          (add)="add()"
-        >
-          <bit-status-lockup slot="empty">
-            <span slot="title">No shared folders yet</span>
-            <span slot="description">Share vault items with your team by adding a folder.</span>
-            <button slot="button" type="button" bitButton buttonType="primary" (click)="add()">
-              Add shared folder
-            </button>
-          </bit-status-lockup>
-        </vault-shared-folders-table>
-      </div>
-    `,
-  }),
 };

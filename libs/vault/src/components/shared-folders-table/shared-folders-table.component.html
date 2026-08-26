@@ -1,4 +1,5 @@
 <bit-table-v2
+  #sharedFoldersTable="bitTableV2"
   [tableDef]="table"
   [filter]="filter"
   [loading]="loading()"
@@ -33,12 +34,28 @@
     }
   </bit-table-toolbar>
 
-  <!--
-    Passes a client-supplied empty state through to the table's own `empty` slot; the `slot`
-    attribute sits on the `ng-content` itself so the table's selector matches it. Omit it and the
-    table falls back to its default `bit-status-lockup`.
-  -->
-  <ng-content select="[slot=empty]" slot="empty"></ng-content>
+  <bit-status-lockup slot="empty">
+    <bit-svg slot="graphic" [content]="emptyIcon()"></bit-svg>
+    <span slot="title">{{ emptyTitleKey() | i18n }}</span>
+    <span slot="description">{{ emptyDescriptionKey() | i18n }}</span>
+    <!--
+      Hidden rather than removed with `@if`: the button is projected into the lockup's `button`
+      slot, and projection matches only the static top-level nodes of projected content.
+    -->
+    <button
+      id="shared-folders-table_button_clear-filters"
+      slot="button"
+      type="button"
+      bitButton
+      buttonType="secondary"
+      startIcon="bwi-clear"
+      class="tw-mb-6"
+      [class.tw-hidden]="!hasActiveChipFilters(sharedFoldersTable)"
+      (click)="clearChipFilters(sharedFoldersTable)"
+    >
+      {{ "clearAll" | i18n }}
+    </button>
+  </bit-status-lockup>
 
   <!--
     Declared here rather than projected in by the client: the bar finds its selected count and its
