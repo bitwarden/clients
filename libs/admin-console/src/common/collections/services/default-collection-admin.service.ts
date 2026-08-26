@@ -170,21 +170,21 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Promise<CollectionAdminView[]> {
-    return Promise.all(
-      collections.map((c) =>
+    const orgKey = orgKeys[organizationId as OrganizationId];
+
+    // Sequential rather than `Promise.all`: decryption is compute-bound, so there is no
+    // concurrency to win, and the extra promise scheduling makes the parallel form slower
+    // on both V8 and SpiderMonkey.
+    const views: CollectionAdminView[] = [];
+    for (const c of collections) {
+      views.push(
         isCollectionAccessDetailsResponse(c)
-          ? CollectionAdminView.fromCollectionAccessDetails(
-              c,
-              this.encryptService,
-              orgKeys[organizationId as OrganizationId],
-            )
-          : CollectionAdminView.fromCollectionResponse(
-              c,
-              this.encryptService,
-              orgKeys[organizationId as OrganizationId],
-            ),
-      ),
-    );
+          ? await CollectionAdminView.fromCollectionAccessDetails(c, this.encryptService, orgKey)
+          : await CollectionAdminView.fromCollectionResponse(c, this.encryptService, orgKey),
+      );
+    }
+
+    return views;
   }
 
   /**
