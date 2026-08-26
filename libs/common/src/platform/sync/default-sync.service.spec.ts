@@ -37,7 +37,6 @@ import { KeyConnectorService } from "../../key-management/key-connector/abstract
 import { InternalMasterPasswordServiceAbstraction } from "../../key-management/master-password/abstractions/master-password.service.abstraction";
 import { SyncSendNotification } from "../../models/response/notification.response";
 import { SendData } from "../../tools/send/models/data/send.data";
-import { Send } from "../../tools/send/models/domain/send";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { SendType } from "../../tools/send/types/send-type";
@@ -886,7 +885,7 @@ describe("DefaultSyncService", () => {
       tokenService.hasAccessToken$.mockReturnValue(of(true));
     });
 
-    it("fetches the send through the SDK and upserts it when the flag is on", async () => {
+    it("fetches the send through the SDK when the flag is on, without a redundant upsert", async () => {
       configService.getFeatureFlag.mockResolvedValue(true);
       const sdkSend = {
         id: sendGuid,
@@ -906,9 +905,9 @@ describe("DefaultSyncService", () => {
       expect(result).toBe(true);
       expect(sendsClient.fetch).toHaveBeenCalledWith(sendGuid);
       expect(sendApiService.getSend).not.toHaveBeenCalled();
-      expect(sendService.upsert).toHaveBeenCalledWith(
-        Send.fromSdkSend(sdkSend as any).toSendData(),
-      );
+      // The SDK's fetch() already persisted the send into SEND_USER_ENCRYPTED via its
+      // client-managed repository; upserting again here would write the same record twice.
+      expect(sendService.upsert).not.toHaveBeenCalled();
       expect(messageSender.send).toHaveBeenCalledWith("syncedUpsertedSend", { sendId: sendGuid });
     });
 

@@ -20,7 +20,6 @@ import {
   SyncSendNotification,
 } from "../../models/response/notification.response";
 import { SendData } from "../../tools/send/models/data/send.data";
-import { Send } from "../../tools/send/models/domain/send";
 import { SendApiService } from "../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../tools/send/services/send.service.abstraction";
 import { UserId } from "../../types/guid";
@@ -249,13 +248,14 @@ export abstract class CoreSyncService implements SyncService {
         ) {
           const useSdk = await this.configService.getFeatureFlag(FeatureFlag.Pm30110SdkSendsApi);
           if (useSdk) {
-            // The SDK fetches the send fresh from the server, persists it to its own local
-            // repository, and returns it still encrypted (the SDK `Send`, not a `SendResponse`).
+            // The SDK's `fetch` persists the send directly into SEND_USER_ENCRYPTED through its
+            // client-managed send repository (see initializeClientManagedState/SendRecordMapper)
+            // — the same state InternalSendService reads — so no explicit upsert here: that
+            // would just write the identical record to the identical key a second time.
             const sdkSend = await withPasswordManagerSdk(activeUserId, this.sdkService, (sdk) =>
               sdk.sends().fetch(asUuid<SdkSendId>(notification.id)),
             );
             if (sdkSend != null) {
-              await this.sendService.upsert(Send.fromSdkSend(sdkSend).toSendData());
               this.messageSender.send("syncedUpsertedSend", { sendId: notification.id });
               return this.syncCompleted(true, activeUserId);
             }
