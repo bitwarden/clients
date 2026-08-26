@@ -17308,9 +17308,6 @@
   "pamAccessRuleEventLogNotice": {
     "message": "All requests and decisions are logged."
   },
-  "pamAccessRuleViewEventLogs": {
-    "message": "View event logs"
-  },
   "pamAccessRuleViewAuditLog": {
     "message": "View audit log"
   },
