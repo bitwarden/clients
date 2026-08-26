@@ -1,7 +1,7 @@
 import {
-  AfterViewInit,
   DestroyRef,
   Directive,
+  DoCheck,
   Signal,
   WritableSignal,
   booleanAttribute,
@@ -13,8 +13,14 @@ import {
   signal,
 } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { NgControl, StatusChangeEvent, TouchedChangeEvent, Validators } from "@angular/forms";
-import { filter } from "rxjs";
+import {
+  AbstractControl,
+  NgControl,
+  StatusChangeEvent,
+  TouchedChangeEvent,
+  Validators,
+} from "@angular/forms";
+import { Subscription, filter } from "rxjs";
 
 export type InputTypes =
   | "text"
@@ -36,7 +42,7 @@ let nextId = 0;
     "[attr.aria-describedby]": "ariaDescribedBy()",
   },
 })
-export class BitFormFieldControlDirective implements AfterViewInit {
+export class BitFormFieldControlDirective implements DoCheck {
   protected readonly ngControl = inject(NgControl, { optional: true, self: true });
   private readonly destroyRef = inject(DestroyRef);
   // Bridges NgControl's RxJS events into the signal graph so `required` and `hasError` computed
@@ -64,6 +70,9 @@ export class BitFormFieldControlDirective implements AfterViewInit {
     );
   });
 
+  private subscribedControl: AbstractControl | null = null;
+  private controlSubscription?: Subscription;
+
   readonly showErrorsWhenDisabled = input(false);
   readonly hasError: Signal<boolean> = computed(() => {
     this.controlEvent();
@@ -83,8 +92,22 @@ export class BitFormFieldControlDirective implements AfterViewInit {
     return [key, errors[key]];
   }
 
-  ngAfterViewInit() {
-    this.ngControl?.control?.events
+  ngDoCheck() {
+    // `[formControl]` can be rebound to a different control while the view is reused — a row in a
+    // `@for` over a `FormArray`, for instance. Nothing emits on the outgoing control when that
+    // happens, so re-point the subscription and invalidate the cached signals here; otherwise
+    // `hasError` keeps reporting the previous control's validity against the new control's errors.
+    if (this.ngControl?.control !== this.subscribedControl) {
+      this.watchControl();
+    }
+  }
+
+  private watchControl() {
+    const control = this.ngControl?.control ?? null;
+    this.controlSubscription?.unsubscribe();
+    this.subscribedControl = control;
+    this.controlEvent.set(control);
+    this.controlSubscription = control?.events
       .pipe(
         filter((e) => e instanceof TouchedChangeEvent || e instanceof StatusChangeEvent),
         takeUntilDestroyed(this.destroyRef),
