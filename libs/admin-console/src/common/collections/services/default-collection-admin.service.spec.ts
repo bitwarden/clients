@@ -7,6 +7,7 @@ import {
   Collection,
   CollectionTypes,
 } from "@bitwarden/common/admin-console/models/collections/collection";
+import { CollectionAdminView } from "@bitwarden/common/admin-console/models/collections/collection-admin.view";
 import {
   CollectionAccessDetailsResponse,
   CollectionResponse,
@@ -179,14 +180,30 @@ describe("DefaultCollectionAdminService", () => {
         const failedView = result.find((v) => v.id === collectionId1);
         expect(failedView?.name).toBe("[error: cannot decrypt]");
       });
+    });
 
-      it("falls back to the original path when responses are not access-details responses", async () => {
-        // The API method is typed to always return `CollectionAccessDetailsResponse`, but at
-        // runtime a caller without manage permissions on any collection gets back the narrower
-        // `CollectionResponse` shape (no `groups`/`users`), which is exactly what
-        // `isCollectionAccessDetailsResponse` distinguishes at runtime. The cast below simulates
-        // that real mismatch; the v1 path (via EncryptService) must be used even though the flag
-        // is enabled.
+    describe("when CollectionAdminBulkDecrypt is disabled", () => {
+      beforeEach(() => {
+        configService.getFeatureFlag$.mockReturnValue(of(false));
+      });
+
+      it("decrypts collections one at a time via EncryptService", async () => {
+        mockApiResponse([makeAccessDetailsResponse()]);
+        encryptService.decryptString.mockResolvedValue("Decrypted Name");
+
+        const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
+
+        expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
+        expect(encryptService.decryptString).toHaveBeenCalled();
+        expect(result).toHaveLength(1);
+        expect(result[0].name).toBe("Decrypted Name");
+      });
+
+      it("still decrypts responses that carry no groups/users", async () => {
+        // `ApiService` builds every element as a `CollectionAccessDetailsResponse`, whose
+        // `groups`/`users` default to `[]`, so this shape does not occur on the current call
+        // path. The cast below forces the plain `CollectionResponse` class to cover the
+        // defensive `isCollectionAccessDetailsResponse` branch in `decryptManyV1`.
         apiService.getManyCollectionsWithAccessDetails.mockResolvedValue(
           new ListResponse(
             {
@@ -204,28 +221,16 @@ describe("DefaultCollectionAdminService", () => {
         );
         encryptService.decryptString.mockResolvedValue("Decrypted Name");
 
-        const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
-
-        expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
-        expect(encryptService.decryptString).toHaveBeenCalled();
-        expect(result).toHaveLength(1);
-        expect(result[0].name).toBe("Decrypted Name");
-      });
-    });
-
-    describe("when CollectionAdminBulkDecrypt is disabled", () => {
-      beforeEach(() => {
-        configService.getFeatureFlag$.mockReturnValue(of(false));
-      });
-
-      it("decrypts collections one at a time via EncryptService", async () => {
-        mockApiResponse([makeAccessDetailsResponse()]);
-        encryptService.decryptString.mockResolvedValue("Decrypted Name");
+        const fromResponse = jest.spyOn(CollectionAdminView, "fromCollectionResponse");
+        const fromAccessDetails = jest.spyOn(CollectionAdminView, "fromCollectionAccessDetails");
 
         const result = await firstValueFrom(service.collectionAdminViews$(orgId, userId));
 
+        // Both constructors yield the same name and an empty `groups`, so assert the branch
+        // taken rather than the resulting shape.
+        expect(fromResponse).toHaveBeenCalledTimes(1);
+        expect(fromAccessDetails).not.toHaveBeenCalled();
         expect(collectionEncryptionService.decryptManyWithFailures).not.toHaveBeenCalled();
-        expect(encryptService.decryptString).toHaveBeenCalled();
         expect(result).toHaveLength(1);
         expect(result[0].name).toBe("Decrypted Name");
       });

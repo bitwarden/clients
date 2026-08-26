@@ -145,26 +145,35 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
     );
   }
 
+  /**
+   * Routes decryption through the SDK-backed batch path or the original per-item path based on
+   * {@link FeatureFlag.CollectionAdminBulkDecrypt}. The empty case is handled by the caller, so
+   * this is a straight two-way mapping: flag on -> SDK, flag off -> non-SDK.
+   */
   private decryptMany(
     organizationId: string,
     userId: UserId,
-    collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
+    collections: CollectionAccessDetailsResponse[],
     orgKeys: Record<OrganizationId, OrgKey>,
   ): Observable<CollectionAdminView[]> {
-    if (collections.length > 0 && collections.every(isCollectionAccessDetailsResponse)) {
-      return this.configService.getFeatureFlag$(FeatureFlag.CollectionAdminBulkDecrypt).pipe(
-        distinctUntilChanged(),
-        switchMap((bulkDecryptEnabled) =>
-          bulkDecryptEnabled
-            ? this.decryptManyV2(collections as CollectionAccessDetailsResponse[], userId)
-            : from(this.decryptManyV1(organizationId, collections, orgKeys)),
-        ),
-      );
-    }
-
-    return from(this.decryptManyV1(organizationId, collections, orgKeys));
+    return this.configService.getFeatureFlag$(FeatureFlag.CollectionAdminBulkDecrypt).pipe(
+      distinctUntilChanged(),
+      switchMap((bulkDecryptEnabled) =>
+        bulkDecryptEnabled
+          ? this.decryptManyV2(collections, userId)
+          : from(this.decryptManyV1(organizationId, collections, orgKeys)),
+      ),
+    );
   }
 
+  /**
+   * V1 implementation: decrypts each collection individually via `EncryptService`.
+   *
+   * Accepts the wider `CollectionResponse` shape and narrows per item. Every caller today passes
+   * `CollectionAccessDetailsResponse`s, so the `fromCollectionResponse` branch is defensive only —
+   * it keeps this path correct if a caller ever supplies responses built from the plain
+   * `CollectionResponse` class, which carries no `groups`/`users`.
+   */
   private async decryptManyV1(
     organizationId: string,
     collections: CollectionResponse[] | CollectionAccessDetailsResponse[],
@@ -312,6 +321,13 @@ export class DefaultCollectionAdminService implements CollectionAdminService {
   }
 }
 
+/**
+ * Duck-types a response as a `CollectionAccessDetailsResponse` by the presence of `groups` and
+ * `users`. Note this is true for every instance the API layer builds today: `ApiService`
+ * constructs `ListResponse(r, CollectionAccessDetailsResponse)`, and that class defaults both
+ * fields to `[]` regardless of the payload. The check is retained as a guard against a caller
+ * supplying responses built from the plain `CollectionResponse` class.
+ */
 function isCollectionAccessDetailsResponse(
   response: CollectionResponse | CollectionAccessDetailsResponse,
 ): response is CollectionAccessDetailsResponse {
