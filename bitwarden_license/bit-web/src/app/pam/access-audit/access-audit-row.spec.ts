@@ -17,6 +17,9 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     automated: false,
     inDoubt: false,
     requestId: null,
+    duration: null,
+    durationWindow: null,
+    extendedUntil: null,
     searchText: "alice alice prod db production",
     ...overrides,
   };
@@ -94,5 +97,71 @@ describe("toAuditRow", () => {
     const result = toAuditRow(event, new Map(), new Map());
 
     expect(result.inDoubt).toBe(true);
+  });
+
+  it("states the granted window as a duration on a lease activation", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.LeaseActivated,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: false,
+      LeaseNotBefore: "2026-06-30T12:00:00Z",
+      LeaseNotAfter: "2026-06-30T13:00:00Z",
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.duration).toEqual({ key: "pamInboxDuration1Hour", value: null });
+    expect(result.durationWindow).toEqual(expect.stringContaining("–"));
+    expect(result.extendedUntil).toBeNull();
+  });
+
+  it("states no duration on a revoke, whose granted end is not when access ended", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.LeaseRevoked,
+      OccurredAt: "2026-06-30T12:05:00Z",
+      OrganizationId: "org-1",
+      Automated: false,
+      LeaseNotBefore: "2026-06-30T12:00:00Z",
+      LeaseNotAfter: "2026-06-30T16:00:00Z",
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.duration).toBeNull();
+    expect(result.durationWindow).toBeNull();
+    expect(result.extendedUntil).toBeNull();
+  });
+
+  it("states an extension's new end, the only bound the server writes for that kind", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.LeaseExtended,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: false,
+      LeaseNotAfter: "2026-06-30T16:00:00Z",
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.extendedUntil).toBe("2026-06-30T16:00:00Z");
+    expect(result.duration).toBeNull();
+    expect(result.durationWindow).toBeNull();
+  });
+
+  it("states no duration when an activation is missing its start bound", () => {
+    const event = new AccessAuditEventResponse({
+      Kind: AccessAuditEventKind.LeaseActivated,
+      OccurredAt: "2026-06-30T12:00:00Z",
+      OrganizationId: "org-1",
+      Automated: false,
+      LeaseNotAfter: "2026-06-30T16:00:00Z",
+    });
+
+    const result = toAuditRow(event, new Map(), new Map());
+
+    expect(result.duration).toBeNull();
+    expect(result.durationWindow).toBeNull();
+    expect(result.extendedUntil).toBeNull();
   });
 });
