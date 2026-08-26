@@ -46,6 +46,7 @@ import {
   composeRequestWindow,
   defaultRequestWindow,
   requestDurationOptions,
+  requestedWindowSeconds,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
 import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
@@ -165,6 +166,28 @@ export class CipherViewBannerComponent implements OnInit {
 
   /** The unified access-state pill, so this banner reads the same as the row and the Requests page. */
   protected readonly badge = computed(() => cipherAccessBadgeState(this.state()));
+
+  /**
+   * How much access the approval granted, from the request's own activation window. This is the
+   * length of the grant, not the time still left to use it: the lease ends at `leaseNotAfter`
+   * however late it is started, so a request left sitting yields less than this. The absolute
+   * expiry that would say so is a separate piece of copy, not yet supplied.
+   *
+   * Both routes into the approved state resolve the window at submit. An auto-approving rule
+   * resolves it from the duration the requester picked, a human approver from the window they asked
+   * for, so the same subtraction is right for both.
+   *
+   * Yields `null` for a window that does not resolve to a positive span, so a malformed one renders
+   * no line rather than "0 minutes of access".
+   */
+  protected readonly approvedDurationSeconds = computed(() => {
+    const approved = this.approvedRequest();
+    if (approved == null) {
+      return null;
+    }
+    const seconds = requestedWindowSeconds(approved);
+    return Number.isFinite(seconds) && seconds > 0 ? seconds : null;
+  });
 
   /** The rule governing the active lease opted into extensions. */
   protected readonly canExtendLease = computed(() => this.state()?.extensionsAllowed === true);
