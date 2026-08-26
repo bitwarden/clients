@@ -13,6 +13,7 @@ import { CartSummaryComponent, DiscountTypes } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { BitwardenSubscription } from "../../types/bitwarden-subscription";
+import { SubscriptionPreview } from "../../types/subscription-preview";
 
 import { SubscriptionCardComponent } from "./subscription-card.component";
 
@@ -413,4 +414,95 @@ export const Enterprise: Story = {
       },
     },
   },
+};
+
+export const ActiveFromPreview: Story = {
+  name: "Preview-Driven - Active",
+  args: {
+    title: "Teams Subscription",
+    subscription: {
+      status: "active",
+      nextCharge: new Date("2025-02-15"),
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 5,
+            translationKey: "members",
+            cost: 4,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 1.5,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies SubscriptionPreview,
+  },
+};
+
+export const PreviewWithoutStorage: Story = {
+  name: "Preview-Driven - No Storage",
+  args: {
+    title: "Teams Subscription",
+    // `storage` is optional on SubscriptionPreview (the server omits it when there is no maximum
+    // storage allowance) — verifies the card renders without a storage section.
+    subscription: {
+      status: "active",
+      nextCharge: new Date("2025-02-15"),
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 5,
+            translationKey: "members",
+            cost: 4,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 1.5,
+      },
+    } satisfies SubscriptionPreview,
+  },
+};
+
+export const WithProjectedContent: Story = {
+  name: "Preview-Driven - With Projected Warning",
+  args: {
+    title: "Teams Subscription",
+    subscription: {
+      status: "active",
+      nextCharge: new Date("2025-02-15"),
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 5,
+            translationKey: "members",
+            cost: 4,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 1.5,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies SubscriptionPreview,
+  },
+  // Verifies the <ng-content> slot: pages project content (e.g. the scheduled price-increase
+  // warning) into the bottom of the card.
+  render: (args) => ({
+    props: args,
+    template: `
+      <billing-subscription-card [title]="title" [subscription]="subscription">
+        <bit-callout type="warning" title="Pricing details may be outdated">
+          We're having trouble reaching our billing service, so your subscription details may be
+          outdated. You're seeing the last known details.
+        </bit-callout>
+      </billing-subscription-card>
+    `,
+  }),
 };
