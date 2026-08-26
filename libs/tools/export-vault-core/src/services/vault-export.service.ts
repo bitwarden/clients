@@ -91,6 +91,20 @@ export class VaultExportService implements VaultExportServiceAbstraction {
   }
 
   /**
+   * Delegates to the organization export service; see
+   * {@link OrganizationVaultExportServiceAbstraction.getManagedExportGatedItemCount}.
+   */
+  async getManagedExportGatedItemCount(
+    userId: UserId,
+    organizationId: OrganizationId,
+  ): Promise<number> {
+    return this.organizationVaultExportService.getManagedExportGatedItemCount(
+      userId,
+      organizationId,
+    );
+  }
+
+  /**
    * Get available export formats based on vault context
    * @param options Options determining which formats are available
    * @returns Observable stream of available export formats
