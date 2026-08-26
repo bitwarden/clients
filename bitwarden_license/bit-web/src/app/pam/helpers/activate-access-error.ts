@@ -53,20 +53,47 @@ export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
 } as const satisfies Record<string, { serverMessage: string; messageKey: string }>);
 
 /**
+ * The server's sentence, decoded out of the JSON envelope the SDK concatenated onto its transport
+ * string, or `null` when the message isn't that shape.
+ *
+ * Decoding is not optional: `System.Text.Json`'s default encoder escapes non-alphanumerics, so the
+ * apostrophe in `This request's ...` crosses the wire as `\u0027` and the sentence never matches
+ * the catalog as raw text. Same extraction as `classifyOpenOrgInviteAcceptError` in
+ * `libs/common/src/auth/organization-invite/services/implementations/default-organization-invite.service.ts`,
+ * which is coupled to the same `bitwarden-api-base::Error::Response` Display format:
+ * `error in response: status code <status> <reason>: <json-body>`. Anchoring on the first `{` and
+ * last `}` keeps this working if the prefix drifts.
+ */
+function serverSentence(message: string): string | null {
+  const bodyStart = message.indexOf("{");
+  const bodyEnd = message.lastIndexOf("}");
+  if (bodyStart === -1 || bodyEnd <= bodyStart) {
+    return null;
+  }
+  try {
+    const body = JSON.parse(message.slice(bodyStart, bodyEnd + 1)) as { message?: unknown };
+    return typeof body?.message === "string" ? body.message : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * The i18n key to toast for a rejected activation, generic copy included.
  *
  * An i18n key is all that comes back — the raw error never leaves this function, which is the
  * point: its message is the server's serialized response, and putting it on screen would publish
  * the server's filesystem paths and .NET frames to the requester.
  *
- * Matched with `includes` rather than equality: the wire body wraps the server's sentence in a JSON
- * envelope and repeats it in `exceptionMessage`. The catalog entries are whole, distinct sentences,
- * none a substring of another, so a substring match is unambiguous while tolerating that framing.
+ * Matched with `includes` rather than equality so an envelope this function cannot decode still has
+ * a chance of matching on the raw text. The catalog entries are whole, distinct sentences, none a
+ * substring of another, so a substring match is unambiguous.
  */
 export function activateAccessErrorMessageKey(e: unknown): string {
   const message = e instanceof Error ? e.message : "";
+  const candidate = serverSentence(message) ?? message;
   const mapped = Object.values(ACTIVATE_ACCESS_SERVER_ERRORS).find((entry) =>
-    message.includes(entry.serverMessage),
+    candidate.includes(entry.serverMessage),
   );
   return mapped?.messageKey ?? "pamStartLeaseError";
 }
