@@ -116,6 +116,7 @@ export {
 
 export { CIPHER_VIEW_BANNER } from "./tokens/cipher-view-banner.token";
 export { GATED_CIPHER_RELOADER } from "./tokens/gated-cipher-reloader.token";
+export { ITEM_DETAILS_STATE_BADGE } from "./tokens/item-details-state-badge.token";
 export type { GatedCipherReloader } from "./tokens/gated-cipher-reloader.token";
 
 export { VaultBatchBarService, VaultBatchBarConfig } from "./services/vault-batch-bar.service";

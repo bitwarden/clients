@@ -22,9 +22,11 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   AsyncActionsModule,
   ButtonModule,
-  CalloutModule,
+  CardComponent,
   DialogService,
   FormFieldModule,
+  IconModule,
+  IconTileComponent,
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
@@ -45,13 +47,13 @@ import {
   composeRequestWindow,
   defaultRequestWindow,
   requestDurationOptions,
+  requestedWindowSeconds,
 } from "..";
 import { ExtendLeaseDialogComponent } from "../access-requests/extend-lease-dialog/extend-lease-dialog.component";
-import { cipherAccessBadgeState } from "../access-state-badge/access-badge-state";
-import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationLongPipe } from "../date/duration-long.pipe";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { formatRemaining } from "../date/format-remaining";
+import { isGovernedCipher } from "../helpers/governed-cipher";
 import { AccessRequestCancelService } from "../services/access-request-cancel.service";
 
 import {
@@ -88,11 +90,12 @@ import {
   imports: [
     AsyncActionsModule,
     ButtonModule,
-    CalloutModule,
+    CardComponent,
     FormFieldModule,
+    IconModule,
+    IconTileComponent,
     ReactiveFormsModule,
     TypographyModule,
-    AccessStateBadgeComponent,
     DatePipe,
     DurationLongPipe,
     DurationShortPipe,
@@ -125,9 +128,8 @@ export class CipherViewBannerComponent implements OnInit {
   /**
    * The caller's access state for the open cipher, re-read on every access change.
    *
-   * Reads only for a PAM-governed cipher — the flag is on and the cipher is either still gated
-   * (`partial`) or already served under a lease (`leaseGated`). Without that guard a plain cipher
-   * open would fire a PAM request for every item in the vault.
+   * Reads only for a PAM-governed cipher, per {@link isGovernedCipher}, and only while the flag
+   * is on.
    *
    * The re-read trigger is {@link AccessRefreshService}, shared with the gated-cipher reloader, so
    * starting access here also reveals the credential in the item behind this banner.
@@ -135,7 +137,7 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly state = toSignal(
     combineLatest([toObservable(this.cipher), this.enabled$]).pipe(
       switchMap(([cipher, enabled]) => {
-        if (!enabled || cipher.id == null || !(cipher.partial || cipher.leaseGated === true)) {
+        if (!enabled || cipher.id == null || !isGovernedCipher(cipher)) {
           return of(null);
         }
         const cipherId = String(cipher.id);
@@ -161,8 +163,27 @@ export class CipherViewBannerComponent implements OnInit {
   protected readonly approvedRequest = computed(() => this.state()?.approvedRequest);
   protected readonly pendingRequest = computed(() => this.state()?.pendingRequest);
 
-  /** The unified access-state pill, so this banner reads the same as the row and the Requests page. */
-  protected readonly badge = computed(() => cipherAccessBadgeState(this.state()));
+  /**
+   * How much access the approval granted, from the request's own activation window. This is the
+   * length of the grant, not the time still left to use it: the lease ends at `leaseNotAfter`
+   * however late it is started, so a request left sitting yields less than this. The absolute
+   * expiry that would say so is a separate piece of copy, not yet supplied.
+   *
+   * Both routes into the approved state resolve the window at submit. An auto-approving rule
+   * resolves it from the duration the requester picked, a human approver from the window they asked
+   * for, so the same subtraction is right for both.
+   *
+   * Yields `null` for a window that does not resolve to a positive span, so a malformed one renders
+   * no line rather than "0 minutes of access".
+   */
+  protected readonly approvedDurationSeconds = computed(() => {
+    const approved = this.approvedRequest();
+    if (approved == null) {
+      return null;
+    }
+    const seconds = requestedWindowSeconds(approved);
+    return Number.isFinite(seconds) && seconds > 0 ? seconds : null;
+  });
 
   /** The rule governing the active lease opted into extensions. */
   protected readonly canExtendLease = computed(() => this.state()?.extensionsAllowed === true);
@@ -179,6 +200,48 @@ export class CipherViewBannerComponent implements OnInit {
       this.activeLease() == null &&
       this.approvedRequest() == null &&
       this.pendingRequest() == null,
+  );
+
+  /**
+   * The governing rule's terms for a request nobody has made yet: how long access may run, and
+   * whether it would be granted on the spot. Both come from the same side-effect-free `preCheck`
+   * the fold-out runs, because the access state read above carries neither. `CipherAccessStateView`
+   * publishes only `maxExtensionDurationSeconds`, which caps extending a lease that already exists
+   * rather than opening a request.
+   *
+   * Read only while the resting request-access state is on screen, so a cipher under a lease or
+   * with a request in play costs no extra round-trip. The fold-out still runs its own pre-check on
+   * open: this one is for display, and `hasActiveLease` has to be resolved against the moment of
+   * submit rather than the moment of render.
+   *
+   * Yields `null` when the cap is missing, so a rule whose bounds the server could not resolve
+   * renders no line rather than a made-up limit.
+   */
+  protected readonly restingRequestTerms = toSignal(
+    toObservable(computed(() => (this.canRequestAccess() ? this.cipher().id : null))).pipe(
+      switchMap((cipherId) =>
+        cipherId == null
+          ? of(null)
+          : from(this.accessRequestSdkService.preCheck(String(cipherId))).pipe(
+              map(({ approvalMode, maxDurationSeconds }) =>
+                Number.isFinite(maxDurationSeconds)
+                  ? {
+                      maxSeconds: maxDurationSeconds,
+                      messageKey:
+                        approvalMode === "automatic"
+                          ? "pamRequestAccessBannerMaxDurationAutomatic"
+                          : "pamRequestAccessBannerMaxDuration",
+                    }
+                  : null,
+              ),
+              catchError((e: unknown) => {
+                this.logService.error(e);
+                return of(null);
+              }),
+            ),
+      ),
+    ),
+    { initialValue: null },
   );
 
   // Parsed once per lease change: the per-second tick would otherwise re-parse the same ISO string
