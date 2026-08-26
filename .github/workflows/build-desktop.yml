@@ -508,11 +508,11 @@ jobs:
           - name: "prod"
             readable: "Production"
             build_command: "build"
-            installer_qa_segment: ""
+            qa_segment: ""
           - name: "qa"
             readable: "QA Cloud-Region"
             build_command: "build:qa"
-            installer_qa_segment: "-QA"
+            qa_segment: "-QA"
     defaults:
       run:
         shell: pwsh
@@ -678,18 +678,18 @@ jobs:
             -NewName bitwarden-$env:_PACKAGE_VERSION-arm64.nsis.7z
 
       - name: Upload portable exe artifact
-        if: ${{ matrix.build_type.name == 'prod' }}
+        if: ${{ matrix.build_type.name == 'prod' || needs.setup.outputs.has_secrets == 'true' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
+          name: Bitwarden-Portable${{ matrix.build_type.qa_segment }}-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/Bitwarden-Portable-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
       - name: Upload installer exe artifact
-        if: ${{ needs.setup.outputs.has_secrets == 'true' }}
+        if: ${{ needs.setup.outputs.has_secrets == 'true' && matrix.build_type.name == 'prod' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: Bitwarden-Installer${{ matrix.build_type.installer_qa_segment }}-${{ env._PACKAGE_VERSION }}.exe
+          name: Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           path: apps/desktop/dist/nsis-web/Bitwarden-Installer-${{ env._PACKAGE_VERSION }}.exe
           if-no-files-found: error
 
