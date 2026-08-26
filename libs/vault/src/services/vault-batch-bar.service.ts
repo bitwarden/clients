@@ -145,6 +145,10 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** The Angular CDK selection model. Add, remove, or clear items directly. */
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
+  private readonly _cleared$ = new Subject<void>();
+  /** Emits when "Clear" is explicitly clicked in the batch bar. */
+  readonly cleared$ = this._cleared$.asObservable();
+
   private readonly _completed$ = new Subject<void>();
   /** Emits once after each successful bulk action. Subscribe to trigger a list refresh. */
   readonly completed$ = this._completed$.asObservable();
@@ -385,6 +389,12 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   /** Update the vault context. Call in `ngOnChanges` or when configuration values change so permission signals stay current. */
   setConfig(config: VaultBatchBarConfig): void {
     this.config.set(config);
+  }
+
+  /** Clear the selection and notify subscribers (e.g. the table component) to uncheck rows. */
+  clear(): void {
+    this.selection.clear();
+    this._cleared$.next();
   }
 
   /** Archive the selected ciphers after confirmation. No-op if reprompt is cancelled. */
