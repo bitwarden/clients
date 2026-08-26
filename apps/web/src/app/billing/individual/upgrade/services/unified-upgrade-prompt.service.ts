@@ -83,7 +83,11 @@ export class UnifiedUpgradePromptService {
       return null;
     }
 
-    if (await firstValueFrom(this.govModeService.globalIsGovMode$)) {
+    const govModeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    if (
+      govModeAccount != null &&
+      (await firstValueFrom(this.govModeService.isGovMode$(govModeAccount.id)))
+    ) {
       return null;
     }
 

@@ -84,7 +84,7 @@ describe("OrganizationWarningsService", () => {
     organizationBillingClient = mock<OrganizationBillingClient>();
     platformUtilsService = mock<PlatformUtilsService>();
     govModeService = mock<GovModeService>();
-    govModeService.globalIsGovMode$ = of(false);
+    govModeService.isGovMode$.mockReturnValue(of(false));
     router = mock<Router>();
     stateProvider = mock<StateProvider>();
 
@@ -889,7 +889,7 @@ describe("OrganizationWarningsService", () => {
 
   describe("Gov mode", () => {
     beforeEach(() => {
-      govModeService.globalIsGovMode$ = of(true);
+      govModeService.isGovMode$.mockReturnValue(of(true));
     });
 
     it("keeps returning the free-trial countdown warning (opted in)", (done) => {
@@ -970,6 +970,78 @@ describe("OrganizationWarningsService", () => {
           done();
         },
       });
+    });
+
+    it("keeps returning the free-trial countdown warning after refresh (opt-in holds)", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse);
+
+      let invocationCount = 0;
+      const subscription = service.getFreeTrialWarning$(organization).subscribe((result) => {
+        invocationCount++;
+
+        if (invocationCount === 1) {
+          expect(result).toEqual({
+            organization: organization,
+            message: "Your free trial ends in 5 days.",
+          });
+        } else if (invocationCount === 2) {
+          expect(result).toEqual({
+            organization: organization,
+            message: "Your free trial ends in 5 days.",
+          });
+          subscription.unsubscribe();
+          done();
+        }
+      });
+
+      setTimeout(() => {
+        service.refreshFreeTrialWarning();
+      }, 10);
+    });
+
+    it("keeps suppressing the tax ID warning after refresh", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        taxId: { type: TaxIdWarningTypes.Missing },
+      } as OrganizationWarningsResponse);
+
+      let invocationCount = 0;
+      const subscription = service.getTaxIdWarning$(organization).subscribe((result) => {
+        invocationCount++;
+        expect(result).toBeNull();
+
+        if (invocationCount === 2) {
+          subscription.unsubscribe();
+          done();
+        }
+      });
+
+      setTimeout(() => {
+        service.refreshTaxIdWarning();
+      }, 10);
+    });
+
+    it("does not show the inactive subscription dialog after refresh", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        inactiveSubscription: { resolution: "add_payment_method" },
+      } as OrganizationWarningsResponse);
+
+      let emissionCount = 0;
+      const subscription = service.showInactiveSubscriptionDialog$(organization).subscribe(() => {
+        emissionCount++;
+        expect(dialogService.openSimpleDialog).not.toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        if (emissionCount === 2) {
+          subscription.unsubscribe();
+          done();
+        }
+      });
+
+      setTimeout(() => {
+        service.refreshInactiveSubscriptionWarning();
+      }, 10);
     });
   });
 });

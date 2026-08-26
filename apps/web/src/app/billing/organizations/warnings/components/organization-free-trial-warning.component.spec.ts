@@ -3,8 +3,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { OrganizationWarningsService } from "../services";
 import { OrganizationFreeTrialWarning } from "../types";
@@ -15,23 +17,27 @@ describe("OrganizationFreeTrialWarningComponent", () => {
   let fixture: ComponentFixture<OrganizationFreeTrialWarningComponent>;
   let warningsService: MockProxy<OrganizationWarningsService>;
   let govModeService: MockProxy<GovModeService>;
+  let accountService: MockProxy<AccountService>;
   let i18nService: MockProxy<I18nService>;
 
   const organization = { id: "org-id-123" } as Organization;
+  const account = { id: "user-id-123" as UserId } as Account;
 
   const setWarning = (warning: OrganizationFreeTrialWarning | null) => {
     warningsService.getFreeTrialWarning$.mockReturnValue(of(warning));
   };
 
   const setGovMode = (isGovMode: boolean) => {
-    govModeService.globalIsGovMode$ = of(isGovMode);
+    govModeService.isGovMode$.mockReturnValue(of(isGovMode));
   };
 
   beforeEach(async () => {
     warningsService = mock<OrganizationWarningsService>();
     govModeService = mock<GovModeService>();
+    accountService = mock<AccountService>();
     i18nService = mock<I18nService>();
 
+    accountService.activeAccount$ = of(account);
     i18nService.t.mockImplementation((key: string) => key);
 
     await TestBed.configureTestingModule({
@@ -39,6 +45,7 @@ describe("OrganizationFreeTrialWarningComponent", () => {
       providers: [
         { provide: OrganizationWarningsService, useValue: warningsService },
         { provide: GovModeService, useValue: govModeService },
+        { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: i18nService },
       ],
     }).compileComponents();

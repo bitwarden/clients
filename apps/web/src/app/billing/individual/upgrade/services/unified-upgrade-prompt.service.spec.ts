@@ -82,7 +82,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
       mockStateProvider.getUserState$.mockReturnValue(of(false));
       mockConfigService.serverSettings$ = of(new ServerSettings());
-      mockGovModeService.globalIsGovMode$ = of(false);
+      mockGovModeService.isGovMode$.mockReturnValue(of(false));
 
       setupTestService();
     });
@@ -115,7 +115,7 @@ describe("UnifiedUpgradePromptService", () => {
 
       // Default: server settings do not suppress onboarding interstitials
       mockConfigService.serverSettings$ = of(new ServerSettings());
-      mockGovModeService.globalIsGovMode$ = of(false);
+      mockGovModeService.isGovMode$.mockReturnValue(of(false));
     });
     it("should subscribe to account observables when checking display conditions", async () => {
       // Arrange
@@ -309,7 +309,7 @@ describe("UnifiedUpgradePromptService", () => {
       mockPremiumUpsellService.showUpsell.mockReturnValue(true);
       mockOrganizationService.memberOrganizations$.mockReturnValue(of([]));
       mockPlatformUtilsService.isSelfHost.mockReturnValue(false);
-      mockGovModeService.globalIsGovMode$ = of(true);
+      mockGovModeService.isGovMode$.mockReturnValue(of(true));
       setupTestService();
 
       const result = await sut.displayUpgradePromptConditionally();
