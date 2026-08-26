@@ -3,7 +3,7 @@ import { Type } from "@angular/core";
 import { SafeInjectionToken } from "@bitwarden/ui-common";
 
 /**
- * Optional banner rendered at the top of the cipher view. Hosts that surface a
+ * Optional banner rendered directly below the cipher view's item details. Hosts that surface a
  * privileged-access feature (currently the web vault) provide the banner component
  * class through this token; platforms without it (browser, desktop, emergency access)
  * leave it unprovided, so the cipher view injects `null` and renders nothing.
