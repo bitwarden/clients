@@ -38,12 +38,12 @@ export type AuditRow = {
    */
   requestId: string | null;
   /**
-   * The length of the granted access window, as an i18n key + value, on the one kind that states a
-   * complete one. Null on every other kind — see {@link toAuditRow}.
+   * The length of the granted access window, as an i18n key + value. Only a lease activation states
+   * a complete window — null on every other kind (see {@link toAuditRow}).
    */
   duration: LabelValue | null;
   /** The exact "from – to" window behind {@link duration}, for the cell's tooltip. Null whenever {@link duration} is. */
-  durationWindow: string | null;
+  exactWindow: string | null;
   /**
    * A lease-extended event's new lease end (the wire's ISO string). The only bound that kind
    * carries, so it is stated as an end rather than a length. Null on every other kind.
@@ -99,6 +99,10 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
   }
 }
 
+function isTimestamp(value: string | null): value is string {
+  return value != null && Number.isFinite(Date.parse(value));
+}
+
 /** Shape a server audit event into a display row, taking cipher/collection names from a resolved vault snapshot. */
 export function toAuditRow(
   event: AccessAuditEventResponse,
@@ -122,20 +126,16 @@ export function toAuditRow(
   // rejected activation arrives carrying the same two bounds — a revoked lease ended at this row's
   // own timestamp, not at the granted end, and a rejected activation opened no window at all — so
   // reporting a duration on either would overstate how long access was held.
-  const window =
+  const grantedWindow =
     event.kind === AccessAuditEventKind.LeaseActivated &&
-    event.leaseNotBefore != null &&
-    event.leaseNotAfter != null &&
-    Number.isFinite(Date.parse(event.leaseNotBefore)) &&
-    Number.isFinite(Date.parse(event.leaseNotAfter))
+    isTimestamp(event.leaseNotBefore) &&
+    isTimestamp(event.leaseNotAfter)
       ? { leaseNotBefore: event.leaseNotBefore, leaseNotAfter: event.leaseNotAfter }
       : null;
   // An extension writes only the parent lease's new end (the server's RequestLeaseExtensionCommand
   // sets LeaseNotAfter alone), so there is no pair to subtract: the end is all the row can state.
   const extendedUntil =
-    event.kind === AccessAuditEventKind.LeaseExtended &&
-    event.leaseNotAfter != null &&
-    Number.isFinite(Date.parse(event.leaseNotAfter))
+    event.kind === AccessAuditEventKind.LeaseExtended && isTimestamp(event.leaseNotAfter)
       ? event.leaseNotAfter
       : null;
   return {
@@ -150,8 +150,8 @@ export function toAuditRow(
     automated: event.automated,
     inDoubt: event.incomplete,
     requestId: event.requestId,
-    duration: window == null ? null : durationLabel(window),
-    durationWindow: window == null ? null : exactWindow(window),
+    duration: grantedWindow == null ? null : durationLabel(grantedWindow),
+    exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow),
     extendedUntil,
     searchText: [actor, requester, cipherName, collectionName, event.ruleName, event.detail]
       .filter((value): value is string => value != null)
