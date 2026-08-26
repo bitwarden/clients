@@ -1,6 +1,6 @@
 import { inject, Signal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { combineLatest, map, of, startWith, switchMap } from "rxjs";
+import { combineLatest, distinctUntilChanged, map, of, startWith, switchMap } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -61,14 +61,22 @@ export function gatedCollection(
     configService.getFeatureFlag$(FeatureFlag.Pam),
     pamOrganizationIds$,
   ]).pipe(
-    switchMap(([selected, enabled, pamOrganizationIds]) => {
+    map(([selected, enabled, pamOrganizationIds]) => {
       const { id, organizationId } = selected ?? {};
-      if (
-        !enabled ||
-        id == null ||
-        organizationId == null ||
-        !pamOrganizationIds.has(organizationId)
-      ) {
+      return enabled &&
+        id != null &&
+        organizationId != null &&
+        pamOrganizationIds.has(organizationId)
+        ? { id, organizationId }
+        : null;
+    }),
+    // `getFeatureFlag$` and `pamOrganizationIds$` both re-emit on unrelated upstream events (a
+    // config refresh, any sync write), with no de-duplication of their own. Without this, those
+    // re-emissions would re-run the switchMap below for the SAME collection and re-trigger its
+    // `startWith(false)` seed, blinking a settled banner/lock off and back on.
+    distinctUntilChanged((a, b) => a?.id === b?.id && a?.organizationId === b?.organizationId),
+    switchMap((target) => {
+      if (target == null) {
         return of(false);
       }
       // `startWith(false)` because the vault banner is ONE component instance whose inputs the
@@ -76,8 +84,8 @@ export function gatedCollection(
       // previous collection's verdict standing until the new read lands, so the banner would keep
       // asserting "requires a request" over an ungated collection's items for the length of a
       // network round trip. A cached read still emits synchronously, so this adds no flicker.
-      return governedCollections.rules$(organizationId).pipe(
-        map((rules) => rulesGoverningCollection(rules, id).length > 0),
+      return governedCollections.rules$(target.organizationId).pipe(
+        map((rules) => rulesGoverningCollection(rules, target.id).length > 0),
         startWith(false),
       );
     }),
