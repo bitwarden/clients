@@ -80,10 +80,10 @@ import {
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
   DefaultSharedUnlockSettingsService,
-  SharedUnlockFollowerService,
+  SharedUnlockPeerService,
   SharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-follower.service";
+import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import {
   VaultTimeout,
   VaultTimeoutSettingsService,
@@ -489,17 +489,15 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SharedUnlockFollowerService,
-    useClass: DefaultSharedUnlockFollowerService,
+    provide: SharedUnlockPeerService,
+    useClass: DefaultSharedUnlockPeerService,
     deps: [
       IpcService,
       AccountService,
       LockService,
-      KeyServiceAbstraction,
       PlatformUtilsService,
       VaultTimeoutSettingsService,
       EnvironmentService,
-      SharedUnlockSettingsService,
       UnlockService,
     ],
   }),
