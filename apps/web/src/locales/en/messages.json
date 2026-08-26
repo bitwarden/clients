@@ -17621,6 +17621,24 @@
   "pamRequestAccessBannerHeading": {
     "message": "You can request access"
   },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Access up to $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
   "pamRequestAccessButton": {
     "message": "Request access"
   },
