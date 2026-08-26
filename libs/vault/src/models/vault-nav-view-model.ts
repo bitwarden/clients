@@ -1,3 +1,4 @@
+import { CollectionId } from "@bitwarden/common/types/guid";
 import { AvatarColor, BitwardenIcon } from "@bitwarden/components";
 
 export const VaultNavItemType = Object.freeze({
@@ -21,14 +22,16 @@ export interface VaultNavItemViewModel {
   color: VaultNavColor;
   icon: BitwardenIcon;
   type: VaultNavItemType;
+  /** The org's default user collection ("My items"); set only on org items under data ownership. */
+  defaultUserCollectionId?: CollectionId;
 }
 
 export interface VaultsNavViewModel {
   /**
    * Ordered vault items: personal vault first, then orgs alphabetically; personal is omitted under
    * `organizationDataOwnership`. Presentation: "All items" when `length > 1`; "Vaults" header when
-   * `length > 1 && !organizationDataOwnership`; a lone item renders plainly only when
-   * `!organizationDataOwnership`.
+   * `length > 1 && !organizationDataOwnership`; the personal vault renders as a plain item, orgs as
+   * groups.
    */
   vaults: readonly VaultNavItemViewModel[];
 

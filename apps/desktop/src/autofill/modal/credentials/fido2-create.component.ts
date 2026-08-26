@@ -1,24 +1,21 @@
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, OnInit, OnDestroy, inject } from "@angular/core";
 import { RouterModule, Router } from "@angular/router";
-import { combineLatest, map, Observable, of, switchMap } from "rxjs";
+import { catchError, from, Observable, of } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { BitwardenShield, NoResults } from "@bitwarden/assets/svg";
+import { NoResults } from "@bitwarden/assets/svg";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { Fido2Utils } from "@bitwarden/common/platform/services/fido2/fido2-utils";
-import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   DialogService,
   BadgeModule,
   ButtonModule,
   DialogModule,
-  SvgModule,
   ItemModule,
   SectionComponent,
+  StatusLockupComponent,
+  SvgComponent,
   TableModule,
   SectionHeaderComponent,
   BitIconButtonComponent,
@@ -38,7 +35,8 @@ import { DesktopFido2UserInterfaceService } from "../../services/desktop-fido2-u
     BitIconButtonComponent,
     TableModule,
     I18nPipe,
-    SvgModule,
+    StatusLockupComponent,
+    SvgComponent,
     ButtonModule,
     DialogModule,
     SectionComponent,
@@ -53,14 +51,12 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   private readonly desktopSettingsService = inject(DesktopSettingsService);
   private readonly fido2UserInterfaceService = inject(DesktopFido2UserInterfaceService);
   private readonly accountService = inject(AccountService);
-  private readonly cipherService = inject(CipherService);
   private readonly dialogService = inject(DialogService);
-  private readonly domainSettingsService = inject(DomainSettingsService);
   private readonly router = inject(Router);
 
   readonly session = this.fido2UserInterfaceService.getCurrentSession();
   readonly ciphers$: Observable<CipherView[] | null> = this.buildCiphers$();
-  readonly Icons = { BitwardenShield, NoResults };
+  readonly Icons = { NoResults };
 
   private get DIALOG_MESSAGES() {
     return {
@@ -81,7 +77,7 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
         acceptAction: async () => this.dialogService.closeAll(),
       },
       overwritePasskey: {
-        title: { key: "overwritePasskey" },
+        title: { key: "overwritePasskey2" },
         content: { key: "alreadyContainsPasskey" },
         type: "warning",
       },
@@ -142,42 +138,23 @@ export class Fido2CreateComponent implements OnInit, OnDestroy {
   }
 
   private buildCiphers$(): Observable<CipherView[] | null> {
-    const rpid = this.session?.rpId;
-    const userHandleBytes = this.session?.userHandle;
-
-    // Emit `null` (loading/unavailable) until we have everything needed to
-    // resolve matching ciphers. The template treats `null` as a distinct state
-    // from an empty list so it doesn't flash the wrong branch.
-    if (!this.session || !rpid || !userHandleBytes) {
+    // Emit `null` (loading/unavailable) until the list resolves. The template
+    // treats `null` as a distinct state from an empty list so it doesn't flash
+    // the wrong branch.
+    if (!this.session) {
       return of(null);
     }
 
-    const userHandle = Fido2Utils.arrayToString(new Uint8Array(userHandleBytes));
-
-    return combineLatest([
-      this.accountService.activeAccount$.pipe(map((a) => a?.id)),
-      this.domainSettingsService.getUrlEquivalentDomains(rpid),
-    ]).pipe(
-      switchMap(async ([activeUserId, equivalentDomains]) => {
-        if (!activeUserId) {
-          return [];
-        }
-
-        try {
-          const allCiphers = await this.cipherService.getAllDecrypted(activeUserId);
-          return allCiphers.filter(
-            (cipher) =>
-              cipher != null &&
-              cipher.type == CipherType.Login &&
-              cipher.login?.matchesUri(rpid, equivalentDomains) &&
-              Fido2Utils.cipherHasNoOtherPasskeys(cipher, userHandle) &&
-              !cipher.deletedDate,
-          );
-        } catch {
-          await this.showErrorDialog(this.DIALOG_MESSAGES.unexpectedErrorShort);
-          return [];
-        }
-      }),
+    // The session computes the matching logins once and shares them, so this
+    // list always agrees with the session's decision to show this picker.
+    return from(this.session.getMatchingLogins()).pipe(
+      catchError(() =>
+        from(
+          this.showErrorDialog(this.DIALOG_MESSAGES.unexpectedErrorShort).then(
+            () => [] as CipherView[],
+          ),
+        ),
+      ),
     );
   }
 

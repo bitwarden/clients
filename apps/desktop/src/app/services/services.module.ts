@@ -32,7 +32,6 @@ import {
 } from "@bitwarden/auth/angular";
 import {
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailService,
   SsoUrlService,
 } from "@bitwarden/auth/common";
@@ -58,6 +57,7 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { WebAuthnLoginPrfKeyServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-key.service.abstraction";
 import { PendingAuthRequestsStateService } from "@bitwarden/common/auth/services/auth-request-answering/pending-auth-requests.state";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { ProcessReloadServiceAbstraction } from "@bitwarden/common/key-management/abstractions/process-reload.service";
@@ -70,11 +70,11 @@ import { PinServiceAbstraction } from "@bitwarden/common/key-management/pin/pin.
 import { DefaultProcessReloadService } from "@bitwarden/common/key-management/services/default-process-reload.service";
 import { SessionTimeoutTypeService } from "@bitwarden/common/key-management/session-timeout";
 import {
-  SharedUnlockLeaderService,
+  SharedUnlockPeerService,
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
-import { DefaultSharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-leader.service";
+import { DefaultSharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock/default-shared-unlock-peer.service";
 import {
   VaultTimeoutSettingsService,
   VaultTimeoutStringType,
@@ -123,6 +123,7 @@ import {
   KdfConfigService,
   KeyService,
   KeyService as KeyServiceAbstraction,
+  DefaultKeyService,
   BiometricStateService,
   BiometricsService,
 } from "@bitwarden/key-management";
@@ -141,11 +142,13 @@ import {
   WebCryptoFunctionService,
 } from "@bitwarden/legacy-crypto";
 import { SerializedMemoryStorageService } from "@bitwarden/storage-core";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 import {
   CipherFormGenerationService,
   DefaultSshImportPromptService,
+  DefaultVaultNavService,
   SshImportPromptService,
+  VaultNavService,
   VaultFilterServiceAbstraction,
   VaultFilterService,
   RoutedVaultFilterService,
@@ -169,7 +172,6 @@ import { DesktopFido2UserVerificationService } from "../../autofill/services/des
 import { DesktopFido2WindowsUserVerificationService } from "../../autofill/services/desktop-fido2-windows-user-verification.service";
 import { DesktopBiometricsService } from "../../key-management/biometrics/desktop.biometrics.service";
 import { RendererBiometricsService } from "../../key-management/biometrics/renderer-biometrics.service";
-import { ElectronKeyService } from "../../key-management/electron-key.service";
 import { DesktopLockComponentService } from "../../key-management/lock/services/desktop-lock-component.service";
 import { DesktopSessionTimeoutTypeService } from "../../key-management/session-timeout/services/desktop-session-timeout-type.service";
 import { flagEnabled } from "../../platform/flags";
@@ -272,7 +274,7 @@ const safeProviders: SafeProvider[] = [
     //
     // Setting the ACCESS_TOKEN_LOCATION=DISK environment variable forces the same disk-backed
     // behavior on any platform, for environments where the OS keyring is unavailable or
-    // undesirable (see `accessTokenLocation` in apps/desktop/src/utils.ts).
+    // undesirable (see `accessTokenLocation` in apps/desktop/src/main/platform-utils.main.ts).
     provide: SUPPORTS_SECURE_STORAGE,
     useValue:
       ELECTRON_SUPPORTS_SECURE_STORAGE &&
@@ -388,7 +390,7 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: KeyServiceAbstraction,
-    useClass: ElectronKeyService,
+    useClass: DefaultKeyService,
     deps: [
       CryptoFunctionServiceAbstraction,
       EncryptService,
@@ -396,9 +398,8 @@ const safeProviders: SafeProvider[] = [
       LogService,
       StateServiceAbstraction,
       StateProvider,
-      BiometricStateService,
-      DesktopBiometricsService,
       AccountCryptographicStateService,
+      BiometricsService,
     ],
   }),
   safeProvider({
@@ -411,17 +412,15 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: SharedUnlockLeaderService,
-    useClass: DefaultSharedUnlockLeaderService,
+    provide: SharedUnlockPeerService,
+    useClass: DefaultSharedUnlockPeerService,
     deps: [
       IpcService,
       AccountService,
       LockService,
-      KeyServiceAbstraction,
       PlatformUtilsServiceAbstraction,
       VaultTimeoutSettingsService,
       EnvironmentService,
-      SharedUnlockSettingsService,
       UnlockService,
     ],
   }),
@@ -472,6 +471,7 @@ const safeProviders: SafeProvider[] = [
       DesktopSettingsService,
       DesktopFido2UserVerificationService,
       PasswordRepromptService,
+      DomainSettingsService,
     ],
   }),
   safeProvider({
@@ -534,6 +534,7 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       AccountCryptographicStateService,
       RegisterSdkService,
+      UnlockService,
     ],
   }),
   safeProvider({
@@ -583,6 +584,11 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SsoComponentService,
     useClass: DefaultSsoComponentService,
+    deps: [],
+  }),
+  safeProvider({
+    provide: VaultNavService,
+    useClass: DefaultVaultNavService,
     deps: [],
   }),
   safeProvider({
