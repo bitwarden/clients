@@ -106,7 +106,7 @@
               </td>
               <td bitCell>
                 @if (row.duration; as duration) {
-                  <span class="tw-whitespace-nowrap" [bitTooltip]="row.durationWindow">{{
+                  <span class="tw-whitespace-nowrap" [bitTooltip]="row.exactWindow">{{
                     duration.key | i18n: duration.value
                   }}</span>
                 } @else if (row.extendedUntil) {
