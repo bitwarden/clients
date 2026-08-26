@@ -48,9 +48,14 @@ type AccessState = Record<string, unknown> | null;
  * are built against the real clock at render time.
  */
 function pam(
-  options: { state?: () => AccessState; mode?: "automatic" | "human"; enabled?: boolean } = {},
+  options: {
+    state?: () => AccessState;
+    mode?: "automatic" | "human";
+    enabled?: boolean;
+    maxDurationSeconds?: number;
+  } = {},
 ) {
-  const { state, mode = "automatic", enabled = true } = options;
+  const { state, mode = "automatic", enabled = true, maxDurationSeconds = 4 * 60 * 60 } = options;
   return moduleMetadata({
     imports: [CipherViewBannerComponent],
     providers: [
@@ -63,8 +68,8 @@ function pam(
             Promise.resolve({
               approvalMode: mode,
               hasActiveLease: false,
-              maxLeaseDurationSeconds: 4 * 60 * 60,
-              defaultLeaseDurationSeconds: 60 * 60,
+              maxDurationSeconds,
+              defaultDurationSeconds: 60 * 60,
             }),
           submitAccessRequest: () => Promise.resolve({}),
           activateAccessRequest: () => Promise.resolve({}),
@@ -113,16 +118,25 @@ export default {
 type Story = StoryObj<CipherViewBannerComponent>;
 
 /**
- * The resting state: the item is governed and nothing is in play, so the banner offers Request
- * access. Expanding it runs the pre-check, which here resolves the automatic path (duration only).
+ * The resting state under an auto-approving rule: the card carries the rule's cap and the
+ * instant-approval clause, and expanding it collects a duration only.
  */
 export const Privileged: Story = {
   decorators: [pam({ state: () => ({ badgeState: "privileged" }) })],
 };
 
-/** The same entry point against a rule that requires human approval: a window plus a justification. */
+/**
+ * The same entry point against a rule that requires human approval: the card carries the cap
+ * alone, and expanding it collects a window plus a justification.
+ */
 export const PrivilegedHumanApproval: Story = {
-  decorators: [pam({ state: () => ({ badgeState: "privileged" }), mode: "human" })],
+  decorators: [
+    pam({
+      state: () => ({ badgeState: "privileged" }),
+      mode: "human",
+      maxDurationSeconds: 24 * 60 * 60,
+    }),
+  ],
 };
 
 /** A request is with an approver. Request access is not offered again; the request can be cancelled. */
