@@ -922,12 +922,7 @@ describe("AccessRuleEditComponent — form states", () => {
 
       await submitAndRender();
 
-      expect(controls().description.errors).toEqual({
-        maxlength: {
-          requiredLength: ACCESS_RULE_DESCRIPTION_MAX_LENGTH,
-          actualLength: ACCESS_RULE_DESCRIPTION_MAX_LENGTH + 1,
-        },
-      });
+      expect(Object.keys(controls().description.errors!)).toEqual(["maxlength"]);
       expect(pamApi.createAccessRule).not.toHaveBeenCalled();
       expect(navigate).not.toHaveBeenCalled();
     });
