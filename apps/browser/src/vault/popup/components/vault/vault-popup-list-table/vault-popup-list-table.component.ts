@@ -162,7 +162,10 @@ export class VaultPopupListTableComponent {
    * and the search box along with it.
    */
   protected readonly showDeactivatedOrg = computed(() => {
-    return this.selectedOrgs().some((o) => o.id !== MY_VAULT && !o.enabled);
+    const orgs = this.selectedOrgs().filter((o) => o.id !== MY_VAULT);
+    return (
+      orgs.length > 0 && orgs.length === this.selectedOrgs().length && orgs.every((o) => !o.enabled)
+    );
   });
 
   private readonly allRows = toSignal(this.listTableService.rows$, {
