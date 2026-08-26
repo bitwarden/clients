@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, input, viewChild } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  input,
+  viewChild,
+} from "@angular/core";
 
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -61,4 +68,13 @@ export class BadgeGroupComponent {
       .map((i) => badges[i])
       .filter((badge) => badge != null);
   });
+
+  constructor() {
+    // Labels/variants change in place under `track $index`, so the item instances stay
+    // the same and the list won't remeasure on its own.
+    effect(() => {
+      this.badges();
+      this.list().remeasure({ reset: true });
+    });
+  }
 }

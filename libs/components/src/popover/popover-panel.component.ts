@@ -1,4 +1,3 @@
-import { A11yModule } from "@angular/cdk/a11y";
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,7 +15,7 @@ import { PopoverBaseComponent } from "./popover-base.component";
  */
 @Component({
   selector: "bit-popover-panel",
-  imports: [PopoverBaseComponent, A11yModule],
+  imports: [PopoverBaseComponent],
   templateUrl: "./popover-panel.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

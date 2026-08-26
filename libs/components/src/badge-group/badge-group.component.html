@@ -18,8 +18,11 @@
         ovfItem.shouldShrink() ? 'tw-flex-initial tw-min-w-0 tw-overflow-hidden' : 'tw-shrink-0'
       "
     >
-      {{ badge.label }}<span class="tw-sr-only">,</span>
+      {{ badge.label }}
     </span>
+    <!-- Separates the badge labels from each other for SR. Exists outside of the badge label so
+    that it does not show up in the tooltip -->
+    <span class="tw-sr-only" [hidden]="overflow().includes($index)">,</span>
   }
   <button
     type="button"
@@ -38,6 +41,8 @@
       <span bitBadge [variant]="badge.variant ?? 'primary'" [startIcon]="badge.startIcon">
         {{ badge.label }}
       </span>
+      <!-- Separates the badge labels from each other for SR. -->
+      <span class="tw-sr-only">,</span>
     }
   </div>
 </bit-popover-panel>
