@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -17,7 +17,14 @@ import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { filterOutNullish } from "@bitwarden/common/vault/utils/observable-utilities";
-import { ButtonModule, DialogService } from "@bitwarden/components";
+import {
+  BreadcrumbsModule,
+  ButtonModule,
+  defaultAvatarColors,
+  DialogService,
+  IconTileComponent,
+  isAvatarColor,
+} from "@bitwarden/components";
 import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
@@ -34,6 +41,8 @@ import {
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  Vfo1I18nPipe,
+  Vfo1IconPipe,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
@@ -69,9 +78,13 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     class: "tw-flex tw-flex-col tw-h-full tw-min-h-0",
   },
   imports: [
+    BreadcrumbsModule,
     ButtonModule,
+    IconTileComponent,
     I18nPipe,
     HeaderModule,
+    Vfo1I18nPipe,
+    Vfo1IconPipe,
     NewCipherMenuComponent,
     VaultBannersComponent,
     VaultItemsTableComponent,
@@ -97,6 +110,7 @@ export class VaultNextComponent {
   private readonly restrictedItemTypesService = inject(RestrictedItemTypesService);
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly i18nService = inject(I18nService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
@@ -240,6 +254,64 @@ export class VaultNextComponent {
    */
   protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
 
+  /** True when the URL has drilled into a shared folder — drives breadcrumb visibility. */
+  protected readonly collectionSelected = computed(
+    () => scopedSharedFolderId(this.vaultScope()) != null,
+  );
+
+  /**
+   * The ancestor chain for the selected shared folder, from the org root down to the immediate
+   * parent. Excludes the currently selected folder itself (shown as a non-linked last crumb).
+   */
+  protected readonly collectionBreadcrumbs = computed((): CollectionView[] => {
+    const node = this.sharedFolderNode();
+    if (node == null) {
+      return [];
+    }
+    const chain = [node];
+    while (chain[chain.length - 1].parent != null) {
+      chain.push(chain[chain.length - 1].parent);
+    }
+    return chain
+      .slice(1)
+      .reverse()
+      .map((n) => n.node);
+  });
+
+  /** The VaultNavItemViewModel for the currently scoped organization, used to render the org crumb. */
+  protected readonly orgNavItem = computed(() => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return undefined;
+    }
+    return this.vaultNav()?.vaults.find((v) => v.id === scope.organizationId);
+  });
+
+  /**
+   * The hex color for the org's icon tile — mirrors vault-nav-section's vaultTileColor():
+   * AvatarColor names (e.g. "teal") are resolved to their hex via defaultAvatarColors;
+   * already-hex values pass through unchanged.
+   */
+  protected readonly orgTileColor = computed((): string | undefined => {
+    const item = this.orgNavItem();
+    if (item == null) {
+      return undefined;
+    }
+    return isAvatarColor(item.color) ? defaultAvatarColors[item.color] : item.color;
+  });
+
+  /** Route commands to the org vault root — shared by the org-name crumb and "Shared Folders" crumb. */
+  protected readonly orgRootRoute = computed((): string[] => {
+    const scope = this.vaultScope();
+    if (scope.type !== VaultScopeType.Organization) {
+      return [];
+    }
+    return vaultScopeCommands({
+      type: VaultScopeType.Organization,
+      organizationId: scope.organizationId,
+    });
+  });
+
   /**
    * The route a child shared folder's card links to: this vault, drilled into that folder. Following
    * it re-derives the scope and with it the rows and the grid's next set of children.
@@ -280,7 +352,7 @@ export class VaultNextComponent {
       case VaultScopeType.MyVault:
         return this.i18nService.t("myVault");
       case VaultScopeType.Organization:
-        return this.scopedOrganizations()[0]?.name;
+        return this.collectionSelected() ? "" : this.scopedOrganizations()[0]?.name;
       case VaultScopeType.Trash:
         return this.i18nService.t("trash");
       case VaultScopeType.Archive:
@@ -344,6 +416,10 @@ export class VaultNextComponent {
     }
 
     await this.itemActions.add(result.cipherType);
+  }
+
+  protected navigateToOrgRoot(): void {
+    void this.router.navigate(this.orgRootRoute());
   }
 
   protected openImportDialog(): void {
