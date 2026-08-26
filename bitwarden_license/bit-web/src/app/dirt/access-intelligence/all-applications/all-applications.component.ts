@@ -22,7 +22,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   IconButtonModule,
   LinkModule,
-  NoItemsModule,
   SearchModule,
   TableDataSource,
   ToastService,
@@ -48,7 +47,6 @@ import { ReportLoadingComponent } from "../shared/report-loading.component";
     LinkModule,
     SearchModule,
     PipesModule,
-    NoItemsModule,
     SharedModule,
     AppTableRowScrollableComponent,
     IconButtonModule,

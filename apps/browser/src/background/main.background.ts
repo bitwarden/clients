@@ -36,7 +36,6 @@ import {
   DefaultAuthRequestApiService,
   DefaultLogoutService,
   InternalUserDecryptionOptionsServiceAbstraction,
-  LockService,
   LoginEmailServiceAbstraction,
   DefaultLoginStrategyCacheService,
   DefaultLoginStrategySessionTimeoutService,
@@ -200,7 +199,6 @@ import { DefaultSdkService } from "@bitwarden/common/platform/services/sdk/defau
 import { NoopSdkClientFactory } from "@bitwarden/common/platform/services/sdk/noop-sdk-client-factory";
 import { DefaultRegisterSdkService } from "@bitwarden/common/platform/services/sdk/register-sdk.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
-import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { PrimarySecondaryStorageService } from "@bitwarden/common/platform/storage/primary-secondary-storage.service";
 import { WindowStorageService } from "@bitwarden/common/platform/storage/window-storage.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -321,7 +319,13 @@ import {
   DefaultStateService,
   InlineDerivedStateProvider,
 } from "@bitwarden/state-internal";
-import { DefaultUnlockService, UnlockService } from "@bitwarden/unlock";
+import {
+  AutoUnlockService,
+  DefaultAutoUnlockService,
+  DefaultUnlockService,
+  LockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -535,7 +539,6 @@ export default class MainBackground {
   billingAccountProfileStateService: BillingAccountProfileStateService;
   // eslint-disable-next-line rxjs/no-exposed-subjects -- Needed to give access to services module
   intraprocessMessagingSubject: Subject<Message<Record<string, unknown>>>;
-  userAutoUnlockKeyService: UserAutoUnlockKeyService;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: KdfConfigService;
   offscreenDocumentService: OffscreenDocumentService;
@@ -568,6 +571,7 @@ export default class MainBackground {
   sharedUnlockFollowerService: SharedUnlockFollowerService;
   sharedUnlockSettingsService: SharedUnlockSettingsService;
   unlockService: UnlockService;
+  autoUnlockService: AutoUnlockService;
 
   badgeService: BadgeService;
   authStatusBadgeUpdaterService: AuthStatusBadgeUpdaterService;
@@ -800,6 +804,21 @@ export default class MainBackground {
 
     this.kdfConfigService = new DefaultKdfConfigService(this.stateProvider);
 
+    // Constructed before the key service, which depends on it to delete platform-specific copies of
+    // the user key. Its own key service and vault timeout dependencies are lazy to break the cycle.
+    const browserBiometricsService = new BackgroundBrowserBiometricsService(
+      runtimeNativeMessagingBackground,
+      () => this.configService,
+      this.logService,
+      () => this.keyService,
+      this.biometricStateService,
+      this.messagingService,
+      () => this.vaultTimeoutSettingsService,
+      () => this.ipcService,
+    );
+    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
+    this.biometricsService = browserBiometricsService;
+
     this.keyService = new DefaultKeyService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -808,6 +827,15 @@ export default class MainBackground {
       this.stateService,
       this.stateProvider,
       this.accountCryptographicStateService,
+      browserBiometricsService,
+    );
+
+    this.autoUnlockService = new DefaultAutoUnlockService(
+      this.keyService,
+      this.stateService,
+      this.stateProvider,
+      this.platformUtilsService,
+      this.logService,
     );
 
     this.legacyCompatKeyService = new DefaultLegacyCompatKeyService(
@@ -851,7 +879,7 @@ export default class MainBackground {
     this.vaultTimeoutSettingsService = new DefaultVaultTimeoutSettingsService(
       this.accountService,
       this.userDecryptionOptionsService,
-      this.keyService,
+      this.autoUnlockService,
       this.tokenService,
       this.policyService,
       this.biometricStateService,
@@ -977,10 +1005,30 @@ export default class MainBackground {
       this.collectionEncryptionService,
     );
 
+    this.pinService = new PinService(this.sdkService);
+
+    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
+    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
+
+    this.unlockService = new DefaultUnlockService(
+      this.registerSdkService,
+      this.accountCryptographicStateService,
+      this.kdfConfigService,
+      this.accountService,
+      this.masterPasswordService,
+      this.stateProvider,
+      this.logService,
+      this.biometricsService,
+      this.biometricStateService,
+      this.v2UpgradeTokenStateService,
+      this.autoUnlockService,
+    );
+    void browserBiometricsService.setUnlockService(this.unlockService);
+
+    // Constructed after the unlock service, which it depends on.
     this.keyConnectorService = new KeyConnectorService(
       this.accountService,
       this.masterPasswordService,
-      this.keyService,
       this.legacyCompatKeyService,
       this.apiService,
       this.tokenService,
@@ -993,40 +1041,8 @@ export default class MainBackground {
       this.accountCryptographicStateService,
       this.sdkService,
       this.userDecryptionOptionsService,
+      this.unlockService,
     );
-
-    this.pinService = new PinService(this.sdkService);
-
-    this.ipcContentScriptManagerService = new IpcContentScriptManagerService(this.configService);
-    this.ipcService = new IpcBackgroundService(this.platformUtilsService, this.logService);
-
-    const browserBiometricsService = new BackgroundBrowserBiometricsService(
-      runtimeNativeMessagingBackground,
-      () => this.configService,
-      this.logService,
-      this.keyService,
-      this.biometricStateService,
-      this.messagingService,
-      this.vaultTimeoutSettingsService,
-      () => this.ipcService,
-    );
-    // Temporary dependency cycle workaround, until browser biometrics is replaced by shared unlock
-    this.biometricsService = browserBiometricsService;
-    this.unlockService = new DefaultUnlockService(
-      this.registerSdkService,
-      this.accountCryptographicStateService,
-      this.kdfConfigService,
-      this.accountService,
-      this.masterPasswordService,
-      this.stateProvider,
-      this.logService,
-      this.biometricsService,
-      this.platformUtilsService,
-      this.stateService,
-      this.biometricStateService,
-      this.v2UpgradeTokenStateService,
-    );
-    void browserBiometricsService.setUnlockService(this.unlockService);
 
     this.passwordStrengthService = new PasswordStrengthService();
 
@@ -1523,9 +1539,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
       logoutService,
       this.messagingService,
-      this.searchService,
       this.folderService,
-      this.masterPasswordService,
       this.stateEventRunnerService,
       this.cipherService,
       this.authService,
@@ -1721,8 +1735,6 @@ export default class MainBackground {
       );
     }
 
-    this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.keyService);
-
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
       this.organizationService,
@@ -1822,16 +1834,13 @@ export default class MainBackground {
     const userIds = Object.keys(accounts) as UserId[];
     await this.tokenService.cleanupTokenStorage(userIds);
 
-    const setUserKeyInMemoryPromises = [];
     for (const userId of userIds) {
-      // For each acct, we must await the process of setting the user key in memory
-      // if the auto user key is set to avoid race conditions of any code trying to access
-      // the user key from mem.
-      setUserKeyInMemoryPromises.push(
-        this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId),
-      );
+      try {
+        await this.unlockService.unlockWithAutoUnlockKey(userId);
+      } catch (e) {
+        this.logService.error("Failed to auto-unlock user on bootstrap", e);
+      }
     }
-    await Promise.all(setUserKeyInMemoryPromises);
 
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);

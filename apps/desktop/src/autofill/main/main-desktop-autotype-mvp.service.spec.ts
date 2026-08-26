@@ -74,6 +74,7 @@ describe("MainDesktopAutotypeMvpService", () => {
     // Mock WindowMain with webContents
     mockWindowMain = {
       win: {
+        isDestroyed: jest.fn().mockReturnValue(false),
         webContents: {
           send: jest.fn(),
         },
@@ -412,6 +413,39 @@ describe("MainDesktopAutotypeMvpService", () => {
       expect(mockWindowMain.win.webContents.send).toHaveBeenCalledWith(
         AUTOTYPE_MVP_IPC_CHANNELS.LISTEN,
         { windowTitle: "Notepad" },
+      );
+    });
+
+    it("should not throw on shortcut activation if the window does not exist", () => {
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
+      toggleHandler({}, true);
+
+      mockWindowMain.win = null;
+
+      // Get the registered callback
+      const registeredCallback = (globalShortcut.register as jest.Mock).mock.calls[0][1];
+
+      expect(() => registeredCallback()).not.toThrow();
+      expect(autotype_mvp.getForegroundWindowTitle).not.toHaveBeenCalled();
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        "Autotype keyboard shortcut activated, but the main window does not exist.",
+      );
+    });
+
+    it("should not send window title to renderer if the window is destroyed", () => {
+      const toggleHandler = ipcHandlers.get(AUTOTYPE_MVP_IPC_CHANNELS.TOGGLE);
+      toggleHandler({}, true);
+
+      (mockWindowMain.win.isDestroyed as jest.Mock).mockReturnValue(true);
+
+      // Get the registered callback
+      const registeredCallback = (globalShortcut.register as jest.Mock).mock.calls[0][1];
+      registeredCallback();
+
+      expect(autotype_mvp.getForegroundWindowTitle).not.toHaveBeenCalled();
+      expect(mockWindowMain.win.webContents.send).not.toHaveBeenCalled();
+      expect(mockLogService.debug).toHaveBeenCalledWith(
+        "Autotype keyboard shortcut activated, but the main window does not exist.",
       );
     });
   });
