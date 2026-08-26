@@ -1492,9 +1492,16 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.refreshTokenPromise[userId] === undefined) {
       // TODO: Have different promise for each user
       this.refreshTokenPromise[userId] = this.internalRefreshToken(userId);
-      void this.refreshTokenPromise[userId].finally(() => {
-        delete this.refreshTokenPromise[userId];
-      });
+      // `.finally()` returns a new derived promise that rejects too if the original
+      // does. Without a handler on that derived promise, a failed refresh (e.g. the
+      // identity server being unreachable) becomes an unhandled promise rejection,
+      // which crashes the whole process. Callers still see the rejection normally
+      // via the returned `this.refreshTokenPromise[userId]` below.
+      void this.refreshTokenPromise[userId]
+        .finally(() => {
+          delete this.refreshTokenPromise[userId];
+        })
+        .catch(() => {});
     }
     return this.refreshTokenPromise[userId];
   }
