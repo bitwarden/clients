@@ -27,6 +27,7 @@
         <ng-container header>
           <tr>
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
             <th bitCell>{{ "pamColumnRequestedWindow" | i18n }}</th>
             <th bitCell bitSortable="submittedAt" default="desc">
               {{ "pamColumnSubmitted" | i18n }}
@@ -58,6 +59,21 @@
                   }
                 </div>
               </div>
+            </td>
+            <td bitCell>
+              @if (pendingStatus(row); as status) {
+                @if (status.badgeState; as state) {
+                  <app-pam-access-state-badge [state]="state" />
+                } @else if (status.statusBadge; as badge) {
+                  <span
+                    bitBadge
+                    [variant]="badge.variant"
+                    [attr.data-testid]="'my-access-pending-status-' + row.id"
+                  >
+                    {{ badge.labelKey | i18n }}
+                  </span>
+                }
+              }
             </td>
             <td bitCell>
               @if (startsNow(row)) {

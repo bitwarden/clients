@@ -251,6 +251,59 @@ describe("MyRequestsTabComponent", () => {
     });
   });
 
+  describe("Pending table status column", () => {
+    // The section mixes both statuses, so placement under the "Pending" heading cannot state which
+    // one a row is (PM-41841).
+    it("badges a request still awaiting a decision as pending", () => {
+      pendingRows$.next([
+        requestRow({ id: "req-p", status: "pending", badgeState: { kind: "pending" } }),
+      ]);
+
+      create();
+
+      expect(query('[data-testid="access-state-badge-pending"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-pending-status-req-p"]')).toBeNull();
+    });
+
+    it("badges an approved request awaiting activation as approved", () => {
+      pendingRows$.next([
+        requestRow({
+          id: "req-a",
+          status: "approved",
+          badgeState: null,
+          statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
+        }),
+      ]);
+
+      create();
+
+      const badge = query('[data-testid="my-access-pending-status-req-a"]');
+      expect(badge?.textContent?.trim()).toBe("pamStatusApproved");
+    });
+
+    it("badges an approved request whose window has lapsed as expired, not approved", () => {
+      jest.setSystemTime(new Date("2026-08-20T12:00:00.000Z"));
+      pendingRows$.next([
+        requestRow({
+          id: "req-l",
+          status: "approved",
+          leaseNotAfter: "2026-08-20T11:00:00.000Z",
+          badgeState: null,
+          statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
+        }),
+      ]);
+
+      create();
+
+      // Start and Cancel are both withheld once the window lapses, so the badge is the only thing
+      // left that can explain why the row has no actions.
+      const badge = query('[data-testid="my-access-pending-status-req-l"]');
+      expect(badge?.textContent?.trim()).toBe("pamStatusExpired");
+      expect(query('[data-testid="my-access-pending-start-req-l"]')).toBeNull();
+      expect(query('[data-testid="my-access-pending-cancel-req-l"]')).toBeNull();
+    });
+  });
+
   describe("Pending section empty state", () => {
     it("shows the empty-state message when there is nothing pending", () => {
       create();
