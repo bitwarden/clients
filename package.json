@@ -129,7 +129,7 @@
     "husky": "9.1.7",
     "jest": "30.3.0",
     "jest-diff": "30.3.0",
-    "jest-environment-jsdom": "29.7.0",
+    "jest-environment-jsdom": "30.4.1",
     "jest-junit": "17.0.0",
     "jest-mock-extended": "4.0.1",
     "jest-preset-angular": "17.0.0",
@@ -238,7 +238,7 @@
     "react-dom": "18.3.1",
     "@types/react": "18.3.27",
     "@angular-devkit/build-angular": {
-      "jest-environment-jsdom": "29.7.0"
+      "jest-environment-jsdom": "30.4.1"
     },
     "tmp": ">=0.2.4"
   },
