@@ -99,8 +99,6 @@ export class VaultPopupListTableFiltersService {
     persistNavigation: true,
   });
 
-  // ── Public API ────────────────────────────────────────────────────────────
-
   /**
    * Persists the current chip selection to the view cache.
    * Call this whenever the table's `filterValues` signal emits a new value.
@@ -185,8 +183,6 @@ export class VaultPopupListTableFiltersService {
       }),
     );
   }
-
-  // ── Filter chip options ──────────────────────────────────────────────────
 
   /**
    * Available cipher types, filtered by policy restrictions and feature flags.
@@ -379,8 +375,6 @@ export class VaultPopupListTableFiltersService {
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
-
-  // ── Helpers ──────────────────────────────────────────────────────────────
 
   private flattenOptions<T>(option: ChipFilterOption<T>): ChipFilterOption<T>[] {
     return [option, ...(option.children?.flatMap((c) => this.flattenOptions(c)) ?? [])];

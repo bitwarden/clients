@@ -107,9 +107,6 @@ export class VaultPopupListTableService {
   /** Whether a search term is currently narrowing the vault list. */
   readonly hasSearchText$ = this.vaultPopupItemsService.hasSearchText$;
 
-  /** Whether the selected organization filter points at a suspended organization. */
-  readonly showDeactivatedOrg$ = this.vaultPopupItemsService.showDeactivatedOrg$;
-
   /**
    * The inputs that decide each row's action affordances. `startWith` defaults keep {@link rows$}
    * emitting promptly: the feature flag and blocklist streams resolve asynchronously, so without a
