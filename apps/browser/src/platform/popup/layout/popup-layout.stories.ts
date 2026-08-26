@@ -172,7 +172,12 @@ class MockPopoutButtonComponent {
   selector: "mock-current-account",
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
+    <!-- TODO: remove [class] binding and wrapperClasses when VFO1Foundation flag is removed -->
+    <button
+      [class]="wrapperClasses()"
+      class="tw-bg-transparent tw-border-none tw-p-0 tw-align-middle"
+      type="button"
+    >
       <!-- TODO: remove size binding and lock to "sm" when VFO1Foundation flag is removed -->
       <bit-avatar text="Ash Ketchum" [size]="avatarSize()"></bit-avatar>
     </button>
@@ -189,6 +194,9 @@ class MockCurrentAccountComponent {
   );
 
   protected readonly avatarSize = computed(() => (this.vfo1Enabled() ? "sm" : "base"));
+
+  /** TODO: remove with the VFO1Foundation flag. Mirrors CurrentAccountComponent.wrapperClasses. */
+  protected readonly wrapperClasses = computed(() => (this.vfo1Enabled() ? "" : "tw-me-2 tw-mt-1"));
 }
 
 @Component({
@@ -851,7 +859,7 @@ class MockScrollingPageV2Component {}
           slot="title-suffix"
           type="button"
           bitIconButton="bwi-angle-down"
-          size="small"
+          size="xsmall"
           label="Switch vault"
         ></button>
       </popup-header>
