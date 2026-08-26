@@ -1,6 +1,6 @@
 import { Params } from "@angular/router";
 
-import { TwoFactorAuthEmailIcon } from "@bitwarden/assets/svg";
+import { TwoFactorAuthEmailIcon, TwoFactorTimeoutIcon } from "@bitwarden/assets/svg";
 
 import { SsoLoginFailedErrorKind } from "./sso-login-failed-error-kind.type";
 import { SsoLoginFailedUi } from "./sso-login-failed-ui.type";
@@ -26,6 +26,14 @@ export function getSsoLoginFailedUi(
           key: "ssoStagedOrgUserDirectInviteEmailSent",
           placeholders: [qParams.organizationName ?? ""],
         },
+      };
+    case SsoLoginFailedErrorKind.NoSeatsAvailable:
+      return {
+        anonLayoutData: {
+          pageTitle: { key: "cannotAcceptInvitation" },
+          pageIcon: TwoFactorTimeoutIcon,
+        },
+        bodyMessage: { key: "ssoNoSeatsAvailableMessage" },
       };
   }
 }
