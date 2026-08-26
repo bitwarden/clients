@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -18,6 +19,7 @@ import {
 function row(overrides: Partial<SharedFolderRow> = {}): SharedFolderRow {
   return {
     id: "col-1",
+    organizationId: "org-1",
     name: "Engineering",
     permissions: SharedFolderPermission.Manage,
     items: 4,
@@ -33,6 +35,7 @@ describe("SharedFoldersTableComponent", () => {
     await TestBed.configureTestingModule({
       imports: [SharedFoldersTableComponent],
       providers: [
+        provideRouter([]),
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: LogService, useValue: mock<LogService>() },
@@ -86,6 +89,20 @@ describe("SharedFoldersTableComponent", () => {
     expect(text).toContain("42");
     expect(text).toContain("Finance");
     expect(text).toContain("8");
+  });
+
+  it("links each folder's name to its organization and collection", () => {
+    fixture.componentRef.setInput("sharedFolders", [
+      row({ id: "col-a", organizationId: "org-a", name: "Engineering" }),
+      row({ id: "col-b", organizationId: "org-b", name: "Finance" }),
+    ]);
+    fixture.detectChanges();
+
+    const links = fixture.debugElement
+      .queryAll(By.css("a[bitLink]"))
+      .map((link) => (link.nativeElement as HTMLAnchorElement).getAttribute("href"));
+
+    expect(links).toEqual(["/org-a/col-a", "/org-b/col-b"]);
   });
 
   // The stubbed `I18nService` echoes the key, so a cell renders the message key rather than the

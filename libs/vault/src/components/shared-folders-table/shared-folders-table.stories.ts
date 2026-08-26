@@ -1,3 +1,4 @@
+import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
@@ -9,18 +10,40 @@ import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 import { SharedFoldersTableComponent } from "./shared-folders-table.component";
 
+const organizationId = "org-1";
+
 const sharedFolders: SharedFolderRow[] = [
-  { id: "col-1", name: "Engineering", permissions: SharedFolderPermission.Manage, items: 42 },
-  { id: "col-2", name: "Finance", permissions: SharedFolderPermission.Edit, items: 8 },
-  { id: "col-3", name: "Human resources", permissions: SharedFolderPermission.View, items: 0 },
+  {
+    id: "col-1",
+    organizationId,
+    name: "Engineering",
+    permissions: SharedFolderPermission.Manage,
+    items: 42,
+  },
+  {
+    id: "col-2",
+    organizationId,
+    name: "Finance",
+    permissions: SharedFolderPermission.Edit,
+    items: 8,
+  },
+  {
+    id: "col-3",
+    organizationId,
+    name: "Human resources",
+    permissions: SharedFolderPermission.View,
+    items: 0,
+  },
   {
     id: "col-4",
+    organizationId,
     name: "Marketing",
     permissions: SharedFolderPermission.EditExceptPass,
     items: 17,
   },
   {
     id: "col-5",
+    organizationId,
     name: "Operations",
     permissions: SharedFolderPermission.ViewExceptPass,
     items: 3,
@@ -101,9 +124,9 @@ export default {
   decorators: [
     moduleMetadata({
       // `DialogModule` for its `DialogService` provider: `bit-table-toolbar` injects it for the
-      // small-screen filter dialog. Apps get it from their own module graph; a story has to
-      // supply it.
-      imports: [DialogModule],
+      // small-screen filter dialog. `RouterTestingModule` for the name column's `routerLink`.
+      // Apps get both from their own module graph; a story has to supply them.
+      imports: [DialogModule, RouterTestingModule],
       providers: [
         {
           provide: I18nService,

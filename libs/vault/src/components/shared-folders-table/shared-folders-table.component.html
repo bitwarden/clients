@@ -82,7 +82,18 @@
     <bit-cell *bitCellDef="table.columns.name; let row">
       <!-- Decorative: the folder name beside it already names the row. -->
       <bit-icon-tile slot="start" icon="bwi-shared-folder" size="sm" aria-hidden="true" />
-      {{ row.name }}
+      <!--
+        An anchor rather than a click handler, so activation, middle-click, and right-click all
+        behave like the ordinary links they look like.
+      -->
+      <a
+        bitLink
+        class="tw-truncate"
+        [attr.id]="'shared-folders-table_link_name-' + row.id"
+        [routerLink]="['/', row.organizationId, row.id]"
+      >
+        {{ row.name }}
+      </a>
     </bit-cell>
   </bit-column>
 

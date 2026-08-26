@@ -8,6 +8,7 @@ import {
   signal,
   TrackByFunction,
 } from "@angular/core";
+import { RouterLink } from "@angular/router";
 
 import { NoFolders, NoResults } from "@bitwarden/assets/svg";
 import {
@@ -27,6 +28,7 @@ import {
   IconButtonModule,
   IconModule,
   IconTileComponent,
+  LinkModule,
   MenuModule,
   SearchModule,
   SelectionConfig,
@@ -95,9 +97,12 @@ export type SharedFoldersTableFilters = {
  * back through {@link add} and each action's `run`. Loading the folders, resolving each folder's
  * permission, and acting on a row all stay with the client.
  *
- * Requires `DialogService` in the injector — `bit-table-toolbar` injects it for its small-screen
- * filter dialog. Every client provides it through `DialogModule`; a Storybook story or a bare
- * `TestBed` has to supply it itself.
+ * Each folder's name links to `/{organizationId}/{id}`, built from the row.
+ *
+ * Requires `DialogService` and a configured `Router` in the injector — `bit-table-toolbar` injects
+ * the former for its small-screen filter dialog, and the name column's `routerLink` needs the
+ * latter. Every client provides both through its module graph; a Storybook story or a bare
+ * `TestBed` has to supply them itself.
  *
  * @example
  * ```html
@@ -130,7 +135,9 @@ export type SharedFoldersTableFilters = {
     IconButtonModule,
     IconModule,
     IconTileComponent,
+    LinkModule,
     MenuModule,
+    RouterLink,
     SearchModule,
     SkeletonTextComponent,
     StatusLockupComponent,

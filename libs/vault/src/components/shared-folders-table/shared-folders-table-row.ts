@@ -8,8 +8,17 @@ import { SharedFolderPermission } from "./shared-folder-permission";
  * SharedFoldersTableRowAction} callbacks.
  */
 export type SharedFolderRow = {
-  /** Stable identifier. Drives `trackBy`, the menu item QA ids, and the `@for` track expression. */
+  /**
+   * Stable identifier — the folder's collection id. Drives `trackBy`, the menu item QA ids, the
+   * `@for` track expression, and the second segment of the route the name links to.
+   */
   id: string;
+
+  /**
+   * The organization the folder belongs to. Forms the first segment of the route the name links
+   * to: `/{organizationId}/{id}`.
+   */
+  organizationId: string;
 
   name: string;
 
