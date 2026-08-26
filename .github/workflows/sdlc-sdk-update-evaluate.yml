@@ -175,7 +175,7 @@ jobs:
           claude_args: |
             --model opus
             --agent bitwarden-software-engineer
-            --allowedTools "Bash(node .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.mjs *),Bash(npm run test:types),Bash(npm test -- *),Bash(npx prettier *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill(writing-client-code),Skill(bitwarden-delivery-tools:committing-changes),mcp__github_comment__update_claude_comment"
+            --allowedTools "Bash(node .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.mjs *),Bash(npm run test:types),Bash(npm run lint:fix),Bash(npm test -- *),Bash(npx prettier *),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git -C * log *),Bash(git -C * show *),Bash(git -C * diff *),Bash(git add:*),Bash(git commit:*),Bash(git log:*),Bash(git show:*),Bash(git diff:*),Bash(git status:*),Bash(git grep:*),Bash(grep:*),Read,Grep,Glob,Edit,Write,Skill(writing-client-code),Skill(bitwarden-delivery-tools:committing-changes),mcp__github_comment__update_claude_comment"
             --disallowedTools "Read(**/.git/**),Edit(**/.git/**),Write(**/.git/**),Edit(.github/**),Write(.github/**),Edit(.claude/**),Write(.claude/**)"
 
       - name: Push any resolved fix
