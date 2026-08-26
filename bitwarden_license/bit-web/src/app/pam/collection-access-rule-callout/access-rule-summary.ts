@@ -5,8 +5,8 @@ import { approvalMethodLabelKeys } from "../helpers/approval-method";
 type SummarizableRule = Pick<AccessRuleView, "conditions" | "singleActiveLease">;
 
 /**
- * The i18n keys summarising what a rule enforces, in a fixed order — approval mode first (every rule
- * has one), then the optional restrictions.
+ * The i18n keys summarising what a rule enforces, in a fixed order — how the rule grants access
+ * first, then the optional restrictions.
  *
  * Delegates the approval/IP keys to `approvalMethodLabelKeys` so this always agrees with the
  * access-rules table on how a rule grants access; only the single-active-user addition is specific
