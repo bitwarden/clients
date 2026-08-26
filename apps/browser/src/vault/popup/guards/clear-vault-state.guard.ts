@@ -1,9 +1,14 @@
 import { inject } from "@angular/core";
 import { CanDeactivateFn } from "@angular/router";
+import { map, take } from "rxjs";
+
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 import { VaultComponent } from "../components/vault/vault.component";
 import { VaultPopupItemsService } from "../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../services/vault-popup-list-table-filters.service";
 
 /**
  * Guard to clear the vault state (search and filter) when navigating away from the vault view.
@@ -16,14 +21,28 @@ export const clearVaultStateGuard: CanDeactivateFn<VaultComponent> = (
   currentState,
   nextState,
 ) => {
-  const vaultPopupItemsService = inject(VaultPopupItemsService);
-  const vaultPopupListFiltersService = inject(VaultPopupListFiltersService);
-  if (nextState && !isCipherOpen(nextState.url)) {
-    vaultPopupItemsService.applyFilter("");
-    vaultPopupListFiltersService.resetFilterForm();
+  if (!nextState || isCipherOpen(nextState.url)) {
+    return true;
   }
 
-  return true;
+  const configService = inject(ConfigService);
+  const vaultPopupItemsService = inject(VaultPopupItemsService);
+  const vaultPopupListFiltersService = inject(VaultPopupListFiltersService);
+  const vaultPopupListTableFiltersService = inject(VaultPopupListTableFiltersService);
+
+  vaultPopupItemsService.applyFilter("");
+
+  return configService.getFeatureFlag$(FeatureFlag.VFO1Foundation).pipe(
+    take(1),
+    map((vfo1Enabled) => {
+      if (vfo1Enabled) {
+        vaultPopupListTableFiltersService.saveFilters({});
+      } else {
+        vaultPopupListFiltersService.resetFilterForm();
+      }
+      return true;
+    }),
+  );
 };
 
 const isCipherOpen = (url: string): boolean =>

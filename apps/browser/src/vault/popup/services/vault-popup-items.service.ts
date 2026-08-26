@@ -180,16 +180,8 @@ export class VaultPopupItemsService {
   private _filteredCipherList$: Observable<PopupCipherViewLike[]> = combineLatest([
     this._activeCipherList$,
     this._effectiveSearchText$,
-    this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
   ]).pipe(
-    map(
-      ([ciphers, searchText, filterFunction, userId]): [PopupCipherViewLike[], string, UserId] => [
-        filterFunction(ciphers),
-        searchText,
-        userId,
-      ],
-    ),
     switchMap(
       ([ciphers, searchText, userId]) =>
         this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
@@ -259,21 +251,7 @@ export class VaultPopupItemsService {
   /**
    * Observable that indicates whether a filter or search text is currently applied to the ciphers.
    */
-  hasFilterApplied$ = combineLatest([
-    this._hasSearchText,
-    this.vaultPopupListFiltersService.filters$,
-  ]).pipe(
-    map(([hasSearchText, filters]) => {
-      return (
-        hasSearchText ||
-        // The object filters are multi-select, so an empty array is the cleared state, not a narrowed one.
-        Object.values(filters).some((filter) =>
-          Array.isArray(filter) ? filter.length > 0 : filter != null,
-        )
-      );
-    }),
-    shareReplay({ bufferSize: 1, refCount: true }),
-  );
+  hasFilterApplied$ = this._hasSearchText.pipe(shareReplay({ bufferSize: 1, refCount: true }));
 
   /**
    * Observable that indicates whether the user's vault is empty.
@@ -295,32 +273,27 @@ export class VaultPopupItemsService {
   );
 
   /**
-   * Observable that indicates when the user should see the deactivated org state. The organization
-   * filter is multi-select, so this holds only while every selected organization is suspended — one
-   * active selection still has items to list, which the deactivated copy would misrepresent.
+   * Observable that indicates when the user should see the deactivated org state, i.e. when the
+   * selected organization filter is suspended.
    */
   showDeactivatedOrg$: Observable<boolean> = combineLatest([
     this.vaultPopupListFiltersService.filters$.pipe(
       distinctUntilChanged(
-        (previous, current) =>
-          (previous.organization ?? []).map((o) => o.id).join() ===
-          (current.organization ?? []).map((o) => o.id).join(),
+        (previous, current) => previous.organization?.id === current.organization?.id,
       ),
     ),
     this.organizations$,
   ]).pipe(
     map(([filters, orgs]) => {
-      const selected = filters.organization ?? [];
+      const selectedOrg = filters.organization;
 
       // "My vault" is not an organization and can never be suspended.
-      if (!selected.length || selected.some((o) => o.id === MY_VAULT_ID)) {
+      if (!selectedOrg || selectedOrg.id === MY_VAULT_ID) {
         return false;
       }
 
-      return selected.every((selectedOrg) => {
-        const org = orgs.find((o) => o.id === selectedOrg.id);
-        return org ? !org.enabled : false;
-      });
+      const org = orgs.find((o) => o.id === selectedOrg.id);
+      return org ? !org.enabled : false;
     }),
   );
 

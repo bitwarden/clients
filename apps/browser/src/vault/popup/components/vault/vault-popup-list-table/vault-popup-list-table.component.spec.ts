@@ -1,6 +1,6 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { signal } from "@angular/core";
 import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
-import { FormControl, FormGroup } from "@angular/forms";
 import { By } from "@angular/platform-browser";
 import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { RouterTestingModule } from "@angular/router/testing";
@@ -44,10 +44,9 @@ import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vau
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import {
-  MY_VAULT_ID,
   FilterOptionCounts,
-  VaultPopupListFiltersService,
-} from "../../../services/vault-popup-list-filters.service";
+  VaultPopupListTableFiltersService,
+} from "../../../services/vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
@@ -127,16 +126,6 @@ describe("VaultPopupListTableComponent", () => {
     updateSectionOpenStoredState: jest.fn(),
   };
 
-  // A real `FormGroup`: the chips are bridged to it by `VaultFilterChipDirective`, so the two-way
-  // sync is exercised through its actual value/`valueChanges` behavior.
-  const filterForm = new FormGroup({
-    // Every object filter is multi-select, matching `PopupListFilter`.
-    organization: new FormControl<Organization[]>([], { nonNullable: true }),
-    collection: new FormControl<CollectionView[]>([], { nonNullable: true }),
-    folder: new FormControl<FolderView[]>([], { nonNullable: true }),
-    cipherType: new FormControl<CipherType | null>(null),
-  });
-
   const cipherTypes$ = new BehaviorSubject<ChipFilterOption<CipherType>[]>([]);
   const organizations$ = new BehaviorSubject<ChipFilterOption<Organization>[]>([]);
   const collections$ = new BehaviorSubject<ChipFilterOption<CollectionView>[]>([]);
@@ -149,8 +138,10 @@ describe("VaultPopupListTableComponent", () => {
     folder: new Map(),
   });
 
-  const vaultPopupListFiltersService = {
-    filterForm,
+  const vaultPopupListTableFiltersService = {
+    restoreFilters$: jest.fn().mockReturnValue(of({})),
+    saveFilters: jest.fn(),
+    selectedOrganizations: signal<Organization[]>([]),
     cipherTypes$: cipherTypes$.asObservable(),
     organizations$: organizations$.asObservable(),
     collections$: collections$.asObservable(),
@@ -177,7 +168,6 @@ describe("VaultPopupListTableComponent", () => {
     hasSearchText$.next(false);
     showDeactivatedOrg$.next(false);
     compactModeEnabled$.next(false);
-    filterForm.reset({ organization: [], collection: [], folder: [], cipherType: null });
     cipherTypes$.next([]);
     organizations$.next([]);
     collections$.next([]);
@@ -194,7 +184,10 @@ describe("VaultPopupListTableComponent", () => {
         { provide: VaultPopupItemsService, useValue: vaultPopupItemsService },
         { provide: VaultPopupLoadingService, useValue: vaultPopupLoadingService },
         { provide: VaultPopupSectionService, useValue: vaultPopupSectionService },
-        { provide: VaultPopupListFiltersService, useValue: vaultPopupListFiltersService },
+        {
+          provide: VaultPopupListTableFiltersService,
+          useValue: vaultPopupListTableFiltersService,
+        },
         { provide: CompactModeService, useValue: compactModeService },
         { provide: I18nService, useValue: mock<I18nService>({ t: (k: string) => k }) },
         { provide: LiveAnnouncer, useValue: liveAnnouncer },
@@ -331,23 +324,13 @@ describe("VaultPopupListTableComponent", () => {
       expect(text).not.toContain("clearFiltersOrTryAnother");
     });
 
-    it("does not announce a suspended organization that is already selected when the popup opens", () => {
-      // A fresh component, because the announcement is skipped only for the state present at
-      // subscribe time — the same reason the flag-off layout's live region stayed silent on open.
-      showDeactivatedOrg$.next(true);
-      liveAnnouncer.announce.mockClear();
-
-      const openedFixture = TestBed.createComponent(VaultPopupListTableComponent);
-      openedFixture.detectChanges();
-
-      expect(openedFixture.nativeElement.textContent).toContain("organizationIsDeactivated");
-      expect(liveAnnouncer.announce).not.toHaveBeenCalled();
-    });
-
     describe("deactivated organization", () => {
       beforeEach(() => {
+        // First render so toObservable(showDeactivatedOrg) consumes the initial false via skip(1).
+        // Tests can then observe the transition to true when selectedOrgs is set below.
+        fixture.detectChanges();
         filteredCiphers$.next([makeCipher({ organizationId: "org-1" })]);
-        showDeactivatedOrg$.next(true);
+        component["selectedOrgs"].set([{ enabled: false, id: "org-1" } as Organization]);
         fixture.detectChanges();
       });
 
@@ -366,7 +349,7 @@ describe("VaultPopupListTableComponent", () => {
       });
 
       it("restores the rows once the filter moves off the suspended organization", () => {
-        showDeactivatedOrg$.next(false);
+        component["selectedOrgs"].set([]);
         fixture.detectChanges();
 
         expect(component["rows"]()).toHaveLength(1);
@@ -383,7 +366,7 @@ describe("VaultPopupListTableComponent", () => {
       it("does not announce again when the filter moves off the suspended organization", () => {
         liveAnnouncer.announce.mockClear();
 
-        showDeactivatedOrg$.next(false);
+        component["selectedOrgs"].set([]);
         fixture.detectChanges();
 
         expect(liveAnnouncer.announce).not.toHaveBeenCalled();
@@ -428,11 +411,6 @@ describe("VaultPopupListTableComponent", () => {
     });
   });
 
-  /**
-   * The chips are bridged to `filterForm` rather than owning the filter state, so these assert the
-   * round trip in both directions. Filtering is applied upstream by `filterFunction$`, so a chip's
-   * job ends at writing the form.
-   */
   describe("filter chips", () => {
     const chipFor = (key: string) =>
       fixture.debugElement
@@ -453,49 +431,6 @@ describe("VaultPopupListTableComponent", () => {
       fixture.detectChanges();
 
       expect(chipFor("organization")).toBeDefined();
-    });
-
-    it("writes a chip selection back to its filterForm control", () => {
-      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
-      fixture.detectChanges();
-
-      chipFor("cipherType").toggle(CipherType.Card);
-      fixture.detectChanges();
-
-      expect(filterForm.controls.cipherType.value).toBe(CipherType.Card);
-    });
-
-    it("clears the filterForm control when the chip is cleared", () => {
-      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
-      fixture.detectChanges();
-
-      chipFor("cipherType").toggle(CipherType.Card);
-      fixture.detectChanges();
-      chipFor("cipherType").clear();
-      fixture.detectChanges();
-
-      expect(filterForm.controls.cipherType.value).toBeNull();
-    });
-
-    it("reflects filterForm writes made outside the table onto the chip", () => {
-      cipherTypes$.next([{ value: CipherType.Identity, label: "Identity" }]);
-      fixture.detectChanges();
-
-      // e.g. the vault header's own filter UI, or `resetFilterForm()`.
-      filterForm.controls.cipherType.setValue(CipherType.Identity);
-      fixture.detectChanges();
-
-      expect(chipFor("cipherType").value()).toBe(CipherType.Identity);
-      expect(chipFor("cipherType").active()).toBe(true);
-    });
-
-    it("seeds a chip from filters already applied before it rendered", () => {
-      // The view cache restores filters into the form before the table mounts.
-      filterForm.controls.cipherType.setValue(CipherType.Card);
-      cipherTypes$.next([{ value: CipherType.Card, label: "Card" }]);
-      fixture.detectChanges();
-
-      expect(chipFor("cipherType").value()).toBe(CipherType.Card);
     });
 
     it("flattens nested folder options into one option per node", () => {
@@ -625,165 +560,6 @@ describe("VaultPopupListTableComponent", () => {
         fixture.detectChanges();
 
         expect(fixture.debugElement.queryAll(By.directive(FilterSectionComponent))).toHaveLength(2);
-      });
-    });
-
-    /** See `VaultFilterChipDirective.filterOptions` for why the resolution is needed. */
-    describe("identity-independent seeding", () => {
-      it("selects a seeded organization that is a different instance than its option", () => {
-        const option = { id: MY_VAULT_ID } as Organization;
-        organizations$.next([{ value: option, label: "My vault" }]);
-        // A distinct object with the same id — what `deserializeFilters` restores from the cache.
-        filterForm.controls.organization.setValue([{ id: MY_VAULT_ID } as Organization]);
-        fixture.detectChanges();
-
-        const chip = chipFor("organization");
-        expect(chip.active()).toBe(true);
-        // Resolved onto the option's own instance, which is what drives the label and checkmark.
-        expect(chip.value()).toEqual([option]);
-        expect(chip.isSelected(option)).toBe(true);
-      });
-
-      it("selects a seeded folder that is a different instance than its option", () => {
-        const option = { id: "folder-1", name: "Work" } as FolderView;
-        folders$.next([{ value: option, label: "Work" }]);
-        filterForm.controls.folder.setValue([{ id: "folder-1", name: "Work" } as FolderView]);
-        fixture.detectChanges();
-
-        const chip = chipFor("folder");
-        expect(chip.value()).toEqual([option]);
-        expect(chip.isSelected(option)).toBe(true);
-      });
-
-      it("resolves every selection in a multi-select filter", () => {
-        const work = { id: "folder-1", name: "Work" } as FolderView;
-        const personal = { id: "folder-2", name: "Personal" } as FolderView;
-        folders$.next([
-          { value: work, label: "Work" },
-          { value: personal, label: "Personal" },
-        ]);
-        filterForm.controls.folder.setValue([
-          { id: "folder-1", name: "Work" } as FolderView,
-          { id: "folder-2", name: "Personal" } as FolderView,
-        ]);
-        fixture.detectChanges();
-
-        const chip = chipFor("folder");
-        expect(chip.isSelected(work)).toBe(true);
-        expect(chip.isSelected(personal)).toBe(true);
-      });
-
-      it("re-resolves onto the new instance when the options are rebuilt", () => {
-        const first = { id: "folder-1", name: "Work" } as FolderView;
-        folders$.next([{ value: first, label: "Work" }]);
-        filterForm.controls.folder.setValue([first]);
-        fixture.detectChanges();
-
-        // `folders$` re-emits rebuilt copies on any cipher change (a sync, an item edit).
-        const rebuilt = { id: "folder-1", name: "Work" } as FolderView;
-        folders$.next([{ value: rebuilt, label: "Work" }]);
-        fixture.detectChanges();
-
-        const chip = chipFor("folder");
-        expect(chip.value()).toEqual([rebuilt]);
-        expect(chip.isSelected(rebuilt)).toBe(true);
-      });
-
-      it("leaves a selection that matches no option untouched", () => {
-        // Clearing here would fight `validateOrganizationChange`, which owns that reset.
-        const orphan = { id: "folder-gone", name: "Archived" } as FolderView;
-        folders$.next([{ value: { id: "folder-1", name: "Work" } as FolderView, label: "Work" }]);
-        filterForm.controls.folder.setValue([orphan]);
-        fixture.detectChanges();
-
-        expect(filterForm.controls.folder.value).toEqual([orphan]);
-      });
-    });
-
-    describe("multi-select", () => {
-      it("adds each toggled folder to the filterForm control", () => {
-        const work = { id: "folder-1", name: "Work" } as FolderView;
-        const personal = { id: "folder-2", name: "Personal" } as FolderView;
-        folders$.next([
-          { value: work, label: "Work" },
-          { value: personal, label: "Personal" },
-        ]);
-        fixture.detectChanges();
-
-        chipFor("folder").toggle(work);
-        fixture.detectChanges();
-        chipFor("folder").toggle(personal);
-        fixture.detectChanges();
-
-        expect(filterForm.controls.folder.value).toEqual([work, personal]);
-      });
-
-      it("removes a folder that is toggled off, keeping the rest applied", () => {
-        const work = { id: "folder-1", name: "Work" } as FolderView;
-        const personal = { id: "folder-2", name: "Personal" } as FolderView;
-        folders$.next([
-          { value: work, label: "Work" },
-          { value: personal, label: "Personal" },
-        ]);
-        filterForm.controls.folder.setValue([work, personal]);
-        fixture.detectChanges();
-
-        chipFor("folder").toggle(work);
-        fixture.detectChanges();
-
-        expect(filterForm.controls.folder.value).toEqual([personal]);
-      });
-
-      // `null` would leave the chip and the form disagreeing on the shape of "nothing selected".
-      it("empties the control rather than nulling it when the chip is cleared", () => {
-        const work = { id: "folder-1", name: "Work" } as FolderView;
-        folders$.next([{ value: work, label: "Work" }]);
-        filterForm.controls.folder.setValue([work]);
-        fixture.detectChanges();
-
-        chipFor("folder").clear();
-        fixture.detectChanges();
-
-        expect(filterForm.controls.folder.value).toEqual([]);
-      });
-
-      /**
-       * The vault filter is multi-select, so it offers no "All" row — clearing the chip is what
-       * widens it back to every vault. Only single-select chips render that row.
-       */
-      it("adds each toggled organization to the filterForm control", () => {
-        const acme = { id: "org-1" } as Organization;
-        const zeta = { id: "org-2" } as Organization;
-        organizations$.next([
-          { value: acme, label: "Acme" },
-          { value: zeta, label: "Zeta" },
-        ]);
-        fixture.detectChanges();
-
-        chipFor("organization").toggle(acme);
-        fixture.detectChanges();
-        chipFor("organization").toggle(zeta);
-        fixture.detectChanges();
-
-        expect(filterForm.controls.organization.value).toEqual([acme, zeta]);
-      });
-
-      /**
-       * `bit-filter-menu` renders its "All" row only for a single-select chip, so `multiple` is
-       * what removes it — and clearing the chip is then the way back to every vault.
-       */
-      it("offers no All option on the vault filter", () => {
-        const acme = { id: "org-1" } as Organization;
-        organizations$.next([{ value: acme, label: "Acme" }]);
-        filterForm.controls.organization.setValue([acme]);
-        fixture.detectChanges();
-
-        expect(chipFor("organization").multiple()).toBe(true);
-
-        chipFor("organization").clear();
-        fixture.detectChanges();
-
-        expect(filterForm.controls.organization.value).toEqual([]);
       });
     });
   });

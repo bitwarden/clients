@@ -208,15 +208,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected newItemItemValues$: Observable<NewItemInitialValues> =
     this.vaultPopupListFiltersService.filters$.pipe(
       switchMap(async (filter) => {
-        // Every object filter is multi-select, so each only prefills an unambiguous selection.
-        const organization = filter.organization?.length === 1 ? filter.organization[0] : undefined;
-        const collection = filter.collection?.length === 1 ? filter.collection[0] : undefined;
-        const folder = filter.folder?.length === 1 ? filter.folder[0] : undefined;
-
         return {
-          organizationId: (organization?.id || collection?.organizationId) as OrganizationId,
-          collectionId: collection?.id as CollectionId,
-          folderId: folder?.id,
+          organizationId: (filter.organization?.id ||
+            filter.collection?.organizationId) as OrganizationId,
+          collectionId: filter.collection?.id as CollectionId,
+          folderId: filter.folder?.id,
         } as NewItemInitialValues;
       }),
       shareReplay({ refCount: true, bufferSize: 1 }),

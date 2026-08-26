@@ -1,11 +1,12 @@
 <bit-table-v2
   class="[&_[role=row]]:tw-mx-3"
   [tableDef]="table"
+  [filter]="filterPredicate"
+  [loading]="loading()"
+  [trackBy]="trackRow"
   presentation="list"
   height="fill"
   [virtualRowHeight]="itemHeight()"
-  [loading]="loading()"
-  [trackBy]="trackRow"
 >
   <bit-table-toolbar>
     <bit-search
@@ -17,37 +18,16 @@
       appAutofocus
     ></bit-search>
 
-    <!--
-      Each chip drives its `filterForm` control through `bitVaultFilterChip`; `filterFunction$`
-      reads the form upstream, so a selection re-narrows the rows the table receives. No Favorites
-      chip by design — favorites are their own section rather than a filter.
-    -->
-    <bit-filter-menu
-      key="cipherType"
-      bitVaultFilterChip="cipherType"
-      [filterOptions]="cipherTypeOptions()"
-      [placeholderText]="'type' | i18n"
-      [unsetLabel]="'all' | i18n"
-    >
+    <bit-filter-menu key="cipherType" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
       @for (option of cipherTypeOptions(); track option.value) {
-        <bit-filter-option [value]="option.value" [count]="cipherTypeCount(option.value)">{{
-          option.label
-        }}</bit-filter-option>
+        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
       }
     </bit-filter-menu>
 
     @if (organizationOptions().length) {
-      <bit-filter-menu
-        key="organization"
-        bitVaultFilterChip="organization"
-        [filterOptions]="organizationOptions()"
-        [placeholderText]="'vault' | vfo1I18n: 'vaults'"
-        multiple
-      >
+      <bit-filter-menu key="organization" [placeholderText]="'vault' | vfo1I18n: 'vaults'" multiple>
         @for (option of organizationOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value" [count]="organizationCount(option.value)">{{
-            option.label
-          }}</bit-filter-option>
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
         }
       </bit-filter-menu>
     }
@@ -55,8 +35,6 @@
     @if (collectionOptions().length) {
       <bit-filter-menu
         key="collection"
-        bitVaultFilterChip="collection"
-        [filterOptions]="collectionOptions()"
         [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
         [unsetLabel]="'all' | i18n"
         multiple
@@ -65,7 +43,7 @@
           @for (org of collectionsByOrg(); track org.id) {
             <bit-filter-section [label]="org.name" collapsible>
               @for (option of org.collections; track option.value.id) {
-                <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">
+                <bit-filter-option [value]="option.value">
                   {{ option.label }}
                 </bit-filter-option>
               }
@@ -73,40 +51,29 @@
           }
         } @else {
           @for (option of collectionOptions(); track option.value.id) {
-            <bit-filter-option [value]="option.value" [count]="collectionCount(option.value)">{{
-              option.label
-            }}</bit-filter-option>
+            <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
           }
         }
       </bit-filter-menu>
     }
 
     @if (folderOptions().length) {
-      <bit-filter-menu
-        key="folder"
-        bitVaultFilterChip="folder"
-        [filterOptions]="folderOptions()"
-        [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
-        multiple
-      >
+      <bit-filter-menu key="folder" [placeholderText]="'folder' | vfo1I18n: 'myFolders'" multiple>
         @for (option of folderOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value" [count]="folderCount(option.value)">{{
-            option.label
-          }}</bit-filter-option>
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
         }
       </bit-filter-menu>
     }
   </bit-table-toolbar>
   <!--
-    `[&>div]:!tw-pt-0` zeroes `bit-no-items`' built-in top padding, which would offset the
-    centering. The suspended-organization state renders here rather than replacing the table, so
+    The suspended-organization state renders here rather than replacing the table, so
     the filter that caused it stays clearable.
   -->
-  <bit-no-items
-    slot="empty"
-    class="tw-mx-3 tw-my-auto [&>div]:!tw-pt-0"
-    [icon]="showDeactivatedOrg() ? deactivatedIcon : noResultsIcon"
-  >
+  <bit-status-lockup slot="empty" class="tw-mx-3 tw-my-auto" size="small">
+    <bit-svg
+      slot="graphic"
+      [content]="showDeactivatedOrg() ? deactivatedIcon : noResultsIcon"
+    ></bit-svg>
     <span slot="title">{{
       showDeactivatedOrg()
         ? ("organizationIsDeactivated" | i18n)
@@ -117,7 +84,7 @@
     } @else if (hasSearchText()) {
       <span slot="description">{{ "clearFiltersOrTryAnother" | i18n }}</span>
     }
-  </bit-no-items>
+  </bit-status-lockup>
 
   <bit-column>
     <bit-header-cell>{{ "name" | i18n }}</bit-header-cell>

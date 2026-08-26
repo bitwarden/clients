@@ -8,7 +8,7 @@
         @if (organizations.length) {
           <bit-chip-filter
             fullWidth
-            [formControl]="singleOrganization"
+            formControlName="organization"
             placeholderIcon="bwi-vault"
             [placeholderText]="'vault' | vfo1I18n: 'vaults'"
             [options]="organizations"
@@ -20,7 +20,7 @@
         @if (collections.length) {
           <bit-chip-filter
             fullWidth
-            [formControl]="singleCollection"
+            formControlName="collection"
             [placeholderIcon]="'bwi-collection-shared' | vfo1Icon"
             [placeholderText]="'collection' | vfo1I18n: 'sharedFolders'"
             [options]="collections"
@@ -33,7 +33,7 @@
           <bit-chip-filter
             fullWidth
             placeholderIcon="bwi-folder"
-            [formControl]="singleFolder"
+            formControlName="folder"
             [placeholderText]="'folder' | vfo1I18n: 'myFolders'"
             [options]="folders"
           >

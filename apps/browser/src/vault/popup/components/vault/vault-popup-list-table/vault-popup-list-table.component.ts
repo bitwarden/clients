@@ -2,8 +2,18 @@
 /* eslint-disable @bitwarden/components/enforce-readonly-angular-properties */
 import { LiveAnnouncer } from "@angular/cdk/a11y";
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import {
+  afterNextRender,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  Injector,
+  signal,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { distinctUntilChanged, filter, map, skip, Subject } from "rxjs";
 
@@ -35,19 +45,28 @@ import {
   FilterMenuModule,
   IconButtonModule,
   IconComponent,
-  NoItemsModule,
   SearchModule,
+  StatusLockupComponent,
+  SvgComponent,
   TypographyModule,
 } from "@bitwarden/components";
-import { OrgIconDirective, Vfo1I18nPipe } from "@bitwarden/vault";
+import {
+  matchesFolder,
+  matchesSharedFolder,
+  matchesType,
+  matchesVault,
+  MY_VAULT,
+  NO_FOLDER,
+  OrgIconDirective,
+  Vfo1I18nPipe,
+} from "@bitwarden/vault";
 
 import BrowserPopupUtils from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import {
   FilterOptionCounts,
-  NO_FOLDER_COUNT_KEY,
-  VaultPopupListFiltersService,
-} from "../../../services/vault-popup-list-filters.service";
+  VaultPopupListTableFiltersService,
+} from "../../../services/vault-popup-list-table-filters.service";
 import {
   VaultPopupListTableService,
   VaultTableRow,
@@ -57,8 +76,6 @@ import { VaultPopupSectionService } from "../../../services/vault-popup-section.
 import { PopupCipherViewLike } from "../../../views/popup-cipher.view";
 import { ItemCopyActionsComponent } from "../item-copy-action/item-copy-actions.component";
 import { ItemMoreOptionsComponent } from "../item-more-options/item-more-options.component";
-
-import { VaultFilterChipDirective } from "./vault-filter-chip.directive";
 
 /**
  * Flattens a nested `ChipFilterOption` tree into a single depth-first list. Interim:
@@ -95,14 +112,14 @@ function flattenOptions<T>(options: ChipFilterOption<T>[]): ChipFilterOption<T>[
     FilterMenuModule,
     IconButtonModule,
     IconComponent,
-    NoItemsModule,
     SearchModule,
+    StatusLockupComponent,
+    SvgComponent,
     TypographyModule,
     ChipActionComponent,
     ItemCopyActionsComponent,
     ItemMoreOptionsComponent,
     OrgIconDirective,
-    VaultFilterChipDirective,
     Vfo1I18nPipe,
   ],
 })
@@ -112,11 +129,16 @@ export class VaultPopupListTableComponent {
   private readonly vaultPopupSectionService = inject(VaultPopupSectionService);
   private readonly compactModeService = inject(CompactModeService);
   private readonly listTableService = inject(VaultPopupListTableService);
-  private readonly listFiltersService = inject(VaultPopupListFiltersService);
+  private readonly listFiltersService = inject(VaultPopupListTableFiltersService);
   private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly liveAnnouncer = inject(LiveAnnouncer);
+  private readonly injector = inject(Injector);
+  private readonly destroyRef = inject(DestroyRef);
   protected readonly i18nService = inject(I18nService);
   private readonly window = inject<Window>(WINDOW);
+
+  /** The projected `bit-table-v2`, used to seed and observe chip selections. */
+  private readonly tableEl = viewChild(BitTableV2Component);
 
   protected readonly CipherViewLikeUtils = CipherViewLikeUtils;
 
@@ -134,13 +156,16 @@ export class VaultPopupListTableComponent {
     initialValue: false,
   });
 
+  /** The selected organizations, kept in sync with the org chip selection. */
+  private readonly selectedOrgs = signal<Organization[]>([]);
+
   /**
    * Whether the organization filter points at a suspended organization. The table stays mounted in
    * this state so the filter that caused it remains clearable — unmounting would strip the chips
    * and the search box along with it.
    */
-  protected readonly showDeactivatedOrg = toSignal(this.listTableService.showDeactivatedOrg$, {
-    initialValue: false,
+  protected readonly showDeactivatedOrg = computed(() => {
+    return this.selectedOrgs().some((o) => o.id !== MY_VAULT && !o.enabled);
   });
 
   private readonly allRows = toSignal(this.listTableService.rows$, {
@@ -149,11 +174,39 @@ export class VaultPopupListTableComponent {
 
   /**
    * A suspended organization's ciphers still match its own filter, so they're withheld here rather
-   * than by `filterFunction$`. Emptying the rows also hands the state to the table's empty slot.
+   * than upstream. Emptying the rows also hands the state to the table's empty slot.
    */
   protected readonly rows = computed(() => (this.showDeactivatedOrg() ? [] : this.allRows()));
 
   protected readonly table = defineTable<VaultTableRow, "name">(this.rows);
+
+  /**
+   * Row-level filter predicate passed to `bit-table-v2 [filter]`. The chip selections are full
+   * objects (Organization[], CollectionView[], FolderView[]); ids are extracted before calling the
+   * shared predicates from `@bitwarden/vault`.
+   */
+  protected readonly filterPredicate = (
+    row: VaultTableRow,
+    values: {
+      cipherType?: CipherType | null;
+      organization?: Organization[];
+      collection?: CollectionView[];
+      folder?: FolderView[];
+    },
+  ): boolean =>
+    matchesType(row.cipher, values.cipherType) &&
+    matchesVault(
+      row.cipher,
+      (values.organization ?? []).map((o) => o.id),
+    ) &&
+    matchesSharedFolder(
+      row.cipher,
+      (values.collection ?? []).map((c) => c.id!),
+    ) &&
+    matchesFolder(
+      row.cipher,
+      (values.folder ?? []).map((f) => f.id ?? NO_FOLDER),
+    );
 
   /**
    * The filter options. Each stream empties when its filter doesn't apply (no orgs, or
@@ -222,7 +275,7 @@ export class VaultPopupListTableComponent {
 
   /**
    * Item counts per filter option. The table can't derive these itself: `bit-table-v2` counts its
-   * own rows, already narrowed by `filterFunction$` upstream, so every unselected option would read
+   * own rows after the `[filter]` predicate is applied, so every unselected option would read
    * zero. The service counts the whole vault instead.
    */
   private readonly optionCounts = toSignal(this.listFiltersService.filterOptionCounts$, {
@@ -246,9 +299,9 @@ export class VaultPopupListTableComponent {
     return this.optionCounts().collection.get(collection.id) ?? 0;
   }
 
-  /** "Items with no folder" has no id, so it counts under {@link NO_FOLDER_COUNT_KEY}. */
+  /** "Items with no folder" has no id, so it counts under {@link NO_FOLDER}. */
   protected folderCount(folder: FolderView): number {
-    return this.optionCounts().folder.get(folder.id ?? NO_FOLDER_COUNT_KEY) ?? 0;
+    return this.optionCounts().folder.get(folder.id ?? NO_FOLDER) ?? 0;
   }
 
   protected readonly itemHeight = toSignal(
@@ -320,7 +373,8 @@ export class VaultPopupListTableComponent {
       .pipe(takeUntilDestroyed())
       .subscribe();
 
-    this.listTableService.showDeactivatedOrg$
+    // Announce when all selected organizations become deactivated.
+    toObservable(this.showDeactivatedOrg)
       .pipe(takeUntilDestroyed(), distinctUntilChanged(), skip(1), filter(Boolean))
       .subscribe(() => {
         void this.liveAnnouncer.announce(
@@ -331,6 +385,38 @@ export class VaultPopupListTableComponent {
 
     // Resolve the keyboard-shortcut tooltip for the legacy (flag-off) autofill chip.
     void this.setAutofillShortcutTooltip();
+
+    // Set up chip lifecycle after the first render (chips are registered by then).
+    afterNextRender(() => {
+      const table = this.tableEl();
+      if (!table) {
+        return;
+      }
+
+      // Seed chips from the persisted cache once the required data resolves.
+      this.listFiltersService
+        .restoreFilters$()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe((filters) => {
+          for (const control of table.filterControls()) {
+            const value = (filters as Record<string, unknown>)[control.key()];
+            if (value !== undefined) {
+              control.setValue(value);
+            }
+          }
+        });
+
+      // Persist cache and update service state whenever chip selections change.
+      toObservable(table.filterValues, { injector: this.injector })
+        .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
+        .subscribe((values: any) => {
+          this.listFiltersService.saveFilters(values);
+          const orgs: Organization[] = values.organization ?? [];
+          this.listFiltersService.selectedOrganizations.set(orgs);
+          this.selectedOrgs.set(orgs);
+          this.validateOrgChips(table, values);
+        });
+    });
   }
 
   private async setAutofillShortcutTooltip() {
@@ -371,5 +457,36 @@ export class VaultPopupListTableComponent {
       return this.i18nService.t("nSharedFolders", collectionIds.length);
     }
     return collections[0]?.name;
+  }
+
+  /**
+   * Clears collection chip selections that are no longer valid for the newly-selected
+   * organizations. Called whenever the org chip changes.
+   */
+  private validateOrgChips(
+    table: BitTableV2Component<any, any, any>,
+    values: { organization?: Organization[]; collection?: CollectionView[] },
+  ): void {
+    const orgs = values.organization ?? [];
+    const selectedOrgIds = orgs.filter((o) => o.id !== MY_VAULT).map((o) => o.id);
+
+    if (!selectedOrgIds.length) {
+      return;
+    }
+
+    const currentCollections = values.collection ?? [];
+    if (!currentCollections.length) {
+      return;
+    }
+
+    const validCollections = currentCollections.filter((c) =>
+      selectedOrgIds.includes(c.organizationId!),
+    );
+    if (validCollections.length !== currentCollections.length) {
+      table
+        .filterControls()
+        .find((c) => c.key() === "collection")
+        ?.setValue(validCollections.length ? validCollections : undefined);
+    }
   }
 }

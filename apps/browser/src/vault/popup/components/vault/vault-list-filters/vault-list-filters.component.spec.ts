@@ -23,9 +23,9 @@ const ACME = { id: "org-1" } as Organization;
 describe("VaultListFiltersComponent", () => {
   let fixture: ComponentFixture<VaultListFiltersComponent>;
   let filterForm: FormGroup<{
-    organization: FormControl<Organization[]>;
-    collection: FormControl<CollectionView[]>;
-    folder: FormControl<FolderView[]>;
+    organization: FormControl<Organization | null>;
+    collection: FormControl<CollectionView | null>;
+    folder: FormControl<FolderView | null>;
     cipherType: FormControl<CipherType | null>;
   }>;
 
@@ -46,9 +46,9 @@ describe("VaultListFiltersComponent", () => {
 
   beforeEach(async () => {
     filterForm = new FormGroup({
-      organization: new FormControl<Organization[]>([], { nonNullable: true }),
-      collection: new FormControl<CollectionView[]>([], { nonNullable: true }),
-      folder: new FormControl<FolderView[]>([], { nonNullable: true }),
+      organization: new FormControl<Organization | null>(null),
+      collection: new FormControl<CollectionView | null>(null),
+      folder: new FormControl<FolderView | null>(null),
       cipherType: new FormControl<CipherType | null>(null),
     });
 
@@ -93,11 +93,11 @@ describe("VaultListFiltersComponent", () => {
     fixture.detectChanges();
   });
 
-  it("writes a folder selection to the form as a single-item selection", () => {
+  it("writes a folder selection to the form", () => {
     selectOption("Folder", { value: WORK, label: "Work" });
     fixture.detectChanges();
 
-    expect(filterForm.controls.folder.value).toEqual([WORK]);
+    expect(filterForm.controls.folder.value).toEqual(WORK);
   });
 
   it("replaces the selection rather than adding to it", () => {
@@ -106,68 +106,50 @@ describe("VaultListFiltersComponent", () => {
     selectOption("Folder", { value: PERSONAL, label: "Personal" });
     fixture.detectChanges();
 
-    expect(filterForm.controls.folder.value).toEqual([PERSONAL]);
+    expect(filterForm.controls.folder.value).toEqual(PERSONAL);
   });
 
-  // `null` would leave this header and the table disagreeing on the shape of "nothing selected".
   it("empties the control when the chip is cleared", () => {
-    filterForm.controls.folder.setValue([WORK]);
+    filterForm.controls.folder.setValue(WORK);
     fixture.detectChanges();
 
     clearChip("Folder");
     fixture.detectChanges();
 
-    expect(filterForm.controls.folder.value).toEqual([]);
+    expect(filterForm.controls.folder.value).toBeNull();
   });
 
-  it("writes a collection selection as a single-item selection", () => {
+  it("writes a collection selection to the form", () => {
     selectOption("Collection", { value: ENGINEERING, label: "Engineering" });
     fixture.detectChanges();
 
-    expect(filterForm.controls.collection.value).toEqual([ENGINEERING]);
+    expect(filterForm.controls.collection.value).toEqual(ENGINEERING);
   });
 
   it("seeds a chip from filters already applied before it rendered", () => {
     // The view cache restores filters into the form before this header mounts.
-    filterForm.controls.folder.setValue([WORK]);
+    filterForm.controls.folder.setValue(WORK);
     fixture.detectChanges();
 
     expect(selectedOption("Folder")?.value).toBe(WORK);
-  });
-
-  it("shows the first of several selections without narrowing the form", () => {
-    filterForm.controls.folder.setValue([WORK, PERSONAL]);
-    fixture.detectChanges();
-
-    expect(selectedOption("Folder")?.value).toBe(WORK);
-    expect(filterForm.controls.folder.value).toEqual([WORK, PERSONAL]);
   });
 
   describe("organization", () => {
-    it("writes an organization selection as a single-item selection", () => {
+    it("writes an organization selection to the form", () => {
       selectOption("Vault", { value: ACME, label: "Acme" });
       fixture.detectChanges();
 
-      expect(filterForm.controls.organization.value).toEqual([ACME]);
+      expect(filterForm.controls.organization.value).toEqual(ACME);
     });
 
     it("empties the control when the chip is cleared", () => {
-      filterForm.controls.organization.setValue([ACME]);
+      filterForm.controls.organization.setValue(ACME);
       fixture.detectChanges();
 
       clearChip("Vault");
       fixture.detectChanges();
 
-      expect(filterForm.controls.organization.value).toEqual([]);
-    });
-
-    it("shows the first of several selections without narrowing the form", () => {
-      const zeta = { id: "org-2" } as Organization;
-      filterForm.controls.organization.setValue([ACME, zeta]);
-      fixture.detectChanges();
-
-      expect(selectedOption("Vault")?.value).toBe(ACME);
-      expect(filterForm.controls.organization.value).toEqual([ACME, zeta]);
+      expect(filterForm.controls.organization.value).toBeNull();
     });
   });
 });

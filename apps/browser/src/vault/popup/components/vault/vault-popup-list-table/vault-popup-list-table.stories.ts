@@ -1,5 +1,4 @@
 import { computed, signal } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
 import { Router } from "@angular/router";
 import { applicationConfig, Meta, StoryObj } from "@storybook/angular";
 import { BehaviorSubject, of } from "rxjs";
@@ -38,18 +37,20 @@ import {
   ToastService,
 } from "@bitwarden/components";
 import { StateProvider } from "@bitwarden/state";
-import { PasswordRepromptService, VaultCopyButtonsService } from "@bitwarden/vault";
+import {
+  MY_VAULT,
+  NO_FOLDER,
+  PasswordRepromptService,
+  VaultCopyButtonsService,
+} from "@bitwarden/vault";
 
 import { PopupWidthOptions } from "../../../../../platform/browser/browser-popup-utils";
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
 import {
   FilterOptionCounts,
-  MY_VAULT_ID,
-  NO_FOLDER_COUNT_KEY,
-  PopupListFilter,
-  VaultPopupListFiltersService,
-} from "../../../services/vault-popup-list-filters.service";
+  VaultPopupListTableFiltersService,
+} from "../../../services/vault-popup-list-table-filters.service";
 import { VaultSection } from "../../../services/vault-popup-list-table.service";
 import { VaultPopupLoadingService } from "../../../services/vault-popup-loading.service";
 import { VaultPopupSectionService } from "../../../services/vault-popup-section.service";
@@ -225,8 +226,13 @@ type StoryArgs = {
   simplifiedItemActionEnabled?: boolean;
   /** Legacy (flag-off) setting: whether clicking an autofill suggestion fills it. Defaults to on. */
   clickItemsToAutofillVaultView?: boolean;
-  /** Filters pre-applied to `filterForm`, so the chips render in their active state. */
-  appliedFilters?: Partial<PopupListFilter>;
+  /** Filters to restore into the chips on story load. */
+  appliedFilters?: {
+    cipherType?: CipherType | null;
+    organization?: Organization[];
+    collection?: CollectionView[];
+    folder?: FolderView[];
+  };
   /** Sections rendered collapsed. Defaults to all expanded. */
   collapsedSections?: VaultSection[];
 };
@@ -234,7 +240,7 @@ type StoryArgs = {
 // Option sets for the toolbar's filter chips. A chip only renders when its stream has entries, so
 // these also control which chips appear.
 const ORGANIZATION_OPTIONS = [
-  { value: { id: MY_VAULT_ID } as Organization, label: "My vault", icon: "bwi-user" as const },
+  { value: { id: MY_VAULT } as Organization, label: "My vault", icon: "bwi-user" as const },
   {
     value: { id: "org-engineering" } as Organization,
     label: "Acme Co",
@@ -283,11 +289,11 @@ const buildOptionCounts = (ciphers: PopupCipherViewLike[]): FilterOptionCounts =
 
   for (const cipher of ciphers) {
     increment(counts.cipherType, (cipher as CipherView).type);
-    increment(counts.organization, cipher.organizationId ?? MY_VAULT_ID);
+    increment(counts.organization, cipher.organizationId ?? MY_VAULT);
     for (const collectionId of cipher.collectionIds ?? []) {
       increment(counts.collection, collectionId);
     }
-    increment(counts.folder, cipher.folderId ?? NO_FOLDER_COUNT_KEY);
+    increment(counts.folder, cipher.folderId ?? NO_FOLDER);
   }
 
   return counts;
@@ -323,30 +329,17 @@ const buildProviders = (args: StoryArgs) => {
     },
   } as Window;
 
-  // A real `FormGroup`, since the chips are bridged to it rather than owning their own state.
-  // `appliedFilters` seeds it the way the view cache does on a real popup open.
-  const filterForm = new FormGroup({
-    organization: new FormControl<Organization[]>(args.appliedFilters?.organization ?? [], {
-      nonNullable: true,
-    }),
-    collection: new FormControl<CollectionView[]>(args.appliedFilters?.collection ?? [], {
-      nonNullable: true,
-    }),
-    folder: new FormControl<FolderView[]>(args.appliedFilters?.folder ?? [], {
-      nonNullable: true,
-    }),
-    cipherType: new FormControl<CipherType | null>(args.appliedFilters?.cipherType ?? null),
-  });
-
   // A signal, matching the real service's return type, so a section header toggle re-renders.
   const collapsedSections = signal(new Set(args.collapsedSections ?? []));
 
   return [
     { provide: WINDOW, useValue: fakeWindow },
     {
-      provide: VaultPopupListFiltersService,
+      provide: VaultPopupListTableFiltersService,
       useValue: {
-        filterForm,
+        restoreFilters$: () => of(args.appliedFilters ?? {}),
+        saveFilters: () => {},
+        selectedOrganizations: signal<Organization[]>([]),
         cipherTypes$: of(CIPHER_TYPE_OPTIONS),
         organizations$: of(ORGANIZATION_OPTIONS),
         collections$: of(COLLECTION_OPTIONS),
