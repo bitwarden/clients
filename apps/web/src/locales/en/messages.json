@@ -8803,6 +8803,9 @@
   "estimatedTax": {
     "message": "Estimated tax"
   },
+  "subtotal": {
+    "message": "Subtotal"
+  },
   "custom": {
     "message": "Custom"
   },
@@ -16580,6 +16583,9 @@
   },
   "premiumSubscriptionCredit": {
     "message": "Premium subscription credit"
+  },
+  "appliedSubscriptionCredits": {
+    "message": "Applied subscription credits"
   },
   "enterpriseMembership": {
     "message": "Enterprise membership"
