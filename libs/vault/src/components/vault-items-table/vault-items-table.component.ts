@@ -89,12 +89,12 @@ export const MAX_SELECTION_COUNT = 500;
 
 /**
  * Scroll space (px) reserved below the last row while the bulk-actions bar is showing: the bar's
- * own height and bottom margin (53 + 16)
+ * own height of 53px;
  *
  * The bar is `position: fixed`, so it never displaces content — without this the last row sits
  * permanently beneath it and its checkbox and quick actions can't be clicked.
  */
-const BULK_BAR_CLEARANCE = 69;
+const BULK_BAR_CLEARANCE = 53;
 
 /**
  * The `key` values for each filter chip in the vault table.
