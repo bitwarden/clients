@@ -36,7 +36,9 @@ export class DefaultSharedUnlockPeerService implements SharedUnlockPeerService {
 
     this.peer = new SharedUnlockPeer(this.ipcService.client, sharedUnlockDriver);
     // Disbabled until a follow-up sdk pr adds shared unlock peer destination settings
-    // await this.peer.start();
+    return;
+
+    await this.peer.start();
 
     this.lockService.registerOnLockAction(async (userId, source) => {
       // A peer locked us. Announcing it back would send it around the hierarchy again.
