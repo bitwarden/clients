@@ -283,6 +283,7 @@ describe("AccessRuleEditComponent — page furniture", () => {
     ) as HTMLAnchorElement | null;
     expect(link).not.toBeNull();
     expect(link!.getAttribute("href")).toBe("/organizations/org-1/pam/audit");
+    expect(link!.textContent!.trim()).toBe("pamAccessRuleViewAuditLog");
   });
 
   it("drops the event log notice for an organization without event log access", async () => {
