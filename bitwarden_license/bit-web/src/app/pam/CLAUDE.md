@@ -55,9 +55,14 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   `AccessBadgeState.kind`: "Privileged" ships, "My requests" (`pending`/`ready`/`active`)
   follows, and "Unavailable" cannot be built at all while `cipherAccessBadgeState()` never
   produces that kind.
-- `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
-  vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
-  the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
+- `access-state-badge/`, `vault-row-lease-badge/`, `item-details-state-badge/` — the one
+  access-state pill, and the two hosts that render it: a vault row, and the open item's
+  name row. The hosts differ only in how they refresh — the item-details one re-reads on
+  `AccessRefreshService` so it cannot contradict the banner below it, the row one reads
+  once so a list of gated rows does not carry a subscription each. The item-details host
+  also drops the `active` state, because the banner heading under it already runs that
+  countdown on its own timer. Which badge to show is NOT decided here: the SDK ranks the
+  three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
   only adapts that onto the presentation model (a `kind` discriminant, a parsed `Date`).
   Add a state by teaching the SDK, not by re-ranking the parts client-side.
 - `collection-access-rule-callout/` — names the rules governing a collection, inside the
@@ -147,7 +152,8 @@ several subjects describing different moments.
 
 PAM reaches non-commercial code only through injection tokens, each injected
 `{ optional: true }` on the OSS side so an unprovided token is inert. `provide-pam.ts`
-binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER` (both `libs/vault`),
+binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER`, `ITEM_DETAILS_STATE_BADGE`
+(all `libs/vault`),
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
