@@ -119,6 +119,10 @@ describe("CipherViewBannerComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+    // The resting pre-check is only reachable once the access-state read has settled, so its
+    // resolution lands a cycle after the state it depends on.
+    await fixture.whenStable();
+    fixture.detectChanges();
   }
 
   function text(): string {
@@ -142,6 +146,9 @@ describe("CipherViewBannerComponent", () => {
     toastService = mock<ToastService>();
 
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
+    // The resting banner pre-checks on its own to render the rule's maximum duration, so every
+    // test needs a resolved pre-check even when it never opens the form.
+    requestsApi.preCheck.mockResolvedValue(preCheck());
     leasingErrors.isLeasingError.mockReturnValue(false);
 
     // The real fan-out, not a mock: the notify-then-re-read path is the behaviour under test.
@@ -383,6 +390,62 @@ describe("CipherViewBannerComponent", () => {
       expect(query('[data-testid="approved-access-window"]')?.textContent?.trim()).toBe(
         until(ENDS_AT),
       );
+    });
+  });
+
+  describe("the rule's terms, before the form is opened", () => {
+    const MAX_DURATION = '[data-testid="cipher-view-banner-max-duration"]';
+
+    it("renders the cap alone when the rule needs an approver", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", maxDurationSeconds: 4 * 3600 }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDuration 4 hours",
+      );
+    });
+
+    it("renders the cap with the instant-approval clause when the rule auto-approves", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "automatic", maxDurationSeconds: 86_400 }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDurationAutomatic 1 day",
+      );
+    });
+
+    it("renders no line when the pre-check resolves no cap", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ maxDurationSeconds: undefined }));
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("renders no line, and no error, when the pre-check fails", async () => {
+      requestsApi.preCheck.mockRejectedValue(new Error("boom"));
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("does not pre-check a cipher whose access is already in play", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView() }),
+      );
+
+      await create(gatedCipher());
+
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
     });
   });
 
