@@ -42,9 +42,20 @@
 } @else if (approvedRequest(); as request) {
   <bit-callout
     type="success"
-    [title]="'pamApprovedRequestBannerTitle' | i18n"
+    [title]="'pamApprovedRequestBannerHeading' | i18n"
     data-testid="cipher-view-banner-approved"
   >
+    @if (approvedDurationSeconds(); as grantedSeconds) {
+      <p
+        bitTypography="body2"
+        class="tw-mb-3 tw-mt-0 tw-flex tw-items-center tw-gap-2"
+        data-testid="cipher-view-banner-approved-duration"
+      >
+        <bit-icon name="bwi-clock" />
+        {{ "pamApprovedRequestBannerDuration" | i18n: (grantedSeconds | durationLong) }}
+      </p>
+    }
+
     <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
       <span class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
         <app-pam-access-state-badge [state]="badge()" />
