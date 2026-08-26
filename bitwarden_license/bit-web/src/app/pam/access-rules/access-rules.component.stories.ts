@@ -77,6 +77,14 @@ const RULES: AccessRuleView[] = [
     defaultLeaseDurationSeconds: 15 * 60,
     revisionDate: "2024-05-10T18:45:00.000Z",
   }),
+  rule({
+    id: "rule-5",
+    name: "Payments platform on-call rotation",
+    description: "D".repeat(512),
+    collections: ["col-5"],
+    defaultLeaseDurationSeconds: 60 * 60,
+    revisionDate: "2024-05-11T10:00:00.000Z",
+  }),
 ];
 
 function pamApi(listAccessRules: () => Promise<AccessRuleView[]>): Partial<AccessRuleSdkService> {
