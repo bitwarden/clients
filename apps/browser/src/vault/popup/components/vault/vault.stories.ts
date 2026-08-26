@@ -1,4 +1,5 @@
 import { LiveAnnouncer } from "@angular/cdk/a11y";
+import { signal } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -78,6 +79,7 @@ import {
   MY_VAULT_ID,
   VaultPopupListFiltersService,
 } from "../../services/vault-popup-list-filters.service";
+import { VaultPopupListTableFiltersService } from "../../services/vault-popup-list-table-filters.service";
 import { VaultPopupLoadingService } from "../../services/vault-popup-loading.service";
 import { VaultPopupScrollPositionService } from "../../services/vault-popup-scroll-position.service";
 import { VaultPopupSectionService } from "../../services/vault-popup-section.service";
@@ -424,8 +426,6 @@ const buildProviders = (args: StoryArgs) => {
       provide: VaultPopupListFiltersService,
       useValue: {
         // The component's `loading$` stays true until this emits, so it can't be a bare `Subject`.
-        // Kept in step with the individual streams below: the legacy header reads this one and the
-        // table's chips read those, so a mismatch would make the two presentations disagree.
         allFilters$: of({
           organizations: FILTER_ORGANIZATION_OPTIONS,
           collections: FILTER_COLLECTION_OPTIONS,
@@ -439,14 +439,6 @@ const buildProviders = (args: StoryArgs) => {
         collections$: of(FILTER_COLLECTION_OPTIONS),
         folders$: of(FILTER_FOLDER_OPTIONS),
         cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
-        // Empty maps, so the chips' option counts fall back to zero; counts against real ciphers
-        // are exercised in the list-table stories.
-        filterOptionCounts$: of({
-          cipherType: new Map(),
-          organization: new Map(),
-          collection: new Map(),
-          folder: new Map(),
-        }),
         // `app-vault-list-filters` binds this to a `[formGroup]`, so it has to be a real one.
         filterForm: new FormBuilder().group({
           organization: [null],
@@ -455,6 +447,26 @@ const buildProviders = (args: StoryArgs) => {
           cipherType: [null],
         }),
         updateFilterVisibility: () => Promise.resolve(),
+      },
+    },
+    {
+      provide: VaultPopupListTableFiltersService,
+      useValue: {
+        restoreFilters$: () => of({}),
+        saveFilters: () => {},
+        selectedOrganizations: signal<Organization[]>([]),
+        cipherTypes$: of(FILTER_CIPHER_TYPE_OPTIONS),
+        organizations$: of(FILTER_ORGANIZATION_OPTIONS),
+        collections$: of(FILTER_COLLECTION_OPTIONS),
+        folders$: of(FILTER_FOLDER_OPTIONS),
+        // Empty maps, so the chips' option counts fall back to zero; counts against real ciphers
+        // are exercised in the list-table stories.
+        filterOptionCounts$: of({
+          cipherType: new Map(),
+          organization: new Map(),
+          collection: new Map(),
+          folder: new Map(),
+        }),
       },
     },
     { provide: VaultPopupLoadingService, useValue: { loading$: of(false) } },
