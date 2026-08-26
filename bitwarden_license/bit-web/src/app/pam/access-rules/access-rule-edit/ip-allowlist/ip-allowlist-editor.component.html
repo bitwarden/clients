@@ -1,7 +1,7 @@
 <p bitTypography="body2">{{ "accessRuleIpAllowlistHelpText" | i18n }}</p>
 
 <div class="tw-flex tw-flex-col tw-gap-2">
-  @for (control of cidrArray().controls; track $index) {
+  @for (control of cidrArray().controls; track control) {
     <bit-form-field>
       <bit-label>{{ "accessRuleIpAllowlistCidrLabel" | i18n }}</bit-label>
       <input

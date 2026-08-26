@@ -53,7 +53,7 @@ export class BitErrorComponent {
           return error[1]?.message;
         }
 
-        return error[0] ?? "";
+        return error;
     }
   }
 }
