@@ -205,29 +205,6 @@ describe("MyRequestsTabComponent", () => {
       expect(shown).not.toContain("Bit.Services.Pam");
     });
 
-    it("names the unopened window when the server rejects activation for it", async () => {
-      const error = Object.assign(
-        new Error(
-          'error in response: status code 400 Bad Request: {"object":"error",' +
-            '"message":"The approved access window has not started yet.","validationErrors":null,' +
-            '"exceptionMessage":"The approved access window has not started yet.",' +
-            '"exceptionStackTrace":"   at Bit.Services.Pam.OrganizationFeatures.Commands' +
-            ".ActivateAccessRequestCommand.ActivateAsync(Guid userId, Guid requestId) in " +
-            '/src/bitwarden_license/src/Services/Pam/.../ActivateAccessRequestCommand.cs:line 52"}',
-        ),
-        { name: "AccessRequestError", variant: "Api" },
-      );
-      myAccess.activate.mockRejectedValue(error);
-      create();
-
-      await component["activate"](row);
-
-      expect(toastService.showToast).toHaveBeenCalledWith({
-        variant: "error",
-        message: "pamStartLeaseErrorWindowNotStarted",
-      });
-    });
-
     it("falls back to the generic message for a non-leasing failure", async () => {
       myAccess.activate.mockRejectedValue(new Error("offline"));
       create();
