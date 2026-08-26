@@ -108,6 +108,7 @@ export default class RuntimeBackground {
         "getUrlAutofillTargetingRules",
         "collectPageDetailsForPopup",
         "fillCipherForPopup",
+        "getBitwardenAutofillAttributeSettings",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -250,6 +251,14 @@ export default class RuntimeBackground {
           await this.main.domainSettingsService.getTargetingRulesForUrl(senderURL);
 
         return targetingRulesForUrl;
+      }
+      case "getBitwardenAutofillAttributeSettings": {
+        const [honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute] = await Promise.all([
+          firstValueFrom(this.autofillSettingsService.honorBitwardenIgnoreAttribute$),
+          firstValueFrom(this.autofillSettingsService.honorBitwardenAutofillAttribute$),
+        ]);
+
+        return { honorBitwardenIgnoreAttribute, honorBitwardenAutofillAttribute };
       }
       case "authResult": {
         if (!(await this.isValidVaultReferrer(msg.referrer))) {
