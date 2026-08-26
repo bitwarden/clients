@@ -32,12 +32,16 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
   states off `cipher_access_state()`, with an inline request form.
 - `vault-filter-gated-collection/` — the lock glyph beside a governed collection in the
-  vault's Filters sidebar. Reads the same `GovernedCollectionsService` /
-  `rulesGoverningCollection` pair as the collection dialog — NOT the collection-row badge,
-  which reads the server-derived `hasEnabledAccessRule` off the collection. The sidebar
-  cannot use that flag: `buildCollectionTree` rebuilds each node through
-  `new CollectionView(...)`, which resets it to `false`. Narrows to the collection's own
-  PAM-enabled organization before reading at all.
+  vault's Filters sidebar. Reads the same server-derived `hasEnabledAccessRule` the
+  collection-row badge does, off the sidebar's own collection node.
+  `VaultFilterService.buildCollectionTree` rebuilds each node through
+  `new CollectionView(...)`, which resets that flag to `false` — so it is carried over
+  onto the copy explicitly, rather than re-deriving "governed" from a `listAccessRules`
+  read. That read required organization membership, which a provider browsing a client
+  org's Admin Console does not have, so it used to fail closed to unmarked there; reading
+  the flag instead works identically for members and providers, and in both the
+  individual vault and the Admin Console org sidebar (the same
+  `VaultFilterSectionComponent` hosts it in both).
 - `access-state-badge/`, `vault-row-lease-badge/` — the one access-state pill, and the
   vault-row host that renders it. Which badge to show is NOT decided here: the SDK ranks
   the three states into `CipherAccessStateView.badgeState`, and `cipherAccessBadgeState()`
@@ -134,9 +138,10 @@ binds them all: `CIPHER_VIEW_BANNER`, `GATED_CIPHER_RELOADER` (both `libs/vault`
 `VAULT_ROW_LEASE_BADGE` (one badge component for both cipher and collection rows —
 collection rows show the "Privileged" pill straight off the collection's server-derived
 `hasEnabledAccessRule`), `VAULT_FILTER_GATED_COLLECTION_INDICATOR` (the lock glyph on a
-governed collection in the vault's Filters sidebar, off the shared per-org
-`GovernedCollectionsService` lookup, because `buildCollectionTree` rebuilds sidebar nodes
-through `new CollectionView(...)` and that resets `hasEnabledAccessRule` to `false`),
+governed collection in the vault's Filters sidebar, reading that same
+`hasEnabledAccessRule` off the sidebar's own collection node — `VaultFilterService`
+carries it onto the copy `buildCollectionTree` makes through `new CollectionView(...)`,
+whose field initializer would otherwise reset it to `false`),
 `COLLECTION_ACCESS_RULE_CALLOUT`, `PamNavBadgeService`, and
 `VaultRowAccessActionsService` (the vault-row menu's cancel-request entry; all `apps/web`).
 Add a seam rather than importing PAM from OSS code.
