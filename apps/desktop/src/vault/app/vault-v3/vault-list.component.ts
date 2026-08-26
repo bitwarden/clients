@@ -39,6 +39,7 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   NewCipherMenuComponent,
+  ShareLinkService,
   VaultBatchBarService,
   VaultCopyButtonsService,
   VaultItem,
@@ -118,7 +119,6 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly allCollections = input<CollectionView[]>([]);
   protected readonly userCanArchive = input<boolean>();
   protected readonly enforceOrgDataOwnershipPolicy = input<boolean>();
-  protected readonly showShareViaLink = input<boolean>(false);
   protected readonly placeholderText = input<string>("");
   protected readonly ciphers = input<C[]>([]);
   protected readonly collections = input<CollectionView[]>([]);
@@ -140,6 +140,7 @@ export class VaultListComponent<C extends CipherViewLike> {
     optional: true,
   });
   private vaultCopyButtonsService = inject(VaultCopyButtonsService);
+  protected shareLinkService = inject(ShareLinkService);
 
   /**
    * Whether copy actions render as an icon per copyable field rather than a single combined menu.
@@ -174,6 +175,10 @@ export class VaultListComponent<C extends CipherViewLike> {
   protected readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
     { initialValue: false },
+  );
+
+  private readonly temporaryItemSharingEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
   );
 
   protected dataSource = new TableDataSource<VaultItem<C>>();

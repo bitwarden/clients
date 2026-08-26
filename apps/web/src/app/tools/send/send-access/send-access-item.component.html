@@ -89,7 +89,7 @@
       ></button>
     </bit-form-field>
   }
-  @if (cipher().login) {
+  @if (cipher().login.uris) {
     @for (login of cipher().login.uris; track $index) {
       <bit-form-field>
         <bit-label>
@@ -117,7 +117,7 @@
   }
 
   <!-- Credit card fields -->
-  @if (cipher().card) {
+  @if (cipher().type === CipherType.Card) {
     <app-send-access-item-field
       [value]="cipher().card.cardholderName"
       [label]="'cardholderName' | i18n"
@@ -132,7 +132,7 @@
     <app-send-access-item-field
       [value]="cipher().card.expiration"
       [label]="'expiration' | i18n"
-      copyButtonLabel="copyCardholderName"
+      copyButtonLabel="copyExpirationDate"
       [copyable]="false"
     ></app-send-access-item-field>
     <app-send-access-item-field
@@ -144,7 +144,7 @@
   }
 
   <!-- Bank account fields -->
-  @if (cipher().bankAccount) {
+  @if (cipher().type === CipherType.BankAccount) {
     <app-send-access-item-field
       [value]="cipher().bankAccount.bankName"
       [label]="'bankName' | i18n"
@@ -189,7 +189,7 @@
       [hideable]="true"
     ></app-send-access-item-field>
     <app-send-access-item-field
-      [value]="cipher().bankAccount.pin"
+      [value]="cipher().bankAccount.iban"
       [label]="'iban' | i18n"
       copyButtonLabel="copyIban"
       [hideable]="true"
@@ -202,7 +202,7 @@
   }
 
   <!-- Identity fields -->
-  @if (cipher().identity) {
+  @if (cipher().type === CipherType.Identity) {
     <app-send-access-item-field
       [value]="cipher().identity.fullName"
       [label]="'name' | i18n"
@@ -253,7 +253,7 @@
   }
 
   <!-- Driver's License fields -->
-  @if (cipher().driversLicense) {
+  @if (cipher().type === CipherType.DriversLicense) {
     <app-send-access-item-field
       [value]="cipher().driversLicense.firstName"
       [label]="'firstName' | i18n"
@@ -313,7 +313,7 @@
   }
 
   <!-- Passport fields -->
-  @if (cipher().passport) {
+  @if (cipher().type === CipherType.Passport) {
     <app-send-access-item-field
       [value]="cipher().passport.givenName"
       [label]="'firstName' | i18n"

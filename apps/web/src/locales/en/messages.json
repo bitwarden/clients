@@ -17673,5 +17673,11 @@
   },
   "shareVerb": {
     "message": "Share"
+  },
+  "copyCardholderName": {
+    "message": "Copy cardholder name"
+  },
+  "copyExpirationDate": {
+    "message": "Copy expiration date"
   }
 }

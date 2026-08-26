@@ -43,6 +43,7 @@ import {
   ArchiveCipherUtilitiesService,
   CopyCipherFieldService,
   PasswordRepromptService,
+  ShareLinkService,
 } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../../platform/browser/browser-api";
@@ -256,6 +257,10 @@ describe("ViewComponent", () => {
         {
           provide: ChangeLoginPasswordService,
           useValue: mock<ChangeLoginPasswordService>(),
+        },
+        {
+          provide: ShareLinkService,
+          useValue: mock<ShareLinkService>(),
         },
       ],
     })

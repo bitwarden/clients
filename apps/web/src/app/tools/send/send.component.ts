@@ -159,7 +159,6 @@ export class SendComponent implements OnDestroy {
       return this.billingAccountProfileStateService.hasPremiumFromAnySource$(account.id);
     }),
   );
-  protected readonly hasPremium = toSignal(this.hasPremium$);
 
   protected readonly allowedSendTypes = toSignal(
     combineLatest([this.sendPolicyService.allowedSendTypes$, this.hasPremium$]).pipe(
@@ -171,6 +170,7 @@ export class SendComponent implements OnDestroy {
         return allowedSendTypes;
       }),
     ),
+    { initialValue: [] },
   );
 
   protected readonly sendTypeFilters: Signal<{ filter: SendFilterType; translationKey: string }[]> =
@@ -221,25 +221,23 @@ export class SendComponent implements OnDestroy {
       }
     });
 
-    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
-      const typeParam = params.get("type");
-      let toggleValue: SendFilterType = SendFilterType.All;
-      let sendType: SendType | null = null;
-      if (typeParam === SendFilterType.Text) {
-        toggleValue = SendFilterType.Text;
-        sendType = SendType.Text;
-      }
-      if (typeParam === SendFilterType.File && this.hasPremium()) {
-        toggleValue = SendFilterType.File;
-        sendType = SendType.File;
-      }
-      if (typeParam === SendFilterType.Item && this.hasPremium()) {
-        toggleValue = SendFilterType.Item;
-        sendType = SendType.Item;
-      }
-      this.selectedToggleValue = toggleValue;
-      this.sendItemsFiltersService.filterForm.patchValue({ sendType });
-    });
+    combineLatest([this.route.queryParamMap, this.hasPremium$])
+      .pipe(takeUntilDestroyed())
+      .subscribe(([params, hasPremium]) => {
+        const typeParam = params.get("type");
+        let toggleValue: SendFilterType = SendFilterType.All;
+        let sendType: SendType | null = null;
+        if (typeParam === SendFilterType.Text) {
+          toggleValue = SendFilterType.Text;
+          sendType = SendType.Text;
+        }
+        if (typeParam === SendFilterType.File && hasPremium) {
+          toggleValue = SendFilterType.File;
+          sendType = SendType.File;
+        }
+        this.selectedToggleValue = toggleValue;
+        this.sendItemsFiltersService.filterForm.patchValue({ sendType });
+      });
   }
 
   ngOnDestroy() {

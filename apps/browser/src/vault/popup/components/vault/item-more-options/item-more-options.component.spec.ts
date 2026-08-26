@@ -21,7 +21,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cipher-authorization.service";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService, ToastService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
+import { PasswordRepromptService, ShareLinkService } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { VaultPopupItemsService } from "../../../services/vault-popup-items.service";
@@ -120,6 +120,10 @@ describe("ItemMoreOptionsComponent", () => {
         {
           provide: ConfigService,
           useValue: { getFeatureFlag$: () => of(false) },
+        },
+        {
+          provide: ShareLinkService,
+          useValue: { cipherCanBeShared: () => of(false) },
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],

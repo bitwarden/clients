@@ -35,16 +35,6 @@ export class SendAccessItemComponent {
 
   readonly send = input.required<SendAccessView>();
   readonly cipher = computed(() => this.send().data.data);
-  readonly hasLogin = computed(() => {
-    const cipher = this.cipher();
-    if (!cipher) {
-      return false;
-    }
-
-    const { username, password, totp, fido2Credentials } = cipher.login;
-
-    return username || password || totp || fido2Credentials?.length > 0;
-  });
   readonly passwordRevealed = signal(false);
 
   // Turning this into a signal introduces a small but noticeable delay in between the

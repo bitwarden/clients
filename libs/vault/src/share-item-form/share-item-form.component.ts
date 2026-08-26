@@ -50,6 +50,7 @@ import {
   ToastService,
   TypographyModule,
 } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 
@@ -87,6 +88,7 @@ export class ShareItemFormComponent implements OnDestroy {
   private readonly toastService = inject(ToastService);
   private readonly shareLinkService = inject(ShareLinkService);
   private readonly policyService = inject(PolicyService);
+  private readonly logService = inject(LogService);
 
   /** The cipher to share. Provided by the shell component. */
   readonly cipher = input.required<CipherView>();
@@ -255,14 +257,14 @@ export class ShareItemFormComponent implements OnDestroy {
     });
   }
 
-  async createAndCopyLink(): Promise<void> {
+  async createAndCopyLink(): Promise<boolean> {
     if (this.form.invalid) {
-      return;
+      return false;
     }
 
     const currentCipher = this.cipher();
     if (!currentCipher) {
-      return;
+      return false;
     }
 
     const formValue = this.form.getRawValue();
@@ -271,29 +273,37 @@ export class ShareItemFormComponent implements OnDestroy {
       .map((e) => e.trim())
       .filter((e) => e.length > 0);
 
-    const link = await this.shareLinkService.createShareLink(
-      currentCipher,
-      emails,
-      formValue.expiryHours,
-      formValue.oneTimeShare,
-    );
+    try {
+      const link = await this.shareLinkService.createShareLink(
+        currentCipher,
+        emails,
+        formValue.expiryHours,
+        formValue.oneTimeShare,
+      );
 
-    if (link) {
-      this.platformUtilsService.copyToClipboard(link);
-
-      this.toastService.showToast({
-        variant: "success",
-        title: undefined,
-        message: this.i18nService.t("linkSavedAndCopied"),
-      });
-    } else {
+      if (link) {
+        this.platformUtilsService.copyToClipboard(link);
+        this.toastService.showToast({
+          variant: "success",
+          message: this.i18nService.t("linkSavedAndCopied"),
+        });
+        this.form.controls.emails.reset();
+        return true;
+      } else {
+        this.toastService.showToast({
+          variant: "error",
+          message: this.i18nService.t("linkSavedCopyFailed"),
+        });
+        return false;
+      }
+    } catch (err) {
+      this.logService.error(err);
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("linkSavedCopyFailed"),
+        message: this.i18nService.t("linkSaveFailed"),
       });
+      return false;
     }
-
-    this.form.controls.emails.reset();
   }
 
   protected linkEmailDisplay(emails: string[]): string {

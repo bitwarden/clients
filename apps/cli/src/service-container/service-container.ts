@@ -679,21 +679,6 @@ export class ServiceContainer {
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
 
-    this.sendService = new SendService(
-      this.accountService,
-      this.keyService,
-      this.i18nService,
-      this.keyGenerationService,
-      this.sendStateProvider,
-      this.encryptService,
-      this.cipherEncryptionService,
-    );
-
-    const legacySendApiService = new SendApiService(
-      this.apiService,
-      this.fileUploadService,
-      this.sendService,
-    );
     const sdkClientFactory = flagEnabled("sdk")
       ? new DefaultSdkClientFactory()
       : new NoopSdkClientFactory();
@@ -711,6 +696,27 @@ export class ServiceContainer {
       this.configService,
       this.v2UpgradeTokenStateService,
       customUserAgent,
+    );
+
+    this.cipherEncryptionService = new DefaultCipherEncryptionService(
+      this.sdkService,
+      this.logService,
+    );
+
+    this.sendService = new SendService(
+      this.accountService,
+      this.keyService,
+      this.i18nService,
+      this.keyGenerationService,
+      this.sendStateProvider,
+      this.encryptService,
+      this.cipherEncryptionService,
+    );
+
+    const legacySendApiService = new SendApiService(
+      this.apiService,
+      this.fileUploadService,
+      this.sendService,
     );
 
     this.sendApiService = new SendApiServiceSelector(
@@ -931,11 +937,6 @@ export class ServiceContainer {
       this.policyService,
       this.accountService,
       this.restrictedItemTypesService,
-    );
-
-    this.cipherEncryptionService = new DefaultCipherEncryptionService(
-      this.sdkService,
-      this.logService,
     );
 
     this.cipherSdkService = new DefaultCipherSdkService(this.sdkService, this.logService);

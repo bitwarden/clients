@@ -12,8 +12,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherId, UserId } from "@bitwarden/common/types/guid";
 import { CipherArchiveService } from "@bitwarden/common/vault/abstractions/cipher-archive.service";
@@ -34,7 +32,7 @@ import {
   ToastService,
   IconModule,
 } from "@bitwarden/components";
-import { PasswordRepromptService, Vfo1I18nPipe } from "@bitwarden/vault";
+import { PasswordRepromptService, ShareLinkService, Vfo1I18nPipe } from "@bitwarden/vault";
 
 import { VaultPopupAutofillService } from "../../../services/vault-popup-autofill.service";
 import { AddEditQueryParams } from "../add-edit/add-edit.component";
@@ -140,9 +138,9 @@ export class ItemMoreOptionsComponent {
     switchMap((cipher) => this.cipherAuthorizationService.canDeleteCipher$(cipher)),
   );
 
-  protected readonly showShareViaLink$ = this.configService
-    .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
-    .pipe(map((ffEnabled) => ffEnabled && this.cipher.type !== CipherType.SshKey));
+  protected readonly showShareViaLink$ = this._cipher$.pipe(
+    switchMap((cipher) => this.shareLinkService.cipherCanBeShared(cipher)),
+  );
 
   constructor(
     private cipherService: CipherService,
@@ -159,7 +157,7 @@ export class ItemMoreOptionsComponent {
     private restrictedItemTypesService: RestrictedItemTypesService,
     private cipherArchiveService: CipherArchiveService,
     private domainSettingsService: DomainSettingsService,
-    private configService: ConfigService,
+    private shareLinkService: ShareLinkService,
   ) {}
 
   get canEdit() {

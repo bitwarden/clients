@@ -5,6 +5,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -15,6 +16,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { ShareLinkService } from "@bitwarden/vault";
 
 import { PopupRouterCacheService } from "../../../platform/popup/view-cache/popup-router-cache.service";
@@ -75,7 +77,9 @@ describe("ShareItemComponent", () => {
         { provide: PlatformUtilsService, useValue: mock<PlatformUtilsService>() },
         { provide: ToastService, useValue: mock<ToastService>() },
         { provide: I18nService, useValue: i18nService },
-        { provide: ShareLinkService, useValue: new ShareLinkService() },
+        { provide: ShareLinkService, useValue: { links$: of([]), setCipher: () => {} } },
+        { provide: PolicyService, useValue: mock<PolicyService>() },
+        { provide: LogService, useValue: mock<LogService>() },
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },
         {

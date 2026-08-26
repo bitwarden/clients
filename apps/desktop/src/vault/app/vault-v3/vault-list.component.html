@@ -94,7 +94,7 @@
               (onEvent)="event($event)"
               [userCanArchive]="userCanArchive()"
               [enforceOrgDataOwnershipPolicy]="enforceOrgDataOwnershipPolicy()"
-              [showShareViaLinkOption]="showShareViaLink()"
+              [showShareViaLinkOption]="shareLinkService.cipherCanBeShared(item.cipher) | async"
               [showBatchBar]="showBatchBar()"
               [selected]="selection.isSelected(item)"
               (checkboxChange)="selection.toggle(item)"

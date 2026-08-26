@@ -1,9 +1,13 @@
 import { inject, Injectable } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { BehaviorSubject, combineLatest, firstValueFrom } from "rxjs";
+import { BehaviorSubject, combineLatest, firstValueFrom, map, Observable, switchMap } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -13,7 +17,12 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { AuthType } from "@bitwarden/common/tools/send/types/auth-type";
 import { SendType } from "@bitwarden/common/tools/send/types/send-type";
 import { CipherId } from "@bitwarden/common/types/guid";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import {
+  CipherViewLike,
+  CipherViewLikeUtils,
+} from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 
 /**
  * Represents an active share link created for a vault item.
@@ -37,6 +46,8 @@ export class ShareLinkService {
   private accountService = inject(AccountService);
   private sendSdkApiService = inject(SendSdkApiService);
   private i18nService = inject(I18nService);
+  private configService = inject(ConfigService);
+  private collectionService = inject(CollectionService);
 
   private cipherId = new BehaviorSubject<CipherId | undefined>(undefined);
   private links = new BehaviorSubject<ShareLink[]>([]);
@@ -80,11 +91,15 @@ export class ShareLinkService {
     if (!sharedCipherView) {
       throw new Error(this.i18nService.t("linkSaveFailed"));
     }
+
+    // Strip attachments, passkeys, password history, and encryption key
     sharedCipherView.attachments = [];
     if (sharedCipherView.login) {
       sharedCipherView.login.fido2Credentials = [];
     }
+    sharedCipherView.passwordHistory = [];
     delete sharedCipherView.key;
+
     sendView.data = {
       data: sharedCipherView,
     };
@@ -145,5 +160,32 @@ export class ShareLinkService {
     if (link) {
       await this.sendSdkApiService.deleteSend(link.sendId);
     }
+  }
+
+  /** Returns whether a cipher can be shared or not */
+  cipherCanBeShared(c: CipherViewLike | undefined): Observable<boolean> {
+    return combineLatest([
+      this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
+      this.accountService.activeAccount$.pipe(
+        getUserId,
+        switchMap((userId) => this.collectionService.decryptedCollections$(userId)),
+      ),
+    ]).pipe(
+      map(([ffEnabled, collections]) => {
+        if (!c) {
+          return false;
+        }
+        if (!ffEnabled) {
+          return false;
+        }
+        if (CipherViewLikeUtils.getType(c) === CipherType.SshKey) {
+          return false;
+        }
+        if (c.collectionIds.length === 0) {
+          return true;
+        }
+        return c.collectionIds.some((cId) => collections.some((c) => c.id === cId && !c.readOnly));
+      }),
+    );
   }
 }

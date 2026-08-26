@@ -25,6 +25,7 @@ import {
   CopyCipherFieldDirective,
   CopyCipherFieldService,
   OrganizationNameBadgeComponent,
+  ShareLinkService,
   VaultCopyButtonsService,
 } from "@bitwarden/vault";
 
@@ -93,6 +94,10 @@ describe("VaultCipherRowComponent", () => {
         {
           provide: VaultCopyButtonsService,
           useValue: { showQuickCopyActions$: new BehaviorSubject(false).asObservable() },
+        },
+        {
+          provide: ShareLinkService,
+          useValue: { cipherCanBeShared: () => of(false) },
         },
       ],
     }).compileComponents();

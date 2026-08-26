@@ -32,6 +32,7 @@ import { CipherAuthorizationService } from "@bitwarden/common/vault/services/cip
 import { DIALOG_DATA, DialogRef, DialogService, ToastService } from "@bitwarden/components";
 
 import { CipherFormConfig } from "../cipher-form";
+import { ShareLinkService } from "../share-link.service";
 
 import {
   VaultItemDialogComponent,
@@ -148,6 +149,10 @@ describe("VaultItemDialogComponent", () => {
         {
           provide: ConfigService,
           useValue: { getFeatureFlag$: jest.fn().mockReturnValue(of(false)) },
+        },
+        {
+          provide: ShareLinkService,
+          useValue: { cipherCanBeShared: () => of(false) },
         },
       ],
     })

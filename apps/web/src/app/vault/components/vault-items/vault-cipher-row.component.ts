@@ -12,7 +12,7 @@ import {
   ViewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { firstValueFrom, map, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -30,7 +30,11 @@ import {
   CipherViewLikeUtils,
 } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { MenuTriggerForDirective } from "@bitwarden/components";
-import { VaultCopyButtonsService, Vfo1TerminologyService } from "@bitwarden/vault";
+import {
+  ShareLinkService,
+  VaultCopyButtonsService,
+  Vfo1TerminologyService,
+} from "@bitwarden/vault";
 
 import {
   CollectionPermission,
@@ -173,13 +177,12 @@ export class VaultCipherRowComponent<C extends CipherViewLike> implements OnInit
     private cipherService: CipherService,
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigService,
+    private shareLinkService: ShareLinkService,
   ) {
     this.showCopyAndLaunchActions$ = this.configService.getFeatureFlag$(
       FeatureFlag.PM28091_AddCopyAndQuickLaunchActions,
     );
-    this.showShareViaLink$ = this.configService
-      .getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing)
-      .pipe(map((ffEnabled) => ffEnabled && this.cipher.type !== CipherType.SshKey));
+    this.showShareViaLink$ = this.shareLinkService.cipherCanBeShared(this.cipher);
   }
 
   /**

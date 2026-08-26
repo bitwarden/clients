@@ -1091,6 +1091,9 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   }
 
   async shareViaLink(cipher: CipherViewLike) {
+    if (!(await this.repromptCipher([cipher]))) {
+      return;
+    }
     const activeUserId = await firstValueFrom(getUserId(this.accountService.activeAccount$));
     const cipherView = await firstValueFrom(
       this.cipherService.cipherView$(activeUserId, cipher.id as CipherId),

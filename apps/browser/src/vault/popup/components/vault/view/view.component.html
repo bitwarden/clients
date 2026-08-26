@@ -23,7 +23,7 @@
           {{ "autofillVerb" | i18n }}
         </button>
       }
-      @if (showShareButton()) {
+      @if (showShareButton$ | async) {
         <button
           type="button"
           class="tw-mt-4"

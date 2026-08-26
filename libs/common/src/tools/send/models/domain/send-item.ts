@@ -2,10 +2,11 @@
 // @ts-strict-ignore
 import { Jsonify } from "type-fest";
 
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { SendEncryptionType, SendItem as SdkSendItem } from "@bitwarden/sdk-internal";
 
 import Domain from "../../../../platform/models/domain/domain-base";
-import { SymmetricCryptoKey } from "../../../../platform/models/domain/symmetric-crypto-key";
 import { Cipher } from "../../../../vault/models/domain/cipher";
 import { SendItemData } from "../data/send-item.data";
 import { SendItemView } from "../view/send-item.view";

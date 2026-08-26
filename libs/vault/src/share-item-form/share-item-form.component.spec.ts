@@ -16,6 +16,7 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { ToastService } from "@bitwarden/components";
+import { LogService } from "@bitwarden/logging";
 import { PolicyType } from "@bitwarden/sdk-internal";
 
 import { ShareLink, ShareLinkService } from "../share-link.service";
@@ -81,6 +82,7 @@ describe("ShareItemFormComponent", () => {
         { provide: CollectionService, useValue: collectionService },
         { provide: FolderService, useValue: folderService },
         { provide: PolicyService, useValue: policyService },
+        { provide: LogService, useValue: mock<LogService>() },
       ],
     }).compileComponents();
 

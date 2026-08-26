@@ -1,7 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import { Component, computed, inject } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
@@ -52,6 +52,7 @@ import {
   CipherViewComponent,
   CopyCipherFieldService,
   PasswordRepromptService,
+  ShareLinkService,
 } from "@bitwarden/vault";
 
 import { sendExtensionMessage } from "../../../../../autofill/utils/index";
@@ -140,13 +141,7 @@ export class ViewComponent {
   protected userCanArchive$ = this.accountService.activeAccount$
     .pipe(getUserId)
     .pipe(switchMap((userId) => this.archiveService.userCanArchive$(userId)));
-  private readonly temporaryItemSharingEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
-    { initialValue: false },
-  );
-  protected readonly showShareButton = computed(
-    () => this.temporaryItemSharingEnabled() && this.cipher.type !== CipherType.SshKey,
-  );
+  protected showShareButton$: Observable<boolean>;
 
   constructor(
     private passwordRepromptService: PasswordRepromptService,
@@ -167,6 +162,7 @@ export class ViewComponent {
     private archiveCipherUtilsService: ArchiveCipherUtilitiesService,
     private domainSettingsService: DomainSettingsService,
     private afterDeletionNavigationService: VaultPopupAfterDeletionNavigationService,
+    private shareLinkService: ShareLinkService,
   ) {
     this.subscribeToParams();
   }
@@ -221,6 +217,8 @@ export class ViewComponent {
               (!cipher.isDeleted ||
                 (cipher.isDeleted && (cipher.permissions.restore || cipher.permissions.delete))),
           );
+
+          this.showShareButton$ = this.shareLinkService.cipherCanBeShared(this.cipher);
 
           await this.eventCollectionService.collect(
             EventType.Cipher_ClientViewed,

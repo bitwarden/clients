@@ -60,6 +60,9 @@ export type SendItemDialogResult = {
   result: (typeof SendItemDialogResult)[keyof typeof SendItemDialogResult];
   send?: SendView;
 };
+
+type SendAction = "view" | "add" | "edit";
+
 /**
  * Component for adding or editing a send item.
  */
@@ -99,13 +102,13 @@ export class SendAddEditDialogComponent {
     if (this.showGenerator()) {
       return "passwordGenerator";
     }
-    let sendAction: "view" | "edit" | "add" = "add";
+    let sendAction: SendAction = "add";
     if (!this.editing()) {
       sendAction = "view";
     } else if (this.config.mode === "edit" || this.config.mode === "partial-edit") {
       sendAction = "edit";
     }
-    const translation: Partial<Record<SendType, { view: string; edit: string; add: string }>> = {
+    const translation: Record<SendType, Record<SendAction, string>> = {
       [SendType.Text]: {
         view: "viewTextSendHeader",
         edit: "editItemHeaderTextSendV2",
@@ -122,7 +125,7 @@ export class SendAddEditDialogComponent {
         add: "addItem",
       },
     };
-    return translation[this.config.sendType]?.[sendAction] ?? "";
+    return translation[this.config.sendType][sendAction];
   });
 
   /** The configuration for the Send form. */

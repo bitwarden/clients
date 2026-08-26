@@ -1,15 +1,7 @@
 // FIXME: Update this file to be type safe and remove this and next line
 // @ts-strict-ignore
 import { CommonModule } from "@angular/common";
-import {
-  Component,
-  computed,
-  ElementRef,
-  Inject,
-  OnDestroy,
-  OnInit,
-  viewChild,
-} from "@angular/core";
+import { Component, ElementRef, Inject, OnDestroy, OnInit, viewChild } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { Router } from "@angular/router";
 import { firstValueFrom, Observable, Subject, switchMap } from "rxjs";
@@ -69,6 +61,7 @@ import {
 import { CipherViewComponent } from "../cipher-view/cipher-view.component";
 import { DecryptionFailureDialogComponent } from "../components/decryption-failure-dialog/decryption-failure-dialog.component";
 import { ShareItemDrawerComponent } from "../share-item-drawer/share-item-drawer.component";
+import { ShareLinkService } from "../share-link.service";
 
 export type VaultItemDialogMode = "view" | "form";
 
@@ -328,13 +321,8 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     { initialValue: false },
   );
 
-  private readonly temporaryItemSharingEnabled = toSignal(
-    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
-    { initialValue: false },
-  );
-  protected readonly showShareButton = computed(
-    () =>
-      this.temporaryItemSharingEnabled() && this.cipher && this.cipher.type !== CipherType.SshKey,
+  protected readonly showShareButton = toSignal(
+    this.shareLinkService.cipherCanBeShared(this.cipher),
   );
 
   constructor(
@@ -355,6 +343,7 @@ export class VaultItemDialogComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private archiveService: CipherArchiveService,
     private configService: ConfigService,
+    private shareLinkService: ShareLinkService,
   ) {
     this.updateTitle();
     this.premiumUpgradeService.upgradeConfirmed$

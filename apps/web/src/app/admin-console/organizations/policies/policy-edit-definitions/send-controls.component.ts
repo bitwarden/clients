@@ -105,7 +105,7 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     whoCanAccess: WhoCanAccessType.Any,
     allowedDomains: null,
     disableHideEmail: false,
-    allowedSendTypes: [[SendType.Text, SendType.File, SendType.Item], [Validators.required]],
+    allowedSendTypes: [[SendType.Text, SendType.File], [Validators.required]],
     deletionHours: null,
   });
   readonly enableSendControl = new FormControl<boolean>(false);
@@ -176,6 +176,10 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
   });
 
   protected readonly showDeletionHours = new FormControl<boolean>(false);
+
+  protected readonly temporaryItemSharingEnabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM34203TemporaryItemSharing),
+  );
 
   constructor(
     private readonly formBuilder: UntypedFormBuilder,
@@ -252,7 +256,10 @@ export class SendControlsPolicyComponent extends BasePolicyEditComponent impleme
     const policyResponseData =
       (this.policyResponse()?.data as SendControlsPolicyData) ?? new SendControlsPolicyData();
     if (policyResponseData.allowedSendTypes == null) {
-      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File, SendType.Item];
+      policyResponseData.allowedSendTypes = [SendType.Text, SendType.File];
+      if (this.temporaryItemSharingEnabled()) {
+        policyResponseData.allowedSendTypes.push(SendType.Item);
+      }
     }
     if (policyResponseData.whoCanAccess == null) {
       policyResponseData.whoCanAccess = WhoCanAccessType.Any;
