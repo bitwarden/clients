@@ -8,7 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
-import { AccessRuleSdkService, AccessRuleView } from "..";
+import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "..";
 
 import { AccessRulesComponent } from "./access-rules.component";
 
@@ -81,7 +81,7 @@ const RULES: AccessRuleView[] = [
   rule({
     id: "rule-5",
     name: "Payments platform on-call rotation",
-    description: "D".repeat(512),
+    description: "D".repeat(ACCESS_RULE_DESCRIPTION_MAX_LENGTH),
     collections: ["col-5"],
     defaultLeaseDurationSeconds: 60 * 60,
     revisionDate: "2024-05-11T10:00:00.000Z",
