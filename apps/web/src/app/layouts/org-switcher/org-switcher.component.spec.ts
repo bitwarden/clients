@@ -7,12 +7,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import type { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-api.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, SideNavService } from "@bitwarden/components";
 import { GlobalStateProvider } from "@bitwarden/state";
-import { Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { OrgSwitcherComponent } from "./org-switcher.component";
 
@@ -40,12 +40,14 @@ describe("OrgSwitcherComponent", () => {
 
   const i18nService = mock<I18nService>();
   const organizationService = mock<OrganizationService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(async () => {
     vfo1Enabled = false;
 
     i18nService.t.mockImplementation((key: string) => key);
     organizationService.organizations$.mockReturnValue(of([organization]));
+    configService.getFeatureFlag$.mockImplementation(() => of(vfo1Enabled));
 
     await TestBed.configureTestingModule({
       imports: [RouterModule.forRoot([]), OrgSwitcherComponent],
@@ -59,7 +61,7 @@ describe("OrgSwitcherComponent", () => {
           provide: ActivatedRoute,
           useValue: { paramMap: of(convertToParamMap({ organizationId: organization.id })) },
         },
-        { provide: Vfo1TerminologyService, useValue: { enabled: () => vfo1Enabled } },
+        { provide: ConfigService, useValue: configService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
       ],
     }).compileComponents();
