@@ -31,11 +31,11 @@ import { isGovernedCipher } from "../helpers/governed-cipher";
  * ungoverned item gets no empty flex child on its name row.
  *
  * An ACTIVE lease deliberately shows no pill here. The cipher-view banner heading directly below
- * carries the same countdown from its own interval (`cipher-view-banner.component.ts:122,329`), and
- * two independent one-second timers drift apart across a minute boundary. One reads "12m left"
- * while the other reads "11m left", and under five minutes the pill escalates to the danger
- * "Ending soon" wording while the heading stays neutral. The other four states have no countdown in
- * the banner, so they badge normally.
+ * carries the same countdown from its own interval (`cipher-view-banner.component.ts`,
+ * `nowMs` / `leaseRemainingLabel`), and two independent one-second timers drift apart across a
+ * minute boundary. One reads "12m left" while the other reads "11m left", and under five minutes
+ * the pill escalates to the danger "Ending soon" wording while the heading stays neutral. The
+ * other four states have no countdown in the banner, so they badge normally.
  */
 @Component({
   selector: "app-pam-item-details-state-badge",
