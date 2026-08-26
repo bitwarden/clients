@@ -7,8 +7,12 @@ import {
   convertToParamMap,
 } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import {
@@ -28,6 +32,7 @@ describe("vaultScopeGuard", () => {
 
   const state = mock<RouterStateSnapshot>();
   const allItemsUrlTree = mock<UrlTree>();
+  const organizationVaultUrlTree = mock<UrlTree>();
 
   let router: MockProxy<Router>;
 
@@ -65,6 +70,13 @@ describe("vaultScopeGuard", () => {
     organizationDataOwnership = false,
   ): VaultsNavViewModel => ({ vaults, organizationDataOwnership });
 
+  const accountService = mock<AccountService>();
+  const collectionService = mock<CollectionService>();
+
+  /** A shared folder of the organization the account is a member of, as the user holds it. */
+  const collection = (id: string, orgId: OrganizationId = organizationId) =>
+    new CollectionView({ id: id as CollectionId, organizationId: orgId, name: "Engineering" });
+
   const makeRoute = (vaultId?: string, collectionId?: string): ActivatedRouteSnapshot =>
     mock<ActivatedRouteSnapshot>({
       paramMap: convertToParamMap({
@@ -78,15 +90,23 @@ describe("vaultScopeGuard", () => {
 
   beforeEach(() => {
     router = mock<Router>();
-    router.createUrlTree.mockReturnValue(allItemsUrlTree);
+    // The organization vault is the only redirect that carries a segment beyond "/vault".
+    router.createUrlTree.mockImplementation((commands) =>
+      (commands as unknown[]).length > 1 ? organizationVaultUrlTree : allItemsUrlTree,
+    );
 
     viewModel$.next(navViewModel([personalVault, organizationVault]));
     Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
+
+    accountService.activeAccount$ = of({ id: userId } as Account);
+    collectionService.decryptedCollections$.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
       providers: [
         { provide: Router, useValue: router },
         { provide: VaultNavService, useValue: vaultNavService },
+        { provide: AccountService, useValue: accountService },
+        { provide: CollectionService, useValue: collectionService },
       ],
     });
   });
@@ -135,8 +155,26 @@ describe("vaultScopeGuard", () => {
   describe("a vault drilled into a shared folder", () => {
     const collectionId = "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f";
 
-    it("allows a folder under an organization the user is a member of", async () => {
+    it("allows a folder the user holds under an organization they are a member of", async () => {
+      collectionService.decryptedCollections$.mockReturnValue(of([collection(collectionId)]));
+
       await expect(runGuard(organizationId, collectionId)).resolves.toBe(true);
+    });
+
+    // Unassigned, deleted, or never existed — from here they are indistinguishable.
+    it("redirects to the organization's vault for a folder the user cannot reach", async () => {
+      await expect(runGuard(organizationId, collectionId)).resolves.toBe(organizationVaultUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault", organizationId]);
+    });
+
+    // The page narrows its collections to the vault in view, so the folder would resolve to nothing.
+    it("redirects to the organization's vault for a folder another organization owns", async () => {
+      collectionService.decryptedCollections$.mockReturnValue(
+        of([collection(collectionId, otherOrganizationId)]),
+      );
+
+      await expect(runGuard(organizationId, collectionId)).resolves.toBe(organizationVaultUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault", organizationId]);
     });
 
     it("redirects to All items for a folder under an organization the user has left", async () => {

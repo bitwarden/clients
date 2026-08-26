@@ -2,12 +2,19 @@ import { inject } from "@angular/core";
 import { CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+// eslint-disable-next-line no-restricted-imports
+import { CollectionService } from "@bitwarden/admin-console/common";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { OrganizationId } from "@bitwarden/common/types/guid";
+
 import { VaultNavItemType } from "../models/vault-nav-view-model";
 import {
   defaultUserCollectionId,
   isPersonalOnly,
   MY_ITEMS_ROUTE,
   parseVaultScope,
+  vaultScopeCommands,
   VaultScopeType,
 } from "../models/vault-scope";
 import { VaultNavService } from "../services/vault-nav.service";
@@ -21,17 +28,22 @@ import { VaultNavService } from "../services/vault-nav.service";
  * The nav view model, rather than the organization list, decides membership: the two disagree on
  * provider organizations, and the guard should admit exactly what the nav can highlight.
  *
- * A `:collectionId` segment drilling the vault into a shared folder is admitted with its vault —
- * see {@link parseVaultScope} for the pairings that name no destination. Whether the collection
- * itself is one the user can reach is left to the page, which resolves it against the collections
- * it already loads. The exception is the `my-items` sentinel, which names a collection only for an
- * organization the nav offers one for, and the nav is already in hand here.
+ * A `:collectionId` segment drilling the vault into a shared folder is admitted only when the user
+ * can reach that folder — see {@link parseVaultScope} for the vault pairings that name no
+ * destination at all. A folder the user's collections do not hold and one owned by another
+ * organization both fall back to the organization's own vault rather than to the unscoped one:
+ * membership is established by then, so the vault the URL named is still a destination even though
+ * the folder within it is not.
  */
 export const vaultScopeGuard: CanActivateFn = async (route) => {
   const router = inject(Router);
   const vaultNavService = inject(VaultNavService);
+  const accountService = inject(AccountService);
+  const collectionService = inject(CollectionService);
 
   const allItems = () => router.createUrlTree(["/vault"]);
+  const organizationVault = (organizationId: OrganizationId) =>
+    router.createUrlTree(vaultScopeCommands({ type: VaultScopeType.Organization, organizationId }));
 
   const scope = parseVaultScope(route.paramMap.get("vaultId"), route.paramMap.get("collectionId"));
   if (scope == null) {
@@ -56,14 +68,28 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
     return allItems();
   }
 
-  // "My items" names a destination only for an organization that has such a collection — one under
-  // the data ownership policy. Elsewhere the segment names nothing, the way a typo would.
-  if (
-    scope.collectionId === MY_ITEMS_ROUTE &&
-    defaultUserCollectionId(scope.organizationId, nav) == null
-  ) {
-    return allItems();
+  const { organizationId, collectionId } = scope;
+
+  if (collectionId == null) {
+    return true;
   }
 
-  return true;
+  // "My items" names a destination only for an organization that has such a collection — one under
+  // the data ownership policy. Elsewhere the segment names nothing, the way a typo would.
+  if (collectionId === MY_ITEMS_ROUTE) {
+    return defaultUserCollectionId(organizationId, nav) == null ? allItems() : true;
+  }
+
+  // A shared folder is reachable only if the user holds it — a folder they are not assigned, one
+  // that has been deleted, and one belonging to another organization are all guids that name no
+  // destination for this user. The page would otherwise render an empty vault beneath a folder
+  // heading it cannot resolve, so drop the drill-in and show the vault the URL did name.
+  const userId = await firstValueFrom(accountService.activeAccount$.pipe(getUserId));
+  const collections = await firstValueFrom(collectionService.decryptedCollections$(userId));
+
+  const reachable = collections.some(
+    (collection) => collection.id === collectionId && collection.organizationId === organizationId,
+  );
+
+  return reachable ? true : organizationVault(organizationId);
 };
