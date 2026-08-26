@@ -202,7 +202,9 @@ export class ChipFilterComponent<T = unknown> implements ControlValueAccessor {
 
   /** The icon to show in the chip button */
   protected get icon(): BitwardenIcon | undefined {
-    return this.selectedOption?.icon || this.placeholderIcon();
+    return (
+      this.selectedOption?.icon ?? this.selectedOption?.iconTile?.icon ?? this.placeholderIcon()
+    );
   }
 
   protected tileVariant(option: ChipFilterOption<T>): IconTileVariant {
