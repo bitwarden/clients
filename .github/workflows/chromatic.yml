@@ -73,7 +73,7 @@ jobs:
           echo "node_version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up Node
-        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: ${{ steps.retrieve-node-version.outputs.node_version }}
         if: steps.get-changed-files.outputs.storyFiles == 'true'
@@ -114,7 +114,7 @@ jobs:
 
       - name: Publish to Chromatic for Autofill
         id: publish-chromatic-autofill
-        uses: chromaui/action@94713c544284a14195de3b50ef24301579f1877e # v18.0.1
+        uses: chromaui/action@534eebfc19023579541d106f7b61d5ad70ed65c7 # v18.5.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN-AUTOFILL }}
@@ -133,7 +133,7 @@ jobs:
         run: npm run build-storybook:ci
 
       - name: Publish to Chromatic for CL
-        uses: chromaui/action@94713c544284a14195de3b50ef24301579f1877e # v18.0.1
+        uses: chromaui/action@534eebfc19023579541d106f7b61d5ad70ed65c7 # v18.5.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           projectToken: ${{ steps.get-kv-secrets.outputs.CHROMATIC-PROJECT-TOKEN }}
