@@ -223,7 +223,8 @@ describe("CipherViewBannerComponent", () => {
 
       expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
-      expect(text()).toContain("pamRequestAccessBannerTitle");
+      expect(text()).toContain("pamRequestAccessBannerHeading");
+      expect(text()).toContain("pamRequestAccessBannerBody");
     });
 
     it("offers Cancel request while a request is pending", async () => {
