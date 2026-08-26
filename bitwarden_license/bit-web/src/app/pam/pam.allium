@@ -119,6 +119,12 @@ variant HumanApproval : Condition {
 variant IpAllowlist : Condition {
     -- CIDR ranges from which a request will auto-approve. Empty list means
     -- the condition never matches (i.e. effectively denies).
+    --
+    -- Bounds the FIRST grant and each activation of one, not the member's whole
+    -- period of access: an extension is not evaluated against conditions
+    -- (PM-42500), so a lease obtained from inside the allowlist may be extended
+    -- from outside it. Do not read this as "access to this credential only ever
+    -- happens from these networks".
     cidrs: List<String>
 }
 
@@ -134,7 +140,8 @@ value ApproverScope {
 --   - Conditions (the `conditions` list) gate the request DECISION. Each is a
 --     predicate on the request (its approver scope, its source IP, ...),
 --     evaluated together at request-evaluation time to decide approve / deny /
---     route-to-human. See the rule-evaluation rules.
+--     route-to-human. See the rule-evaluation rules. They gate FIRST GRANTS only:
+--     an extension of an existing lease is not evaluated against them (PM-42500).
 --
 --   - AccessLease constraints (`single_active_lease`, `max_lease_duration`) do NOT gate
 --     the decision — they shape the LEASE once approved, evaluated at lease start
@@ -658,20 +665,28 @@ rule MemberRequestsLeaseExtension {
 -- conditions. A rule with no human_approval condition resolves synchronously on
 -- submit, so the submit response can already carry an approved request.
 --
--- EXTENSIONS ARE NEVER DECIDED BY A HUMAN (PM-42500). A human_approval condition
--- gates the FIRST grant only; extending a lease the member already holds is not a
--- fresh grant, so it is approved automatically whatever the governing rule says
--- (AutoApproveExtension) and never reaches an approver inbox. The rule's AUTOMATED
--- conditions still apply — an extension requested from outside an ip_allowlist is
--- auto-denied like any other request — because those are machine checks, not
--- approvals; "no approval" takes the human out of the loop, not the rule.
+-- AN EXTENSION IS NOT EVALUATED AGAINST THE RULE AT ALL (PM-42500). A rule's
+-- conditions gate the FIRST grant only. Extending a lease the member already holds
+-- is not a fresh grant, so it is approved on the spot by AutoApproveExtension: no
+-- approver sees it, AND no automated condition is asked either. An extension
+-- requested from outside the rule's ip_allowlist still applies.
+--
+-- The reasoning, stated plainly because the consequence is not small: the decision
+-- that mattered was the original grant, and an extension re-opens no new access —
+-- it lengthens access the member already holds, over the same credential, under the
+-- same rule. The controls that remain on it are the rule's opt-in (may this lease
+-- be extended at all) and the per-increment cap. What this gives up is that an
+-- ip_allowlist can no longer bound access to the admitted network once a lease
+-- exists: a member who obtained a lease from inside the allowlist may extend it
+-- from anywhere. That is a deliberate trade, not an oversight — see the
+-- extension-conditions open question, which is where the argument against it lives.
 --
 -- The four evaluation rules below partition the pending space exactly once, so no
 -- request matches two:
---   extension     + automated pass                     -> AutoApproveExtension
+--   extension                                          -> AutoApproveExtension
 --   non-extension + automated pass + no human_approval -> AutoApproveWhenNoHumanApproval
 --   non-extension + automated pass + human_approval    -> RouteToHumanApprovers
---   any           + automated fail                     -> AutoDenyWhenAutomatedConditionsFail
+--   non-extension + automated fail                     -> AutoDenyWhenAutomatedConditionsFail
 
 rule RequestReadyForEvaluationOnCreation {
     -- Requests are only ever created by a member submitting the Request Access
@@ -693,13 +708,17 @@ rule AutoApproveExtension {
     -- parent lease in the same step, so an extension never rests at `approved`
     -- either — it is already `activated` (or `denied`) before anything can observe it.
     --
-    -- Automated conditions still gate it: an extension whose ip_allowlist no longer
-    -- matches falls through to AutoDenyWhenAutomatedConditionsFail exactly as a first
-    -- request would. This rule removes the HUMAN from the loop, not the machine checks.
+    -- The rule's automated conditions are NOT asked either, so this rule has no
+    -- failure branch: every extension that reaches evaluation is approved here. An
+    -- extension requested from outside the rule's ip_allowlist is approved like any
+    -- other. The only way one still ends up `denied` is ExtensionDeniedParentGone —
+    -- the parent lease vanished in the same step — which is a fact about the parent,
+    -- not a verdict on the request. The only gates left on extending are the rule's
+    -- opt-in and the per-increment cap, neither of which is modelled here yet — see
+    -- the extension-conditions open question.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
     requires: request.extension_of != null
-    requires: RuleAutomatedConditionsPass(request)
     ensures: request.status = approved
     ensures: request.resolved_at = now
     ensures: request.approver = null
@@ -727,9 +746,14 @@ rule AutoApproveWhenNoHumanApproval {
 
 rule AutoDenyWhenAutomatedConditionsFail {
     -- Any non-human condition (today: ip_allowlist) failed → reject without
-    -- ever surfacing the request in an approver inbox.
+    -- ever surfacing the request in an approver inbox. First grants only: an
+    -- extension is not evaluated against the conditions at all (PM-42500), so it
+    -- cannot fail them and this rule must not catch it — without this guard an
+    -- extension outside the allowlist would match both this rule and
+    -- AutoApproveExtension.
     when: RequestReadyForEvaluation(request)
     requires: request.status = pending
+    requires: request.extension_of = null
     requires: not RuleAutomatedConditionsPass(request)
     ensures: request.status = denied
     ensures: request.resolved_at = now
@@ -1174,6 +1198,11 @@ deferred EligibleRevokers     -- see: RevokeAccessLeaseCommand; cipher-lease-ban
 -- request's source IP). Evaluated at request evaluation (to decide approve / deny /
 -- route-to-human) AND re-checked at lease start (ActivateLease): a mismatch at start
 -- rejects the activation without consuming the approval.
+--
+-- FIRST GRANTS ONLY. Since PM-42500 an extension is never evaluated against this
+-- predicate — not at request evaluation (AutoApproveExtension asks nothing) and not
+-- at lease start (an extension never activates; it applies in place). So both
+-- evaluation points above describe a non-extension request.
 deferred RuleAutomatedConditionsPass    -- see: server-side rule evaluation
 
 -- `oldest_rule(candidates)`: selection primitive for governing-rule resolution.
@@ -1761,6 +1790,8 @@ open question "Does a vault export that carries PAM-gated credentials emit a PAM
 
 open question "PM-42500 removes approval from lease extensions, and with it the control that used to bound a lease's cumulative life — every extension was previously a fresh authorization, so on a human_approval rule each increment needed a human. Now a member granted one human-approved lease can self-renew it indefinitely without an approver ever seeing it again, and max_lease_duration deliberately clamps only a single lease as minted, never the total. So what bounds cumulative lease life? The implementation has two controls the spec does not model — the rule's allowsExtensions toggle (may this rule be extended at all) and its per-increment maxExtensionDurationSeconds cap — but neither bounds the COUNT of extensions, which is the axis approval used to hold. Options: model a cumulative ceiling on the rule, cap the number of extensions per lease, expire the right to extend along with the original approval, or accept unbounded self-renewal as the intended trade."
 
+open question "PM-42500 stops evaluating a rule's conditions on an extension, so an ip_allowlist no longer bounds a member's period of access — only its start. A member who obtains a lease from inside the allowlist can extend it from any network, and nothing downstream re-asks: CipherLeaseGate hands over a gated cipher on the existence of an active lease alone. This is the same gap PM-42273 closed on the activation path, deliberately left open on the extension path, and it sits badly next to that fix. The argument FOR leaving it: an extension re-opens no new access, so re-litigating the network is a check on a decision already made. The argument AGAINST: an allowlist is a standing condition on where a credential may be reached from, not a one-time entry test, and an admin reading 'only from these CIDRs' will not expect a lease to outlive the network. Undecided: gate extensions on the automated conditions after all (the human stays out, the machine check returns), gate only the ip_allowlist kind while exempting the rest, cap what an extension can add so the unchecked window is bounded, or accept that an allowlist bounds the start of access and document it as such at the admin surface."
+
 open question "Does an org-wide kill switch or LeasingFreeze stop vault export? A freeze blocks STARTING leases, and an export mints none, so on the current reading export keeps working while the org is otherwise locked down — a hole in what an admin may well read as a total shutdown. Undecided: leave the two axes independent (export overrides leasing, freeze included), or have a freeze withhold gated ciphers from export too."
 
 -- SUPERSEDED by PM-42500 — cumulative extension duration. Recorded here because
@@ -1779,8 +1810,10 @@ open question "Does an org-wide kill switch or LeasingFreeze stop vault export? 
 --
 --   WHAT NOW HOLDS. The wire layer's "extensions are always auto-approved"
 --   (AccessLeaseExtensionRequest) is no longer a violation of this spec — it is what
---   the spec now says. max_lease_duration still bounds a single lease as minted and
---   nothing more.
+--   the spec now says, and neither is its skipping of the rule's automated
+--   conditions: the implementation never asked them on the extension path, and the
+--   spec has come to it rather than the other way round. max_lease_duration still
+--   bounds a single lease as minted and nothing more.
 --
 --   WHAT COLLAPSED. The "control theater" argument rested on extensions and
 --   re-requests being equally unattended. That was true only on automatic rules. On a
@@ -1792,7 +1825,10 @@ open question "Does an org-wide kill switch or LeasingFreeze stop vault export? 
 --
 -- The impl's per-increment maxExtensionDurationSeconds cap and its allowsExtensions
 -- toggle (may this rule be extended at all) are the only controls left in the code,
--- and both remain unmodeled here.
+-- and both remain unmodeled here. With approval gone AND the conditions no longer
+-- asked, they are now the ONLY controls on extending at all — which is why modelling
+-- them has stopped being tidy-up and become the substance of two open questions (the
+-- cumulative-life one above, and the extension-conditions one).
 
 -- RESOLVED — org suspension and governance: a suspended (disabled) organization
 -- drops out of the caller's claim-based current context, which would empty every
