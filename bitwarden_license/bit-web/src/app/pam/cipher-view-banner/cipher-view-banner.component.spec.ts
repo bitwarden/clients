@@ -52,6 +52,18 @@ function requestView(overrides: Partial<AccessRequestView> = {}): AccessRequestV
 }
 
 /**
+ * The activation window the server resolves at submit, as an override for {@link requestView}.
+ * `startsInSeconds` covers the human-approval route, whose window can open in the future.
+ */
+function grantedWindow(lengthSeconds: number, startsInSeconds = 0): Partial<AccessRequestView> {
+  const startMs = Date.now() + startsInSeconds * 1000;
+  return {
+    leaseNotBefore: new Date(startMs).toISOString(),
+    leaseNotAfter: new Date(startMs + lengthSeconds * 1000).toISOString(),
+  } as unknown as Partial<AccessRequestView>;
+}
+
+/**
  * The badge the SDK would rank for a state assembled from the parts below. Mirrored here — rather
  * than spelled out at every call site — so a fixture built from `activeLease`/`approvedRequest`/
  * `pendingRequest` stays a faithful stand-in for a real response, which always carries both the
@@ -119,6 +131,10 @@ describe("CipherViewBannerComponent", () => {
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
+    // The resting pre-check is only reachable once the access-state read has settled, so its
+    // resolution lands a cycle after the state it depends on.
+    await fixture.whenStable();
+    fixture.detectChanges();
   }
 
   function text(): string {
@@ -142,6 +158,9 @@ describe("CipherViewBannerComponent", () => {
     toastService = mock<ToastService>();
 
     requestsApi.getCipherAccessState.mockResolvedValue(accessState());
+    // The resting banner pre-checks on its own to render the rule's maximum duration, so every
+    // test needs a resolved pre-check even when it never opens the form.
+    requestsApi.preCheck.mockResolvedValue(preCheck());
     leasingErrors.isLeasingError.mockReturnValue(false);
 
     // The real fan-out, not a mock: the notify-then-re-read path is the behaviour under test.
@@ -189,7 +208,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher({ partial: false }));
 
       expect(requestsApi.getCipherAccessState).not.toHaveBeenCalled();
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
 
     it("renders nothing when the PAM feature flag is off", async () => {
@@ -198,7 +217,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(requestsApi.getCipherAccessState).not.toHaveBeenCalled();
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
 
     it("reads access state for a leaseGated cipher whose partial data is gone", async () => {
@@ -213,7 +232,7 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
   });
 
@@ -223,7 +242,8 @@ describe("CipherViewBannerComponent", () => {
 
       expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
-      expect(text()).toContain("pamRequestAccessBannerTitle");
+      expect(text()).toContain("pamRequestAccessBannerHeading");
+      expect(text()).toContain("pamRequestAccessBannerBody");
     });
 
     it("offers Cancel request while a request is pending", async () => {
@@ -234,6 +254,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query('[data-testid="cipher-view-banner-pending"]')).not.toBeNull();
+      expect(text()).toContain("pamPendingRequestBannerHeading");
       expect(query("#pam-cipher-view-banner_button_cancel")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
     });
@@ -246,8 +267,46 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
+      expect(text()).toContain("pamApprovedRequestBannerHeading");
       expect(query("#pam-cipher-view-banner_button_start")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_cancel-approved")).not.toBeNull();
+    });
+
+    it("states the granted duration from the approved request's own window", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3600)) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-approved-duration"]')?.textContent).toContain(
+        "pamApprovedRequestBannerDuration 1 hour",
+      );
+    });
+
+    // The human-approval route resolves the window from the requester's chosen start and end,
+    // which can sit wholly in the future.
+    it("states the granted duration for a window that has not opened yet", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(3 * 3600, 24 * 3600)) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-approved-duration"]')?.textContent).toContain(
+        "pamApprovedRequestBannerDuration 3 hours",
+      );
+    });
+
+    it("renders no duration line when the window does not resolve to a positive span", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ approvedRequest: requestView(grantedWindow(0)) }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query('[data-testid="cipher-view-banner-approved"]')).not.toBeNull();
+      expect(query('[data-testid="cipher-view-banner-approved-duration"]')).toBeNull();
     });
 
     it("shows the countdown and End for an active lease, hiding Extend when the rule forbids it", async () => {
@@ -385,6 +444,104 @@ describe("CipherViewBannerComponent", () => {
     });
   });
 
+  describe("the card container", () => {
+    const cases: ReadonlyArray<{
+      name: string;
+      state: Partial<CipherAccessStateView>;
+      testId: string;
+      glyph: string;
+    }> = [
+      { name: "resting request-access", state: {}, testId: "request", glyph: "bwi-key" },
+      {
+        name: "pending request",
+        state: { pendingRequest: requestView() },
+        testId: "pending",
+        glyph: "bwi-clock",
+      },
+      {
+        name: "approved request",
+        state: { approvedRequest: requestView() },
+        testId: "approved",
+        glyph: "bwi-check-circle",
+      },
+      {
+        name: "active lease",
+        state: { activeLease: leaseView() },
+        testId: "active",
+        glyph: "bwi-clock",
+      },
+    ];
+
+    it.each(cases)(
+      "renders $name as a card with an icon tile",
+      async ({ state, testId, glyph }) => {
+        requestsApi.getCipherAccessState.mockResolvedValue(accessState(state));
+
+        await create(gatedCipher());
+
+        const card = query(`bit-card[data-testid="cipher-view-banner-${testId}"]`);
+        expect(card).not.toBeNull();
+        expect(card?.querySelector(`bit-icon-tile i.${glyph}`)).not.toBeNull();
+      },
+    );
+  });
+
+  describe("the rule's terms, before the form is opened", () => {
+    const MAX_DURATION = '[data-testid="cipher-view-banner-max-duration"]';
+
+    it("renders the cap alone when the rule needs an approver", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "human", maxDurationSeconds: 4 * 3600 }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDuration 4 hours",
+      );
+    });
+
+    it("renders the cap with the instant-approval clause when the rule auto-approves", async () => {
+      requestsApi.preCheck.mockResolvedValue(
+        preCheck({ approvalMode: "automatic", maxDurationSeconds: 86_400 }),
+      );
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)?.textContent?.trim()).toBe(
+        "pamRequestAccessBannerMaxDurationAutomatic 1 day",
+      );
+    });
+
+    it("renders no line when the pre-check resolves no cap", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ maxDurationSeconds: undefined }));
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("renders no line, and no error, when the pre-check fails", async () => {
+      requestsApi.preCheck.mockRejectedValue(new Error("boom"));
+
+      await create(gatedCipher());
+
+      expect(query(MAX_DURATION)).toBeNull();
+      expect(query('[data-testid="cipher-view-banner-request"]')).not.toBeNull();
+    });
+
+    it("does not pre-check a cipher whose access is already in play", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({ pendingRequest: requestView() }),
+      );
+
+      await create(gatedCipher());
+
+      expect(requestsApi.preCheck).not.toHaveBeenCalled();
+    });
+  });
+
   describe("the request fold-out", () => {
     it("shapes the form from the pre-check's automatic path", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
@@ -410,6 +567,18 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_input_date")).not.toBeNull();
       expect(component["humanForm"].getRawValue().date).not.toBe("");
       expect(component["humanForm"].getRawValue().start).not.toBe("");
+    });
+
+    it("renders the automatic path's Reason field as a multi-line textarea", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      const reason = query("#pam-cipher-view-banner_textarea_automatic-reason");
+      expect(reason?.tagName).toBe("TEXTAREA");
+      expect(reason?.getAttribute("rows")).toBe("3");
     });
 
     it("renders the human path's Reason field as a multi-line textarea", async () => {
