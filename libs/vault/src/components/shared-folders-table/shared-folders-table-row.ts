@@ -1,13 +1,11 @@
 import { BitwardenIcon } from "@bitwarden/components";
 
+import { SharedFolderPermission } from "./shared-folder-permission";
+
 /**
  * A row of the shared folders table. Clients may pass a richer type — the table is generic over
  * anything assignable to this shape, so the extra fields stay available to {@link
  * SharedFoldersTableRowAction} callbacks.
- *
- * {@link permissions} is an already-translated label rather than a permission enum: what a
- * permission is called differs by caller (an org member's access level, a collection's assigned
- * permission), and resolving that is the client's concern, not the table's.
  */
 export type SharedFolderRow = {
   /** Stable identifier. Drives `trackBy`, the menu item QA ids, and the `@for` track expression. */
@@ -15,8 +13,12 @@ export type SharedFolderRow = {
 
   name: string;
 
-  /** Already-translated permission label, e.g. "Can edit". */
-  permissions: string;
+  /**
+   * What the member may do with the folder. The table translates it; resolving the permission
+   * stays with the client, including collapsing an organization admin's or owner's implicit access
+   * to every folder down to {@link SharedFolderPermission.Manage}.
+   */
+  permissions: SharedFolderPermission;
 
   /** How many vault items the folder holds. */
   items: number;

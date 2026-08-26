@@ -9,15 +9,26 @@ import {
   StatusLockupComponent,
 } from "@bitwarden/components";
 
+import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 import { SharedFoldersTableComponent } from "./shared-folders-table.component";
 
 const sharedFolders: SharedFolderRow[] = [
-  { id: "col-1", name: "Engineering", permissions: "Can manage", items: 42 },
-  { id: "col-2", name: "Finance", permissions: "Can edit", items: 8 },
-  { id: "col-3", name: "Human resources", permissions: "Can view", items: 0 },
-  { id: "col-4", name: "Marketing", permissions: "Can edit, except passwords", items: 17 },
-  { id: "col-5", name: "Operations", permissions: "Can view, except passwords", items: 3 },
+  { id: "col-1", name: "Engineering", permissions: SharedFolderPermission.Manage, items: 42 },
+  { id: "col-2", name: "Finance", permissions: SharedFolderPermission.Edit, items: 8 },
+  { id: "col-3", name: "Human resources", permissions: SharedFolderPermission.View, items: 0 },
+  {
+    id: "col-4",
+    name: "Marketing",
+    permissions: SharedFolderPermission.EditExceptPass,
+    items: 17,
+  },
+  {
+    id: "col-5",
+    name: "Operations",
+    permissions: SharedFolderPermission.ViewExceptPass,
+    items: 3,
+  },
 ];
 
 const rowActions: SharedFoldersTableRowAction[] = [
@@ -103,6 +114,11 @@ export default {
               // Columns and rows
               name: "Name",
               permissions: "Permissions",
+              viewItems: "View items",
+              viewItemsHidePass: "View items, hidden passwords",
+              editItems: "Edit items",
+              editItemsHidePass: "Edit items, hidden passwords",
+              manageSharedFolder: "Manage shared folder",
               items: "Items",
               options: "Options",
               optionsForItem: (name) => `Options for ${name}`,
@@ -123,8 +139,8 @@ type Story = StoryObj<StoryProps>;
 /**
  * The table as a host gets it out of the box: bind `sharedFolders` and `rowActions`, and the
  * columns, sorting, search, and Permissions chip all follow from the rows. Sort by any of Name,
- * Permissions, or Items; the search box matches on name; the chip offers each permission label
- * present in the rows, with a faceted count apiece.
+ * Permissions, or Items; the search box matches on name; the chip offers each permission present
+ * in the rows, with a faceted count apiece.
  */
 export const Default: Story = {};
 
@@ -136,7 +152,7 @@ export const SinglePermission: Story = {
   args: {
     sharedFolders: sharedFolders.map((sharedFolder) => ({
       ...sharedFolder,
-      permissions: "Can manage",
+      permissions: SharedFolderPermission.Manage,
     })),
   },
 };

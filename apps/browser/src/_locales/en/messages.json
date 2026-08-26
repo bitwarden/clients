@@ -7980,5 +7980,20 @@
   },
   "permissions": {
     "message": "Permissions"
+  },
+  "viewItems": {
+    "message": "View items"
+  },
+  "viewItemsHidePass": {
+    "message": "View items, hidden passwords"
+  },
+  "editItems": {
+    "message": "Edit items"
+  },
+  "editItemsHidePass": {
+    "message": "Edit items, hidden passwords"
+  },
+  "manageSharedFolder": {
+    "message": "Manage shared folder"
   }
 }

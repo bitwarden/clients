@@ -3845,6 +3845,9 @@
   "manageCollection": {
     "message": "Manage collection"
   },
+  "manageSharedFolder": {
+    "message": "Manage shared folder"
+  },
   "viewItems": {
     "message": "View items"
   },

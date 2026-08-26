@@ -25,9 +25,16 @@ import {
   MenuModule,
   SearchModule,
   SkeletonTextComponent,
+  SortFn,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import {
+  SHARED_FOLDER_PERMISSIONS,
+  SharedFolderPermission,
+  sharedFolderPermissionMessageKey,
+  sharedFolderPermissionOrder,
+} from "./shared-folder-permission";
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 
 /**
@@ -55,10 +62,11 @@ export type SharedFoldersTableFilters = {
   search?: string;
 
   /**
-   * Permission labels. Multi-select: a row matches any selected label — see {@link
-   * SharedFoldersTableComponent.permissionOptions} for where the labels come from.
+   * Permissions. Multi-select: a row matches any selected permission — see {@link
+   * SharedFoldersTableComponent.permissionOptions} for where the options come from. Holds the
+   * permission rather than its label so a URL-synced filter survives a change of locale.
    */
-  permissions?: string[];
+  permissions?: SharedFolderPermission[];
 };
 
 /**
@@ -66,8 +74,8 @@ export type SharedFoldersTableFilters = {
  * field, a Permissions filter chip, and an Add button in the toolbar above them.
  *
  * The table is presentational — it sorts and searches the rows it is handed and reports intent
- * back through {@link add} and each action's `run`. Loading the folders, resolving what a
- * permission is called, and acting on a row all stay with the client.
+ * back through {@link add} and each action's `run`. Loading the folders, resolving each folder's
+ * permission, and acting on a row all stay with the client.
  *
  * Requires `DialogService` in the injector — `bit-table-toolbar` injects it for its small-screen
  * filter dialog. Every client provides it through `DialogModule`; a Storybook story or a bare
@@ -130,33 +138,42 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   protected readonly trackById: TrackByFunction<R> = (_index, row) => row.id;
 
   /**
-   * The permission labels the Permissions chip offers, deduplicated and sorted for a stable menu.
+   * The permissions the Permissions chip offers: those the rows actually carry, in {@link
+   * SHARED_FOLDER_PERMISSIONS} order.
    *
-   * Derived from the rows rather than taken as an input: a permission label is an opaque,
-   * already-translated string to the table (see {@link SharedFolderRow.permissions}), so the rows
-   * on hand are the only account of which permissions exist. Read off the *unfiltered*
-   * `sharedFolders` so the options hold steady while a filter is active — the table's faceted
-   * counts already say which of them would match.
+   * Only the permissions present are offered, so the menu never lists an option that matches
+   * nothing — but they're read off the *unfiltered* `sharedFolders` so the options hold steady
+   * while a filter is active; the table's faceted counts already say which of them would match.
    */
-  protected readonly permissionOptions = computed(() =>
-    [...new Set(this.sharedFolders().map((row) => row.permissions))].sort((a, b) =>
-      a.localeCompare(b),
-    ),
-  );
+  protected readonly permissionOptions = computed(() => {
+    const present = new Set(this.sharedFolders().map((row) => row.permissions));
+    return SHARED_FOLDER_PERMISSIONS.filter((permission) => present.has(permission));
+  });
 
   /**
-   * Whether the Permissions chip has anything to narrow. One distinct label can't exclude a row,
-   * so the chip is omitted rather than offered as a no-op.
+   * Whether the Permissions chip has anything to narrow. One distinct permission can't exclude a
+   * row, so the chip is omitted rather than offered as a no-op.
    */
   protected readonly showPermissions = computed(() => this.permissionOptions().length > 1);
+
+  /** The i18n key naming `permission`, for the cells and the Permissions chip's options. */
+  protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
+
+  /**
+   * Orders the permissions column by {@link SHARED_FOLDER_PERMISSIONS} rather than by label. The
+   * default accessor would sort on the raw permission — an internal, untranslated string — putting
+   * the rows in an order that reads as arbitrary in every locale.
+   */
+  protected readonly sortByPermission: SortFn = (a: R, b: R) =>
+    sharedFolderPermissionOrder(a.permissions) - sharedFolderPermissionOrder(b.permissions);
 
   /** The single predicate the table derives its rows, counts, and empty state from. */
   protected readonly filter = (row: R, values: SharedFoldersTableFilters): boolean =>
     this.matchesSearch(row, values.search) && this.matchesPermissions(row, values.permissions);
 
   /**
-   * Matches a row against the toolbar's search term, on name only — the permission label and the
-   * item count are facets of the folder rather than ways a person names one.
+   * Matches a row against the toolbar's search term, on name only — the permission and the item
+   * count are facets of the folder rather than ways a person names one.
    */
   private matchesSearch(row: R, search: string | undefined): boolean {
     const term = search?.trim().toLowerCase();
@@ -164,11 +181,11 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   }
 
   /**
-   * The Permissions chip is multi-select: `permissions` is an array of the labels chosen from
+   * The Permissions chip is multi-select: `permissions` is an array of the permissions chosen from
    * {@link permissionOptions}, and a row matches if it carries *any* of them. `undefined` and `[]`
    * both mean unfiltered.
    */
-  private matchesPermissions(row: R, permissions: string[] | undefined): boolean {
+  private matchesPermissions(row: R, permissions: SharedFolderPermission[] | undefined): boolean {
     return !permissions?.length || permissions.includes(row.permissions);
   }
 

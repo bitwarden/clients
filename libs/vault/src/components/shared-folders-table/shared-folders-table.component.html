@@ -24,7 +24,9 @@
     @if (showPermissions()) {
       <bit-filter-menu key="permissions" [placeholderText]="'permissions' | i18n" multiple>
         @for (permission of permissionOptions(); track permission) {
-          <bit-filter-option [value]="permission">{{ permission }}</bit-filter-option>
+          <bit-filter-option [value]="permission">
+            {{ permissionMessageKey(permission) | i18n }}
+          </bit-filter-option>
         }
       </bit-filter-menu>
     }
@@ -49,10 +51,13 @@
   </bit-column>
 
   <!-- Permissions -->
-  <bit-column sortable width="minmax(160px, 280px)">
+  <!-- Wider than the label alone needs: "View items, hidden passwords" is the longest permission. -->
+  <bit-column sortable [sortFn]="sortByPermission" width="minmax(200px, 320px)">
     <bit-header-cell>{{ "permissions" | i18n }}</bit-header-cell>
 
-    <bit-cell *bitCellDef="table.columns.permissions; let row">{{ row.permissions }}</bit-cell>
+    <bit-cell *bitCellDef="table.columns.permissions; let row">
+      {{ permissionMessageKey(row.permissions) | i18n }}
+    </bit-cell>
   </bit-column>
 
   <!-- Items -->

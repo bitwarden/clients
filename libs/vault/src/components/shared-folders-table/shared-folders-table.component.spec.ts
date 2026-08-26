@@ -6,6 +6,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
 
+import { SharedFolderPermission } from "./shared-folder-permission";
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 import {
   SharedFoldersTableColumn,
@@ -14,7 +15,13 @@ import {
 } from "./shared-folders-table.component";
 
 function row(overrides: Partial<SharedFolderRow> = {}): SharedFolderRow {
-  return { id: "col-1", name: "Engineering", permissions: "Can manage", items: 4, ...overrides };
+  return {
+    id: "col-1",
+    name: "Engineering",
+    permissions: SharedFolderPermission.Manage,
+    items: 4,
+    ...overrides,
+  };
 }
 
 describe("SharedFoldersTableComponent", () => {
@@ -68,18 +75,55 @@ describe("SharedFoldersTableComponent", () => {
 
   it("renders a row per shared folder", () => {
     fixture.componentRef.setInput("sharedFolders", [
-      row({ id: "a", name: "Engineering", permissions: "Can manage", items: 42 }),
-      row({ id: "b", name: "Finance", permissions: "Can edit", items: 8 }),
+      row({ id: "a", name: "Engineering", permissions: SharedFolderPermission.Manage, items: 42 }),
+      row({ id: "b", name: "Finance", permissions: SharedFolderPermission.Edit, items: 8 }),
     ]);
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
     expect(text).toContain("Engineering");
-    expect(text).toContain("Can manage");
     expect(text).toContain("42");
     expect(text).toContain("Finance");
-    expect(text).toContain("Can edit");
     expect(text).toContain("8");
+  });
+
+  // The stubbed `I18nService` echoes the key, so a cell renders the message key rather than the
+  // label — which is the assertion worth making: that the table translates the permission at all.
+  it("renders each permission's translated label", () => {
+    fixture.componentRef.setInput("sharedFolders", [
+      row({ id: "a", permissions: SharedFolderPermission.Manage }),
+      row({ id: "b", permissions: SharedFolderPermission.View }),
+      row({ id: "c", permissions: SharedFolderPermission.ViewExceptPass }),
+      row({ id: "d", permissions: SharedFolderPermission.Edit }),
+      row({ id: "e", permissions: SharedFolderPermission.EditExceptPass }),
+    ]);
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("manageSharedFolder");
+    expect(text).toContain("viewItems");
+    expect(text).toContain("viewItemsHidePass");
+    expect(text).toContain("editItems");
+    expect(text).toContain("editItemsHidePass");
+  });
+
+  it("sorts the permissions column by permission rather than by label", () => {
+    const sortByPermission = component["sortByPermission"];
+    const shuffled = [
+      row({ id: "a", permissions: SharedFolderPermission.Manage }),
+      row({ id: "b", permissions: SharedFolderPermission.Edit }),
+      row({ id: "c", permissions: SharedFolderPermission.View }),
+      row({ id: "d", permissions: SharedFolderPermission.EditExceptPass }),
+      row({ id: "e", permissions: SharedFolderPermission.ViewExceptPass }),
+    ];
+
+    expect([...shuffled].sort(sortByPermission).map((r) => r.permissions)).toEqual([
+      SharedFolderPermission.View,
+      SharedFolderPermission.ViewExceptPass,
+      SharedFolderPermission.Edit,
+      SharedFolderPermission.EditExceptPass,
+      SharedFolderPermission.Manage,
+    ]);
   });
 
   it("declares the name, permissions, items, and options columns in order", () => {
@@ -105,8 +149,10 @@ describe("SharedFoldersTableComponent", () => {
       expect(applyFilter(row({ name: "Engineering" }), { search: "finance" })).toBe(false);
     });
 
-    it("does not match on the permission label or the item count", () => {
-      expect(applyFilter(row({ permissions: "Can manage" }), { search: "manage" })).toBe(false);
+    it("does not match on the permission or the item count", () => {
+      expect(
+        applyFilter(row({ permissions: SharedFolderPermission.Manage }), { search: "manage" }),
+      ).toBe(false);
       expect(applyFilter(row({ items: 42 }), { search: "42" })).toBe(false);
     });
 
@@ -125,31 +171,35 @@ describe("SharedFoldersTableComponent", () => {
   });
 
   describe("the permissions chip", () => {
-    it("offers each distinct permission label, sorted", () => {
+    it("offers each permission the rows carry, in display order", () => {
       fixture.componentRef.setInput("sharedFolders", [
-        row({ id: "a", permissions: "Can view" }),
-        row({ id: "b", permissions: "Can manage" }),
-        row({ id: "c", permissions: "Can edit" }),
-        row({ id: "d", permissions: "Can manage" }),
+        row({ id: "a", permissions: SharedFolderPermission.Manage }),
+        row({ id: "b", permissions: SharedFolderPermission.View }),
+        row({ id: "c", permissions: SharedFolderPermission.Edit }),
+        row({ id: "d", permissions: SharedFolderPermission.Manage }),
       ]);
 
-      expect(component["permissionOptions"]()).toEqual(["Can edit", "Can manage", "Can view"]);
+      expect(component["permissionOptions"]()).toEqual([
+        SharedFolderPermission.View,
+        SharedFolderPermission.Edit,
+        SharedFolderPermission.Manage,
+      ]);
     });
 
-    it("is omitted when the rows offer fewer than two distinct labels", () => {
+    it("is omitted when the rows offer fewer than two distinct permissions", () => {
       fixture.componentRef.setInput("sharedFolders", [
-        row({ id: "a", permissions: "Can manage" }),
-        row({ id: "b", permissions: "Can manage" }),
+        row({ id: "a", permissions: SharedFolderPermission.Manage }),
+        row({ id: "b", permissions: SharedFolderPermission.Manage }),
       ]);
       fixture.detectChanges();
 
       expect(fixture.nativeElement.querySelector("bit-filter-menu")).toBeNull();
     });
 
-    it("is rendered when the rows offer more than one distinct label", () => {
+    it("is rendered when the rows offer more than one distinct permission", () => {
       fixture.componentRef.setInput("sharedFolders", [
-        row({ id: "a", permissions: "Can manage" }),
-        row({ id: "b", permissions: "Can view" }),
+        row({ id: "a", permissions: SharedFolderPermission.Manage }),
+        row({ id: "b", permissions: SharedFolderPermission.View }),
       ]);
       fixture.detectChanges();
 
@@ -157,26 +207,30 @@ describe("SharedFoldersTableComponent", () => {
     });
 
     it("matches everything when nothing is selected", () => {
-      expect(applyFilter(row({ permissions: "Can manage" }), {})).toBe(true);
-      expect(applyFilter(row({ permissions: "Can manage" }), { permissions: [] })).toBe(true);
+      expect(applyFilter(row({ permissions: SharedFolderPermission.Manage }), {})).toBe(true);
+      expect(
+        applyFilter(row({ permissions: SharedFolderPermission.Manage }), { permissions: [] }),
+      ).toBe(true);
     });
 
-    it("matches a row carrying any selected label", () => {
-      const values: SharedFoldersTableFilters = { permissions: ["Can manage", "Can view"] };
+    it("matches a row carrying any selected permission", () => {
+      const values: SharedFoldersTableFilters = {
+        permissions: [SharedFolderPermission.Manage, SharedFolderPermission.View],
+      };
 
-      expect(applyFilter(row({ permissions: "Can manage" }), values)).toBe(true);
-      expect(applyFilter(row({ permissions: "Can view" }), values)).toBe(true);
-      expect(applyFilter(row({ permissions: "Can edit" }), values)).toBe(false);
+      expect(applyFilter(row({ permissions: SharedFolderPermission.Manage }), values)).toBe(true);
+      expect(applyFilter(row({ permissions: SharedFolderPermission.View }), values)).toBe(true);
+      expect(applyFilter(row({ permissions: SharedFolderPermission.Edit }), values)).toBe(false);
     });
 
     it("narrows the rendered rows as the selection changes", () => {
       fixture.componentRef.setInput("sharedFolders", [
-        row({ id: "a", name: "Engineering", permissions: "Can manage" }),
-        row({ id: "b", name: "Finance", permissions: "Can view" }),
+        row({ id: "a", name: "Engineering", permissions: SharedFolderPermission.Manage }),
+        row({ id: "b", name: "Finance", permissions: SharedFolderPermission.View }),
       ]);
       fixture.detectChanges();
 
-      filterControl("permissions").setValue(["Can view"]);
+      filterControl("permissions").setValue([SharedFolderPermission.View]);
       fixture.detectChanges();
 
       expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Finance" })]);
@@ -184,14 +238,14 @@ describe("SharedFoldersTableComponent", () => {
 
     it("intersects with the search term", () => {
       fixture.componentRef.setInput("sharedFolders", [
-        row({ id: "a", name: "Engineering", permissions: "Can manage" }),
-        row({ id: "b", name: "Finance", permissions: "Can view" }),
-        row({ id: "c", name: "Finance archive", permissions: "Can manage" }),
+        row({ id: "a", name: "Engineering", permissions: SharedFolderPermission.Manage }),
+        row({ id: "b", name: "Finance", permissions: SharedFolderPermission.View }),
+        row({ id: "c", name: "Finance archive", permissions: SharedFolderPermission.Manage }),
       ]);
       fixture.detectChanges();
 
       searchControl().setValue("fin");
-      filterControl("permissions").setValue(["Can manage"]);
+      filterControl("permissions").setValue([SharedFolderPermission.Manage]);
       fixture.detectChanges();
 
       expect(bitTable().filtered()).toEqual([expect.objectContaining({ name: "Finance archive" })]);
