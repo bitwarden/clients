@@ -17,6 +17,7 @@ import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "@bitwarden/web-vault/ap
 import { DefaultAuditApiService } from "./access-audit/default-audit-api.service";
 import { CidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/cidr-validation.service";
 import { DefaultCidrValidationService } from "./access-rules/access-rule-edit/ip-allowlist/default-cidr-validation.service";
+import { ApprovalPrivilegeService } from "./approvals/approval-privilege.service";
 import { CipherViewBannerComponent } from "./cipher-view-banner/cipher-view-banner.component";
 import { CollectionAccessRuleCalloutComponent } from "./collection-access-rule-callout/collection-access-rule-callout.component";
 import { AccessLeasesSdkService } from "./services/access-leases-sdk.service";
@@ -123,6 +124,13 @@ export function providePam(): SafeProvider[] {
     safeProvider({
       provide: VAULT_FILTER_GATED_COLLECTION_INDICATOR,
       useValue: GatedCollectionFilterIndicatorComponent,
+    }),
+    // Root-level because the approvals route guard resolves it before any route-provided service
+    // exists, and the shared stream is then reused by the tab and the page shell.
+    safeProvider({
+      provide: ApprovalPrivilegeService,
+      useClass: ApprovalPrivilegeService,
+      deps: [],
     }),
     // Root-level (not per-consumer) so the sidebar indicator AND repeated opens of the collection
     // dialog share one cached per-org rules read. The vault-row badge no longer reads it — the
