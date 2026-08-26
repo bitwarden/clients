@@ -107,3 +107,7 @@ export {
 export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
 export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
 export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";
+export {
+  ACTIVATE_ACCESS_SERVER_ERRORS,
+  activateAccessErrorMessageKey,
+} from "./helpers/activate-access-error";
