@@ -52,7 +52,7 @@ import {
   BiometricsStatus,
   UserAsymmetricKeysRegenerationService,
 } from "@bitwarden/key-management";
-import { UnlockService } from "@bitwarden/unlock";
+import { UnlockMethod, UnlockService } from "@bitwarden/unlock";
 
 import {
   UnlockOption,
@@ -294,18 +294,27 @@ export class LockComponent implements OnInit, OnDestroy {
 
     await this.setDefaultActiveUnlockOption(this.unlockOptions);
 
+    // Every unlock of this user continues from here, except
+    // for master password, as a policy evaluation has to be run
+    this.unlockService.unlocked$
+      .pipe(
+        filter(
+          (unlock) =>
+            unlock.userId === activeAccount.id && unlock.method !== UnlockMethod.MasterPassword,
+        ),
+        take(1),
+        takeUntil(this.activeAccountChange$),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.ngZone.run((): void => {
+          void this.continueAfterSettingUserKey();
+        });
+      });
+
     if (this.unlockOptions?.biometrics.enabled) {
       await this.handleBiometricsUnlockEnabled(activeAccount.id);
     }
-
-    this.lockComponentService
-      .getExternalUnlock$(activeAccount.id)
-      .pipe(take(1), takeUntil(this.activeAccountChange$), takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.ngZone.run((): void => {
-          void this.doContinue({});
-        });
-      });
   }
 
   private resetDataOnActiveAccountChange() {
@@ -438,8 +447,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
       // Throws if the user cancels the biometric prompt.
       await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
-
-      await this.continueAfterSettingUserKey();
     } catch (e) {
       // Biometrics may fail if the user does not accept or if the desktop app is disconnected.
       this.logService.info("[LockComponent] Failed to unlock via biometrics.", e);
@@ -453,9 +460,11 @@ export class LockComponent implements OnInit, OnDestroy {
       throw new Error("No active user.");
     }
 
-    await this.unlockService.unlockWithDecryptedUserKey(this.activeAccount.id, userKey);
-
-    await this.continueAfterSettingUserKey();
+    await this.unlockService.unlockWithDecryptedUserKey(
+      this.activeAccount.id,
+      userKey,
+      UnlockMethod.Prf,
+    );
   }
 
   togglePassword() {
@@ -486,7 +495,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
     try {
       await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
-      await this.continueAfterSettingUserKey();
     } catch {
       // Failure state: invalid PIN or failed decryption
       this.invalidPinAttempts++;
@@ -528,8 +536,9 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Shared tail of the lock screen's unlock methods. Callers are responsible for setting the user
-   * key via the matching {@link UnlockService} method before calling this.
+   * Shared tail of every unlock, run once the user key is set. Reached through
+   * {@link UnlockService.unlocked$} rather than called by each unlock method, so that an unlock
+   * performed elsewhere continues the same way as one performed here.
    */
   protected async continueAfterSettingUserKey(
     afterUnlockActions: AfterUnlockActions = {},
