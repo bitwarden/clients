@@ -17390,6 +17390,33 @@
   "pamStartLeaseError": {
     "message": "Couldn't start access."
   },
+  "pamStartLeaseErrorWindowNotStarted": {
+    "message": "The approved access window has not started yet."
+  },
+  "pamStartLeaseErrorWindowEnded": {
+    "message": "The approved access window has already ended."
+  },
+  "pamStartLeaseErrorNotApproved": {
+    "message": "This request has not been approved yet."
+  },
+  "pamStartLeaseErrorNoLongerActivatable": {
+    "message": "This request can no longer be activated."
+  },
+  "pamStartLeaseErrorAlreadyUsed": {
+    "message": "This request's access has already been used and is no longer active."
+  },
+  "pamStartLeaseErrorSingleActiveLease": {
+    "message": "Another active lease exists for this item. Try again once it ends."
+  },
+  "pamStartLeaseErrorNetworkNotPermitted": {
+    "message": "Access to this item is not permitted from your current network."
+  },
+  "pamStartLeaseErrorTimeNotPermitted": {
+    "message": "Access to this item is not permitted at this time."
+  },
+  "pamStartLeaseErrorNotPermitted": {
+    "message": "Access to this item is not permitted right now."
+  },
   "pamMyRequestsCanceledToast": {
     "message": "Request canceled"
   },

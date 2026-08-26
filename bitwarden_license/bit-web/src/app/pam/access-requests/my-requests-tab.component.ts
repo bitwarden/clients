@@ -35,7 +35,7 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
-import { AccessLeaseId, AccessRequestId } from "..";
+import { AccessLeaseId, AccessRequestId, activateAccessErrorMessageKey } from "..";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationShortPipe } from "../date/duration-short.pipe";
@@ -309,17 +309,16 @@ export class MyRequestsTabComponent implements OnInit {
       // A taken single-active-lease slot, an org-wide freeze, or anything else the server rejects
       // activation for surfaces here; the approved request stays activatable for a manual retry.
       //
-      // The server's own sentence is deliberately NOT shown. On the "Api" variant `.message` is the
-      // raw SDK transport string with the entire serialized response body concatenated onto it --
+      // The server's own sentence is still never shown. On the "Api" variant `.message` is the raw
+      // SDK transport string with the entire serialized response body concatenated onto it --
       // envelope, `exceptionMessage`, and `exceptionStackTrace` carrying the server's absolute
-      // filesystem paths and internal .NET frames. Putting it in a toast published all of that to
-      // the requester (see `classifyAccessRuleError`, which exists for exactly this reason on the
-      // rule path). Surfacing the real reason needs the same treatment: a catalog mapping each
-      // sentence `ActivateAccessRequestCommand` raises to approved copy. None of those six strings
-      // has an approved key yet, so this stays generic until they do.
+      // filesystem paths and internal .NET frames. `activateAccessErrorMessageKey` is what turns
+      // that into something showable: it matches the sentence against a checked-in catalog and
+      // hands back an i18n key, never the message, falling back to the generic key when the
+      // rejection isn't one we have copy for.
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamStartLeaseError"),
+        message: this.i18nService.t(activateAccessErrorMessageKey(e)),
       });
     } finally {
       this.starting.update((s) => {
