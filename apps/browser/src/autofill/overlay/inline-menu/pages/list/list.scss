@@ -34,6 +34,47 @@ body * {
   pointer-events: auto;
 }
 
+.inline-menu-list-close-row {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 0.2rem 0.2rem 0;
+}
+
+.inline-menu-list-close-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 0.4rem;
+  padding: 0.3rem;
+  margin: 0;
+  cursor: pointer;
+  line-height: 0;
+
+  &:hover {
+    @include themify($themes) {
+      background: themed("backgroundOffsetColor");
+    }
+  }
+
+  &:focus:focus-visible {
+    outline-width: 0.2rem;
+    outline-style: solid;
+
+    @include themify($themes) {
+      outline-color: themed("focusOutlineColor");
+    }
+  }
+
+  svg path {
+    @include themify($themes) {
+      fill: themed("mutedTextColor") !important;
+    }
+  }
+}
+
 .inline-menu-list-message {
   font-size: 1.4rem;
   line-height: 1.5;

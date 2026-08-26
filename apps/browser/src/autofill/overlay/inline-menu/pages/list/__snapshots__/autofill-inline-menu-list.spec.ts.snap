@@ -5,6 +5,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList creates the build sav
   class="inline-menu-list-container theme_light"
 >
   <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
     class="inline-menu-list-button-container"
   >
     <button
@@ -20,6 +44,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <div
     class="no-items inline-menu-list-message"
   >
@@ -57,6 +105,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
   class="inline-menu-list-container theme_light"
 >
   <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
     class="no-items inline-menu-list-message"
   >
     noItemsToShow
@@ -92,6 +164,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <div
     class="no-items inline-menu-list-message"
   >
@@ -129,6 +225,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the inline menu with 
   class="inline-menu-list-container theme_light"
 >
   <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
     class="no-items inline-menu-list-message"
   >
     noItemsToShow
@@ -164,6 +284,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 <div
   class="inline-menu-list-container theme_light inline-menu-list-container--with-new-item-button"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <ul
     class="inline-menu-list-actions"
     role="list"
@@ -282,6 +426,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <ul
     class="inline-menu-list-actions"
     role="list"
@@ -677,6 +845,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <ul
     class="inline-menu-list-actions"
     role="list"
@@ -794,6 +986,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <ul
     class="inline-menu-list-actions"
     role="list"
@@ -1189,6 +1405,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <ul
     class="inline-menu-list-actions"
     role="list"
@@ -1584,6 +1824,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <ul
     class="inline-menu-list-actions"
     role="list"
@@ -2038,6 +2302,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
   class="inline-menu-list-container theme_light"
 >
   <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
+  <div
     class="passkey-authenticating-loader"
   >
     <svg
@@ -2075,6 +2363,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the list of ciphers f
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <ul
     class="inline-menu-list-actions"
     role="list"
@@ -2311,6 +2623,30 @@ exports[`AutofillInlineMenuList initAutofillInlineMenuList the locked inline men
 <div
   class="inline-menu-list-container theme_light"
 >
+  <div
+    class="inline-menu-list-close-row"
+  >
+    <button
+      aria-label=""
+      class="inline-menu-list-close-button"
+      tabindex="-1"
+      type="button"
+    >
+      <svg
+        aria-hidden="true"
+        fill="none"
+        height="12"
+        viewBox="0 0 16 16"
+        width="12"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M2.22 2.22a.75.75 0 0 1 1.06 0L8 6.94l4.72-4.72a.75.75 0 1 1 1.06 1.06L9.06 8l4.72 4.72a.75.75 0 1 1-1.06 1.06L8 9.06l-4.72 4.72a.75.75 0 0 1-1.06-1.06L6.94 8 2.22 3.28a.75.75 0 0 1 0-1.06Z"
+          fill="#1B2029"
+        />
+      </svg>
+    </button>
+  </div>
   <div
     class="locked-inline-menu inline-menu-list-message"
     id="locked-inline-menu-description"

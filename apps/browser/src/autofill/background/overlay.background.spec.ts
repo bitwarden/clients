@@ -3321,6 +3321,25 @@ describe("OverlayBackground", () => {
           { frameId: 0 },
         );
       });
+
+      it("closes the inline menu list when it is already visible", async () => {
+        overlayBackground["isInlineMenuListVisible"] = true;
+
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "autofillInlineMenuButtonClicked",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "closeAutofillInlineMenu",
+            overlayElement: AutofillOverlayElement.List,
+          },
+          { frameId: 0 },
+        );
+      });
     });
     describe("handles menu position when input is focused", () => {
       it("sets button and menu width and position when non-multi-input totp field is focused", async () => {
@@ -3604,6 +3623,22 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(openUnlockPopoutSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("forceCloseAutofillInlineMenu message handler", () => {
+      it("force closes the inline menu", async () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "forceCloseAutofillInlineMenu",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          listMessageConnectorSpy.sender.tab,
+          { command: "closeAutofillInlineMenu", overlayElement: undefined },
+          { frameId: 0 },
+        );
       });
     });
 

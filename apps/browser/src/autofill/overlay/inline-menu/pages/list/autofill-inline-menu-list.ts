@@ -12,6 +12,7 @@ import { InlineMenuFillType } from "../../../../enums/autofill-overlay.enum";
 import { buildSvgDomElement, specialCharacterToKeyMap, throttle } from "../../../../utils";
 import { EventSecurity } from "../../../../utils/event-security";
 import {
+  closeIcon,
   creditCardIcon,
   globeIcon,
   idCardIcon,
@@ -122,6 +123,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (!showAnimations) {
       this.inlineMenuListContainer.classList.add("no-animations");
     }
+    this.inlineMenuListContainer.appendChild(this.buildCloseButtonRow());
     this.resizeObserver.observe(this.inlineMenuListContainer);
 
     this.shadowDom.append(linkElement, this.inlineMenuListContainer);
@@ -571,7 +573,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
-   * Clears and resets the inline menu list container.
+   * Clears and resets the inline menu list container. The close button row is
+   * re-appended so that every view presented within the container retains the
+   * ability to dismiss the inline menu.
    */
   private resetInlineMenuContainer() {
     if (this.inlineMenuListContainer) {
@@ -579,8 +583,37 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.inlineMenuListContainer.classList.remove(
         "inline-menu-list-container--with-new-item-button",
       );
+      this.inlineMenuListContainer.appendChild(this.buildCloseButtonRow());
     }
   }
+
+  /**
+   * Builds a row containing a close button that allows the user to dismiss the
+   * inline menu, e.g. when it covers page content they need to see. Dismissal is
+   * also available through the Escape key.
+   */
+  private buildCloseButtonRow(): HTMLDivElement {
+    const closeButton = globalThis.document.createElement("button");
+    closeButton.type = "button";
+    closeButton.tabIndex = -1;
+    closeButton.classList.add("inline-menu-list-close-button");
+    closeButton.setAttribute("aria-label", this.getTranslation("close"));
+    closeButton.append(buildSvgDomElement(closeIcon));
+    closeButton.addEventListener(EVENTS.CLICK, this.handleCloseButtonClick);
+
+    const closeButtonRow = globalThis.document.createElement("div");
+    closeButtonRow.classList.add("inline-menu-list-close-row");
+    closeButtonRow.appendChild(closeButton);
+
+    return closeButtonRow;
+  }
+
+  /**
+   * Handles clicks on the close button, triggering a forced closure of the inline menu.
+   */
+  private handleCloseButtonClick = () => {
+    this.postMessageToParent({ command: "forceCloseAutofillInlineMenu" });
+  };
 
   /**
    * Inline menu view that is presented when no ciphers are found for a given page.

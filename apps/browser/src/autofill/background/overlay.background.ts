@@ -245,6 +245,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     refreshGeneratedPassword: () => this.updateGeneratedPassword(true),
     fillGeneratedPassword: ({ port }) => this.fillGeneratedPassword(port),
     refreshOverlayCiphers: () => this.updateOverlayCiphers(false),
+    forceCloseAutofillInlineMenu: ({ port }) =>
+      this.closeInlineMenu(port.sender, { forceCloseInlineMenu: true }),
   };
 
   constructor(
@@ -2520,9 +2522,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (port.sender) {
-      await this.openInlineMenu(port.sender, true);
+    if (!port.sender) {
+      return;
     }
+
+    // Toggle behavior: clicking the button while the list is open closes the
+    // list, allowing the user to dismiss it when it covers page content.
+    if (this.isInlineMenuListVisible) {
+      this.closeInlineMenu(port.sender, {
+        forceCloseInlineMenu: true,
+        overlayElement: AutofillOverlayElement.List,
+      });
+      return;
+    }
+
+    await this.openInlineMenu(port.sender, true);
   }
 
   /**
@@ -2609,6 +2623,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         "addNewVaultItem",
         "authenticating",
         "cardNumberEndsWith",
+        "close",
         "fillCredentialsFor",
         "fillGeneratedPassword",
         "fillVerificationCode",

@@ -1234,6 +1234,22 @@ describe("AutofillInlineMenuList", () => {
       });
     });
 
+    describe("close button", () => {
+      it("posts a message to force close the inline menu when clicked", () => {
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
+
+        const closeButton = autofillInlineMenuList["inlineMenuListContainer"].querySelector(
+          ".inline-menu-list-close-button",
+        ) as HTMLButtonElement;
+        closeButton.dispatchEvent(new Event("click"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "forceCloseAutofillInlineMenu", portKey, token: "test-token" },
+          expectedOrigin,
+        );
+      });
+    });
+
     describe("blur event", () => {
       it("posts a message to the parent window indicating that the inline menu has lost focus", () => {
         postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
