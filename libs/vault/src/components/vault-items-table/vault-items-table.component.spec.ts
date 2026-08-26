@@ -137,6 +137,9 @@ function batchBarDouble() {
     source,
     selected,
     selectedCount: computed(() => selected().length),
+    // Mirrors the real service: the bar shows once anything is selected. The table reads this to
+    // hold scroll space below the last row so the fixed bar can't cover it.
+    barVisible: computed(() => selected().length > 0),
     registerSelection: (next: VaultSelectionSource<CipherViewLike>) => {
       source.set(next);
       return () => {
@@ -1665,6 +1668,35 @@ describe("VaultItemsTableComponent", () => {
       expect(rowBoxes.length).toBe(2);
       // Every checkbox present is a row's — none is the header's select-all.
       expect(all.length).toBe(rowBoxes.length);
+    });
+
+    /**
+     * The bulk-actions bar is `position: fixed`, so it never displaces content. Without reserved
+     * scroll space the last row sits permanently beneath it, and its checkbox and quick actions
+     * can't be clicked — so the table holds space below the last row while the bar is showing.
+     */
+    it("reserves scroll space below the last row only while the bar is showing", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.detectChanges();
+
+      const viewport = () =>
+        fixture.debugElement.query(By.css("cdk-virtual-scroll-viewport"))
+          .nativeElement as HTMLElement;
+
+      expect(viewport().style.paddingBottom).toBe("");
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+
+      // Enough to clear the bar; the exact figure lives with BULK_BAR_CLEARANCE, so assert that
+      // space is held rather than pinning a number the constant is free to tune.
+      expect(parseInt(viewport().style.paddingBottom, 10)).toBeGreaterThan(0);
+
+      selectionModel().clear();
+      fixture.detectChanges();
+
+      expect(viewport().style.paddingBottom).toBe("");
     });
 
     /**

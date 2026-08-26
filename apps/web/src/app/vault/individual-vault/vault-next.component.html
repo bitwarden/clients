@@ -37,3 +37,7 @@
     }
   </div>
 </vault-items-table>
+
+@if (vaultBatchBarFeatureFlag()) {
+  <bit-vault-batch-action />
+}

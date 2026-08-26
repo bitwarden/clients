@@ -272,6 +272,18 @@ export class BitTableV2Component<T = unknown, S extends string = never, F = Reco
    */
   readonly height = input<"fill" | number>();
 
+  /**
+   * Extra scrollable space (px) below the last row.
+   *
+   * For content that floats over the bottom of the table — a fixed bulk-actions bar, say. Padding
+   * the scroll container extends its scroll height, so the last row can be scrolled clear of the
+   * overlay instead of sitting permanently beneath it, where its controls can't be reached.
+   *
+   * The table doesn't know what is overlapping it, so the host supplies the height it needs
+   * cleared, typically bound to whether that overlay is showing.
+   */
+  readonly scrollPaddingBottom = input<number>(0);
+
   /** Optional trackBy for the virtualized row list. */
   readonly trackBy = input<TrackByFunction<T>>();
 

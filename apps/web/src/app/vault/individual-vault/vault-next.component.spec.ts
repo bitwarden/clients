@@ -2,13 +2,14 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, ParamMap } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of, Subject } from "rxjs";
+import { BehaviorSubject, Observable, of, Subject } from "rxjs";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -30,6 +31,7 @@ import {
   VaultCopyButtonsService,
   VaultNavItemType,
   VaultNavItemViewModel,
+  VaultBatchBarService,
   VaultNavService,
   VaultsNavViewModel,
 } from "@bitwarden/vault";
@@ -45,6 +47,13 @@ describe("VaultNextComponent", () => {
 
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
+  let batchBarService: {
+    setConfig: jest.Mock;
+    clearSelection: jest.Mock;
+    completed$: Observable<void>;
+    barVisible: () => boolean;
+  };
+  let configService: MockProxy<ConfigService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let addItemDialogOpen: jest.SpyInstance;
@@ -143,6 +152,14 @@ describe("VaultNextComponent", () => {
     });
 
     itemActions = mock<WebVaultItemActionsService>();
+    batchBarService = {
+      setConfig: jest.fn(),
+      clearSelection: jest.fn(),
+      completed$: new Subject<void>(),
+      barVisible: () => false,
+    };
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     cipherRowMenuService = mock<CipherRowMenuService>();
     cipherRowMenuService.getRowActions.mockReturnValue([]);
@@ -196,6 +213,7 @@ describe("VaultNextComponent", () => {
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
         { provide: VaultNavService, useValue: { viewModel$: vaultNav$ } },
+        { provide: ConfigService, useValue: configService },
       ],
     })
       .overrideComponent(VaultNextComponent, {
@@ -207,7 +225,13 @@ describe("VaultNextComponent", () => {
           // unresolved pipe.
           imports: [I18nPipe],
           schemas: [NO_ERRORS_SCHEMA],
-          providers: [{ provide: WebVaultItemActionsService, useValue: itemActions }],
+          providers: [
+            { provide: WebVaultItemActionsService, useValue: itemActions },
+            // A stand-in for the bulk-action bar, carrying only what this component touches. The
+            // real service would pull in dialogs, authorization, and archive — none of which the
+            // page's own wiring exercises.
+            { provide: VaultBatchBarService, useValue: batchBarService },
+          ],
         },
       })
       .compileComponents();
@@ -600,6 +624,48 @@ describe("VaultNextComponent", () => {
       await component().openAddItemDialog();
 
       expect(itemActions.add).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("bulk actions", () => {
+    /**
+     * The bar's `can*` permission signals read this context, so it has to reflect the page. An
+     * individual vault is never `isOrgVault` — that means the admin console's admin endpoints.
+     */
+    it("feeds the batch bar the vault context", () => {
+      fixture.detectChanges();
+
+      expect(batchBarService.setConfig).toHaveBeenCalledWith(
+        expect.objectContaining({ isOrgVault: false }),
+      );
+    });
+
+    it("reports whether the page has ciphers, which gates assign-to-collections", () => {
+      fixture.detectChanges();
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.hasCiphers).toBe(component().ciphers().length > 0);
+    });
+
+    /**
+     * The unscoped collections, not the scoped ones the table's chip lists: assigning an item to a
+     * collection isn't limited to the collections this page happens to show.
+     */
+    it("passes the unscoped collections", () => {
+      fixture.detectChanges();
+
+      const [config] = batchBarService.setConfig.mock.calls.at(-1)!;
+      expect(config.allCollections).toEqual(component().collections());
+    });
+
+    /** A completed action leaves rows selected that were just deleted, archived, or moved. */
+    it("clears the selection once a bulk action completes", () => {
+      fixture.detectChanges();
+      expect(batchBarService.clearSelection).not.toHaveBeenCalled();
+
+      (batchBarService.completed$ as Subject<void>).next();
+
+      expect(batchBarService.clearSelection).toHaveBeenCalled();
     });
   });
 });

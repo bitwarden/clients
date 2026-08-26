@@ -88,6 +88,15 @@ export const VAULT_FILTER_NAMESPACE = "vault";
 export const MAX_SELECTION_COUNT = 500;
 
 /**
+ * Scroll space (px) reserved below the last row while the bulk-actions bar is showing: the bar's
+ * own height and bottom margin (53 + 16)
+ *
+ * The bar is `position: fixed`, so it never displaces content — without this the last row sits
+ * permanently beneath it and its checkbox and quick actions can't be clicked.
+ */
+const BULK_BAR_CLEARANCE = 69;
+
+/**
  * The `key` values for each filter chip in the vault table.
  * Export these so consumers (the guard, deep-link builders) can reference them
  * without coupling to string literals that diverge over time.
@@ -260,6 +269,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   protected readonly filterNamespace = VAULT_FILTER_NAMESPACE;
   protected readonly filterKeys = VAULT_FILTER_KEYS;
+
+  /**
+   * Scroll space held below the last row while the bulk-actions bar is up, so the row can be
+   * scrolled clear of it rather than sitting underneath — where its checkbox and quick actions
+   * would be unreachable. {@link BULK_BAR_CLEARANCE} covers the bar itself plus a visible gap.
+   */
+  protected readonly bulkBarClearance = computed(() =>
+    this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,
+  );
 
   /** The rows to display. */
   readonly ciphers = input.required<C[]>();

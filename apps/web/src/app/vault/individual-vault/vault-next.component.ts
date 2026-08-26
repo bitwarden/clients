@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  untracked,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
 import { combineLatest, firstValueFrom, map, shareReplay, switchMap } from "rxjs";
 
@@ -7,6 +14,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -19,6 +28,8 @@ import { I18nPipe, safeProvider } from "@bitwarden/ui-common";
 import {
   AddItemDialogComponent,
   AddItemDialogResult,
+  ASSIGN_COLLECTIONS_DIALOG,
+  BULK_DELETE_DIALOG,
   CipherRowMenuHandlers,
   CipherRowMenuService,
   DEFAULT_COPY_PRESENTATION,
@@ -30,6 +41,10 @@ import {
   VaultItemsTableRowAction,
   VaultNavService,
   VaultOrganizationUserNotificationsComponent,
+  RoutedVaultFilterBridgeService,
+  RoutedVaultFilterService,
+  VaultBatchActionComponent,
+  VaultBatchBarService,
   ALL_ITEMS_SCOPE,
   cipherInScope,
   collectionInScope,
@@ -40,8 +55,10 @@ import {
 
 import { HeaderModule } from "../../layouts/header/header.module";
 import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
+import { AssignCollectionsWebDialogAdapter } from "../components/assign-collections/assign-collections-web-dialog.adapter";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
+import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -68,6 +85,7 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
     HeaderModule,
     NewCipherMenuComponent,
     VaultBannersComponent,
+    VaultBatchActionComponent,
     VaultItemsTableComponent,
     VaultOnboardingComponent,
     VaultOrganizationUserNotificationsComponent,
@@ -75,6 +93,13 @@ import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.co
   providers: [
     safeProvider({ provide: DefaultCipherFormConfigService, useAngularDecorators: true }),
     safeProvider({ provide: WebVaultItemActionsService, useAngularDecorators: true }),
+    // The bulk-action bar. Provided here rather than higher up so its selection lives and dies
+    // with this page; the table registers its own selection as the bar's source.
+    VaultBatchBarService,
+    RoutedVaultFilterService,
+    RoutedVaultFilterBridgeService,
+    { provide: ASSIGN_COLLECTIONS_DIALOG, useClass: AssignCollectionsWebDialogAdapter },
+    { provide: BULK_DELETE_DIALOG, useClass: BulkDeleteDialogWebAdapter },
   ],
 })
 export class VaultNextComponent {
@@ -91,6 +116,8 @@ export class VaultNextComponent {
   private readonly vaultNavService = inject(VaultNavService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
+  private readonly batchBarService = inject(VaultBatchBarService);
+  private readonly configService = inject(ConfigService);
 
   private readonly userId$ = this.accountService.activeAccount$.pipe(getUserId);
 
@@ -229,6 +256,40 @@ export class VaultNextComponent {
         return undefined;
     }
   });
+
+  /** Gates the bulk-actions bar; the service gates its own `barVisible` on the same flag. */
+  protected readonly vaultBatchBarFeatureFlag = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.PM37785_VaultBatchBar),
+    { initialValue: false },
+  );
+
+  /**
+   * Feeds the batch bar the vault context its `can*` permission signals read.
+   *
+   * An individual vault is never `isOrgVault` — that flag means the admin console, which reaches
+   * ciphers through admin endpoints. `allCollections` is the unscoped set, since assigning an item
+   * to a collection isn't limited to the ones this page happens to show.
+   */
+  private readonly configureBatchBar = effect(() => {
+    const collections = this.collections();
+    const hasCiphers = this.ciphers().length > 0;
+    untracked(() =>
+      this.batchBarService.setConfig({
+        isOrgVault: false,
+        allCollections: collections,
+        hasCiphers,
+      }),
+    );
+  });
+
+  constructor() {
+    // A completed bulk action leaves the list stale — the rows it acted on are deleted, archived,
+    // or moved. `cipherListViews$` is the source of truth and re-emits on its own once the vault
+    // state settles, so this only has to clear the selection's hold on the acted-on rows.
+    this.batchBarService.completed$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.batchBarService.clearSelection();
+    });
+  }
 
   protected readonly copyPresentation = toSignal(
     this.copyButtonsService.showQuickCopyActions$.pipe(
