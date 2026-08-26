@@ -71,6 +71,13 @@ export class SubscriptionCardComponent {
 
   readonly showUpgradeButton = input<boolean>(false);
 
+  /**
+   * Suppresses the status callout entirely. Used when the consumer is responsible for billing
+   * messaging elsewhere — e.g. reseller organizations exempt from billing automation, which should
+   * not be shown past-due/unpaid prompts.
+   */
+  readonly hideCallout = input<boolean>(false);
+
   readonly callToActionClicked = output<SubscriptionCardAction>();
 
   readonly badge = computed<Badge>(() => {
@@ -132,6 +139,9 @@ export class SubscriptionCardComponent {
   });
 
   readonly callout = computed<Callout>(() => {
+    if (this.hideCallout()) {
+      return null;
+    }
     const subscription = this.subscription();
     switch (subscription.status) {
       case SubscriptionStatuses.Incomplete: {

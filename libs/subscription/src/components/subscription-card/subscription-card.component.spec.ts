@@ -229,6 +229,20 @@ describe("SubscriptionCardComponent", () => {
   });
 
   describe("Callout rendering", () => {
+    it("suppresses the callout when hideCallout is set, even for a billing-problem status", () => {
+      setupComponent({
+        ...baseSubscription,
+        status: "past_due",
+        suspension: new Date("2025-02-05"),
+        gracePeriod: 14,
+      });
+      fixture.componentRef.setInput("hideCallout", true);
+      fixture.detectChanges();
+
+      expect(component.callout()).toBeNull();
+      expect(fixture.debugElement.query(By.css("bit-callout"))).toBeNull();
+    });
+
     it("should display incomplete callout with update payment and contact support actions", () => {
       setupComponent({
         ...baseSubscription,
