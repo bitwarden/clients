@@ -8,10 +8,8 @@ import { TokenService } from "@bitwarden/common/auth/abstractions/token.service"
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
 import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/event-upload.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { SharedUnlockLeaderService } from "@bitwarden/common/key-management/shared-unlock";
+import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
@@ -62,8 +60,7 @@ export class InitService {
     private autotypeMvpService: DesktopAutotypeMvpService,
     private sdkLoadService: SdkLoadService,
     private ipcService: IpcService,
-    private sharedUnlockLeaderService: SharedUnlockLeaderService,
-    private configService: ConfigService,
+    private sharedUnlockPeerService: SharedUnlockPeerService,
     private biometricMessageHandlerService: BiometricMessageHandlerService,
     private biometricsService: BiometricsService,
     private legacyCompatKeyService: LegacyCompatKeyService,
@@ -124,9 +121,7 @@ export class InitService {
       );
       containerService.attachToGlobal(this.win);
 
-      if (await this.configService.getFeatureFlag(FeatureFlag.SharedUnlockPart1)) {
-        await this.sharedUnlockLeaderService.start();
-      }
+      await this.sharedUnlockPeerService.start();
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();
       await this.autotypeMvpService.init();
