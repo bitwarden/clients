@@ -18579,9 +18579,6 @@
       }
     }
   },
-  "pamPendingRequestBannerHeading": {
-    "message": "Access request pending approval"
-  },
   "pamApprovedRequestBannerHeading": {
     "message": "Access approved"
   },
@@ -19759,8 +19756,8 @@
   "pamAccessRequestLoadError": {
     "message": "Couldn't load this access request."
   },
-  "pamPendingBannerTitle": {
-    "message": "Your access request is awaiting approval"
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
   },
   "pamApprovedRequestBannerTitle": {
     "message": "Your access is approved — start it when you're ready"
