@@ -63,7 +63,7 @@ export class DefaultUnlockService implements UnlockService {
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private stateProvider: StateProvider,
     protected logService: LogService,
-    private biometricsService: BiometricsService,
+    protected biometricsService: BiometricsService,
     private biometricStateService: BiometricStateService,
     private v2UpgradeTokenStateService: V2UpgradeTokenStateService,
     private autoUnlockService: AutoUnlockService,
