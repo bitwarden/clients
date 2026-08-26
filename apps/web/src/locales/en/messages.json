@@ -17986,9 +17986,6 @@
   "accessRuleIpAllowlistCidrPlaceholder": {
     "message": "e.g. 10.0.0.0/8"
   },
-  "accessRuleIpAllowlistCidrHint": {
-    "message": "Enter one IP range per line in CIDR notation."
-  },
   "accessRuleIpAllowlistCidrRowHint": {
     "message": "Add one IP range per row, in CIDR notation."
   },
