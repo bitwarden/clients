@@ -15,8 +15,8 @@ import { CollectionView } from "@bitwarden/common/admin-console/models/collectio
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
-import { UserId } from "@bitwarden/common/types/guid";
+import { SdkService, uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
+import { CollectionId, UserId } from "@bitwarden/common/types/guid";
 import { DecryptCollectionListResult } from "@bitwarden/sdk-internal";
 
 import { CollectionEncryptionService } from "../abstractions/collection-encryption.service";
@@ -113,8 +113,8 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
       concatMap(async (sdk) => {
         using ref = sdk.take();
 
-        const collectionMap = new Map<string, Collection>(
-          collections.map((c) => [c.id as unknown as string, c]),
+        const collectionsById = new Map<CollectionId, Collection>(
+          collections.map((c) => [c.id, c]),
         );
         const sdkCollections = collections.map((c) => c.toSdkCollection());
         const result: DecryptCollectionListResult = ref.value
@@ -124,15 +124,17 @@ export class DefaultCollectionEncryptionService implements CollectionEncryptionS
 
         const success: CollectionView[] = [];
         for (const sdkView of result.successes) {
-          const id = sdkView.id as unknown as string;
-          const collection = collectionMap.get(id);
+          const collection = sdkView.id
+            ? collectionsById.get(uuidAsString(sdkView.id) as CollectionId)
+            : undefined;
           if (collection) {
             success.push(CollectionView.fromSdkCollectionView(sdkView, collection));
           }
         }
 
         for (const failed of result.failures) {
-          this.logService.error(`Failed to decrypt collection ${failed.id}: not returned by SDK`);
+          const id = failed.id ? uuidAsString(failed.id) : "(unknown id)";
+          this.logService.error(`Failed to decrypt collection ${id}: not returned by SDK`);
         }
 
         return success;
