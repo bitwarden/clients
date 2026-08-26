@@ -97,6 +97,7 @@ import {
   SharedUnlockSettingsService,
   DefaultSharedUnlockSettingsService,
 } from "@bitwarden/common/key-management/shared-unlock";
+import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import {
   VaultTimeoutService,
   VaultTimeoutStringType,
@@ -115,6 +116,7 @@ import {
   MessagingService as MessagingServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkClientFactory } from "@bitwarden/common/platform/abstractions/sdk/sdk-client-factory";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
@@ -183,7 +185,12 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
-import { ForegroundLockService, LockService } from "@bitwarden/unlock";
+import {
+  AutoUnlockService,
+  ForegroundLockService,
+  LockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   DefaultSshImportPromptService,
   PasswordRepromptService,
@@ -211,6 +218,7 @@ import { ForegroundBrowserBiometricsService } from "../../key-management/biometr
 import { ExtensionLockComponentService } from "../../key-management/lock/services/extension-lock-component.service";
 import { BrowserSessionTimeoutSettingsComponentService } from "../../key-management/session-timeout/services/browser-session-timeout-settings-component.service";
 import { BrowserSessionTimeoutTypeService } from "../../key-management/session-timeout/services/browser-session-timeout-type.service";
+import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import { ForegroundVaultTimeoutService } from "../../key-management/vault-timeout/foreground-vault-timeout.service";
 import { BrowserActionsService } from "../../platform/actions/browser-actions.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -647,7 +655,6 @@ const safeProviders: SafeProvider[] = [
       WebAuthnPrfUnlockService,
       SharedUnlockSettingsService,
       ConfigService,
-      MessageListener,
     ],
   }),
   // TODO: PM-18182 - Refactor component services into lazy loaded modules
@@ -709,6 +716,29 @@ const safeProviders: SafeProvider[] = [
       WINDOW,
       LogService,
     ],
+  }),
+  safeProvider({
+    provide: ForegroundUnlockService,
+    useClass: ForegroundUnlockService,
+    deps: [
+      RegisterSdkService,
+      AccountCryptographicStateService,
+      KdfConfigService,
+      AccountServiceAbstraction,
+      InternalMasterPasswordServiceAbstraction,
+      StateProvider,
+      LogService,
+      BiometricsService,
+      BiometricStateService,
+      V2UpgradeTokenStateService,
+      AutoUnlockService,
+      MessageSender,
+      MessageListener,
+    ],
+  }),
+  safeProvider({
+    provide: UnlockService,
+    useExisting: ForegroundUnlockService,
   }),
   safeProvider({
     provide: AnimationControlService,
