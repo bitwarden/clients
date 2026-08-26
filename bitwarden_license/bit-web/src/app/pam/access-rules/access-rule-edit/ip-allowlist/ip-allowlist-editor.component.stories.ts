@@ -55,7 +55,6 @@ export default {
                 "Only requests originating from these IP ranges will be allowed.",
               accessRuleIpAllowlistCidrLabel: "CIDR range",
               accessRuleIpAllowlistCidrPlaceholder: "e.g. 10.0.0.0/8",
-              accessRuleIpAllowlistCidrRowHint: "Add one IP range per row, in CIDR notation.",
               accessRuleIpAllowlistRemoveRow: "Remove CIDR range",
               accessRuleIpAllowlistDuplicateCidr: "This CIDR range has already been added.",
               accessRuleIpAllowlistAtLeastOne: "Add at least one CIDR range.",

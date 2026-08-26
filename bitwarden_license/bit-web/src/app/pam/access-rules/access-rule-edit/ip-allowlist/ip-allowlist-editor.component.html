@@ -12,11 +12,10 @@
         [readonly]="readonly()"
         (blur)="markTouched()"
       />
-      @if (!readonly() && control.value.trim().length > 0) {
+      @if (!readonly() && cidrArray().length > 1) {
         <button
-          bitSuffix
+          slot="inline-end"
           bitIconButton="bwi-trash"
-          size="small"
           type="button"
           buttonType="dangerGhost"
           [title]="'accessRuleIpAllowlistRemoveRow' | i18n"
@@ -27,10 +26,6 @@
     </bit-form-field>
   }
 </div>
-
-<p bitTypography="helper" class="tw-text-muted">
-  {{ "accessRuleIpAllowlistCidrRowHint" | i18n }}
-</p>
 
 @if (cidrArray().touched && cidrArray().hasError("duplicateCidrs")) {
   <p class="tw-text-danger" bitTypography="helper">
