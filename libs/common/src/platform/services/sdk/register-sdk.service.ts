@@ -50,7 +50,19 @@ class JsTokenProvider implements TokenProvider {
       return undefined;
     }
 
-    return await this.apiService.getActiveBearerToken(this.userId);
+    try {
+      return await this.apiService.getActiveBearerToken(this.userId);
+    } catch {
+      // The SDK's Rust-side TokenProvider currently panics (WASM `unreachable` trap, killing the
+      // whole process) if this promise rejects, instead of treating a failed lookup as a
+      // recoverable "no token" case - see crates/bitwarden-wasm-internal/src/platform
+      // /token_provider.rs upstream. Most commonly this happens when a token refresh attempt
+      // fails because the server is unreachable. Falling back to `undefined` here - already a
+      // supported return value, per the branch above - avoids ever handing the SDK a rejected
+      // promise, so operations that don't actually need a live token (e.g. local vault
+      // unlock/decrypt) keep working.
+      return undefined;
+    }
   }
 }
 
