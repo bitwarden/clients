@@ -1430,6 +1430,18 @@
   "aboutFillAssistLabelV2": {
     "message": "About fill assist"
   },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Allow websites to exclude fields to autofill"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Allow websites to add fields to autofill"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
+  },
   "enableContextMenuItem": {
     "message": "Show context menu options"
   },
@@ -7901,6 +7913,9 @@
     "message": "Risks identified",
     "description": "Section heading above the list of risk categories on the Health Overview."
   },
+  "upgradeToViewPasswords": {
+    "message": "Upgrade to view passwords"
+  },
   "categoryHealthy": {
     "message": "No items need attention",
     "description": "Accessible label for the checkmark shown on a risk category with a count of zero."
@@ -7965,7 +7980,7 @@
   },
   "exposedPasswordsEmpty": {
     "message": "None of your passwords were found in data breaches."
-  },  
+  },
   "weakPasswordEmpty": {
     "message": "All your passwords are strong."
   },
