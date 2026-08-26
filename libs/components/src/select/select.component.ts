@@ -14,6 +14,7 @@ import {
   Signal,
   model,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { ControlValueAccessor, NgControl, ReactiveFormsModule, FormsModule } from "@angular/forms";
@@ -25,6 +26,7 @@ import { BitFormFieldControlDirective } from "../form-field";
 import { IconComponent } from "../icon";
 import {
   IconTileComponent,
+  IconTileOptions,
   IconTileVariant,
   resolveIconTileColor,
   resolveIconTileVariant,
@@ -33,6 +35,33 @@ import { TypographyDirective } from "../typography/typography.directive";
 
 import { Option } from "./option";
 import { OptionComponent } from "./option.component";
+
+function sameIconTile(a: IconTileOptions | undefined, b: IconTileOptions | undefined): boolean {
+  return (
+    a === b ||
+    (a != null &&
+      b != null &&
+      a.icon === b.icon &&
+      a.variant === b.variant &&
+      a.color === b.color &&
+      a.emphasis === b.emphasis)
+  );
+}
+
+function sameOptions<T>(a: Option<T>[] | undefined, b: Option<T>[]): boolean {
+  if (a == null || a.length !== b.length) {
+    return false;
+  }
+  return a.every(
+    (prev, i) =>
+      prev.icon === b[i].icon &&
+      sameIconTile(prev.iconTile, b[i].iconTile) &&
+      prev.value === b[i].value &&
+      prev.label === b[i].label &&
+      prev.description === b[i].description &&
+      prev.disabled === b[i].disabled,
+  );
+}
 
 @Component({
   selector: "bit-select",
@@ -104,16 +133,17 @@ export class SelectComponent<T> implements ControlValueAccessor {
         if (opts.length === 0) {
           return;
         }
-        this.items.set(
-          opts.map((option) => ({
-            icon: option.icon(),
-            iconTile: option.iconTile(),
-            value: option.value(),
-            label: option.label(),
-            description: option.description(),
-            disabled: option.disabled(),
-          })),
-        );
+        const mapped = opts.map((option) => ({
+          icon: option.icon(),
+          iconTile: option.iconTile(),
+          value: option.value(),
+          label: option.label(),
+          description: option.description(),
+          disabled: option.disabled(),
+        }));
+        if (!sameOptions(untracked(this.items), mapped)) {
+          this.items.set(mapped);
+        }
       },
     });
   }
