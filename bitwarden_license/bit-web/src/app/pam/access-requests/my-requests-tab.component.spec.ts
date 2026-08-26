@@ -176,8 +176,6 @@ describe("MyRequestsTabComponent", () => {
     const row = requestRow({ id: "req-1" });
 
     it("maps the server's reason to a client-side i18n key without leaking the raw payload", async () => {
-      // The real `.message` on the "Api" variant, not a tidied stand-in: a clean sentence here
-      // passes while the browser is handed the whole serialized body, filesystem paths included.
       const error = Object.assign(
         new Error(
           'error in response: status code 409 Conflict: {"object":"error",' +
