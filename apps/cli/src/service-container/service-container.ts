@@ -356,6 +356,7 @@ export class ServiceContainer {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
+  storageServiceProvider: StorageServiceProvider;
   passwordPreloginService: PasswordPreloginService;
   loginStrategyService: LoginStrategyServiceAbstraction;
   avatarService: AvatarServiceAbstraction;
@@ -436,6 +437,7 @@ export class ServiceContainer {
       this.storageService,
       this.memoryStorageForStateProviders,
     );
+    this.storageServiceProvider = storageServiceProvider;
 
     this.globalStateProvider = new DefaultGlobalStateProvider(
       storageServiceProvider,
@@ -1218,6 +1220,7 @@ export class ServiceContainer {
       global,
       this.configService,
       this.stateProvider,
+      this.storageServiceProvider,
       undefined,
       this.accountService,
       this.authService,

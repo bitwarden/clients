@@ -27,6 +27,7 @@ import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { FlightRecorderService } from "@bitwarden/logging-angular";
+import { StorageServiceProvider } from "@bitwarden/storage-core";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { VersionService } from "../platform/version.service";
@@ -59,6 +60,7 @@ export class InitService {
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
     private stateProvider: StateProvider,
+    private storageServiceProvider: StorageServiceProvider,
     private logService: LogService,
   ) {}
 
@@ -117,6 +119,7 @@ export class InitService {
         this.win,
         this.configService,
         this.stateProvider,
+        this.storageServiceProvider,
         this.flightRecorder,
         this.accountService,
         this.authService,

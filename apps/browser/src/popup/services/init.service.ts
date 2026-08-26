@@ -13,6 +13,7 @@ import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FlightRecorderService } from "@bitwarden/logging-angular";
+import { StorageServiceProvider } from "@bitwarden/storage-core";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
@@ -25,6 +26,7 @@ export class InitService {
   private sizeService = inject(PopupSizeService);
   private configService = inject(ConfigService);
   private stateProvider = inject(StateProvider);
+  private storageServiceProvider = inject(StorageServiceProvider);
   private accountService = inject(AccountService);
   private authService = inject(AuthService);
   private lockService = inject(LockService);
@@ -58,6 +60,7 @@ export class InitService {
         self,
         this.configService,
         this.stateProvider,
+        this.storageServiceProvider,
         this.flightRecorder,
         this.accountService,
         this.authService,
