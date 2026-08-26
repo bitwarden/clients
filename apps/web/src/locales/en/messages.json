@@ -16916,6 +16916,9 @@
   "pamAccessRuleViewEventLogs": {
     "message": "View event logs"
   },
+  "pamAccessRuleViewAuditLog": {
+    "message": "View audit log"
+  },
   "pamAccessRuleCollectionsLoadError": {
     "message": "Couldn't load collections. Refresh the page to try again."
   },
