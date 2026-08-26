@@ -104,9 +104,13 @@
 } @else if (canRequestAccess()) {
   <bit-callout
     type="info"
-    [title]="'pamRequestAccessBannerTitle' | i18n"
+    [title]="'pamRequestAccessBannerHeading' | i18n"
     data-testid="cipher-view-banner-request"
   >
+    <p bitTypography="body2" class="tw-mb-3 tw-mt-0">
+      {{ "pamRequestAccessBannerBody" | i18n }}
+    </p>
+
     <div class="tw-flex tw-flex-wrap tw-items-center tw-justify-between tw-gap-2">
       <app-pam-access-state-badge [state]="badge()" />
       <button
