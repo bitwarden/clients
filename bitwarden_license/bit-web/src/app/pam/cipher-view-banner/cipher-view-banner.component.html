@@ -156,13 +156,13 @@
 
             <bit-form-field>
               <bit-label>{{ "requestAccessModalReasonOptional" | i18n }}</bit-label>
-              <input
+              <textarea
                 bitInput
-                type="text"
+                rows="3"
                 formControlName="reason"
                 [placeholder]="'requestAccessModalReasonPlaceholder' | i18n"
-                id="pam-cipher-view-banner_input_automatic-reason"
-              />
+                id="pam-cipher-view-banner_textarea_automatic-reason"
+              ></textarea>
               <bit-hint>{{ "requestAccessModalReasonHint" | i18n }}</bit-hint>
             </bit-form-field>
           </form>
