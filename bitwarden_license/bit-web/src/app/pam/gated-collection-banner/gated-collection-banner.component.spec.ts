@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, of } from "rxjs";
+import { BehaviorSubject, of, Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -125,6 +125,53 @@ describe("GatedCollectionBannerComponent", () => {
 
     expect(banner()).toBeNull();
     expect(governedCollections.rules$).not.toHaveBeenCalled();
+  });
+
+  // `NgComponentOutlet` reuses one banner instance and swaps its inputs, so a verdict left
+  // standing from the previous collection is shown over the new one's items.
+  it("stops explaining the previous collection's restriction while the new collection's rules load", () => {
+    const pendingRules$ = new Subject<AccessRuleView[]>();
+    organizations$.next([
+      { id: PAM_ORG, usePam: true },
+      { id: OTHER_PAM_ORG, usePam: true },
+    ]);
+    governedCollections.rules$.mockImplementation((organizationId) =>
+      organizationId === PAM_ORG ? of([accessRule(true, [COLLECTION])]) : pendingRules$,
+    );
+
+    create(PAM_ORG, COLLECTION);
+    expect(banner()).not.toBeNull();
+
+    fixture.componentRef.setInput("organizationId", OTHER_PAM_ORG);
+    fixture.detectChanges();
+
+    expect(banner()).toBeNull();
+
+    pendingRules$.next([accessRule(true, [COLLECTION])]);
+    fixture.detectChanges();
+
+    expect(banner()).not.toBeNull();
+  });
+
+  // `getFeatureFlag$` and `organizations$` both re-emit on unrelated upstream events (a config
+  // refresh, any sync write) with no de-duplication of their own. A re-run of the rules read on
+  // every such re-emission would re-trigger its `startWith(false)` seed and blink a settled
+  // banner off and back on, even though the selected collection never changed.
+  it("does not re-read rules when an unrelated upstream source re-emits for the same collection", () => {
+    create(PAM_ORG, COLLECTION);
+    expect(banner()).not.toBeNull();
+    expect(governedCollections.rules$).toHaveBeenCalledTimes(1);
+
+    enabled$.next(true);
+    fixture.detectChanges();
+    organizations$.next([
+      { id: PAM_ORG, usePam: true },
+      { id: PLAIN_ORG, usePam: false },
+    ]);
+    fixture.detectChanges();
+
+    expect(banner()).not.toBeNull();
+    expect(governedCollections.rules$).toHaveBeenCalledTimes(1);
   });
 
   it("does not read rules when the PAM flag is off", () => {
