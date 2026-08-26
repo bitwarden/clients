@@ -41,7 +41,7 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
-import { MyAccessLeaseRow, MyAccessRequestRow } from "./my-access-row";
+import { MyAccessLeaseRow, MyAccessRequestRow, terminalStatusBadge } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 /** A row carrying the id + collection fields the toolbar filters against. */
@@ -252,6 +252,25 @@ export class MyRequestsTabComponent implements OnInit {
       row.producedLeaseId == null &&
       Date.parse(row.leaseNotAfter) > this.nowMs()
     );
+  }
+
+  /**
+   * The status badge for a row in the Pending table, which holds two statuses: still awaiting a
+   * decision, and approved but not yet activated.
+   *
+   * Reads the row model's own badge, except for an approved request whose window has already
+   * lapsed. The row model is deliberately time-agnostic because it also feeds the approver
+   * surfaces, while this table withholds both Start and Cancel from a lapsed row — so badging it
+   * "Approved" would promise access the row can no longer produce. It reads as Expired instead,
+   * the label History gives it once the server expires it.
+   */
+  protected pendingStatus(
+    row: MyAccessRequestRow,
+  ): Pick<MyAccessRequestRow, "badgeState" | "statusBadge"> {
+    if (row.status === "approved" && row.producedLeaseId == null && !this.canStart(row)) {
+      return { badgeState: null, statusBadge: terminalStatusBadge("expired") };
+    }
+    return { badgeState: row.badgeState, statusBadge: row.statusBadge };
   }
 
   /**
