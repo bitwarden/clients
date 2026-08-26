@@ -18,7 +18,7 @@ function row(overrides: Partial<AuditRow> = {}): AuditRow {
     inDoubt: false,
     requestId: null,
     duration: null,
-    durationWindow: null,
+    exactWindow: null,
     extendedUntil: null,
     searchText: "alice alice prod db production",
     ...overrides,
@@ -112,7 +112,7 @@ describe("toAuditRow", () => {
     const result = toAuditRow(event, new Map(), new Map());
 
     expect(result.duration).toEqual({ key: "pamInboxDuration1Hour", value: null });
-    expect(result.durationWindow).toEqual(expect.stringContaining("–"));
+    expect(result.exactWindow).toContain("–");
     expect(result.extendedUntil).toBeNull();
   });
 
@@ -129,7 +129,7 @@ describe("toAuditRow", () => {
     const result = toAuditRow(event, new Map(), new Map());
 
     expect(result.duration).toBeNull();
-    expect(result.durationWindow).toBeNull();
+    expect(result.exactWindow).toBeNull();
     expect(result.extendedUntil).toBeNull();
   });
 
@@ -146,7 +146,7 @@ describe("toAuditRow", () => {
 
     expect(result.extendedUntil).toBe("2026-06-30T16:00:00Z");
     expect(result.duration).toBeNull();
-    expect(result.durationWindow).toBeNull();
+    expect(result.exactWindow).toBeNull();
   });
 
   it("states no duration when an activation is missing its start bound", () => {
@@ -161,7 +161,7 @@ describe("toAuditRow", () => {
     const result = toAuditRow(event, new Map(), new Map());
 
     expect(result.duration).toBeNull();
-    expect(result.durationWindow).toBeNull();
+    expect(result.exactWindow).toBeNull();
     expect(result.extendedUntil).toBeNull();
   });
 });
