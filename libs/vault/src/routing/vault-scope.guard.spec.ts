@@ -9,14 +9,14 @@ import {
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
-import { OrganizationId, UserId } from "@bitwarden/common/types/guid";
+import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 
 import {
   VaultNavItemType,
   VaultNavItemViewModel,
   VaultsNavViewModel,
 } from "../models/vault-nav-view-model";
-import { ARCHIVE_ROUTE, MY_VAULT_ROUTE, TRASH_ROUTE } from "../models/vault-scope";
+import { ARCHIVE_ROUTE, MY_ITEMS_ROUTE, MY_VAULT_ROUTE, TRASH_ROUTE } from "../models/vault-scope";
 import { VaultNavService } from "../services/vault-nav.service";
 
 import { vaultScopeGuard } from "./vault-scope.guard";
@@ -52,6 +52,12 @@ describe("vaultScopeGuard", () => {
     color: "purple",
     icon: "bwi-business",
     type: VaultNavItemType.Organization,
+  };
+
+  /** The same organization under data ownership, which gives each member a "My items" collection. */
+  const dataOwnershipVault: VaultNavItemViewModel = {
+    ...organizationVault,
+    defaultUserCollectionId: "5e6f7a8b-9c1d-4e2f-8a3b-4c5d6e7f8a9b" as CollectionId,
   };
 
   const navViewModel = (
@@ -148,6 +154,31 @@ describe("vaultScopeGuard", () => {
     it("redirects to All items for a folder segment that names no collection", async () => {
       await expect(runGuard(organizationId, "engineering")).resolves.toBe(allItemsUrlTree);
       expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
+    });
+  });
+
+  describe("a vault drilled into My items", () => {
+    it("allows it for an organization that has such a collection", async () => {
+      viewModel$.next(navViewModel([dataOwnershipVault], true));
+
+      await expect(runGuard(organizationId, MY_ITEMS_ROUTE)).resolves.toBe(true);
+    });
+
+    // Only organizations under data ownership have one, so elsewhere the segment names nothing.
+    it("redirects to All items for an organization that has none", async () => {
+      await expect(runGuard(organizationId, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
+    });
+
+    it("redirects to All items for an organization the user has left", async () => {
+      await expect(runGuard(otherOrganizationId, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault"]);
+    });
+
+    it("redirects to All items under a vault that can hold no collection", async () => {
+      await expect(runGuard(MY_VAULT_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
+      await expect(runGuard(TRASH_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
+      await expect(runGuard(ARCHIVE_ROUTE, MY_ITEMS_ROUTE)).resolves.toBe(allItemsUrlTree);
     });
   });
 

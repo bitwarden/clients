@@ -3,7 +3,13 @@ import { CanActivateFn, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { VaultNavItemType } from "../models/vault-nav-view-model";
-import { isPersonalOnly, parseVaultScope, VaultScopeType } from "../models/vault-scope";
+import {
+  defaultUserCollectionId,
+  isPersonalOnly,
+  MY_ITEMS_ROUTE,
+  parseVaultScope,
+  VaultScopeType,
+} from "../models/vault-scope";
 import { VaultNavService } from "../services/vault-nav.service";
 
 /**
@@ -18,7 +24,8 @@ import { VaultNavService } from "../services/vault-nav.service";
  * A `:collectionId` segment drilling the vault into a shared folder is admitted with its vault —
  * see {@link parseVaultScope} for the pairings that name no destination. Whether the collection
  * itself is one the user can reach is left to the page, which resolves it against the collections
- * it already loads.
+ * it already loads. The exception is the `my-items` sentinel, which names a collection only for an
+ * organization the nav offers one for, and the nav is already in hand here.
  */
 export const vaultScopeGuard: CanActivateFn = async (route) => {
   const router = inject(Router);
@@ -45,5 +52,18 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
     ({ id, type }) => type !== VaultNavItemType.Personal && id === scope.organizationId,
   );
 
-  return isMember ? true : allItems();
+  if (!isMember) {
+    return allItems();
+  }
+
+  // "My items" names a destination only for an organization that has such a collection — one under
+  // the data ownership policy. Elsewhere the segment names nothing, the way a typo would.
+  if (
+    scope.collectionId === MY_ITEMS_ROUTE &&
+    defaultUserCollectionId(scope.organizationId, nav) == null
+  ) {
+    return allItems();
+  }
+
+  return true;
 };
