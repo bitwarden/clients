@@ -268,9 +268,11 @@ export class AppComponent implements OnDestroy, OnInit {
         await this.router.navigate(["/"]);
       }
 
+      // Wipe the current process to clear active secrets in memory.
       // Normally we would need to reset the loading state to false or remove the layout_frontend
       // class from the body here, but the process reload completely reloads the app so
       // it handles it.
+      await this.processReloadService.reloadProcess();
     }, userId);
   }
 
