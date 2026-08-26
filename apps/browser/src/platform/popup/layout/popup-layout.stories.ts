@@ -173,12 +173,23 @@ class MockPopoutButtonComponent {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <button class="tw-bg-transparent tw-border-none tw-p-0 tw-me-1 tw-align-middle" type="button">
-      <bit-avatar text="Ash Ketchum"></bit-avatar>
+      <!-- TODO: remove size binding and lock to "sm" when VFO1Foundation flag is removed -->
+      <bit-avatar text="Ash Ketchum" [size]="avatarSize()"></bit-avatar>
     </button>
   `,
   imports: [AvatarModule],
 })
-class MockCurrentAccountComponent {}
+class MockCurrentAccountComponent {
+  /** Optional so the mock still renders if a story runs without the feature-flag addon. */
+  private readonly configService = inject(ConfigService, { optional: true });
+
+  private readonly vfo1Enabled = toSignal(
+    this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
+    { initialValue: false },
+  );
+
+  protected readonly avatarSize = computed(() => (this.vfo1Enabled() ? "sm" : "base"));
+}
 
 @Component({
   selector: "mock-search",

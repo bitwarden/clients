@@ -43,7 +43,7 @@ export class CurrentAccountComponent {
   private readonly configService = inject(ConfigService, { optional: true });
 
   /** TODO: remove with the VFO1Foundation flag. */
-  private readonly vfo1Enabled = toSignal(
+  protected readonly vfo1Enabled = toSignal(
     this.configService?.getFeatureFlag$(FeatureFlag.VFO1Foundation) ?? of(false),
     { initialValue: false },
   );
