@@ -1,0 +1,11 @@
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+
+/** Navigates the desktop client through its menubar message handlers. Desktop only. */
+export class DesktopNavigationCapability {
+  constructor(private messagingService: MessagingService) {}
+
+  /** Opens the settings page. */
+  openSettings(): void {
+    this.messagingService.send("openSettings");
+  }
+}

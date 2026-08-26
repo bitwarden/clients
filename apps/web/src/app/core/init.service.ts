@@ -5,6 +5,7 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { OrganizationInviteService } from "@bitwarden/common/auth/organization-invite";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
@@ -13,8 +14,6 @@ import { EventUploadService } from "@bitwarden/common/dirt/event-logs/services/e
 import { SharedUnlockPeerService } from "@bitwarden/common/key-management/shared-unlock";
 import { DefaultVaultTimeoutService } from "@bitwarden/common/key-management/vault-timeout";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { IpcService } from "@bitwarden/common/platform/ipc";
 import { ServerNotificationsService } from "@bitwarden/common/platform/server-notifications";
@@ -27,7 +26,8 @@ import { KeyService as KeyServiceAbstraction } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { UnlockService } from "@bitwarden/unlock";
+import { FlightRecorderService } from "@bitwarden/logging-angular";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { VersionService } from "../platform/version.service";
 
@@ -45,6 +45,9 @@ export class InitService {
     private encryptService: EncryptService,
     private unlockService: UnlockService,
     private accountService: AccountService,
+    private authService: AuthService,
+    private lockService: LockService,
+    private flightRecorder: FlightRecorderService,
     private tokenService: TokenService,
     private versionService: VersionService,
     private ipcService: IpcService,
@@ -55,9 +58,7 @@ export class InitService {
     private sharedUnlockPeerService: SharedUnlockPeerService,
     private legacyCompatKeyService: LegacyCompatKeyService,
     private organizationInviteService: OrganizationInviteService,
-    private platformUtilsService: PlatformUtilsService,
     private stateProvider: StateProvider,
-    private messagingService: MessagingService,
     private logService: LogService,
   ) {}
 
@@ -112,16 +113,18 @@ export class InitService {
       );
       containerService.attachToGlobal(this.win);
 
-      AutomationDriver.attachToGlobalIfDev(
+      AutomationDriver.attachToGlobal(
         this.win,
-        this.platformUtilsService,
         this.configService,
         this.stateProvider,
-        this.messagingService,
-        {
-          reloadProcess: () => this.win.location.reload(),
-          logService: this.logService,
-        },
+        this.flightRecorder,
+        this.accountService,
+        this.authService,
+        this.lockService,
+        this.unlockService,
+        () => this.win.location.reload(),
+        undefined,
+        undefined,
       );
     };
   }

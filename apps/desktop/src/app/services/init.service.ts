@@ -5,6 +5,7 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { AutomationDriver } from "@bitwarden/automation-driver";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/dirt/event-logs";
@@ -26,7 +27,8 @@ import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitward
 // eslint-disable-next-line no-restricted-imports
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
-import { UnlockService } from "@bitwarden/unlock";
+import { FlightRecorderService } from "@bitwarden/logging-angular";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
 import { DesktopAutotypeMvpService } from "../../autofill/services/desktop-autotype-mvp.service";
@@ -57,6 +59,9 @@ export class InitService {
     private encryptService: EncryptService,
     private unlockService: UnlockService,
     private accountService: AccountService,
+    private authService: AuthService,
+    private lockService: LockService,
+    private flightRecorder: FlightRecorderService,
     private tokenService: TokenService,
     private versionService: VersionService,
     private sshAgentService: SshAgentService,
@@ -128,24 +133,23 @@ export class InitService {
       );
       containerService.attachToGlobal(this.win);
 
-      await this.sharedUnlockPeerService.start();
-
-      AutomationDriver.attachToGlobalIfDev(
+      AutomationDriver.attachToGlobal(
         this.win,
-        this.platformUtilsService,
         this.configService,
         this.stateProvider,
-        this.messagingService,
+        this.flightRecorder,
+        this.accountService,
+        this.authService,
+        this.lockService,
+        this.unlockService,
+        () => ipc.platform.reloadProcess(),
         {
-          reloadProcess: () => ipc.platform.reloadProcess(),
-          biometrics: {
-            setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
-            listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
-            approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
-            deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
-          },
-          logService: this.logService,
+          setStatus: (status) => ipc.keyManagement.automation.biometrics.setStatus(status),
+          listPending: () => ipc.keyManagement.automation.biometrics.listPending(),
+          approve: (id) => ipc.keyManagement.automation.biometrics.approve(id),
+          deny: (id) => ipc.keyManagement.automation.biometrics.deny(id),
         },
+        this.messagingService,
       );
       await this.biometricMessageHandlerService.init();
       await this.autofillService.init();

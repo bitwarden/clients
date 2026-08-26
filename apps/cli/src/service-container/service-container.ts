@@ -1214,13 +1214,18 @@ export class ServiceContainer {
     await this.migrationRunner.run();
     this.containerService.attachToGlobal(global);
 
-    AutomationDriver.attachToGlobalIfDev(
+    AutomationDriver.attachToGlobal(
       global,
-      this.platformUtilsService,
       this.configService,
       this.stateProvider,
-      this.messagingService,
-      { logService: this.logService },
+      undefined,
+      this.accountService,
+      this.authService,
+      this.lockService,
+      this.unlockService,
+      undefined,
+      undefined,
+      undefined,
     );
 
     await this.i18nService.init();

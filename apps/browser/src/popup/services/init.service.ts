@@ -2,15 +2,18 @@ import { inject, Inject, Injectable, DOCUMENT } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { AutomationDriver } from "@bitwarden/automation-driver";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TwoFactorService } from "@bitwarden/common/auth/two-factor";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StateProvider } from "@bitwarden/common/platform/state";
+import { FlightRecorderService } from "@bitwarden/logging-angular";
+import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { ForegroundUnlockService } from "../../key-management/unlock/foreground-unlock.service";
 import BrowserPopupUtils from "../../platform/browser/browser-popup-utils";
@@ -22,7 +25,11 @@ export class InitService {
   private sizeService = inject(PopupSizeService);
   private configService = inject(ConfigService);
   private stateProvider = inject(StateProvider);
-  private messagingService = inject(MessagingService);
+  private accountService = inject(AccountService);
+  private authService = inject(AuthService);
+  private lockService = inject(LockService);
+  private unlockService = inject(UnlockService);
+  private flightRecorder = inject(FlightRecorderService);
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -47,13 +54,18 @@ export class InitService {
       await this.viewCacheService.init();
       await this.sizeService.init();
 
-      AutomationDriver.attachToGlobalIfDev(
+      AutomationDriver.attachToGlobal(
         self,
-        this.platformUtilsService,
         this.configService,
         this.stateProvider,
-        this.messagingService,
-        { logService: this.logService },
+        this.flightRecorder,
+        this.accountService,
+        this.authService,
+        this.lockService,
+        this.unlockService,
+        undefined,
+        undefined,
+        undefined,
       );
 
       const htmlEl = window.document.documentElement;

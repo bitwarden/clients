@@ -1,55 +1,88 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, of } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { GLOBAL_FEATURE_FLAG_OVERRIDES } from "@bitwarden/common/platform/services/config/default-config.service";
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
-import { ConsoleLogService, FlightRecorder, LogLevel } from "@bitwarden/logging";
+import { FlightRecorder } from "@bitwarden/logging";
+import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 
-import { AutomationBiometricsController, AutomationDriver } from "./automation-driver.service";
+import { AutomationDriver } from "./automation-driver.service";
+import { AutomationBiometricsController, ReloadProcess } from "./capabilities";
+
+interface OptionalDependencies {
+  reloadProcess?: ReloadProcess;
+  biometrics?: AutomationBiometricsController;
+  messagingService?: MessagingService;
+}
 
 describe("AutomationDriver", () => {
   const flag = FeatureFlag.GenerateInviteLink;
   const userId = "user-id" as UserId;
 
   let configService: ReturnType<typeof mock<ConfigService>>;
-  let messagingService: ReturnType<typeof mock<MessagingService>>;
+  let accountService: ReturnType<typeof mock<AccountService>>;
+  let authService: ReturnType<typeof mock<AuthService>>;
+  let lockService: ReturnType<typeof mock<LockService>>;
+  let unlockService: ReturnType<typeof mock<UnlockService>>;
+  let flightRecorder: ReturnType<typeof mock<FlightRecorder>>;
   let stateProvider: FakeStateProvider;
   let sut: AutomationDriver;
 
   const currentOverrides = () =>
     firstValueFrom(stateProvider.getGlobal(GLOBAL_FEATURE_FLAG_OVERRIDES).state$);
 
+  /** Builds a driver with the always-wired dependencies, plus whichever optional ones a test needs. */
+  const buildDriver = (optional: OptionalDependencies = {}) =>
+    new AutomationDriver(
+      configService,
+      stateProvider,
+      flightRecorder,
+      accountService,
+      authService,
+      lockService,
+      unlockService,
+      optional.reloadProcess,
+      optional.biometrics,
+      optional.messagingService,
+    );
+
   beforeEach(() => {
     configService = mock<ConfigService>();
-    messagingService = mock<MessagingService>();
+    flightRecorder = mock<FlightRecorder>();
+    accountService = mock<AccountService>();
+    authService = mock<AuthService>();
+    lockService = mock<LockService>();
+    unlockService = mock<UnlockService>();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
-    sut = new AutomationDriver(configService, stateProvider, messagingService);
+    sut = buildDriver();
   });
 
   describe("feature flags", () => {
     it("sets an override", async () => {
-      await sut.setFeatureFlag(flag, true);
+      await sut.featureFlags.set(flag, true);
 
       expect(await currentOverrides()).toEqual({ [flag]: true });
     });
 
     it("clears a single override", async () => {
-      await sut.setFeatureFlag(flag, true);
+      await sut.featureFlags.set(flag, true);
 
-      await sut.clearFeatureFlag(flag);
+      await sut.featureFlags.clear(flag);
 
       expect(await currentOverrides()).toEqual({});
     });
 
     it("clears all overrides", async () => {
-      await sut.setFeatureFlag(flag, true);
+      await sut.featureFlags.set(flag, true);
 
-      await sut.clearAllFeatureFlagOverrides();
+      await sut.featureFlags.clearAll();
 
       expect(await currentOverrides()).toEqual({});
     });
@@ -57,46 +90,50 @@ describe("AutomationDriver", () => {
     it("reads the effective value from the config service", async () => {
       configService.getFeatureFlag.mockResolvedValue(true as never);
 
-      await expect(sut.getFeatureFlag(flag)).resolves.toBe(true);
+      await expect(sut.featureFlags.get(flag)).resolves.toBe(true);
       expect(configService.getFeatureFlag).toHaveBeenCalledWith(flag);
     });
   });
 
-  describe("messaging", () => {
-    it("sends a message command", () => {
-      sut.sendMessage("foo", { bar: 1 });
+  describe("state", () => {
+    const address = { stateName: "automationTest", key: "someKey" };
 
-      expect(messagingService.send).toHaveBeenCalledWith("foo", { bar: 1 });
+    it("reads global state by address", async () => {
+      await sut.featureFlags.set(flag, true);
+
+      const overrides = await sut.state.readGlobal({
+        stateName: "config",
+        key: "featureFlagOverrides",
+      });
+
+      expect(overrides).toEqual({ [flag]: true });
     });
 
-    it("opens settings", () => {
-      sut.openSettings();
-
-      expect(messagingService.send).toHaveBeenCalledWith("openSettings", undefined);
+    it("returns null for state that was never written", async () => {
+      await expect(sut.state.readGlobal(address)).resolves.toBeNull();
+      await expect(sut.state.readUser(userId, address)).resolves.toBeNull();
     });
   });
 
   describe("process reload", () => {
     it("delegates to the supplied capability", async () => {
       const reloadProcess = jest.fn();
-      sut = new AutomationDriver(configService, stateProvider, messagingService, {
-        reloadProcess,
-      });
+      sut = buildDriver({ reloadProcess });
 
-      await sut.reloadProcess();
+      await sut.processReload!.reload();
 
       expect(reloadProcess).toHaveBeenCalled();
     });
 
-    it("throws when not supported", async () => {
-      await expect(sut.reloadProcess()).rejects.toThrow();
+    it("is undefined when not supplied", () => {
+      expect(sut.processReload).toBeUndefined();
     });
   });
 
   describe("biometrics", () => {
     it("exposes the supplied biometrics controller", () => {
       const biometrics = mock<AutomationBiometricsController>();
-      sut = new AutomationDriver(configService, stateProvider, messagingService, { biometrics });
+      sut = buildDriver({ biometrics });
 
       expect(sut.biometrics).toBe(biometrics);
     });
@@ -106,112 +143,163 @@ describe("AutomationDriver", () => {
     });
   });
 
-  describe("flight recorder", () => {
-    it("exposes the supplied flight recorder", () => {
-      const flightRecorder = mock<FlightRecorder>();
-      sut = new AutomationDriver(configService, stateProvider, messagingService, {
-        flightRecorder,
-      });
+  describe("logging", () => {
+    it("is undefined when no flight recorder is supplied", () => {
+      sut = new AutomationDriver(
+        configService,
+        stateProvider,
+        undefined,
+        accountService,
+        authService,
+        lockService,
+        unlockService,
+        undefined,
+        undefined,
+        undefined,
+      );
 
-      expect(sut.flightRecorder).toBe(flightRecorder);
+      expect(sut.logging).toBeUndefined();
+    });
+
+    it("reads flight recorder events", async () => {
+      flightRecorder.read.mockResolvedValue([]);
+
+      await expect(sut.logging!.readEvents()).resolves.toEqual([]);
+      expect(flightRecorder.read).toHaveBeenCalled();
+    });
+
+    it("counts flight recorder events", async () => {
+      flightRecorder.count.mockResolvedValue(2);
+
+      await expect(sut.logging!.countEvents()).resolves.toBe(2);
+    });
+  });
+
+  describe("desktop navigation", () => {
+    it("opens settings through the messaging service", () => {
+      const messagingService = mock<MessagingService>();
+      sut = buildDriver({ messagingService });
+
+      sut.desktopNavigation!.openSettings();
+
+      expect(messagingService.send).toHaveBeenCalledWith("openSettings");
     });
 
     it("is undefined when not supplied", () => {
-      expect(sut.flightRecorder).toBeUndefined();
+      expect(sut.desktopNavigation).toBeUndefined();
     });
   });
 
-  describe("log service hook", () => {
-    let logService: ConsoleLogService;
+  describe("lock", () => {
+    const otherUserId = "other-user-id" as UserId;
 
-    beforeEach(() => {
-      logService = new ConsoleLogService(false);
+    it("lists the lock status of every known account", async () => {
+      accountService.accounts$ = of({
+        [userId]: {
+          email: "user@example.com",
+          emailVerified: true,
+          name: "User",
+          creationDate: undefined,
+        },
+        [otherUserId]: {
+          email: "other@example.com",
+          emailVerified: true,
+          name: "Other",
+          creationDate: undefined,
+        },
+      });
+      authService.authStatuses$ = of({
+        [userId]: AuthenticationStatus.Unlocked,
+        [otherUserId]: AuthenticationStatus.Locked,
+      } as Record<UserId, AuthenticationStatus>);
+
+      await expect(sut.lock!.listUsers()).resolves.toEqual([
+        { userId, email: "user@example.com", status: "Unlocked" },
+        { userId: otherUserId, email: "other@example.com", status: "Locked" },
+      ]);
     });
 
-    it("hooks automatically when logService is in capabilities", () => {
-      sut = new AutomationDriver(configService, stateProvider, messagingService, { logService });
+    it("reports users with no auth status as logged out", async () => {
+      accountService.accounts$ = of({
+        [userId]: {
+          email: "user@example.com",
+          emailVerified: true,
+          name: "User",
+          creationDate: undefined,
+        },
+      });
+      authService.authStatuses$ = of({} as Record<UserId, AuthenticationStatus>);
 
-      logService.write(LogLevel.Info, "auto");
+      const [status] = await sut.lock!.listUsers();
 
-      expect(sut.readLogBuffer()).toEqual([{ level: LogLevel.Info, message: "auto", params: [] }]);
+      expect(status.status).toBe("LoggedOut");
     });
 
-    it("buffers entries written after hooking", () => {
-      sut.hookLogService(logService);
+    it("locks a user manually", async () => {
+      await sut.lock!.lock(userId);
 
-      logService.write(LogLevel.Info, "hello");
-
-      expect(sut.readLogBuffer()).toEqual([{ level: LogLevel.Info, message: "hello", params: [] }]);
+      expect(lockService.lock).toHaveBeenCalledWith(userId, LockSource.Manual);
     });
 
-    it("captures extra params", () => {
-      sut.hookLogService(logService);
+    it("unlocks with a master password", async () => {
+      await sut.lock!.unlockWithMasterPassword(userId, "pw");
 
-      logService.write(LogLevel.Warning, "msg", "a", "b");
-
-      expect(sut.readLogBuffer()[0].params).toEqual(["a", "b"]);
+      expect(unlockService.unlockWithMasterPassword).toHaveBeenCalledWith(userId, "pw");
     });
 
-    it("still calls the original write", () => {
-      const writeSpy = jest.spyOn(logService, "write");
-      sut.hookLogService(logService);
+    it("unlocks with a pin", async () => {
+      await sut.lock!.unlockWithPin(userId, "1234");
 
-      logService.write(LogLevel.Error, "boom");
-
-      expect(writeSpy).toHaveBeenCalledWith(LogLevel.Error, "boom");
+      expect(unlockService.unlockWithPin).toHaveBeenCalledWith(userId, "1234");
     });
 
-    it("readLogBuffer returns a snapshot, not the live array", () => {
-      sut.hookLogService(logService);
-      logService.write(LogLevel.Debug, "first");
-      const snapshot = sut.readLogBuffer();
+    it("unlocks with biometrics", async () => {
+      await sut.lock!.unlockWithBiometrics(userId);
 
-      logService.write(LogLevel.Debug, "second");
-
-      expect(snapshot).toHaveLength(1);
-    });
-
-    it("clearLogBuffer empties the buffer", () => {
-      sut.hookLogService(logService);
-      logService.write(LogLevel.Info, "x");
-
-      sut.clearLogBuffer();
-
-      expect(sut.readLogBuffer()).toHaveLength(0);
+      expect(unlockService.unlockWithBiometrics).toHaveBeenCalledWith(userId);
     });
   });
 
-  describe("attachToGlobalIfDev", () => {
-    it("attaches in dev mode", () => {
-      const platformUtilsService = mock<PlatformUtilsService>();
-      platformUtilsService.isDev.mockReturnValue(true);
+  describe("attachToGlobal", () => {
+    it("attaches the driver", () => {
       const global: any = {};
 
-      AutomationDriver.attachToGlobalIfDev(
+      AutomationDriver.attachToGlobal(
         global,
-        platformUtilsService,
         configService,
         stateProvider,
-        messagingService,
+        flightRecorder,
+        accountService,
+        authService,
+        lockService,
+        unlockService,
+        undefined,
+        undefined,
+        undefined,
       );
 
       expect(global.bitwardenAutomationDriver).toBeInstanceOf(AutomationDriver);
     });
 
-    it("does not attach outside dev mode", () => {
-      const platformUtilsService = mock<PlatformUtilsService>();
-      platformUtilsService.isDev.mockReturnValue(false);
-      const global: any = {};
+    it("does not replace an already attached driver", () => {
+      const existing = {};
+      const global: any = { bitwardenAutomationDriver: existing };
 
-      AutomationDriver.attachToGlobalIfDev(
+      AutomationDriver.attachToGlobal(
         global,
-        platformUtilsService,
         configService,
         stateProvider,
-        messagingService,
+        flightRecorder,
+        accountService,
+        authService,
+        lockService,
+        unlockService,
+        undefined,
+        undefined,
+        undefined,
       );
 
-      expect(global.bitwardenAutomationDriver).toBeUndefined();
+      expect(global.bitwardenAutomationDriver).toBe(existing);
     });
   });
 });
