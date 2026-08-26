@@ -124,7 +124,7 @@ describe("DesktopLayoutComponent", () => {
     i18nService.t.mockImplementation((key: string) => key);
     cipherArchiveService.userCanArchive$.mockReturnValue(canArchive$);
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
-    Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
+    vaultNavService.viewModel$.mockReturnValue(viewModel$);
 
     await TestBed.configureTestingModule({
       imports: [DesktopLayoutComponent, RouterModule.forRoot([]), NavigationModule],

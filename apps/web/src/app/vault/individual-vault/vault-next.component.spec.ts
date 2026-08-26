@@ -209,7 +209,7 @@ describe("VaultNextComponent", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
-        { provide: VaultNavService, useValue: { viewModel$: vaultNav$ } },
+        { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
       ],
     })
       .overrideComponent(VaultNextComponent, {

@@ -102,7 +102,9 @@ export class VaultNextComponent {
 
   private readonly collectionIdParam = computed(() => this.routeParams()?.get("collectionId"));
 
-  private readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
+  private readonly vaultNav = toSignal(
+    this.userId$.pipe(switchMap((userId) => this.vaultNavService.viewModel$(userId))),
+  );
 
   /**
    * The vault the side nav has scoped this page to, and the shared folder within it the URL has

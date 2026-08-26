@@ -36,7 +36,6 @@ describe("vaultScopeGuard", () => {
 
   let router: MockProxy<Router>;
 
-  // `viewModel$` is readonly on the service, so it can't be assigned onto the mock.
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>({
     vaults: [],
     organizationDataOwnership: false,
@@ -96,7 +95,7 @@ describe("vaultScopeGuard", () => {
     );
 
     viewModel$.next(navViewModel([personalVault, organizationVault]));
-    Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
+    vaultNavService.viewModel$.mockReturnValue(viewModel$);
 
     accountService.activeAccount$ = of({ id: userId } as Account);
     collectionService.decryptedCollections$.mockReturnValue(of([]));
@@ -221,11 +220,21 @@ describe("vaultScopeGuard", () => {
   });
 
   it("does not resolve the account's vaults for a segment it can reject outright", async () => {
-    const subscribe = jest.spyOn(viewModel$, "subscribe");
+    vaultNavService.viewModel$.mockClear();
 
     await runGuard("acme-corp");
 
-    expect(subscribe).not.toHaveBeenCalled();
-    subscribe.mockRestore();
+    expect(vaultNavService.viewModel$).not.toHaveBeenCalled();
+  });
+
+  // Resolving the active account twice could pair one account's vaults with another's collections.
+  it("reads the vaults and the collections for the one account it resolved", async () => {
+    collectionService.decryptedCollections$.mockClear();
+    vaultNavService.viewModel$.mockClear();
+
+    await runGuard(organizationId, "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f");
+
+    expect(vaultNavService.viewModel$).toHaveBeenCalledWith(userId);
+    expect(collectionService.decryptedCollections$).toHaveBeenCalledWith(userId);
   });
 });

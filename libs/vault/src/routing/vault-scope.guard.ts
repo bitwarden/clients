@@ -34,6 +34,10 @@ import { VaultNavService } from "../services/vault-nav.service";
  * organization both fall back to the organization's own vault rather than to the unscoped one:
  * membership is established by then, so the vault the URL named is still a destination even though
  * the folder within it is not.
+ *
+ * The active account is resolved once and both the nav view model and the collections are read for
+ * that user, so an account switch mid-navigation cannot decide membership from one account's vaults
+ * and the folder from another's collections.
  */
 export const vaultScopeGuard: CanActivateFn = async (route) => {
   const router = inject(Router);
@@ -54,7 +58,8 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
     return true;
   }
 
-  const nav = await firstValueFrom(vaultNavService.viewModel$);
+  const userId = await firstValueFrom(accountService.activeAccount$.pipe(getUserId));
+  const nav = await firstValueFrom(vaultNavService.viewModel$(userId));
 
   if (scope.type === VaultScopeType.MyVault) {
     return isPersonalOnly(nav) ? allItems() : true;
@@ -84,7 +89,6 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
   // that has been deleted, and one belonging to another organization are all guids that name no
   // destination for this user. The page would otherwise render an empty vault beneath a folder
   // heading it cannot resolve, so drop the drill-in and show the vault the URL did name.
-  const userId = await firstValueFrom(accountService.activeAccount$.pipe(getUserId));
   const collections = await firstValueFrom(collectionService.decryptedCollections$(userId));
 
   const reachable = collections.some(
