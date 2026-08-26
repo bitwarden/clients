@@ -62,6 +62,7 @@ export class InitService {
     private organizationInviteService: OrganizationInviteService,
     private storageServiceProvider: StorageServiceProvider,
     private stateProvider: StateProvider,
+    private storageServiceProvider: StorageServiceProvider,
     private logService: LogService,
     private configService: ConfigService,
   ) {}
