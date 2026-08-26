@@ -17,6 +17,16 @@ if (!oldVersion || !newVersion) {
   process.exit(2);
 }
 
+// Both values become an `npm pack` spec and a cache-directory path component. Unvalidated, a
+// git URL, file: path, or dist-tag also parses as a spec (running the fetched package's
+// `prepare` script on pack), and `..` in the path component escapes the cache directory.
+const versionPattern = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
+for (const version of [oldVersion, newVersion]) {
+  if (!versionPattern.test(version)) {
+    fail(`"${version}" is not a version`);
+  }
+}
+
 const pkg = commercial ? "@bitwarden/commercial-sdk-internal" : "@bitwarden/sdk-internal";
 const cache = join(process.env.RUNNER_TEMP ?? tmpdir(), "sdk-surface", pkg.replace(/\W/g, "-"));
 
@@ -40,6 +50,9 @@ function fetchSurface(version) {
       },
     );
     const tgz = readdirSync(dir).find((file) => file.endsWith(".tgz"));
+    if (!tgz) {
+      fail(`npm pack produced no tarball for ${pkg}@${version}`);
+    }
     execFileSync("tar", [
       "-xzf",
       join(dir, tgz),
