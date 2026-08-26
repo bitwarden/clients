@@ -18573,9 +18573,6 @@
       }
     }
   },
-  "pamApprovedRequestBannerHeading": {
-    "message": "Access approved"
-  },
   "pamApprovedRequestBannerDuration": {
     "message": "$DURATION$ of access",
     "placeholders": {
@@ -19735,8 +19732,8 @@
   "pamPendingRequestBannerHeading": {
     "message": "Access request pending approval"
   },
-  "pamApprovedRequestBannerTitle": {
-    "message": "Your access is approved — start it when you're ready"
+  "pamApprovedRequestBannerHeading": {
+    "message": "Access approved"
   },
   "pamRequestAccessBannerBody": {
     "message": "Credentials are masked until access is granted."
