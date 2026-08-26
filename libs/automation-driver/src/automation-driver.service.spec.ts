@@ -11,6 +11,8 @@ import { GLOBAL_FEATURE_FLAG_OVERRIDES } from "@bitwarden/common/platform/servic
 import { FakeStateProvider, mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { FlightRecorder } from "@bitwarden/logging";
+import { StorageServiceProvider } from "@bitwarden/storage-core";
+import { FakeStorageService } from "@bitwarden/storage-test-utils";
 import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 
 import { AutomationDriver } from "./automation-driver.service";
@@ -24,7 +26,7 @@ interface OptionalDependencies {
 
 describe("AutomationDriver", () => {
   const flag = FeatureFlag.GenerateInviteLink;
-  const userId = "user-id" as UserId;
+  const userId = "11111111-1111-4111-8111-111111111111" as UserId;
 
   let configService: ReturnType<typeof mock<ConfigService>>;
   let accountService: ReturnType<typeof mock<AccountService>>;
@@ -33,6 +35,8 @@ describe("AutomationDriver", () => {
   let unlockService: ReturnType<typeof mock<UnlockService>>;
   let flightRecorder: ReturnType<typeof mock<FlightRecorder>>;
   let stateProvider: FakeStateProvider;
+  let diskStorage: FakeStorageService;
+  let memoryStorage: FakeStorageService;
   let sut: AutomationDriver;
 
   const currentOverrides = () =>
@@ -43,6 +47,7 @@ describe("AutomationDriver", () => {
     new AutomationDriver(
       configService,
       stateProvider,
+      new StorageServiceProvider(diskStorage, memoryStorage),
       flightRecorder,
       accountService,
       authService,
@@ -61,6 +66,8 @@ describe("AutomationDriver", () => {
     lockService = mock<LockService>();
     unlockService = mock<UnlockService>();
     stateProvider = new FakeStateProvider(mockAccountServiceWith(userId));
+    diskStorage = new FakeStorageService();
+    memoryStorage = new FakeStorageService();
     sut = buildDriver();
   });
 
@@ -99,14 +106,17 @@ describe("AutomationDriver", () => {
     const address = { stateName: "automationTest", key: "someKey" };
 
     it("reads global state by address", async () => {
-      await sut.featureFlags.set(flag, true);
+      diskStorage.internalUpdateStore({ global_automationTest_someKey: "stored" });
 
-      const overrides = await sut.state.readGlobal({
-        stateName: "config",
-        key: "featureFlagOverrides",
+      await expect(sut.state.readGlobal(address)).resolves.toBe("stored");
+    });
+
+    it("reads user state by address", async () => {
+      diskStorage.internalUpdateStore({
+        [`user_${userId}_automationTest_someKey`]: "stored",
       });
 
-      expect(overrides).toEqual({ [flag]: true });
+      await expect(sut.state.readUser(userId, address)).resolves.toBe("stored");
     });
 
     it("returns null for state that was never written", async () => {
@@ -148,6 +158,7 @@ describe("AutomationDriver", () => {
       sut = new AutomationDriver(
         configService,
         stateProvider,
+        new StorageServiceProvider(diskStorage, memoryStorage),
         undefined,
         accountService,
         authService,
@@ -268,6 +279,7 @@ describe("AutomationDriver", () => {
         global,
         configService,
         stateProvider,
+        new StorageServiceProvider(diskStorage, memoryStorage),
         flightRecorder,
         accountService,
         authService,
@@ -289,6 +301,7 @@ describe("AutomationDriver", () => {
         global,
         configService,
         stateProvider,
+        new StorageServiceProvider(diskStorage, memoryStorage),
         flightRecorder,
         accountService,
         authService,

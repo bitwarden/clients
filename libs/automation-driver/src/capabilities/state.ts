@@ -1,13 +1,12 @@
-import { firstValueFrom } from "rxjs";
-
 import {
   KeyDefinition,
   StateDefinition,
-  StateProvider,
+  StorageKey,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
-import { StorageLocation } from "@bitwarden/storage-core";
+import { globalKeyBuilder } from "@bitwarden/state-internal";
+import { StorageLocation, StorageServiceProvider } from "@bitwarden/storage-core";
 
 /** Where a piece of state lives, mirroring the {@link StateDefinition} it was declared with. */
 export interface StateAddress {
@@ -26,9 +25,13 @@ const rawDeserializer = (value: unknown) => value;
 /**
  * Reads arbitrary state by address, without the owning domain's key definition. Values come back as
  * the raw JSON held in storage — encrypted vault data stays encrypted.
+ *
+ * Reads bypass the state providers on purpose: their caches are keyed by state name alone, so an
+ * ad-hoc definition registered here would replace the owning domain's deserializer and `clearOn`
+ * events for the rest of the process.
  */
 export class StateCapability {
-  constructor(private stateProvider: StateProvider) {}
+  constructor(private storageServiceProvider: StorageServiceProvider) {}
 
   /** Read a global state value. */
   async readGlobal(address: StateAddress): Promise<unknown> {
@@ -36,7 +39,7 @@ export class StateCapability {
       deserializer: rawDeserializer,
     });
 
-    return await firstValueFrom(this.stateProvider.getGlobal(definition).state$);
+    return await this.read(address, globalKeyBuilder(definition));
   }
 
   /** Read a state value belonging to a specific user. */
@@ -46,7 +49,16 @@ export class StateCapability {
       clearOn: [],
     });
 
-    return await firstValueFrom(this.stateProvider.getUser(userId, definition).state$);
+    return await this.read(address, definition.buildKey(userId));
+  }
+
+  private async read(address: StateAddress, storageKey: StorageKey): Promise<unknown> {
+    const [, storageService] = this.storageServiceProvider.get(
+      address.location ?? DEFAULT_LOCATION,
+      {},
+    );
+
+    return (await storageService.get<unknown>(storageKey)) ?? null;
   }
 
   private stateDefinition(address: StateAddress): StateDefinition {

@@ -28,6 +28,7 @@ import { BiometricsService, KeyService as KeyServiceAbstraction } from "@bitward
 import { EncryptService, LegacyCompatKeyService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { FlightRecorderService } from "@bitwarden/logging-angular";
+import { StorageServiceProvider } from "@bitwarden/storage-core";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import { DesktopAutofillService } from "../../autofill/services/desktop-autofill.service";
@@ -78,6 +79,7 @@ export class InitService {
     private serverCommunicationConfigService: ServerCommunicationConfigService,
     private updateRestartService: UpdateRestartService,
     private stateProvider: StateProvider,
+    private storageServiceProvider: StorageServiceProvider,
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigService,
@@ -137,6 +139,7 @@ export class InitService {
         this.win,
         this.configService,
         this.stateProvider,
+        this.storageServiceProvider,
         this.flightRecorder,
         this.accountService,
         this.authService,

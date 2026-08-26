@@ -4,6 +4,7 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { FlightRecorder } from "@bitwarden/logging";
+import { StorageServiceProvider } from "@bitwarden/storage-core";
 import { LockService, UnlockService } from "@bitwarden/unlock";
 
 import {
@@ -41,6 +42,7 @@ export class AutomationDriver {
   constructor(
     configService: ConfigService,
     stateProvider: StateProvider,
+    storageServiceProvider: StorageServiceProvider,
     flightRecorder: FlightRecorder | undefined,
     accountService: AccountService,
     authService: AuthService,
@@ -51,7 +53,7 @@ export class AutomationDriver {
     messagingService: MessagingService | undefined,
   ) {
     this.featureFlagsCapability = new FeatureFlagsCapability(configService, stateProvider);
-    this.stateCapability = new StateCapability(stateProvider);
+    this.stateCapability = new StateCapability(storageServiceProvider);
 
     if (flightRecorder != null) {
       this.loggingCapability = new LoggingCapability(flightRecorder);
@@ -78,6 +80,7 @@ export class AutomationDriver {
     global: any,
     configService: ConfigService,
     stateProvider: StateProvider,
+    storageServiceProvider: StorageServiceProvider,
     flightRecorder: FlightRecorder | undefined,
     accountService: AccountService,
     authService: AuthService,
@@ -90,6 +93,7 @@ export class AutomationDriver {
     new AutomationDriver(
       configService,
       stateProvider,
+      storageServiceProvider,
       flightRecorder,
       accountService,
       authService,
