@@ -129,6 +129,7 @@ import {
 } from "@bitwarden/vault";
 
 import { DesktopHeaderComponent } from "../../../app/layout/header/desktop-header.component";
+import { ImportDesktopComponent } from "../../../app/tools/import/import-desktop.component";
 import { AssignCollectionsDesktopComponent } from "../vault/assign-collections";
 
 import { AssignCollectionsDesktopDialogAdapter } from "./bulk-action-dialogs/assign-collections-desktop-dialog.adapter";
@@ -339,6 +340,8 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
   protected refreshing = false;
   protected allOrganizations: Organization[] = [];
   protected allCollections: CollectionView[] = [];
+  protected scopedOrganizations: Organization[] = [];
+  protected scopedCollections: CollectionView[] = [];
   protected collectionsToDisplay: CollectionView[] = [];
 
   protected readonly searchPlaceholderText = computed(() =>
@@ -658,11 +661,12 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       )
       .subscribe(
         ([allCollections, allOrganizations, ciphers, collections, vfo1Foundation, scope]) => {
-          // The table builds its Vault and Shared folders chips from these.
-          this.allCollections = vfo1Foundation
+          this.allCollections = allCollections;
+          this.allOrganizations = allOrganizations;
+          this.scopedCollections = vfo1Foundation
             ? allCollections.filter((collection) => collectionInScope(collection, scope))
             : allCollections;
-          this.allOrganizations = vfo1Foundation
+          this.scopedOrganizations = vfo1Foundation
             ? allOrganizations.filter((organization) => organizationInScope(organization, scope))
             : allOrganizations;
           this.ciphers = ciphers;
@@ -974,6 +978,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     } else if (result.result === AddItemDialogResult.Folder) {
       await this.addFolder();
     }
+  }
+
+  protected openImport(): void {
+    this.dialogService.open(ImportDesktopComponent);
   }
 
   filterSearchText(searchText: string) {

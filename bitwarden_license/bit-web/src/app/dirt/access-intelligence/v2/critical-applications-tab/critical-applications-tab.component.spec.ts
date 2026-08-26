@@ -1,16 +1,18 @@
 import { NO_ERRORS_SCHEMA, signal } from "@angular/core";
-import { ComponentFixture, TestBed, fakeAsync, tick } from "@angular/core/testing";
+import { ComponentFixture, fakeAsync, TestBed, tick } from "@angular/core/testing";
 import { Router } from "@angular/router";
 import { BehaviorSubject, of, throwError } from "rxjs";
 
 import {
   AccessIntelligenceDataService,
+  DrawerState,
   DrawerStateService,
   DrawerType,
 } from "@bitwarden/bit-common/dirt/access-intelligence";
 import { AccessReportView } from "@bitwarden/bit-common/dirt/access-intelligence/models";
 import {
   createApplication,
+  createCipher,
   createReport,
   createRiskInsights,
   createRiskInsightsSummary,
@@ -23,6 +25,7 @@ import { ToastService } from "@bitwarden/components";
 import { RiskInsightsTabType } from "../../models/risk-insights.models";
 import { AccessIntelligenceCoachmarkService } from "../../onboarding/access-intelligence-coachmark.service";
 import { AccessSecurityTasksService } from "../services/abstractions/access-security-tasks.service";
+import { ApplicationTableRowV2 } from "../shared/applications-table-v2/applications-table-v2.component";
 
 import { CriticalApplicationsTabComponent } from "./critical-applications-tab.component";
 
@@ -36,11 +39,7 @@ type MockAccessIntelligenceDataService = {
   unmarkApplicationsAsCritical$: jest.Mock;
 };
 
-/**
- * Mock type for AccessSecurityTasksService
- */
 type MockSecurityTasksService = {
-  unassignedCriticalCipherIds$: BehaviorSubject<string[]>;
   requestPasswordChangeForCriticalApplications$: jest.Mock;
 };
 
@@ -49,11 +48,12 @@ describe("CriticalApplicationsTabComponent", () => {
   let fixture: ComponentFixture<CriticalApplicationsTabComponent>;
   let mockDataService: MockAccessIntelligenceDataService;
   let mockDrawerStateService: jest.Mocked<DrawerStateService>;
+  let mockDrawerState: ReturnType<typeof signal<DrawerState | null>>;
   let mockSecurityTasksService: MockSecurityTasksService;
-  let mockCoachmarkService: { activeStepId: ReturnType<typeof signal<string | null>> };
   let mockI18nService: jest.Mocked<I18nService>;
   let mockToastService: jest.Mocked<ToastService>;
   let mockRouter: jest.Mocked<Router>;
+  let mockActiveStepId: ReturnType<typeof signal<string | null>>;
 
   /**
    * Helper to access protected/private members for testing.
@@ -61,25 +61,6 @@ describe("CriticalApplicationsTabComponent", () => {
   const testAccess = (comp: CriticalApplicationsTabComponent) => comp as any;
 
   const orgId = "org-123" as OrganizationId;
-
-  /**
-   * Builds a report where `github.com` is critical and `gitlab.com` is not.
-   * Both applications carry one member and one cipher so the row mapping is observable.
-   */
-  const createMixedCriticalityReport = () =>
-    createRiskInsights({
-      reports: [
-        createReport("github.com", { "member-1": true }, { "cipher-1": true }),
-        createReport("gitlab.com", { "member-2": false }, { "cipher-2": false }),
-      ],
-      applications: [createApplication("github.com", true), createApplication("gitlab.com", false)],
-    });
-
-  const createCipher = (id: string) => {
-    const cipher = new CipherView();
-    cipher.id = id;
-    return cipher;
-  };
 
   beforeEach(async () => {
     mockDataService = {
@@ -89,19 +70,15 @@ describe("CriticalApplicationsTabComponent", () => {
       unmarkApplicationsAsCritical$: jest.fn().mockReturnValue(of(undefined)),
     };
 
+    mockDrawerState = signal<DrawerState | null>(null);
     mockDrawerStateService = {
       toggleDrawer: jest.fn(),
       closeDrawer: jest.fn(),
-      drawerState: signal(null) as any,
+      drawerState: mockDrawerState,
     } as any;
 
     mockSecurityTasksService = {
-      unassignedCriticalCipherIds$: new BehaviorSubject<string[]>([]),
       requestPasswordChangeForCriticalApplications$: jest.fn().mockReturnValue(of(undefined)),
-    };
-
-    mockCoachmarkService = {
-      activeStepId: signal<string | null>(null),
     };
 
     mockI18nService = {
@@ -116,16 +93,21 @@ describe("CriticalApplicationsTabComponent", () => {
       navigate: jest.fn().mockResolvedValue(true),
     } as any;
 
+    mockActiveStepId = signal<string | null>(null);
+
     await TestBed.configureTestingModule({
       imports: [CriticalApplicationsTabComponent],
       providers: [
         { provide: AccessIntelligenceDataService, useValue: mockDataService },
         { provide: DrawerStateService, useValue: mockDrawerStateService },
         { provide: AccessSecurityTasksService, useValue: mockSecurityTasksService },
-        { provide: AccessIntelligenceCoachmarkService, useValue: mockCoachmarkService },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
         { provide: Router, useValue: mockRouter },
+        {
+          provide: AccessIntelligenceCoachmarkService,
+          useValue: { activeStepId: mockActiveStepId },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -152,87 +134,119 @@ describe("CriticalApplicationsTabComponent", () => {
       expect(component.organizationId()).toBe(orgId);
     });
 
-    it("should start with an empty data source when no report is loaded", () => {
+    it("should start with an empty dataSource when no report has loaded", () => {
       expect(testAccess(component).dataSource.data).toEqual([]);
     });
   });
 
-  // ==================== Observable → Signal Conversions ====================
+  // ==================== atRiskCipherIds ====================
 
-  describe("Observable → Signal Conversions", () => {
-    it("should convert report$ to signal via toSignal()", () => {
-      const testReport = createMixedCriticalityReport();
+  describe("atRiskCipherIds", () => {
+    it("should default to an empty array when no report is loaded", () => {
+      expect(testAccess(component).atRiskCipherIds()).toEqual([]);
+    });
+
+    it("should collect at-risk cipher IDs across all critical at-risk applications", () => {
+      const testReport = createRiskInsights({
+        reports: [
+          createReport("github.com", {}, { "c-1": true, "c-2": false }),
+          createReport("gitlab.com", {}, { "c-3": true, "c-4": true }),
+        ],
+        applications: [
+          createApplication("github.com", true),
+          createApplication("gitlab.com", true),
+        ],
+      });
 
       mockDataService.report$.next(testReport);
 
-      expect(testAccess(component).report()).toBe(testReport);
+      expect(testAccess(component).atRiskCipherIds()).toEqual(["c-1", "c-3", "c-4"]);
     });
 
-    it("should convert loading$ to signal", () => {
-      mockDataService.loading$.next(true);
-      expect(testAccess(component).loading()).toBe(true);
+    it("should exclude ciphers from applications that are not marked critical", () => {
+      const testReport = createRiskInsights({
+        reports: [
+          createReport("github.com", {}, { "c-1": true }),
+          createReport("gitlab.com", {}, { "c-2": true }),
+        ],
+        applications: [
+          createApplication("github.com", true),
+          createApplication("gitlab.com", false),
+        ],
+      });
 
-      mockDataService.loading$.next(false);
-      expect(testAccess(component).loading()).toBe(false);
+      mockDataService.report$.next(testReport);
+
+      expect(testAccess(component).atRiskCipherIds()).toEqual(["c-1"]);
     });
 
-    it("should convert ciphers$ to signal", () => {
-      mockDataService.ciphers$.next([createCipher("cipher-1")]);
+    it("should exclude critical applications that have no at-risk ciphers", () => {
+      const testReport = createRiskInsights({
+        reports: [createReport("github.com", {}, { "c-1": false, "c-2": false })],
+        applications: [createApplication("github.com", true)],
+      });
 
-      expect(testAccess(component).ciphers()).toHaveLength(1);
-      expect(testAccess(component).ciphers()[0].id).toBe("cipher-1");
+      mockDataService.report$.next(testReport);
+
+      expect(testAccess(component).atRiskCipherIds()).toEqual([]);
     });
 
-    it("should convert unassignedCriticalCipherIds$ to signal", () => {
-      mockSecurityTasksService.unassignedCriticalCipherIds$.next(["cipher-1", "cipher-2"]);
+    it("should reset to an empty array when the report becomes null", () => {
+      mockDataService.report$.next(
+        createRiskInsights({
+          reports: [createReport("github.com", {}, { "c-1": true })],
+          applications: [createApplication("github.com", true)],
+        }),
+      );
+      expect(testAccess(component).atRiskCipherIds()).toEqual(["c-1"]);
 
-      expect(testAccess(component).unassignedCipherIds()).toEqual(["cipher-1", "cipher-2"]);
+      mockDataService.report$.next(null);
+
+      expect(testAccess(component).atRiskCipherIds()).toEqual([]);
     });
   });
 
   // ==================== Computed Signals ====================
 
-  describe("Computed Signals", () => {
-    it("should enable request password change when critical at-risk members exist", () => {
+  describe("enableRequestPasswordChange", () => {
+    it("should be false when there are no at-risk critical ciphers", () => {
+      expect(testAccess(component).enableRequestPasswordChange()).toBe(false);
+    });
+
+    it("should be true when at least one critical cipher is at-risk", () => {
       mockDataService.report$.next(
         createRiskInsights({
-          summary: createRiskInsightsSummary({ totalCriticalAtRiskMemberCount: 3 }),
+          reports: [createReport("github.com", {}, { "c-1": true })],
+          applications: [createApplication("github.com", true)],
         }),
       );
 
       expect(testAccess(component).enableRequestPasswordChange()).toBe(true);
     });
+  });
 
-    it("should ignore org-wide at-risk members that are not critical", () => {
-      mockDataService.report$.next(
-        createRiskInsights({
-          summary: createRiskInsightsSummary({
-            totalAtRiskMemberCount: 25,
-            totalCriticalAtRiskMemberCount: 0,
-          }),
-        }),
-      );
+  describe("helpMembersOpen", () => {
+    it("should be false when the coachmark is not on the helpMembers step", () => {
+      expect(testAccess(component).helpMembersOpen()).toBe(false);
 
-      expect(testAccess(component).enableRequestPasswordChange()).toBe(false);
+      mockActiveStepId.set("someOtherStep");
+
+      expect(testAccess(component).helpMembersOpen()).toBe(false);
     });
 
-    it("should disable request password change when there are no at-risk members", () => {
-      mockDataService.report$.next(
-        createRiskInsights({
-          summary: createRiskInsightsSummary({ totalCriticalAtRiskMemberCount: 0 }),
-        }),
-      );
+    it("should be true when the coachmark active step is helpMembers", () => {
+      mockActiveStepId.set("helpMembers");
 
-      expect(testAccess(component).enableRequestPasswordChange()).toBe(false);
+      expect(testAccess(component).helpMembersOpen()).toBe(true);
+    });
+  });
+
+  describe("applicationSummary", () => {
+    it("should be null when no report is loaded", () => {
+      expect(testAccess(component).applicationSummary()).toBeNull();
     });
 
-    it("should disable request password change when report is null", () => {
-      mockDataService.report$.next(null);
-
-      expect(testAccess(component).enableRequestPasswordChange()).toBe(false);
-    });
-
-    it("should map applicationSummary from the report's critical counts", () => {
+    it("should map the critical summary counts from the report", () => {
       mockDataService.report$.next(
         createRiskInsights({
           summary: createRiskInsightsSummary({
@@ -240,8 +254,10 @@ describe("CriticalApplicationsTabComponent", () => {
             totalCriticalMemberCount: 10,
             totalCriticalAtRiskApplicationCount: 2,
             totalCriticalApplicationCount: 5,
-            // Non-critical counts must be ignored by this tab.
+            // Non-critical counts must not leak into the critical summary.
             totalAtRiskMemberCount: 99,
+            totalMemberCount: 99,
+            totalAtRiskApplicationCount: 99,
             totalApplicationCount: 99,
           }),
         }),
@@ -254,99 +270,127 @@ describe("CriticalApplicationsTabComponent", () => {
         totalApplicationCount: 5,
       });
     });
-
-    it("should return null applicationSummary when report is null", () => {
-      mockDataService.report$.next(null);
-
-      expect(testAccess(component).applicationSummary()).toBeNull();
-    });
-
-    it("should open the helpMembers coachmark only for the matching step id", () => {
-      expect(testAccess(component).helpMembersOpen()).toBe(false);
-
-      mockCoachmarkService.activeStepId.set("helpMembers");
-      expect(testAccess(component).helpMembersOpen()).toBe(true);
-
-      mockCoachmarkService.activeStepId.set("someOtherStep");
-      expect(testAccess(component).helpMembersOpen()).toBe(false);
-    });
   });
 
-  // ==================== Table Data ====================
+  // ==================== dataSource population ====================
 
-  describe("Table data", () => {
+  describe("dataSource population", () => {
     it("should include only applications marked as critical", () => {
-      mockDataService.report$.next(createMixedCriticalityReport());
-
-      const rows = testAccess(component).dataSource.data;
-      expect(rows).toHaveLength(1);
-      expect(rows[0].applicationName).toBe("github.com");
-    });
-
-    it("should exclude applications with no metadata entry", () => {
       mockDataService.report$.next(
         createRiskInsights({
-          reports: [createReport("orphan.com", {}, {})],
-          applications: [],
+          reports: [
+            createReport("github.com", {}, {}),
+            createReport("gitlab.com", {}, {}),
+            createReport("bitbucket.com", {}, {}),
+          ],
+          applications: [
+            createApplication("github.com", true),
+            createApplication("gitlab.com", false),
+            createApplication("bitbucket.com", true),
+          ],
         }),
       );
 
-      expect(testAccess(component).dataSource.data).toEqual([]);
+      const rows: ApplicationTableRowV2[] = testAccess(component).dataSource.data;
+
+      expect(rows.map((r) => r.applicationName)).toEqual(["github.com", "bitbucket.com"]);
     });
 
-    it("should map report counts onto the table row and force isMarkedAsCritical", () => {
+    it("should exclude reports with no matching application metadata", () => {
+      mockDataService.report$.next(
+        createRiskInsights({
+          reports: [createReport("github.com", {}, {}), createReport("orphan.com", {}, {})],
+          applications: [createApplication("github.com", true)],
+        }),
+      );
+
+      const rows: ApplicationTableRowV2[] = testAccess(component).dataSource.data;
+
+      expect(rows.map((r) => r.applicationName)).toEqual(["github.com"]);
+    });
+
+    it("should map report counts onto the table row and always flag rows as critical", () => {
       mockDataService.report$.next(
         createRiskInsights({
           reports: [
             createReport(
               "github.com",
-              { "member-1": true, "member-2": false },
-              { "cipher-1": true, "cipher-2": false },
+              { u1: true, u2: false, u3: false },
+              { "c-1": true, "c-2": true, "c-3": false },
             ),
           ],
           applications: [createApplication("github.com", true)],
         }),
       );
 
-      expect(testAccess(component).dataSource.data[0]).toEqual(
+      const rows: ApplicationTableRowV2[] = testAccess(component).dataSource.data;
+
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toEqual(
         expect.objectContaining({
           applicationName: "github.com",
-          passwordCount: 2,
-          atRiskPasswordCount: 1,
-          memberCount: 2,
+          passwordCount: 3,
+          atRiskPasswordCount: 2,
+          memberCount: 3,
           atRiskMemberCount: 1,
           isMarkedAsCritical: true,
         }),
       );
     });
 
-    it("should resolve the icon cipher from ciphers$", () => {
-      const cipher = createCipher("cipher-1");
-      mockDataService.ciphers$.next([cipher]);
-      mockDataService.report$.next(createMixedCriticalityReport());
+    it("should resolve the icon cipher from the ciphers stream", () => {
+      const iconCipher = createCipher("c-1", ["https://github.com"]);
+      mockDataService.ciphers$.next([iconCipher]);
 
-      expect(testAccess(component).dataSource.data[0].iconCipher).toBe(cipher);
+      mockDataService.report$.next(
+        createRiskInsights({
+          reports: [createReport("github.com", {}, { "c-1": true })],
+          applications: [createApplication("github.com", true)],
+        }),
+      );
+
+      const rows: ApplicationTableRowV2[] = testAccess(component).dataSource.data;
+
+      expect(rows[0].iconCipher).toBe(iconCipher);
     });
 
-    it("should leave iconCipher undefined when no cipher matches", () => {
+    it("should leave iconCipher undefined when the cipher is not in the ciphers stream", () => {
       mockDataService.ciphers$.next([createCipher("some-other-cipher")]);
-      mockDataService.report$.next(createMixedCriticalityReport());
 
-      expect(testAccess(component).dataSource.data[0].iconCipher).toBeUndefined();
+      mockDataService.report$.next(
+        createRiskInsights({
+          reports: [createReport("github.com", {}, { "c-1": true })],
+          applications: [createApplication("github.com", true)],
+        }),
+      );
+
+      const rows: ApplicationTableRowV2[] = testAccess(component).dataSource.data;
+
+      expect(rows[0].iconCipher).toBeUndefined();
     });
 
-    it("should rebuild rows when ciphers$ emits after the report", () => {
-      mockDataService.report$.next(createMixedCriticalityReport());
+    it("should re-resolve icon ciphers when the ciphers stream emits after the report", () => {
+      mockDataService.report$.next(
+        createRiskInsights({
+          reports: [createReport("github.com", {}, { "c-1": true })],
+          applications: [createApplication("github.com", true)],
+        }),
+      );
       expect(testAccess(component).dataSource.data[0].iconCipher).toBeUndefined();
 
-      const cipher = createCipher("cipher-1");
-      mockDataService.ciphers$.next([cipher]);
+      const iconCipher = createCipher("c-1", ["https://github.com"]);
+      mockDataService.ciphers$.next([iconCipher]);
 
-      expect(testAccess(component).dataSource.data[0].iconCipher).toBe(cipher);
+      expect(testAccess(component).dataSource.data[0].iconCipher).toBe(iconCipher);
     });
 
-    it("should clear rows when the report becomes null", () => {
-      mockDataService.report$.next(createMixedCriticalityReport());
+    it("should clear the dataSource when the report becomes null", () => {
+      mockDataService.report$.next(
+        createRiskInsights({
+          reports: [createReport("github.com", {}, {})],
+          applications: [createApplication("github.com", true)],
+        }),
+      );
       expect(testAccess(component).dataSource.data).toHaveLength(1);
 
       mockDataService.report$.next(null);
@@ -357,9 +401,19 @@ describe("CriticalApplicationsTabComponent", () => {
 
   // ==================== Search ====================
 
-  describe("Search", () => {
-    /** Two critical applications, so a search term can meaningfully narrow the set. */
-    const loadTwoCriticalApps = () =>
+  describe("searchControl", () => {
+    it("should apply the search term to the dataSource filter after the debounce window", fakeAsync(() => {
+      testAccess(component).searchControl.setValue("github");
+
+      // Debounce has not elapsed, so the default (match-everything) filter is still in place.
+      expect(testAccess(component).dataSource.filter).not.toBe("github");
+
+      tick(200);
+
+      expect(testAccess(component).dataSource.filter).toBe("github");
+    }));
+
+    it("should narrow the filtered rows to those matching the search term", fakeAsync(() => {
       mockDataService.report$.next(
         createRiskInsights({
           reports: [createReport("github.com", {}, {}), createReport("gitlab.com", {}, {})],
@@ -370,122 +424,27 @@ describe("CriticalApplicationsTabComponent", () => {
         }),
       );
 
-    const filteredNames = () =>
-      testAccess(component).dataSource.filteredData.map((row: any) => row.applicationName);
-
-    it("should apply the search term to the data source after the debounce window", fakeAsync(() => {
-      loadTwoCriticalApps();
-
       testAccess(component).searchControl.setValue("github");
-      expect(filteredNames()).toEqual(["github.com", "gitlab.com"]);
-
       tick(200);
 
-      expect(filteredNames()).toEqual(["github.com"]);
+      const filtered: ApplicationTableRowV2[] = testAccess(component).dataSource.filteredData;
+      expect(filtered.map((r) => r.applicationName)).toEqual(["github.com"]);
     }));
 
-    it("should only apply the final value when typing quickly", fakeAsync(() => {
-      loadTwoCriticalApps();
-
-      testAccess(component).searchControl.setValue("gitlab");
-      tick(50);
+    it("should only apply the latest value typed within the debounce window", fakeAsync(() => {
+      testAccess(component).searchControl.setValue("git");
+      tick(100);
       testAccess(component).searchControl.setValue("github");
-      tick(50);
-
-      // Neither intermediate value has settled yet.
-      expect(filteredNames()).toEqual(["github.com", "gitlab.com"]);
-
       tick(200);
 
-      expect(filteredNames()).toEqual(["github.com"]);
+      expect(testAccess(component).dataSource.filter).toBe("github");
     }));
-  });
-
-  // ==================== removeCriticalApplication ====================
-
-  describe("removeCriticalApplication()", () => {
-    it("should unmark the single application passed in", () => {
-      component.removeCriticalApplication("github.com");
-
-      expect(mockDataService.unmarkApplicationsAsCritical$).toHaveBeenCalledTimes(1);
-      expect(mockDataService.unmarkApplicationsAsCritical$).toHaveBeenCalledWith(["github.com"]);
-    });
-
-    it("should show a success toast on completion", () => {
-      component.removeCriticalApplication("github.com");
-
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({
-          variant: "success",
-          message: "criticalApplicationUnmarkedSuccessfully",
-        }),
-      );
-    });
-
-    it("should show an error toast when the service call fails", () => {
-      mockDataService.unmarkApplicationsAsCritical$.mockReturnValue(
-        throwError(() => new Error("fail")),
-      );
-
-      component.removeCriticalApplication("github.com");
-
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "unexpectedError" }),
-      );
-    });
-  });
-
-  // ==================== requestPasswordChange ====================
-
-  describe("requestPasswordChange()", () => {
-    it("should pass the organization id and the unassigned cipher ids", () => {
-      mockSecurityTasksService.unassignedCriticalCipherIds$.next(["cipher-1", "cipher-2"]);
-
-      testAccess(component).requestPasswordChange();
-
-      expect(
-        mockSecurityTasksService.requestPasswordChangeForCriticalApplications$,
-      ).toHaveBeenCalledWith(orgId, ["cipher-1", "cipher-2"]);
-    });
-
-    it("should show a success toast on completion", () => {
-      testAccess(component).requestPasswordChange();
-
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "success", message: "notifiedMembers" }),
-      );
-    });
-
-    it("should show an error toast when the service call fails", () => {
-      mockSecurityTasksService.requestPasswordChangeForCriticalApplications$.mockReturnValue(
-        throwError(() => new Error("fail")),
-      );
-
-      testAccess(component).requestPasswordChange();
-
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "unexpectedError" }),
-      );
-    });
-
-    it("should show an error toast and skip the service call when there is no organization id", () => {
-      fixture.componentRef.setInput("organizationId", undefined);
-
-      testAccess(component).requestPasswordChange();
-
-      expect(
-        mockSecurityTasksService.requestPasswordChangeForCriticalApplications$,
-      ).not.toHaveBeenCalled();
-      expect(mockToastService.showToast).toHaveBeenCalledWith(
-        expect.objectContaining({ variant: "error", message: "unexpectedError" }),
-      );
-    });
   });
 
   // ==================== Drawers ====================
 
   describe("Drawers", () => {
-    it("should toggle the critical at-risk members drawer", () => {
+    it("openCriticalAtRiskMembersDrawer() should toggle the CriticalAtRiskMembers drawer", () => {
       testAccess(component).openCriticalAtRiskMembersDrawer();
 
       expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
@@ -494,7 +453,7 @@ describe("CriticalApplicationsTabComponent", () => {
       );
     });
 
-    it("should toggle the critical at-risk apps drawer", () => {
+    it("openCriticalAtRiskAppsDrawer() should toggle the CriticalAtRiskApps drawer", () => {
       testAccess(component).openCriticalAtRiskAppsDrawer();
 
       expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
@@ -503,7 +462,7 @@ describe("CriticalApplicationsTabComponent", () => {
       );
     });
 
-    it("should toggle the app at-risk members drawer for a given application", () => {
+    it("showAppAtRiskMembers() should toggle the AppAtRiskMembers drawer for the application", () => {
       component.showAppAtRiskMembers("github.com");
 
       expect(mockDrawerStateService.toggleDrawer).toHaveBeenCalledWith(
@@ -511,16 +470,109 @@ describe("CriticalApplicationsTabComponent", () => {
         "github.com",
       );
     });
+  });
 
-    it("should expose the drawer state from the drawer service", () => {
-      expect(testAccess(component).drawerState).toBe(mockDrawerStateService.drawerState);
+  // ==================== removeCriticalApplication ====================
+
+  describe("removeCriticalApplication()", () => {
+    it("should unmark the given hostname as critical", () => {
+      component.removeCriticalApplication("github.com");
+
+      expect(mockDataService.unmarkApplicationsAsCritical$).toHaveBeenCalledWith(["github.com"]);
+    });
+
+    it("should show a success toast when the unmark succeeds", () => {
+      component.removeCriticalApplication("github.com");
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        message: "criticalApplicationUnmarkedSuccessfully",
+        variant: "success",
+      });
+    });
+
+    it("should show an error toast when the unmark fails", () => {
+      mockDataService.unmarkApplicationsAsCritical$.mockReturnValue(
+        throwError(() => new Error("fail")),
+      );
+
+      component.removeCriticalApplication("github.com");
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        message: "unexpectedError",
+        variant: "error",
+        title: "error",
+      });
+    });
+  });
+
+  // ==================== requestPasswordChange ====================
+
+  describe("requestPasswordChange()", () => {
+    it("should request password changes for the current at-risk critical cipher IDs", () => {
+      mockDataService.report$.next(
+        createRiskInsights({
+          reports: [
+            createReport("github.com", {}, { "c-1": true, "c-2": false }),
+            createReport("gitlab.com", {}, { "c-3": true }),
+          ],
+          applications: [
+            createApplication("github.com", true),
+            createApplication("gitlab.com", true),
+          ],
+        }),
+      );
+
+      testAccess(component).requestPasswordChange();
+
+      expect(
+        mockSecurityTasksService.requestPasswordChangeForCriticalApplications$,
+      ).toHaveBeenCalledWith(orgId, ["c-1", "c-3"]);
+    });
+
+    it("should show a success toast when the request succeeds", () => {
+      testAccess(component).requestPasswordChange();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        message: "notifiedMembers",
+        variant: "success",
+        title: "success",
+      });
+    });
+
+    it("should show an error toast when the request fails", () => {
+      mockSecurityTasksService.requestPasswordChangeForCriticalApplications$.mockReturnValue(
+        throwError(() => new Error("fail")),
+      );
+
+      testAccess(component).requestPasswordChange();
+
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        message: "unexpectedError",
+        variant: "error",
+        title: "error",
+      });
+    });
+
+    it("should show an error toast and not call the service when there is no organization ID", () => {
+      fixture.componentRef.setInput("organizationId", undefined);
+
+      testAccess(component).requestPasswordChange();
+
+      expect(
+        mockSecurityTasksService.requestPasswordChangeForCriticalApplications$,
+      ).not.toHaveBeenCalled();
+      expect(mockToastService.showToast).toHaveBeenCalledWith({
+        message: "unexpectedError",
+        variant: "error",
+        title: "error",
+      });
     });
   });
 
   // ==================== goToAllAppsTab ====================
 
   describe("goToAllAppsTab()", () => {
-    it("should navigate to the all-apps tab for the current organization", async () => {
+    it("should navigate to the access intelligence page on the all apps tab", async () => {
       await component.goToAllAppsTab();
 
       expect(mockRouter.navigate).toHaveBeenCalledWith(

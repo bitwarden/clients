@@ -55,6 +55,7 @@ import { reactiveUnlockVaultGuard } from "../autofill/guards/reactive-vault-guar
 import { Fido2CreateComponent } from "../autofill/modal/credentials/fido2-create.component";
 import { Fido2ExcludedCiphersComponent } from "../autofill/modal/credentials/fido2-excluded-ciphers.component";
 import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.component";
+import { MyFoldersComponent } from "../vault/app/my-folders/my-folders.component";
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
@@ -466,6 +467,12 @@ const routes: Routes = [
             ],
           },
         ],
+      },
+      {
+        path: "folders",
+        component: MyFoldersComponent,
+        canActivate: [canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault")],
+        data: { pageTitle: { key: "myFolders" } } satisfies RouteDataProperties,
       },
       {
         path: "send",
