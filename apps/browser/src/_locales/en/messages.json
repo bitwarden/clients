@@ -1418,6 +1418,18 @@
   "aboutFillAssistLabelV2": {
     "message": "About fill assist"
   },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Allow websites to exclude fields to autofill"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Allow websites to add fields to autofill"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
+  },
   "enableContextMenuItem": {
     "message": "Show context menu options"
   },
@@ -7927,7 +7939,7 @@
   },
   "weakPasswordsDescription": {
     "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
-  },    
+  },
   "reusedPasswordsTitle": {
     "message": "Reused passwords"
   },
@@ -7956,7 +7968,7 @@
   },
   "exposedPasswordsEmpty": {
     "message": "None of your passwords were found in data breaches."
-  },  
+  },
   "weakPasswordEmpty": {
     "message": "All your passwords are strong."
   },
