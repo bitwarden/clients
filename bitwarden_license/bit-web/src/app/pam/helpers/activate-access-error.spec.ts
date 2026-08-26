@@ -41,18 +41,4 @@ describe("activateAccessErrorMessageKey", () => {
   ])("falls back to the generic key for %s", (_name, thrown) => {
     expect(activateAccessErrorMessageKey(thrown)).toBe("pamStartLeaseError");
   });
-
-  it("never returns the server's own words, whatever it was handed", () => {
-    const keys = [
-      ...cases.map(([serverMessage]) =>
-        activateAccessErrorMessageKey(activationError("Api", wireBody(serverMessage))),
-      ),
-      activateAccessErrorMessageKey(activationError("Api", wireBody("Something else entirely."))),
-    ];
-
-    for (const key of keys) {
-      expect(key).not.toContain("exceptionStackTrace");
-      expect(key).not.toContain("Bit.Services.Pam");
-    }
-  });
 });

@@ -64,11 +64,7 @@ export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
  * none a substring of another, so a substring match is unambiguous while tolerating that framing.
  */
 export function activateAccessErrorMessageKey(e: unknown): string {
-  const message = e instanceof Error ? e.message : undefined;
-  if (!message) {
-    return "pamStartLeaseError";
-  }
-
+  const message = e instanceof Error ? e.message : "";
   const mapped = Object.values(ACTIVATE_ACCESS_SERVER_ERRORS).find((entry) =>
     message.includes(entry.serverMessage),
   );
