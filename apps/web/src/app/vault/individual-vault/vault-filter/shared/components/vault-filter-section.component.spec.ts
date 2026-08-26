@@ -19,7 +19,7 @@ import {
 import { CoachmarkService } from "../../../../components/coachmark";
 import { VAULT_CONTROLLED_ACCESS_FILTER } from "../../../vault-controlled-access-filter.token";
 
-import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./vault-filter-gated-collection-indicator.token";
+import { VAULT_FILTER_GATED_COLLECTION_INDICATOR } from "./pam/vault-filter-gated-collection-indicator.token";
 import { VaultFilterSectionComponent } from "./vault-filter-section.component";
 
 @Component({
