@@ -208,7 +208,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher({ partial: false }));
 
       expect(requestsApi.getCipherAccessState).not.toHaveBeenCalled();
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
 
     it("renders nothing when the PAM feature flag is off", async () => {
@@ -217,7 +217,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(requestsApi.getCipherAccessState).not.toHaveBeenCalled();
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
 
     it("reads access state for a leaseGated cipher whose partial data is gone", async () => {
@@ -232,7 +232,7 @@ describe("CipherViewBannerComponent", () => {
 
       await create(gatedCipher());
 
-      expect(query("bit-callout")).toBeNull();
+      expect(query("bit-card")).toBeNull();
     });
   });
 
@@ -442,6 +442,48 @@ describe("CipherViewBannerComponent", () => {
         until(ENDS_AT),
       );
     });
+  });
+
+  describe("the card container", () => {
+    const cases: ReadonlyArray<{
+      name: string;
+      state: Partial<CipherAccessStateView>;
+      testId: string;
+      glyph: string;
+    }> = [
+      { name: "resting request-access", state: {}, testId: "request", glyph: "bwi-key" },
+      {
+        name: "pending request",
+        state: { pendingRequest: requestView() },
+        testId: "pending",
+        glyph: "bwi-clock",
+      },
+      {
+        name: "approved request",
+        state: { approvedRequest: requestView() },
+        testId: "approved",
+        glyph: "bwi-check-circle",
+      },
+      {
+        name: "active lease",
+        state: { activeLease: leaseView() },
+        testId: "active",
+        glyph: "bwi-clock",
+      },
+    ];
+
+    it.each(cases)(
+      "renders $name as a card with an icon tile",
+      async ({ state, testId, glyph }) => {
+        requestsApi.getCipherAccessState.mockResolvedValue(accessState(state));
+
+        await create(gatedCipher());
+
+        const card = query(`bit-card[data-testid="cipher-view-banner-${testId}"]`);
+        expect(card).not.toBeNull();
+        expect(card?.querySelector(`bit-icon-tile i.${glyph}`)).not.toBeNull();
+      },
+    );
   });
 
   describe("the rule's terms, before the form is opened", () => {
