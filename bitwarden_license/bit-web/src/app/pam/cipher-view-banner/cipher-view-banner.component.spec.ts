@@ -412,6 +412,18 @@ describe("CipherViewBannerComponent", () => {
       expect(component["humanForm"].getRawValue().start).not.toBe("");
     });
 
+    it("renders the automatic path's Reason field as a multi-line textarea", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      const reason = query("#pam-cipher-view-banner_textarea_automatic-reason");
+      expect(reason?.tagName).toBe("TEXTAREA");
+      expect(reason?.getAttribute("rows")).toBe("3");
+    });
+
     it("renders the human path's Reason field as a multi-line textarea", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
