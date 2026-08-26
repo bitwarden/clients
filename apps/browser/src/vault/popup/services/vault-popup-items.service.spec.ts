@@ -453,7 +453,7 @@ describe("VaultPopupItemsService", () => {
 
     it("returns true when the selected organization is disabled", (done) => {
       organizationServiceMock.organizations$.mockReturnValue(
-        new BehaviorSubject([{ ...mockOrg, enabled: false }]),
+        new BehaviorSubject([{ ...mockOrg, enabled: false } as Organization]),
       );
       filters$.next({
         organization: mockOrg,

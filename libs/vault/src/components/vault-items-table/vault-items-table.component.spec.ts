@@ -36,10 +36,9 @@ import {
 import { CipherListView } from "@bitwarden/sdk-internal";
 
 import { CopyCipherFieldService } from "../../services/copy-cipher-field.service";
+import { MY_VAULT, NO_FOLDER } from "../../utils/vault-filter-predicates";
 
 import {
-  MY_VAULT,
-  NO_FOLDER,
   VaultItemsTableColumn,
   VaultItemsTableComponent,
   VaultItemsTableFilters,
