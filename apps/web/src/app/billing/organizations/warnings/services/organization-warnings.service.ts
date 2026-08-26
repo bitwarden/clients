@@ -19,7 +19,7 @@ import { take } from "rxjs/operators";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -351,8 +351,8 @@ export class OrganizationWarningsService {
     }
 
     return this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.govModeService.isGovMode$(userId)),
+      getOptionalUserId,
+      switchMap((userId) => (userId == null ? of(false) : this.govModeService.isGovMode$(userId))),
       take(1),
       switchMap((isGovMode) => {
         if (isGovMode && !allowInGovMode) {

@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
-import { Observable, switchMap } from "rxjs";
+import { Observable, of, switchMap } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { getOptionalUserId } from "@bitwarden/common/auth/services/account.service";
 import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { BannerModule } from "@bitwarden/components";
 import { SharedModule } from "@bitwarden/web-vault/app/shared";
@@ -63,8 +63,8 @@ export class OrganizationFreeTrialWarningComponent implements OnInit {
       this.includeOrganizationNameInMessaging,
     );
     this.isGovMode$ = this.accountService.activeAccount$.pipe(
-      getUserId,
-      switchMap((userId) => this.govModeService.isGovMode$(userId)),
+      getOptionalUserId,
+      switchMap((userId) => (userId == null ? of(false) : this.govModeService.isGovMode$(userId))),
     );
   }
 }

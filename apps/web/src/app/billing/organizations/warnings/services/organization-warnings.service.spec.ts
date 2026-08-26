@@ -1044,4 +1044,26 @@ describe("OrganizationWarningsService", () => {
       }, 10);
     });
   });
+
+  describe("null active account", () => {
+    beforeEach(() => {
+      accountService.activeAccount$ = of(null);
+      govModeService.isGovMode$.mockReturnValue(of(true));
+    });
+
+    it("treats a null active account as not Gov mode and does not suppress warnings", (done) => {
+      organizationBillingClient.getWarnings.mockResolvedValue({
+        freeTrial: { remainingTrialDays: 5 },
+      } as OrganizationWarningsResponse);
+
+      service.getFreeTrialWarning$(organization).subscribe((result) => {
+        expect(result).toEqual({
+          organization: organization,
+          message: "Your free trial ends in 5 days.",
+        });
+        expect(govModeService.isGovMode$).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
 });

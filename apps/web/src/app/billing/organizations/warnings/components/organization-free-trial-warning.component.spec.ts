@@ -84,4 +84,16 @@ describe("OrganizationFreeTrialWarningComponent", () => {
     expect(text).toContain("Your free trial ends in 5 days.");
     expect(fixture.nativeElement.querySelector("a")).toBeNull();
   });
+
+  it("shows the payment link when there is no active account (treated as not Gov)", () => {
+    accountService.activeAccount$ = of(null);
+    setGovMode(true);
+    setWarning({ organization, message: "Your free trial ends in 5 days." });
+
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent as string;
+    expect(text).toContain("Your free trial ends in 5 days.");
+    expect(fixture.nativeElement.querySelector("a")).not.toBeNull();
+  });
 });
