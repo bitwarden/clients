@@ -11,9 +11,11 @@ import { BehaviorSubject, of } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
 import { CollectionService } from "@bitwarden/admin-console/common";
-import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { Collection } from "@bitwarden/common/admin-console/models/collections";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { EncString } from "@bitwarden/legacy-crypto";
 
 import {
   VaultNavItemType,
@@ -72,9 +74,17 @@ describe("vaultScopeGuard", () => {
   const accountService = mock<AccountService>();
   const collectionService = mock<CollectionService>();
 
-  /** A shared folder of the organization the account is a member of, as the user holds it. */
+  /**
+   * A shared folder of the organization the account is a member of, as the user holds it. The name
+   * stays encrypted: the guard reads collections without decrypting them, so an id and an
+   * organization are all it ever looks at.
+   */
   const collection = (id: string, orgId: OrganizationId = organizationId) =>
-    new CollectionView({ id: id as CollectionId, organizationId: orgId, name: "Engineering" });
+    new Collection({
+      id: id as CollectionId,
+      organizationId: orgId,
+      name: new EncString("2.abc123|def456==|ghi789=="),
+    });
 
   const makeRoute = (vaultId?: string, collectionId?: string): ActivatedRouteSnapshot =>
     mock<ActivatedRouteSnapshot>({
@@ -98,7 +108,7 @@ describe("vaultScopeGuard", () => {
     vaultNavService.viewModel$.mockReturnValue(viewModel$);
 
     accountService.activeAccount$ = of({ id: userId } as Account);
-    collectionService.decryptedCollections$.mockReturnValue(of([]));
+    collectionService.encryptedCollections$.mockReturnValue(of([]));
 
     TestBed.configureTestingModule({
       providers: [
@@ -155,7 +165,7 @@ describe("vaultScopeGuard", () => {
     const collectionId = "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f";
 
     it("allows a folder the user holds under an organization they are a member of", async () => {
-      collectionService.decryptedCollections$.mockReturnValue(of([collection(collectionId)]));
+      collectionService.encryptedCollections$.mockReturnValue(of([collection(collectionId)]));
 
       await expect(runGuard(organizationId, collectionId)).resolves.toBe(true);
     });
@@ -168,9 +178,17 @@ describe("vaultScopeGuard", () => {
 
     // The page narrows its collections to the vault in view, so the folder would resolve to nothing.
     it("redirects to the organization's vault for a folder another organization owns", async () => {
-      collectionService.decryptedCollections$.mockReturnValue(
+      collectionService.encryptedCollections$.mockReturnValue(
         of([collection(collectionId, otherOrganizationId)]),
       );
+
+      await expect(runGuard(organizationId, collectionId)).resolves.toBe(organizationVaultUrlTree);
+      expect(router.createUrlTree).toHaveBeenCalledWith(["/vault", organizationId]);
+    });
+
+    // Collections are null until the first sync writes them, which holds no folder to reach.
+    it("redirects to the organization's vault when the collections have yet to load", async () => {
+      collectionService.encryptedCollections$.mockReturnValue(of(null));
 
       await expect(runGuard(organizationId, collectionId)).resolves.toBe(organizationVaultUrlTree);
       expect(router.createUrlTree).toHaveBeenCalledWith(["/vault", organizationId]);
@@ -229,12 +247,22 @@ describe("vaultScopeGuard", () => {
 
   // Resolving the active account twice could pair one account's vaults with another's collections.
   it("reads the vaults and the collections for the one account it resolved", async () => {
-    collectionService.decryptedCollections$.mockClear();
+    collectionService.encryptedCollections$.mockClear();
     vaultNavService.viewModel$.mockClear();
 
     await runGuard(organizationId, "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f");
 
     expect(vaultNavService.viewModel$).toHaveBeenCalledWith(userId);
-    expect(collectionService.decryptedCollections$).toHaveBeenCalledWith(userId);
+    expect(collectionService.encryptedCollections$).toHaveBeenCalledWith(userId);
+  });
+
+  // Decrypting waits on the org keys and then every collection, for an id and an organization that
+  // are plaintext either way — a cost the guard would put on every drilled-in navigation.
+  it("does not decrypt the collections to decide whether a folder is reachable", async () => {
+    collectionService.decryptedCollections$.mockClear();
+
+    await runGuard(organizationId, "3c4d5e6f-7a8b-4c9d-8e1f-2a3b4c5d6e7f");
+
+    expect(collectionService.decryptedCollections$).not.toHaveBeenCalled();
   });
 });

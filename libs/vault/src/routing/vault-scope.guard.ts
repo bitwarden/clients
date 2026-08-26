@@ -89,9 +89,14 @@ export const vaultScopeGuard: CanActivateFn = async (route) => {
   // that has been deleted, and one belonging to another organization are all guids that name no
   // destination for this user. The page would otherwise render an empty vault beneath a folder
   // heading it cannot resolve, so drop the drill-in and show the vault the URL did name.
-  const collections = await firstValueFrom(collectionService.decryptedCollections$(userId));
+  //
+  // The encrypted collections answer this: only a collection's name is encrypted, and reachability
+  // is decided by its id and organization, both of which are plaintext. Reading them keeps org key
+  // derivation and the decryption of every collection off the navigation's critical path. They are
+  // null until the first sync writes them, which is the same empty answer decrypting would give.
+  const collections = await firstValueFrom(collectionService.encryptedCollections$(userId));
 
-  const reachable = collections.some(
+  const reachable = (collections ?? []).some(
     (collection) => collection.id === collectionId && collection.organizationId === organizationId,
   );
 
