@@ -70,7 +70,6 @@ const EVENTS: AccessAuditEventResponse[] = [
     actorName: "Ada Lovelace",
     detail: "Incident closed early.",
   }),
-  // An extension carries no start bound: the server writes only the lease's new end for this kind.
   event({
     kind: AccessAuditEventKind.LeaseExtended,
     occurredAt: fromNow(-45 * MINUTE),
