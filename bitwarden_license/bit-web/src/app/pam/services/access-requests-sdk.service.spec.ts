@@ -19,6 +19,7 @@ import type {
   AccessRequestId,
   AccessRequestResultView,
   AccessRequestView,
+  CipherAccessStateView,
 } from "@bitwarden/sdk-internal";
 
 import { AccessRequestsSdkService } from "./access-requests-sdk.service";
@@ -171,6 +172,71 @@ describe("AccessRequestsSdkService", () => {
 
       await expect(service.preCheck("not-a-uuid")).rejects.toThrow();
       expect(accessRequests.pre_check).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("getCipherAccessState", () => {
+    const stateView = { cipherId } as unknown as CipherAccessStateView;
+
+    it("calls access_requests().cipher_access_state() with the branded cipher id", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      accessRequests.cipher_access_state.mockResolvedValue(stateView);
+
+      const result = await service.getCipherAccessState(cipherId);
+
+      expect(accessRequests.cipher_access_state).toHaveBeenCalledWith(cipherId);
+      expect(result).toBe(stateView);
+    });
+
+    it("issues one read for callers that ask while the first is still in flight", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      let settle: (view: CipherAccessStateView) => void = () => {};
+      accessRequests.cipher_access_state.mockReturnValue(
+        new Promise<CipherAccessStateView>((resolve) => (settle = resolve)),
+      );
+
+      const first = service.getCipherAccessState(cipherId);
+      const second = service.getCipherAccessState(cipherId);
+      settle(stateView);
+
+      expect(await first).toBe(stateView);
+      expect(await second).toBe(stateView);
+      expect(accessRequests.cipher_access_state).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps separate ciphers on separate reads", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const otherCipherId = "8e3c5d9b-9b1e-4c8a-9b1e-3b1e4c8a9b1e";
+      accessRequests.cipher_access_state.mockResolvedValue(stateView);
+
+      await Promise.all([
+        service.getCipherAccessState(cipherId),
+        service.getCipherAccessState(otherCipherId),
+      ]);
+
+      expect(accessRequests.cipher_access_state).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not serve a settled read to a later caller", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      accessRequests.cipher_access_state.mockResolvedValue(stateView);
+
+      await service.getCipherAccessState(cipherId);
+      await service.getCipherAccessState(cipherId);
+
+      expect(accessRequests.cipher_access_state).toHaveBeenCalledTimes(2);
+    });
+
+    it("does not strand a failed read in the in-flight map", async () => {
+      const accessRequests = mockAccessRequestsClient();
+      const error = new Error("cannot read access state");
+      accessRequests.cipher_access_state.mockRejectedValueOnce(error);
+      accessRequests.cipher_access_state.mockResolvedValue(stateView);
+
+      await expect(service.getCipherAccessState(cipherId)).rejects.toBe(error);
+      expect(logService.error).toHaveBeenCalled();
+
+      await expect(service.getCipherAccessState(cipherId)).resolves.toBe(stateView);
     });
   });
 
