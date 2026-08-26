@@ -242,6 +242,7 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
 
       expect(query('[data-testid="cipher-view-banner-pending"]')).not.toBeNull();
+      expect(text()).toContain("pamPendingRequestBannerHeading");
       expect(query("#pam-cipher-view-banner_button_cancel")).not.toBeNull();
       expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
     });
