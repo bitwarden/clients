@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 import { lastValueFrom, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -26,6 +27,7 @@ import {
   TableDataSource,
   TableModule,
   ToggleGroupModule,
+  BreadcrumbsModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfig,
@@ -69,6 +71,8 @@ import {
     GetOrgNameFromIdPipe,
     OrganizationNameBadgeComponent,
     Vfo1IconPipe,
+    RouterLink,
+    BreadcrumbsModule,
   ],
   providers: [PasskeyReportService],
 })

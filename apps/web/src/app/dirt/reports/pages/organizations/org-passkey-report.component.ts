@@ -9,7 +9,7 @@ import {
   untracked,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterLink } from "@angular/router";
 import { filter, lastValueFrom, shareReplay, switchMap } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -26,6 +26,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
+  BreadcrumbsModule,
   CalloutComponent,
   ContainerComponent,
   DialogService,
@@ -79,6 +80,8 @@ import {
     LinkComponent,
     TableModule,
     BadgeComponent,
+    BreadcrumbsModule,
+    RouterLink,
   ],
 })
 export class OrgPasskeyReportComponent {

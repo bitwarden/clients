@@ -7,6 +7,7 @@ import {
   ChipActionComponent,
   ChipFilterComponent,
   TooltipDirective,
+  BreadcrumbsModule,
 } from "@bitwarden/components";
 import {
   CipherFormConfigService,
@@ -50,6 +51,7 @@ import { ReportsSharedModule } from "./shared";
     PasskeyReportComponent,
     TooltipDirective,
     Vfo1IconPipe,
+    BreadcrumbsModule,
   ],
   declarations: [
     BreachReportComponent,

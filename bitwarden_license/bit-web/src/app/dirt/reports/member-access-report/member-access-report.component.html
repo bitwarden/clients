@@ -1,4 +1,8 @@
 <app-header>
+  <bit-breadcrumbs slot="breadcrumbs">
+    <bit-breadcrumb [routerLink]="['/reports']">{{ "reports" | i18n }}</bit-breadcrumb>
+  </bit-breadcrumbs>
+
   @let isLoading = isLoading$ | async;
 
   @if (!isLoading) {

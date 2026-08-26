@@ -26,6 +26,7 @@ import {
   TableDataSource,
   IconModule,
   ToastService,
+  BreadcrumbsModule,
 } from "@bitwarden/components";
 import { KeyService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
@@ -63,6 +64,7 @@ import { MemberAccessReportView } from "./view/member-access-report.view";
     CoreOrganizationModule,
     IconModule,
     Vfo1I18nPipe,
+    BreadcrumbsModule,
   ],
   providers: [
     safeProvider({
