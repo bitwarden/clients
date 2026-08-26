@@ -399,11 +399,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     return collectionFilterSection;
   }
 
-  /**
-   * The group renders nothing while the host offers no children, which is also how a user with no
-   * privileged-access organization in view sees no group: `app-filter-section` draws neither the
-   * heading nor the list for a head node with no children.
-   */
+  /** A head node with no children renders nothing, so an empty `options$` hides the group. */
   protected addControlledAccessFilter(
     controlledAccessFilter: VaultControlledAccessFilter,
   ): VaultFilterSection {
