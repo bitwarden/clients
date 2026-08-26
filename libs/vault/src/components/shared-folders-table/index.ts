@@ -4,6 +4,7 @@ export {
   isSharedFolderPermission,
   sharedFolderPermissionMessageKey,
 } from "./shared-folder-permission";
+export { type SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
 export { type SharedFolderRow, type SharedFoldersTableRowAction } from "./shared-folders-table-row";
 export {
   SHARED_FOLDERS_COLUMNS,

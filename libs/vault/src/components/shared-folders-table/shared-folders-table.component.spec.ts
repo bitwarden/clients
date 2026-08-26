@@ -7,6 +7,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
+import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 import {
   SharedFoldersTableColumn,
@@ -290,6 +291,112 @@ describe("SharedFoldersTableComponent", () => {
       );
 
       expect(run).toHaveBeenCalledWith(sharedFolder);
+    });
+  });
+
+  describe("bulk actions", () => {
+    const bulkActions: SharedFoldersTableBulkAction[] = [
+      { id: "delete", label: "Delete", icon: "bwi-trash", run: jest.fn() },
+    ];
+
+    /** The table's selection model, present only while selection is configured. */
+    function selectionModel() {
+      const model = bitTable().selectionModel();
+      if (!model) {
+        throw new Error("The table has no selection model");
+      }
+      return model;
+    }
+
+    it("leaves selection off when no bulk actions are supplied", () => {
+      fixture.componentRef.setInput("sharedFolders", [row()]);
+      fixture.detectChanges();
+
+      expect(bitTable().selectionModel()).toBeUndefined();
+      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).toBeNull();
+    });
+
+    it("turns on multi-select and renders the bar once bulk actions are supplied", () => {
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a" }), row({ id: "b" })]);
+      fixture.componentRef.setInput("bulkActions", bulkActions);
+      fixture.detectChanges();
+
+      selectionModel().select(...bitTable().filtered());
+
+      expect(selectionModel().count()).toBe(2);
+      expect(fixture.nativeElement.querySelector("bit-bulk-actions-bar")).not.toBeNull();
+    });
+
+    it("hands each bulk action to the bar to render", () => {
+      fixture.componentRef.setInput("sharedFolders", [row()]);
+      fixture.componentRef.setInput("bulkActions", [
+        ...bulkActions,
+        { id: "access", label: "Manage access", icon: "bwi-users", run: jest.fn() },
+      ]);
+      fixture.detectChanges();
+
+      const bar: HTMLElement = fixture.nativeElement.querySelector("bit-bulk-actions-bar");
+      expect(bar.textContent).toContain("Delete");
+      expect(bar.textContent).toContain("Manage access");
+    });
+
+    it("keeps the selection while change detection runs", () => {
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a" })]);
+      fixture.componentRef.setInput("bulkActions", bulkActions);
+      fixture.detectChanges();
+
+      const [first] = bitTable().filtered();
+      selectionModel().select(first);
+      fixture.detectChanges();
+
+      expect(selectionModel().selected()).toEqual([first]);
+    });
+
+    it("runs an action with the selected rows", () => {
+      const run = jest.fn();
+      fixture.componentRef.setInput("sharedFolders", [row({ id: "a" }), row({ id: "b" })]);
+      fixture.componentRef.setInput("bulkActions", [
+        { id: "delete", label: "Delete", icon: "bwi-trash", run },
+      ]);
+      fixture.detectChanges();
+
+      const [first] = bitTable().filtered();
+      selectionModel().select(first);
+      fixture.detectChanges();
+
+      component["resolvedBulkActions"]()[0].invoke();
+
+      expect(run).toHaveBeenCalledWith([first]);
+    });
+
+    it("resolves each action's disabled state against the selected rows", () => {
+      fixture.componentRef.setInput("sharedFolders", [
+        row({ id: "a", items: 0 }),
+        row({ id: "b", items: 4 }),
+      ]);
+      fixture.componentRef.setInput("bulkActions", [
+        {
+          id: "delete",
+          label: "Delete",
+          icon: "bwi-trash",
+          // Deleting a folder that still holds items is a separate, confirmed flow.
+          disabled: (rows: readonly SharedFolderRow[]) => rows.some((r) => r.items > 0),
+          run: jest.fn(),
+        },
+      ]);
+      fixture.detectChanges();
+
+      const [empty, populated] = bitTable().filtered();
+
+      // The selection reaches the component through the table's `selectedChange` output, so each
+      // change needs a pass to land.
+      selectionModel().select(empty);
+      fixture.detectChanges();
+      expect(component["resolvedBulkActions"]()[0].disabled).toBe(false);
+
+      selectionModel().select(populated);
+      fixture.detectChanges();
+      expect(component["resolvedBulkActions"]()[0].disabled).toBe(true);
     });
   });
 

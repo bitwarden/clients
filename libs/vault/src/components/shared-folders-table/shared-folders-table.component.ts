@@ -5,6 +5,7 @@ import {
   computed,
   input,
   output,
+  signal,
   TrackByFunction,
 } from "@angular/core";
 
@@ -16,6 +17,8 @@ import {
   BitHeaderCellComponent,
   BitTableToolbarComponent,
   BitTableV2Component,
+  BulkActionComponent,
+  BulkActionsBarComponent,
   ButtonModule,
   defineTable,
   FilterMenuModule,
@@ -24,6 +27,7 @@ import {
   IconTileComponent,
   MenuModule,
   SearchModule,
+  SelectionConfig,
   SkeletonTextComponent,
   SortFn,
 } from "@bitwarden/components";
@@ -35,6 +39,7 @@ import {
   sharedFolderPermissionMessageKey,
   sharedFolderPermissionOrder,
 } from "./shared-folder-permission";
+import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 
 /**
@@ -71,7 +76,9 @@ export type SharedFoldersTableFilters = {
 
 /**
  * A shared folders table: name, permissions, item count, and a per-row Options menu, with a search
- * field, a Permissions filter chip, and an Add button in the toolbar above them.
+ * field, a Permissions filter chip, and an Add button in the toolbar above them. Supply {@link
+ * SharedFoldersTableComponent.bulkActions} and the rows also take checkboxes, backed by a bulk
+ * actions bar.
  *
  * The table is presentational — it sorts and searches the rows it is handed and reports intent
  * back through {@link add} and each action's `run`. Loading the folders, resolving each folder's
@@ -87,6 +94,7 @@ export type SharedFoldersTableFilters = {
  *   [sharedFolders]="sharedFolders()"
  *   [loading]="loading()"
  *   [rowActions]="rowActions()"
+ *   [bulkActions]="bulkActions()"
  *   (add)="addSharedFolder()"
  * />
  * ```
@@ -103,6 +111,8 @@ export type SharedFoldersTableFilters = {
     BitHeaderCellComponent,
     BitTableToolbarComponent,
     BitTableV2Component,
+    BulkActionComponent,
+    BulkActionsBarComponent,
     ButtonModule,
     FilterMenuModule,
     I18nPipe,
@@ -125,6 +135,15 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   readonly rowActions = input<SharedFoldersTableRowAction<R>[]>([]);
 
   /**
+   * The actions the bulk actions bar offers while rows are selected, in display order.
+   *
+   * Supplying at least one is also what turns selection on: the rows take checkboxes only once the
+   * selection has something to act on. The bar packs whatever doesn't fit into its own overflow
+   * menu, so the list needn't be short.
+   */
+  readonly bulkActions = input<SharedFoldersTableBulkAction<R>[]>([]);
+
+  /**
    * Syncs the search term and sort to the URL under this prefix — see
    * {@link BitTableV2Component.queryParam}. Omit to leave the URL untouched.
    */
@@ -136,6 +155,43 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
   protected readonly table = defineTable<R, SharedFoldersTableColumn>(this.sharedFolders);
 
   protected readonly trackById: TrackByFunction<R> = (_index, row) => row.id;
+
+  /**
+   * The rows the table has selected, mirrored from its `selectedChange` output so a bulk action can
+   * be handed the rows it acts on. The bar reads its own count off the table directly.
+   */
+  protected readonly selectedRows = signal<readonly R[]>([]);
+
+  /**
+   * Held as a field rather than written inline in the template: the table rebuilds its selection
+   * model whenever this config's identity changes, so a fresh object each change detection pass
+   * would drop the selection as fast as it was made.
+   */
+  private readonly multiSelect: SelectionConfig<R> = { multiple: true };
+
+  /**
+   * Row selection, on only while there are bulk actions to act on it — checkboxes that lead
+   * nowhere are noise, and the bar they belong to would come up empty.
+   */
+  protected readonly selection = computed<SelectionConfig<R> | undefined>(() =>
+    this.bulkActions().length > 0 ? this.multiSelect : undefined,
+  );
+
+  /**
+   * The bulk actions bound to the current selection. `bit-bulk-action` takes a bare `() => void`
+   * and an already-resolved `disabled`, so each action's callbacks are applied to the selected rows
+   * here — once per selection change, rather than on every change detection pass.
+   */
+  protected readonly resolvedBulkActions = computed(() => {
+    const rows = this.selectedRows();
+    return this.bulkActions().map((action) => ({
+      id: action.id,
+      label: action.label,
+      icon: action.icon,
+      disabled: action.disabled?.(rows) ?? false,
+      invoke: (): void => void action.run(rows),
+    }));
+  });
 
   /**
    * The permissions the Permissions chip offers: those the rows actually carry, in {@link

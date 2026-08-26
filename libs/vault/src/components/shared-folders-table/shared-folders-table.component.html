@@ -4,7 +4,8 @@
   [loading]="loading()"
   [queryParam]="queryParam()"
   [trackBy]="trackById"
-  [selection]="{ multiple: true }"
+  [selection]="selection()"
+  (selectedChange)="selectedRows.set($event)"
 >
   <bit-table-toolbar>
     <bit-search class="tw-flex-1" [placeholder]="'search' | i18n"></bit-search>
@@ -38,6 +39,24 @@
     table falls back to its default `bit-status-lockup`.
   -->
   <ng-content select="[slot=empty]" slot="empty"></ng-content>
+
+  <!--
+    Declared here rather than projected in by the client: the bar finds its selected count and its
+    clear button's target by injecting the table it sits inside, and content projected from the
+    client's template resolves its injector there, where there is no `bit-table-v2` to find.
+  -->
+  @if (resolvedBulkActions().length > 0) {
+    <bit-bulk-actions-bar>
+      @for (bulkAction of resolvedBulkActions(); track bulkAction.id) {
+        <bit-bulk-action
+          [label]="bulkAction.label"
+          [icon]="bulkAction.icon"
+          [action]="bulkAction.invoke"
+          [disabled]="bulkAction.disabled"
+        />
+      }
+    </bit-bulk-actions-bar>
+  }
 
   <!-- Name -->
   <bit-column sortable defaultSort="asc" width="minmax(240px, 1fr)">

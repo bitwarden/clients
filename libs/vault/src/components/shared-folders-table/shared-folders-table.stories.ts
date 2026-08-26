@@ -10,6 +10,7 @@ import {
 } from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
+import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action";
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 import { SharedFoldersTableComponent } from "./shared-folders-table.component";
 
@@ -56,10 +57,28 @@ const rowActions: SharedFoldersTableRowAction[] = [
   },
 ];
 
+const bulkActions: SharedFoldersTableBulkAction[] = [
+  {
+    id: "access",
+    label: "Manage access",
+    icon: "bwi-users",
+    run: action("bulk access"),
+  },
+  {
+    id: "delete",
+    label: "Delete",
+    icon: "bwi-trash",
+    // As with the row action, deleting folders that still hold items is a separate, confirmed flow.
+    disabled: (rows) => rows.some((sharedFolder) => sharedFolder.items > 0),
+    run: action("bulk delete"),
+  },
+];
+
 type StoryProps = {
   sharedFolders: SharedFolderRow[];
   loading: boolean;
   rowActions: SharedFoldersTableRowAction[];
+  bulkActions: SharedFoldersTableBulkAction[];
 };
 
 const template = /* HTML */ `
@@ -68,6 +87,7 @@ const template = /* HTML */ `
       [sharedFolders]="sharedFolders"
       [loading]="loading"
       [rowActions]="rowActions"
+      [bulkActions]="bulkActions"
       (add)="add()"
     ></vault-shared-folders-table>
   </div>
@@ -81,6 +101,7 @@ export default {
     sharedFolders,
     loading: false,
     rowActions,
+    bulkActions,
   },
   decorators: [
     moduleMetadata({
@@ -124,6 +145,13 @@ export default {
               optionsForItem: (name) => `Options for ${name}`,
               selectAllRows: "Select all rows",
               selectRow: "Select row",
+              // Bulk actions bar
+              bulkActionsBar: "Bulk actions",
+              bulkActionsBarAnnouncement: (count, shortcut) =>
+                `${count} item(s) selected. The bulk actions bar is now available at the bottom of the screen. Press ${shortcut} to toggle focus to the bulk action bar.`,
+              selectionCleared: "Selection cleared",
+              selectedLowercase: "selected",
+              additionalActions: "Additional actions",
               // The table's default empty state
               nothingToShow: "Nothing to show",
               noMatchingItems: "No matching items",
@@ -141,6 +169,10 @@ type Story = StoryObj<StoryProps>;
  * columns, sorting, search, and Permissions chip all follow from the rows. Sort by any of Name,
  * Permissions, or Items; the search box matches on name; the chip offers each permission present
  * in the rows, with a faceted count apiece.
+ *
+ * `bulkActions` adds the checkbox column and the bulk actions bar the checkboxes raise. Select a
+ * folder that still holds items to watch Delete disable itself — its `disabled` predicate is
+ * re-resolved against the selection on every change.
  */
 export const Default: Story = {};
 
@@ -165,6 +197,14 @@ export const Loading: Story = {
 /** With no `rowActions` the Options menu trigger is omitted from every row. */
 export const NoRowActions: Story = {
   args: { rowActions: [] },
+};
+
+/**
+ * With no `bulkActions` the rows lose their checkboxes: a selection with nothing to act on would
+ * only raise an empty bar.
+ */
+export const NoBulkActions: Story = {
+  args: { bulkActions: [] },
 };
 
 /** An empty `sharedFolders` array, falling back to the table's default empty state. */
