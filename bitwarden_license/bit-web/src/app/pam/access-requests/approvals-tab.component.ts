@@ -13,8 +13,6 @@ import { RouterModule } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -34,7 +32,6 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import type { AccessDecisionVerdict } from "../abstractions/access-lease";
-import { hasApprovalPrivileges$ } from "../approvals/approval-privileges";
 import { ApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.component";
@@ -42,9 +39,10 @@ import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.
 /**
  * "Approvals" tab — the requests awaiting the caller's decision, oldest first.
  *
- * Non-approvers see the unavailable empty state rather than an empty table: an inbox with no rows
- * reads as "nothing to do today", which is the wrong message for someone who will never have
- * anything here. The route guard covers the deep-link case; this covers the rendering.
+ * Only ever rendered for an approver: `canViewApprovalsGuard` redirects a non-approver's deep
+ * link to the sibling `my-requests` tab, and the shell (`access-requests.component.html`) only
+ * renders the "Approvals" tab-link when {@link ApprovalPrivilegeService} says so — so a non-approver
+ * never reaches this component.
  *
  * Data, ordering, and the optimistic decide live in {@link ApproverInboxService} (shared with the
  * History tab); this component owns the toolbar, the table, the dialog, and the toasts.
@@ -70,8 +68,6 @@ import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.
 })
 export class ApprovalsTabComponent {
   private readonly inbox = inject(ApproverInboxService);
-  private readonly accountService = inject(AccountService);
-  private readonly organizationService = inject(OrganizationService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
@@ -79,11 +75,6 @@ export class ApprovalsTabComponent {
 
   /** Ids currently being decided, so a second click on the same row is a no-op. */
   private readonly deciding = signal<Set<string>>(new Set());
-
-  protected readonly canApprove = toSignal(
-    hasApprovalPrivileges$(this.accountService, this.organizationService),
-    { initialValue: false },
-  );
 
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: true });
 

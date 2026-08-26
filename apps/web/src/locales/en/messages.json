@@ -2876,6 +2876,18 @@
   "exportSuccessSkippedAttachment": {
     "message": "1 corrupted attachment was skipped during export. All other vault data and attachments exported successfully."
   },
+  "exportExcludedGatedItem": {
+    "message": "1 item was not included in this export. It is protected by a privileged access rule, so its credentials are not available on this device."
+  },
+  "exportExcludedGatedItems": {
+    "message": "$COUNT$ items were not included in this export. They are protected by privileged access rules, so their credentials are not available on this device.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
   "exportSuccessSkippedAttachments": {
     "message": "$COUNT$ corrupted attachments were skipped during export. All other vault data and attachments exported successfully.",
     "placeholders": {
@@ -16951,8 +16963,8 @@
   "pamAccessRuleDuration8h": {
     "message": "8 hours"
   },
-  "pamAccessRuleDuration24h": {
-    "message": "24 hours"
+  "pamAccessRuleDuration1d": {
+    "message": "1 day"
   },
   "pamAccessRuleDuration7d": {
     "message": "7 days"
@@ -17094,8 +17106,8 @@
   "pamTemplateJustInTimeTitle": {
     "message": "Just in time"
   },
-  "pamTemplateJustInTimeSummary": {
-    "message": "Auto-approved • Expires after 1h • Audit logged"
+  "pamTemplateJustInTimeShortSummary": {
+    "message": "Auto-approved"
   },
   "pamTemplateJustInTimeName": {
     "message": "Just-in-time access"
@@ -17103,8 +17115,8 @@
   "pamTemplateApprovalRequiredTitle": {
     "message": "Approval required"
   },
-  "pamTemplateApprovalRequiredSummary": {
-    "message": "Human approval • 1 approver required • Audit logged"
+  "pamTemplateApprovalRequiredShortSummary": {
+    "message": "Human approval • 1 approver required"
   },
   "pamTemplateApprovalRequiredName": {
     "message": "Approval required"
@@ -17112,8 +17124,8 @@
   "pamTemplateIpRestrictedTitle": {
     "message": "IP-restricted"
   },
-  "pamTemplateIpRestrictedSummary": {
-    "message": "Auto-approved • IP Allowlist • Audit logged"
+  "pamTemplateIpRestrictedShortSummary": {
+    "message": "Auto-approved • IP Allowlist"
   },
   "pamTemplateIpRestrictedName": {
     "message": "IP-restricted access"
@@ -17228,15 +17240,6 @@
   },
   "pamMyRequestsGroupCheckedOut": {
     "message": "Currently checked out"
-  },
-  "pamMyRequestsExtensionsEmpty": {
-    "message": "No extension requests"
-  },
-  "pamApprovalsUnavailableTitle": {
-    "message": "Approvals aren't available yet"
-  },
-  "pamApprovalsUnavailableDescription": {
-    "message": "Reviewing and approving other members' access requests is coming soon."
   },
   "pamMyRequestsLoadError": {
     "message": "Could not load your requests"
@@ -17626,14 +17629,44 @@
       }
     }
   },
-  "pamPendingBannerTitle": {
-    "message": "Your access request is awaiting approval"
+  "pamPendingRequestBannerHeading": {
+    "message": "Access request pending approval"
   },
-  "pamApprovedRequestBannerTitle": {
-    "message": "Your access is approved — start it when you're ready"
+  "pamApprovedRequestBannerHeading": {
+    "message": "Access approved"
   },
-  "pamRequestAccessBannerTitle": {
-    "message": "This item requires a lease. Request access to view or edit it."
+  "pamApprovedRequestBannerDuration": {
+    "message": "$DURATION$ of access",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 hour"
+      }
+    }
+  },
+  "pamRequestAccessBannerBody": {
+    "message": "Credentials are masked until access is granted."
+  },
+  "pamRequestAccessBannerHeading": {
+    "message": "You can request access"
+  },
+  "pamRequestAccessBannerMaxDuration": {
+    "message": "Access up to $DURATION$",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
+  },
+  "pamRequestAccessBannerMaxDurationAutomatic": {
+    "message": "Access up to $DURATION$, instant approval if you meet the conditions",
+    "placeholders": {
+      "duration": {
+        "content": "$1",
+        "example": "1 day"
+      }
+    }
   },
   "pamRequestAccessButton": {
     "message": "Request access"

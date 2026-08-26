@@ -153,7 +153,10 @@ import {
 } from "./vault-controlled-access-filter.token";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
-import { VAULT_GATED_COLLECTION_BANNER } from "./vault-gated-collection-banner.token";
+import {
+  VaultGatedCollectionBanner,
+  VAULT_GATED_COLLECTION_BANNER,
+} from "./vault-gated-collection-banner.token";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -198,7 +201,7 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
 
-  protected readonly gatedCollectionBanner: Type<unknown> | null = inject(
+  protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
     VAULT_GATED_COLLECTION_BANNER,
     { optional: true },
   );
@@ -502,24 +505,10 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    // filteredCiphers$ already incorporates filter$, so re-combining here would let
-    // the two observables race and double the narrowToControlledAccess SDK calls.
-    //
-    // filteredCiphers$ still emits twice per navigation on its own: its combineLatest takes both
-    // filter$ (route.queryParamMap) and currentSearchText$ (route.queryParams), which are the same
-    // subject seen twice, and combineLatest has no glitch avoidance. Deduping matters here and not
-    // for the other consumers because narrowToControlledAccess dispatches one uncached SDK read per
-    // gated row, and switchMap cannot recall them: narrow$ builds its forkJoin array synchronously
-    // on subscribe, so the dropped pass has already issued every read. The narrowing depends on
-    // nothing but the rows and `controlledAccess`, so matching on those two is the whole identity.
+    // Take the filter from the emission that already carries it; re-combining with filter$ would
+    // let the two race and narrow against a stale cipher array.
     const ciphers$ = filteredCiphers$.pipe(
       withLatestFrom(filter$),
-      distinctUntilChanged(
-        ([previousCiphers, previousFilter], [nextCiphers, nextFilter]) =>
-          previousFilter.controlledAccess === nextFilter.controlledAccess &&
-          previousCiphers.length === nextCiphers.length &&
-          previousCiphers.every((cipher, index) => cipher === nextCiphers[index]),
-      ),
       switchMap(([ciphers, filter]) => this.narrowToControlledAccess(ciphers, filter)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
