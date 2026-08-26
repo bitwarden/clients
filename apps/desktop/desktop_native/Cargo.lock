@@ -673,7 +673,7 @@ dependencies = [
  "p256",
  "p384",
  "p521",
- "rsa 0.9.6",
+ "rsa 0.9.10",
  "russh-cryptovec",
  "ssh-encoding",
  "ssh-key",
@@ -1554,7 +1554,7 @@ dependencies = [
  "oo7",
  "pin-project",
  "rand 0.9.3",
- "rsa 0.9.6",
+ "rsa 0.9.10",
  "scopeguard",
  "secmem-proc",
  "security-framework",
@@ -4222,9 +4222,9 @@ dependencies = [
 
 [[package]]
 name = "rsa"
-version = "0.9.6"
+version = "0.9.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d0e5124fcb30e76a7e79bfee683a2746db83784b86289f6251b54b7950a0dfc"
+checksum = "b8573f03f5883dcaebdfcf4725caa1ecb9c15b2ef50c43a07b816e06799bb12d"
 dependencies = [
  "const-oid 0.9.6",
  "digest 0.10.7",
@@ -4995,7 +4995,7 @@ dependencies = [
  "p384",
  "p521",
  "rand_core 0.6.4",
- "rsa 0.9.6",
+ "rsa 0.9.10",
  "sec1",
  "sha2 0.10.9",
  "signature 2.2.0",
@@ -5017,7 +5017,7 @@ dependencies = [
  "mockall 0.15.0",
  "rand 0.9.3",
  "rkyv",
- "rsa 0.9.6",
+ "rsa 0.9.10",
  "secure_memory",
  "serial_test",
  "sha2 0.10.9",
