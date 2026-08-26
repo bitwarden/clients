@@ -7,12 +7,7 @@ import {
 const activationError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRequestError", variant });
 
-/**
- * How the wire body actually reaches `.message`: the sentence buried in the serialized response,
- * with its apostrophes escaped as `\u0027` the way `System.Text.Json`'s default encoder writes
- * them. Spelling the sentence out with a literal apostrophe would test a body the server never
- * sends.
- */
+/** The sentence buried in the serialized response, apostrophes escaped as `\u0027`. */
 const wireBody = (serverMessage: string) => {
   const encoded = serverMessage.replace(/'/g, "\\u0027");
   return (
