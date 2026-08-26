@@ -152,6 +152,20 @@ describe("WindowMain", () => {
       // Assert
       expect(mockWin.maximize).not.toHaveBeenCalled();
     });
+
+    it("calls maximize() when the window is minimized and stored isMaximized is true", () => {
+      // Arrange — minimized window is not visible
+      const mockWin = mock<BrowserWindow>();
+      mockWin.isVisible.mockReturnValue(false);
+      sut.win = mockWin;
+      (sut as any).windowStates["mainWindowSize"] = { isMaximized: true };
+
+      // Act
+      sut.show();
+
+      // Assert
+      expect(mockWin.maximize).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe("updateWindowState", () => {
