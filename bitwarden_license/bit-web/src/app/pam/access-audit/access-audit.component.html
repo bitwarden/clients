@@ -64,6 +64,7 @@
             <th bitCell>{{ "pamAuditColumnActor" | i18n }}</th>
             <th bitCell>{{ "pamAuditColumnRequester" | i18n }}</th>
             <th bitCell>{{ "pamAuditColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamAuditColumnDuration" | i18n }}</th>
             <th bitCell>{{ "pamAuditColumnDetail" | i18n }}</th>
           </tr>
         </ng-container>
@@ -99,6 +100,19 @@
                   <span [bitTooltip]="row.collectionName">{{ row.cipherName }}</span>
                 } @else if (row.ruleName) {
                   {{ row.ruleName }}
+                } @else {
+                  <span class="tw-text-muted">—</span>
+                }
+              </td>
+              <td bitCell>
+                @if (row.duration; as duration) {
+                  <span class="tw-whitespace-nowrap" [bitTooltip]="row.durationWindow">{{
+                    duration.key | i18n: duration.value
+                  }}</span>
+                } @else if (row.extendedUntil) {
+                  <span class="tw-whitespace-nowrap">{{
+                    "pamAuditDurationExtendedTo" | i18n: (row.extendedUntil | date: "short")
+                  }}</span>
                 } @else {
                   <span class="tw-text-muted">—</span>
                 }
