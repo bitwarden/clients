@@ -1772,9 +1772,7 @@ export default class MainBackground {
       this.platformUtilsService,
       this.vaultTimeoutSettingsService,
       this.environmentService,
-      this.sharedUnlockSettingsService,
       this.unlockService,
-      this.configService,
     );
 
     this.endUserNotificationService = new DefaultEndUserNotificationService(

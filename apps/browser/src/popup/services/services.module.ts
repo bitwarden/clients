@@ -185,7 +185,12 @@ import {
 } from "@bitwarden/legacy-crypto";
 import { DerivedStateProvider, GlobalStateProvider, StateProvider } from "@bitwarden/state";
 import { InlineDerivedStateProvider } from "@bitwarden/state-internal";
-import { ForegroundLockService, LockService, UnlockService } from "@bitwarden/unlock";
+import {
+  AutoUnlockService,
+  ForegroundLockService,
+  LockService,
+  UnlockService,
+} from "@bitwarden/unlock";
 import {
   DefaultSshImportPromptService,
   PasswordRepromptService,
@@ -724,10 +729,9 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       LogService,
       BiometricsService,
-      PlatformUtilsService,
-      StateService,
       BiometricStateService,
       V2UpgradeTokenStateService,
+      AutoUnlockService,
       MessageSender,
       MessageListener,
     ],
