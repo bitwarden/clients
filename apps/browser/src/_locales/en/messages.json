@@ -432,9 +432,6 @@
   "noFoldersAdded": {
     "message": "No folders added"
   },
-  "noFoldersLabel": {
-    "message": "No folders"
-  },
   "createFoldersToOrganize": {
     "message": "Create folders to organize your vault items"
   },
