@@ -1,6 +1,6 @@
 ---
 name: evaluating-sdk-internal-updates
-description: Evaluates a bitwarden/clients "Update sdk-internal to" PR against the sdk-internal commit range for compile-time and runtime breaking changes, maps affected symbols to TypeScript call sites, and applies clear in-scope fixes. Use when reviewing an SDK bump PR, an @bitwarden/sdk-internal version change in package.json, or triaging sdk-internal breaking changes.
+description: Evaluates a bitwarden/clients "Update sdk-internal to" PR against the sdk-internal commit range for compile-time and runtime breaking changes, maps affected symbols to TypeScript call sites, and applies clear in-scope fixes. Use when reviewing an SDK bump PR, an @bitwarden/sdk-internal version change in package.json, or triaging sdk-internal breaking changes. Requires a sibling `bitwarden/sdk-internal` clone.
 allowed-tools:
   - Bash(node .claude/skills/evaluating-sdk-internal-updates/sdk-surface-diff.mjs *)
   - Bash(npm run test:types)
@@ -26,7 +26,7 @@ allowed-tools:
 
 # Evaluating sdk-internal Updates
 
-**Identify both compile-time and runtime breaks before fixing anything — fixing the first break found is not finishing.** Steps 3-8 cover the entire commit range before step 9 starts.
+**Identify both compile-time and runtime breaks before fixing anything — fixing the first break found is not finishing.** Steps 4-7 cover the entire commit range, step 8 reports it, and step 9 starts only after that.
 
 This SDK is the boundary where Protected Data becomes Vault Data. A fix must not send a decrypted value to an API service, log one, or move a decrypt out of the SDK into TypeScript. `.claude/CLAUDE.md` forbids new encryption logic in this repo, so a bump that appears to require some is a finding to report, not a fix to write. [Security definitions](https://contributing.bitwarden.com/architecture/security/definitions).
 

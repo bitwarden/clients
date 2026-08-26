@@ -42,24 +42,32 @@ function fetchSurface(version) {
 
   if (!existsSync(dts)) {
     mkdirSync(dir, { recursive: true });
-    execFileSync(
-      "npm",
-      ["pack", `${pkg}@${version}`, "--pack-destination", dir, "--loglevel=warn"],
-      {
-        stdio: ["ignore", "ignore", "inherit"],
-      },
-    );
+    try {
+      execFileSync(
+        "npm",
+        ["pack", `${pkg}@${version}`, "--pack-destination", dir, "--loglevel=warn"],
+        {
+          stdio: ["ignore", "ignore", "inherit"],
+        },
+      );
+    } catch (error) {
+      fail(`npm pack failed for ${pkg}@${version}: ${error.message}`);
+    }
     const tgz = readdirSync(dir).find((file) => file.endsWith(".tgz"));
     if (!tgz) {
       fail(`npm pack produced no tarball for ${pkg}@${version}`);
     }
-    execFileSync("tar", [
-      "-xzf",
-      join(dir, tgz),
-      "-C",
-      dir,
-      "package/bitwarden_wasm_internal.d.ts",
-    ]);
+    try {
+      execFileSync("tar", [
+        "-xzf",
+        join(dir, tgz),
+        "-C",
+        dir,
+        "package/bitwarden_wasm_internal.d.ts",
+      ]);
+    } catch (error) {
+      fail(`failed to extract bitwarden_wasm_internal.d.ts from ${tgz}: ${error.message}`);
+    }
     // Some commercial builds declare VERSION without shipping it, so extract it on its own.
     try {
       execFileSync("tar", ["-xzf", join(dir, tgz), "-C", dir, "package/VERSION"], {
