@@ -1,6 +1,9 @@
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MAX_SDK_FILE_SEND_SIZE_BYTES } from "@bitwarden/common/tools/send/services/send-sdk-api.service";
 import { ToastService } from "@bitwarden/components";
@@ -14,12 +17,16 @@ describe("SendFileDetailsComponent", () => {
   const mockSendFormService = mock<SendFormService>();
   const mockI18nService = mock<I18nService>();
   const mockToastService = mock<ToastService>();
+  const mockConfigService = mock<ConfigService>();
 
   beforeEach(async () => {
     jest.clearAllMocks();
     mockSendFormService.sendFormConfig = { mode: "add", areSendsAllowed: true } as any;
     mockSendFormService.originalSendView.mockReturnValue(null);
     mockI18nService.t.mockImplementation((key) => key);
+    // Defaults to on so the existing size-limit tests exercise the guard; the "flag off" tests
+    // below override this per-case.
+    mockConfigService.getFeatureFlag$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [SendFileDetailsComponent],
@@ -27,6 +34,7 @@ describe("SendFileDetailsComponent", () => {
         { provide: I18nService, useValue: mockI18nService },
         { provide: ToastService, useValue: mockToastService },
         { provide: SendFormService, useValue: mockSendFormService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compileComponents();
 
@@ -73,6 +81,33 @@ describe("SendFileDetailsComponent", () => {
 
     expect(mockSendFormService.setFile).toHaveBeenCalledWith(atLimit);
     expect(mockToastService.showToast).not.toHaveBeenCalled();
+  });
+
+  describe("when the SDK sends flag is off", () => {
+    beforeEach(() => {
+      mockConfigService.getFeatureFlag$.mockReturnValue(of(false));
+      fixture = TestBed.createComponent(SendFileDetailsComponent);
+      fixture.detectChanges();
+    });
+
+    it("does not check FeatureFlag.Pm30110SdkSendsApi under any other name", () => {
+      expect(mockConfigService.getFeatureFlag$).toHaveBeenCalledWith(
+        FeatureFlag.Pm30110SdkSendsApi,
+      );
+    });
+
+    it("allows a file over the SDK size limit, since the legacy path has no equivalent memory concern", () => {
+      const oversized = Object.defineProperty(
+        new File(["hello world"], "big.bin", { type: "application/octet-stream" }),
+        "size",
+        { value: MAX_SDK_FILE_SEND_SIZE_BYTES + 1 },
+      );
+
+      fixture.componentInstance.sendFileDetailsForm.controls.file.setValue(oversized);
+
+      expect(mockSendFormService.setFile).toHaveBeenCalledWith(oversized);
+      expect(mockToastService.showToast).not.toHaveBeenCalled();
+    });
   });
 
   it("disables the control in edit mode", () => {
