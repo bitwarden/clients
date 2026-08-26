@@ -2,14 +2,7 @@ import { importProvidersFrom } from "@angular/core";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { RouterModule } from "@angular/router";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
-import {
-  userEvent,
-  getAllByRole,
-  getByRole,
-  queryByRole,
-  fireEvent,
-  getAllByLabelText,
-} from "storybook/test";
+import { userEvent, getByRole, queryByRole, fireEvent, getAllByLabelText } from "storybook/test";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -149,7 +142,7 @@ export const MenuOpen: Story = {
     const canvas = context.canvasElement;
     await navigateTo("/bitwarden");
     const table = getByRole(canvas, "table");
-    const menuButton = getAllByRole(table, "button")[0];
+    const menuButton = getAllByLabelText(table, "Options")[0];
     await userEvent.click(menuButton);
   },
   parameters: {
