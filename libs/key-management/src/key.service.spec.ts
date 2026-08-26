@@ -18,7 +18,6 @@ import { USER_ENCRYPTED_PROVIDER_KEYS } from "@bitwarden/common/platform/service
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserKeyDefinition } from "@bitwarden/common/platform/state";
 import {
-  awaitAsync,
   makeEncString,
   makeStaticByteArray,
   makeSymmetricCryptoKey,
@@ -39,6 +38,7 @@ import {
   SymmetricCryptoKey,
   UnsignedPublicKey,
 } from "@bitwarden/legacy-crypto";
+import { WrappedAccountCryptographicState } from "@bitwarden/sdk-internal";
 
 import { BiometricsService } from "./biometrics/biometric.service";
 import { DefaultKeyService } from "./key.service";
@@ -88,6 +88,7 @@ describe("keyService", () => {
   };
 
   afterEach(() => {
+    jest.useRealTimers();
     jest.resetAllMocks();
   });
 
@@ -247,7 +248,7 @@ describe("keyService", () => {
       // Initial state: both set
       const accountStateSubject = new BehaviorSubject({
         V1: { private_key: mockEncryptedPrivateKey },
-      });
+      } as WrappedAccountCryptographicState | null);
       accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
         accountStateSubject.asObservable(),
       );
@@ -274,13 +275,26 @@ describe("keyService", () => {
   });
 
   describe("cipherDecryptionKeys$", () => {
-    let accountStateSubject: BehaviorSubject<any>;
+    let accountStateSubject: BehaviorSubject<WrappedAccountCryptographicState | null>;
 
     beforeEach(() => {
-      accountStateSubject = new BehaviorSubject(null);
+      accountStateSubject = new BehaviorSubject<WrappedAccountCryptographicState | null>(null);
       accountCryptographicStateService.accountCryptographicState$.mockReturnValue(
         accountStateSubject.asObservable(),
       );
+
+      encryptService.unwrapDecapsulationKey.mockImplementation((encryptedPrivateKey, userKey) => {
+        return Promise.resolve(fakePrivateKeyDecryption(encryptedPrivateKey, userKey));
+      });
+      encryptService.unwrapSymmetricKey.mockImplementation((encryptedOrgKey, providerKey) => {
+        return Promise.resolve(
+          new SymmetricCryptoKey(fakeOrgKeyDecryption(encryptedOrgKey, providerKey.toEncoded())),
+        );
+      });
+
+      encryptService.decapsulateKeyUnsigned.mockImplementation((data, privateKey) => {
+        return Promise.resolve(new SymmetricCryptoKey(fakeOrgKeyDecryption(data, privateKey)));
+      });
     });
 
     function fakePrivateKeyDecryption(encryptedPrivateKey: EncString, key: SymmetricCryptoKey) {
@@ -338,17 +352,6 @@ describe("keyService", () => {
         );
         providerKeysState.nextState(keys.providerKeys!);
       }
-
-      encryptService.unwrapDecapsulationKey.mockImplementation((encryptedPrivateKey, userKey) => {
-        return Promise.resolve(fakePrivateKeyDecryption(encryptedPrivateKey, userKey));
-      });
-      encryptService.unwrapSymmetricKey.mockImplementation((encryptedPrivateKey, userKey) => {
-        return Promise.resolve(new SymmetricCryptoKey(new Uint8Array(64)));
-      });
-
-      encryptService.decapsulateKeyUnsigned.mockImplementation((data, privateKey) => {
-        return Promise.resolve(new SymmetricCryptoKey(fakeOrgKeyDecryption(data, privateKey)));
-      });
     }
 
     it("returns decryption keys when there are no org or provider keys set", async () => {
@@ -437,22 +440,26 @@ describe("keyService", () => {
       const org2Key = decryptionKeys!.orgKeys![org2Id];
       expect(org2Key).not.toBeNull();
       expect(org2Key.toEncoded()).toHaveLength(64);
+      expect(org2Key.keyB64).toContain("provider1Key");
     });
 
     it("returns a stream that pays attention to updates of all data", async () => {
+      jest.useFakeTimers();
+
       // Start listening until there have been 6 emissions
       const promise = lastValueFrom(
         keyService.cipherDecryptionKeys$(mockUserId).pipe(bufferCount(6), take(1)),
       );
 
       // User has their UserKey set
-      const initialUserKey = makeSymmetricCryptoKey<UserKey>(64);
+      const initialUserKey = makeSymmetricCryptoKey<UserKey>(64, 0);
       updateKeys({
         userKey: initialUserKey,
       });
 
-      // Because switchMap is a little to good at its job
-      await awaitAsync();
+      // Let the decryption chain settle before the next push, otherwise the outer switchMap
+      // unsubscribes it and the emission never arrives
+      await jest.advanceTimersByTimeAsync(0);
 
       // User has their private key set
       const initialPrivateKey = makeEncString("userPrivateKey");
@@ -460,16 +467,14 @@ describe("keyService", () => {
         encryptedPrivateKey: initialPrivateKey,
       });
 
-      // Because switchMap is a little to good at its job
-      await awaitAsync();
+      await jest.advanceTimersByTimeAsync(0);
 
       // Current architecture requires that provider keys are set before org keys
       updateKeys({
         providerKeys: {},
       });
 
-      // Because switchMap is a little to good at its job
-      await awaitAsync();
+      await jest.advanceTimersByTimeAsync(0);
 
       // User has their org keys set
       updateKeys({
@@ -478,8 +483,10 @@ describe("keyService", () => {
         },
       });
 
+      await jest.advanceTimersByTimeAsync(0);
+
       // Out of band user key update
-      const updatedUserKey = makeSymmetricCryptoKey<UserKey>(64);
+      const updatedUserKey = makeSymmetricCryptoKey<UserKey>(64, 1);
       updateKeys({
         userKey: updatedUserKey,
       });
@@ -511,7 +518,7 @@ describe("keyService", () => {
       expect(emittedValues[4]).toEqual({
         userKey: initialUserKey,
         orgKeys: {
-          [org1Id]: expect.anything(),
+          [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
         },
       });
 
@@ -519,9 +526,15 @@ describe("keyService", () => {
       expect(emittedValues[5]).toEqual({
         userKey: updatedUserKey,
         orgKeys: {
-          [org1Id]: expect.anything(),
+          [org1Id]: expect.objectContaining({ keyB64: expect.stringContaining("org1Key") }),
         },
       });
+
+      // The org key is decrypted with the user key, so the out of band update must produce a new
+      // org key rather than replaying the one decrypted with the previous user key
+      expect(emittedValues[5]!.orgKeys![org1Id].keyB64).not.toEqual(
+        emittedValues[4]!.orgKeys![org1Id].keyB64,
+      );
     });
   });
 
@@ -531,12 +544,15 @@ describe("keyService", () => {
       makeUserKey: boolean;
     };
 
-    function setupKeys({ makeMasterKey, makeUserKey }: SetupKeysParams): [UserKey, MasterKey] {
+    function setupKeys({
+      makeMasterKey,
+      makeUserKey,
+    }: SetupKeysParams): [UserKey | null, MasterKey | null] {
       const userKeyState = stateProvider.singleUser.getFake(mockUserId, USER_KEY);
-      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64) : null;
+      const fakeMasterKey = makeMasterKey ? makeSymmetricCryptoKey<MasterKey>(64, 0) : null;
       masterPasswordService.masterKeySubject.next(fakeMasterKey);
       userKeyState.nextState(null);
-      const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64) : null;
+      const fakeUserKey = makeUserKey ? makeSymmetricCryptoKey<UserKey>(64, 1) : null;
       userKeyState.nextState(fakeUserKey);
       return [fakeUserKey, fakeMasterKey];
     }
@@ -579,8 +595,8 @@ describe("keyService", () => {
     beforeEach(() => {
       mockUserPrivateKey = makeStaticByteArray(64, 1);
       mockProviderKeys = {
-        ["provider1" as ProviderId]: makeSymmetricCryptoKey<ProviderKey>(64),
-        ["provider2" as ProviderId]: makeSymmetricCryptoKey<ProviderKey>(64),
+        ["provider1" as ProviderId]: makeSymmetricCryptoKey<ProviderKey>(64, 0),
+        ["provider2" as ProviderId]: makeSymmetricCryptoKey<ProviderKey>(64, 1),
       };
     });
 
