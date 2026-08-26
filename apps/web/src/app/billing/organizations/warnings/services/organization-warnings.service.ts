@@ -19,6 +19,7 @@ import { take } from "rxjs/operators";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { GovModeService } from "@bitwarden/common/platform/abstractions/gov-mode.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -80,6 +81,7 @@ export class OrganizationWarningsService {
     private accountService: AccountService,
     private logService: LogService,
     private stateProvider: StateProvider,
+    private govModeService: GovModeService,
   ) {}
 
   getFreeTrialWarning$ = (
@@ -87,9 +89,11 @@ export class OrganizationWarningsService {
     includeOrganizationNameInMessaging = false,
   ): Observable<OrganizationFreeTrialWarning | null> =>
     merge(
-      this.getWarning$(organization, (response) => response.freeTrial),
+      this.getWarning$(organization, (response) => response.freeTrial, false, true),
       this.refreshFreeTrialWarningTrigger.pipe(
-        switchMap(() => this.getWarning$(organization, (response) => response.freeTrial, true)),
+        switchMap(() =>
+          this.getWarning$(organization, (response) => response.freeTrial, true, true),
+        ),
       ),
     ).pipe(
       map((warning) => {
@@ -330,15 +334,25 @@ export class OrganizationWarningsService {
     organization: Organization,
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
     bypassCache: boolean = false,
+    allowInGovMode: boolean = false,
   ): Observable<T | null> => {
     if (this.platformUtilsService.isSelfHost()) {
       return of(null);
     }
 
-    return this.readThroughWarnings$(organization, bypassCache).pipe(
-      map((response) => {
-        const value = extract(response);
-        return value ? value : null;
+    return this.govModeService.globalIsGovMode$.pipe(
+      take(1),
+      switchMap((isGovMode) => {
+        if (isGovMode && !allowInGovMode) {
+          return of(null);
+        }
+
+        return this.readThroughWarnings$(organization, bypassCache).pipe(
+          map((response) => {
+            const value = extract(response);
+            return value ? value : null;
+          }),
+        );
       }),
       take(1),
     );
