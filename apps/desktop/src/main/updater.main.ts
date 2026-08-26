@@ -9,12 +9,7 @@ import { LogService } from "@bitwarden/logging";
 import { SafeShell } from "../platform/main/safe-shell.main";
 import { isDev } from "../utils";
 
-import {
-  isAppImage,
-  isMacAppStore,
-  isWindowsPortable,
-  isWindowsStore,
-} from "./platform-utils.main";
+import { isMacAppStore, isWindowsPortable, isWindowsStore } from "./platform-utils.main";
 import { WindowMain } from "./window.main";
 
 const UpdaterCheckInitialDelay = 5 * 1000; // 5 seconds
@@ -49,7 +44,10 @@ export class UpdaterMain {
 
     this.originalRolloutFunction = autoUpdater.isUserWithinRollout;
 
-    const linuxCanUpdate = process.platform === "linux" && isAppImage();
+    // AppImage auto update was recently disabled. There is some infra work
+    // we need to do to properly support this. Due to capacity, we decided to
+    // temporarily disable AppImage auto updates. See PM-41518.
+    const linuxCanUpdate = false;
     const windowsCanUpdate =
       process.platform === "win32" && !isWindowsStore() && !isWindowsPortable();
     const macCanUpdate = process.platform === "darwin" && !isMacAppStore();
