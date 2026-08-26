@@ -50,6 +50,11 @@ const format = (date: Date) =>
 
 type TrialPaymentModalDismissedOrgs = Partial<Record<OrganizationId, boolean>>;
 
+type GetWarningOptions = {
+  bypassCache?: boolean;
+  allowInGovMode?: boolean;
+};
+
 export const TRIAL_PAYMENT_MODAL_DISMISSED_ORGS_KEY =
   new UserKeyDefinition<TrialPaymentModalDismissedOrgs>(
     BILLING_DISK_LOCAL,
@@ -89,10 +94,13 @@ export class OrganizationWarningsService {
     includeOrganizationNameInMessaging = false,
   ): Observable<OrganizationFreeTrialWarning | null> =>
     merge(
-      this.getWarning$(organization, (response) => response.freeTrial, false, true),
+      this.getWarning$(organization, (response) => response.freeTrial, { allowInGovMode: true }),
       this.refreshFreeTrialWarningTrigger.pipe(
         switchMap(() =>
-          this.getWarning$(organization, (response) => response.freeTrial, true, true),
+          this.getWarning$(organization, (response) => response.freeTrial, {
+            bypassCache: true,
+            allowInGovMode: true,
+          }),
         ),
       ),
     ).pipe(
@@ -178,7 +186,7 @@ export class OrganizationWarningsService {
       this.getWarning$(organization, (response) => response.taxId),
       this.refreshTaxIdWarningTrigger.pipe(
         switchMap(() =>
-          this.getWarning$(organization, (response) => response.taxId, true).pipe(
+          this.getWarning$(organization, (response) => response.taxId, { bypassCache: true }).pipe(
             tap((warning) => this.taxIdWarningRefreshedSubject.next(warning ? warning.type : null)),
           ),
         ),
@@ -196,7 +204,9 @@ export class OrganizationWarningsService {
       this.getWarning$(organization, (response) => response.inactiveSubscription),
       this.refreshInactiveSubscriptionWarningTrigger.pipe(
         switchMap(() =>
-          this.getWarning$(organization, (response) => response.inactiveSubscription, true),
+          this.getWarning$(organization, (response) => response.inactiveSubscription, {
+            bypassCache: true,
+          }),
         ),
       ),
     ).pipe(
@@ -333,8 +343,7 @@ export class OrganizationWarningsService {
   private getWarning$ = <T>(
     organization: Organization,
     extract: (response: OrganizationWarningsResponse) => T | null | undefined,
-    bypassCache: boolean = false,
-    allowInGovMode: boolean = false,
+    { bypassCache = false, allowInGovMode = false }: GetWarningOptions = {},
   ): Observable<T | null> => {
     if (this.platformUtilsService.isSelfHost()) {
       return of(null);
