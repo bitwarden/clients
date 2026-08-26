@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, RouterModule } from "@angular/router";
-import { firstValueFrom, lastValueFrom } from "rxjs";
+import { filter, firstValueFrom, lastValueFrom, take } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -12,6 +12,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
   ButtonModule,
+  CardComponent,
   ContainerComponent,
   DialogService,
   FormControlModule,
@@ -19,6 +20,7 @@ import {
   SpinnerComponent,
   ToastService,
   TypographyModule,
+  IconComponent,
 } from "@bitwarden/components";
 import { DiscountTypes, getAmount } from "@bitwarden/pricing";
 import {
@@ -28,6 +30,7 @@ import {
 } from "@bitwarden/subscription";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { OrganizationBillingClient } from "../clients";
 import {
   AdjustStorageDialogComponent,
@@ -71,20 +74,26 @@ const FAMILIES_OR_STARTER_PLANS: PlanType[] = [
     RouterModule,
     AsyncActionsModule,
     ButtonModule,
+    CardComponent,
     ContainerComponent,
     FormControlModule,
     ProgressBarComponent,
     SpinnerComponent,
     TypographyModule,
     I18nPipe,
+    HeaderModule,
     SubscriptionCardComponent,
     OrganizationScheduledPriceIncreaseWarningComponent,
     AdjustSubscription,
     SecretsManagerSubscribeStandaloneComponent,
     SecretsManagerAdjustSubscriptionComponent,
+    IconComponent,
   ],
 })
 export class OrganizationSubscriptionCloudVNextComponent {
+  private static readonly QUERY_PARAM_UPGRADE = "upgrade";
+  private static readonly QUERY_PARAM_PRODUCT_TIER = "productTierType";
+
   private readonly data = inject(OrganizationSubscriptionDataService);
   private readonly route = inject(ActivatedRoute);
   private readonly i18nService = inject(I18nService);
@@ -119,6 +128,25 @@ export class OrganizationSubscriptionCloudVNextComponent {
       return org ? await this.data.getSubscriptionPreview(org.id) : null;
     },
   });
+
+  constructor() {
+    const queryParams = this.route.snapshot.queryParamMap;
+    if (!queryParams.get(OrganizationSubscriptionCloudVNextComponent.QUERY_PARAM_UPGRADE)) {
+      return;
+    }
+    // Deep link (?upgrade[&productTierType=]) auto-opens the change-plan dialog once the
+    // subscription has loaded, mirroring the legacy page.
+    const preSelectedProductTier = this.toProductTier(
+      queryParams.get(OrganizationSubscriptionCloudVNextComponent.QUERY_PARAM_PRODUCT_TIER),
+    );
+    toObservable(this.organizationSubscription)
+      .pipe(
+        filter((subscription) => subscription != null),
+        take(1),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => void this.changePlan(preSelectedProductTier));
+  }
 
   private readonly billingSubscription = computed(
     () => this.organizationSubscription()?.subscription ?? null,
@@ -157,6 +185,15 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
   readonly isSponsoredSubscription = computed(
     () => this.billingSubscription()?.items.some((item) => item.sponsoredSubscriptionItem) ?? false,
+  );
+
+  // Reseller organizations exempt from billing automation are billed externally, so the card's
+  // status callout (past due, unpaid, etc.) must be suppressed for them, mirroring the legacy page.
+  readonly hideSubscriptionCallout = computed(
+    () =>
+      (this.organization()?.hasReseller &&
+        this.organizationSubscription()?.exemptFromBillingAutomation) ??
+      false,
   );
 
   readonly canAdjustSeats = computed(
@@ -336,7 +373,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     }
   }
 
-  readonly changePlan = async () => {
+  readonly changePlan = async (preSelectedProductTier?: ProductTierType) => {
     const sub = this.organizationSubscription();
     const org = this.organization();
     if (sub == null || org == null) {
@@ -346,14 +383,14 @@ export class OrganizationSubscriptionCloudVNextComponent {
       data: {
         organizationId: this.organizationId,
         subscription: sub,
-        productTierType: org.productTierType,
+        productTierType: preSelectedProductTier ?? org.productTierType,
       },
     });
     const result = await lastValueFrom(reference.closed);
     if (result === ChangePlanDialogResultType.Closed) {
       return;
     }
-    this.reload();
+    this.reloadSubscriptionPreview();
   };
 
   readonly reinstate = async () => {
@@ -375,7 +412,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
         title: undefined,
         message: this.i18nService.t("reinstated"),
       });
-      this.reload();
+      this.reloadSubscriptionPreview();
     } catch (e) {
       this.logService.error(e);
     }
@@ -406,7 +443,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
       const churnResult = await lastValueFrom(churnDialogRef.closed);
 
       if (churnResult === ChurnMitigationOfferDialogResultType.Accepted) {
-        this.reload();
+        this.reloadSubscriptionPreview();
         return;
       }
 
@@ -428,7 +465,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     if (result === OffboardingSurveyDialogResultType.Closed) {
       return;
     }
-    this.reload();
+    this.reloadSubscriptionPreview();
   };
 
   readonly adjustStorage = (add: boolean) => {
@@ -444,7 +481,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
       const result = await lastValueFrom(dialogRef.closed);
       if (result === AdjustStorageDialogResultType.Submitted) {
-        this.reload();
+        this.reloadSubscriptionPreview();
       }
     };
   };
@@ -466,7 +503,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
         title: undefined,
         message: this.i18nService.t("removeSponsorshipSuccess"),
       });
-      this.reload();
+      this.reloadSubscriptionPreview();
     } catch (e) {
       this.logService.error(e);
     }
@@ -484,11 +521,24 @@ export class OrganizationSubscriptionCloudVNextComponent {
       hasBillingToken: this.hasBillingSyncToken() ?? false,
     });
     await firstValueFrom(dialogRef.closed);
-    this.reload();
+    this.reloadSubscriptionPreview();
   }
 
   subscriptionAdjusted() {
-    this.reload();
+    this.reloadSubscriptionPreview();
+  }
+
+  // Mirrors the legacy page: parse the deep-link productTierType and keep it only if it matches a
+  // known tier. An absent/invalid value returns undefined and changePlan falls back to the org's
+  // current tier.
+  private toProductTier(value: string | null): ProductTierType | undefined {
+    if (value == null) {
+      return undefined;
+    }
+    const productTier = Number(value);
+    return Object.values(ProductTierType).includes(productTier as ProductTierType)
+      ? (productTier as ProductTierType)
+      : undefined;
   }
 
   private discountPrice(price: number): number {
@@ -499,7 +549,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
     return price - getAmount({ type: DiscountTypes.PercentOff, value: discount.percentOff }, price);
   }
 
-  private reload() {
+  protected reloadSubscriptionPreview() {
     this.subscriptionPreview.reload();
   }
 }

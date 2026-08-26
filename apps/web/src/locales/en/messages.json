@@ -7301,6 +7301,12 @@
   "subscription": {
     "message": "Subscription"
   },
+  "subscriptionDetailsNotLoading": {
+    "message": "Subscription details not loading"
+  },
+  "subscriptionDetailsNotLoadingDesc": {
+    "message": "Our billing service is unavailable, so we can't show your subscription and pricing right now. Your subscription itself hasn't been affected."
+  },
   "loading": {
     "message": "Loading"
   },

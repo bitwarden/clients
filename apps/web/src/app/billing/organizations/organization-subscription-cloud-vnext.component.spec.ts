@@ -1,5 +1,6 @@
+import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -13,16 +14,71 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SubscriptionCardActions, SubscriptionPreview } from "@bitwarden/subscription";
 
+import { HeaderModule } from "../../layouts/header/header.module";
 import { OrganizationBillingClient } from "../clients";
 
+import { AdjustSubscription } from "./adjust-subscription.component";
 import { OrganizationSubscriptionCloudVNextComponent } from "./organization-subscription-cloud-vnext.component";
 import { OrganizationSubscriptionDataService } from "./organization-subscription-data.service";
+import { SecretsManagerAdjustSubscriptionComponent } from "./sm-adjust-subscription.component";
+import { SecretsManagerSubscribeStandaloneComponent } from "./sm-subscribe-standalone.component";
+
+// Stub for <app-header> (WebHeaderComponent) so tests don't pull in its route/DI tree.
+@Component({
+  selector: "app-header",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockWebHeaderComponent {
+  readonly title = input<string>();
+  readonly icon = input<string>();
+}
+
+// Stubs for the management-section child components, which otherwise pull heavy DI (e.g.
+// PlatformUtilsService) into detectChanges. They let the management block render harmlessly.
+@Component({
+  selector: "app-adjust-subscription",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockAdjustSubscriptionComponent {
+  readonly seatPrice = input<unknown>();
+  readonly organizationId = input<unknown>();
+  readonly interval = input<unknown>();
+  readonly currentSeatCount = input<unknown>();
+  readonly maxAutoscaleSeats = input<unknown>();
+  readonly onAdjusted = output<void>();
+}
+
+@Component({
+  selector: "sm-subscribe-standalone",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSmSubscribeStandaloneComponent {
+  readonly plan = input<unknown>();
+  readonly organization = input<unknown>();
+  readonly customerDiscount = input<unknown>();
+  readonly onSubscribe = output<void>();
+}
+
+@Component({
+  selector: "app-sm-adjust-subscription",
+  template: "",
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+class MockSmAdjustSubscriptionComponent {
+  readonly organizationId = input<unknown>();
+  readonly options = input<unknown>();
+  readonly onAdjusted = output<void>();
+}
 
 describe("OrganizationSubscriptionCloudVNextComponent", () => {
   let component: OrganizationSubscriptionCloudVNextComponent;
   let fixture: ComponentFixture<OrganizationSubscriptionCloudVNextComponent>;
   let dataService: jest.Mocked<OrganizationSubscriptionDataService>;
   let i18nService: jest.Mocked<I18nService>;
+  let activatedRoute: { snapshot: { params: Record<string, string>; queryParamMap: ParamMap } };
 
   const buildOrganization = (overrides: Partial<Organization> = {}): Organization =>
     ({
@@ -124,6 +180,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     i18nService = mock<I18nService>();
     i18nService.t = jest.fn((key: string) => key);
 
+    activatedRoute = {
+      snapshot: { params: { organizationId: "org-123" }, queryParamMap: convertToParamMap({}) },
+    };
+
     await TestBed.configureTestingModule({
       imports: [OrganizationSubscriptionCloudVNextComponent],
       providers: [
@@ -138,12 +198,30 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
           useValue: mock<OrganizationApiServiceAbstraction>(),
         },
         { provide: OrganizationBillingClient, useValue: mock<OrganizationBillingClient>() },
-        {
-          provide: ActivatedRoute,
-          useValue: { snapshot: { params: { organizationId: "org-123" } } },
-        },
+        { provide: ActivatedRoute, useValue: activatedRoute },
       ],
-    }).compileComponents();
+    });
+
+    TestBed.overrideComponent(OrganizationSubscriptionCloudVNextComponent, {
+      remove: {
+        imports: [
+          HeaderModule,
+          AdjustSubscription,
+          SecretsManagerSubscribeStandaloneComponent,
+          SecretsManagerAdjustSubscriptionComponent,
+        ],
+      },
+      add: {
+        imports: [
+          MockWebHeaderComponent,
+          MockAdjustSubscriptionComponent,
+          MockSmSubscribeStandaloneComponent,
+          MockSmAdjustSubscriptionComponent,
+        ],
+      },
+    });
+
+    await TestBed.compileComponents();
   });
 
   it("should create", () => {
@@ -169,7 +247,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     createComponent({ detectChanges: true });
     await fixture.whenStable();
     expect(dataService.getSubscriptionPreview).toHaveBeenCalledWith("org-123");
-    expect(component.subscription.status()).toBe("resolved");
+    expect(component.subscriptionPreview.status()).toBe("resolved");
   });
 
   it("should compose the card title from plan name and cadence", () => {
@@ -327,6 +405,153 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       component.handleCardAction(SubscriptionCardActions.UpdatePayment);
       expect(reinstate).not.toHaveBeenCalled();
       expect(changePlan).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("preview failure", () => {
+    it("shows the error card when the preview cannot be loaded", async () => {
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("billing unavailable"));
+
+      createComponent({
+        organization: buildOrganization({ canViewSubscription: true, canEditSubscription: false }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.subscriptionPreview.status()).toBe("error");
+      expect(fixture.nativeElement.textContent).toContain("subscriptionDetailsNotLoading");
+      expect(fixture.nativeElement.querySelector("billing-subscription-card")).toBeNull();
+    });
+
+    it("reloads the preview when Refresh is clicked", async () => {
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("billing unavailable"));
+
+      createComponent({
+        organization: buildOrganization({ canViewSubscription: true, canEditSubscription: false }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      const reload = jest.spyOn(component.subscriptionPreview, "reload");
+      fixture.nativeElement.querySelector("button").click();
+
+      expect(reload).toHaveBeenCalled();
+    });
+
+    it("keeps rendering the management section when the preview fails", async () => {
+      dataService.getSubscriptionPreview.mockRejectedValue(new Error("billing unavailable"));
+
+      createComponent({
+        organization: buildOrganization({ canViewSubscription: true, canEditSubscription: true }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The preview drives only the card; the management block is an independent `@if` fed by the
+      // organization subscription API, so a failed preview shows the error card AND the block.
+      expect(component.subscriptionPreview.status()).toBe("error");
+      expect(fixture.nativeElement.textContent).toContain("subscriptionDetailsNotLoading");
+      expect(fixture.nativeElement.textContent).toContain("manageSubscription");
+    });
+  });
+
+  describe("upgrade deep link", () => {
+    it("does not auto-open change plan without the upgrade query param", async () => {
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(changePlan).not.toHaveBeenCalled();
+    });
+
+    it("auto-opens change plan once the subscription loads when ?upgrade is present", async () => {
+      activatedRoute.snapshot.queryParamMap = convertToParamMap({ upgrade: "true" });
+
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(changePlan).toHaveBeenCalledWith(undefined);
+    });
+
+    it("passes the deep-link productTierType to change plan", async () => {
+      activatedRoute.snapshot.queryParamMap = convertToParamMap({
+        upgrade: "true",
+        productTierType: ProductTierType.Enterprise.toString(),
+      });
+
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(changePlan).toHaveBeenCalledWith(ProductTierType.Enterprise);
+    });
+
+    it("ignores an invalid productTierType and falls back to the current tier", async () => {
+      activatedRoute.snapshot.queryParamMap = convertToParamMap({
+        upgrade: "true",
+        productTierType: "not-a-tier",
+      });
+
+      createComponent();
+      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(changePlan).toHaveBeenCalledWith(undefined);
+    });
+  });
+
+  describe("reseller callout suppression", () => {
+    it("hides the card callout for a reseller org exempt from billing automation", () => {
+      createComponent({
+        organization: buildOrganization({ hasReseller: true }),
+        subscription: buildSubscriptionResponse({ exemptFromBillingAutomation: true }),
+      });
+
+      expect(component.hideSubscriptionCallout()).toBe(true);
+    });
+
+    it("does not hide the callout when the org is not a reseller", () => {
+      createComponent({
+        organization: buildOrganization({ hasReseller: false }),
+        subscription: buildSubscriptionResponse({ exemptFromBillingAutomation: true }),
+      });
+
+      expect(component.hideSubscriptionCallout()).toBe(false);
+    });
+
+    it("does not hide the callout when the reseller org is not exempt", () => {
+      createComponent({
+        organization: buildOrganization({ hasReseller: true }),
+        subscription: buildSubscriptionResponse({ exemptFromBillingAutomation: false }),
+      });
+
+      expect(component.hideSubscriptionCallout()).toBe(false);
+    });
+  });
+
+  describe("provider-managed messaging", () => {
+    it("shows the provider-managed fallback message for a non-provider user", async () => {
+      createComponent({
+        organization: buildOrganization({
+          canViewSubscription: false,
+          hasProvider: true,
+          isProviderUser: false,
+        }),
+        detectChanges: true,
+      });
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain("billingManagedByProvider");
+      expect(fixture.nativeElement.textContent).toContain("billingContactProviderForAssistance");
     });
   });
 });

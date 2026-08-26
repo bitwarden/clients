@@ -2,18 +2,48 @@
 @let org = organization();
 @let orgSub = organizationSubscription();
 
+<app-header [title]="'subscription' | i18n"></app-header>
+
 <bit-container>
   @if (showSubscription()) {
-    @if (subscriptionPreview && !subscriptionPreview.isLoading()) {
+    @if (subscriptionPreview.isLoading()) {
+      <div class="tw-text-center">
+        <bit-spinner></bit-spinner>
+      </div>
+    } @else if (subscriptionPreview.error()) {
+      <bit-card
+        class="tw-flex tw-flex-col tw-items-center tw-text-center tw-border tw-rounded-xl tw-border-solid tw-border-secondary-100 tw-bg-background tw-gap-5 tw-p-6"
+      >
+        <div
+          class="tw-flex tw-justify-center tw-items-center tw-bg-bg-warning-medium tw-p-2 tw-border tw-rounded-lg tw-border-bg-warning-soft"
+        >
+          <bit-icon name="bwi-error" class="tw-text-2xl tw-text-fg-warning" />
+        </div>
+        <div class="tw-flex tw-flex-col tw-gap-2">
+          <h2 bitTypography="h4">{{ "subscriptionDetailsNotLoading" | i18n }}</h2>
+          <p bitTypography="body2" class="tw-max-w-xl tw-text-main">
+            {{ "subscriptionDetailsNotLoadingDesc" | i18n }}
+          </p>
+        </div>
+
+        <button
+          bitButton
+          buttonType="secondary"
+          type="button"
+          (click)="reloadSubscriptionPreview()"
+        >
+          {{ "refresh" | i18n }}
+        </button>
+      </bit-card>
+    } @else {
       <billing-subscription-card
         [title]="cardTitle()"
         [subscription]="subscription"
+        [hideCallout]="hideSubscriptionCallout()"
         (callToActionClicked)="handleCardAction($event)"
       >
         <app-organization-scheduled-price-increase-warning [organization]="org" />
       </billing-subscription-card>
-    } @else {
-      <bit-spinner></bit-spinner>
     }
 
     @if (org?.canEditSubscription) {
@@ -133,8 +163,8 @@
   }
 
   @if (showConsolidatedBillingMsp()) {
-    <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
     @if (org?.isProviderUser) {
+      <h2 bitTypography="h2" class="tw-mt-7">{{ "manageSubscription" | i18n }}</h2>
       <p bitTypography="body1">
         {{ "manageSubscriptionFromThe" | i18n }}
         <a [routerLink]="['/providers', org.providerId, 'billing', 'subscription']">
@@ -143,10 +173,13 @@
         .
       </p>
     } @else {
-      <p bitTypography="body1">
-        {{ "billingManagedByProvider" | i18n: org?.providerName || "" }}.
-        {{ "billingContactProviderForAssistance" | i18n }}.
-      </p>
+      <div class="tw-mt-7 tw-flex tw-flex-col tw-items-center tw-text-center tw-text-info">
+        <bit-icon name="bwi-provider" class="tw-mb-3 tw-text-4xl"></bit-icon>
+        <p bitTypography="body1" class="tw-font-medium">
+          {{ "billingManagedByProvider" | i18n: org?.providerName || "" }}
+        </p>
+        <p bitTypography="body1">{{ "billingContactProviderForAssistance" | i18n }}</p>
+      </div>
     }
   }
 </bit-container>
