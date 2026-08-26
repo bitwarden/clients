@@ -12,14 +12,20 @@
 
   <ng-template #vaultGroups>
     @for (vault of nav.vaults; track vault.id) {
-      <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
-        <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
-        <bit-nav-item
-          icon="bwi-list-alt"
-          [text]="'allVaultItems' | i18n"
-          [route]="vaultRoute(vault)"
-        ></bit-nav-item>
-      </bit-nav-group>
+      @if (vault.type === VaultNavItemType.Personal) {
+        <bit-nav-item [text]="vault.label" [route]="vaultRoute(vault)">
+          <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
+        </bit-nav-item>
+      } @else {
+        <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
+          <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
+          <bit-nav-item
+            icon="bwi-list-alt"
+            [text]="'allVaultItems' | i18n"
+            [route]="vaultRoute(vault)"
+          ></bit-nav-item>
+        </bit-nav-group>
+      }
     }
   </ng-template>
 

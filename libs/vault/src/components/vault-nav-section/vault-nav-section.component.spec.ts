@@ -180,7 +180,13 @@ describe("VaultNavSectionComponent", () => {
         .queryAll(By.css("bit-nav-group"))
         .map((el) => el.componentInstance.text());
 
-      expect(vaultLabels).toEqual(["My vault", "Acme corporation", "Smith family"]);
+      expect(vaultLabels).toEqual(["Acme corporation", "Smith family"]);
+      expect(text).toContain("My vault");
+      expect(text.indexOf("My vault")).toBeLessThan(text.indexOf("Acme corporation"));
+    });
+
+    it("links My vault to its own route", () => {
+      expect(navItemHref(fixture.nativeElement, "My vault")).toBe("/vault/my-vault");
     });
 
     it("links All items to the unscoped vault, matching it exactly", () => {
