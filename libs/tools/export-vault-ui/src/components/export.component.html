@@ -5,6 +5,11 @@
 >
   {{ "personalVaultExportPolicyInEffect" | i18n }}
 </bit-callout>
+@if (excludedGatedItemCount() > 0) {
+  <bit-callout type="warning" [title]="null">
+    {{ excludedGatedItemsMessage }}
+  </bit-callout>
+}
 <form [formGroup]="exportForm" [bitSubmit]="submit" id="export_form_exportForm">
   <ng-container *ngIf="organizations$ | async as organizations">
     <bit-form-field disableMargin *ngIf="organizations.length > 0">
