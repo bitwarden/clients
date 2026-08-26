@@ -79,10 +79,11 @@ export class VaultPopupListTableFiltersService {
   private readonly configService = inject(ConfigService);
 
   /**
-   * Currently-selected organizations; drives {@link folders$} and {@link collections$} narrowing.
-   * Update this whenever the organization chip selection changes.
+   * Ids of the currently-selected organizations (plus {@link MY_VAULT}); drives {@link folders$}
+   * and {@link collections$} narrowing. Update this whenever the organization chip selection
+   * changes.
    */
-  readonly selectedOrganizations = signal<Organization[]>([]);
+  readonly selectedOrganizations = signal<string[]>([]);
 
   /** Observable mirror of {@link selectedOrganizations} for use in RxJS pipelines. */
   private readonly selectedOrganizations$ = toObservable(this.selectedOrganizations);
@@ -105,31 +106,31 @@ export class VaultPopupListTableFiltersService {
    */
   saveFilters(values: {
     cipherType?: CipherType | null;
-    organization?: Organization[];
-    collection?: CollectionView[];
-    folder?: FolderView[];
+    organization?: string[];
+    collection?: string[];
+    folder?: string[];
   }): void {
     this.cachedFilters.set({
-      organizationIds: (values.organization ?? []).map((o) => o.id as string),
-      collectionIds: (values.collection ?? []).map((c) => c.id as string),
-      folderIds: (values.folder ?? []).map((f) => f.id ?? NO_FOLDER),
+      organizationIds: values.organization ?? [],
+      collectionIds: values.collection ?? [],
+      folderIds: values.folder ?? [],
       cipherType: values.cipherType ?? null,
     });
   }
 
   /**
-   * Resolves the cached filter state back to full domain objects, emitting once.
+   * Resolves the cached filter state back to chip-selectable ids, emitting once.
    *
    * Call this after the table's filter chips are registered to seed them from the
    * previously-persisted state. The observable takes the first emission of
-   * `organizations$`, `collections$`, and the active user's folder views, resolves
-   * cached ids to full objects, and completes.
+   * `organizations$`, `collections$`, and the active user's folder views, drops any cached id
+   * that no longer names a real option (e.g. a deleted folder), and completes.
    */
   restoreFilters$(): Observable<{
     cipherType?: CipherType | null;
-    organization?: Organization[];
-    collection?: CollectionView[];
-    folder?: FolderView[];
+    organization?: string[];
+    collection?: string[];
+    folder?: string[];
   }> {
     const state = this.cachedFilters();
     return combineLatest([
@@ -141,38 +142,34 @@ export class VaultPopupListTableFiltersService {
       map(([orgOptions, collectionOptions, folderViews]) => {
         const result: {
           cipherType?: CipherType | null;
-          organization?: Organization[];
-          collection?: CollectionView[];
-          folder?: FolderView[];
+          organization?: string[];
+          collection?: string[];
+          folder?: string[];
         } = {};
 
         if (state.organizationIds?.length) {
-          result.organization = state.organizationIds
-            .map((id) => {
-              if (id === MY_VAULT) {
-                return { id: MY_VAULT } as Organization;
-              }
-              return orgOptions.find((o) => o.value?.id === id)?.value ?? null;
-            })
-            .filter((o): o is Organization => o != null);
+          const validIds = new Set(orgOptions.map((o) => idString(o.value?.id)));
+          const organization = state.organizationIds.filter((id) => validIds.has(id));
+          if (organization.length) {
+            result.organization = organization;
+          }
         }
 
         if (state.collectionIds?.length) {
           const flatCollections = collectionOptions.flatMap((c) => this.flattenOptions(c));
-          result.collection = state.collectionIds
-            .map((id) => flatCollections.find((c) => c.value?.id === id)?.value ?? null)
-            .filter((c): c is CollectionView => c != null);
+          const validIds = new Set(flatCollections.map((c) => idString(c.value?.id)));
+          const collection = state.collectionIds.filter((id) => validIds.has(id));
+          if (collection.length) {
+            result.collection = collection;
+          }
         }
 
         if (state.folderIds?.length) {
-          result.folder = state.folderIds
-            .map((id) => {
-              if (id === NO_FOLDER) {
-                return folderViews.find((f) => !f.id) ?? null;
-              }
-              return folderViews.find((f) => f.id === id) ?? null;
-            })
-            .filter((f): f is FolderView => f != null);
+          const validIds = new Set(folderViews.map((f) => f.id ?? NO_FOLDER));
+          const folder = state.folderIds.filter((id) => validIds.has(id));
+          if (folder.length) {
+            result.folder = folder;
+          }
         }
 
         if (state.cipherType != null) {
@@ -296,9 +293,7 @@ export class VaultPopupListTableFiltersService {
           return [selectedOrgs, arrangedFolders, cipherViews] as const;
         }),
         map(([selectedOrgs, folders, cipherViews]) => {
-          const selectedOrgIds = selectedOrgs
-            .filter((o) => o.id !== MY_VAULT)
-            .map((o) => o.id as string);
+          const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
 
           // No org filter active — show all folders.
           if (!selectedOrgIds.length) {
@@ -341,9 +336,7 @@ export class VaultPopupListTableFiltersService {
         ]),
       ),
       map(([selectedOrgs, allCollections, orgs]) => {
-        const selectedOrgIds = selectedOrgs
-          .filter((o) => o.id !== MY_VAULT)
-          .map((o) => o.id as string);
+        const selectedOrgIds = selectedOrgs.filter((id) => id !== MY_VAULT);
 
         const filtered = selectedOrgIds.length
           ? allCollections.filter(

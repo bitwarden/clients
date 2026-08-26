@@ -181,36 +181,35 @@ export class VaultPopupListTableComponent {
   protected readonly table = defineTable<VaultTableRow, "name">(this.rows);
 
   /**
-   * Row-level filter predicate passed to `bit-table-v2 [filter]`. The chip selections are full
-   * objects (Organization[], CollectionView[], FolderView[]); ids are extracted before calling the
-   * shared predicates from `@bitwarden/vault`.
+   * Row-level filter predicate passed to `bit-table-v2 [filter]`. The chip selections are ids
+   * (organization/collection/folder ids, plus the {@link MY_VAULT}/{@link NO_FOLDER} sentinels)
+   * rather than full objects — see {@link organizationOptions} for why.
    */
   protected readonly filterPredicate = (
     row: VaultTableRow,
     values: {
       cipherType?: CipherType | null;
-      organization?: Organization[];
-      collection?: CollectionView[];
-      folder?: FolderView[];
+      organization?: string[];
+      collection?: string[];
+      folder?: string[];
     },
   ): boolean =>
     matchesType(row.cipher, values.cipherType) &&
-    matchesVault(
-      row.cipher,
-      (values.organization ?? []).map((o) => o.id),
-    ) &&
-    matchesSharedFolder(
-      row.cipher,
-      (values.collection ?? []).map((c) => c.id!),
-    ) &&
-    matchesFolder(
-      row.cipher,
-      (values.folder ?? []).map((f) => f.id ?? NO_FOLDER),
-    );
+    matchesVault(row.cipher, values.organization) &&
+    matchesSharedFolder(row.cipher, values.collection) &&
+    matchesFolder(row.cipher, values.folder);
 
   /**
    * The filter options. Each stream empties when its filter doesn't apply (no orgs, or
    * folders/collections narrowed away by the selected organization), which hides that chip.
+   *
+   * These carry the full domain object (label, icon, `organizationId`, …) for rendering, but the
+   * template binds `bit-filter-option [value]` to the id, not the option itself: `folders$` and
+   * `collections$` rebuild `FolderView`/`CollectionView` instances on every emission (they
+   * `combineLatest` on {@link VaultPopupListTableFiltersService.selectedOrganizations}, which
+   * churns on unrelated chip changes — see `saveFilters`), and `FilterMenuComponent` tracks
+   * selection by `===` identity. Binding the object would desync the checkmark from the selection
+   * the moment either stream re-emitted a fresh copy. Ids are stable across re-emissions.
    */
   protected readonly cipherTypeOptions = toSignal(this.listFiltersService.cipherTypes$, {
     initialValue: [] as ChipFilterOption<CipherType>[],
@@ -235,6 +234,9 @@ export class VaultPopupListTableComponent {
    */
   protected readonly collectionOptions = computed(() => flattenOptions(this.collectionTree()));
   protected readonly folderOptions = computed(() => flattenOptions(this.folderTree()));
+
+  /** Exposed for the folder chip's `[value]`, which falls back to this sentinel for "no folder". */
+  protected readonly NO_FOLDER = NO_FOLDER;
 
   /** True when collections span more than one organization — switches to org-sectioned layout. */
   protected readonly groupCollectionsByOrg = computed(() => {
@@ -380,8 +382,11 @@ export class VaultPopupListTableComponent {
         .pipe(skip(1), takeUntilDestroyed(this.destroyRef))
         .subscribe((values: any) => {
           this.listFiltersService.saveFilters(values);
-          const orgs: Organization[] = values.organization ?? [];
-          this.listFiltersService.selectedOrganizations.set(orgs);
+          const orgIds: string[] = values.organization ?? [];
+          const orgs = orgIds
+            .map((id) => this.organizationOptions().find((o) => o.value?.id === id)?.value)
+            .filter((o): o is Organization => o != null);
+          this.listFiltersService.selectedOrganizations.set(orgIds);
           this.selectedOrgs.set(orgs);
           this.validateOrgChips(table, values);
         });
@@ -434,28 +439,33 @@ export class VaultPopupListTableComponent {
    */
   private validateOrgChips(
     table: BitTableV2Component<any, any, any>,
-    values: { organization?: Organization[]; collection?: CollectionView[] },
+    values: { organization?: string[]; collection?: string[] },
   ): void {
-    const orgs = values.organization ?? [];
-    const selectedOrgIds = orgs.filter((o) => o.id !== MY_VAULT).map((o) => o.id);
+    const selectedOrgIds = (values.organization ?? []).filter((id) => id !== MY_VAULT);
 
     if (!selectedOrgIds.length) {
       return;
     }
 
-    const currentCollections = values.collection ?? [];
-    if (!currentCollections.length) {
+    const currentCollectionIds = values.collection ?? [];
+    if (!currentCollectionIds.length) {
       return;
     }
 
-    const validCollections = currentCollections.filter((c) =>
-      selectedOrgIds.includes(c.organizationId!),
+    const collectionOrgById = new Map<string | undefined, string | undefined>(
+      this.collectionOptions().map((o) => [o.value?.id, o.value?.organizationId]),
     );
-    if (validCollections.length !== currentCollections.length) {
+
+    const validCollectionIds = currentCollectionIds.filter((id) => {
+      const organizationId = collectionOrgById.get(id);
+      return organizationId != null && selectedOrgIds.includes(organizationId);
+    });
+
+    if (validCollectionIds.length !== currentCollectionIds.length) {
       table
         .filterControls()
         .find((c) => c.key() === "collection")
-        ?.setValue(validCollections.length ? validCollections : undefined);
+        ?.setValue(validCollectionIds.length ? validCollectionIds : undefined);
     }
   }
 }
