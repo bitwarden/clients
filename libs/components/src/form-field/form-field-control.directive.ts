@@ -93,10 +93,6 @@ export class BitFormFieldControlDirective implements DoCheck {
   }
 
   ngDoCheck() {
-    // `[formControl]` can be rebound to a different control while the view is reused — a row in a
-    // `@for` over a `FormArray`, for instance. Nothing emits on the outgoing control when that
-    // happens, so re-point the subscription and invalidate the cached signals here; otherwise
-    // `hasError` keeps reporting the previous control's validity against the new control's errors.
     if (this.ngControl?.control !== this.subscribedControl) {
       this.watchControl();
     }
