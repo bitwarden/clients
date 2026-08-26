@@ -2,6 +2,7 @@ import { inject, Injectable } from "@angular/core";
 import {
   catchError,
   combineLatest,
+  distinctUntilChanged,
   forkJoin,
   from,
   map,
@@ -64,9 +65,17 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
       switchMap((userId) =>
         userId == null ? of([]) : this.organizationService.organizations$(userId),
       ),
-      map(
-        (organizations) => new Set<string>(organizations.filter((o) => o.usePam).map((o) => o.id)),
+      map((organizations) =>
+        organizations
+          .filter((o) => o.usePam)
+          .map((o) => o.id)
+          .sort(),
       ),
+      // `organizations$` re-emits on every sync, not just when PAM membership actually
+      // changes; dedupe on content so an unrelated sync doesn't re-trigger the per-row
+      // `getCipherAccessState` fan-out in `narrowToPrivileged$`.
+      distinctUntilChanged((a, b) => a.length === b.length && a.every((id, i) => id === b[i])),
+      map((ids) => new Set(ids)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -84,6 +93,13 @@ export class ControlledAccessVaultFilterService implements VaultControlledAccess
             },
           ]
         : [],
+    ),
+    // `getFeatureFlag$` re-emits its already-current value on every config renewal, and
+    // `pamOrganizationIds$` re-emits on every sync; without a dedupe here, `narrow$`'s
+    // `switchMap` on `options$` resubscribes and re-issues the `getCipherAccessState` fan-out
+    // even though the option list is identical.
+    distinctUntilChanged(
+      (a, b) => a.length === b.length && a.every((option, i) => option.id === b[i].id),
     ),
     shareReplay({ refCount: true, bufferSize: 1 }),
   );
