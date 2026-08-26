@@ -17944,8 +17944,20 @@
   "pamAuditColumnItem": {
     "message": "Item"
   },
+  "pamAuditColumnDuration": {
+    "message": "Duration"
+  },
   "pamAuditColumnDetail": {
     "message": "Detail"
+  },
+  "pamAuditDurationExtendedTo": {
+    "message": "Extended to $DATETIME$",
+    "placeholders": {
+      "datetime": {
+        "content": "$1",
+        "example": "8/20/26, 12:21 PM"
+      }
+    }
   },
   "pamAuditSystem": {
     "message": "System"
