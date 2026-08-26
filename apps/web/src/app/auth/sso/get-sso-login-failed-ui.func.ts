@@ -30,7 +30,7 @@ export function getSsoLoginFailedUi(
     case SsoLoginFailedErrorKind.NoSeatsAvailable:
       return {
         anonLayoutData: {
-          pageTitle: { key: "openOrgInviteAcceptFailedTitle" },
+          pageTitle: { key: "cannotAcceptInvitation" },
           pageIcon: TwoFactorTimeoutIcon,
         },
         bodyMessage: { key: "ssoNoSeatsAvailableMessage" },

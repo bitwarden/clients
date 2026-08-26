@@ -6841,7 +6841,7 @@
   "openOrgInviteAcceptFailed": {
     "message": "Unable to accept invitation. Ask an organization admin to send a new invitation link."
   },
-  "openOrgInviteAcceptFailedTitle": {
+  "cannotAcceptInvitation": {
     "message": "Cannot accept invitation"
   },
   "openOrgInviteAcceptAlreadyMember": {
