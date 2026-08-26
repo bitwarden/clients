@@ -7,13 +7,22 @@ import {
 const activationError = (variant: string, message: string) =>
   Object.assign(new Error(message), { name: "AccessRequestError", variant });
 
-/** How the wire body actually reaches `.message`: the sentence buried in the serialized response. */
-const wireBody = (serverMessage: string) =>
-  `error in response: status code 409 Conflict: {"object":"error","message":"${serverMessage}",` +
-  `"validationErrors":null,"exceptionMessage":"${serverMessage}","exceptionStackTrace":"   at ` +
-  "Bit.Services.Pam.OrganizationFeatures.Commands.ActivateAccessRequestCommand.ActivateAsync" +
-  "(Guid userId, Guid requestId) in /src/bitwarden_license/src/Services/Pam/" +
-  'OrganizationFeatures/Commands/ActivateAccessRequestCommand.cs:line 65"}';
+/**
+ * How the wire body actually reaches `.message`: the sentence buried in the serialized response,
+ * with its apostrophes escaped as `\u0027` the way `System.Text.Json`'s default encoder writes
+ * them. Spelling the sentence out with a literal apostrophe would test a body the server never
+ * sends.
+ */
+const wireBody = (serverMessage: string) => {
+  const encoded = serverMessage.replace(/'/g, "\\u0027");
+  return (
+    `error in response: status code 409 Conflict: {"object":"error","message":"${encoded}",` +
+    `"validationErrors":null,"exceptionMessage":"${encoded}","exceptionStackTrace":"   at ` +
+    "Bit.Services.Pam.OrganizationFeatures.Commands.ActivateAccessRequestCommand.ActivateAsync" +
+    "(Guid userId, Guid requestId) in /src/bitwarden_license/src/Services/Pam/" +
+    'OrganizationFeatures/Commands/ActivateAccessRequestCommand.cs:line 65"}'
+  );
+};
 
 describe("activateAccessErrorMessageKey", () => {
   const cases = Object.values(ACTIVATE_ACCESS_SERVER_ERRORS).map(
