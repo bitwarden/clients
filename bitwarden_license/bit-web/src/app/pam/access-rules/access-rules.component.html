@@ -124,14 +124,18 @@
               />
               <label [for]="'access-rules_checkbox_' + r.id" class="tw-sr-only">{{ r.name }}</label>
             </td>
-            <td bitCell>
+            <!--
+              `overflow-wrap: anywhere`, not `tw-break-words`: only `anywhere` counts toward the
+              cell's min-content width, so a name at the 256-character editor limit wraps instead
+              of widening this column until Status and Options sit off-screen. Descriptions inherit
+              it, so they must not set `tw-break-words` back.
+            -->
+            <td bitCell class="[overflow-wrap:anywhere]">
               <button type="button" bitLink linkType="primary" (click)="openEdit(r)">
                 {{ r.name }}
               </button>
               @if (r.description) {
-                <div
-                  class="tw-text-sm tw-text-muted tw-line-clamp-2 tw-text-ellipsis tw-break-words"
-                >
+                <div class="tw-text-sm tw-text-muted tw-line-clamp-2 tw-text-ellipsis">
                   {{ r.description }}
                 </div>
               }
