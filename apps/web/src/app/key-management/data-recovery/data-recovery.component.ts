@@ -6,13 +6,14 @@ import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/cor
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { CryptoFunctionService } from "@bitwarden/common/key-management/crypto/abstractions/crypto-function.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherEncryptionService } from "@bitwarden/common/vault/abstractions/cipher-encryption.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { ButtonModule, DialogService } from "@bitwarden/components";
 import { KeyService, UserAsymmetricKeysRegenerationService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptService } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 
 import { SharedModule } from "../../shared";
@@ -27,6 +28,7 @@ import {
   RecoveryWorkingData,
   FolderStep,
   CipherStep,
+  AttachmentStep,
 } from "./steps";
 
 export const StepStatus = Object.freeze({
@@ -41,6 +43,7 @@ interface StepState {
   title: string;
   status: StepStatus;
   message?: string;
+  oldAttachmentCipherIds?: string[];
 }
 
 @Component({
@@ -61,7 +64,7 @@ export class DataRecoveryComponent {
   private cipherEncryptService = inject(CipherEncryptionService);
   private dialogService = inject(DialogService);
   private privateKeyRegenerationService = inject(UserAsymmetricKeysRegenerationService);
-  private cryptoFunctionService = inject(CryptoFunctionService);
+  private encryptService = inject(EncryptService);
   private logService = inject(LogService);
   private fileDownloadService = inject(FileDownloadService);
 
@@ -69,13 +72,15 @@ export class DataRecoveryComponent {
   private recoverySteps: RecoveryStep[] = [
     new UserInfoStep(this.accountService, this.keyService),
     new SyncStep(this.apiService),
-    new PrivateKeyStep(
-      this.privateKeyRegenerationService,
-      this.dialogService,
-      this.cryptoFunctionService,
-    ),
+    new PrivateKeyStep(this.privateKeyRegenerationService, this.dialogService),
     new FolderStep(this.folderApiService, this.dialogService),
-    new CipherStep(this.apiService, this.cipherEncryptService, this.dialogService),
+    new CipherStep(
+      this.apiService,
+      this.cipherEncryptService,
+      this.dialogService,
+      this.encryptService,
+    ),
+    new AttachmentStep(this.i18nService),
   ];
   private workingData: RecoveryWorkingData | null = null;
 
@@ -105,7 +110,6 @@ export class DataRecoveryComponent {
       userId: null,
       userKey: null,
       isPrivateKeyCorrupt: false,
-      encryptedPrivateKey: null,
       ciphers: [],
       folders: [],
     };
@@ -134,6 +138,8 @@ export class DataRecoveryComponent {
       try {
         const success = await step.runDiagnostics(this.workingData, this.logger);
         currentSteps[i].status = success ? StepStatus.Completed : StepStatus.Failed;
+        currentSteps[i].message = step.message;
+        currentSteps[i].oldAttachmentCipherIds = step.oldAttachmentCipherIds;
         if (!success) {
           hasAnyFailures = true;
         }
@@ -142,6 +148,7 @@ export class DataRecoveryComponent {
       } catch (error) {
         currentSteps[i].status = StepStatus.Failed;
         currentSteps[i].message = (error as Error).message;
+        currentSteps[i].oldAttachmentCipherIds = undefined;
         this.steps.set([...currentSteps]);
         this.logger.record(
           `Diagnostics failed for step: ${step.title} with error: ${(error as Error).message}`,

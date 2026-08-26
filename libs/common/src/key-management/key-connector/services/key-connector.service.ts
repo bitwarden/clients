@@ -8,17 +8,19 @@ import {
   InternalUserDecryptionOptionsServiceAbstraction,
   LogoutReason,
 } from "@bitwarden/auth/common";
-// This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
 import {
   Argon2KdfConfig,
+  EncString,
   KdfConfig,
   KdfType,
-  KeyService,
+  LegacyCompatKeyService,
   PBKDF2KdfConfig,
-} from "@bitwarden/key-management";
+  SymmetricCryptoKey,
+} from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { PureCrypto } from "@bitwarden/sdk-internal";
+import { UnlockService } from "@bitwarden/unlock";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { OrganizationService } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -33,12 +35,10 @@ import { RegisterSdkService } from "../../../platform/abstractions/sdk/register-
 import { SdkLoadService } from "../../../platform/abstractions/sdk/sdk-load.service";
 import { SdkService } from "../../../platform/abstractions/sdk/sdk.service";
 import { Utils } from "../../../platform/misc/utils";
-import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { KEY_CONNECTOR_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
-import { MasterKey, UserKey } from "../../../types/key";
+import { MasterKey } from "../../../types/key";
 import { AccountCryptographicStateService } from "../../account-cryptography/account-cryptographic-state.service";
-import { EncString } from "../../crypto/models/enc-string";
 import { InternalMasterPasswordServiceAbstraction } from "../../master-password/abstractions/master-password.service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { KeyConnectorDomainConfirmation } from "../models/key-connector-domain-confirmation";
@@ -83,7 +83,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   constructor(
     accountService: AccountService,
     private masterPasswordService: InternalMasterPasswordServiceAbstraction,
-    private keyService: KeyService,
+    private legacyCompatKeyService: LegacyCompatKeyService,
     private apiService: ApiService,
     private tokenService: TokenService,
     private logService: LogService,
@@ -95,6 +95,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private accountCryptographicStateService: AccountCryptographicStateService,
     private sdkService: SdkService,
     private userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
+    private unlockService: UnlockService,
   ) {
     this.convertAccountRequired$ = accountService.activeAccount$.pipe(
       filter((account) => account != null),
@@ -271,18 +272,23 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       SymmetricCryptoKey.fromString(result.key_connector_key) as MasterKey,
       userId,
     );
-    await this.keyService.setUserKey(
-      SymmetricCryptoKey.fromString(result.user_key) as UserKey,
-      userId,
-    );
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(
       new EncString(result.key_connector_key_wrapped_user_key),
       userId,
     );
 
+    // Note: When SDK state management matures, the state writes and the unlock below should all be
+    // moved into post_keys_for_key_connector_registration
     await this.accountCryptographicStateService.setAccountCryptographicState(
       result.account_cryptographic_state,
       userId,
+    );
+
+    // Unlocking initializes the SDK from state, so it has to run after the account cryptographic
+    // state above has been persisted.
+    await this.unlockService.unlockWithDecryptedUserKey(
+      userId,
+      SymmetricCryptoKey.fromString(result.user_key),
     );
   }
 
@@ -295,7 +301,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     await SdkLoadService.Ready;
     const password = SymmetricCryptoKey.fromSdk(PureCrypto.make_aes256_cbc_hmac_key());
 
-    const masterKey = await this.keyService.makeMasterKey(
+    const masterKey = await this.legacyCompatKeyService.makeMasterKey(
       password.keyB64,
       await this.tokenService.getEmail(),
       kdfConfig,
@@ -305,11 +311,10 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     );
     await this.masterPasswordService.setMasterKey(masterKey, userId);
 
-    const userKey = await this.keyService.makeUserKey(masterKey);
-    await this.keyService.setUserKey(userKey[0], userId);
+    const userKey = await this.legacyCompatKeyService.makeUserKey(masterKey);
     await this.masterPasswordService.setMasterKeyEncryptedUserKey(userKey[1], userId);
 
-    const [pubKey, privKey] = await this.keyService.makeKeyPair(userKey[0]);
+    const [pubKey, privKey] = await this.legacyCompatKeyService.makeKeyPair(userKey[0]);
 
     try {
       await this.apiService.postUserKeyToKeyConnector(keyConnectorUrl, keyConnectorRequest);
@@ -325,6 +330,18 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       keys,
     );
     await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
+
+    // The key pair generated above is only known to the server until it is persisted here.
+    // Unlocking initializes the SDK from state, so it has to run after that.
+    await this.accountCryptographicStateService.setAccountCryptographicState(
+      {
+        V1: {
+          private_key: privKey.encryptedString,
+        },
+      },
+      userId,
+    );
+    await this.unlockService.unlockWithDecryptedUserKey(userId, userKey[0]);
   }
 
   async setNewSsoUserKeyConnectorConversionData(

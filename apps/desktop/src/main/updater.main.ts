@@ -7,8 +7,13 @@ import { UrlType } from "@bitwarden/common/platform/misc/safe-urls";
 import { LogService } from "@bitwarden/logging";
 
 import { SafeShell } from "../platform/main/safe-shell.main";
-import { isDev, isMacAppStore, isWindowsPortable, isWindowsStore } from "../utils";
+import { isDev } from "../utils";
 
+import {
+  isMacAppStore,
+  isWindowsPortable,
+  isWindowsStore,
+} from "./platform-utils.main";
 import { WindowMain } from "./window.main";
 
 const UpdaterCheckInitialDelay = 5 * 1000; // 5 seconds

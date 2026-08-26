@@ -3,7 +3,9 @@ import { BehaviorSubject, firstValueFrom, of } from "rxjs";
 
 // This import has been flagged as unallowed for this class. It may be involved in a circular dependency loop.
 // eslint-disable-next-line no-restricted-imports
-import { KdfConfigService, KeyService, PBKDF2KdfConfig } from "@bitwarden/key-management";
+import { KdfConfigService, KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { EncryptedString, PBKDF2KdfConfig, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { PasswordManagerClient } from "@bitwarden/sdk-internal";
 
 import {
@@ -15,7 +17,6 @@ import {
 } from "../../../../spec";
 import { ApiService } from "../../../abstractions/api.service";
 import { AccountCryptographicStateService } from "../../../key-management/account-cryptography/account-cryptographic-state.service";
-import { EncryptedString } from "../../../key-management/crypto/models/enc-string";
 import { V2UpgradeTokenStateService } from "../../../key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
@@ -27,7 +28,6 @@ import { SdkLoadService } from "../../abstractions/sdk/sdk-load.service";
 import { UserNotLoggedInError } from "../../abstractions/sdk/sdk.service";
 import { Rc } from "../../misc/reference-counting/rc";
 import { Utils } from "../../misc/utils";
-import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
 import { DefaultSdkService } from "./default-sdk.service";
 
@@ -142,8 +142,8 @@ describe("DefaultSdkService", () => {
           service.userClient$(userId).subscribe(subject_1);
           service.userClient$(userId).subscribe(subject_2);
 
-          // Wait for debounceTime(100) in internalClient$ plus async client initialization
-          await new Promise((resolve) => setTimeout(resolve, 150));
+          // Let the async client initialization in internalClient$ settle.
+          await new Promise((resolve) => setTimeout(resolve, 0));
 
           expect(subject_1.value.take().value).toBe(mockClient);
           expect(subject_2.value.take().value).toBe(mockClient);
@@ -277,8 +277,8 @@ describe("DefaultSdkService", () => {
           const userClientTracker = new ObservableTracker(service.userClient$(userId), false);
 
           const firstEmission = userClientTracker.pauseUntilReceived(1, 200);
-          // Advance past the debounceTime(100) in internalClient$ so the first emission fires
-          await jest.advanceTimersByTimeAsync(100);
+          // Drain the microtask queue so the async client initialization completes and emits.
+          await jest.advanceTimersByTimeAsync(0);
           await firstEmission;
 
           service.setClient(userId, mockOverrideClient);

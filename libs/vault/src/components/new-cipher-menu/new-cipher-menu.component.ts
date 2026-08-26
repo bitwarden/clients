@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, input, output } from "@angular/core";
+import { Component, inject, input, output } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { combineLatest, map, shareReplay } from "rxjs";
 
@@ -13,6 +13,7 @@ import {
   BitwardenIcon,
   ButtonModule,
   ButtonType,
+  IconModule,
   MenuModule,
   PopoverComponent,
   PopoverModule,
@@ -20,6 +21,10 @@ import {
   TooltipDirective,
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
+
+import { Vfo1I18nPipe } from "../../pipes/vfo1-i18n.pipe";
+import { Vfo1IconPipe } from "../../pipes/vfo1-icon.pipe";
+import { Vfo1TerminologyService } from "../../services/vfo1-terminology.service";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -33,7 +38,10 @@ import { I18nPipe } from "@bitwarden/ui-common";
     PopoverModule,
     I18nPipe,
     JslibModule,
+    Vfo1I18nPipe,
     TooltipDirective,
+    Vfo1IconPipe,
+    IconModule,
   ],
 })
 export class NewCipherMenuComponent {
@@ -61,6 +69,8 @@ export class NewCipherMenuComponent {
   collectionAdded = output();
   cipherAdded = output<CipherType>();
   onAddItemDialog = output();
+
+  private readonly terminology = inject(Vfo1TerminologyService);
 
   private readonly btnTextAddCreateFeatureFlag = toSignal(
     this.configService.getFeatureFlag$(FeatureFlag.PM32380_BtnTextAddCreate),
@@ -113,10 +123,11 @@ export class NewCipherMenuComponent {
 
     // If only collections can be created, be specific
     if (!canCreateCipher && !canCreateFolder && canCreateCollection) {
+      const sharedFolderTerminology = this.terminology.enabled();
       if (btnTextAddCreateFeatureFlag) {
-        return "addCollection";
+        return sharedFolderTerminology ? "addSharedFolder" : "addCollection";
       } else {
-        return "newCollection";
+        return sharedFolderTerminology ? "newSharedFolder" : "newCollection";
       }
     }
 
@@ -127,7 +138,7 @@ export class NewCipherMenuComponent {
         return "add";
       }
     } else {
-      return "new";
+      return this.terminology.enabled() ? "add" : "new";
     }
   }
 

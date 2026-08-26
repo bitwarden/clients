@@ -1,7 +1,9 @@
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { UserId } from "@bitwarden/common/types/guid";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 
 import { KeyConnectorUnlockData } from "./default-unlock.service";
+import { UnlockSource } from "./unlock-source.enum";
 
 /**
  * Service for unlocking a user's account with various methods.
@@ -59,12 +61,24 @@ export abstract class UnlockService {
   abstract unlockWithDecryptedUserKey(userId: UserId, userKey: SymmetricCryptoKey): Promise<void>;
 
   /**
+   * Unlocks the user's account using their never-lock ("auto") key, if one is stored.
+   *
+   * Users whose vault timeout is set to never have a copy of their user key persisted, so their
+   * vault must load unlocked. Call this on application bootstrap and on active account changes.
+   *
+   * @param userId - The user's id
+   * @returns True when a never-lock key was found and used, false when there was nothing to unlock with
+   * @throws If the SDK is not available
+   */
+  abstract unlockWithAutoUnlockKey(userId: UserId): Promise<boolean>;
+
+  /**
    * Registers an action to be run when a user is unlocked through this service.
    *
-   * @param action Callback invoked after a successful unlock with the user id and the
-   *   freshly-decrypted user key.
+   * @param action Callback invoked after a successful unlock with the user id, the
+   *   freshly-decrypted user key, and what caused the unlock.
    */
   abstract registerOnUnlockAction(
-    action: (userId: UserId, userKey: SymmetricCryptoKey) => Promise<void>,
+    action: (userId: UserId, userKey: SymmetricCryptoKey, source: UnlockSource) => Promise<void>,
   ): void;
 }

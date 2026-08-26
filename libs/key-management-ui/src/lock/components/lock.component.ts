@@ -436,13 +436,10 @@ export class LockComponent implements OnInit, OnDestroy {
 
       await this.biometricStateService.setUserPromptCancelled(this.activeAccount.id);
 
+      // Throws if the user cancels the biometric prompt.
       await this.unlockService.unlockWithBiometrics(this.activeAccount.id);
-      const userKey = await firstValueFrom(this.keyService.userKey$(this.activeAccount.id));
 
-      // If user cancels biometric prompt, userKey is undefined.
-      if (userKey) {
-        await this.setUserKeyAndContinue(userKey);
-      }
+      await this.continueAfterSettingUserKey();
     } catch (e) {
       // Biometrics may fail if the user does not accept or if the desktop app is disconnected.
       this.logService.info("[LockComponent] Failed to unlock via biometrics.", e);
@@ -452,7 +449,13 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   async onPrfUnlockSuccess(userKey: UserKey): Promise<void> {
-    await this.setUserKeyAndContinue(userKey);
+    if (this.activeAccount == null) {
+      throw new Error("No active user.");
+    }
+
+    await this.unlockService.unlockWithDecryptedUserKey(this.activeAccount.id, userKey);
+
+    await this.continueAfterSettingUserKey();
   }
 
   togglePassword() {
@@ -483,8 +486,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
     try {
       await this.unlockService.unlockWithPin(this.activeAccount.id, pin);
-      const userKey = await this.keyService.getUserKey(this.activeAccount.id);
-      await this.setUserKeyAndContinue(userKey!);
+      await this.continueAfterSettingUserKey();
     } catch {
       // Failure state: invalid PIN or failed decryption
       this.invalidPinAttempts++;
@@ -518,15 +520,18 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.setUserKeyAndContinue(event.userKey, {
+    await this.continueAfterSettingUserKey({
       passwordEvaluation: {
         masterPassword: event.masterPassword,
       },
     });
   }
 
-  protected async setUserKeyAndContinue(
-    key: UserKey,
+  /**
+   * Shared tail of the lock screen's unlock methods. Callers are responsible for setting the user
+   * key via the matching {@link UnlockService} method before calling this.
+   */
+  protected async continueAfterSettingUserKey(
     afterUnlockActions: AfterUnlockActions = {},
   ): Promise<void> {
     if (this.activeAccount == null) {
@@ -535,8 +540,6 @@ export class LockComponent implements OnInit, OnDestroy {
 
     // Add a mark to indicate that the user has unlocked their vault. A good starting point for measuring unlock performance.
     this.logService.mark("Vault unlocked");
-
-    await this.keyService.setUserKey(key, this.activeAccount.id);
 
     // Now that we have a decrypted user key in memory, we can check if we
     // need to establish trust on the current device

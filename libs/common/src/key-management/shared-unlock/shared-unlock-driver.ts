@@ -1,18 +1,17 @@
 import { firstValueFrom } from "rxjs";
 
 // eslint-disable-next-line no-restricted-imports
-import { LockService } from "@bitwarden/auth/common";
-// eslint-disable-next-line no-restricted-imports
 import { KeyService } from "@bitwarden/key-management";
+// eslint-disable-next-line no-restricted-imports
+import { SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { UserId, SharedUnlockDriver, SymmetricKey } from "@bitwarden/sdk-internal";
-import { UnlockService } from "@bitwarden/unlock";
+import { LockService, LockSource, UnlockService } from "@bitwarden/unlock";
 import { UserId as TSUserId } from "@bitwarden/user-core";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentService } from "../../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { asUuid, uuidAsString } from "../../platform/abstractions/sdk/sdk.service";
-import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserKey } from "../../types/key";
 import { VaultTimeoutSettingsService } from "../vault-timeout/abstractions/vault-timeout-settings.service";
 
@@ -42,7 +41,7 @@ export class JsSharedUnlockDriver implements SharedUnlockDriver {
       return;
     }
 
-    await this.lockService.lock(fromSdkUserId(user_id));
+    await this.lockService.lock(fromSdkUserId(user_id), LockSource.SharedUnlock);
   }
 
   async unlock_user(user_id: UserId, user_key: SymmetricKey): Promise<void> {

@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, DestroyRef, inject } from "@angular/core";
+import { Component, computed, DestroyRef, inject } from "@angular/core";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom, lastValueFrom, map, Observable, of, switchMap } from "rxjs";
@@ -18,6 +18,7 @@ import {
 } from "@bitwarden/components";
 import { PricingCardComponent } from "@bitwarden/pricing";
 import { I18nPipe } from "@bitwarden/ui-common";
+import { Vfo1I18nPipe, Vfo1TerminologyService } from "@bitwarden/vault";
 
 import { UpdateLicenseDialogComponent } from "../../shared/update-license-dialog.component";
 import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
@@ -35,6 +36,7 @@ import { UpdateLicenseDialogResult } from "../../shared/update-license-types";
     LinkModule,
     I18nPipe,
     PricingCardComponent,
+    Vfo1I18nPipe,
   ],
 })
 export class SelfHostedPremiumComponent {
@@ -75,12 +77,16 @@ export class SelfHostedPremiumComponent {
     this.i18nService.t("andMoreFeatures"),
   ];
 
-  protected familiesFeatures = [
+  protected readonly familiesFeatures = computed(() => [
     this.i18nService.t("premiumAccounts"),
     this.i18nService.t("familiesUnlimitedSharing"),
-    this.i18nService.t("familiesUnlimitedCollections"),
+    this.i18nService.t(
+      this.vfo1TerminologyService.enabled()
+        ? "familiesUnlimitedSharedFolders"
+        : "familiesUnlimitedCollections",
+    ),
     this.i18nService.t("familiesSharedStorage"),
-  ];
+  ]);
 
   private destroyRef = inject(DestroyRef);
 
@@ -93,6 +99,7 @@ export class SelfHostedPremiumComponent {
     private i18nService: I18nService,
     private router: Router,
     private toastService: ToastService,
+    private vfo1TerminologyService: Vfo1TerminologyService,
   ) {
     // Redirect premium users to subscription page
     this.hasPremiumPersonally$

@@ -16,13 +16,13 @@ import { SdkService } from "../../platform/abstractions/sdk/sdk.service";
 import { SyncService } from "../../platform/sync";
 import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
-import { ChangeKdfService } from "../kdf/change-kdf.service.abstraction";
-import { MasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "../master-password/abstractions/master-password.service.abstraction";
 
 import { EncryptedMigrator } from "./encrypted-migrator.abstraction";
 import { BiometricPersistentMigration } from "./migrations/biometric-persistent-encryption-migration";
 import { EncryptedMigration, MigrationRequirement } from "./migrations/encrypted-migration";
 import { MinimumKdfMigration } from "./migrations/minimum-kdf-migration";
+import { UserKeyIdBackfillMigration } from "./migrations/user-key-id-backfill-migration";
 import { V2KeyRotationMigration } from "./migrations/v2-key-rotation-migration";
 
 export class DefaultEncryptedMigrator implements EncryptedMigrator {
@@ -31,10 +31,9 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
 
   constructor(
     kdfConfigService: KdfConfigService,
-    changeKdfService: ChangeKdfService,
     private readonly logService: LogService,
     configService: ConfigService,
-    masterPasswordService: MasterPasswordServiceAbstraction,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private readonly syncService: SyncService,
     keyService: KeyService,
     biometricsService: BiometricsService,
@@ -45,11 +44,17 @@ export class DefaultEncryptedMigrator implements EncryptedMigrator {
     sdkService: SdkService,
   ) {
     // Register migrations here
+
+    this.migrations.push({
+      name: "User Key Id Backfill Migration",
+      migration: new UserKeyIdBackfillMigration(sdkService, syncService, logService),
+    });
+
     this.migrations.push({
       name: "Minimum PBKDF2 Iteration Count Migration",
       migration: new MinimumKdfMigration(
         kdfConfigService,
-        changeKdfService,
+        sdkService,
         logService,
         configService,
         masterPasswordService,
