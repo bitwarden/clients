@@ -22,6 +22,8 @@ import { CollectionService } from "@bitwarden/admin-console/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -180,8 +182,17 @@ export class VaultPopupItemsService {
   private _filteredCipherList$: Observable<PopupCipherViewLike[]> = combineLatest([
     this._activeCipherList$,
     this._effectiveSearchText$,
+    this.vaultPopupListFiltersService.filterFunction$,
     getUserId(this.accountService.activeAccount$),
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
   ]).pipe(
+    map(
+      ([ciphers, searchText, filterFunction, userId, vfo1Enabled]): [
+        PopupCipherViewLike[],
+        string,
+        UserId,
+      ] => [vfo1Enabled ? ciphers : filterFunction(ciphers), searchText, userId],
+    ),
     switchMap(
       ([ciphers, searchText, userId]) =>
         this.searchService.searchCiphers(userId, null, searchText, ciphers) as Promise<
@@ -251,7 +262,16 @@ export class VaultPopupItemsService {
   /**
    * Observable that indicates whether a filter or search text is currently applied to the ciphers.
    */
-  hasFilterApplied$ = this._hasSearchText.pipe(shareReplay({ bufferSize: 1, refCount: true }));
+  hasFilterApplied$ = combineLatest([
+    this._hasSearchText,
+    this.vaultPopupListFiltersService.filters$,
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+  ]).pipe(
+    map(([hasSearchText, filters, vfo1Enabled]) => {
+      return hasSearchText || (!vfo1Enabled && Object.values(filters).some((f) => f !== null));
+    }),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   /**
    * Observable that indicates whether the user's vault is empty.
@@ -336,6 +356,7 @@ export class VaultPopupItemsService {
     private accountService: AccountService,
     private ngZone: NgZone,
     private restrictedItemTypesService: RestrictedItemTypesService,
+    private configService: ConfigService,
   ) {}
 
   applyFilter(newSearchText: string) {
