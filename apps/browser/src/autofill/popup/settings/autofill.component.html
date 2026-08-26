@@ -294,6 +294,36 @@
               </bit-label>
             </bit-form-control>
           }
+          @if (bitwardenAutofillAttributesSettingsVisible) {
+            <bit-form-control>
+              <input
+                formControlName="honorBitwardenIgnoreAttribute"
+                bitCheckbox
+                id="honor-bitwarden-ignore-attribute"
+                type="checkbox"
+              />
+              <bit-label for="honor-bitwarden-ignore-attribute">
+                {{ "honorDataBitwardenIgnoreAttributeLabel" | i18n }}
+              </bit-label>
+              <bit-hint class="tw-text-sm">
+                {{ "honorDataBitwardenIgnoreAttributeHint" | i18n }}
+              </bit-hint>
+            </bit-form-control>
+            <bit-form-control>
+              <input
+                formControlName="honorBitwardenAutofillAttribute"
+                bitCheckbox
+                id="honor-bitwarden-autofill-attribute"
+                type="checkbox"
+              />
+              <bit-label for="honor-bitwarden-autofill-attribute">
+                {{ "honorDataBitwardenAutofillAttributeLabel" | i18n }}
+              </bit-label>
+              <bit-hint class="tw-text-sm">
+                {{ "honorDataBitwardenAutofillAttributeHint" | i18n }}
+              </bit-hint>
+            </bit-form-control>
+          }
           <bit-form-control>
             <input
               formControlName="enableContextMenuItem"
