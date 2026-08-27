@@ -5,6 +5,7 @@ import {
   NgZone,
   OnDestroy,
   OnInit,
+  Type,
   viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
@@ -23,6 +24,7 @@ import {
   take,
   takeUntil,
   tap,
+  withLatestFrom,
 } from "rxjs/operators";
 
 import { CollectionService } from "@bitwarden/admin-console/common";
@@ -145,8 +147,16 @@ import { openBulkDeleteDialog } from "./bulk-action-dialogs/bulk-delete-dialog/b
 import { BulkDeleteDialogWebAdapter } from "./bulk-action-dialogs/bulk-delete-dialog-web.adapter";
 import { openDeleteSharedFolderDialog } from "./bulk-action-dialogs/delete-shared-folder-dialog/delete-shared-folder-dialog.component";
 import { VaultBannersComponent } from "./vault-banners/vault-banners.component";
+import {
+  VAULT_CONTROLLED_ACCESS_FILTER,
+  VaultControlledAccessFilter,
+} from "./vault-controlled-access-filter.token";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
+import {
+  VaultGatedCollectionBanner,
+  VAULT_GATED_COLLECTION_BANNER,
+} from "./vault-gated-collection-banner.token";
 import { VaultHeaderComponent } from "./vault-header/vault-header.component";
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 
@@ -190,6 +200,16 @@ type EmptyStateMap = Record<EmptyStateType, EmptyStateItem>;
 })
 export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestroy {
   private readonly vfo1TerminologyService = inject(Vfo1TerminologyService);
+
+  protected readonly gatedCollectionBanner: Type<VaultGatedCollectionBanner> | null = inject(
+    VAULT_GATED_COLLECTION_BANNER,
+    { optional: true },
+  );
+
+  private readonly controlledAccessFilter: VaultControlledAccessFilter | null = inject(
+    VAULT_CONTROLLED_ACCESS_FILTER,
+    { optional: true },
+  );
 
   readonly filterComponent = viewChild(VaultFilterComponent);
   readonly vaultItemsComponent = viewChild(VaultItemsComponent);
@@ -457,7 +477,11 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
       ),
     );
 
-    const ciphers$ = combineLatest([allowedCiphers$, filter$, this.currentSearchText$]).pipe(
+    const filteredCiphers$ = combineLatest([
+      allowedCiphers$,
+      filter$,
+      this.currentSearchText$,
+    ]).pipe(
       filter(([ciphers, filter]) => ciphers != undefined && filter != undefined),
       concatMap(async ([ciphers, filter, searchText]) => {
         const failedCiphers =
@@ -478,6 +502,14 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
 
         return allCiphers.filter(filterFunction) as C[];
       }),
+      shareReplay({ refCount: true, bufferSize: 1 }),
+    );
+
+    // Take the filter from the emission that already carries it; re-combining with filter$ would
+    // let the two race and narrow against a stale cipher array.
+    const ciphers$ = filteredCiphers$.pipe(
+      withLatestFrom(filter$),
+      switchMap(([ciphers, filter]) => this.narrowToControlledAccess(ciphers, filter)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -1684,6 +1716,13 @@ export class VaultComponent<C extends CipherViewLike> implements OnInit, OnDestr
     const notProtected = !ciphers.find((cipher) => cipher.reprompt !== CipherRepromptType.None);
 
     return notProtected || (await this.passwordRepromptService.showPasswordPrompt());
+  }
+
+  private narrowToControlledAccess(ciphers: C[], filter: RoutedVaultFilterModel): Observable<C[]> {
+    if (this.controlledAccessFilter == null || filter.controlledAccess == null) {
+      return of(ciphers);
+    }
+    return this.controlledAccessFilter.narrow$(filter.controlledAccess, ciphers);
   }
 
   private refresh() {
