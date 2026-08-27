@@ -1,8 +1,12 @@
 import { AbstractControl, ValidationErrors } from "@angular/forms";
 
-import { type RequestWindowProblem, requestWindowProblem } from "../helpers/request-access-window";
+import {
+  type RequestWindowFormValue,
+  type RequestWindowProblem,
+  requestWindowProblem,
+} from "../helpers/request-access-window";
 
-/** The key the window validator reports under, so the template can branch on the problem. */
+/** The key the window validator reports its {@link RequestWindowError} under. */
 export const REQUEST_WINDOW_ERROR_KEY = "requestWindow";
 
 /**
@@ -37,15 +41,17 @@ export function requestWindowEndValidator(
     // Read off the sibling CONTROLS, never `group.value`: `updateValueAndValidity` emits the
     // child's `valueChanges` before it propagates to the parent, so inside a sibling's handler the
     // group's cached value snapshot is still the previous one.
-    const date = group.get("date")?.value as string | null | undefined;
-    const start = group.get("start")?.value as string | null | undefined;
+    const requested: RequestWindowFormValue = {
+      date: group.get("date")?.value,
+      start: group.get("start")?.value,
+      end: control.value,
+    };
     const max = maxWindowSeconds();
-    const problem = requestWindowProblem(
-      { date, start, end: control.value as string | null | undefined },
-      max,
-    );
-    return problem == null
-      ? null
-      : { [REQUEST_WINDOW_ERROR_KEY]: { problem, message: message(problem, max) } };
+    const problem = requestWindowProblem(requested, max);
+    if (problem == null) {
+      return null;
+    }
+    const error: RequestWindowError = { problem, message: message(problem, max) };
+    return { [REQUEST_WINDOW_ERROR_KEY]: error };
   };
 }
