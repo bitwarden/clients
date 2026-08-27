@@ -33,6 +33,14 @@ describe("activateAccessErrorMessageKey", () => {
     },
   );
 
+  it("falls back to the raw message when there is no JSON body to decode", () => {
+    expect(
+      activateAccessErrorMessageKey(
+        activationError("Api", ACTIVATE_ACCESS_SERVER_ERRORS.WindowEnded.serverMessage),
+      ),
+    ).toBe(ACTIVATE_ACCESS_SERVER_ERRORS.WindowEnded.messageKey);
+  });
+
   it.each([
     [
       "an unrecognised server message",
