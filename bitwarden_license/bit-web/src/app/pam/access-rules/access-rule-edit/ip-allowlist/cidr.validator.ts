@@ -12,7 +12,10 @@ import {
  */
 export type CidrPredicate = (value: string) => boolean;
 
-/** For individual row controls; a blank row passes. */
+/**
+ * Angular validator that rejects a control whose value is not a valid CIDR. Attach to individual
+ * row controls. `isValid` supplies the CIDR check (see {@link CidrPredicate}).
+ */
 export function cidrValidator(invalidMessage: string, isValid: CidrPredicate): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     const value: string = (control.value ?? "").trim();
@@ -23,7 +26,15 @@ export function cidrValidator(invalidMessage: string, isValid: CidrPredicate): V
   };
 }
 
-/** Shared by {@link noDuplicateCidrsValidator} and the editor's row marks, so they agree. */
+/**
+ * The trimmed values that appear on more than one row. Empty rows are ignored.
+ *
+ * Single source of truth for "which ranges repeat": the array-level
+ * {@link noDuplicateCidrsValidator} decides from it whether Save is blocked, and the editor marks
+ * its rows from it. Deriving both from one function is what stops them disagreeing — were one side
+ * to gain a normalisation the other lacked (case-folding IPv6, canonicalising equivalent ranges),
+ * the array could reject a rule while no row showed the admin why.
+ */
 export function duplicateCidrValues(values: readonly string[]): Set<string> {
   const seen = new Set<string>();
   const duplicated = new Set<string>();
@@ -40,6 +51,11 @@ export function duplicateCidrValues(values: readonly string[]): Set<string> {
   return duplicated;
 }
 
+/**
+ * Cross-array validator: rejects with `{ duplicateCidrs: true }` if any two
+ * row controls share the same trimmed value. Empty rows are ignored. Attach to
+ * the CIDR {@link FormArray}.
+ */
 export function noDuplicateCidrsValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!(control instanceof FormArray)) {
