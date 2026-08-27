@@ -45,6 +45,26 @@ function request(overrides: Record<string, unknown> = {}): AccessRequestView {
   } as unknown as AccessRequestView;
 }
 
+/** An activated request whose lease an approved extension has already carried to `extendedEnd`. */
+function extendedLease(requestEnd: string, extendedEnd: string): AccessRequestView[] {
+  return [
+    request({
+      id: "original",
+      status: "approved",
+      leaseNotAfter: requestEnd,
+      producedLeaseId: "lease-1",
+      producedLeaseStatus: "active",
+    }),
+    request({
+      id: "the-extension",
+      status: "approved",
+      extensionOfLeaseId: "lease-1",
+      leaseNotBefore: requestEnd,
+      leaseNotAfter: extendedEnd,
+    }),
+  ];
+}
+
 describe("ApproverInboxService", () => {
   let service: ApproverInboxService;
   let approvalApi: MockProxy<ApprovalSdkService>;
@@ -367,22 +387,7 @@ describe("ApproverInboxService", () => {
     it("keeps a lease an extension has carried past the request's own end", async () => {
       const requestEnd = new Date(Date.now() - 1000).toISOString();
       const extendedEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-      approvalApi.listHistory.mockResolvedValue([
-        request({
-          id: "original",
-          status: "approved",
-          leaseNotAfter: requestEnd,
-          producedLeaseId: "lease-1",
-          producedLeaseStatus: "active",
-        }),
-        request({
-          id: "the-extension",
-          status: "approved",
-          extensionOfLeaseId: "lease-1",
-          leaseNotBefore: requestEnd,
-          leaseNotAfter: extendedEnd,
-        }),
-      ]);
+      approvalApi.listHistory.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
 
       await service.load();
 
@@ -394,22 +399,7 @@ describe("ApproverInboxService", () => {
     it("ends the row at the applied extension's end, not the originating request's", async () => {
       const requestEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
       const extendedEnd = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
-      approvalApi.listHistory.mockResolvedValue([
-        request({
-          id: "original",
-          status: "approved",
-          leaseNotAfter: requestEnd,
-          producedLeaseId: "lease-1",
-          producedLeaseStatus: "active",
-        }),
-        request({
-          id: "the-extension",
-          status: "approved",
-          extensionOfLeaseId: "lease-1",
-          leaseNotBefore: requestEnd,
-          leaseNotAfter: extendedEnd,
-        }),
-      ]);
+      approvalApi.listHistory.mockResolvedValue(extendedLease(requestEnd, extendedEnd));
 
       await service.load();
 
