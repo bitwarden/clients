@@ -39,6 +39,8 @@ import {
 } from "@bitwarden/components";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { vaultScopeCommands, VaultScopeType } from "../../models/vault-scope";
+
 import {
   SHARED_FOLDER_PERMISSIONS,
   SharedFolderPermission,
@@ -97,7 +99,8 @@ export type SharedFoldersTableFilters = {
  * back through {@link add} and each action's `run`. Loading the folders, resolving each folder's
  * permission, and acting on a row all stay with the client.
  *
- * Each folder's name links to `/{organizationId}/{id}`, built from the row.
+ * Each folder's name links to its organization's vault, drilled into that folder — the route
+ * {@link vaultScopeCommands} builds from the row.
  *
  * Requires `DialogService` and a configured `Router` in the injector — `bit-table-toolbar` injects
  * the former for its small-screen filter dialog, and the name column's `routerLink` needs the
@@ -234,6 +237,14 @@ export class SharedFoldersTableComponent<R extends SharedFolderRow = SharedFolde
 
   /** The i18n key naming `permission`, for the cells and the Permissions chip's options. */
   protected readonly permissionMessageKey = sharedFolderPermissionMessageKey;
+
+  /**
+   * The route a folder's name links to, built by the library's own route builder rather than
+   * assembled here, so the link and the route parser can't drift — see {@link vaultScopeCommands}.
+   */
+  protected readonly vaultScopeCommands = vaultScopeCommands;
+
+  protected readonly VaultScopeType = VaultScopeType;
 
   /**
    * Whether the table has rows at all, separating "filtered down to nothing" from "no shared

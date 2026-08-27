@@ -90,7 +90,13 @@
         bitLink
         class="tw-truncate"
         [attr.id]="'shared-folders-table_link_name-' + row.id"
-        [routerLink]="['/', row.organizationId, row.id]"
+        [routerLink]="
+          vaultScopeCommands({
+            type: VaultScopeType.Organization,
+            organizationId: row.organizationId,
+            collectionId: row.id,
+          })
+        "
       >
         {{ row.name }}
       </a>

@@ -3,6 +3,7 @@ import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 import { action } from "storybook/actions";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { DialogModule, I18nMockService } from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
@@ -10,39 +11,39 @@ import { SharedFoldersTableBulkAction } from "./shared-folders-table-bulk-action
 import { SharedFolderRow, SharedFoldersTableRowAction } from "./shared-folders-table-row";
 import { SharedFoldersTableComponent } from "./shared-folders-table.component";
 
-const organizationId = "org-1";
+const organizationId = "org-1" as OrganizationId;
 
 const sharedFolders: SharedFolderRow[] = [
   {
-    id: "col-1",
+    id: "col-1" as CollectionId,
     organizationId,
     name: "Engineering",
     permissions: SharedFolderPermission.Manage,
     items: 42,
   },
   {
-    id: "col-2",
+    id: "col-2" as CollectionId,
     organizationId,
     name: "Finance",
     permissions: SharedFolderPermission.Edit,
     items: 8,
   },
   {
-    id: "col-3",
+    id: "col-3" as CollectionId,
     organizationId,
     name: "Human resources",
     permissions: SharedFolderPermission.View,
     items: 0,
   },
   {
-    id: "col-4",
+    id: "col-4" as CollectionId,
     organizationId,
     name: "Marketing",
     permissions: SharedFolderPermission.EditExceptPass,
     items: 17,
   },
   {
-    id: "col-5",
+    id: "col-5" as CollectionId,
     organizationId,
     name: "Operations",
     permissions: SharedFolderPermission.ViewExceptPass,

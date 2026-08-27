@@ -5,6 +5,7 @@ import { mock } from "jest-mock-extended";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { BitTableV2Component, DialogService, FilterControl } from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
@@ -16,14 +17,24 @@ import {
   SharedFoldersTableFilters,
 } from "./shared-folders-table.component";
 
-function row(overrides: Partial<SharedFolderRow> = {}): SharedFolderRow {
+/**
+ * A row, with the ids a row brands relaxed to plain strings so a test can name a folder by a
+ * readable id rather than casting at every call.
+ */
+function row(
+  overrides: Partial<Omit<SharedFolderRow, "id" | "organizationId">> & {
+    id?: string;
+    organizationId?: string;
+  } = {},
+): SharedFolderRow {
+  const { id = "col-1", organizationId = "org-1", ...rest } = overrides;
   return {
-    id: "col-1",
-    organizationId: "org-1",
+    id: id as CollectionId,
+    organizationId: organizationId as OrganizationId,
     name: "Engineering",
     permissions: SharedFolderPermission.Manage,
     items: 4,
-    ...overrides,
+    ...rest,
   };
 }
 
@@ -102,7 +113,7 @@ describe("SharedFoldersTableComponent", () => {
       .queryAll(By.css("a[bitLink]"))
       .map((link) => (link.nativeElement as HTMLAnchorElement).getAttribute("href"));
 
-    expect(links).toEqual(["/org-a/col-a", "/org-b/col-b"]);
+    expect(links).toEqual(["/vault/org-a/col-a", "/vault/org-b/col-b"]);
   });
 
   // The stubbed `I18nService` echoes the key, so a cell renders the message key rather than the

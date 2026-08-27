@@ -1,3 +1,4 @@
+import { CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
 import { BitwardenIcon } from "@bitwarden/components";
 
 import { SharedFolderPermission } from "./shared-folder-permission";
@@ -10,15 +11,16 @@ import { SharedFolderPermission } from "./shared-folder-permission";
 export type SharedFolderRow = {
   /**
    * Stable identifier — the folder's collection id. Drives `trackBy`, the menu item QA ids, the
-   * `@for` track expression, and the second segment of the route the name links to.
+   * `@for` track expression, and the folder the route the name links to drills into.
    */
-  id: string;
+  id: CollectionId;
 
   /**
-   * The organization the folder belongs to. Forms the first segment of the route the name links
-   * to: `/{organizationId}/{id}`.
+   * The organization the folder belongs to — the vault the route the name links to scopes to. Both
+   * ids are branded as the collection services hold them, so a row assembled from a
+   * `CollectionView` needs no casts.
    */
-  organizationId: string;
+  organizationId: OrganizationId;
 
   name: string;
 
