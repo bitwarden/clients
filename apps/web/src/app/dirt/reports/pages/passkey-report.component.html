@@ -66,8 +66,8 @@
         }
         <bit-table-scroll [dataSource]="dataSource" [rowSize]="75" layout="fixed">
           <ng-container header>
-            <th bitCell class="tw-w-2/4">{{ "name" | i18n }}</th>
-            <th bitCell class="tw-w-2/6">{{ "vault" | i18n }}</th>
+            <th bitCell class="tw-w-1/2">{{ "name" | i18n }}</th>
+            <th bitCell class="tw-w-1/6">{{ "vault" | i18n }}</th>
             <th bitCell class="tw-w-1/6">{{ "type" | i18n }}</th>
             <th bitCell class="tw-w-1/6 tw-text-right">{{ "options" | i18n }}</th>
           </ng-container>
@@ -107,40 +107,35 @@
                 <small>{{ row.cipher.subTitle }}</small>
               </span>
             </td>
-            <td bitCell>
-              <app-org-badge
-                [disabled]="true"
-                [organizationId]="row.cipher.organizationId"
-                [organizationName]="
-                  (row.cipher.organizationId | orgNameFromId: organizations() ?? []) ?? ''
-                "
-                appStopProp
-              />
+            <td bitCell class="tw-truncate">
+              @if (row.cipher.organizationId) {
+                @let orgName = row.cipher.organizationId | orgNameFromId: organizations() ?? [];
+                {{ "orgNameVault" | i18n: orgName }}
+              } @else {
+                {{ "myVault" | i18n }}
+              }
             </td>
-            <td bitCell>
+            <td bitCell class="tw-flex tw-gap-2 tw-items-center">
               @if (row.supportsPasskeyLogin) {
-                <bit-icon
-                  name="bwi-passkey"
-                  class="tw-mr-1"
-                  title="{{ 'passwordlessLogin' | i18n }}"
-                  aria-hidden="true"
-                ></bit-icon>
-                <span class="tw-sr-only">{{ "passwordlessLogin" | i18n }}</span>
+                <span bitBadge size="small" variant="subtle">
+                  {{ "login" | i18n }}
+                </span>
               }
               @if (row.supportsPasskeyMfa) {
-                <bit-icon
-                  name="bwi-lock-encrypted"
-                  class="tw-mr-1"
-                  title="{{ 'multifactorAuthentication' | i18n }}"
-                  aria-hidden="true"
-                ></bit-icon>
-                <span class="tw-sr-only">{{ "multifactorAuthentication" | i18n }}</span>
+                <span bitBadge size="small" variant="subtle">2FA</span>
               }
             </td>
             <td bitCell class="tw-text-right">
               @if (row.instructions) {
-                <a [href]="row.instructions" target="_blank" rel="noreferrer">
-                  <span bitBadge variant="primary">{{ "instructions" | i18n }}</span>
+                <a
+                  bitButton
+                  endIcon="bwi-external-link"
+                  variant="subtle"
+                  [href]="row.instructions"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {{ "instructions" | i18n }}
                 </a>
               }
             </td>

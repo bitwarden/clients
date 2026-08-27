@@ -17,6 +17,7 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeModule,
+  ButtonModule,
   CalloutModule,
   ChipFilterComponent,
   ContainerComponent,
@@ -69,6 +70,7 @@ import {
     GetOrgNameFromIdPipe,
     OrganizationNameBadgeComponent,
     Vfo1IconPipe,
+    ButtonModule,
   ],
   providers: [PasskeyReportService],
 })
