@@ -7,13 +7,11 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import { VaultComponent } from "../components/vault/vault.component";
 import { VaultPopupItemsService } from "../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../services/vault-popup-list-filters.service";
-import { VaultPopupListTableFiltersService } from "../services/vault-popup-list-table-filters.service";
 
 import { clearVaultStateGuard } from "./clear-vault-state.guard";
 
 describe("clearVaultStateGuard", () => {
   let applyFilterSpy: jest.Mock;
-  let saveFiltersSpy: jest.Mock;
   let resetFilterFormSpy: jest.Mock;
 
   const setupModule = (vfo1Enabled: boolean) => {
@@ -22,10 +20,6 @@ describe("clearVaultStateGuard", () => {
         {
           provide: VaultPopupItemsService,
           useValue: { applyFilter: applyFilterSpy },
-        },
-        {
-          provide: VaultPopupListTableFiltersService,
-          useValue: { saveFilters: saveFiltersSpy },
         },
         {
           provide: VaultPopupListFiltersService,
@@ -41,7 +35,6 @@ describe("clearVaultStateGuard", () => {
 
   beforeEach(() => {
     applyFilterSpy = jest.fn();
-    saveFiltersSpy = jest.fn();
     resetFilterFormSpy = jest.fn();
   });
 
@@ -64,7 +57,6 @@ describe("clearVaultStateGuard", () => {
 
     expect(result).toBe(true);
     expect(applyFilterSpy).not.toHaveBeenCalled();
-    expect(saveFiltersSpy).not.toHaveBeenCalled();
   });
 
   it("should not clear vault state when not changing states", () => {
@@ -76,14 +68,13 @@ describe("clearVaultStateGuard", () => {
 
     expect(result).toBe(true);
     expect(applyFilterSpy).not.toHaveBeenCalled();
-    expect(saveFiltersSpy).not.toHaveBeenCalled();
   });
 
   describe("VFO1 enabled", () => {
     beforeEach(() => setupModule(true));
 
     it.each(["/settings", "/tabs/settings"])(
-      "should clear vault state when navigating to non-cipher routes: %s",
+      "should not clear vault state, since VFO1 persists it: %s",
       async (url) => {
         const nextState = { url } as RouterStateSnapshot;
 
@@ -92,8 +83,7 @@ describe("clearVaultStateGuard", () => {
         );
 
         expect(await firstValueFrom(result as Observable<boolean>)).toBe(true);
-        expect(applyFilterSpy).toHaveBeenCalledWith("");
-        expect(saveFiltersSpy).toHaveBeenCalledWith({});
+        expect(applyFilterSpy).not.toHaveBeenCalled();
         expect(resetFilterFormSpy).not.toHaveBeenCalled();
       },
     );
@@ -114,7 +104,6 @@ describe("clearVaultStateGuard", () => {
         expect(await firstValueFrom(result as Observable<boolean>)).toBe(true);
         expect(applyFilterSpy).toHaveBeenCalledWith("");
         expect(resetFilterFormSpy).toHaveBeenCalled();
-        expect(saveFiltersSpy).not.toHaveBeenCalled();
       },
     );
   });
