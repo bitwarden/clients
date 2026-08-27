@@ -18367,6 +18367,9 @@
   "pamApprovalsLoaded": {
     "message": "Access requests loaded"
   },
+  "pamHistoryLoaded": {
+    "message": "Request history loaded"
+  },
   "pamHistoryScopeAll": {
     "message": "All"
   },
