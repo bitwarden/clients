@@ -1466,8 +1466,8 @@ surface ActiveLeasesPage {
     -- Caller's currently-active leases with per-row revoke (used by lease
     -- holders to end their own access early) and extension.
     --
-    -- No page of its own. Both actions it provides ARE reachable: the "Active
-    -- access" section of my-requests-tab.component ends a lease, and
+    -- No page of its own. Both actions it provides ARE reachable: the
+    -- "Active access" section of my-requests-tab.component ends a lease, and
     -- cipher-view-banner.component ends or extends the lease on the item itself
     -- (through extend-lease-dialog.component). This surface is kept as the domain
     -- statement of what a lease holder may do to their own lease, independently of
