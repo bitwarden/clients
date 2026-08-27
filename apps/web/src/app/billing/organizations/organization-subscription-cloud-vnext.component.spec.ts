@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, ParamMap } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -11,6 +11,7 @@ import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { SubscriptionCardActions, SubscriptionPreview } from "@bitwarden/subscription";
 
@@ -79,6 +80,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   let dataService: jest.Mocked<OrganizationSubscriptionDataService>;
   let i18nService: jest.Mocked<I18nService>;
   let activatedRoute: { snapshot: { params: Record<string, string>; queryParamMap: ParamMap } };
+  let router: jest.Mocked<Router>;
+  let platformUtilsService: jest.Mocked<PlatformUtilsService>;
 
   const buildOrganization = (overrides: Partial<Organization> = {}): Organization =>
     ({
@@ -183,6 +186,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     activatedRoute = {
       snapshot: { params: { organizationId: "org-123" }, queryParamMap: convertToParamMap({}) },
     };
+    router = mock<Router>();
+    platformUtilsService = mock<PlatformUtilsService>();
 
     await TestBed.configureTestingModule({
       imports: [OrganizationSubscriptionCloudVNextComponent],
@@ -199,6 +204,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         },
         { provide: OrganizationBillingClient, useValue: mock<OrganizationBillingClient>() },
         { provide: ActivatedRoute, useValue: activatedRoute },
+        { provide: Router, useValue: router },
+        { provide: PlatformUtilsService, useValue: platformUtilsService },
       ],
     });
 
@@ -273,8 +280,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(component.showSelfHost()).toBe(true);
     });
 
-    it("shows the consolidated-billing MSP section only for provider-managed orgs", () => {
-      createComponent({ organization: buildOrganization({ hasProvider: true }) });
+    it("shows the consolidated-billing MSP section only for billable-provider-managed orgs", () => {
+      createComponent({
+        organization: buildOrganization({ hasProvider: true, hasBillableProvider: true }),
+      });
       expect(component.showConsolidatedBillingMsp()).toBe(true);
     });
   });
@@ -396,15 +405,24 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
       expect(changePlan).toHaveBeenCalledTimes(2);
     });
 
-    it("does nothing for actions the page does not handle", () => {
+    it("navigates to billing history on the manage-invoices action", () => {
       createComponent();
-      const reinstate = jest.spyOn(component, "reinstate").mockResolvedValue();
-      const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
-      component.handleCardAction(SubscriptionCardActions.ContactSupport);
       component.handleCardAction(SubscriptionCardActions.ManageInvoices);
+      expect(router.navigate).toHaveBeenCalledWith(["../history"], { relativeTo: activatedRoute });
+    });
+
+    it("navigates to payment details on the update-payment action", () => {
+      createComponent();
       component.handleCardAction(SubscriptionCardActions.UpdatePayment);
-      expect(reinstate).not.toHaveBeenCalled();
-      expect(changePlan).not.toHaveBeenCalled();
+      expect(router.navigate).toHaveBeenCalledWith(["../payment-details"], {
+        relativeTo: activatedRoute,
+      });
+    });
+
+    it("opens the contact page on the contact-support action", () => {
+      createComponent();
+      component.handleCardAction(SubscriptionCardActions.ContactSupport);
+      expect(platformUtilsService.launchUri).toHaveBeenCalledWith("https://bitwarden.com/contact/");
     });
   });
 
@@ -543,6 +561,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
         organization: buildOrganization({
           canViewSubscription: false,
           hasProvider: true,
+          hasBillableProvider: true,
           isProviderUser: false,
         }),
         detectChanges: true,
