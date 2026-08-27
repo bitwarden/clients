@@ -344,7 +344,6 @@ const safeProviders: SafeProvider[] = [
       MessagingServiceAbstraction,
       RELOAD_CALLBACK,
       VaultTimeoutSettingsService,
-      BiometricStateService,
       AccountServiceAbstraction,
       LogService,
       AuthServiceAbstraction,
