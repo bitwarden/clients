@@ -246,9 +246,9 @@ export class VaultNextComponent {
   });
 
   /**
-   * The name of the shared folder in view — used as the page title when the URL drills into a
-   * folder. The tree names each node by its own path segment, so this is the folder's own name
-   * rather than its full path.
+   * The name of the shared folder in view — shown as the last (non-linked) breadcrumb crumb. The
+   * tree names each node by its own path segment, so this is the folder's own name rather than its
+   * full path.
    */
   protected readonly sharedFolderName = computed(() => this.sharedFolderNode()?.node.name ?? "");
 
@@ -259,8 +259,8 @@ export class VaultNextComponent {
 
   /**
    * The ancestor chain for the selected shared folder, from the org root down to the immediate
-   * parent. Excludes the currently selected folder itself — it is shown as the page title via
-   * {@link title} with a trailing arrow in the breadcrumb trail pointing to it.
+   * parent. Excludes the currently selected folder itself, which is shown as the non-linked last
+   * crumb separately.
    */
   protected readonly collectionBreadcrumbs = computed((): CollectionView[] => {
     const node = this.sharedFolderNode();
@@ -346,9 +346,7 @@ export class VaultNextComponent {
       case VaultScopeType.MyVault:
         return this.i18nService.t("myVault");
       case VaultScopeType.Organization:
-        return this.collectionSelected()
-          ? this.sharedFolderName()
-          : this.scopedOrganizations()[0]?.name;
+        return this.collectionSelected() ? "" : this.scopedOrganizations()[0]?.name;
       case VaultScopeType.Trash:
         return this.i18nService.t("trash");
       case VaultScopeType.Archive:

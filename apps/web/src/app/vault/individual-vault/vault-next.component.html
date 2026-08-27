@@ -1,6 +1,6 @@
 <app-header [title]="title()">
   @if (collectionSelected()) {
-    <bit-breadcrumbs slot="breadcrumbs" showTrailingArrow>
+    <bit-breadcrumbs slot="breadcrumbs">
       <bit-breadcrumb (click)="navigateToOrgRoot()">
         <bit-icon-tile slot="start" [icon]="orgNavItem()?.icon" [color]="orgTileColor()" />
         {{ orgNavItem()?.label }}
@@ -16,6 +16,9 @@
           {{ crumb.name }}
         </bit-breadcrumb>
       }
+      <bit-breadcrumb [icon]="'bwi-collection-shared' | vfo1Icon">
+        {{ sharedFolderName() }}
+      </bit-breadcrumb>
     </bit-breadcrumbs>
   }
 </app-header>
