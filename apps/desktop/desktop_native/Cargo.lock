@@ -487,7 +487,6 @@ dependencies = [
 name = "biometric"
 version = "0.0.0"
 dependencies = [
- "aes 0.8.4",
  "anyhow",
  "bitwarden-crypto",
  "bitwarden-random",
