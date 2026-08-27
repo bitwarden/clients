@@ -1,7 +1,10 @@
 import { uuidAsString } from "@bitwarden/common/platform/abstractions/sdk/sdk.service";
 
 import type { AccessRequestId, AccessRequestView } from "../abstractions/access-lease";
-import { ResolvedNames } from "../access-requests/access-name-resolver.service";
+import {
+  ResolvedNames,
+  organizationNameFor,
+} from "../access-requests/access-name-resolver.service";
 import { ElapsedLabel, elapsedLabel } from "../date/elapsed";
 import {
   durationLabel,
@@ -31,6 +34,8 @@ export type ApprovalRow = {
   /** The gated cipher's display name, falling back to its raw id when it isn't in the local vault. */
   cipherName: string;
   collectionName: string | null;
+  /** The owning organization's display name, or null when the request or the lookup lacks it. */
+  organizationName: string | null;
   /** The requester's name, falling back to their email, then empty when the server resolved neither. */
   requester: string;
   requesterEmail: string | null;
@@ -65,6 +70,7 @@ export function toApprovalRow(
   const collectionId = uuidAsString(request.collectionId);
   const cipherName = names.cipherNameById.get(cipherId) ?? cipherId;
   const collectionName = names.collectionNameById.get(collectionId) ?? null;
+  const organizationName = organizationNameFor(request, names);
   const requester = request.requesterName || request.requesterEmail || "";
 
   return {
@@ -74,6 +80,7 @@ export function toApprovalRow(
     collectionId,
     cipherName,
     collectionName,
+    organizationName,
     requester,
     requesterEmail: request.requesterEmail ?? null,
     submittedAtMs: Date.parse(request.submittedAt),
