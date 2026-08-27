@@ -4,15 +4,12 @@ import { of } from "rxjs";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { KeyService, BiometricStateService } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import {
   CryptoFunctionService,
   EncryptService,
   EncString,
-  LegacyCompatKeyService,
   SymmetricCryptoKey,
 } from "@bitwarden/legacy-crypto";
 import { UserId } from "@bitwarden/user-core";
@@ -26,15 +23,11 @@ jest.mock("../platform/browser/browser-api");
 
 describe("NativeMessagingBackground", () => {
   let sut: NativeMessagingBackground;
-  let keyService: MockProxy<KeyService>;
-  let legacyCompatKeyService: MockProxy<LegacyCompatKeyService>;
   let encryptService: MockProxy<EncryptService>;
   let cryptoFunctionService: MockProxy<CryptoFunctionService>;
-  let messagingService: MockProxy<MessagingService>;
   let appIdService: MockProxy<AppIdService>;
   let platformUtilsService: MockProxy<PlatformUtilsService>;
   let logService: MockProxy<LogService>;
-  let biometricStateService: MockProxy<BiometricStateService>;
   let accountService: MockProxy<AccountService>;
 
   const mockAppId = "test-app-id";
@@ -65,15 +58,11 @@ describe("NativeMessagingBackground", () => {
   }
 
   beforeEach(() => {
-    keyService = mock<KeyService>();
-    legacyCompatKeyService = mock<LegacyCompatKeyService>();
     encryptService = mock<EncryptService>();
     cryptoFunctionService = mock<CryptoFunctionService>();
-    messagingService = mock<MessagingService>();
     appIdService = mock<AppIdService>();
     platformUtilsService = mock<PlatformUtilsService>();
     logService = mock<LogService>();
-    biometricStateService = mock<BiometricStateService>();
     accountService = mock<AccountService>();
 
     appIdService.getAppId.mockResolvedValue(mockAppId);
@@ -93,15 +82,11 @@ describe("NativeMessagingBackground", () => {
     });
 
     sut = new NativeMessagingBackground(
-      keyService,
-      legacyCompatKeyService,
       encryptService,
       cryptoFunctionService,
-      messagingService,
       appIdService,
       platformUtilsService,
       logService,
-      biometricStateService,
       accountService,
     );
     // The constructor starts a reconnection loop; stop it so tests can drive connect() explicitly.
@@ -162,15 +147,11 @@ describe("NativeMessagingBackground", () => {
 
     it("starts the reconnection loop on construction", () => {
       const instance = new NativeMessagingBackground(
-        keyService,
-        legacyCompatKeyService,
         encryptService,
         cryptoFunctionService,
-        messagingService,
         appIdService,
         platformUtilsService,
         logService,
-        biometricStateService,
         accountService,
       );
       const instanceConnectSpy = jest.spyOn(instance, "connect").mockResolvedValue(undefined);
