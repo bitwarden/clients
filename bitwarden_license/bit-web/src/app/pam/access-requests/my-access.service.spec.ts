@@ -168,6 +168,34 @@ describe("MyAccessService", () => {
         const rows = await firstValueFrom(service.historyRows$);
         expect(rows.map((r) => r.id).sort()).toEqual(["req-1", "req-5"]);
       });
+
+      it("surfaces a denied extension in historyRows$ while an applied one stays folded away", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-1", {
+            status: "approved",
+            producedLeaseId: "lease-1",
+            producedLeaseStatus: "expired",
+          }),
+          // Applied: represented on its grant as time added, so it is not a row of its own.
+          request("ext-applied", {
+            extensionOfLeaseId: "lease-1",
+            status: "approved",
+            leaseNotBefore: "2024-01-01T01:00:00.000Z",
+            leaseNotAfter: "2024-01-01T02:00:00.000Z",
+          }),
+          // Denied because the lease ended first: it added nothing, so history is the only place
+          // the requester can see it (PM-42632).
+          request("ext-denied", { extensionOfLeaseId: "lease-2", status: "denied" }),
+        ]);
+        leasesApi.listMyLeases.mockResolvedValue([]);
+
+        await service.load();
+
+        const rows = await firstValueFrom(service.historyRows$);
+        expect(rows.map((r) => r.id).sort()).toEqual(["ext-denied", "req-1"]);
+        // Nor does it show up as an outstanding extension — it is resolved, not open.
+        expect(await firstValueFrom(service.extensionRows$)).toEqual([]);
+      });
     });
   });
 
