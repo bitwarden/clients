@@ -7,20 +7,15 @@ import {
   output,
   viewChild,
 } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { switchMap } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherViewLike } from "@bitwarden/common/vault/utils/cipher-view-like-utils";
 import { ButtonModule, CalloutComponent, LinkModule } from "@bitwarden/components";
-import { PolicyType } from "@bitwarden/sdk-internal";
 import { I18nPipe } from "@bitwarden/ui-common";
 import {
   CipherRowMenuHandlers,
@@ -52,8 +47,6 @@ import { VaultItemEvent } from "../vault-items/vault-item-event";
 export class VaultListTableComponent<C extends CipherViewLike> {
   private readonly premiumUpgradePromptService = inject(PremiumUpgradePromptService);
   private readonly cipherRowMenuService = inject(CipherRowMenuService);
-  private readonly policyService = inject(PolicyService);
-  private readonly accountService = inject(AccountService);
   private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
     optional: true,
   });
@@ -107,15 +100,4 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   async navigateToGetPremium(): Promise<void> {
     await this.premiumUpgradePromptService.promptForPremium();
   }
-
-  protected readonly orgRequiresDataOwnership = toSignal(
-    this.accountService.activeAccount$
-      .pipe(getUserId)
-      .pipe(
-        switchMap((userId) =>
-          this.policyService.policyAppliesToUser$(PolicyType.OrganizationDataOwnership, userId),
-        ),
-      ),
-    { initialValue: false },
-  );
 }

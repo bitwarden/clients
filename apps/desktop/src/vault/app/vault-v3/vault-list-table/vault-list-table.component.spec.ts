@@ -2,11 +2,9 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { EMPTY, of } from "rxjs";
+import { EMPTY } from "rxjs";
 
-import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -34,20 +32,12 @@ describe("VaultListTableComponent", () => {
   async function setup(extraProviders: unknown[] = []) {
     mockGetRowActions = jest.fn(() => []);
 
-    const accountService = mock<AccountService>();
-    accountService.activeAccount$ = of({ id: "user-1" } as Account);
-
-    const policyService = mock<PolicyService>();
-    policyService.policyAppliesToUser$.mockReturnValue(of(false));
-
     await TestBed.configureTestingModule({
       imports: [VaultListTableComponent],
       providers: [
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: CipherRowMenuService, useValue: { getRowActions: mockGetRowActions } },
-        { provide: AccountService, useValue: accountService },
-        { provide: PolicyService, useValue: policyService },
         ...extraProviders,
       ],
     })

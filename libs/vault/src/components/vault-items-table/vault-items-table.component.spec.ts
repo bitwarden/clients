@@ -85,7 +85,7 @@ function cipherListView(overrides: Partial<CipherListView> = {}): CipherListView
 @Component({
   selector: "test-wrapped-toolbar-host",
   template: `
-    <vault-items-table [ciphers]="[]" [orgRequiresDataOwnership]="false">
+    <vault-items-table [ciphers]="[]">
       <div slot="toolbar">
         @if (show()) {
           <button id="toolbar-action" type="button">Add</button>
@@ -104,7 +104,7 @@ class WrappedToolbarHostComponent {
 @Component({
   selector: "test-bare-toolbar-host",
   template: `
-    <vault-items-table [ciphers]="[]" [orgRequiresDataOwnership]="false">
+    <vault-items-table [ciphers]="[]">
       @if (show()) {
         <button slot="toolbar" id="toolbar-action" type="button" bitButton>Import</button>
         <span slot="toolbar" id="toolbar-second">Add</span>
@@ -181,7 +181,6 @@ describe("VaultItemsTableComponent", () => {
       TestBed.createComponent<VaultItemsTableComponent<CipherViewLike>>(VaultItemsTableComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("ciphers", []);
-    fixture.componentRef.setInput("orgRequiresDataOwnership", false);
   });
 
   /** The component's single filter predicate, which the table derives every other state from. */
@@ -776,22 +775,16 @@ describe("VaultItemsTableComponent", () => {
         expect(component["showMyVaultOption"]()).toBe(true);
       });
 
-      it("offers My vault when the vault is empty and not org-scoped", () => {
+      it("offers My vault when the vault is empty and no organizations are provided", () => {
         fixture.componentRef.setInput("ciphers", []);
+        fixture.componentRef.setInput("organizations", []);
 
         expect(component["showMyVaultOption"]()).toBe(true);
       });
 
-      it("omits My vault in the empty-vault fallback when scoped to an organization", () => {
+      it("omits My vault in the empty-vault fallback when organizations are present", () => {
         fixture.componentRef.setInput("ciphers", []);
-        fixture.componentRef.setInput("organizationId", "org-1");
-
-        expect(component["showMyVaultOption"]()).toBe(false);
-      });
-
-      it("omits My vault in the empty-vault fallback when the org requires data ownership", () => {
-        fixture.componentRef.setInput("ciphers", []);
-        fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+        // organizations already set to [org-1, org-2] by the parent beforeEach
 
         expect(component["showMyVaultOption"]()).toBe(false);
       });

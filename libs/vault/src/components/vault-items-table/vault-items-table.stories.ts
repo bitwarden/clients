@@ -369,7 +369,6 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
 type StoryProps = {
   ciphers: CipherView[];
   organizationId?: OrganizationId;
-  orgRequiresDataOwnership: boolean;
   loading: boolean;
   rowActions: VaultItemsTableRowAction<CipherView>[];
   folders: FolderView[];
@@ -394,7 +393,6 @@ const template = `
     <vault-items-table
       [ciphers]="ciphers"
       [organizationId]="organizationId"
-      [orgRequiresDataOwnership]="orgRequiresDataOwnership"
       [loading]="loading"
       [rowActions]="rowActions"
       [folders]="folders"
@@ -417,7 +415,6 @@ const template = `
 const baseProps: StoryProps = {
   ciphers,
   loading: false,
-  orgRequiresDataOwnership: false,
   rowActions,
   folders,
   collections,

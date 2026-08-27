@@ -277,7 +277,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   /**
    * Whether the `OrganizationDataOwnership` organization policy is enabled.
    */
-  readonly orgRequiresDataOwnership = input.required<boolean>();
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
@@ -429,14 +428,13 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /**
    * Whether the Vault chip offers "My vault". True when some cipher is individually owned, or
-   * when there are no ciphers yet and this is not an org-scoped view — so the option is always
-   * available in an empty individual vault.
+   * when there are no ciphers yet and no organizations are provided — so the option is always
+   * available in an empty personal vault.
    */
   protected readonly showMyVaultOption = computed(() => {
     const hasPersonalCiphers = this.presentVaults().has(MY_VAULT);
-    const isEmptyIndividualVault =
-      !this.ciphers().length && !this.organizationId() && !this.orgRequiresDataOwnership();
-    return hasPersonalCiphers || isEmptyIndividualVault;
+    const isEmptyPersonalVault = !this.ciphers().length && this.organizations().length === 0;
+    return hasPersonalCiphers || isEmptyPersonalVault;
   });
 
   /**
