@@ -64,6 +64,7 @@ export function accessRequest(overrides: Record<string, unknown> = {}): AccessRe
     id: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
+    organizationId: "org-1",
     requesterId: "user-1",
     requesterName: "Grace Hopper",
     requesterEmail: "grace@example.com",
@@ -130,6 +131,7 @@ export function storyNames(): ResolvedNames {
       ["col-1", "Production"],
       ["col-2", "Payments"],
     ]),
+    organizationNameById: new Map([["org-1", "Meridian Group"]]),
     cipherById: new Map([
       ["cipher-1", cipherView("cipher-1", "Prod database")],
       ["cipher-2", cipherView("cipher-2", "Payments API key")],

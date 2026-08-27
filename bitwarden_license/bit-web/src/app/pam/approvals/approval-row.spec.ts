@@ -10,6 +10,7 @@ function request(overrides: Record<string, unknown> = {}): AccessRequestView {
     id: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
+    organizationId: "org-1",
     requesterId: "user-1",
     status: "pending",
     leaseNotBefore: "2026-08-17T12:00:00.000Z",
@@ -28,6 +29,7 @@ function names(overrides: Partial<ResolvedNames> = {}): ResolvedNames {
     ...emptyResolvedNames(),
     cipherNameById: new Map([["cipher-1", "Prod database"]]),
     collectionNameById: new Map([["col-1", "Production"]]),
+    organizationNameById: new Map([["org-1", "Meridian Group"]]),
     ...overrides,
   };
 }
@@ -46,6 +48,17 @@ describe("toApprovalRow", () => {
 
     expect(row.cipherName).toBe("cipher-1");
     expect(row.collectionName).toBeNull();
+  });
+
+  it("resolves the owning organization's name", () => {
+    expect(toApprovalRow(request(), names(), NOW, true).organizationName).toBe("Meridian Group");
+  });
+
+  it("leaves the organization null rather than exposing its raw id", () => {
+    expect(toApprovalRow(request(), emptyResolvedNames(), NOW, true).organizationName).toBeNull();
+    expect(
+      toApprovalRow(request({ organizationId: undefined }), names(), NOW, true).organizationName,
+    ).toBeNull();
   });
 
   it("prefers the requester's name, falling back to their email", () => {
