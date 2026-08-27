@@ -8,6 +8,7 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { FakeAccountService, mockAccountServiceWith } from "@bitwarden/common/spec";
@@ -42,6 +43,8 @@ class MockHeaderComponent {}
 class MockBitContainerComponent {}
 
 describe("WeakPasswordsReportComponent", () => {
+  const configService = mock<ConfigService>();
+
   let component: WeakPasswordsReportComponent;
   let fixture: ComponentFixture<WeakPasswordsReportComponent>;
   let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
@@ -57,6 +60,8 @@ describe("WeakPasswordsReportComponent", () => {
     passwordStrengthService = mock<PasswordStrengthServiceAbstraction>();
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
+
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       declarations: [WeakPasswordsReportComponent, MockHeaderComponent, MockBitContainerComponent],
@@ -99,6 +104,10 @@ describe("WeakPasswordsReportComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
         {
           provide: CipherFormConfigService,
@@ -164,5 +173,21 @@ describe("WeakPasswordsReportComponent", () => {
 
   it("should call fullSync method of syncService", () => {
     expect(syncServiceMock.fullSync).toHaveBeenCalledWith(false);
+  });
+
+  it("should render the current page breadcrumb when the VFO1 feature flag is enabled", async () => {
+    configService.getFeatureFlag$.mockReturnValue(of(true));
+    const i18nService = TestBed.inject(I18nService) as MockProxy<I18nService>;
+    i18nService.t.mockImplementation((key) => key);
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl("/reports/weak-passwords-report", WeakPasswordsReportComponent);
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    const crumbs = breadcrumbs.queryAll(By.css("span[bitOverflowItem]"));
+    expect(crumbs).toHaveLength(2);
+    expect(crumbs[1].nativeElement.textContent.trim()).toBe("weakPasswordsReport");
   });
 });

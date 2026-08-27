@@ -17,6 +17,8 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { getById } from "@bitwarden/common/platform/misc";
 import { CipherId, CollectionId } from "@bitwarden/common/types/guid";
@@ -95,6 +97,14 @@ export class OrgPasskeyReportComponent {
   private readonly syncService = inject(SyncService);
   private readonly adminConsoleCipherFormConfigService = inject(
     AdminConsoleCipherFormConfigService,
+  );
+  private readonly configService = inject(ConfigService);
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
   );
 
   // Reactive state

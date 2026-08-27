@@ -5,7 +5,7 @@ import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
 import { ActivatedRoute, provideRouter, Route, ROUTES, Routes } from "@angular/router";
 import { RouterTestingHarness } from "@angular/router/testing";
-import { mock } from "jest-mock-extended";
+import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
 // The component library modules SharedModule pulls in use browser observers jsdom does not implement
@@ -161,6 +161,7 @@ function environmentProviders(): (Provider | EnvironmentProviders)[] {
 
   const configService = mock<ConfigService>();
   configService.getFeatureFlag.mockResolvedValue(false);
+  configService.getFeatureFlag$.mockReturnValue(of(false));
 
   const i18nService = mock<I18nService>();
   i18nService.t.mockReturnValue("translated");
@@ -319,6 +320,48 @@ describe("MemberAccessReportComponent", () => {
       expect(
         breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']"),
       ).not.toBeNull();
+    });
+
+    it("renders the current page breadcrumb when the VFO1 feature flag is enabled", async () => {
+      await TestBed.configureTestingModule({
+        imports: [MemberAccessReportComponent],
+        providers: [
+          ...environmentProviders(),
+          ...memberAccessReportRouteProviders(),
+          { provide: DialogService, useValue: mock<DialogService>() },
+          provideRouter([
+            {
+              path: "organizations/:organizationId/reporting/reports",
+              children: [{ path: "member-access-report", component: MemberAccessReportComponent }],
+            },
+          ]),
+        ],
+      })
+        .overrideComponent(MemberAccessReportComponent, {
+          set: {
+            imports: [CommonModule, I18nPipe, Vfo1I18nPipe, BreadcrumbsModule, IconModule],
+            schemas: [NO_ERRORS_SCHEMA],
+          },
+        })
+        .compileComponents();
+
+      const configService = TestBed.inject(ConfigService) as MockProxy<ConfigService>;
+      configService.getFeatureFlag$.mockReturnValue(of(true));
+      const i18nService = TestBed.inject(I18nService) as MockProxy<I18nService>;
+      i18nService.t.mockImplementation((key) => key);
+
+      const harness = await RouterTestingHarness.create();
+      await harness.navigateByUrl(
+        `/organizations/${ORGANIZATION_ID}/reporting/reports/member-access-report`,
+        MemberAccessReportComponent,
+      );
+
+      const breadcrumbs = harness.fixture.debugElement.query(
+        By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+      );
+      const crumbs = breadcrumbs.queryAll(By.css("span[bitOverflowItem]"));
+      expect(crumbs).toHaveLength(2);
+      expect(crumbs[1].nativeElement.textContent.trim()).toBe("memberAccessReport");
     });
   });
 });

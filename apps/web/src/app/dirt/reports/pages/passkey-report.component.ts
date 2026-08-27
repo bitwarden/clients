@@ -8,6 +8,8 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherId, CollectionId, OrganizationId } from "@bitwarden/common/types/guid";
@@ -85,6 +87,7 @@ export class PasskeyReportComponent implements OnInit {
   private readonly passkeyReportService = inject(PasskeyReportService);
   private readonly passwordRepromptService = inject(PasswordRepromptService);
   private readonly syncService = inject(SyncService);
+  private readonly configService = inject(ConfigService);
 
   // Reactive state
   protected readonly loading = signal(false);
@@ -112,6 +115,13 @@ export class PasskeyReportComponent implements OnInit {
   private readonly userId = toSignal(this.accountService.activeAccount$.pipe(getUserId), {
     requireSync: true,
   });
+
+  protected readonly vfo1Enabled = toSignal(
+    this.configService.getFeatureFlag$(FeatureFlag.VFO1Foundation),
+    {
+      initialValue: false,
+    },
+  );
 
   protected readonly currentFilterStatus = signal<number | string>(0);
   private readonly passkeyServices = signal<Map<string, PasskeyServiceEntry>>(new Map());

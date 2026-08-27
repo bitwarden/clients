@@ -8,6 +8,7 @@ import { of } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -25,6 +26,8 @@ import { InactiveTwoFactorReportComponent } from "./inactive-two-factor-report.c
 import { cipherData } from "./reports-ciphers.mock";
 
 describe("InactiveTwoFactorReportComponent", () => {
+  const configService = mock<ConfigService>();
+
   let component: InactiveTwoFactorReportComponent;
   let fixture: ComponentFixture<InactiveTwoFactorReportComponent>;
   let organizationService: MockProxy<OrganizationService>;
@@ -38,6 +41,8 @@ describe("InactiveTwoFactorReportComponent", () => {
     organizationService = mock<OrganizationService>();
     organizationService.organizations$.mockReturnValue(of([]));
     syncServiceMock = mock<SyncService>();
+
+    configService.getFeatureFlag$.mockReturnValue(of(false));
 
     await TestBed.configureTestingModule({
       declarations: [InactiveTwoFactorReportComponent],
@@ -82,6 +87,10 @@ describe("InactiveTwoFactorReportComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: ConfigService,
+          useValue: configService,
         },
         {
           provide: CipherFormConfigService,
@@ -298,5 +307,24 @@ describe("InactiveTwoFactorReportComponent", () => {
         viewPassword,
       };
     }
+  });
+
+  it("should render the current page breadcrumb when the VFO1 feature flag is enabled", async () => {
+    configService.getFeatureFlag$.mockReturnValue(of(true));
+    const i18nService = TestBed.inject(I18nService) as MockProxy<I18nService>;
+    i18nService.t.mockImplementation((key) => key);
+
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(
+      "/reports/inactive-two-factor-report",
+      InactiveTwoFactorReportComponent,
+    );
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
+    const crumbs = breadcrumbs.queryAll(By.css("span[bitOverflowItem]"));
+    expect(crumbs).toHaveLength(2);
+    expect(crumbs[1].nativeElement.textContent.trim()).toBe("inactive2faReport");
   });
 });

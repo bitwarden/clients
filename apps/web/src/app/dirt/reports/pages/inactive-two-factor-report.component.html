@@ -4,6 +4,11 @@
       <bit-icon name="bwi-sliders"> </bit-icon>
       {{ "reports" | i18n }}
     </bit-breadcrumb>
+    @if (vfo1Enabled()) {
+      <bit-breadcrumb route="./">
+        {{ "inactive2faReport" | i18n }}
+      </bit-breadcrumb>
+    }
   </bit-breadcrumbs>
 </app-header>
 
