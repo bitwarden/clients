@@ -1,11 +1,9 @@
-// FIXME: Update this file to be type safe and remove this and next line
-// @ts-strict-ignore
-interface TokenizedPaymentMethod {
+export interface TokenizedPaymentMethod {
   type: "bankAccount" | "card" | "payPal";
   token: string;
 }
 
-interface BillingAddress {
+export interface BillingAddress {
   country: string;
   postalCode: string;
   line1: string | null;
@@ -17,10 +15,28 @@ interface BillingAddress {
 
 export class ProviderSetupRequest {
   name: string;
-  businessName: string;
+  businessName?: string;
   billingEmail: string;
   token: string;
   key: string;
   paymentMethod: TokenizedPaymentMethod;
   billingAddress: BillingAddress;
+
+  constructor(c: {
+    name: string;
+    businessName?: string;
+    billingEmail: string;
+    token: string;
+    key: string;
+    paymentMethod: TokenizedPaymentMethod;
+    billingAddress: BillingAddress;
+  }) {
+    this.name = c.name;
+    this.businessName = c.businessName;
+    this.billingEmail = c.billingEmail;
+    this.token = c.token;
+    this.key = c.key;
+    this.paymentMethod = c.paymentMethod;
+    this.billingAddress = c.billingAddress;
+  }
 }
