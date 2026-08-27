@@ -116,11 +116,6 @@ export class BreadcrumbComponent {
       )
       .subscribe((_) => this.checkActiveRoute());
 
-    // Re-check active state whenever route() changes, including on first bind — this covers crumbs
-    // stamped after NavigationEnd has already fired (e.g. inside an @if block) without requiring an
-    // explicit `active` input.
-    effect(() => this.checkActiveRoute());
-
     // Drive the projected icon tile's size from the crumb size (pushed by the parent
     // `bit-breadcrumbs`) so it stays in sync. Runs once the content query resolves.
     effect(() => {
