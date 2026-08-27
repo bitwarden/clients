@@ -1715,6 +1715,17 @@ export default class MainBackground {
       this.accountService,
     );
 
+    if (chrome.webRequest != null && chrome.webRequest.onAuthRequired != null) {
+      this.webRequestBackground = new WebRequestBackground(
+        this.platformUtilsService,
+        this.cipherService,
+        this.authService,
+        this.accountService,
+        chrome.webRequest,
+        this.configService,
+      );
+    }
+
     this.cipherAuthorizationService = new DefaultCipherAuthorizationService(
       this.collectionService,
       this.organizationService,
@@ -1834,23 +1845,7 @@ export default class MainBackground {
       await BrowserApi.setSidePanelOptions({ enabled: false });
     }
     this.idleBackground.init();
-    const basicAuthResponseIsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.EnableBasicAuthResponse,
-    );
-    if (
-      basicAuthResponseIsEnabled &&
-      chrome.webRequest != null &&
-      chrome.webRequest.onAuthRequired != null
-    ) {
-      this.webRequestBackground = new WebRequestBackground(
-        this.platformUtilsService,
-        this.cipherService,
-        this.authService,
-        this.accountService,
-        chrome.webRequest,
-      );
-      this.webRequestBackground.startListening();
-    }
+    await this.webRequestBackground?.startListening();
     this.syncServiceListener?.listener$().subscribe();
     await this.autoSubmitLoginBackground.init();
     await this.targetingRulesDataService.init();
