@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router, RouterModule } from "@angular/router";
-import { filter, firstValueFrom, lastValueFrom, take } from "rxjs";
+import { filter, firstValueFrom, lastValueFrom, map, switchMap, take } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -67,6 +67,9 @@ const FAMILIES_OR_STARTER_PLANS: PlanType[] = [
   PlanType.TeamsStarter,
 ];
 
+const QUERY_PARAM_UPGRADE = "upgrade";
+const QUERY_PARAM_PRODUCT_TIER = "productTierType";
+
 @Component({
   selector: "app-organization-subscription-cloud-vnext",
   templateUrl: "./organization-subscription-cloud-vnext.component.html",
@@ -92,9 +95,6 @@ const FAMILIES_OR_STARTER_PLANS: PlanType[] = [
   ],
 })
 export class OrganizationSubscriptionCloudVNextComponent {
-  private static readonly QUERY_PARAM_UPGRADE = "upgrade";
-  private static readonly QUERY_PARAM_PRODUCT_TIER = "productTierType";
-
   private readonly data = inject(OrganizationSubscriptionDataService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -131,22 +131,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   });
 
   constructor() {
-    const queryParams = this.route.snapshot.queryParamMap;
-    if (!queryParams.get(OrganizationSubscriptionCloudVNextComponent.QUERY_PARAM_UPGRADE)) {
-      return;
-    }
-    // Deep link (?upgrade[&productTierType=]) auto-opens the change-plan dialog once the
-    // subscription has loaded, mirroring the legacy page.
-    const preSelectedProductTier = this.toProductTier(
-      queryParams.get(OrganizationSubscriptionCloudVNextComponent.QUERY_PARAM_PRODUCT_TIER),
-    );
-    toObservable(this.organizationSubscription)
-      .pipe(
-        filter((subscription) => subscription != null),
-        take(1),
-        takeUntilDestroyed(),
-      )
-      .subscribe(() => void this.changePlan(preSelectedProductTier));
+    this.openChangePlanIfUpgradeRequested();
   }
 
   private readonly billingSubscription = computed(
@@ -537,9 +522,25 @@ export class OrganizationSubscriptionCloudVNextComponent {
     this.reloadSubscriptionPreview();
   }
 
-  // Mirrors the legacy page: parse the deep-link productTierType and keep it only if it matches a
-  // known tier. An absent/invalid value returns undefined and changePlan falls back to the org's
-  // current tier.
+  /** Opens the change plan dialog if the upgrade query parameter is present. */
+  private openChangePlanIfUpgradeRequested() {
+    const subscription$ = toObservable(this.organizationSubscription);
+    this.route.queryParamMap
+      .pipe(
+        filter((params) => params.get(QUERY_PARAM_UPGRADE) != null),
+        switchMap((params) =>
+          subscription$.pipe(
+            filter((subscription) => subscription != null),
+            take(1),
+            map(() => this.toProductTier(params.get(QUERY_PARAM_PRODUCT_TIER))),
+          ),
+        ),
+        take(1),
+        takeUntilDestroyed(),
+      )
+      .subscribe((preSelectedProductTier) => void this.changePlan(preSelectedProductTier));
+  }
+
   private toProductTier(value: string | null): ProductTierType | undefined {
     if (value == null) {
       return undefined;
