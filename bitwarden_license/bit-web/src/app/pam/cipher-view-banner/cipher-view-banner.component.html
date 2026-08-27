@@ -163,7 +163,13 @@
     </div>
 
     @if (requestFormExpanded()) {
-      <div class="tw-text-fg-body" #requestFoldOut tabindex="-1">
+      <div
+        class="tw-text-fg-body"
+        #requestFoldOut
+        tabindex="-1"
+        role="group"
+        [attr.aria-label]="'pamRequestAccessButton' | i18n"
+      >
         <hr class="tw-my-4 tw-border-t tw-border-border-base" />
 
         @if (loadingRequestForm()) {
