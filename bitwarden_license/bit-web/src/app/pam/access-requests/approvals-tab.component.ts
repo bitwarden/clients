@@ -144,9 +144,7 @@ export class ApprovalsTabComponent {
    * empty inbox (nothing to do) from a filter that matched nothing (something to do, just not
    * visible), which need different copy and, for the latter, the filter controls left on screen.
    */
-  protected readonly hasRows = computed(
-    () => this.allRows().length > 0 || this.allLeases().length > 0,
-  );
+  protected readonly hasRows = computed(() => this.filterableRows().length > 0);
 
   protected readonly dataSource = new TableDataSource<ApprovalRow>();
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
