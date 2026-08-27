@@ -138,7 +138,7 @@
     "mini-css-extract-plugin": "2.10.2",
     "nx": "22.6.5",
     "path-browserify": "1.0.1",
-    "postcss": "8.5.10",
+    "postcss": "8.5.23",
     "postcss-loader": "8.2.1",
     "prettier": "3.9.5",
     "prettier-plugin-tailwindcss": "0.8.0",
