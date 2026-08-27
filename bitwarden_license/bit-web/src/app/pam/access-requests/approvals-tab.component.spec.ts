@@ -185,40 +185,27 @@ describe("ApprovalsTabComponent", () => {
       expect(text).toContain("prod incident");
     });
 
-    // jsdom performs no layout and loads no stylesheet, so these assert the breakpoint classes are
-    // present on both halves of each column pair, not that the buttons are on screen. The 1024px
+    // jsdom performs no layout and loads no stylesheet, so these assert the breakpoint classes on
+    // both the header and the cell of each column, not that the buttons are on screen. The 1024px
     // behaviour is verified in a browser.
-    it("drops the window and reason columns below the xl breakpoint", () => {
+    it.each([
+      ["window", "xl"],
+      ["reason", "xl"],
+      ["submitted", "lg"],
+    ] as const)("shows the %s column only from the %s breakpoint up", (column, visibleFrom) => {
       inbox.inboxRows$.next([row({ id: "req-1" })]);
 
       create();
 
-      for (const column of ["window", "reason"]) {
-        const header = query(`[data-testid="approvals-col-${column}"]`);
-        const cell = query(`[data-testid="approvals-cell-${column}-req-1"]`);
-
-        for (const element of [header, cell]) {
-          expect(element).not.toBeNull();
-          expect(element?.classList).toContain("tw-hidden");
-          expect(element?.classList).toContain("xl:tw-table-cell");
-          expect(element?.classList).not.toContain("lg:tw-table-cell");
-        }
-      }
-    });
-
-    it("drops the submitted column below the lg breakpoint", () => {
-      inbox.inboxRows$.next([row({ id: "req-1" })]);
-
-      create();
-
-      const header = query('[data-testid="approvals-col-submitted"]');
-      const cell = query('[data-testid="approvals-cell-submitted-req-1"]');
-
-      for (const element of [header, cell]) {
+      for (const element of [
+        query(`[data-testid="approvals-col-${column}"]`),
+        query(`[data-testid="approvals-cell-${column}-req-1"]`),
+      ]) {
         expect(element).not.toBeNull();
         expect(element?.classList).toContain("tw-hidden");
-        expect(element?.classList).toContain("lg:tw-table-cell");
-        expect(element?.classList).not.toContain("xl:tw-table-cell");
+        expect([...(element?.classList ?? [])].filter((c) => c.endsWith(":tw-table-cell"))).toEqual(
+          [`${visibleFrom}:tw-table-cell`],
+        );
       }
     });
 
@@ -234,15 +221,18 @@ describe("ApprovalsTabComponent", () => {
     });
 
     it("keeps the full window and reason reachable from the row", () => {
-      const reason = "prod incident ".repeat(40).trim();
-      inbox.inboxRows$.next([row({ id: "req-1", reason })]);
+      const pending = row({ id: "req-1" });
+      inbox.inboxRows$.next([pending]);
 
       create();
 
       expect(query('[data-testid="approvals-row-req-1"] a')?.getAttribute("href")).toBe(
         "/pam/requests/req-1",
       );
-      expect(query(".tw-line-clamp-2")?.getAttribute("title")).toBe(reason);
+      expect(query('[data-testid="approvals-cell-window-req-1"] span')?.title).toBe(
+        pending.exactWindow,
+      );
+      expect(query('[data-testid="approvals-cell-reason-req-1"] div')?.title).toBe(pending.reason);
     });
 
     it("says so explicitly when a request carries no reason", () => {
