@@ -149,6 +149,19 @@ describe("CipherViewBannerComponent", () => {
     return Array.from(fixture.nativeElement.querySelectorAll(selector)) as HTMLElement[];
   }
 
+  /**
+   * Move the banner to its next access state the way a real change does — announce on
+   * {@link AccessRefreshService} and let the re-read drive the template.
+   */
+  async function refreshTo(next: CipherAccessStateView): Promise<void> {
+    requestsApi.getCipherAccessState.mockResolvedValue(next);
+    TestBed.inject(AccessRefreshService).notifyAccessChanged("cipher-1");
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
+
   function endFieldError(): HTMLElement | null {
     return (query("#pam-cipher-view-banner_input_end")
       ?.closest("bit-form-field")
@@ -632,6 +645,48 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(document.activeElement).toBe(query("#pam-cipher-view-banner_button_request-toggle"));
+    });
+
+    it("leaves focus where it is when the toggle remounts on its own", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      const elsewhere = document.createElement("input");
+      document.body.appendChild(elsewhere);
+      elsewhere.focus();
+
+      // The request is approved and started, so the resting card and its toggle unmount...
+      await refreshTo(accessState({ activeLease: leaseView() }));
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+
+      // ...and the lapsing lease brings both back, with the requester editing somewhere else.
+      await refreshTo(accessState());
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+
+      expect(document.activeElement).toBe(elsewhere);
+      elsewhere.remove();
+    });
+
+    it("still moves focus on a toggle made after the banner changed state", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      await refreshTo(accessState({ activeLease: leaseView() }));
+      await refreshTo(accessState());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      const focused = document.activeElement as HTMLElement | null;
+      expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
     });
 
     it("shapes the form from the pre-check's human path and seeds the window", async () => {
