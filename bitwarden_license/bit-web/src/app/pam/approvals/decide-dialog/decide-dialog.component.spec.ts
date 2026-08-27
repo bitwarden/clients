@@ -251,6 +251,21 @@ describe("DecideDialogComponent", () => {
       expect(document.activeElement?.id).toBe("pam-decide-dialog_textarea_comment");
     });
 
+    it("discards a note typed while approving rather than recording it as the denial reason", async () => {
+      await create("approve");
+      component["formGroup"].patchValue({ comment: "Approved for the maintenance window" });
+
+      component["switchToDeny"]();
+      fixture.detectChanges();
+
+      expect(component["formGroup"].getRawValue().comment).toBe("");
+      // The whole point of the required reason: it has to engage on this path too.
+      expect(component["confirmDisabled"]()).toBe(true);
+
+      await component["confirm"]();
+      expect(close).not.toHaveBeenCalled();
+    });
+
     it("closes with deny, not the verdict it was opened on", async () => {
       await create("approve");
 
