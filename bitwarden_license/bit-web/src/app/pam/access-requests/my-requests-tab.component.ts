@@ -68,6 +68,10 @@ type ActiveAccessRow = {
   readonly request: MyAccessRequestRow | null;
 };
 
+/** Ascending by window end; meaningful only within one row kind. */
+const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
+  Date.parse(a.notAfter) - Date.parse(b.notAfter);
+
 /**
  * "My requests" tab — the caller's own PAM access, grouped into three accordion sections mirroring
  * the design:
@@ -180,21 +184,16 @@ export class MyRequestsTabComponent implements OnInit {
   /**
    * Deliberately depends on `approvedRows` and `leases` only, never on `nowMs()`: a per-tick
    * rebuild would hand every badge a fresh input object every second and restart its countdown
-   * (see {@link leaseBadgeStates}). `bit-table`'s default sort orders the merged set by `notAfter`.
+   * (see {@link leaseBadgeStates}).
+   *
+   * Held leases come first, and the Window column carries no default sort, because `notAfter` means
+   * "when held access ends" on a lease but "activation deadline" on a grant. Ordering the merged set
+   * by it alone floats a grant whose window has already lapsed — one that grants nothing and offers
+   * no action — above live access, and nothing ever clears such a row: `MyAccessService.pendingRows$`
+   * keeps it and `historyRows$` excludes it.
    */
-  protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => [
-    ...this.approvedRows().map((request) => ({
-      testId: `my-access-approved-${request.id}`,
-      requestId: request.id,
-      cipherId: request.cipherId,
-      cipherName: request.cipherName,
-      collectionName: request.collectionName,
-      notBefore: request.leaseNotBefore,
-      notAfter: request.leaseNotAfter,
-      lease: null,
-      request,
-    })),
-    ...this.leases().map((lease) => ({
+  protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => {
+    const held: ActiveAccessRow[] = this.leases().map((lease) => ({
       testId: `my-access-lease-${lease.id}`,
       requestId: lease.requestId,
       cipherId: lease.cipherId,
@@ -204,8 +203,20 @@ export class MyRequestsTabComponent implements OnInit {
       notAfter: lease.notAfter,
       lease,
       request: null,
-    })),
-  ]);
+    }));
+    const granted: ActiveAccessRow[] = this.approvedRows().map((request) => ({
+      testId: `my-access-approved-${request.id}`,
+      requestId: request.id,
+      cipherId: request.cipherId,
+      cipherName: request.cipherName,
+      collectionName: request.collectionName,
+      notBefore: request.leaseNotBefore,
+      notAfter: request.leaseNotAfter,
+      lease: null,
+      request,
+    }));
+    return [...held.sort(byWindowEnd), ...granted.sort(byWindowEnd)];
+  });
 
   /**
    * Badge state is memoised per lease so the shared badge component sees a stable input across the
