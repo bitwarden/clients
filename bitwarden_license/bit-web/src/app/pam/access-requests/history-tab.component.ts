@@ -93,7 +93,7 @@ export class HistoryTabComponent {
 
   protected readonly HistoryScope = HistoryScope;
 
-  protected readonly canApprove = toSignal(this.approvalPrivileges.canApprove$, {
+  private readonly canApprove = toSignal(this.approvalPrivileges.canApprove$, {
     initialValue: false,
   });
 
@@ -120,24 +120,24 @@ export class HistoryTabComponent {
     initialValue: new Map<string, CipherView>(),
   });
 
-  /** A pure computed rather than a one-shot latch, so it tracks the managed rows as they load. */
-  private readonly defaultScope = computed<HistoryScope>(() =>
-    this.managedRows().length > 0 ? HistoryScope.Managed : HistoryScope.Mine,
-  );
+  private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
+  /**
+   * The default half is derived rather than latched on first load, so it keeps tracking the managed
+   * rows until the viewer pins a scope of their own.
+   */
   protected readonly scope = computed<HistoryScope>(
-    () => this.chosenScope() ?? this.defaultScope(),
+    () =>
+      this.chosenScope() ?? (this.hasManagedHistory() ? HistoryScope.Managed : HistoryScope.Mine),
   );
 
   /**
    * The toggle is offered to anyone who can approve, rows or not — gating it on rows hides the
    * second scope until it has content, which is exactly when the reader no longer needs telling it
-   * exists. The `managedRows()` term keeps it for a viewer whose privilege stream has not resolved
-   * but whose rows have.
+   * exists. The `hasManagedHistory()` term keeps it for a viewer whose privilege stream has not
+   * resolved but whose rows have.
    */
-  protected readonly canSwitchScope = computed(
-    () => this.canApprove() || this.managedRows().length > 0,
-  );
+  protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   protected readonly showingManaged = computed(
     () => this.scope() === HistoryScope.Managed && this.canSwitchScope(),

@@ -73,7 +73,7 @@ describe("HistoryTabComponent", () => {
 
   /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
-    component["chosenScope"].set("managed");
+    component["selectScope"]("managed");
     fixture.detectChanges();
   }
 
@@ -186,8 +186,8 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
     });
 
-    // The fallback now runs through canSwitchScope(): a non-approver whose managed rows go away
-    // loses the toggle, so the pinned scope stops applying.
+    // A non-approver whose managed rows go away loses the toggle, so their pinned scope stops
+    // applying.
     it("falls back to the caller's own rows if the managed side empties out", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
