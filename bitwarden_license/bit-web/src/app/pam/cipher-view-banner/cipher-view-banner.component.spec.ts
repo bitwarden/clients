@@ -847,7 +847,6 @@ describe("CipherViewBannerComponent", () => {
       await create(gatedCipher());
       await component["toggleRequestForm"]();
 
-      // End before start, and no reason.
       component["humanForm"].patchValue({
         date: "2026-08-17",
         start: "10:00",
