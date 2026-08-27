@@ -3,13 +3,16 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   LOCALE_ID,
   NgZone,
   OnInit,
   computed,
+  effect,
   inject,
   input,
   signal,
+  viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -288,6 +291,13 @@ export class CipherViewBannerComponent implements OnInit {
 
   /** Whether the "Request access" entry point has folded out its form. */
   protected readonly requestFormExpanded = signal(false);
+  private readonly requestToggleButton = viewChild("requestToggleButton", {
+    read: ElementRef<HTMLElement>,
+  });
+  private readonly requestFoldOut = viewChild("requestFoldOut", {
+    read: ElementRef<HTMLElement>,
+  });
+  private readonly requestFormToggled = signal(false);
   /** Approval path resolved by the pre-check; `null` until the fold-out lands it. */
   protected readonly requestMode = signal<AccessApprovalMode | null>(null);
   protected readonly loadingRequestForm = signal(false);
@@ -343,6 +353,20 @@ export class CipherViewBannerComponent implements OnInit {
     reason: ["", [Validators.required, nonBlank]],
   });
 
+  constructor() {
+    // Opening unmounts the "Request access" button and collapsing unmounts Cancel, so each
+    // direction destroys the element the requester just activated and focus falls to <body>.
+    // Latched on the first toggle, so the initial render never pulls focus.
+    effect(() => {
+      const target = this.requestFormExpanded()
+        ? this.requestFoldOut()
+        : this.requestToggleButton();
+      if (this.requestFormToggled()) {
+        target?.nativeElement.focus();
+      }
+    });
+  }
+
   ngOnInit(): void {
     // A control validator only re-runs on its own control, so without this a window fixed — or
     // broken — by editing Date or Start would leave End's status behind. Subscribed to the two
@@ -381,6 +405,7 @@ export class CipherViewBannerComponent implements OnInit {
    */
   protected async toggleRequestForm(): Promise<void> {
     const next = !this.requestFormExpanded();
+    this.requestFormToggled.set(true);
     this.requestFormExpanded.set(next);
     if (!next) {
       return;
