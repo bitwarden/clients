@@ -17995,6 +17995,9 @@
   "pamHistoryScopeLabel": {
     "message": "History scope"
   },
+  "pamHistoryEmpty": {
+    "message": "No request history to display"
+  },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
   },
