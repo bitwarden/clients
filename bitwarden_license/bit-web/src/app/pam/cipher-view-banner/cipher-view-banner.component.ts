@@ -43,6 +43,8 @@ import {
   MAX_REQUEST_ACCESS_WINDOW_SECONDS,
   REQUEST_ACCESS_DURATION_PRESETS,
   type RequestDurationOption,
+  activateAccessErrorMessageKey,
+  apiErrorBodyMessage,
   classifyRequestAccessError,
   composeRequestWindow,
   defaultRequestWindow,
@@ -480,7 +482,7 @@ export class CipherViewBannerComponent implements OnInit {
       // A taken single-active-lease slot surfaces here; the approved request stays activatable.
       this.toastService.showToast({
         variant: "error",
-        message: this.i18nService.t("pamStartLeaseError"),
+        message: this.i18nService.t(activateAccessErrorMessageKey(e)),
       });
     } finally {
       this.notifyAccessChanged();
@@ -612,7 +614,9 @@ export class CipherViewBannerComponent implements OnInit {
       : e instanceof Error
         ? e.message
         : undefined;
-    const outcome = classifyRequestAccessError(message);
+    const outcome = classifyRequestAccessError(
+      message == null ? message : (apiErrorBodyMessage(message) ?? message),
+    );
 
     switch (outcome.kind) {
       case "reconcile":

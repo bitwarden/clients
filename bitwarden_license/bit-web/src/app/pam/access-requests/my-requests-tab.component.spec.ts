@@ -175,11 +175,7 @@ describe("MyRequestsTabComponent", () => {
   describe("activating an approved request", () => {
     const row = requestRow({ id: "req-1" });
 
-    it("never puts the server's raw error payload in the toast", async () => {
-      // The real `.message` on the "Api" variant, not a tidied stand-in: the SDK transport string
-      // with the whole serialized response body concatenated onto it. An earlier version of this
-      // test asserted a clean sentence here, which is why showing `e.message` looked correct in
-      // Jest while publishing the server's filesystem paths to the requester in a real browser.
+    it("maps the server's reason to a client-side i18n key without leaking the raw payload", async () => {
       const error = Object.assign(
         new Error(
           'error in response: status code 409 Conflict: {"object":"error",' +
@@ -198,11 +194,34 @@ describe("MyRequestsTabComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "pamStartLeaseError",
+        message: "pamStartLeaseErrorNotApproved",
       });
       const shown = toastService.showToast.mock.calls[0][0].message as string;
       expect(shown).not.toContain("exceptionStackTrace");
       expect(shown).not.toContain("Bit.Services.Pam");
+    });
+
+    it("names the unopened window when the server rejects activation for it", async () => {
+      const error = Object.assign(
+        new Error(
+          'error in response: status code 400 Bad Request: {"object":"error",' +
+            '"message":"The approved access window has not started yet.","validationErrors":null,' +
+            '"exceptionMessage":"The approved access window has not started yet.",' +
+            '"exceptionStackTrace":"   at Bit.Services.Pam.OrganizationFeatures.Commands' +
+            ".ActivateAccessRequestCommand.ActivateAsync(Guid userId, Guid requestId) in " +
+            '/src/bitwarden_license/src/Services/Pam/.../ActivateAccessRequestCommand.cs:line 52"}',
+        ),
+        { name: "AccessRequestError", variant: "Api" },
+      );
+      myAccess.activate.mockRejectedValue(error);
+      create();
+
+      await component["activate"](row);
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "error",
+        message: "pamStartLeaseErrorWindowNotStarted",
+      });
     });
 
     it("falls back to the generic message for a non-leasing failure", async () => {
