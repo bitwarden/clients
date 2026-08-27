@@ -2,7 +2,8 @@ import { Component, ChangeDetectionStrategy } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ReactiveFormsModule } from "@angular/forms";
 import { By } from "@angular/platform-browser";
-import { provideRouter, RouterLink } from "@angular/router";
+import { provideRouter } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 
@@ -86,7 +87,12 @@ describe("BreachReportComponent", () => {
         IconModule,
       ],
       providers: [
-        provideRouter([]),
+        provideRouter([
+          {
+            path: "reports",
+            children: [{ path: "breach-report", component: BreachReportComponent }],
+          },
+        ]),
         {
           provide: AuditService,
           useValue: auditService,
@@ -119,16 +125,18 @@ describe("BreachReportComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should render a header breadcrumb that navigates back to the reports home page", () => {
-    const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+  it("should render a header breadcrumb that navigates back to the reports home page", async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl("/reports/breach-report", BreachReportComponent);
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
     expect(breadcrumbs).not.toBeNull();
 
     const links = breadcrumbs.queryAll(By.css("a[href]"));
     expect(links).toHaveLength(1);
-
-    // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report route
-    // is activated in the TestBed, so that resolves against the root route here.
-    expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+    expect(links[0].nativeElement.getAttribute("href")).toBe("/reports");
 
     expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });

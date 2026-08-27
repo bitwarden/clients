@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, CUSTOM_ELEMENTS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { provideRouter, RouterLink } from "@angular/router";
+import { provideRouter } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { MockProxy, mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -66,7 +67,14 @@ describe("UnsecuredWebsitesReportComponent", () => {
       ],
       imports: [I18nPipe, BreadcrumbsModule, IconModule],
       providers: [
-        provideRouter([]),
+        provideRouter([
+          {
+            path: "reports",
+            children: [
+              { path: "unsecured-websites-report", component: UnsecuredWebsitesReportComponent },
+            ],
+          },
+        ]),
         {
           provide: CipherService,
           useValue: mock<CipherService>(),
@@ -126,16 +134,21 @@ describe("UnsecuredWebsitesReportComponent", () => {
     expect(component).toBeTruthy();
   });
 
-  it("should render a header breadcrumb that navigates back to the reports home page", () => {
-    const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+  it("should render a header breadcrumb that navigates back to the reports home page", async () => {
+    const harness = await RouterTestingHarness.create();
+    await harness.navigateByUrl(
+      "/reports/unsecured-websites-report",
+      UnsecuredWebsitesReportComponent,
+    );
+
+    const breadcrumbs = harness.fixture.debugElement.query(
+      By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+    );
     expect(breadcrumbs).not.toBeNull();
 
     const links = breadcrumbs.queryAll(By.css("a[href]"));
     expect(links).toHaveLength(1);
-
-    // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report route
-    // is activated in the TestBed, so that resolves against the root route here.
-    expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+    expect(links[0].nativeElement.getAttribute("href")).toBe("/reports");
 
     expect(breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']")).not.toBeNull();
   });

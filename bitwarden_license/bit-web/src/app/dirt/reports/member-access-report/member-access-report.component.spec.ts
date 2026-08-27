@@ -3,7 +3,8 @@ import { EnvironmentProviders, NO_ERRORS_SCHEMA, Provider, signal } from "@angul
 import { TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideNoopAnimations } from "@angular/platform-browser/animations";
-import { ActivatedRoute, provideRouter, Route, ROUTES, RouterLink, Routes } from "@angular/router";
+import { ActivatedRoute, provideRouter, Route, ROUTES, Routes } from "@angular/router";
+import { RouterTestingHarness } from "@angular/router/testing";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -278,6 +279,14 @@ describe("MemberAccessReportComponent", () => {
           ...environmentProviders(),
           ...memberAccessReportRouteProviders(),
           { provide: DialogService, useValue: mock<DialogService>() },
+          // Mirrors the real route the report is mounted on, so `../` on the crumb resolves the
+          // way it does in the app rather than against the root route.
+          provideRouter([
+            {
+              path: "organizations/:organizationId/reporting/reports",
+              children: [{ path: "member-access-report", component: MemberAccessReportComponent }],
+            },
+          ]),
         ],
       })
         // The rest of the report's template — the real header chain, tables, dialogs — is
@@ -290,18 +299,22 @@ describe("MemberAccessReportComponent", () => {
         })
         .compileComponents();
 
-      const fixture = TestBed.createComponent(MemberAccessReportComponent);
-      fixture.detectChanges();
+      const harness = await RouterTestingHarness.create();
+      await harness.navigateByUrl(
+        `/organizations/${ORGANIZATION_ID}/reporting/reports/member-access-report`,
+        MemberAccessReportComponent,
+      );
 
-      const breadcrumbs = fixture.debugElement.query(By.css("bit-breadcrumbs[slot=breadcrumbs]"));
+      const breadcrumbs = harness.fixture.debugElement.query(
+        By.css("bit-breadcrumbs[slot=breadcrumbs]"),
+      );
       expect(breadcrumbs).not.toBeNull();
 
       const links = breadcrumbs.queryAll(By.css("a[href]"));
       expect(links).toHaveLength(1);
-
-      // The crumb routes to `../`, the report's parent — i.e. the reports home page. No report
-      // route is activated in the TestBed, so that resolves against the root route here.
-      expect(links[0].injector.get(RouterLink).urlTree?.toString()).toBe("/");
+      expect(links[0].nativeElement.getAttribute("href")).toBe(
+        `/organizations/${ORGANIZATION_ID}/reporting/reports`,
+      );
 
       expect(
         breadcrumbs.nativeElement.querySelector("bit-icon[name='bwi-sliders']"),
