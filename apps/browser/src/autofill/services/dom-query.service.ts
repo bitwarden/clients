@@ -383,8 +383,8 @@ export class DomQueryService implements DomQueryServiceInterface {
 
       if (mutationObserver) {
         this.observeShadowRoot(mutationObserver, shadowRoot, fieldsInRoot.length > 0);
+        this.knownShadowRoots.add(shadowRoot);
       }
-      this.knownShadowRoots.add(shadowRoot);
     }
 
     return elements;
@@ -402,7 +402,9 @@ export class DomQueryService implements DomQueryServiceInterface {
     return Array.from(root.querySelectorAll(queryString)) as T[];
   }
 
-  // Field-less roots get a shallow childList watch (not subtree) so an injected form still promotes them, without delivering tile/buffer churn.
+  // Field-less roots get a shallow childList watch (root-only mutations, no subtree) to avoid attribute churn.
+  // Direct injection to the root will promote on re-query. Injection into wrapper elements defers promotion to the
+  // next full collection, trading shallow-case latency for the performance gain of excluding attribute-flood overhead.
   private observeShadowRoot(
     mutationObserver: MutationObserver,
     shadowRoot: ShadowRoot,
@@ -639,14 +641,9 @@ export class DomQueryService implements DomQueryServiceInterface {
         );
 
         if (mutationObserver) {
-          const isNewRoot = !this.knownShadowRoots.has(nodeShadowRoot);
           const hasFields = treeWalkerQueryResults.length > fieldsBefore;
           // Always observe to allow promoting from shallow to full options if fields are added
           this.observeShadowRoot(mutationObserver, nodeShadowRoot, hasFields);
-          if (isNewRoot) {
-            this.knownShadowRoots.add(nodeShadowRoot);
-          }
-        } else {
           this.knownShadowRoots.add(nodeShadowRoot);
         }
       } else {
