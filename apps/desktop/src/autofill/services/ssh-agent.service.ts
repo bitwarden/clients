@@ -299,8 +299,9 @@ export class SshAgentService implements OnDestroy {
           ]).pipe(
             // Cancel the previous inner pipeline whenever status or enabled changes.
             switchMap(([status, enabled]) => {
-              // Feature disabled: stop the server if running, then idle.
+              // Feature disabled: drop remembered approvals, stop the server if running.
               if (!enabled) {
+                this.authorizedKeys = new Map();
                 return from(this.stopAgent());
               }
               // Logged out: no vault present, nothing to serve.

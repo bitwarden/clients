@@ -351,6 +351,36 @@ describe("SshAgentService", () => {
     expect(mockReplace).not.toHaveBeenCalled();
   });
 
+  it("when the feature is disabled, resets in-memory approval state", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+
+    enabledSubject.next(false);
+    await flush();
+
+    expect((service as any).authorizedKeys).toEqual(new Map());
+  });
+
+  it("when the feature is re-enabled, previously remembered approvals do not return", async () => {
+    enabledSubject.next(true);
+    accountSubject.next({ id: "user-1" as UserId });
+    authSubjectFor("user-1").next(AuthenticationStatus.Unlocked);
+    await flush();
+
+    (service as any).authorizedKeys = new Map([["cipher-abc", new Set(["local"])]]);
+
+    enabledSubject.next(false);
+    await flush();
+    enabledSubject.next(true);
+    await flush();
+
+    expect((service as any).authorizedKeys).toEqual(new Map());
+  });
+
   it("when service is destroyed, resets in-memory approval state", async () => {
     enabledSubject.next(true);
     accountSubject.next({ id: "user-1" as UserId });
