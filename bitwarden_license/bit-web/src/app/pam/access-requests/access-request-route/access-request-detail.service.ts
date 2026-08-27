@@ -31,13 +31,15 @@ import {
 } from "../access-name-resolver.service";
 
 /**
- * Loads and holds the single access request behind the `/pam/requests/:id` page — a shareable
+ * Loads and holds the single access request behind the `/pam/requests/:id` dialog — a shareable
  * link to one of the caller's own requests — resolving display names from local vault state and
  * owning the requester-facing mutations (cancel / activate / end lease). Approve/Deny is not
  * offered here: a requester never decides their own request (that's the deferred approver-inbox
  * flow).
  *
- * Page-scoped (provided on the route, not root), so each visit gets its own instance. Re-fetches
+ * Scoped to that route (not root), so each visit gets its own instance. It reads the `:id` off
+ * `ActivatedRoute`, so it is provided on the route's host component rather than the route config,
+ * where an environment-injector lookup would fall through to the root route. Re-fetches
  * on the route id and on every server-pushed access event ({@link AccessEventService}), so an
  * approver's decision lands on an open page without a reload; mutations made here re-fetch
  * explicitly rather than waiting for their own push to come back.

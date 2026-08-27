@@ -39,16 +39,16 @@ const routes: Routes = [
         component: HistoryTabComponent,
         data: { titleId: "pamTabHistory" },
       },
+      {
+        // A shareable link to a single one of the caller's own requests/leases — every row links
+        // here, and it is the URL the planned approval deep link lands on. A child of the shell
+        // rather than a sibling so the header and tab bar stay mounted underneath: the detail
+        // renders as a dialog over them, and the host owns the navigation that closing it needs.
+        path: "requests/:id",
+        component: AccessRequestRouteComponent,
+        data: { titleId: "pamAccessRequestTitle" },
+      },
     ],
-  },
-  {
-    // A shareable link to a single one of the caller's own requests/leases — every row links here.
-    // A sibling of the tabbed shell so it renders full-page; `AccessRequestRouteComponent` provides
-    // its own page-scoped detail service, sharing only `AccessNameResolverService` via this route.
-    path: "requests/:id",
-    component: AccessRequestRouteComponent,
-    providers: [AccessNameResolverService],
-    data: { titleId: "pamAccessRequestTitle" },
   },
 ];
 
