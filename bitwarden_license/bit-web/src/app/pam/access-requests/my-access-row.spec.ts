@@ -217,6 +217,27 @@ describe("resolveResolver", () => {
     });
   });
 
+  it("labels a cancelled request as withdrawn by the requester, not an access rule", () => {
+    // A withdrawal never enters the decision log (it is scoped to approval-authority verdicts),
+    // and even a cancel-after-approval was still ended by the requester, not the logged approver.
+    expect(resolveResolver("canceled", undefined)).toEqual({
+      resolverLabelKey: "pamResolverRequester",
+      resolverName: null,
+    });
+    const human = decision({ deciderKind: "human", name: "Jane Doe", email: "jane@example.com" });
+    expect(resolveResolver("canceled", human)).toEqual({
+      resolverLabelKey: "pamResolverRequester",
+      resolverName: null,
+    });
+  });
+
+  it("shows nobody for an expired request - the clock ended it, no party did", () => {
+    expect(resolveResolver("expired", undefined)).toEqual({
+      resolverLabelKey: null,
+      resolverName: null,
+    });
+  });
+
   it("falls back to email, then id, when the name is unresolved", () => {
     const byEmail = decision({ deciderKind: "human", name: undefined, email: "jane@example.com" });
     expect(resolveResolver("denied", byEmail).resolverName).toBe("jane@example.com");
