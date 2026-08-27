@@ -137,7 +137,6 @@ describe("DomQueryService", () => {
         const host = document.createElement("div");
         const shadowRoot = host.attachShadow({ mode: "open" });
         shadowRoot.appendChild(document.createElement("input"));
-        domQueryService["knownShadowRoots"].add(shadowRoot);
         const observeSpy = jest.spyOn(mutationObserver, "observe");
 
         domQueryService.query(host, "input", isInput, mutationObserver);
@@ -150,7 +149,6 @@ describe("DomQueryService", () => {
         const host = document.createElement("div");
         const shadowRoot = host.attachShadow({ mode: "open" });
         shadowRoot.appendChild(document.createElement("div"));
-        domQueryService["knownShadowRoots"].add(shadowRoot);
         const observeSpy = jest.spyOn(mutationObserver, "observe");
 
         domQueryService.query(host, "input", isInput, mutationObserver);
@@ -163,7 +161,6 @@ describe("DomQueryService", () => {
         const host = document.createElement("div");
         const shadowRoot = host.attachShadow({ mode: "open" });
         shadowRoot.appendChild(document.createElement("div"));
-        domQueryService["knownShadowRoots"].add(shadowRoot);
         const observeSpy = jest.spyOn(mutationObserver, "observe");
 
         domQueryService.query(host, "input", isInput, mutationObserver);
@@ -447,6 +444,8 @@ describe("DomQueryService", () => {
       domQueryService["pageContainsShadowDom"] = true;
       const customElement = document.createElement("custom-element");
       const shadowRoot = customElement.attachShadow({ mode: "open" });
+      // Add a form field so the root is observed with full options
+      shadowRoot.appendChild(document.createElement("input"));
       document.body.appendChild(customElement);
       const observeSpy = jest.spyOn(mutationObserver, "observe");
 
@@ -730,10 +729,8 @@ describe("DomQueryService", () => {
         expect(unresolvedHosts).toEqual(new Set([pending]));
         // A root is recorded as known only paired with an observer watching it.
         expect(domQueryService["knownShadowRoots"].has(hydratedRoot)).toBe(true);
-        expect(observeSpy).toHaveBeenCalledWith(
-          hydratedRoot,
-          expect.objectContaining({ attributes: true, childList: true, subtree: true }),
-        );
+        // Field-less root (filter matches nothing) gets shallow observation
+        expect(observeSpy).toHaveBeenCalledWith(hydratedRoot, { childList: true });
       });
     });
 

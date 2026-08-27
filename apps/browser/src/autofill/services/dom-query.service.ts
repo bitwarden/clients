@@ -18,18 +18,6 @@ const SHADOW_OBSERVER_ATTRIBUTE_FILTER = Object.values(AUTOFILL_ATTRIBUTES);
 // Per-scan cap; the persistent cap lives in ShadowHostHydrationTracker.
 const MAX_UNRESOLVED_SHADOW_HOSTS = 256;
 
-// Shared so the observe sites can't drift apart.
-const SHADOW_ROOT_OBSERVE_OPTIONS: MutationObserverInit = {
-  attributes: true,
-  childList: true,
-  subtree: true,
-};
-
-type ScanVerdict =
-  | { branch: "shortCircuit"; foundNewRoot: false }
-  | { branch: "narrow"; foundNewRoot: boolean }
-  | { branch: "fullScan"; foundNewRoot: boolean };
-
 /**
  * The two bins one shadow-root scan fills — hosts to re-scan, roots not seen before — plus the
  * observer to enroll discovered roots with. With no `observer` the scan still reports what it
@@ -394,11 +382,9 @@ export class DomQueryService implements DomQueryServiceInterface {
       elements = elements.concat(fieldsInRoot);
 
       if (mutationObserver) {
-        if (!this.knownShadowRoots.has(shadowRoot)) {
-          this.observeShadowRoot(mutationObserver, shadowRoot, fieldsInRoot.length > 0);
-        }
-        this.knownShadowRoots.add(shadowRoot);
+        this.observeShadowRoot(mutationObserver, shadowRoot, fieldsInRoot.length > 0);
       }
+      this.knownShadowRoots.add(shadowRoot);
     }
 
     return elements;
@@ -495,7 +481,9 @@ export class DomQueryService implements DomQueryServiceInterface {
    * Always both, in that order, so `knownShadowRoots` never holds a root we aren't watching.
    */
   private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
-    observer.observe(root, SHADOW_ROOT_OBSERVE_OPTIONS);
+    // Check for form fields to determine scoping; newly attached roots are often field-less
+    const hasFields = root.querySelector("input, select, textarea") != null;
+    this.observeShadowRoot(observer, root, hasFields);
     this.knownShadowRoots.add(root);
   };
 
@@ -651,15 +639,16 @@ export class DomQueryService implements DomQueryServiceInterface {
         );
 
         if (mutationObserver) {
-          if (!this.knownShadowRoots.has(nodeShadowRoot)) {
-            this.observeShadowRoot(
-              mutationObserver,
-              nodeShadowRoot,
-              treeWalkerQueryResults.length > fieldsBefore,
-            );
+          const isNewRoot = !this.knownShadowRoots.has(nodeShadowRoot);
+          const hasFields = treeWalkerQueryResults.length > fieldsBefore;
+          // Always observe to allow promoting from shallow to full options if fields are added
+          this.observeShadowRoot(mutationObserver, nodeShadowRoot, hasFields);
+          if (isNewRoot) {
+            this.knownShadowRoots.add(nodeShadowRoot);
           }
+        } else {
+          this.knownShadowRoots.add(nodeShadowRoot);
         }
-        this.knownShadowRoots.add(nodeShadowRoot);
       } else {
         this.sinkUnresolvedHost(currentElement, unresolvedHosts);
       }
