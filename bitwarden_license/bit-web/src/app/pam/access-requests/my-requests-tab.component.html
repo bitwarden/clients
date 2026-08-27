@@ -199,7 +199,7 @@
           </tr>
         </ng-container>
         <ng-template body let-rows$>
-          <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="rowTestId(row)">
+          <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="row.testId">
             <td bitCell>
               <div class="tw-flex tw-items-center tw-gap-3">
                 @if (cipherFor(row.cipherId); as cipher) {
