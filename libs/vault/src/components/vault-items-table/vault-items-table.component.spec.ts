@@ -1691,6 +1691,22 @@ describe("VaultItemsTableComponent", () => {
      * scroll space the last row sits permanently beneath it, and its checkbox and quick actions
      * can't be clicked — so the table holds space below the last row while the bar is showing.
      */
+    /**
+     * The service gates the bar on one flag; a host may gate it on more — desktop adds a
+     * desktop-only flag. Without being told, the table holds space for a bar that never renders.
+     */
+    it("holds no margin when the host says it does not render the bar", () => {
+      const amazon = cipherView({ id: "a", name: "Amazon" });
+      fixture.componentRef.setInput("ciphers", [amazon]);
+      fixture.componentRef.setInput("showBulkBar", false);
+      fixture.detectChanges();
+
+      selectionModel().select(amazon);
+      fixture.detectChanges();
+
+      expect((fixture.nativeElement as HTMLElement).style.marginBottom).toBe("0px");
+    });
+
     it("holds a bottom margin only while the bar is showing", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);

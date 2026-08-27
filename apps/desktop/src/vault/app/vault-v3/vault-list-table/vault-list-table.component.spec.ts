@@ -1,9 +1,12 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PremiumUpgradePromptService } from "@bitwarden/common/vault/abstractions/premium-upgrade-prompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -27,9 +30,13 @@ describe("VaultListTableComponent", () => {
   let fixture: ComponentFixture<VaultListTableComponent<CipherViewLike>>;
   let component: VaultListTableComponent<CipherViewLike>;
   let mockGetRowActions: jest.Mock;
+  let configService: MockProxy<ConfigService>;
 
   async function setup(extraProviders: unknown[] = []) {
     mockGetRowActions = jest.fn(() => []);
+    configService = mock<ConfigService>();
+    // Both batch-bar flags on by default; the desktop-only one is what this client adds.
+    configService.getFeatureFlag$.mockReturnValue(of(true));
 
     await TestBed.configureTestingModule({
       imports: [VaultListTableComponent],
@@ -37,6 +44,7 @@ describe("VaultListTableComponent", () => {
         { provide: I18nService, useValue: { t: (key: string) => key } },
         { provide: PremiumUpgradePromptService, useValue: mock<PremiumUpgradePromptService>() },
         { provide: CipherRowMenuService, useValue: { getRowActions: mockGetRowActions } },
+        { provide: ConfigService, useValue: configService },
         ...extraProviders,
       ],
     })
@@ -130,6 +138,30 @@ describe("VaultListTableComponent", () => {
         .triggerEventHandler("click", {});
 
       expect(emit).toHaveBeenCalled();
+    });
+  });
+  describe("showBulkBar", () => {
+    /**
+     * `VaultBatchBarService` gates the bar on `PM37785_VaultBatchBar` alone, but desktop also
+     * requires its own flag. The table reserves space off the service's view, so it has to be told
+     * when this client is holding the bar back — otherwise checking a row leaves a gap below the
+     * table with no bar in it.
+     */
+    it("is false when the desktop-only flag is off", async () => {
+      const config = mock<ConfigService>();
+      config.getFeatureFlag$.mockImplementation((flag) =>
+        of(flag !== FeatureFlag.PM37785_DesktopVaultBatchBar),
+      );
+      TestBed.resetTestingModule();
+
+      await setup([{ provide: ConfigService, useValue: config }]);
+
+      expect(component["showBulkBar"]()).toBe(false);
+    });
+
+    it("is true when both flags are on", () => {
+      // `beforeEach` already set both flags on.
+      expect(component["showBulkBar"]()).toBe(true);
     });
   });
 });

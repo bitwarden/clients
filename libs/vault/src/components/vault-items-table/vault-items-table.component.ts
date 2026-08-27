@@ -274,6 +274,15 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   protected readonly filterKeys = VAULT_FILTER_KEYS;
 
   /**
+   * Whether the host actually renders `<bit-vault-batch-action>`.
+   *
+   * Defaults to true, deferring to the service. Set it false where the host gates the bar on more
+   * than the service does — desktop requires a second, desktop-only flag — or the table reserves
+   * space for a bar that never appears.
+   */
+  readonly showBulkBar = input(true, { transform: booleanAttribute });
+
+  /**
    * Bottom margin held while the bulk-actions bar is up, so the table ends above it.
    *
    * The bar is `position: fixed` and never displaces content, so without this the table's bottom
@@ -281,7 +290,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * the border hidden behind the bar.
    */
   protected readonly bulkBarClearance = computed(() =>
-    this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,
+    this.showBulkBar() && this.batchBarService?.barVisible() ? BULK_BAR_CLEARANCE : 0,
   );
 
   /** The rows to display. */
