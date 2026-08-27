@@ -70,6 +70,7 @@ export class DefaultCipherFormService implements CipherFormService {
         activeUserId,
         originalCipherView,
         config.admin,
+        config.leaseGated,
       );
       savedCipher = await this.cipherService
         .encrypt(savedCipherView, activeUserId)
@@ -86,6 +87,7 @@ export class DefaultCipherFormService implements CipherFormService {
         activeUserId,
         originalCipherView,
         config.admin || originalCollectionIds.size === 0,
+        config.leaseGated,
       );
 
       // Then save the new collection changes separately
