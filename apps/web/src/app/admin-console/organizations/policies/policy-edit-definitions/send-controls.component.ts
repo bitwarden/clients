@@ -52,9 +52,9 @@ import { BasePolicyEditDefinition, BasePolicyEditComponent } from "../base-polic
 import { PolicyCategory } from "../pipes/policy-category";
 
 export class SendControlsPolicy extends BasePolicyEditDefinition {
-  name = "manageSend";
+  name = "manageSendV2";
   nameVfo1 = "manageSendAndShareVfo1";
-  description = "sendControlsPolicyDescV4";
+  description = "sendControlsPolicyDescV5";
   descriptionVfo1 = "sendControlsPolicyDescVfo1";
   type = PolicyType.SendControls;
   category = PolicyCategory.DataControl;
