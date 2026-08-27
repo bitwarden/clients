@@ -30,7 +30,7 @@ const names = storyNames();
  */
 function content() {
   const pending = [
-    // Approved and ready to activate: the Start button is live.
+    // Approved and ready to activate: renders in the active-access section, badged "Ready to use".
     toRequestRow(
       accessRequest({
         id: "req-approved",
@@ -151,7 +151,10 @@ export default {
 
 type Story = StoryObj<MyRequestsTabComponent>;
 
-/** All three sections populated: a startable grant, a pending request, an extension, two leases. */
+/**
+ * All three sections populated. The startable grant sits with the two leases under the last
+ * heading, not under Pending, which holds only the request still awaiting a decision.
+ */
 export const Default: Story = {
   decorators: [myAccess()],
 };
@@ -186,8 +189,9 @@ export const ActiveLeaseOnly: Story = {
 };
 
 /**
- * An approved grant whose window has not opened yet: it cannot be started, so the row shows when it
- * becomes redeemable rather than an inert Start button.
+ * An approved grant whose window has not opened yet. It is badged "Approved" rather than "Ready to
+ * use", but Start access is still offered — `canStart` does not read `leaseNotBefore`, and the
+ * product deliberately lets the requester try and surfaces the server's refusal.
  */
 export const ApprovedNotYetRedeemable: Story = {
   decorators: [
@@ -201,6 +205,33 @@ export const ApprovedNotYetRedeemable: Story = {
               leaseNotBefore: liveFromNow(DAY),
               leaseNotAfter: liveFromNow(DAY + 2 * HOUR),
               resolvedAt: liveFromNow(-MINUTE),
+            }),
+            names,
+          ),
+        ],
+        extensions: [],
+        leases: [],
+      }),
+    }),
+  ],
+};
+
+/**
+ * An approved grant nobody activated before its window lapsed. It still has to be visible
+ * somewhere, so it stays with the active access, badged "Approved" with no action offered.
+ */
+export const ApprovedWindowLapsed: Story = {
+  decorators: [
+    myAccess({
+      content: () => ({
+        pending: [
+          toRequestRow(
+            accessRequest({
+              id: "req-lapsed",
+              status: "approved",
+              leaseNotBefore: liveFromNow(-2 * HOUR),
+              leaseNotAfter: liveFromNow(-HOUR),
+              resolvedAt: liveFromNow(-3 * HOUR),
             }),
             names,
           ),
