@@ -32,6 +32,8 @@ export enum FeatureFlag {
   FillAssistTargetingRules = "fill-assist-targeting-rules",
   DefaultPasswordManagerPrompt = "pm-39071-default-password-manager-prompt",
   LitInlineMenuComponents = "lit-inline-menu-components",
+  // Note: This flag gates security risks and should not be turned on without
+  // changes to the underlying experience
   EnableBasicAuthResponse = "enable-basic-auth-response",
 
   /* Desktop Native */
