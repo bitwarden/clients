@@ -7,6 +7,7 @@ import { BehaviorSubject } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
@@ -52,6 +53,8 @@ describe("HistoryTabComponent", () => {
   let managedRows$: BehaviorSubject<MyAccessRequestRow[]>;
   let managedIds$: BehaviorSubject<Set<string>>;
   let managedLoading$: BehaviorSubject<boolean>;
+  let myLoading$: BehaviorSubject<boolean>;
+  let lastSync$: BehaviorSubject<Date | null>;
   let inbox: {
     historyRows$: BehaviorSubject<MyAccessRequestRow[]>;
     managedIds$: BehaviorSubject<Set<string>>;
@@ -85,6 +88,8 @@ describe("HistoryTabComponent", () => {
     managedRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedIds$ = new BehaviorSubject<Set<string>>(new Set());
     managedLoading$ = new BehaviorSubject(false);
+    myLoading$ = new BehaviorSubject(false);
+    lastSync$ = new BehaviorSubject<Date | null>(new Date("2026-08-20T09:00:00.000Z"));
     inbox = {
       historyRows$: managedRows$,
       managedIds$,
@@ -107,10 +112,12 @@ describe("HistoryTabComponent", () => {
           useValue: {
             historyRows$: myRows$,
             cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
+            loading$: myLoading$,
           },
         },
         { provide: ApproverInboxService, useValue: inbox },
         { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
+        { provide: SyncService, useValue: { activeUserLastSync$: () => lastSync$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -181,6 +188,44 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
     });
 
+    // On a cold load — a bookmark, or a hard refresh straight onto /pam/history — `canApprove$`
+    // answers false for a genuine approver: it is derived from organization and collection state the
+    // first sync has not delivered yet. The sync writes that state before stamping its date, so a
+    // non-null last-sync date is what makes a `false` here trustworthy.
+    it("waits for the first sync before reading a false approval privilege as settled", () => {
+      lastSync$.next(null);
+      managedLoading$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      expect(query('[data-testid="history-loading"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-history-mine-1"]')).toBeNull();
+
+      canApprove$.next(true);
+      lastSync$.next(new Date("2026-08-20T09:05:00.000Z"));
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
+    });
+
+    it("waits on the caller's own history too, so its empty state cannot flash", () => {
+      myLoading$.next(true);
+
+      create();
+
+      expect(query('[data-testid="history-loading"]')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).not.toContain("pamMyRequestsHistoryEmpty");
+
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      myLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
+    });
+
     it("lands on the managed side when there is managed history", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
       managedRows$.next([historyRow({ id: "managed-1" })]);
@@ -208,6 +253,19 @@ describe("HistoryTabComponent", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       fixture.detectChanges();
 
+      expect(component["showingManaged"]()).toBe(false);
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+    });
+
+    it("does not move the reader when managed history arrives in the background", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      fixture.detectChanges();
+
+      expect(component["scope"]()).toBe("mine");
       expect(component["showingManaged"]()).toBe(false);
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
     });
