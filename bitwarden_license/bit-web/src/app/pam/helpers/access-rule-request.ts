@@ -26,6 +26,9 @@ export const NO_DURATION_CAP = 0;
  */
 export const ACCESS_RULE_NAME_MAX_LENGTH = 256;
 
+/** The longest description the edit form accepts. */
+export const ACCESS_RULE_DESCRIPTION_MAX_LENGTH = 512;
+
 /**
  * The flattened value of the access-rule edit form (`formGroup.getRawValue()`), as
  * consumed by {@link formValueToRequest}. Declared structurally here — rather than

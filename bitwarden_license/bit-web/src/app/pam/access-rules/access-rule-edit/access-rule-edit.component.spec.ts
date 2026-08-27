@@ -10,7 +10,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { DialogService, SelectItemView, ToastService } from "@bitwarden/components";
 
-import { AccessRuleSdkService, AccessRuleView } from "../..";
+import { ACCESS_RULE_DESCRIPTION_MAX_LENGTH, AccessRuleSdkService, AccessRuleView } from "../..";
 
 import { AccessRuleEditComponent } from "./access-rule-edit.component";
 import { CidrValidationService } from "./ip-allowlist/cidr-validation.service";
@@ -911,6 +911,31 @@ describe("AccessRuleEditComponent — form states", () => {
 
       const summary = fixture.nativeElement.querySelector("bit-error-summary") as HTMLElement;
       expect(summary.textContent!.trim()).toBe("");
+    });
+  });
+
+  describe("description bound", () => {
+    it("refuses a description one character over the bound", async () => {
+      await render();
+      fillRequiredFields();
+      controls().description.setValue("D".repeat(ACCESS_RULE_DESCRIPTION_MAX_LENGTH + 1));
+
+      await submitAndRender();
+
+      expect(Object.keys(controls().description.errors!)).toEqual(["maxlength"]);
+      expect(pamApi.createAccessRule).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it("saves a description exactly at the bound", async () => {
+      await render();
+      fillRequiredFields();
+      controls().description.setValue("D".repeat(ACCESS_RULE_DESCRIPTION_MAX_LENGTH));
+
+      await submitAndRender();
+
+      expect(controls().description.errors).toBeNull();
+      expect(pamApi.createAccessRule).toHaveBeenCalledTimes(1);
     });
   });
 
