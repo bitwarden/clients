@@ -132,11 +132,23 @@ describe("HistoryTabComponent", () => {
   });
 
   describe("scope toggle", () => {
-    it("is hidden when there is no managed history to switch to", () => {
+    it("lands on All", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+
+      create();
+
+      expect(component["scope"]()).toBe("all");
+      expect(query('[data-testid="history-scope-all"]')).not.toBeNull();
+    });
+
+    it("is hidden from a viewer who can neither approve nor has managed rows", () => {
       myRows$.next([historyRow()]);
 
       create();
 
+      expect(query('[data-testid="history-scope-all"]')).toBeNull();
       expect(query('[data-testid="history-scope-managed"]')).toBeNull();
     });
 
@@ -157,7 +169,118 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
     });
 
-    it("shows nothing until the managed history has loaded, so the scope cannot swap under the reader", () => {
+    it("shows both sources merged under All, newest first", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1", resolvedAt: "2026-08-17T10:00:00.000Z" })]);
+      managedRows$.next([
+        historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" }),
+        historyRow({ id: "managed-2", resolvedAt: "2026-08-17T09:00:00.000Z" }),
+      ]);
+
+      create();
+
+      expect(component["historyRows"]().map((r) => r.id)).toEqual([
+        "managed-1",
+        "mine-1",
+        "managed-2",
+      ]);
+    });
+
+    // A request the caller raised against a collection they also manage comes back from both reads.
+    it("lists a request that is both raised and managed by the caller only once under All", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "both-1" })]);
+      managedRows$.next([historyRow({ id: "both-1" })]);
+
+      create();
+
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["both-1"]);
+    });
+
+    it("sorts a row with no decision by when it was raised", () => {
+      canApprove$.next(true);
+      myRows$.next([
+        historyRow({ id: "mine-1", resolvedAt: null, submittedAt: "2026-08-17T13:00:00.000Z" }),
+      ]);
+      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
+
+      create();
+
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1", "managed-1"]);
+    });
+
+    it("narrows to the caller's own rows, then restores the union", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
+      create();
+
+      component["selectScope"]("mine");
+      fixture.detectChanges();
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+
+      component["selectScope"]("all");
+      fixture.detectChanges();
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
+    });
+
+    it("narrows to the managed rows, then restores the union", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
+      create();
+
+      showManaged();
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
+
+      component["selectScope"]("all");
+      fixture.detectChanges();
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
+    });
+
+    it("keeps the viewer on the filter they picked when managed history arrives", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+
+      component["selectScope"]("mine");
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      fixture.detectChanges();
+
+      expect(component["scope"]()).toBe("mine");
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+    });
+
+    it("does not move the reader off All when managed history arrives in the background", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+
+      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
+      fixture.detectChanges();
+
+      expect(component["scope"]()).toBe("all");
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
+    });
+
+    // A non-approver whose managed rows go away loses the toggle, so their pinned filter stops
+    // applying.
+    it("falls back to All if the toggle goes away while a filter is applied", () => {
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+      showManaged();
+
+      managedRows$.next([]);
+      fixture.detectChanges();
+
+      expect(component["scope"]()).toBe("all");
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+    });
+  });
+
+  describe("loading", () => {
+    it("shows the skeleton until the managed history has loaded", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -168,12 +291,12 @@ describe("HistoryTabComponent", () => {
       expect(skeleton).not.toBeNull();
       expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
       expect(skeleton?.querySelector('[role="status"]')?.textContent).toContain("loading");
-      expect(query('[data-testid="my-access-history-mine-1"]')).toBeNull();
 
       managedRows$.next([historyRow({ id: "managed-1" })]);
       managedLoading$.next(false);
       fixture.detectChanges();
 
+      expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
     });
 
@@ -185,6 +308,7 @@ describe("HistoryTabComponent", () => {
 
       create();
 
+      expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
     });
 
@@ -204,11 +328,11 @@ describe("HistoryTabComponent", () => {
 
       canApprove$.next(true);
       lastSync$.next(new Date("2026-08-20T09:05:00.000Z"));
-      managedRows$.next([historyRow({ id: "managed-1" })]);
+      managedRows$.next([historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
       managedLoading$.next(false);
       fixture.detectChanges();
 
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
     });
 
     it("waits on the caller's own history too, so its empty state cannot flash", () => {
@@ -226,73 +350,15 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
     });
 
-    it("lands on the managed side when there is managed history", () => {
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-
-      create();
-
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
-    });
-
-    it("lands on the caller's own rows when there is no managed history", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-
-      create();
-
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
-    });
-
-    it("keeps the viewer on the scope they picked when managed history arrives", () => {
-      canApprove$.next(true);
+    it("does not replace rows already on screen with a skeleton when a reload starts", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
       create();
 
-      component["selectScope"]("mine");
-      managedRows$.next([historyRow({ id: "managed-1" })]);
+      myLoading$.next(true);
       fixture.detectChanges();
 
-      expect(component["showingManaged"]()).toBe(false);
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
-    });
-
-    it("does not move the reader when managed history arrives in the background", () => {
-      canApprove$.next(true);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      fixture.detectChanges();
-
-      expect(component["scope"]()).toBe("mine");
-      expect(component["showingManaged"]()).toBe(false);
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
-    });
-
-    it("shows the managed rows once switched", () => {
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      create();
-
-      showManaged();
-
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
-    });
-
-    // A non-approver whose managed rows go away loses the toggle, so their pinned scope stops
-    // applying.
-    it("falls back to the caller's own rows if the managed side empties out", () => {
-      managedRows$.next([historyRow({ id: "managed-1" })]);
-      myRows$.next([historyRow({ id: "mine-1" })]);
-      create();
-      showManaged();
-
-      managedRows$.next([]);
-      fixture.detectChanges();
-
-      expect(component["showingManaged"]()).toBe(false);
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+      expect(query('[data-testid="history-loading"]')).toBeNull();
+      expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
     });
   });
 
@@ -316,12 +382,63 @@ describe("HistoryTabComponent", () => {
       managedIds$.next(new Set(["managed-1", "managed-2"]));
     });
 
-    it("offers no actions on the caller's own rows", () => {
-      myRows$.next([activeGrant]);
+    it("offers no actions on a row the caller only raised", () => {
+      managedIds$.next(new Set());
+      myRows$.next([activeGrant, unstartedApproval]);
       create();
 
       expect(component["canRevoke"](activeGrant)).toBe(false);
       expect(component["canCancelApproval"](unstartedApproval)).toBe(false);
+      expect(query('[data-testid="history-revoke-managed-1"]')).toBeNull();
+      expect(query('[data-testid="history-cancel-approval-managed-2"]')).toBeNull();
+    });
+
+    // The merged list carries rows from both sources, so the Actions column has to answer per row.
+    it("offers actions under All only on the rows the caller manages", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      managedRows$.next([activeGrant]);
+      create();
+
+      expect(component["scope"]()).toBe("all");
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
+      expect(query('[data-testid="history-revoke-managed-1"]')).not.toBeNull();
+      expect(query('[data-testid="history-revoke-mine-1"]')).toBeNull();
+      expect(component["canRevoke"](historyRow({ id: "mine-1" }))).toBe(false);
+    });
+
+    it("hides the Actions column when nothing in the current list can be acted on", () => {
+      canApprove$.next(true);
+      managedIds$.next(new Set());
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+
+      const headers = [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
+        th.textContent?.trim(),
+      );
+      expect(headers).not.toContain("pamColumnActions");
+    });
+
+    it("shows the Actions column once a listed row is one the caller manages", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      managedRows$.next([activeGrant]);
+      create();
+
+      const headers = [...fixture.nativeElement.querySelectorAll("th")].map((th: HTMLElement) =>
+        th.textContent?.trim(),
+      );
+      expect(headers).toContain("pamColumnActions");
+    });
+
+    it("keeps a managed row's actions when the caller filters down to All's subsets", () => {
+      canApprove$.next(true);
+      managedRows$.next([activeGrant]);
+      create();
+
+      expect(component["canRevoke"](activeGrant)).toBe(true);
+      showManaged();
+      expect(component["canRevoke"](activeGrant)).toBe(true);
     });
 
     it("offers Revoke for a live lease the caller granted", () => {
@@ -487,14 +604,14 @@ describe("HistoryTabComponent", () => {
     });
   });
 
-  it("says which side is empty", () => {
-    managedRows$.next([historyRow({ id: "managed-1" })]);
+  it("says which slice is empty", () => {
+    canApprove$.next(true);
     create();
-    expect(fixture.nativeElement.textContent).not.toContain("pamInboxHistoryEmpty");
-
-    managedRows$.next([]);
-    fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain("pamMyRequestsHistoryEmpty");
+
+    showManaged();
+
+    expect(fixture.nativeElement.textContent).toContain("pamInboxHistoryEmpty");
   });
 });
