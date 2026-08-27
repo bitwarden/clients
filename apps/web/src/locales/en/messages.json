@@ -18505,6 +18505,9 @@
   "pamApprovalsLoaded": {
     "message": "Access requests loaded"
   },
+  "pamHistoryScopeAll": {
+    "message": "All"
+  },
   "pamHistoryScopeMine": {
     "message": "Raised by me"
   },
