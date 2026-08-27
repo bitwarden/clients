@@ -215,13 +215,16 @@ describe("HistoryTabComponent", () => {
       expect(component["canRevoke"](revoked)).toBe(false);
     });
 
-    it("offers Cancel for an approval the requester has not started", () => {
+    it("offers Withdraw approval for an approval the requester has not started", () => {
       managedRows$.next([unstartedApproval]);
       create();
       showManaged();
 
       expect(component["canCancelApproval"](unstartedApproval)).toBe(true);
       expect(query('[data-testid="history-cancel-approval-managed-2"]')).not.toBeNull();
+      expect(query('[data-testid="history-cancel-approval-managed-2"]')!.textContent).toContain(
+        "pamInboxWithdrawApproval",
+      );
     });
 
     it("offers no action for a row the caller does not manage", () => {
@@ -283,11 +286,11 @@ describe("HistoryTabComponent", () => {
       expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-2");
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "pamInboxApprovalCanceledToast",
+        message: "pamInboxApprovalWithdrawnToast",
       });
     });
 
-    it("toasts an error when cancelling an approval fails", async () => {
+    it("toasts an error when withdrawing an approval fails", async () => {
       inbox.cancelApproval.mockRejectedValue(new Error("boom"));
       managedRows$.next([unstartedApproval]);
       create();
@@ -297,7 +300,7 @@ describe("HistoryTabComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "pamInboxCancelApprovalFailed",
+        message: "pamInboxWithdrawApprovalFailed",
       });
     });
   });
