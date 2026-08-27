@@ -6,7 +6,7 @@
   }
 </div>
 
-@if ((loading() || showSkeleton()) && !hasRows()) {
+@if (loadingVisible()) {
   <div data-testid="approvals-loading">
     @if (skeletonVisible()) {
       <bit-table aria-hidden="true">
@@ -14,9 +14,27 @@
           <tr>
             <th bitCell>{{ "pamColumnItem" | i18n }}</th>
             <th bitCell>{{ "pamInboxRequester" | i18n }}</th>
-            <th bitCell class="tw-hidden xl:tw-table-cell">{{ "pamInboxWindow" | i18n }}</th>
-            <th bitCell class="tw-hidden xl:tw-table-cell">{{ "pamInboxReason" | i18n }}</th>
-            <th bitCell class="tw-hidden lg:tw-table-cell">{{ "pamColumnSubmitted" | i18n }}</th>
+            <th
+              bitCell
+              class="tw-hidden xl:tw-table-cell"
+              data-testid="approvals-skeleton-col-window"
+            >
+              {{ "pamInboxWindow" | i18n }}
+            </th>
+            <th
+              bitCell
+              class="tw-hidden xl:tw-table-cell"
+              data-testid="approvals-skeleton-col-reason"
+            >
+              {{ "pamInboxReason" | i18n }}
+            </th>
+            <th
+              bitCell
+              class="tw-hidden lg:tw-table-cell"
+              data-testid="approvals-skeleton-col-submitted"
+            >
+              {{ "pamColumnSubmitted" | i18n }}
+            </th>
             <th bitCell>{{ "pamColumnActions" | i18n }}</th>
           </tr>
         </ng-container>

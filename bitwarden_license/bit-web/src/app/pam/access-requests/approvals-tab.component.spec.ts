@@ -79,6 +79,15 @@ function secondlyIntervalIds(spy: jest.SpyInstance): unknown[] {
     .map((result) => result.value);
 }
 
+/** Asserts a cell is hidden below `visibleFrom` and shown from it up, and laddered nowhere else. */
+function expectVisibleFrom(element: HTMLElement | null, visibleFrom: string): void {
+  expect(element).not.toBeNull();
+  expect(element?.classList).toContain("tw-hidden");
+  expect([...(element?.classList ?? [])].filter((c) => c.endsWith(":tw-table-cell"))).toEqual([
+    `${visibleFrom}:tw-table-cell`,
+  ]);
+}
+
 describe("ApprovalsTabComponent", () => {
   let fixture: ComponentFixture<ApprovalsTabComponent>;
   let component: ApprovalsTabComponent;
@@ -87,6 +96,7 @@ describe("ApprovalsTabComponent", () => {
     activeLeaseRows$: BehaviorSubject<ManagedLeaseRow[]>;
     cipherById$: BehaviorSubject<Map<string, CipherView>>;
     loading$: BehaviorSubject<boolean>;
+    loadError$: BehaviorSubject<unknown | null>;
     decide: jest.Mock;
     revokeLease: jest.Mock;
   };
@@ -111,6 +121,7 @@ describe("ApprovalsTabComponent", () => {
       activeLeaseRows$: new BehaviorSubject<ManagedLeaseRow[]>([]),
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
       loading$: new BehaviorSubject<boolean>(false),
+      loadError$: new BehaviorSubject<unknown | null>(null),
       decide: jest.fn().mockResolvedValue(undefined),
       revokeLease: jest.fn().mockResolvedValue(undefined),
     };
@@ -221,6 +232,45 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
+    it("leaves the empty state up while an already-loaded empty inbox reloads", () => {
+      // PAM pushes on every managed request change, so an approver sitting on inbox zero reloads
+      // repeatedly; blanking the panel for the pre-skeleton second flickers the page each time.
+      create();
+
+      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
+
+      inbox.loading$.next(true);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
+      expect(query('[data-testid="approvals-loading"]')).toBeNull();
+
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-empty"]')).toBeNull();
+      expect(query("bit-skeleton")).not.toBeNull();
+    });
+
+    it("does not announce a load that failed as loaded", () => {
+      inbox.loading$.next(true);
+
+      create();
+
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
+
+      inbox.loadError$.next(new Error("boom"));
+      inbox.loading$.next(false);
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
+    });
+
     it("shows the empty state when there is nothing to approve", () => {
       create();
 
@@ -264,12 +314,19 @@ describe("ApprovalsTabComponent", () => {
         query(`[data-testid="approvals-col-${column}"]`),
         query(`[data-testid="approvals-cell-${column}-req-1"]`),
       ]) {
-        expect(element).not.toBeNull();
-        expect(element?.classList).toContain("tw-hidden");
-        expect([...(element?.classList ?? [])].filter((c) => c.endsWith(":tw-table-cell"))).toEqual(
-          [`${visibleFrom}:tw-table-cell`],
-        );
+        expectVisibleFrom(element, visibleFrom);
       }
+
+      // The skeleton stands in for that table, so it has to hide the same columns at the same
+      // widths — otherwise the layout jumps as the real rows land.
+      fixture.destroy();
+      inbox.inboxRows$.next([]);
+      inbox.loading$.next(true);
+      create();
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expectVisibleFrom(query(`[data-testid="approvals-skeleton-col-${column}"]`), visibleFrom);
     });
 
     it("keeps the actions column visible at every width", () => {
