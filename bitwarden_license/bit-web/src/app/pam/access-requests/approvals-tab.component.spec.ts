@@ -172,7 +172,6 @@ describe("ApprovalsTabComponent", () => {
 
       create();
 
-      // Still loading, so the block is on screen and an ungated skeleton would be visible here.
       jest.advanceTimersByTime(500);
       fixture.detectChanges();
 
