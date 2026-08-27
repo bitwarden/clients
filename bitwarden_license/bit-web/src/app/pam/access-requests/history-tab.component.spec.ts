@@ -220,11 +220,11 @@ describe("HistoryTabComponent", () => {
       create();
       showManaged();
 
+      const withdraw = query('[data-testid="history-cancel-approval-managed-2"]');
+
       expect(component["canCancelApproval"](unstartedApproval)).toBe(true);
-      expect(query('[data-testid="history-cancel-approval-managed-2"]')).not.toBeNull();
-      expect(query('[data-testid="history-cancel-approval-managed-2"]')!.textContent).toContain(
-        "pamInboxWithdrawApproval",
-      );
+      expect(withdraw).not.toBeNull();
+      expect(withdraw?.textContent).toContain("pamInboxWithdrawApproval");
     });
 
     it("offers no action for a row the caller does not manage", () => {
