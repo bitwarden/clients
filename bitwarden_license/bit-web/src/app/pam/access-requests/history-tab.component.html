@@ -134,8 +134,10 @@
         <td bitCell>
           @if (row.resolverLabelKey) {
             {{ row.resolverLabelKey | i18n }}
-          } @else {
+          } @else if (row.resolverName) {
             {{ row.resolverName }}
+          } @else {
+            <span class="tw-text-muted">&mdash;</span>
           }
         </td>
         <td bitCell>
