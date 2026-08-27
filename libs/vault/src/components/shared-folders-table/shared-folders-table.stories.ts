@@ -157,7 +157,7 @@ export default {
               viewItemsHidePass: "View items, hidden passwords",
               editItems: "Edit items",
               editItemsHidePass: "Edit items, hidden passwords",
-              manageSharedFolder: "Manage shared folder",
+              manage: "Manage",
               items: "Items",
               options: "Options",
               optionsForItem: (name) => `Options for ${name}`,

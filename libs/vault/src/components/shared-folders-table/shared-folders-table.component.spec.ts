@@ -118,7 +118,7 @@ describe("SharedFoldersTableComponent", () => {
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent as string;
-    expect(text).toContain("manageSharedFolder");
+    expect(text).toContain("manage");
     expect(text).toContain("viewItems");
     expect(text).toContain("viewItemsHidePass");
     expect(text).toContain("editItems");

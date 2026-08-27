@@ -38,7 +38,7 @@ const PERMISSION_MESSAGE_KEYS: Readonly<Record<SharedFolderPermission, string>> 
   [SharedFolderPermission.ViewExceptPass]: "viewItemsHidePass",
   [SharedFolderPermission.Edit]: "editItems",
   [SharedFolderPermission.EditExceptPass]: "editItemsHidePass",
-  [SharedFolderPermission.Manage]: "manageSharedFolder",
+  [SharedFolderPermission.Manage]: "manage",
 });
 
 /** Type guard for {@link SharedFolderPermission}. */
