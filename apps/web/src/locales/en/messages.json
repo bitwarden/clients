@@ -10377,9 +10377,6 @@
   "billingHistory": {
     "message": "Billing history"
   },
-  "backToReports": {
-    "message": "Back to reports"
-  },
   "organizationPicker": {
     "message": "Organization picker"
   },
