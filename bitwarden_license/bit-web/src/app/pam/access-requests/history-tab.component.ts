@@ -14,6 +14,7 @@ import { combineLatest, filter, map, take } from "rxjs";
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
   BadgeComponent,
@@ -55,9 +56,10 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
  *
  * An untouched toggle lands on Managed whenever that side has rows, since this tab is aimed at the
  * approver and answering them with an empty table hides the history they came for behind a control
- * they have no reason to press. Nothing is rendered until the managed side has answered: that
- * default cannot be read off rows which have not arrived without painting the wrong half first and
- * swapping it out from under the reader.
+ * they have no reason to press. Nothing is rendered until both sides have answered, and the default
+ * is fixed at that one moment rather than tracked: read off rows as they arrive, it would paint the
+ * wrong half first, and a later background reload would swap the table — and the toggle's own
+ * selection — out from under whoever is reading it.
  *
  * A toggle rather than one merged table. Merging them would put "a request I raised" and "a request I
  * decided" in the same list with the same columns but different available actions, so a row's
@@ -98,6 +100,7 @@ export class HistoryTabComponent {
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
   private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
+  private readonly syncService = inject(SyncService);
 
   protected readonly HistoryScope = HistoryScope;
 
@@ -129,29 +132,43 @@ export class HistoryTabComponent {
   });
 
   /**
-   * Whether the managed side has answered, latched at the first answer so a later refresh cannot
-   * take the table away again. `ApproverInboxService.loading$` starts true and clears only once
-   * `load()` has run, which the shell defers until the approval privilege resolves and skips
-   * entirely for a member who cannot approve — so neither stream settles this on its own.
+   * The half to open on, decided once both sides have answered and latched there — null until then,
+   * which is what the skeleton renders on.
+   *
+   * Each service's `loading$` starts true and clears when its `load()` resolves, but the shell only
+   * loads the inbox for a caller who can approve, so for everyone else that flag stays raised for
+   * the life of the page and cannot be waited on.
+   *
+   * Hence the sync date. `canApprove$` is derived from synced organization and collection state, so
+   * before the first sync lands it answers `false` for a genuine approver too, and taking that for a
+   * settled "not an approver" is what opened this tab on the wrong half. Nothing else on this path
+   * awaits the sync — the history route has no guard; `canViewApprovalsGuard` waits the same way for
+   * the same reason on the sibling tab.
    */
-  protected readonly historyReady = toSignal(
-    combineLatest([this.approvalPrivileges.canApprove$, this.inbox.loading$]).pipe(
-      filter(([canApprove, loading]) => !canApprove || !loading),
+  private readonly openingScope = toSignal(
+    combineLatest([
+      this.syncService.activeUserLastSync$(),
+      this.approvalPrivileges.canApprove$,
+      this.inbox.loading$,
+      this.myAccess.loading$,
+      this.inbox.historyRows$,
+    ]).pipe(
+      filter(
+        ([lastSync, canApprove, inboxLoading, myLoading]) =>
+          !myLoading && (canApprove ? !inboxLoading : lastSync != null),
+      ),
       take(1),
-      map(() => true),
+      map(([, , , , managed]) => (managed.length > 0 ? HistoryScope.Managed : HistoryScope.Mine)),
     ),
-    { initialValue: false },
+    { initialValue: null as HistoryScope | null },
   );
+
+  protected readonly historyReady = computed(() => this.openingScope() != null);
 
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
-  /**
-   * The default half is derived rather than latched on first load, so it keeps tracking the managed
-   * rows until the viewer pins a scope of their own.
-   */
   protected readonly scope = computed<HistoryScope>(
-    () =>
-      this.chosenScope() ?? (this.hasManagedHistory() ? HistoryScope.Managed : HistoryScope.Mine),
+    () => this.chosenScope() ?? this.openingScope() ?? HistoryScope.Mine,
   );
 
   /**
