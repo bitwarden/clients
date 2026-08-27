@@ -57,10 +57,17 @@ describe("SharedFolderCardGridComponent", () => {
     return folderTree(PARENT, count);
   }
 
-  function createComponent(collections: CollectionView[], scope: VaultScope = scopeTo(PARENT.id)) {
+  function createComponent(
+    collections: CollectionView[],
+    scope: VaultScope = scopeTo(PARENT.id),
+    startingState: { open?: boolean; initiallyExpanded?: boolean } = {},
+  ) {
     fixture = TestBed.createComponent(SharedFolderCardGridComponent);
     fixture.componentRef.setInput("collections", collections);
     fixture.componentRef.setInput("scope", scope);
+    Object.entries(startingState).forEach(([input, value]) =>
+      fixture.componentRef.setInput(input, value),
+    );
     fixture.detectChanges();
   }
 
@@ -74,6 +81,12 @@ describe("SharedFolderCardGridComponent", () => {
     return fixture.nativeElement
       .querySelector('[data-accordion-trigger] span:not([slot="end"])')
       ?.textContent?.trim();
+  }
+
+  function accordionOpen(): string | null | undefined {
+    return fixture.nativeElement
+      .querySelector("[data-accordion-trigger]")
+      ?.getAttribute("aria-expanded");
   }
 
   /** The cards themselves, distinguished from the overflow trigger by their `bit-item-content`. */
@@ -296,6 +309,15 @@ describe("SharedFolderCardGridComponent", () => {
       expect(trigger()?.querySelector("i")?.classList).toContain("bwi-angle-up");
     });
 
+    it("reveals the overflow from the first render when the host asks for it", () => {
+      createComponent(children(COLLAPSED_CARD_COUNT + 3), scopeTo(PARENT.id), {
+        initiallyExpanded: true,
+      });
+
+      expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT + 3);
+      expect(trigger()?.getAttribute("aria-expanded")).toBe("true");
+    });
+
     it("re-collapses when the scope moves to a folder with different children", () => {
       const design = { id: "design" as CollectionId, name: "Design" };
       createComponent([
@@ -329,6 +351,28 @@ describe("SharedFolderCardGridComponent", () => {
 
     it("does not announce on the initial collapsed render", () => {
       createComponent(children(COLLAPSED_CARD_COUNT + 4));
+
+      expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+    });
+
+    // Nothing was revealed, so there is nothing to point the user back at.
+    it("does not announce when the host renders the grid expanded", () => {
+      createComponent(children(COLLAPSED_CARD_COUNT + 4), scopeTo(PARENT.id), {
+        initiallyExpanded: true,
+      });
+
+      expect(liveAnnouncer.announce).not.toHaveBeenCalled();
+    });
+
+    it("does not announce when the trigger collapses the grid again", () => {
+      createComponent(children(COLLAPSED_CARD_COUNT + 4));
+
+      trigger()?.click();
+      fixture.detectChanges();
+      liveAnnouncer.announce.mockClear();
+
+      trigger()?.click();
+      fixture.detectChanges();
 
       expect(liveAnnouncer.announce).not.toHaveBeenCalled();
     });
@@ -370,6 +414,21 @@ describe("SharedFolderCardGridComponent", () => {
 
       expect(cards()).toHaveLength(COLLAPSED_CARD_COUNT);
       expect(countLabel()).toBe(`sharedFolderCount:${COLLAPSED_CARD_COUNT + 7}`);
+    });
+
+    it("opens the section by default", () => {
+      createComponent(children(2));
+
+      expect(accordionOpen()).toBe("true");
+    });
+
+    it("starts the section closed when the host asks for it", () => {
+      createComponent(children(2), scopeTo(PARENT.id), { open: false });
+
+      expect(accordionOpen()).toBe("false");
+      // The header still carries the folder's name and child count while the cards are hidden.
+      expect(accordionTitle()).toBe("sharedFoldersInParent:Engineering");
+      expect(countLabel()).toBe("sharedFolderCount:2");
     });
 
     it("names the region holding the cards with the titled accordion trigger", () => {

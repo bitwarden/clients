@@ -1,6 +1,5 @@
 import { RouterTestingModule } from "@angular/router/testing";
 import { Meta, StoryObj, componentWrapperDecorator, moduleMetadata } from "@storybook/angular";
-import { getByRole, userEvent } from "storybook/test";
 
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -108,36 +107,12 @@ export default {
   },
 } as Meta<SharedFolderCardGridComponent>;
 
+/**
+ * Both the accordion's open state and the overflow's are the component's own, but each takes its
+ * starting value from an input — so a story renders the state it documents on its first frame
+ * rather than painting a default and then clicking its way out of it.
+ */
 type Story = StoryObj<SharedFolderCardGridComponent>;
-
-/**
- * Reveals the cards held behind the trigger. Both the accordion's open state and the overflow's live
- * inside the component, so stories reach them by driving the same controls a user would — which means
- * a story paints in its default state for a frame before its play function lands.
- */
-const expandOverflow: Story["play"] = async (context) => {
-  const trigger = getByRole(context.canvasElement, "button", { name: "Show all" });
-  await userEvent.click(trigger);
-};
-
-/** Collapses the whole section by clicking the accordion's own header. */
-const collapseAccordion: Story["play"] = async (context) => {
-  const header = getByRole(context.canvasElement, "button", { name: /in Departments/ });
-  await userEvent.click(header);
-};
-
-/**
- * Docs pages skip play functions by default, which would leave every story driven by one above
- * showing its default state — the exact opposite of what it is there to document. Stories with a
- * play function opt into running it inline on the docs page too.
- */
-const autoplayInDocs: Story["parameters"] = {
-  docs: {
-    story: {
-      autoplay: true,
-    },
-  },
-};
 
 /** Five children — one full row of three plus a partial row, no overflow. */
 export const Default: Story = {};
@@ -164,21 +139,19 @@ export const ManyChildrenCollapsed: Story = {
 export const ManyChildrenExpanded: Story = {
   args: {
     collections: MANY_FOLDERS,
+    initiallyExpanded: true,
   },
-  play: expandOverflow,
-  parameters: autoplayInDocs,
 };
 
 /**
- * The section closed. `bit-accordion` opens by default, so this collapses it the way a user would —
- * the header stays readable, count and all, with every card hidden behind it.
+ * The section closed — the header stays readable, count and all, with every card hidden behind it.
+ * Users can still open it from the header; only the starting state differs.
  */
 export const AccordionCollapsed: Story = {
   args: {
     collections: MANY_FOLDERS,
+    open: false,
   },
-  play: collapseAccordion,
-  parameters: autoplayInDocs,
 };
 
 /**
@@ -205,9 +178,8 @@ export const NarrowContainerExpanded: Story = {
   ],
   args: {
     collections: MANY_FOLDERS,
+    initiallyExpanded: true,
   },
-  play: expandOverflow,
-  parameters: autoplayInDocs,
 };
 
 /** Names truncate rather than blowing out the track width. */
