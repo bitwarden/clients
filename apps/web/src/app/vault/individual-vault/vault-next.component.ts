@@ -299,11 +299,6 @@ export class VaultNextComponent {
     return isAvatarColor(item.color) ? defaultAvatarColors[item.color] : item.color;
   });
 
-  /** Route commands for the current shared folder — used to let the crumb auto-detect itself as active. */
-  protected readonly currentFolderRoute = computed((): string[] =>
-    vaultScopeCommands(this.vaultScope()),
-  );
-
   /** Route commands to the org vault root — shared by the org-name crumb and "Shared Folders" crumb. */
   protected readonly orgRootRoute = computed((): string[] => {
     const scope = this.vaultScope();
