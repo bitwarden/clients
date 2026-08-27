@@ -26,6 +26,7 @@ function request(overrides: Record<string, unknown> = {}): AccessRequestView {
     id: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
+    organizationId: "org-1",
     requesterId: "user-1",
     status: "pending",
     leaseNotBefore: new Date().toISOString(),
@@ -74,6 +75,7 @@ describe("AccessRequestRouteComponent", () => {
         ...emptyResolvedNames(),
         cipherNameById: new Map([["cipher-1", "Prod database"]]),
         collectionNameById: new Map([["col-1", "Production"]]),
+        organizationNameById: new Map([["org-1", "Meridian Group"]]),
       }),
       cipherById$: new BehaviorSubject(new Map<string, CipherView>()),
       cancel: jest.fn().mockResolvedValue(undefined),
@@ -146,6 +148,40 @@ describe("AccessRequestRouteComponent", () => {
 
       expect(component["cipherName"]()).toBe("cipher-1");
       expect(component["collectionName"]()).toBeNull();
+    });
+
+    it("resolves the owning organization's name, and nothing when it is unknown", () => {
+      create();
+      expect(component["organizationName"]()).toBe("Meridian Group");
+
+      detail.names$.next(emptyResolvedNames());
+      expect(component["organizationName"]()).toBeNull();
+    });
+
+    it("keeps Status, Submitted and Resolved beside the shared request-details rows", () => {
+      detail.request$.next(request({ status: "denied", resolvedAt: new Date().toISOString() }));
+
+      create();
+
+      const details = fixture.nativeElement.querySelector(
+        '[data-testid="request-summary-details"]',
+      ) as HTMLElement;
+      expect(details.textContent).toContain("pamColumnStatus");
+      expect(details.textContent).toContain("pamColumnSubmitted");
+      expect(details.textContent).toContain("pamColumnResolved");
+    });
+
+    it("renders each shared row exactly once, not alongside the page's old list", () => {
+      create();
+
+      const text = fixture.nativeElement.textContent as string;
+      expect(text.split("pamInboxRequester").length - 1).toBe(1);
+      expect(
+        fixture.nativeElement.querySelectorAll("#pam-request-summary_input_reason"),
+      ).toHaveLength(1);
+      expect(
+        fixture.nativeElement.querySelectorAll("#pam-request-summary_input_access-requested"),
+      ).toHaveLength(1);
     });
 
     it("identifies the requester by name, then email, then id", () => {
