@@ -9,6 +9,7 @@ import {
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
+import { combineLatest, filter, map, take } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,6 +20,8 @@ import {
   ButtonModule,
   DialogService,
   NoItemsModule,
+  SkeletonComponent,
+  SkeletonTextComponent,
   TableDataSource,
   TableModule,
   ToastService,
@@ -29,6 +32,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { isLiveManagedLease } from "../approvals/managed-lease-row";
 import { DurationShortPipe } from "../date/duration-short.pipe";
@@ -46,8 +50,14 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
  *
  *  - Mine: the caller's own terminal requests (everything but pending/approved, which live on the My
  *    requests tab).
- *  - Managed: the decided requests for the collections the caller manages — visible only to
- *    approvers, and the only place they can undo a decision.
+ *  - Managed: the decided requests for the collections the caller manages — offered to anyone who
+ *    can approve, and the only place they can undo a decision.
+ *
+ * An untouched toggle lands on Managed whenever that side has rows, since this tab is aimed at the
+ * approver and answering them with an empty table hides the history they came for behind a control
+ * they have no reason to press. Nothing is rendered until the managed side has answered: that
+ * default cannot be read off rows which have not arrived without painting the wrong half first and
+ * swapping it out from under the reader.
  *
  * A toggle rather than one merged table. Merging them would put "a request I raised" and "a request I
  * decided" in the same list with the same columns but different available actions, so a row's
@@ -70,6 +80,8 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
     ButtonModule,
     IconComponent,
     NoItemsModule,
+    SkeletonComponent,
+    SkeletonTextComponent,
     TableModule,
     ToggleGroupModule,
     TypographyModule,
@@ -85,9 +97,16 @@ export class HistoryTabComponent {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
 
   protected readonly HistoryScope = HistoryScope;
-  protected readonly scope = signal<HistoryScope>(HistoryScope.Mine);
+
+  private readonly canApprove = toSignal(this.approvalPrivileges.canApprove$, {
+    initialValue: false,
+  });
+
+  /** The scope the viewer picked from the toggle, or null while the default below still applies. */
+  private readonly chosenScope = signal<HistoryScope | null>(null);
 
   /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
@@ -109,11 +128,42 @@ export class HistoryTabComponent {
     initialValue: new Map<string, CipherView>(),
   });
 
-  /** The Managed toggle only appears once there is managed history to show. */
-  protected readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
+  /**
+   * Whether the managed side has answered, latched at the first answer so a later refresh cannot
+   * take the table away again. `ApproverInboxService.loading$` starts true and clears only once
+   * `load()` has run, which the shell defers until the approval privilege resolves and skips
+   * entirely for a member who cannot approve — so neither stream settles this on its own.
+   */
+  protected readonly historyReady = toSignal(
+    combineLatest([this.approvalPrivileges.canApprove$, this.inbox.loading$]).pipe(
+      filter(([canApprove, loading]) => !canApprove || !loading),
+      take(1),
+      map(() => true),
+    ),
+    { initialValue: false },
+  );
+
+  private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
+
+  /**
+   * The default half is derived rather than latched on first load, so it keeps tracking the managed
+   * rows until the viewer pins a scope of their own.
+   */
+  protected readonly scope = computed<HistoryScope>(
+    () =>
+      this.chosenScope() ?? (this.hasManagedHistory() ? HistoryScope.Managed : HistoryScope.Mine),
+  );
+
+  /**
+   * The toggle is offered to anyone who can approve, rows or not — gating it on rows hides the
+   * second scope until it has content, which is exactly when the reader no longer needs telling it
+   * exists. The `hasManagedHistory()` term keeps it for a viewer who has managed rows but whom the
+   * privilege predicate does not recognise as an approver.
+   */
+  protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
   protected readonly showingManaged = computed(
-    () => this.scope() === HistoryScope.Managed && this.hasManagedHistory(),
+    () => this.scope() === HistoryScope.Managed && this.canSwitchScope(),
   );
 
   protected readonly historyRows = computed(() =>
@@ -122,10 +172,18 @@ export class HistoryTabComponent {
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
 
+  /** Five fills the space the table occupies without implying a row count the history may not have. */
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
+
   constructor() {
     effect(() => {
       this.historyDataSource.data = this.historyRows();
     });
+  }
+
+  /** Pin the scope to the viewer's choice, so a later load cannot move them off it. */
+  protected selectScope(scope: HistoryScope): void {
+    this.chosenScope.set(scope);
   }
 
   /** The decrypted cipher for a row, or undefined when it isn't in the caller's vault. */
