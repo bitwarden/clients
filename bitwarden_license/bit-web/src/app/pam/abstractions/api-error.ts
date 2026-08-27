@@ -1,6 +1,14 @@
 /**
- * The server's `message`, decoded from the `ErrorResponseModel` JSON the SDK appends to its
- * transport string, or `undefined` when there is none.
+ * The server's `message` field, decoded out of the `ErrorResponseModel` JSON the SDK concatenated
+ * onto its transport string, or `undefined` when the message isn't that shape.
+ *
+ * Every PAM error type carries the same `Api` variant: the SDK stringifies the whole failed
+ * response as `error in response: status code 400 Bad Request: {…ErrorResponseModel JSON…}`, so
+ * the human-readable server sentence is buried inside a JSON body. The slice is bounded at both
+ * ends, so content the transport appends after the body does not defeat the parse.
+ *
+ * Callers own what a miss means: some fall back to a generic message, others re-read the raw
+ * string.
  */
 export function apiErrorBodyMessage(message: string): string | undefined {
   const bodyStart = message.indexOf("{");
@@ -17,10 +25,4 @@ export function apiErrorBodyMessage(message: string): string | undefined {
   } catch {
     return undefined;
   }
-}
-
-/** The decoded {@link apiErrorBodyMessage} of a thrown error, else its raw message, else empty. */
-export function serverErrorSentence(e: unknown): string {
-  const message = e instanceof Error ? e.message : "";
-  return apiErrorBodyMessage(message) ?? message;
 }
