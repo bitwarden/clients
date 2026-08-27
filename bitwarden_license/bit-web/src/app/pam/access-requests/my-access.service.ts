@@ -102,8 +102,9 @@ export class MyAccessService {
    * Still-open extension requests (an extension is its own request pointing at a parent lease via
    * `extensionOfLeaseId`; on approval it extends that lease in place rather than minting a new
    * one). {@link rows$} folds these onto the originating grant, so they're rebuilt directly from
-   * the raw requests here to list them on their own. Terminal extensions (applied, denied, or
-   * cancelled) drop off — an applied one already shows as the "Extended" badge on its grant.
+   * the raw requests here to list them on their own. Terminal extensions drop off this section: an
+   * applied one shows as the "Extended" badge on its grant, and a denied one moves to
+   * {@link historyRows$}, which is where a resolved request belongs.
    */
   readonly extensionRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this._requests$,
@@ -121,6 +122,9 @@ export class MyAccessService {
    * Terminal requests (everything but pending, and approved-but-not-yet-activated), newest first. A grant whose lease is
    * still active is excluded — it belongs in Active leases, not both places — and returns here
    * once the lease ends.
+   *
+   * Includes a denied extension, which {@link rows$} deliberately does not fold onto its grant: it
+   * added nothing to the lease, so this is the only place the requester can see it (PM-42632).
    */
   readonly historyRows$: Observable<MyAccessRequestRow[]> = combineLatest([
     this.rows$,
