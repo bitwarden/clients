@@ -160,8 +160,8 @@ export const Default: Story = {
 };
 
 /**
- * Nothing outstanding. Pending and Currently checked out carry their own empty state; Extension
- * requests renders nothing at all — it never shows once `extensionRows()` is empty.
+ * Nothing outstanding. Pending and Active access carry their own empty state; Extension requests
+ * renders nothing at all — it never shows once `extensionRows()` is empty.
  */
 export const Empty: Story = {
   decorators: [myAccess({ content: empty })],

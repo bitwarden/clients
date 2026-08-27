@@ -309,6 +309,15 @@ describe("MyRequestsTabComponent", () => {
     });
   });
 
+  describe("Active access section empty state", () => {
+    it("shows the empty-state message when no access is active", () => {
+      create();
+
+      expect(query('[data-testid="my-access-leases-empty"]')).not.toBeNull();
+      expect(fixture.nativeElement.textContent).toContain("pamMyRequestsActiveAccessEmpty");
+    });
+  });
+
   describe("grouping an approved request", () => {
     beforeEach(() => {
       jest.setSystemTime(new Date("2026-08-20T11:30:00.000Z"));
