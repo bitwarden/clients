@@ -27,6 +27,7 @@ type ShadowScanContext = {
   unresolvedHosts: Set<Element>;
   discoveredRoots: Set<ShadowRoot>;
   observer?: MutationObserver;
+  fieldDetector?: (root: ShadowRoot) => boolean;
 };
 
 export class DomQueryService implements DomQueryServiceInterface {
@@ -158,11 +159,13 @@ export class DomQueryService implements DomQueryServiceInterface {
   checkForNewShadowRoots = (
     addedElements?: Element[],
     mutationObserver?: MutationObserver,
+    fieldDetector?: (root: ShadowRoot) => boolean,
   ): ShadowRootScanResult => {
     const scan: ShadowScanContext = {
       unresolvedHosts: new Set(),
       discoveredRoots: new Set(),
       observer: mutationObserver,
+      fieldDetector,
     };
     // No batch ⇒ short-circuit; never a full-document walk (O(document), re-pierces roots).
     if (!addedElements?.length) {
@@ -472,7 +475,7 @@ export class DomQueryService implements DomQueryServiceInterface {
       scan.discoveredRoots.add(root);
       // With an observer in hand, enroll here rather than re-finding the root in a later walk.
       if (scan.observer) {
-        this.enrollShadowRoot(root, scan.observer);
+        this.enrollShadowRoot(root, scan.observer, scan.fieldDetector);
       }
     }
     // Descend even into a new root — its own un-hydrated hosts still belong in the sink.
@@ -482,9 +485,15 @@ export class DomQueryService implements DomQueryServiceInterface {
   /**
    * Always both, in that order, so `knownShadowRoots` never holds a root we aren't watching.
    */
-  private enrollShadowRoot = (root: ShadowRoot, observer: MutationObserver): void => {
-    // Check for form fields to determine scoping; newly attached roots are often field-less
-    const hasFields = root.querySelector("input, select, textarea") != null;
+  private enrollShadowRoot = (
+    root: ShadowRoot,
+    observer: MutationObserver,
+    fieldDetector?: (root: ShadowRoot) => boolean,
+  ): void => {
+    // Use caller's field detector if provided; fall back to simple heuristic for backward compatibility
+    const hasFields = fieldDetector
+      ? fieldDetector(root)
+      : root.querySelector("input, select, textarea") != null;
     this.observeShadowRoot(observer, root, hasFields);
     this.knownShadowRoots.add(root);
   };
