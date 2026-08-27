@@ -2,17 +2,15 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  NgZone,
-  OnInit,
   computed,
   effect,
   inject,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
+import { EMPTY, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -28,6 +26,8 @@ import {
   DialogService,
   NoItemsModule,
   SearchModule,
+  SortDirection,
+  SortFn,
   TableDataSource,
   TableModule,
   ToastService,
@@ -37,11 +37,18 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import { AccessLeaseId, AccessRequestId, activateAccessErrorMessageKey } from "..";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
-import { MyAccessLeaseRow, MyAccessRequestRow, TerminalStatusBadge } from "./my-access-row";
+import {
+  MyAccessLeaseRow,
+  MyAccessRequestRow,
+  TerminalStatusBadge,
+  isRedeemableGrant,
+  lapsedGrantBadge,
+} from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 /** A row carrying the id + collection fields the toolbar filters against. */
@@ -71,13 +78,6 @@ type ActiveAccessRow = {
 /** Ascending by window end; meaningful only within one row kind. */
 const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
   Date.parse(a.notAfter) - Date.parse(b.notAfter);
-
-/**
- * Substituted for the row model's badge once a grant's activation window has lapsed. The model's
- * badge is caller-agnostic and cannot see the clock, so it keeps reading "Approved" for a grant that
- * can no longer produce access.
- */
-const lapsedGrantBadge: TerminalStatusBadge = { labelKey: "pamStatusExpired", variant: "warning" };
 
 /**
  * "My requests" tab — the caller's own PAM access, grouped into three accordion sections mirroring
@@ -115,22 +115,19 @@ const lapsedGrantBadge: TerminalStatusBadge = { labelKey: "pamStatusExpired", va
     RemainingTimePipe,
   ],
 })
-export class MyRequestsTabComponent implements OnInit {
+export class MyRequestsTabComponent {
   private readonly myAccess = inject(MyAccessService);
   private readonly i18nService = inject(I18nService);
   private readonly toastService = inject(ToastService);
   private readonly logService = inject(LogService);
   private readonly dialogService = inject(DialogService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
+  private readonly ticker = inject(AccessBadgeTickerService);
 
   protected readonly cancelling = signal<Set<AccessRequestId>>(new Set());
   /** Ids of approved requests currently being activated (prevents double-click). */
   protected readonly starting = signal<Set<AccessRequestId>>(new Set());
   /** Ids of active leases currently being ended (prevents double-click). */
   protected readonly ending = signal<Set<AccessLeaseId>>(new Set());
-  /** Ticks once a second so the redemption/remaining countdowns stay live. */
-  protected readonly nowMs = signal(Date.now());
 
   /** Free-text search across item + collection names; the Collection filter selects one collection. */
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
@@ -150,6 +147,22 @@ export class MyRequestsTabComponent implements OnInit {
   private readonly allLeases = toSignal(this.myAccess.leases$, {
     initialValue: [] as MyAccessLeaseRow[],
   });
+
+  /**
+   * Ticks once a second so the redemption/remaining countdowns stay live. Shares the one clock the
+   * badges already run on, and only observes it while a request is listed — the leases on this tab
+   * carry their own countdowns, so a tab showing nothing but held access leaves that clock torn
+   * down rather than scheduling a round of change detection every second that can change nothing.
+   *
+   * Gated on the unfiltered requests rather than on anything downstream of the clock, which would
+   * feed the clock back into itself.
+   */
+  protected readonly nowMs = toSignal(
+    toObservable(computed(() => this.allPending().length > 0)).pipe(
+      switchMap((anyRequests) => (anyRequests ? this.ticker.ticks$ : EMPTY)),
+    ),
+    { initialValue: Date.now() },
+  );
 
   /** Decrypted gated ciphers keyed by id; the template reads these to render an item's favicon. */
   private readonly cipherById = toSignal(this.myAccess.cipherById$, {
@@ -194,10 +207,10 @@ export class MyRequestsTabComponent implements OnInit {
    * (see {@link leaseBadgeStates}).
    *
    * Held leases come first, and the Window column is not sortable, because `notAfter` means "when
-   * held access ends" on a lease but "activation deadline" on a grant. Ordering the merged set by it
-   * alone floats a grant whose window has already lapsed — one that grants nothing and offers no
-   * action — above live access, and nothing ever clears such a row: `MyAccessService.pendingRows$`
-   * keeps it and `historyRows$` excludes it.
+   * held access ends" on a lease but "activation deadline" on a grant. Ordering the merged set by
+   * it alone floats a grant the caller has not started — including, until the next load drops it,
+   * one whose window has already lapsed — above the access they actually hold. The Item column is
+   * sortable but keeps the same grouping; see {@link byItemName}.
    */
   protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => {
     const held: ActiveAccessRow[] = this.leases().map((lease) => ({
@@ -245,6 +258,23 @@ export class MyRequestsTabComponent implements OnInit {
   protected readonly readyBadge: AccessBadgeState = { kind: "ready" };
 
   /**
+   * The Item column's sort. `bit-table` multiplies a custom comparator's result by its own
+   * direction modifier, so the "held access first" term is pre-multiplied to cancel that out and
+   * hold in both directions; the item name only decides within a group.
+   */
+  protected readonly byItemName: SortFn = (
+    a: ActiveAccessRow,
+    b: ActiveAccessRow,
+    direction?: SortDirection,
+  ): number => {
+    const grouping = (a.lease == null ? 1 : 0) - (b.lease == null ? 1 : 0);
+    if (grouping !== 0) {
+      return direction === "desc" ? -grouping : grouping;
+    }
+    return (a.cipherName ?? "").localeCompare(b.cipherName ?? "");
+  };
+
+  /**
    * Each table renders from its own data source so `bit-table` can sort the rows independently.
    */
   protected readonly pendingDataSource = new TableDataSource<MyAccessRequestRow>();
@@ -260,16 +290,6 @@ export class MyRequestsTabComponent implements OnInit {
     });
     effect(() => {
       this.activeAccessDataSource.data = this.activeAccessRows();
-    });
-  }
-
-  ngOnInit(): void {
-    // Keep the countdown clock outside the Angular zone: a periodic in-zone timer never lets NgZone
-    // settle, which would hang `fixture.whenStable()` for any host that embeds this view. The signal
-    // write still drives change detection on its own.
-    this.ngZone.runOutsideAngular(() => {
-      const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
-      this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
   }
 
@@ -331,11 +351,7 @@ export class MyRequestsTabComponent implements OnInit {
     if (row.status === "pending") {
       return true;
     }
-    return (
-      row.status === "approved" &&
-      row.producedLeaseId == null &&
-      Date.parse(row.leaseNotAfter) > this.nowMs()
-    );
+    return isRedeemableGrant(row, this.nowMs());
   }
 
   /**
@@ -343,11 +359,7 @@ export class MyRequestsTabComponent implements OnInit {
    * lapses the server rejects activation, so the Start button must not be offered.
    */
   protected canStart(row: MyAccessRequestRow): boolean {
-    return (
-      row.status === "approved" &&
-      row.producedLeaseId == null &&
-      Date.parse(row.leaseNotAfter) > this.nowMs()
-    );
+    return isRedeemableGrant(row, this.nowMs());
   }
 
   /**

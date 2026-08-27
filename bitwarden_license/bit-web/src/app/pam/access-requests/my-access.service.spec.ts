@@ -122,7 +122,7 @@ describe("MyAccessService", () => {
       it("puts pending and approved requests in pendingRows$", async () => {
         requestsApi.listMyAccessRequests.mockResolvedValue([
           request("req-1", { status: "pending" }),
-          request("req-2", { status: "approved" }),
+          request("req-2", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
           request("req-3", { status: "denied" }),
         ]);
 
@@ -130,6 +130,31 @@ describe("MyAccessService", () => {
 
         const rows = await firstValueFrom(service.pendingRows$);
         expect(rows.map((r) => r.id)).toEqual(["req-1", "req-2"]);
+      });
+
+      it("moves a grant whose activation window has lapsed out of pendingRows$ and into history", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-live", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
+          request("req-lapsed", { status: "approved", leaseNotAfter: "2000-01-01T00:00:00.000Z" }),
+        ]);
+
+        await service.load();
+
+        expect((await firstValueFrom(service.pendingRows$)).map((r) => r.id)).toEqual(["req-live"]);
+        expect((await firstValueFrom(service.historyRows$)).map((r) => r.id)).toEqual([
+          "req-lapsed",
+        ]);
+      });
+
+      it("badges a grant that lapsed unactivated Expired rather than Approved", async () => {
+        requestsApi.listMyAccessRequests.mockResolvedValue([
+          request("req-lapsed", { status: "approved", leaseNotAfter: "2000-01-01T00:00:00.000Z" }),
+        ]);
+
+        await service.load();
+
+        const [row] = await firstValueFrom(service.historyRows$);
+        expect(row.statusBadge).toEqual({ labelKey: "pamStatusExpired", variant: "warning" });
       });
 
       it("includes only active leases in leases$", async () => {
@@ -148,7 +173,8 @@ describe("MyAccessService", () => {
       it("excludes pending/approved requests and one whose lease is still active from historyRows$", async () => {
         requestsApi.listMyAccessRequests.mockResolvedValue([
           request("req-1", { status: "denied" }), // terminal, no lease -> included
-          request("req-2", { status: "approved" }), // still actionable -> excluded (in Pending)
+          // still actionable -> excluded (in Pending)
+          request("req-2", { status: "approved", leaseNotAfter: "2999-01-01T00:00:00.000Z" }),
           request("req-3", { status: "pending" }), // still actionable -> excluded (in Pending)
           request("req-4", {
             status: "approved",

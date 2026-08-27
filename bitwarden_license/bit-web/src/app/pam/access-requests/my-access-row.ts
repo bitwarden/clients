@@ -114,6 +114,32 @@ export function resolvedOrSubmittedMs(
   return Date.parse(row.resolvedAt ?? row.submittedAt);
 }
 
+/**
+ * An approved request that can still be turned into access: not activated yet, and its activation
+ * window has not closed. The server refuses to activate a request past `leaseNotAfter`, so once
+ * that passes the grant can produce nothing and is no longer something the requester acts on.
+ */
+export function isRedeemableGrant(
+  row: Pick<MyAccessRequestRow, "status" | "producedLeaseId" | "leaseNotAfter">,
+  nowMs: number,
+): boolean {
+  return (
+    row.status === "approved" &&
+    row.producedLeaseId == null &&
+    Date.parse(row.leaseNotAfter) > nowMs
+  );
+}
+
+/**
+ * The status of a grant whose activation window closed before it was used. {@link
+ * historyDisplayStatus} is caller-agnostic and cannot see the clock, so it keeps reading "Approved"
+ * for a grant that can no longer produce access.
+ */
+export const lapsedGrantBadge: TerminalStatusBadge = {
+  labelKey: "pamStatusExpired",
+  variant: "warning",
+};
+
 /** Map a terminal status to its badge. Exported for tests + storybook fidelity. */
 export function terminalStatusBadge(status: TerminalRequestStatus): TerminalStatusBadge {
   switch (status) {
