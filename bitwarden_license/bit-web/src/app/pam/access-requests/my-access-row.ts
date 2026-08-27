@@ -210,7 +210,11 @@ export function toRequestRow(request: AccessRequestView, names: ResolvedNames): 
     leaseNotBefore: request.leaseNotBefore,
     leaseNotAfter: request.leaseNotAfter,
     ...resolveResolver(request.status, human),
-    approverComment: human?.comment ?? null,
+    // Falls back to the decision log when no human decided: an automatically denied request has no approver to hang
+    // its explanation on, so the reason it was refused lives on the automatic decision instead — which is the only
+    // thing that tells a requester why their late extension did not apply (PM-42632).
+    approverComment:
+      human?.comment ?? request.decisions.find((d) => d.comment != null)?.comment ?? null,
     producedLeaseId: request.producedLeaseId == null ? null : uuidAsString(request.producedLeaseId),
     // Defaults; buildMyAccessRequestRows fills these in for an original whose lease was extended.
     extendedBySeconds: null,
@@ -253,6 +257,11 @@ export function extensionsByLeaseId(
  * duplicate requests, so extensions are folded into the original (activating) request's row
  * instead: the original is badged with the total time added and the lease's current end, and the
  * extension rows themselves are dropped.
+ *
+ * A DENIED extension is the exception, and keeps its own row. Folding is only honest for an
+ * extension that landed: it is represented on the original by the time it added. One that was
+ * refused — the parent lease ended before it could apply — added nothing, so folding it away leaves
+ * the requester with no record of what they asked for or why it did not happen (PM-42632).
  */
 export function buildMyAccessRequestRows(
   requests: AccessRequestView[],
@@ -262,7 +271,7 @@ export function buildMyAccessRequestRows(
 
   const rows: MyAccessRequestRow[] = [];
   for (const request of requests) {
-    if (request.extensionOfLeaseId != null) {
+    if (request.extensionOfLeaseId != null && request.status !== "denied") {
       continue; // Folded into its original row below — never shown on its own.
     }
     const row = toRequestRow(request, names);

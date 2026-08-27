@@ -507,6 +507,11 @@ export class CipherViewBannerComponent implements OnInit {
    * the Requests page uses, so the duration presets and the mandatory justification stay in one
    * place. The rule's `maxExtensionDurationSeconds` is enforced server-side; the dialog does not
    * yet narrow its presets to it, so an over-cap pick surfaces as an error toast.
+   *
+   * A resolved-but-denied extension is not a failed call, so it does not come back as a thrown
+   * error: the lease ran out while this dialog was open, and the server answered with a denied
+   * request rather than refusing to record one (PM-42632). Branch on the status the call returns,
+   * not on try/catch, or that denial reads as a successful extension.
    */
   protected readonly extendLease = async (): Promise<void> => {
     const lease = this.activeLease();
@@ -520,10 +525,11 @@ export class CipherViewBannerComponent implements OnInit {
       return;
     }
     try {
-      await this.accessLeaseSdkService.extendLease(lease.id, request);
+      const extension = await this.accessLeaseSdkService.extendLease(lease.id, request);
+      const denied = extension.status === "denied";
       this.toastService.showToast({
-        variant: "success",
-        message: this.i18nService.t("pamExtendLeaseSuccess"),
+        variant: denied ? "warning" : "success",
+        message: this.i18nService.t(denied ? "pamExtendLeaseEnded" : "pamExtendLeaseSuccess"),
       });
     } catch (e) {
       this.logService.error(e);
