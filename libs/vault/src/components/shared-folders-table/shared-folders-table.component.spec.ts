@@ -136,10 +136,10 @@ describe("SharedFoldersTableComponent", () => {
     ];
 
     expect([...shuffled].sort(sortByPermission).map((r) => r.permissions)).toEqual([
-      SharedFolderPermission.View,
       SharedFolderPermission.ViewExceptPass,
-      SharedFolderPermission.Edit,
+      SharedFolderPermission.View,
       SharedFolderPermission.EditExceptPass,
+      SharedFolderPermission.Edit,
       SharedFolderPermission.Manage,
     ]);
   });
