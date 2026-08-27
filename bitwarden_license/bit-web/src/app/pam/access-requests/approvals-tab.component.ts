@@ -145,13 +145,19 @@ export class ApprovalsTabComponent {
    * Confirm and record a decision. Only an explicit confirm decides — dismissing the dialog by any
    * other route (Cancel, the header X, Escape, a backdrop click) closes with `undefined` and must
    * leave the request untouched.
+   *
+   * `verdict` is only what the dialog OPENS on. The approve variant offers "Deny request", which
+   * switches it in place, so the decision recorded here has to be the verdict the dialog closed
+   * with — recording the requested one would approve a request the approver denied.
    */
   protected async decide(row: ApprovalRow, verdict: AccessDecisionVerdict): Promise<void> {
     if (!row.canDecide || this.isDeciding(row)) {
       return;
     }
     const result = await firstValueFrom(
-      DecideDialogComponent.open(this.dialogService, { data: { verdict, row } }).closed,
+      DecideDialogComponent.open(this.dialogService, {
+        data: { verdict, row, cipher: this.cipherFor(row.cipherId) },
+      }).closed,
     );
     if (!result?.confirmed) {
       return;
@@ -160,11 +166,11 @@ export class ApprovalsTabComponent {
     const key = String(row.id);
     this.deciding.update((ids) => new Set([...ids, key]));
     try {
-      await this.inbox.decide(row.id, verdict, result.comment);
+      await this.inbox.decide(row.id, result.verdict, result.comment);
       this.toastService.showToast({
         variant: "success",
         message: this.i18nService.t(
-          verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
+          result.verdict === "approve" ? "pamInboxApprovedToast" : "pamInboxDeniedToast",
         ),
       });
     } catch (e) {
