@@ -9,7 +9,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -32,43 +31,31 @@ function makeOrg(name: string, productTierType: ProductTierType): Organization {
 
 describe("DefaultVaultNavService", () => {
   const userId = newGuid() as UserId;
-  const mockAccount: Account = {
-    id: userId,
-    email: "user@example.com",
-    emailVerified: true,
-    name: "Test User",
-    creationDate: new Date(),
-  };
 
   let service: DefaultVaultNavService;
-  let accountService: MockProxy<AccountService>;
   let organizationService: MockProxy<OrganizationService>;
   let policyService: MockProxy<PolicyService>;
   let avatarService: MockProxy<AvatarService>;
   let collectionService: MockProxy<CollectionService>;
   let i18nService: MockProxy<I18nService>;
 
-  let activeAccount$: BehaviorSubject<Account | null>;
   let memberOrgs$: BehaviorSubject<Organization[]>;
   let dataOwnership$: BehaviorSubject<boolean>;
   let avatarColor$: BehaviorSubject<string | null>;
   let defaultCollection$: BehaviorSubject<CollectionView | undefined>;
 
   beforeEach(() => {
-    accountService = mock<AccountService>();
     organizationService = mock<OrganizationService>();
     policyService = mock<PolicyService>();
     avatarService = mock<AvatarService>();
     collectionService = mock<CollectionService>();
     i18nService = mock<I18nService>();
 
-    activeAccount$ = new BehaviorSubject<Account | null>(mockAccount);
     memberOrgs$ = new BehaviorSubject<Organization[]>([]);
     dataOwnership$ = new BehaviorSubject<boolean>(false);
     avatarColor$ = new BehaviorSubject<string | null>(null);
     defaultCollection$ = new BehaviorSubject<CollectionView | undefined>(undefined);
 
-    accountService.activeAccount$ = activeAccount$;
     organizationService.memberOrganizations$.mockReturnValue(memberOrgs$);
     policyService.policyAppliesToUser$
       .calledWith(PolicyType.OrganizationDataOwnership, userId)
@@ -80,7 +67,6 @@ describe("DefaultVaultNavService", () => {
     TestBed.configureTestingModule({
       providers: [
         DefaultVaultNavService,
-        { provide: AccountService, useValue: accountService },
         { provide: OrganizationService, useValue: organizationService },
         { provide: PolicyService, useValue: policyService },
         { provide: AvatarService, useValue: avatarService },
@@ -99,7 +85,7 @@ describe("DefaultVaultNavService", () => {
       const orgM = makeOrg("Mid Org", ProductTierType.TeamsStarter);
       memberOrgs$.next([orgZ, orgA, orgM]);
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
       expect(vm.vaults.map((v) => v.label)).toEqual([
         "myVault",
@@ -114,7 +100,7 @@ describe("DefaultVaultNavService", () => {
       const enterpriseOrg = makeOrg("Enterprise Org", ProductTierType.Enterprise);
       memberOrgs$.next([teamsOrg, enterpriseOrg]);
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
       const orgItems = vm.vaults.filter((v) => v.type === VaultNavItemType.Organization);
       expect(orgItems).toHaveLength(2);
@@ -126,7 +112,7 @@ describe("DefaultVaultNavService", () => {
       const freeOrg = makeOrg("Free Org", ProductTierType.Free);
       memberOrgs$.next([familiesOrg, freeOrg]);
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
       const familyItems = vm.vaults.filter((v) => v.type === VaultNavItemType.Family);
       expect(familyItems).toHaveLength(2);
@@ -138,7 +124,7 @@ describe("DefaultVaultNavService", () => {
       memberOrgs$.next([org]);
       dataOwnership$.next(true);
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
       expect(vm.organizationDataOwnership).toBe(true);
       expect(vm.vaults).toHaveLength(1);
@@ -156,7 +142,7 @@ describe("DefaultVaultNavService", () => {
       });
       defaultCollection$.next(collection);
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
       expect(collectionService.defaultUserCollection$).toHaveBeenCalledWith(userId, org.id);
       expect(vm.vaults[0].defaultUserCollectionId).toBe("col-1");
@@ -166,37 +152,36 @@ describe("DefaultVaultNavService", () => {
       memberOrgs$.next([]);
       dataOwnership$.next(true);
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
       expect(vm.vaults).toHaveLength(1);
       expect(vm.vaults[0].type).toBe(VaultNavItemType.Personal);
       expect(vm.organizationDataOwnership).toBe(false);
     });
 
-    it("emits an empty view model when no account is active", async () => {
-      activeAccount$.next(null);
-
-      const vm = await firstValueFrom(service.viewModel$);
-
-      expect(vm.vaults).toHaveLength(0);
-      expect(vm.organizationDataOwnership).toBe(false);
-    });
-
     it("colors the personal item with the shared default avatar color", async () => {
       memberOrgs$.next([]);
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
-      expect(vm.vaults[0].color).toBe(getAvatarDefaultColor(userId, mockAccount.name));
+      expect(vm.vaults[0].color).toBe(getAvatarDefaultColor(userId));
     });
 
     it("colors the personal item with the user's custom avatar color when one is set", async () => {
       memberOrgs$.next([]);
       avatarColor$.next("#ff0000");
 
-      const vm = await firstValueFrom(service.viewModel$);
+      const vm = await firstValueFrom(service.viewModel$(userId));
 
       expect(vm.vaults[0].color).toBe("#ff0000");
+    });
+
+    // The nav, the vault page, and the route guard all read this for the same user.
+    it("shares one stream per user rather than rebuilding it per caller", () => {
+      const otherUserId = newGuid() as UserId;
+
+      expect(service.viewModel$(userId)).toBe(service.viewModel$(userId));
+      expect(service.viewModel$(otherUserId)).not.toBe(service.viewModel$(userId));
     });
   });
 });

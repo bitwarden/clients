@@ -5,6 +5,11 @@
 
 <app-vault-onboarding [ciphers]="activeCiphers()"></app-vault-onboarding>
 
+<vault-shared-folder-card-grid
+  [collections]="scopedCollections()"
+  [scope]="vaultScope()"
+></vault-shared-folder-card-grid>
+
 <vault-items-table
   [ciphers]="ciphers()"
   [loading]="loading()"
