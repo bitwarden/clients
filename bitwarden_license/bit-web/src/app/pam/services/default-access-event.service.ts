@@ -39,7 +39,8 @@ export class DefaultAccessEventService implements AccessEventService {
     this.changed$ = ticksFor(NotificationType.RefreshAccessRequest);
     // Kept a separate stream rather than merged into `changed$`: the approver push says a collection
     // the caller manages changed, which is no reason for the requester-side surfaces (the lease
-    // banner, the nav badge) to re-read.
+    // banner, a cipher's access state) to re-read. Surfaces that span both sides subscribe to both —
+    // `ApproverInboxService` and the nav badge do.
     this.inboxChanged$ = ticksFor(NotificationType.RefreshApproverInbox);
   }
 
