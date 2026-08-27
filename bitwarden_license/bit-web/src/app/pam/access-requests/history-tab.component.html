@@ -1,9 +1,9 @@
-@if (hasManagedHistory()) {
+@if (canSwitchScope()) {
   <div class="tw-mb-4 tw-flex tw-justify-end">
     <bit-toggle-group
       [selected]="scope()"
-      (selectedChange)="scope.set($event)"
-      [attr.aria-label]="'pamInboxHistoryFilterLabel' | i18n"
+      (selectedChange)="selectScope($event)"
+      [label]="'pamHistoryScopeLabel' | i18n"
     >
       <bit-toggle [value]="HistoryScope.Mine" data-testid="history-scope-mine">
         {{ "pamHistoryScopeMine" | i18n }}
@@ -131,7 +131,7 @@
                 (click)="cancelApproval(row)"
                 [attr.data-testid]="'history-cancel-approval-' + row.id"
               >
-                {{ "pamInboxCancelApproval" | i18n }}
+                {{ "pamInboxWithdrawApproval" | i18n }}
               </button>
             } @else {
               <span class="tw-text-muted">&mdash;</span>

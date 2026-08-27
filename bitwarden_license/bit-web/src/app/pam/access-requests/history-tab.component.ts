@@ -29,6 +29,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
@@ -45,8 +46,12 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
  *
  *  - Mine: the caller's own terminal requests (everything but pending/approved, which live on the My
  *    requests tab).
- *  - Managed: the decided requests for the collections the caller manages — visible only to
- *    approvers, and the only place they can undo a decision.
+ *  - Managed: the decided requests for the collections the caller manages — offered to anyone who
+ *    can approve, and the only place they can undo a decision.
+ *
+ * An untouched toggle lands on Managed whenever that side has rows, since this tab is aimed at the
+ * approver and answering them with an empty table hides the history they came for behind a control
+ * they have no reason to press.
  *
  * A toggle rather than one merged table. Merging them would put "a request I raised" and "a request I
  * decided" in the same list with the same columns but different available actions, so a row's
@@ -84,9 +89,16 @@ export class HistoryTabComponent {
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
 
   protected readonly HistoryScope = HistoryScope;
-  protected readonly scope = signal<HistoryScope>(HistoryScope.Mine);
+
+  protected readonly canApprove = toSignal(this.approvalPrivileges.canApprove$, {
+    initialValue: false,
+  });
+
+  /** The scope the viewer picked from the toggle, or null while the default below still applies. */
+  private readonly chosenScope = signal<HistoryScope | null>(null);
 
   /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
@@ -108,11 +120,27 @@ export class HistoryTabComponent {
     initialValue: new Map<string, CipherView>(),
   });
 
-  /** The Managed toggle only appears once there is managed history to show. */
-  protected readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
+  /** A pure computed rather than a one-shot latch, so it tracks the managed rows as they load. */
+  private readonly defaultScope = computed<HistoryScope>(() =>
+    this.managedRows().length > 0 ? HistoryScope.Managed : HistoryScope.Mine,
+  );
+
+  protected readonly scope = computed<HistoryScope>(
+    () => this.chosenScope() ?? this.defaultScope(),
+  );
+
+  /**
+   * The toggle is offered to anyone who can approve, rows or not — gating it on rows hides the
+   * second scope until it has content, which is exactly when the reader no longer needs telling it
+   * exists. The `managedRows()` term keeps it for a viewer whose privilege stream has not resolved
+   * but whose rows have.
+   */
+  protected readonly canSwitchScope = computed(
+    () => this.canApprove() || this.managedRows().length > 0,
+  );
 
   protected readonly showingManaged = computed(
-    () => this.scope() === HistoryScope.Managed && this.hasManagedHistory(),
+    () => this.scope() === HistoryScope.Managed && this.canSwitchScope(),
   );
 
   protected readonly historyRows = computed(() =>
@@ -125,6 +153,11 @@ export class HistoryTabComponent {
     effect(() => {
       this.historyDataSource.data = this.historyRows();
     });
+  }
+
+  /** Pin the scope to the viewer's choice, so a later load cannot move them off it. */
+  protected selectScope(scope: HistoryScope): void {
+    this.chosenScope.set(scope);
   }
 
   /** The decrypted cipher for a row, or undefined when it isn't in the caller's vault. */
@@ -180,12 +213,30 @@ export class HistoryTabComponent {
     );
   }
 
-  /** Withdraw an approval the requester has not started. */
+  /**
+   * Withdraw an approval the requester has not started. Confirmed first, like {@link revoke}: it
+   * takes a decision away from a third party, cannot be undone from this screen, and the requester
+   * is not told.
+   */
   protected async cancelApproval(row: MyAccessRequestRow): Promise<void> {
     if (!this.canCancelApproval(row) || this.isActing(row)) {
       return;
     }
-    await this.act(row, "pamInboxApprovalCanceledToast", "pamInboxCancelApprovalFailed", () =>
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamInboxWithdrawApproval" },
+      content: {
+        key: "pamInboxWithdrawApprovalConfirm",
+        // The same expression the Item column renders, so the dialog and its row always name the
+        // item identically — including when the cipher is not in the approver's vault.
+        placeholders: [row.cipherName ?? row.cipherId],
+      },
+      acceptButtonText: { key: "pamInboxWithdrawApproval" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+    await this.act(row, "pamInboxApprovalWithdrawnToast", "pamInboxWithdrawApprovalFailed", () =>
       this.inbox.cancelApproval(row.id as AccessRequestId),
     );
   }

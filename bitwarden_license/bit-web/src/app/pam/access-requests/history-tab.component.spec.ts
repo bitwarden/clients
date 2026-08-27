@@ -10,6 +10,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { DialogService, ToastService } from "@bitwarden/components";
 
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 
 import { HistoryTabComponent } from "./history-tab.component";
@@ -56,6 +57,7 @@ describe("HistoryTabComponent", () => {
     revokeLease: jest.Mock;
     cancelApproval: jest.Mock;
   };
+  let canApprove$: BehaviorSubject<boolean>;
   let dialogService: MockProxy<DialogService>;
   let toastService: MockProxy<ToastService>;
 
@@ -71,7 +73,7 @@ describe("HistoryTabComponent", () => {
 
   /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
-    component["scope"].set("managed");
+    component["chosenScope"].set("managed");
     fixture.detectChanges();
   }
 
@@ -86,6 +88,7 @@ describe("HistoryTabComponent", () => {
       revokeLease: jest.fn().mockResolvedValue(undefined),
       cancelApproval: jest.fn().mockResolvedValue(undefined),
     };
+    canApprove$ = new BehaviorSubject(false);
     dialogService = mock<DialogService>();
     toastService = mock<ToastService>();
     dialogService.openSimpleDialog.mockResolvedValue(true);
@@ -102,6 +105,7 @@ describe("HistoryTabComponent", () => {
           },
         },
         { provide: ApproverInboxService, useValue: inbox },
+        { provide: ApprovalPrivilegeService, useValue: { canApprove$ } },
         { provide: DialogService, useValue: dialogService },
         { provide: ToastService, useValue: toastService },
         { provide: LogService, useValue: mock<LogService>() },
@@ -132,12 +136,43 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
     });
 
-    it("shows the caller's own rows by default", () => {
+    it("offers the toggle to an approver with no managed history yet", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      expect(query('[data-testid="history-scope-managed"]')).not.toBeNull();
+    });
+
+    it("lands on the managed side when there is managed history", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
       managedRows$.next([historyRow({ id: "managed-1" })]);
 
       create();
 
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
+    });
+
+    it("lands on the caller's own rows when there is no managed history", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
+    });
+
+    it("keeps the viewer on the scope they picked when managed history arrives", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+
+      component["selectScope"]("mine");
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      fixture.detectChanges();
+
+      expect(component["showingManaged"]()).toBe(false);
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
     });
 
@@ -151,6 +186,8 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1"]);
     });
 
+    // The fallback now runs through canSwitchScope(): a non-approver whose managed rows go away
+    // loses the toggle, so the pinned scope stops applying.
     it("falls back to the caller's own rows if the managed side empties out", () => {
       managedRows$.next([historyRow({ id: "managed-1" })]);
       myRows$.next([historyRow({ id: "mine-1" })]);
@@ -215,7 +252,7 @@ describe("HistoryTabComponent", () => {
       expect(component["canRevoke"](revoked)).toBe(false);
     });
 
-    it("offers Cancel for an approval the requester has not started", () => {
+    it("offers Withdraw approval for an approval the requester has not started", () => {
       managedRows$.next([unstartedApproval]);
       create();
       showManaged();
@@ -273,21 +310,33 @@ describe("HistoryTabComponent", () => {
       });
     });
 
-    it("cancels an approval without a confirm — nothing is in use yet", async () => {
+    it("confirms before withdrawing an approval", async () => {
       managedRows$.next([unstartedApproval]);
       create();
       showManaged();
 
       await component["cancelApproval"](unstartedApproval);
 
+      expect(dialogService.openSimpleDialog).toHaveBeenCalled();
       expect(inbox.cancelApproval).toHaveBeenCalledWith("managed-2");
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
-        message: "pamInboxApprovalCanceledToast",
+        message: "pamInboxApprovalWithdrawnToast",
       });
     });
 
-    it("toasts an error when cancelling an approval fails", async () => {
+    it("does not withdraw the approval when the confirm is dismissed", async () => {
+      dialogService.openSimpleDialog.mockResolvedValue(false);
+      managedRows$.next([unstartedApproval]);
+      create();
+      showManaged();
+
+      await component["cancelApproval"](unstartedApproval);
+
+      expect(inbox.cancelApproval).not.toHaveBeenCalled();
+    });
+
+    it("toasts an error when withdrawing an approval fails", async () => {
       inbox.cancelApproval.mockRejectedValue(new Error("boom"));
       managedRows$.next([unstartedApproval]);
       create();
@@ -297,7 +346,7 @@ describe("HistoryTabComponent", () => {
 
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "error",
-        message: "pamInboxCancelApprovalFailed",
+        message: "pamInboxWithdrawApprovalFailed",
       });
     });
   });

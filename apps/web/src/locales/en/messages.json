@@ -17816,8 +17816,8 @@
   "pamInboxApprovedToast": {
     "message": "Request approved"
   },
-  "pamInboxCancelApproval": {
-    "message": "Cancel"
+  "pamInboxWithdrawApproval": {
+    "message": "Withdraw approval"
   },
   "pamInboxCannotApproveOwn": {
     "message": "You cannot approve your own request."
@@ -17888,8 +17888,8 @@
   "pamInboxHistoryEmpty": {
     "message": "No history to display"
   },
-  "pamInboxHistoryFilterLabel": {
-    "message": "Filter history by status"
+  "pamHistoryScopeLabel": {
+    "message": "History scope"
   },
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
@@ -17906,11 +17906,11 @@
   "pamInboxRevokedToast": {
     "message": "Access revoked"
   },
-  "pamInboxApprovalCanceledToast": {
-    "message": "Approval canceled"
+  "pamInboxApprovalWithdrawnToast": {
+    "message": "Approval withdrawn"
   },
-  "pamInboxCancelApprovalFailed": {
-    "message": "Could not cancel approval"
+  "pamInboxWithdrawApprovalFailed": {
+    "message": "Could not withdraw approval"
   },
   "pamInboxWindow": {
     "message": "Requested window"
@@ -17926,6 +17926,15 @@
   },
   "pamInboxRevokeConfirm": {
     "message": "This immediately revokes the member's access. They will need a new approval to regain it."
+  },
+  "pamInboxWithdrawApprovalConfirm": {
+    "message": "This withdraws the member's approval for $ITEM$. Access will not start, and they will need a new approval to get it.",
+    "placeholders": {
+      "item": {
+        "content": "$1",
+        "example": "Prod database"
+      }
+    }
   },
   "pamCollectionAccessRuleCalloutTitle": {
     "message": "Access rule"
