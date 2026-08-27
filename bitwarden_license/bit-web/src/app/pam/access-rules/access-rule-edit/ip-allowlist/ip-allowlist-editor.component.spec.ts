@@ -172,8 +172,6 @@ describe("IpAllowlistEditorComponent", () => {
       input.dispatchEvent(new Event("input"));
     }
 
-    // Counts what the admin actually sees. Asserting on the model instead — or reaching for
-    // markAllAsTouched() — is what hid the earlier attempts' failure to mark the partner row.
     function renderedErrors(): string[] {
       fixture.detectChanges();
       return fixture.debugElement
