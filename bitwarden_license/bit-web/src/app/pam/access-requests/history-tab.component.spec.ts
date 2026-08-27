@@ -37,6 +37,7 @@ function historyRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow
     resolverName: "Ada",
     approverComment: null,
     producedLeaseId: null,
+    producedLeaseStatus: null,
     extendedBySeconds: null,
     extendedUntil: null,
     ...overrides,
@@ -171,6 +172,7 @@ describe("HistoryTabComponent", () => {
       status: "approved",
       statusBadge: { labelKey: "pamStatusActivated", variant: "success" },
       producedLeaseId: "lease-1",
+      producedLeaseStatus: "active",
     });
     const unstartedApproval = historyRow({
       id: "managed-2",
@@ -201,12 +203,29 @@ describe("HistoryTabComponent", () => {
       expect(query('[data-testid="history-revoke-managed-1"]')).not.toBeNull();
     });
 
+    it("offers Revoke for a live lease whose request status did not survive the round trip", () => {
+      const mislabelled = historyRow({
+        id: "managed-1",
+        status: "denied",
+        statusBadge: { labelKey: "pamStatusDenied", variant: "danger" },
+        producedLeaseId: "lease-1",
+        producedLeaseStatus: "active",
+      });
+      managedRows$.next([mislabelled]);
+      create();
+      showManaged();
+
+      expect(component["canRevoke"](mislabelled)).toBe(true);
+      expect(query('[data-testid="history-revoke-managed-1"]')).not.toBeNull();
+    });
+
     it("offers no Revoke once the lease has already ended", () => {
       const revoked = historyRow({
         id: "managed-1",
         status: "approved",
         statusBadge: { labelKey: "pamStatusRevoked", variant: "subtle" },
         producedLeaseId: "lease-1",
+        producedLeaseStatus: "revoked",
       });
       managedRows$.next([revoked]);
       create();

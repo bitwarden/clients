@@ -30,6 +30,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 import type { AccessLeaseId, AccessRequestId } from "../abstractions/access-lease";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { isLiveManagedLease } from "../approvals/managed-lease-row";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RelativeTimePipe } from "../date/relative-time.pipe";
 
@@ -54,8 +55,8 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
  * answerable from what is on screen.
  *
  * Own rows are read-only, so `Mine` has no action column and no clock. `Managed` adds revoke (end a
- * lease the caller granted) and cancel-approval (withdraw an approval the requester has not started),
- * both of which the SDK serves — only the two history reads themselves go over raw HTTP.
+ * lease the caller granted) and withdraw (take back an approval the requester has not started), both
+ * of which the SDK serves — only the two history reads themselves go over raw HTTP.
  */
 @Component({
   selector: "pam-history-tab",
@@ -139,15 +140,13 @@ export class HistoryTabComponent {
 
   /**
    * A lease the caller granted and can still end: the row is one they manage, it produced a lease,
-   * and that lease is still live. `statusBadge` is the already-resolved display status, so this
-   * reads the same conclusion the badge shows rather than re-deriving it.
+   * and that lease is still live. Liveness comes from {@link isLiveManagedLease}, the same predicate
+   * the Approvals tab's Active access section lists by, so the two surfaces cannot disagree about
+   * whether a given lease can be ended.
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
     return (
-      this.showingManaged() &&
-      this.managedIds().has(String(row.id)) &&
-      row.producedLeaseId != null &&
-      row.statusBadge?.labelKey === "pamStatusActivated"
+      this.showingManaged() && this.managedIds().has(String(row.id)) && isLiveManagedLease(row)
     );
   }
 
