@@ -111,6 +111,10 @@ export class VaultPopupListTableFiltersService {
   /**
    * Persists the current chip selection to the view cache.
    * Call this whenever the table's `filterValues` signal emits a new value.
+   *
+   * Also keeps {@link selectedOrganizations} in sync: this service is `providedIn: "root"` and
+   * outlives any one component instance, so every call site that changes the org selection
+   * (including clearing it) must go through here rather than setting the signal separately.
    */
   saveFilters(values: {
     cipherType?: CipherType | null;
@@ -124,6 +128,7 @@ export class VaultPopupListTableFiltersService {
       folderIds: values.folder ?? [],
       cipherType: values.cipherType ?? null,
     });
+    this.selectedOrganizations.set(values.organization ?? []);
   }
 
   /**
