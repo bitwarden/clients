@@ -217,9 +217,9 @@ export const ApprovedNotYetRedeemable: Story = {
 };
 
 /**
- * An approved grant nobody activated before its window lapsed. It still has to be visible
- * somewhere, so it stays with the active access, badged "Expired" with no action offered — below
- * the lease the caller actually holds, even though its window ended first.
+ * An approved grant whose window lapsed while the tab was open — the next load moves it to History.
+ * Until then it stays with the active access, badged "Expired" with no action offered, below the
+ * lease the caller actually holds even though its own window ended first.
  */
 export const ApprovedWindowLapsed: Story = {
   decorators: [
