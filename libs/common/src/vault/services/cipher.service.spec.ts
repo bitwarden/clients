@@ -494,7 +494,13 @@ describe("Cipher Service", () => {
 
       const result = await cipherService.updateWithServer(cipherView, userId);
 
-      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(cipherView, userId, undefined, undefined);
+      expect(cipherSdkServiceSpy).toHaveBeenCalledWith(
+        cipherView,
+        userId,
+        undefined,
+        undefined,
+        undefined,
+      );
       expect(apiSpy).not.toHaveBeenCalled();
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
       expect(result).toBeInstanceOf(CipherView);
@@ -527,6 +533,7 @@ describe("Cipher Service", () => {
         userId,
         originalCipherView,
         true,
+        undefined,
       );
       expect(apiSpy).not.toHaveBeenCalled();
       expect(clearCacheSpy).toHaveBeenCalledWith(userId);
