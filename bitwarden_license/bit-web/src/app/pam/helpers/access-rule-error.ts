@@ -17,11 +17,12 @@ export type AccessRuleErrorField = "name" | "collections" | "maxExtensionDuratio
  * the admin cannot act on, and the generic system-error copy is the honest thing to show.
  * `NameRequiredLocally` is the one exception to "sourced from the server": it's the SDK's own
  * local (pre-HTTP) validation message, never a wire body. Nothing here reads that sentence from the
- * SDK — the wasm interpolates the maximum into it at runtime — so the pin in
- * `access-rule-error.spec.ts` only holds this entry to the wording last verified by hand against
- * the SDK; it cannot see a reword on the SDK's side. That reword would leave every test green while
- * dropping the blank-name case back onto the generic banner, so re-verify it on each
- * `@bitwarden/commercial-sdk-internal` bump.
+ * SDK — the wasm interpolates the maximum into it at runtime — so `access-rule-error.spec.ts`
+ * holds this entry to the SDK instead, matching the literal pieces either side of the maximum
+ * against the wasm, and the maximum itself against `ACCESS_RULE_NAME_MAX_LENGTH`. A reword on the
+ * SDK's side fails that spec rather than quietly dropping the blank-name case back onto the
+ * generic banner; a cap the SDK lowered without rewording stays invisible to it, so re-read the
+ * maximum on each `@bitwarden/commercial-sdk-internal` bump.
  */
 export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
   NameRequired: {
