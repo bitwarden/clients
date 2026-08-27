@@ -372,6 +372,19 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.noFolders() ? this.i18nService.t("foldersFilterTooltip") : "",
   );
 
+  /**
+   * Whether the Shared folders chip has nothing to offer: either no cipher belongs to an org,
+   * or no collections have been provided to populate the dropdown.
+   */
+  protected readonly noSharedFolderOptions = computed(
+    () => !this.showSharedFolders() || !this.collections().length,
+  );
+
+  /** Tooltip for the disabled Shared folders chip — see {@link favoritesDisabledTooltip}. */
+  protected readonly sharedFolderDisabledTooltip = computed(() =>
+    this.noSharedFolderOptions() ? this.i18nService.t("sharedFolderFilterTooltip") : "",
+  );
+
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
   private readonly collectionNames = computed(() => this.nameMap(this.collections()));

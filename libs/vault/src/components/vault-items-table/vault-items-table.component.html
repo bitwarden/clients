@@ -56,11 +56,18 @@
       </bit-filter-menu>
     }
 
-    @if (showSharedFolders()) {
+    <!--
+      The pointer-events override below overrides `BaseChipDirective`'s own
+      `aria-disabled:tw-pointer-events-none` so the tooltip can fire.
+    -->
+    @if (organizations().length > 0) {
       <bit-filter-menu
         [key]="filterKeys.sharedFolder"
         [placeholderText]="'sharedFolders' | i18n"
         multiple
+        [disabled]="noSharedFolderOptions()"
+        [bitTooltip]="sharedFolderDisabledTooltip()"
+        [style.pointer-events]="'auto'"
       >
         @if (groupSharedFolders()) {
           @for (group of groupedSharedFolders(); track group.organizationId) {

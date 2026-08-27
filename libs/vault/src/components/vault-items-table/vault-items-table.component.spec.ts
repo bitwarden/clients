@@ -644,6 +644,38 @@ describe("VaultItemsTableComponent", () => {
         expect(component["foldersDisabledTooltip"]()).toBe("");
       });
     });
+
+    describe("Shared folders", () => {
+      it("is disabled with a tooltip when no cipher belongs to an organization", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
+
+        expect(component["noSharedFolderOptions"]()).toBe(true);
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("sharedFolderFilterTooltip");
+      });
+
+      it("is disabled with a tooltip when org ciphers exist but no collections are provided", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("collections", []);
+
+        expect(component["noSharedFolderOptions"]()).toBe(true);
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("sharedFolderFilterTooltip");
+      });
+
+      it("is enabled with an empty tooltip when org ciphers exist and collections are provided", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("collections", [
+          { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+        ]);
+
+        expect(component["noSharedFolderOptions"]()).toBe(false);
+        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("");
+      });
+    });
   });
 
   describe("vaults present in the rows", () => {
@@ -895,6 +927,9 @@ describe("VaultItemsTableComponent", () => {
 
   describe("filtering from a membership chip", () => {
     beforeEach(() => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme" } as Organization,
+      ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
         { id: "col-2", name: "Engineering" } as CollectionView,
