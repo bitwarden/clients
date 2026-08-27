@@ -33,6 +33,31 @@ export function cidrValidator(invalidMessage: string, isValid: CidrPredicate): V
 }
 
 /**
+ * The trimmed values that appear on more than one row. Empty rows are ignored.
+ *
+ * Single source of truth for "which ranges repeat": the array-level
+ * {@link noDuplicateCidrsValidator} decides from it whether Save is blocked, and the editor marks
+ * its rows from it. Deriving both from one function is what stops them disagreeing — were one side
+ * to gain a normalisation the other lacked (case-folding IPv6, canonicalising equivalent ranges),
+ * the array could reject a rule while no row showed the admin why.
+ */
+export function duplicateCidrValues(values: readonly string[]): Set<string> {
+  const seen = new Set<string>();
+  const duplicated = new Set<string>();
+  for (const value of values) {
+    const trimmed = value.trim();
+    if (trimmed === "") {
+      continue;
+    }
+    if (seen.has(trimmed)) {
+      duplicated.add(trimmed);
+    }
+    seen.add(trimmed);
+  }
+  return duplicated;
+}
+
+/**
  * Cross-array validator: rejects with `{ duplicateCidrs: true }` if any two
  * row controls share the same trimmed value. Empty rows are ignored. Attach to
  * the CIDR {@link FormArray}.
@@ -42,18 +67,8 @@ export function noDuplicateCidrsValidator(): ValidatorFn {
     if (!(control instanceof FormArray)) {
       return null;
     }
-    const values = (control.controls as FormControl<string>[]).map((c) => c.value.trim());
-    const seen = new Set<string>();
-    for (const v of values) {
-      if (v === "") {
-        continue;
-      }
-      if (seen.has(v)) {
-        return { duplicateCidrs: true };
-      }
-      seen.add(v);
-    }
-    return null;
+    const values = (control.controls as FormControl<string>[]).map((c) => c.value);
+    return duplicateCidrValues(values).size > 0 ? { duplicateCidrs: true } : null;
   };
 }
 
