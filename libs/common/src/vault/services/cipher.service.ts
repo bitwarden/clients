@@ -964,11 +964,18 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView> {
     const useSdk = await firstValueFrom(this.sdkCipherCrudEnabled$);
 
     if (useSdk) {
-      return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
+      return await this.updateWithServerUsingSdk(
+        cipherView,
+        userId,
+        originalCipherView,
+        orgAdmin,
+        leaseGated,
+      );
     }
 
     const encrypted = await this.encrypt(cipherView, userId);
@@ -982,6 +989,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView> {
     // Clear the cache before updating the cipher. The SDK internally updates the encrypted storage
     // but the timing of the storage emitting the new values differs across platforms. Clearing the cache after
@@ -994,6 +1002,7 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
       originalCipherView,
       orgAdmin,
+      leaseGated,
     );
     return resultCipherView;
   }
