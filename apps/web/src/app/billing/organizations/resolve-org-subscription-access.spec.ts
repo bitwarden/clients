@@ -65,6 +65,30 @@ describe("resolveOrgSubscriptionAccess", () => {
     });
   });
 
+  describe("showManagementActions", () => {
+    it("returns true for an editor of a non-MSP-managed organization", () => {
+      const org = createOrganization({ isOwner: true, hasProvider: false });
+
+      expect(resolveOrgSubscriptionAccess(org).showManagementActions).toBe(true);
+    });
+
+    it("returns false for a member who cannot edit the subscription", () => {
+      const org = createOrganization({ type: OrganizationUserType.User, hasProvider: false });
+
+      expect(resolveOrgSubscriptionAccess(org).showManagementActions).toBe(false);
+    });
+
+    it("returns false for a billable-MSP provider user even though they can edit", () => {
+      const org = createOrganization({
+        isProviderUser: true,
+        hasProvider: true,
+        hasBillableProvider: true,
+      });
+
+      expect(resolveOrgSubscriptionAccess(org).showManagementActions).toBe(false);
+    });
+  });
+
   describe("showSelfHost", () => {
     it("returns true for owner when organization can export self-hosted license", () => {
       const org = createOrganization({
@@ -150,7 +174,7 @@ describe("resolveOrgSubscriptionAccess", () => {
       expect(result.showConsolidatedBillingMsp).toBe(false);
     });
 
-    it("returns true when organization has reseller provider", () => {
+    it("returns false when organization has a non-billable reseller provider", () => {
       const org = createOrganization({
         hasProvider: true,
         hasReseller: true,
@@ -158,7 +182,7 @@ describe("resolveOrgSubscriptionAccess", () => {
 
       const result = resolveOrgSubscriptionAccess(org);
 
-      expect(result.showConsolidatedBillingMsp).toBe(true);
+      expect(result.showConsolidatedBillingMsp).toBe(false);
     });
 
     it("returns true when organization has billable provider", () => {
@@ -185,6 +209,7 @@ describe("resolveOrgSubscriptionAccess", () => {
 
       expect(result).toEqual({
         showSubscription: true,
+        showManagementActions: true,
         showSelfHost: true,
         showConsolidatedBillingMsp: false,
       });
@@ -201,6 +226,7 @@ describe("resolveOrgSubscriptionAccess", () => {
 
       expect(result).toEqual({
         showSubscription: true,
+        showManagementActions: true,
         showSelfHost: false,
         showConsolidatedBillingMsp: false,
       });
@@ -217,12 +243,13 @@ describe("resolveOrgSubscriptionAccess", () => {
 
       expect(result).toEqual({
         showSubscription: true,
+        showManagementActions: false,
         showSelfHost: false,
-        showConsolidatedBillingMsp: true,
+        showConsolidatedBillingMsp: false,
       });
     });
 
-    it("MSP provider user without self-hosted export", () => {
+    it("non-billable MSP provider user without self-hosted export", () => {
       const org = createOrganization({
         isProviderUser: true,
         hasProvider: true,
@@ -233,12 +260,13 @@ describe("resolveOrgSubscriptionAccess", () => {
 
       expect(result).toEqual({
         showSubscription: true,
+        showManagementActions: true,
         showSelfHost: false,
-        showConsolidatedBillingMsp: true,
+        showConsolidatedBillingMsp: false,
       });
     });
 
-    it("MSP provider user with self-hosted export enabled", () => {
+    it("billable MSP provider user with self-hosted export enabled", () => {
       const org = createOrganization({
         isProviderUser: true,
         hasProvider: true,
@@ -249,7 +277,8 @@ describe("resolveOrgSubscriptionAccess", () => {
       const result = resolveOrgSubscriptionAccess(org);
 
       expect(result).toEqual({
-        showSubscription: true,
+        showSubscription: false,
+        showManagementActions: false,
         showSelfHost: true,
         showConsolidatedBillingMsp: true,
       });
@@ -267,6 +296,7 @@ describe("resolveOrgSubscriptionAccess", () => {
 
       expect(result).toEqual({
         showSubscription: false,
+        showManagementActions: false,
         showSelfHost: false,
         showConsolidatedBillingMsp: false,
       });

@@ -7,6 +7,9 @@ export interface OrgSubscriptionAccess {
   /** Whether to show the subscription information section. */
   showSubscription: boolean;
 
+  /** Whether to show the subscription management actions (change plan, adjust, cancel). */
+  showManagementActions: boolean;
+
   /** Whether to show the self-hosted license section. */
   showSelfHost: boolean;
 
@@ -22,9 +25,11 @@ export interface OrgSubscriptionAccess {
  * @returns Visibility flags for subscription UI sections
  */
 export function resolveOrgSubscriptionAccess(org: Organization): OrgSubscriptionAccess {
+  const managedByConsolidatedBillingMsp = org.hasProvider && org.hasBillableProvider;
   return {
-    showSubscription: org.canViewSubscription,
+    showSubscription: org.canViewSubscription && !managedByConsolidatedBillingMsp,
+    showManagementActions: org.canEditSubscription && !managedByConsolidatedBillingMsp,
     showSelfHost: org.canEditSubscription && org.selfHost,
-    showConsolidatedBillingMsp: org.hasProvider,
+    showConsolidatedBillingMsp: managedByConsolidatedBillingMsp,
   };
 }
