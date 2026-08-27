@@ -154,6 +154,10 @@ describe("ApprovalsTabComponent", () => {
 
       create();
 
+      const status = query('[data-testid="approvals-loading-status"]');
+      expect(status?.getAttribute("role")).toBe("status");
+      expect(status?.getAttribute("aria-live")).toBe("polite");
+      expect(status?.textContent?.trim()).toBe("");
       expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
       expect(query("bit-skeleton")).toBeNull();
 
@@ -162,9 +166,36 @@ describe("ApprovalsTabComponent", () => {
 
       const skeleton = query('[data-testid="approvals-loading"]');
       expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
-      expect(skeleton?.querySelector('[role="status"]')?.textContent).toContain("loading");
+      expect(skeleton?.querySelector("bit-table")?.getAttribute("aria-hidden")).toBe("true");
+      expect(query('[data-testid="approvals-loading-status"]')).toBe(status);
+      expect(status?.textContent).toContain("loading");
       expect(query('p[bitTypography="body2"]')).toBeNull();
       expect(query('[data-testid="approvals-empty"]')).toBeNull();
+    });
+
+    it("keeps the skeleton on screen for its minimum display time", () => {
+      inbox.loading$.next(true);
+
+      create();
+
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query("bit-skeleton")).not.toBeNull();
+
+      inbox.loading$.next(false);
+      jest.advanceTimersByTime(300);
+      fixture.detectChanges();
+
+      expect(query("bit-skeleton")).not.toBeNull();
+
+      jest.advanceTimersByTime(700);
+      fixture.detectChanges();
+
+      expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="approvals-loading"]')).toBeNull();
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
+      expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
     });
 
     it("never shows the skeleton when the inbox arrives inside a second", () => {
@@ -177,6 +208,7 @@ describe("ApprovalsTabComponent", () => {
 
       expect(query('[data-testid="approvals-loading"]')).not.toBeNull();
       expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
 
       inbox.loading$.next(false);
       jest.advanceTimersByTime(1000);

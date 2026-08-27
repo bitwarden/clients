@@ -201,6 +201,12 @@ export class ApprovalsTabComponent {
    */
   protected readonly hasRows = computed(() => this.filterableRows().length > 0);
 
+  /**
+   * Whether the skeleton table is on screen. Drives the `role="status"` announcement as well, so
+   * that a load finishing inside the delay never announces a screen the user was not shown.
+   */
+  protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.hasRows());
+
   /** Five fills the space the table occupies without implying a row count the inbox may not have. */
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
