@@ -16,10 +16,9 @@ export type AccessRuleErrorField = "name" | "collections" | "maxExtensionDuratio
  * deliberately absent: the edit form builds that document itself, so any of them is a client bug
  * the admin cannot act on, and the generic system-error copy is the honest thing to show.
  * `NameRequiredLocally` is the one exception to "sourced from the server": it's the SDK's own
- * local (pre-HTTP) validation message, never a wire body. Nothing on the wire carries it and there
- * is no code to switch on, so that entry's `serverMessage` is pinned to the literal sentence in
- * `access-rule-error.spec.ts`: an SDK reword has to turn that test red and be re-decided, rather
- * than silently dropping the blank-name case back onto the generic banner.
+ * local (pre-HTTP) validation message, never a wire body. `access-rule-error.spec.ts` pins that
+ * entry's `serverMessage` to the literal sentence, so an SDK reword turns the test red and gets
+ * re-decided rather than silently dropping the blank-name case back onto the generic banner.
  */
 export const ACCESS_RULE_SERVER_ERRORS = Object.freeze({
   NameRequired: {
