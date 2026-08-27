@@ -2,6 +2,8 @@ import {
   ChangeDetectionStrategy,
   Component,
   TemplateRef,
+  booleanAttribute,
+  computed,
   contentChild,
   effect,
   inject,
@@ -53,6 +55,13 @@ export class BreadcrumbComponent {
   readonly queryParamsHandling = input<QueryParamsHandling>();
 
   /**
+   * When true, renders the crumb as non-interactive text with `aria-current="page"` regardless of
+   * the current route. Use this for the last crumb when the design places the current page inside
+   * the trail rather than as the page heading.
+   */
+  readonly active = input(false, { transform: booleanAttribute });
+
+  /**
    * Emitted when the breadcrumb is clicked.
    */
   readonly click = output<unknown>();
@@ -71,7 +80,10 @@ export class BreadcrumbComponent {
 
   private readonly router = inject(Router);
 
-  readonly isActiveRoute = signal(false);
+  private readonly _routerIsActiveRoute = signal(false);
+
+  /** True when the crumb represents the current page — either via the `active` input or router match. */
+  readonly isActiveRoute = computed(() => this.active() || this._routerIsActiveRoute());
 
   checkActiveRoute() {
     const route = this.route();
@@ -95,7 +107,7 @@ export class BreadcrumbComponent {
       matrixParams: "ignored",
     });
 
-    this.isActiveRoute.set(result);
+    this._routerIsActiveRoute.set(result);
   }
 
   constructor() {
