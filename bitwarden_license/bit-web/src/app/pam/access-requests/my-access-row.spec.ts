@@ -261,6 +261,23 @@ describe("toRequestRow", () => {
     expect(row.resolverName).toBe("Jane Doe");
     expect(row.approverComment).toBe("Not now");
   });
+
+  it("falls back to the automatic decision's comment when no human decided", () => {
+    // An automatically denied request has no approver to hang its explanation on, so the reason
+    // sits on the automatic decision — and is the only thing that says why (PM-42632).
+    const row = toRequestRow(
+      request("ext-1", {
+        status: "denied",
+        extensionOfLeaseId: "lease-1",
+        decisions: [decision({ verdict: "deny", comment: "The lease being extended has ended" })],
+      }),
+      emptyResolvedNames(),
+    );
+
+    expect(row.resolverLabelKey).toBe("pamResolverAccessRule");
+    expect(row.resolverName).toBeNull();
+    expect(row.approverComment).toBe("The lease being extended has ended");
+  });
 });
 
 describe("extensionsByLeaseId", () => {
@@ -327,6 +344,24 @@ describe("buildMyAccessRequestRows", () => {
 
     expect(rows[0].extendedBySeconds).toBeNull();
     expect(rows[0].extendedUntil).toBeNull();
+  });
+
+  it("keeps a denied extension as its own row rather than folding it away", () => {
+    const original = request("req-1", { status: "approved", producedLeaseId: "lease-1" });
+    // Refused because the parent lease ended first, so it added nothing to fold onto the original —
+    // folding it away would leave no record of the ask at all (PM-42632).
+    const denied = request("ext-1", {
+      extensionOfLeaseId: "lease-1",
+      status: "denied",
+      decisions: [decision({ verdict: "deny", comment: "The lease being extended has ended" })],
+    });
+
+    const rows = buildMyAccessRequestRows([original, denied], emptyResolvedNames());
+
+    expect(rows.map((r) => r.id)).toEqual(["req-1", "ext-1"]);
+    expect(rows[0].extendedBySeconds).toBeNull();
+    expect(rows[1].statusBadge).toEqual({ labelKey: "pamStatusDenied", variant: "danger" });
+    expect(rows[1].approverComment).toBe("The lease being extended has ended");
   });
 });
 
