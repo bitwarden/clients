@@ -63,7 +63,6 @@ import { AccessRequestCancelService } from "../services/access-request-cancel.se
 
 import {
   REQUEST_WINDOW_ERROR_KEY,
-  type RequestWindowError,
   requestWindowEndValidator,
 } from "./request-access-window.validators";
 
@@ -342,34 +341,6 @@ export class CipherViewBannerComponent implements OnInit {
       ],
     ],
     reason: ["", [Validators.required, nonBlank]],
-  });
-
-  /**
-   * The End control's event stream as a signal. Reactive forms are not signal-based, so this is the
-   * change source that lets {@link windowErrorTestId} re-evaluate under OnPush — the same
-   * `ControlEvent` stream `BitFormFieldControlDirective` uses to repaint the field itself.
-   */
-  private readonly endControlEvents = toSignal(this.humanForm.controls.end.events, {
-    initialValue: null,
-  });
-
-  /**
-   * The `data-testid` the End field carries while it is SHOWING a window problem — null otherwise,
-   * so the hook marks a rendered message rather than a latent error. It cannot go on `bit-error`,
-   * which the design system creates inside its own template.
-   */
-  protected readonly windowErrorTestId = computed<string | null>(() => {
-    this.endControlEvents();
-    const end = this.humanForm.controls.end;
-    const error = end.errors?.[REQUEST_WINDOW_ERROR_KEY] as RequestWindowError | undefined;
-    switch (end.touched ? (error?.problem ?? null) : null) {
-      case "endBeforeStart":
-        return "window-end-before-start";
-      case "exceedsMaxWindow":
-        return "window-exceeds-max";
-      default:
-        return null;
-    }
   });
 
   ngOnInit(): void {
