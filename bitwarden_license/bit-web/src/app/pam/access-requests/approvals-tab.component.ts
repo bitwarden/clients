@@ -2,18 +2,15 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
-  DestroyRef,
-  NgZone,
-  OnInit,
   computed,
   effect,
   inject,
   signal,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { EMPTY, firstValueFrom, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -39,6 +36,7 @@ import { I18nPipe } from "@bitwarden/ui-common";
 
 import type { AccessDecisionVerdict } from "../abstractions/access-lease";
 import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessBadgeTickerService } from "../access-state-badge/access-badge-ticker.service";
 import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
@@ -85,14 +83,13 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
     I18nPipe,
   ],
 })
-export class ApprovalsTabComponent implements OnInit {
+export class ApprovalsTabComponent {
   private readonly inbox = inject(ApproverInboxService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly ngZone = inject(NgZone);
+  private readonly ticker = inject(AccessBadgeTickerService);
 
   /** Ids currently being decided, so a second click on the same row is a no-op. */
   private readonly deciding = signal<Set<string>>(new Set());
@@ -101,9 +98,6 @@ export class ApprovalsTabComponent implements OnInit {
   private readonly revoking = signal<Set<string>>(new Set());
 
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: true });
-
-  /** Ticks once a second so a lease that lapses while the tab is open stops being listed. */
-  private readonly nowMs = signal(Date.now());
 
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
   protected readonly collectionControl = new FormControl<string | null>(null);
@@ -122,6 +116,19 @@ export class ApprovalsTabComponent implements OnInit {
   private readonly allLeases = toSignal(this.inbox.activeLeaseRows$, {
     initialValue: [] as ManagedLeaseRow[],
   });
+
+  /**
+   * Ticks once a second so a lease that lapses while the tab is open stops being listed. Shares the
+   * one clock the badges already run on, and only observes it while there is a lease to expire — an
+   * approver sitting on a pending-only queue leaves that clock torn down rather than scheduling a
+   * round of change detection every second that can never change anything.
+   */
+  private readonly nowMs = toSignal(
+    toObservable(computed(() => this.allLeases().length > 0)).pipe(
+      switchMap((anyLeases) => (anyLeases ? this.ticker.ticks$ : EMPTY)),
+    ),
+    { initialValue: Date.now() },
+  );
 
   private readonly cipherById = toSignal(this.inbox.cipherById$, {
     initialValue: new Map<string, CipherView>(),
@@ -184,10 +191,9 @@ export class ApprovalsTabComponent implements OnInit {
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
 
   /**
-   * Badge state is memoised per lease so the shared badge component sees a stable input. A fresh
-   * object would re-run the badge's own effect and restart the countdown interval it runs itself.
-   * Keyed off the unfiltered rows so that typing in the search box does not churn the surviving
-   * badges.
+   * Badge state is memoised per lease so the `[state]` input does not change identity on every
+   * change-detection pass. Keyed off the unfiltered rows so that typing in the search box does not
+   * churn the surviving badges.
    */
   private readonly leaseBadgeStates = computed(
     () =>
@@ -205,16 +211,6 @@ export class ApprovalsTabComponent implements OnInit {
     });
     effect(() => {
       this.leasesDataSource.data = this.leaseRows();
-    });
-  }
-
-  ngOnInit(): void {
-    // Outside the Angular zone: a periodic in-zone timer never lets NgZone settle, which would hang
-    // `fixture.whenStable()` for any host that embeds this view. The signal write still drives
-    // change detection on its own.
-    this.ngZone.runOutsideAngular(() => {
-      const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
-      this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
   }
 
