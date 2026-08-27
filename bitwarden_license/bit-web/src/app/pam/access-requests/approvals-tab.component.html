@@ -55,12 +55,22 @@
               <tr>
                 <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
                 <th bitCell bitSortable="requester">{{ "pamInboxRequester" | i18n }}</th>
-                <th bitCell>{{ "pamInboxWindow" | i18n }}</th>
-                <th bitCell>{{ "pamInboxReason" | i18n }}</th>
-                <th bitCell bitSortable="submittedAtMs" default="asc">
+                <th bitCell class="tw-hidden xl:tw-table-cell" data-testid="approvals-col-window">
+                  {{ "pamInboxWindow" | i18n }}
+                </th>
+                <th bitCell class="tw-hidden xl:tw-table-cell" data-testid="approvals-col-reason">
+                  {{ "pamInboxReason" | i18n }}
+                </th>
+                <th
+                  bitCell
+                  bitSortable="submittedAtMs"
+                  default="asc"
+                  class="tw-hidden lg:tw-table-cell"
+                  data-testid="approvals-col-submitted"
+                >
                   {{ "pamColumnSubmitted" | i18n }}
                 </th>
-                <th bitCell>{{ "pamColumnActions" | i18n }}</th>
+                <th bitCell data-testid="approvals-col-actions">{{ "pamColumnActions" | i18n }}</th>
               </tr>
             </ng-container>
             <ng-template body let-rows$>
@@ -90,13 +100,21 @@
                     <div class="tw-text-xs tw-text-muted">{{ row.requesterEmail }}</div>
                   }
                 </td>
-                <td bitCell>
+                <td
+                  bitCell
+                  class="tw-hidden xl:tw-table-cell"
+                  [attr.data-testid]="'approvals-cell-window-' + row.id"
+                >
                   <span class="tw-whitespace-nowrap" [title]="row.exactWindow">
                     {{ row.duration.key | i18n: row.duration.value }},
                     {{ row.relativeStart.key | i18n: row.relativeStart.value }}
                   </span>
                 </td>
-                <td bitCell>
+                <td
+                  bitCell
+                  class="tw-hidden xl:tw-table-cell"
+                  [attr.data-testid]="'approvals-cell-reason-' + row.id"
+                >
                   @if (row.reason) {
                     <div class="tw-line-clamp-2 tw-max-w-xs tw-break-words" [title]="row.reason">
                       {{ row.reason }}
@@ -105,7 +123,11 @@
                     <span class="tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
                   }
                 </td>
-                <td bitCell>
+                <td
+                  bitCell
+                  class="tw-hidden lg:tw-table-cell"
+                  [attr.data-testid]="'approvals-cell-submitted-' + row.id"
+                >
                   <span
                     class="tw-whitespace-nowrap"
                     [title]="row.request.submittedAt | date: 'medium'"
