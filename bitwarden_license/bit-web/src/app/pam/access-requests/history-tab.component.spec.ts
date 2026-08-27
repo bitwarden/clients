@@ -332,6 +332,25 @@ describe("HistoryTabComponent", () => {
       expect(component["scope"]()).toBe("all");
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1"]);
     });
+
+    // The fallback has to forget the pick, not just stop applying it: a background load that brings
+    // a managed row back would otherwise narrow the table again with no user action.
+    it("does not restore the filter it fell back from when the toggle returns", () => {
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+      create();
+      showManaged();
+
+      managedRows$.next([]);
+      fixture.detectChanges();
+      expect(component["scope"]()).toBe("all");
+
+      managedRows$.next([historyRow({ id: "managed-2", resolvedAt: "2026-08-17T12:00:00.000Z" })]);
+      fixture.detectChanges();
+
+      expect(component["scope"]()).toBe("all");
+      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-2", "mine-1"]);
+    });
   });
 
   describe("loading", () => {
@@ -377,6 +396,79 @@ describe("HistoryTabComponent", () => {
       expect(query("bit-skeleton")).toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
       expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
+    });
+
+    // The skeleton operator holds its own minimum display time, but what the reader sees is gated
+    // on the content: the rows replace the skeleton the moment they land, rather than sitting
+    // behind a skeleton drawn over a history that is already in hand.
+    it("swaps the skeleton for the history the moment it lands, mid minimum-display-time", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+
+      create();
+      passSkeletonDelay();
+
+      expect(query('[data-testid="history-loading"]')).not.toBeNull();
+
+      jest.advanceTimersByTime(200);
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="history-loading"]')).toBeNull();
+      expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
+      expect(query('[data-testid="history-loading-status"]')?.textContent).toContain(
+        "pamHistoryLoaded",
+      );
+
+      jest.advanceTimersByTime(800);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="history-loading"]')).toBeNull();
+      expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
+    });
+
+    // A latched announcement leaves the region reporting a load that finished long ago to assistive
+    // tech that re-reads region contents later in the session.
+    it("clears the loaded announcement once it has been made", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+
+      create();
+      passSkeletonDelay();
+
+      const status = query('[data-testid="history-loading-status"]');
+      expect(status?.textContent).toContain("loading");
+
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(status?.textContent).toContain("pamHistoryLoaded");
+
+      jest.advanceTimersByTime(2000);
+      fixture.detectChanges();
+
+      expect(status?.textContent?.trim()).toBe("");
+      expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
+    });
+
+    // The latch never resolves for a non-approver on a session that has not synced, so nothing but
+    // teardown ends the subscription it keeps on the privilege stream — and that stream keeps
+    // organization and collection state decrypting behind it.
+    it("drops its load-latch subscription when the tab is destroyed", () => {
+      lastSync$.next(null);
+      managedLoading$.next(true);
+
+      create();
+      passSkeletonDelay();
+
+      expect(component["historyLoaded"]()).toBe(false);
+      expect(canApprove$.observed).toBe(true);
+
+      fixture.destroy();
+
+      expect(canApprove$.observed).toBe(false);
     });
 
     // A live region has to be in the DOM before its text changes for assistive tech to announce
@@ -714,9 +806,16 @@ describe("HistoryTabComponent", () => {
     });
   });
 
+  // All spans both sources, so it cannot borrow either side's wording: an approver with no history
+  // at all lands here and would be told they have raised nothing.
   it("says which slice is empty", () => {
     canApprove$.next(true);
     create();
+
+    expect(fixture.nativeElement.textContent).toContain("pamHistoryEmpty");
+
+    component["selectScope"]("mine");
+    fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain("pamMyRequestsHistoryEmpty");
 
