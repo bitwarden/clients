@@ -127,7 +127,7 @@ describe("accessRuleErrorMessageKey", () => {
  * from ACCESS_RULE_NAME_MAX_LENGTH — either would pass against a reword the catalog had absorbed.
  */
 describe("ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally", () => {
-  it("still matches the SDK's own wording", () => {
+  it("still holds the wording last verified against the SDK", () => {
     expect(ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally.serverMessage).toBe(
       "Name must be between 1 and 256 characters",
     );
