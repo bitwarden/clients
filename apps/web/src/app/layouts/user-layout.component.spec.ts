@@ -149,7 +149,7 @@ describe("UserLayoutComponent", () => {
     cipherArchiveService.archivedCiphers$.mockReturnValue(archivedCiphers$ as any);
     isGovMode$.next(false);
     govModeService.isGovMode$.mockReturnValue(isGovMode$);
-    Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
+    vaultNavService.viewModel$.mockReturnValue(viewModel$);
 
     await TestBed.configureTestingModule({
       imports: [UserLayoutComponent, RouterModule.forRoot([]), NavigationModule],
