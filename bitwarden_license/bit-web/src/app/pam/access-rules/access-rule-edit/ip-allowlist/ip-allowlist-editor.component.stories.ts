@@ -92,7 +92,7 @@ export const InvalidRow: Story = editorStory(
   cidrArray(["10.0.0.0/8", "not-a-cidr"], { touched: true }),
 );
 
-/** Duplicate ranges surface the array-level duplicate error. */
+/** Two rows sharing a range: each offending row carries its own error, with no prior interaction. */
 export const DuplicateRanges: Story = editorStory(
-  cidrArray(["10.0.0.0/8", "10.0.0.0/8"], { withArrayValidators: true, touched: true }),
+  cidrArray(["10.0.0.0/8", "10.0.0.0/8"], { withArrayValidators: true }),
 );
