@@ -229,7 +229,7 @@
                     id="pam-cipher-view-banner_input_start"
                   />
                 </bit-form-field>
-                <bit-form-field>
+                <bit-form-field [attr.data-testid]="windowErrorTestId()">
                   <bit-label>{{ "requestAccessModalEnd" | i18n }}</bit-label>
                   <input
                     bitInput
