@@ -21,11 +21,13 @@ const NOW = new Date("2026-08-17T12:00:00.000Z");
 function approvalRow(
   overrides: Record<string, unknown> = {},
   collectionName: string | null = "Production",
+  organizationName: string | null = "Meridian Group",
 ): ApprovalRow {
   const request = {
     id: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
+    organizationId: "org-1",
     requesterId: "user-1",
     status: "pending",
     leaseNotBefore: "2026-08-17T12:00:00.000Z",
@@ -44,6 +46,7 @@ function approvalRow(
       ...emptyResolvedNames(),
       cipherNameById: new Map([["cipher-1", "Prod database"]]),
       collectionNameById: collectionName ? new Map([["col-1", collectionName]]) : new Map(),
+      organizationNameById: organizationName ? new Map([["org-1", organizationName]]) : new Map(),
     },
     NOW,
     true,
@@ -82,7 +85,12 @@ export const Approve: Story = {
   decorators: [withParams({ verdict: "approve", row: approvalRow() })],
 };
 
-/** Denying: same summary and comment field, but the confirm button escalates to danger. */
+/**
+ * Denying: same summary, but the note becomes a required "Reason for denial" — so this opens with
+ * the confirm button already disabled — and that button escalates to danger. Reached either from
+ * the inbox's Deny button or from the approve variant's own "Deny request", which switches this
+ * dialog in place.
+ */
 export const Deny: Story = {
   decorators: [withParams({ verdict: "deny", row: approvalRow() })],
 };
@@ -92,14 +100,22 @@ export const NoReason: Story = {
   decorators: [withParams({ verdict: "approve", row: approvalRow({ reason: null }) })],
 };
 
-/** When the collection name did not resolve, its row is dropped rather than left blank. */
+/** When the collection name did not resolve, it is dropped from the item card rather than blank. */
 export const NoCollection: Story = {
   decorators: [withParams({ verdict: "approve", row: approvalRow({}, null) })],
 };
 
 /**
- * A long justification, to check the summary's `auto 1fr` grid wraps the value column instead of
- * stretching the dialog.
+ * An approver outside the owning organization resolves no name for it. Nothing is rendered — never
+ * the raw uuid, which would tell the approver less than the blank does.
+ */
+export const NoOrganization: Story = {
+  decorators: [withParams({ verdict: "approve", row: approvalRow({}, "Production", null) })],
+};
+
+/**
+ * A long justification, to check the read-only reason field contains it rather than stretching the
+ * dialog.
  */
 export const LongReason: Story = {
   decorators: [
