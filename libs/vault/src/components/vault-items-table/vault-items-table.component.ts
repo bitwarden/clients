@@ -559,6 +559,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   private readonly tableComponent = viewChild(BitTableV2Component);
 
+  /** Clear the table's internal row selection (called when the batch bar "Clear" fires). */
+  clearSelection(): void {
+    this.tableComponent()?.selectionModel()?.clear();
+  }
+
   /**
    * The live search term. Cast because a view query erases the table's generics, so its
    * `filterValues()` comes back as an untyped record.
