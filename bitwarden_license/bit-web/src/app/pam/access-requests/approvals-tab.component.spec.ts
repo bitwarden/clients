@@ -91,6 +91,8 @@ describe("ApprovalsTabComponent", () => {
   }
 
   beforeEach(async () => {
+    jest.useFakeTimers();
+    jest.setSystemTime(NOW);
     inbox = {
       inboxRows$: new BehaviorSubject<ApprovalRow[]>([]),
       activeLeaseRows$: new BehaviorSubject<ManagedLeaseRow[]>([]),
@@ -125,6 +127,11 @@ describe("ApprovalsTabComponent", () => {
       // has no interest in.
       .overrideComponent(ApprovalsTabComponent, { add: { schemas: [NO_ERRORS_SCHEMA] } })
       .compileComponents();
+  });
+
+  afterEach(() => {
+    fixture?.destroy();
+    jest.useRealTimers();
   });
 
   describe("rendering", () => {
@@ -335,6 +342,19 @@ describe("ApprovalsTabComponent", () => {
 
       expect(query('[data-testid="approvals-empty"]')).not.toBeNull();
       expect(query("bit-accordion-group")).toBeNull();
+    });
+
+    it("stops listing a lease once its window closes, with no server push", () => {
+      inbox.inboxRows$.next([row()]);
+      inbox.activeLeaseRows$.next([leaseRow({ leaseNotAfter: "2026-08-17T12:00:30.000Z" })]);
+      create();
+      expect(query('[data-testid="approvals-lease-lease-1"]')).not.toBeNull();
+
+      jest.advanceTimersByTime(31_000);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-active-access-empty"]')).not.toBeNull();
     });
 
     it("revokes the lease once confirmed, and toasts", async () => {
