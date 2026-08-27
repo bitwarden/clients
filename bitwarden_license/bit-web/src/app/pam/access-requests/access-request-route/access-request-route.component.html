@@ -1,1 +1,11 @@
-<pam-my-requests-tab />
+@switch (originTab) {
+  @case ("approvals") {
+    <pam-approvals-tab />
+  }
+  @case ("history") {
+    <pam-history-tab />
+  }
+  @default {
+    <pam-my-requests-tab />
+  }
+}
