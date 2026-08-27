@@ -509,10 +509,12 @@ jobs:
             readable: "Production"
             build_command: "build"
             qa_segment: ""
+            pack_segment: ""
           - name: "qa"
             readable: "QA Cloud-Region"
             build_command: "build:qa"
             qa_segment: "-QA"
+            pack_segment: ":qa"
     defaults:
       run:
         shell: pwsh
@@ -627,7 +629,7 @@ jobs:
       - name: Pack
         if: ${{ needs.setup.outputs.has_secrets == 'false' && matrix.build_type.name == 'prod' }}
         run: |
-          npm run pack:win
+          npm run pack:win${{ matrix.build_type.pack_segment }}
 
       - name: Pack & Sign
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -639,7 +641,7 @@ jobs:
           SIGNING_CLIENT_SECRET: ${{ steps.retrieve-secrets.outputs.code-signing-client-secret }}
           SIGNING_CERT_NAME: ${{ steps.retrieve-secrets.outputs.code-signing-cert-name }}
         run: |
-          npm run pack:win
+          npm run pack:win${{ matrix.build_type.pack_segment }}
 
       - name: Verify helper exe thumbprint matches hardcoded value
         if: ${{ needs.setup.outputs.has_secrets == 'true' }}
@@ -1362,10 +1364,12 @@ jobs:
             readable: "GitHub Release Assets"
             build_command: "build"
             dmg_qa_segment: ""
+            pack_segment: ""
           - name: "qa"
             readable: "QA Cloud-Region Build"
             build_command: "build:qa"
             dmg_qa_segment: "-QA"
+            pack_segment: ":qa"
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
@@ -1600,7 +1604,7 @@ jobs:
           APP_STORE_CONNECT_AUTH_KEY_ID: ${{ steps.get-kv-secrets.outputs.APP-STORE-CONNECT-AUTH-ID }}
           APP_STORE_CONNECT_AUTH_KEY_PATH: ${{ steps.setup-auth-key.outputs.auth-key-path }}
           CSC_FOR_PULL_REQUEST: true
-        run: npm run pack:mac
+        run: npm run pack:mac${{ matrix.build_type.pack_segment }}
 
       - name: Upload .zip artifact
         if: ${{ matrix.build_type.name == 'prod' }}
