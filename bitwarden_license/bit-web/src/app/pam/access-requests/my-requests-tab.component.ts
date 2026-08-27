@@ -41,7 +41,7 @@ import { AccessStateBadgeComponent } from "../access-state-badge/access-state-ba
 import { DurationShortPipe } from "../date/duration-short.pipe";
 import { RemainingTimePipe } from "../date/remaining-time.pipe";
 
-import { MyAccessLeaseRow, MyAccessRequestRow, terminalStatusBadge } from "./my-access-row";
+import { MyAccessLeaseRow, MyAccessRequestRow, TerminalStatusBadge } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 /** A row carrying the id + collection fields the toolbar filters against. */
@@ -71,6 +71,13 @@ type ActiveAccessRow = {
 /** Ascending by window end; meaningful only within one row kind. */
 const byWindowEnd = (a: ActiveAccessRow, b: ActiveAccessRow): number =>
   Date.parse(a.notAfter) - Date.parse(b.notAfter);
+
+/**
+ * Substituted for the row model's badge once a grant's activation window has lapsed. The model's
+ * badge is caller-agnostic and cannot see the clock, so it keeps reading "Approved" for a grant that
+ * can no longer produce access.
+ */
+const lapsedGrantBadge: TerminalStatusBadge = { labelKey: "pamStatusExpired", variant: "warning" };
 
 /**
  * "My requests" tab — the caller's own PAM access, grouped into three accordion sections mirroring
@@ -186,10 +193,10 @@ export class MyRequestsTabComponent implements OnInit {
    * rebuild would hand every badge a fresh input object every second and restart its countdown
    * (see {@link leaseBadgeStates}).
    *
-   * Held leases come first, and the Window column carries no default sort, because `notAfter` means
-   * "when held access ends" on a lease but "activation deadline" on a grant. Ordering the merged set
-   * by it alone floats a grant whose window has already lapsed — one that grants nothing and offers
-   * no action — above live access, and nothing ever clears such a row: `MyAccessService.pendingRows$`
+   * Held leases come first, and the Window column is not sortable, because `notAfter` means "when
+   * held access ends" on a lease but "activation deadline" on a grant. Ordering the merged set by it
+   * alone floats a grant whose window has already lapsed — one that grants nothing and offers no
+   * action — above live access, and nothing ever clears such a row: `MyAccessService.pendingRows$`
    * keeps it and `historyRows$` excludes it.
    */
   protected readonly activeAccessRows = computed<ActiveAccessRow[]>(() => {
@@ -332,25 +339,6 @@ export class MyRequestsTabComponent implements OnInit {
   }
 
   /**
-   * The status badge for a row in the Pending table, which holds two statuses: still awaiting a
-   * decision, and approved but not yet activated.
-   *
-   * Reads the row model's own badge, except for an approved request whose window has already
-   * lapsed. The row model is deliberately time-agnostic because it also feeds the approver
-   * surfaces, while this table withholds both Start and Cancel from a lapsed row — so badging it
-   * "Approved" would promise access the row can no longer produce. It reads as Expired instead,
-   * the label History gives it once the server expires it.
-   */
-  protected pendingStatus(
-    row: MyAccessRequestRow,
-  ): Pick<MyAccessRequestRow, "badgeState" | "statusBadge"> {
-    if (row.status === "approved" && row.producedLeaseId == null && !this.canStart(row)) {
-      return { badgeState: null, statusBadge: terminalStatusBadge("expired") };
-    }
-    return { badgeState: row.badgeState, statusBadge: row.statusBadge };
-  }
-
-  /**
    * An approved request is startable only while its window can still produce access; once the window
    * lapses the server rejects activation, so the Start button must not be offered.
    */
@@ -368,6 +356,14 @@ export class MyRequestsTabComponent implements OnInit {
    */
   protected isReadyNow(row: MyAccessRequestRow): boolean {
     return this.canStart(row) && this.startsNow(row);
+  }
+
+  /**
+   * The Status badge for a grant awaiting activation. A lapsed grant sits in the same section as the
+   * access the caller holds, so it must not keep the model's green "Approved".
+   */
+  protected grantBadge(row: MyAccessRequestRow): TerminalStatusBadge | null {
+    return this.canStart(row) ? row.statusBadge : lapsedGrantBadge;
   }
 
   protected async cancel(row: MyAccessRequestRow): Promise<void> {
