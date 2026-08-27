@@ -1687,11 +1687,6 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * The bulk-actions bar is `position: fixed`, so it never displaces content. Without reserved
-     * scroll space the last row sits permanently beneath it, and its checkbox and quick actions
-     * can't be clicked — so the table holds space below the last row while the bar is showing.
-     */
-    /**
      * The service gates the bar on one flag; a host may gate it on more — desktop adds a
      * desktop-only flag. Without being told, the table holds space for a bar that never renders.
      */
@@ -1707,6 +1702,11 @@ describe("VaultItemsTableComponent", () => {
       expect((fixture.nativeElement as HTMLElement).style.marginBottom).toBe("0px");
     });
 
+    /**
+     * The bulk-actions bar is `position: fixed`, so it never displaces content. Without a margin
+     * the table's bottom border and last row sit underneath it — the row's checkbox and quick
+     * actions unreachable, and the border hidden behind the bar.
+     */
     it("holds a bottom margin only while the bar is showing", () => {
       const amazon = cipherView({ id: "a", name: "Amazon" });
       fixture.componentRef.setInput("ciphers", [amazon]);
