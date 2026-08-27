@@ -1,5 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { ChangeDetectionStrategy, Component, OnInit, inject, input } from "@angular/core";
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  OnInit,
+  inject,
+  input,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormArray, FormControl, ReactiveFormsModule } from "@angular/forms";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -61,7 +70,7 @@ export function cidrRowControl(
     IconButtonModule,
   ],
 })
-export class IpAllowlistEditorComponent implements OnInit {
+export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
   /** The host-owned CIDR array this editor renders and mutates. */
   readonly cidrArray = input.required<IpAllowlistCidrsArray>();
 
@@ -70,12 +79,25 @@ export class IpAllowlistEditorComponent implements OnInit {
 
   private readonly i18n = inject(I18nService);
   private readonly cidrValidation = inject(CidrValidationService);
+  private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     // Start with a single blank row to type into when the host seeds no value.
     if (this.cidrArray().length === 0) {
       this.appendRow();
     }
+
+    this.cidrArray()
+      .valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.syncDuplicateErrors());
+  }
+
+  ngAfterViewInit(): void {
+    // Not ngOnInit: each row's `[formControl]` directive revalidates its control as its binding
+    // initialises, replacing `control.errors` wholesale and wiping any mark set earlier. Not
+    // valueChanges alone either: the host seeds an existing rule's rows with `{ emitEvent: false }`
+    // (access-rule-edit.component.ts:426-438), so nothing is emitted on load.
+    this.syncDuplicateErrors();
   }
 
   protected addRow(): void {
@@ -96,6 +118,49 @@ export class IpAllowlistEditorComponent implements OnInit {
   /** Surface the array-level errors (duplicate / at-least-one) once the user interacts. */
   protected markTouched(): void {
     this.cidrArray().markAsTouched();
+  }
+
+  /**
+   * Marks every row whose trimmed value is shared with another row, so `bit-form-field` renders
+   * `accessRuleIpAllowlistDuplicateCidr` through `bit-error` under each offending row — the same
+   * mechanism {@link cidrValidator} already gets for `invalidCidr`. A row can be both malformed and
+   * repeated; `invalidCidr` stays first in insertion order so the format error is what shows.
+   *
+   * Marking the row touched is part of the contract, not a nicety:
+   * `BitFormFieldControlDirective.hasError` gates on the row's own `touched`, and neither an
+   * untouched initial load nor a blur on one row of a pair ever sets it on the partner row.
+   */
+  private syncDuplicateErrors(): void {
+    const controls = this.cidrArray().controls;
+    const values = controls.map((control) => control.value.trim());
+
+    const counts = new Map<string, number>();
+    for (const value of values) {
+      if (value !== "") {
+        counts.set(value, (counts.get(value) ?? 0) + 1);
+      }
+    }
+
+    const message = this.i18n.t("accessRuleIpAllowlistDuplicateCidr");
+    controls.forEach((control, index) => {
+      const isDuplicate = (counts.get(values[index]) ?? 0) > 1;
+      // Every `setErrors` revalidates the whole array through its ancestors, so only write to the
+      // rows whose mark actually changes.
+      if (isDuplicate === control.hasError("duplicateCidr")) {
+        return;
+      }
+      if (isDuplicate) {
+        // No `{ emitEvent: false }` on either call: `hasError` only recomputes on a
+        // StatusChangeEvent / TouchedChangeEvent, so suppressing them would change the errors
+        // without rendering them.
+        control.setErrors({ ...control.errors, duplicateCidr: { message } });
+        control.markAsTouched();
+      } else {
+        const rest = { ...control.errors };
+        delete rest.duplicateCidr;
+        control.setErrors(Object.keys(rest).length > 0 ? rest : null);
+      }
+    });
   }
 
   private appendRow(value = ""): void {
