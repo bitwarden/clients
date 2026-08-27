@@ -3,6 +3,8 @@ import {
   asHostPlatform,
   asNodeArch,
   binaryFileName,
+  builtLibraryName,
+  libraryFileName,
   buildEnv,
   crossCompilationPlan,
   rustTargetsFor,
@@ -53,6 +55,32 @@ describe("binaryFileName", () => {
   it("adds .exe for Windows targets", () => {
     expect(binaryFileName("windows_plugin_authenticator", "x86_64-pc-windows-msvc")).toBe(
       "windows_plugin_authenticator.win32-x64.exe",
+    );
+  });
+});
+
+describe("library naming", () => {
+  it("keeps the name cargo emits separate from the staged one", () => {
+    expect(builtLibraryName("process_isolation", "x86_64-unknown-linux-gnu")).toBe(
+      "libprocess_isolation.so",
+    );
+    expect(libraryFileName("process_isolation", "x86_64-unknown-linux-gnu")).toBe(
+      "libprocess_isolation.linux-x64.so",
+    );
+  });
+
+  it("distinguishes architectures that share a staging directory", () => {
+    expect(libraryFileName("process_isolation", "aarch64-unknown-linux-gnu")).toBe(
+      "libprocess_isolation.linux-arm64.so",
+    );
+  });
+
+  it("uses each platform's own library convention", () => {
+    expect(builtLibraryName("process_isolation", "aarch64-apple-darwin")).toBe(
+      "libprocess_isolation.dylib",
+    );
+    expect(builtLibraryName("process_isolation", "x86_64-pc-windows-msvc")).toBe(
+      "process_isolation.dll",
     );
   });
 });

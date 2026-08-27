@@ -7,6 +7,6 @@
 /// Usage:
 ///   node scripts/build-desktop-proxy.mts --build-dir build-mac
 
-import { buildCargoBinary } from "./cargo-build.mts";
+import { buildCargoArtifact } from "./cargo-build.mts";
 
-buildCargoBinary({ bin: "desktop_proxy", targetKey: "desktopProxy" });
+buildCargoArtifact({ cargoPackage: "desktop_proxy", targetKey: "desktopProxy", kind: "binary" });

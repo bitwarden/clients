@@ -7,6 +7,10 @@
 /// Usage:
 ///   node scripts/build-windows-passkey-plugin.mts --build-dir build-win
 
-import { buildCargoBinary } from "./cargo-build.mts";
+import { buildCargoArtifact } from "./cargo-build.mts";
 
-buildCargoBinary({ bin: "windows_plugin_authenticator", targetKey: "windowsPasskeyPlugin" });
+buildCargoArtifact({
+  cargoPackage: "windows_plugin_authenticator",
+  targetKey: "windowsPasskeyPlugin",
+  kind: "binary",
+});

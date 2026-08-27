@@ -170,8 +170,32 @@ export function rustTargetsFor(platform: Platform, architectures: Architecture[]
 /// What a built binary is called once staged, e.g. `desktop_proxy.win32-x64.exe`.
 export function binaryFileName(bin: string, target: RustTarget): string {
   const { nodePlatform, nodeArch } = RUST_TARGETS[target];
-  const extension = nodePlatform === "win32" ? ".exe" : "";
-  return `${bin}.${nodePlatform}-${nodeArch}${extension}`;
+  return `${bin}.${nodePlatform}-${nodeArch}${binaryExtension(target)}`;
+}
+
+export function binaryExtension(target: RustTarget): string {
+  return RUST_TARGETS[target].nodePlatform === "win32" ? ".exe" : "";
+}
+
+const LIBRARY_NAMES: Record<HostPlatform, { prefix: string; extension: string }> = {
+  linux: { prefix: "lib", extension: ".so" },
+  darwin: { prefix: "lib", extension: ".dylib" },
+  win32: { prefix: "", extension: ".dll" },
+};
+
+/// What cargo names a cdylib, e.g. `libprocess_isolation.so`.
+export function builtLibraryName(cargoPackage: string, target: RustTarget): string {
+  const { prefix, extension } = LIBRARY_NAMES[RUST_TARGETS[target].nodePlatform];
+  return `${prefix}${cargoPackage}${extension}`;
+}
+
+/// What a built library is called once staged, e.g. `libprocess_isolation.linux-x64.so`. The
+/// architecture goes in the name because one staging directory holds every architecture the
+/// configuration asked for; the packaging step renames it back to the plain library name.
+export function libraryFileName(cargoPackage: string, target: RustTarget): string {
+  const { nodePlatform, nodeArch } = RUST_TARGETS[target];
+  const { prefix, extension } = LIBRARY_NAMES[nodePlatform];
+  return `${prefix}${cargoPackage}.${nodePlatform}-${nodeArch}${extension}`;
 }
 
 export function crossCompilationPlan(

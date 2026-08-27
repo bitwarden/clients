@@ -8,6 +8,10 @@
 /// Usage:
 ///   node scripts/build-chromium-import-helper.mts --build-dir build-win
 
-import { buildCargoBinary } from "./cargo-build.mts";
+import { buildCargoArtifact } from "./cargo-build.mts";
 
-buildCargoBinary({ bin: "bitwarden_chromium_import_helper", targetKey: "chromiumImportHelper" });
+buildCargoArtifact({
+  cargoPackage: "bitwarden_chromium_import_helper",
+  targetKey: "chromiumImportHelper",
+  kind: "binary",
+});
