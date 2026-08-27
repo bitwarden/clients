@@ -2,7 +2,7 @@ import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { EMPTY, of } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
@@ -112,7 +112,7 @@ describe("VaultListTableComponent", () => {
       await setup([
         {
           provide: VaultBatchBarService,
-          useValue: { selection: mockSelection },
+          useValue: { selection: mockSelection, cleared$: EMPTY },
         },
       ]);
     });

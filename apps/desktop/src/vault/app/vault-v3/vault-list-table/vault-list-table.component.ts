@@ -1,5 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  viewChild,
+} from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { switchMap } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -49,6 +57,14 @@ export class VaultListTableComponent<C extends CipherViewLike> {
   private readonly batchBarService = inject<VaultBatchBarService<C>>(VaultBatchBarService, {
     optional: true,
   });
+
+  private readonly vaultItemsTable = viewChild(VaultItemsTableComponent);
+
+  constructor() {
+    this.batchBarService?.cleared$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.vaultItemsTable()?.clearSelection();
+    });
+  }
 
   readonly ciphers = input.required<C[]>();
   readonly folders = input<FolderView[]>([]);
