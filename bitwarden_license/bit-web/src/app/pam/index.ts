@@ -14,6 +14,7 @@ export {
   isKnownAccessCondition,
 } from "./abstractions/access-rule";
 export { AccessRuleSdkService } from "./abstractions/access-rule-sdk.service";
+export { apiErrorBodyMessage } from "./abstractions/api-error";
 
 export type {
   AccessApprovalMode,
@@ -107,3 +108,4 @@ export {
 export type { RequestAccessErrorOutcome } from "./helpers/request-access-error";
 export { accessRuleErrorMessageKey, classifyAccessRuleError } from "./helpers/access-rule-error";
 export type { AccessRuleErrorField, AccessRuleErrorOutcome } from "./helpers/access-rule-error";
+export { activateAccessErrorMessageKey } from "./helpers/activate-access-error";
