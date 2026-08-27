@@ -160,7 +160,7 @@
     </bit-accordion>
   }
 
-  <!-- Currently checked out (active leases) -->
+  <!-- Your access: the leases held now, plus grants awaiting activation -->
   <bit-accordion [title]="'pamMyRequestsGroupCheckedOut' | i18n" [open]="true">
     <span slot="end" bitBadge variant="secondary" data-testid="my-access-active-count">{{
       activeAccessRows().length
@@ -174,7 +174,9 @@
       <bit-table [dataSource]="activeAccessDataSource">
         <ng-container header>
           <tr>
-            <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell bitSortable="cipherName" [fn]="byItemName">
+              {{ "pamColumnItem" | i18n }}
+            </th>
             <th bitCell>{{ "pamColumnWindow" | i18n }}</th>
             <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
             <th bitCell class="tw-w-32">
@@ -241,7 +243,10 @@
                   </span>
                 }
                 @if (canStart(request)) {
-                  <div class="tw-mt-1 tw-text-xs tw-text-muted tw-whitespace-nowrap">
+                  <div
+                    class="tw-mt-1 tw-text-xs tw-text-muted tw-whitespace-nowrap"
+                    [id]="'my-access-approved-deadline-' + request.id"
+                  >
                     {{
                       "pamActivateWithin" | i18n: (request.leaseNotAfter | remainingTime: nowMs())
                     }}
@@ -275,6 +280,7 @@
                       [loading]="isStarting(request.id)"
                       [disabled]="isStarting(request.id)"
                       (click)="activate(request)"
+                      [attr.aria-describedby]="'my-access-approved-deadline-' + request.id"
                       [attr.data-testid]="'my-access-approved-start-' + request.id"
                     >
                       {{ "pamStartLeaseButton" | i18n }}
