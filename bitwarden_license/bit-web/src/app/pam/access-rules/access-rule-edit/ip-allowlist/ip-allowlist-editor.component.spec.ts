@@ -7,6 +7,7 @@ import { NoopAnimationsModule } from "@angular/platform-browser/animations";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { CidrValidationService } from "./cidr-validation.service";
+import { noDuplicateCidrsValidator } from "./cidr.validator";
 import {
   cidrRowControl,
   IpAllowlistCidrsArray,
@@ -26,6 +27,7 @@ describe("IpAllowlistEditorComponent", () => {
   function hostArray(...cidrs: string[]): IpAllowlistCidrsArray {
     return new FormArray<FormControl<string>>(
       cidrs.map((c) => cidrRowControl(c, "invalid", isValidCidr)),
+      { validators: [noDuplicateCidrsValidator()] },
     );
   }
 
@@ -191,6 +193,15 @@ describe("IpAllowlistEditorComponent", () => {
       );
     }
 
+    /**
+     * Indices of the rows carrying the row-level `duplicateCidr` mark. Asserted alongside
+     * {@link errorsByRow}, which reads the DOM and can still show a stale `bit-error` when the
+     * host mutates the array without emitting.
+     */
+    function markedRows(): number[] {
+      return cidrArray.controls.flatMap((c, i) => (c.hasError("duplicateCidr") ? [i] : []));
+    }
+
     function clickRemove(index: number): void {
       rows()[index].query(By.css("button[bitIconButton]")).nativeElement.click();
     }
@@ -202,6 +213,7 @@ describe("IpAllowlistEditorComponent", () => {
 
       expect(errorsByRow()).toEqual([[DUPLICATE], [], [DUPLICATE]]);
       expect(cidrArray.at(1).hasError("duplicateCidr")).toBe(false);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
     });
 
     it("marks both rows of a duplicate pair when only one of them is blurred", () => {
@@ -211,6 +223,7 @@ describe("IpAllowlistEditorComponent", () => {
       inputAt(1).dispatchEvent(new Event("blur"));
 
       expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
     });
 
     it("keeps the duplicate marks on the surviving rows when a row between them is removed", () => {
@@ -219,12 +232,14 @@ describe("IpAllowlistEditorComponent", () => {
       clickRemove(1);
 
       expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
     });
 
     it("shows the format error rather than the duplicate one on a row that is both", () => {
       create(hostArray("not-a-cidr", "not-a-cidr"));
 
       expect(errorsByRow()).toEqual([["invalid"], ["invalid"]]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
     });
 
     it("clears the duplicate mark from both rows once the values differ", () => {
@@ -233,6 +248,33 @@ describe("IpAllowlistEditorComponent", () => {
       type(1, "192.168.0.0/16");
 
       expect(errorsByRow()).toEqual([[], []]);
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(false);
+    });
+
+    it("marks the rows when the host replaces the array without emitting", () => {
+      create(hostArray("10.0.0.0/8"));
+
+      cidrArray.clear({ emitEvent: false });
+      for (const cidr of ["10.0.0.0/8", "192.168.0.0/16", "10.0.0.0/8"]) {
+        cidrArray.push(cidrRowControl(cidr, "invalid", isValidCidr), { emitEvent: false });
+      }
+      cidrArray.updateValueAndValidity({ emitEvent: false });
+      fixture.detectChanges();
+
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+      expect(markedRows()).toEqual([0, 2]);
+    });
+
+    it("marks the rows when the host re-enables the array without emitting", () => {
+      create(hostArray("10.0.0.0/8", "10.0.0.0/8"));
+
+      cidrArray.disable({ emitEvent: false });
+      cidrArray.enable({ emitEvent: false });
+      fixture.detectChanges();
+
+      expect(cidrArray.hasError("duplicateCidrs")).toBe(true);
+      expect(markedRows()).toEqual([0, 1]);
+      expect(errorsByRow()).toEqual([[DUPLICATE], [DUPLICATE]]);
     });
   });
 });
