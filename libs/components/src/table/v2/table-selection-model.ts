@@ -10,9 +10,10 @@ export type TableSelectionConfig<T> = {
   /**
    * Upper bound on how many rows may be selected at once. Unlimited by default.
    *
-   * {@link toggleAll} stops at this many, and {@link allSelected} measures against the same
-   * bounded set — so when a cap is in force the header checkbox reads as fully selected at the
-   * cap, and what the checkboxes show is always exactly what a consumer will act on.
+   * {@link toggleAll} stops at this many and {@link select} refuses to exceed it, so the cap binds
+   * the selection itself rather than a downstream view of it — what the checkboxes show is always
+   * exactly what a consumer will act on. At the cap {@link allSelected} stays false while rows
+   * remain unselected, so the header reads as partial rather than claiming to cover them.
    */
   max?: number;
   /**

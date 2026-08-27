@@ -1354,23 +1354,7 @@ export const SelectableSubset: Story = {
   },
 };
 
-/**
- * A `max` bounds how many rows may be selected at once. Set it when acting on a
- * selection costs something per item — a bulk action that turns each row into a
- * permission check and a request payload, say — so an unbounded select-all over a
- * large list is a performance cliff rather than a useful action.
- *
- * The cap binds the selection itself, not some downstream view of it, so what the
- * checkboxes show is always exactly what a consumer will act on. Capped to 3 here:
- *
- * - Select-all takes 3 of the 5 rows and stops.
- * - The header still resolves as checked rather than sticking indeterminate — it
- *   measures against what a select-all would take, not every row in scope.
- * - The remaining checkboxes disable, so a click can't leave a row rendering as
- *   selected while nothing acts on it. Selected rows stay deselectable, and
- *   freeing a slot re-enables the rest.
- * - Clicking the header again clears, handing the budget back.
- */
+/** `max` bounds the selection — capped to 3 of 5 rows here. See the docs page. */
 export const SelectableCapped: Story = {
   render: () => {
     const table = defineTable<DemoRow>(basicData);
