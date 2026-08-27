@@ -6,6 +6,7 @@ import { userEvent, within } from "storybook/test";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import { ApprovalPrivilegeService } from "../approvals/approval-privilege.service";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import {
   DAY,
@@ -111,8 +112,14 @@ function managedRows() {
   ];
 }
 
-function history(options: { mine?: typeof MY_ROWS; managed?: () => typeof MY_ROWS } = {}) {
-  const { mine = MY_ROWS, managed } = options;
+function history(
+  options: {
+    mine?: typeof MY_ROWS;
+    managed?: () => typeof MY_ROWS;
+    canApprove?: boolean;
+  } = {},
+) {
+  const { mine = MY_ROWS, managed, canApprove = managed != null } = options;
   return moduleMetadata({
     imports: [HistoryTabComponent],
     providers: [
@@ -140,6 +147,7 @@ function history(options: { mine?: typeof MY_ROWS; managed?: () => typeof MY_ROW
           };
         },
       },
+      { provide: ApprovalPrivilegeService, useValue: { canApprove$: of(canApprove) } },
       { provide: DialogService, useValue: { openSimpleDialog: () => Promise.resolve(false) } },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
@@ -164,8 +172,8 @@ export default {
 type Story = StoryObj<HistoryTabComponent>;
 
 /**
- * The caller's own history. With no managed rows the Mine/Managed toggle is not rendered at all —
- * a scope switch with one option is noise.
+ * The caller's own history, for a member who cannot approve. With no managed rows and no approval
+ * privilege the Mine/Managed toggle is not rendered at all — a scope switch with one option is noise.
  */
 export const Default: Story = {
   decorators: [history()],
@@ -177,12 +185,17 @@ export const Empty: Story = {
 };
 
 /**
- * An approver's view: the Mine/Managed toggle appears because there is managed history behind it.
- * The table still opens on Mine — switch the toggle to see the revoke and withdraw actions, which
- * only exist on the managed scope.
+ * An approver's view: the table opens on the managed scope because there is history behind it, with
+ * the revoke and withdraw actions that only exist there. Switch the toggle for the rows the
+ * approver raised themselves.
  */
 export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
+};
+
+/** An approver with nothing decided yet: the scope toggle is offered before it has content. */
+export const ApproverWithoutManagedHistory: Story = {
+  decorators: [history({ canApprove: true })],
 };
 
 /**
