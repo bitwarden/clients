@@ -57,8 +57,10 @@ type LeaseProducing = {
  * reads otherwise, which would empty this section in the product while every test still passed.
  *
  * Structural rather than tied to {@link AccessRequestView} so every surface offering to end a lease
- * — Active access here, History's Managed scope over `MyAccessRequestRow` — answers the question
- * with this one predicate, and no two of them can disagree about the same lease.
+ * — Active access here, History's Managed scope over `MyAccessRequestRow` — reads this one
+ * lease-status signal rather than its own display badge. That is the shared floor, not the whole
+ * test: a surface that also applies the effective-end check above offers Revoke on strictly fewer
+ * leases than one that stops here.
  */
 export function isLiveManagedLease<T extends LeaseProducing>(
   request: T,
