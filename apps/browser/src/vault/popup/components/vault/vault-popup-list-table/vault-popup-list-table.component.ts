@@ -200,6 +200,28 @@ export class VaultPopupListTableComponent {
     matchesFolder(row.cipher, values.folder);
 
   /**
+   * One row per unique cipher, for filter-chip counts. {@link rows} intentionally contains up to
+   * three entries per cipher (autofill/favorites/allItems sections) so each section renders its
+   * own copy — counting off it directly would triple-count a cipher that's both a favorite and an
+   * autofill suggestion. The "allItems" section always contains the complete, once-each list of
+   * currently matching ciphers (it's the only section rendered at all when a search is active), so
+   * it doubles as the deduplicated set.
+   */
+  protected readonly uniqueRows = computed(() =>
+    this.rows().filter((row) => row._section === "allItems"),
+  );
+
+  /**
+   * Count of unique ciphers matching the current chip selection with `key` pinned to `value`.
+   * Bound as each `bit-filter-option`'s `[count]`, overriding `bit-table-v2`'s default count
+   * (which counts off the triplicated {@link rows} instead of {@link uniqueRows}).
+   */
+  protected optionCount = (key: string, value: unknown): number => {
+    const values = { ...(this.tableEl()?.filterValues() as any), [key]: value };
+    return this.uniqueRows().filter((row) => this.filterPredicate(row, values)).length;
+  };
+
+  /**
    * The filter options. Each stream empties when its filter doesn't apply (no orgs, or
    * folders/collections narrowed away by the selected organization), which hides that chip.
    *

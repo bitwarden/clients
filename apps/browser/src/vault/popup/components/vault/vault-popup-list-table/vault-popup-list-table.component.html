@@ -20,14 +20,20 @@
 
     <bit-filter-menu key="cipherType" [placeholderText]="'type' | i18n" [unsetLabel]="'all' | i18n">
       @for (option of cipherTypeOptions(); track option.value) {
-        <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        <bit-filter-option [value]="option.value" [count]="optionCount('cipherType', option.value)">
+          {{ option.label }}
+        </bit-filter-option>
       }
     </bit-filter-menu>
 
     @if (organizationOptions().length) {
       <bit-filter-menu key="organization" [placeholderText]="'vault' | vfo1I18n: 'vaults'" multiple>
         @for (option of organizationOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value.id">{{ option.label }}</bit-filter-option>
+          <bit-filter-option
+            [value]="option.value.id"
+            [count]="optionCount('organization', [option.value.id])"
+            >{{ option.label }}</bit-filter-option
+          >
         }
       </bit-filter-menu>
     }
@@ -43,7 +49,10 @@
           @for (org of collectionsByOrg(); track org.id) {
             <bit-filter-section [label]="org.name" collapsible>
               @for (option of org.collections; track option.value.id) {
-                <bit-filter-option [value]="option.value.id">
+                <bit-filter-option
+                  [value]="option.value.id"
+                  [count]="optionCount('collection', [option.value.id])"
+                >
                   {{ option.label }}
                 </bit-filter-option>
               }
@@ -51,7 +60,11 @@
           }
         } @else {
           @for (option of collectionOptions(); track option.value.id) {
-            <bit-filter-option [value]="option.value.id">{{ option.label }}</bit-filter-option>
+            <bit-filter-option
+              [value]="option.value.id"
+              [count]="optionCount('collection', [option.value.id])"
+              >{{ option.label }}</bit-filter-option
+            >
           }
         }
       </bit-filter-menu>
@@ -60,9 +73,11 @@
     @if (folderOptions().length) {
       <bit-filter-menu key="folder" [placeholderText]="'folder' | vfo1I18n: 'myFolders'" multiple>
         @for (option of folderOptions(); track option.value.id) {
-          <bit-filter-option [value]="option.value.id ?? NO_FOLDER">{{
-            option.label
-          }}</bit-filter-option>
+          <bit-filter-option
+            [value]="option.value.id ?? NO_FOLDER"
+            [count]="optionCount('folder', [option.value.id ?? NO_FOLDER])"
+            >{{ option.label }}</bit-filter-option
+          >
         }
       </bit-filter-menu>
     }
