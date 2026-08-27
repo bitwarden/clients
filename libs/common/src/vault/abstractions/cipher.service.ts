@@ -174,6 +174,7 @@ export abstract class CipherService implements UserKeyRotationDataProvider<Ciphe
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView>;
 
   /**
