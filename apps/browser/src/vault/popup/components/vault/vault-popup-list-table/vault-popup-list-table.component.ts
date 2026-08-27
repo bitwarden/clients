@@ -408,7 +408,6 @@ export class VaultPopupListTableComponent {
           const orgs = orgIds
             .map((id) => this.organizationOptions().find((o) => o.value?.id === id)?.value)
             .filter((o): o is Organization => o != null);
-          this.listFiltersService.selectedOrganizations.set(orgIds);
           this.selectedOrgs.set(orgs);
           this.validateOrgChips(table, values);
         });
