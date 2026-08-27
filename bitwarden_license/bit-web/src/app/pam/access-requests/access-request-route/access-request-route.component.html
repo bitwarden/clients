@@ -3,99 +3,38 @@
 @if (loading() && request() == null && !notFound() && !loadError()) {
   <p bitTypography="body1" class="tw-text-muted">{{ "loading" | i18n }}</p>
 } @else if (request(); as r) {
-  <bit-section>
-    <bit-section-header>
-      <h2 bitTypography="h4">{{ "pamAccessRequestDetailsTitle" | i18n }}</h2>
-    </bit-section-header>
-
-    <dl class="tw-m-0 tw-flex tw-flex-col tw-gap-3">
-      <!-- Item -->
-      <div class="tw-flex tw-gap-4">
-        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnItem" | i18n }}</dt>
-        <dd class="tw-m-0 tw-flex-1">
-          <div class="tw-flex tw-items-center tw-gap-3">
-            @if (cipherFor(r.cipherId); as cipher) {
-              <app-vault-icon [cipher]="cipher" />
-            } @else {
-              <bit-icon name="bwi-key" class="tw-text-muted" [fixedWidth]="true"></bit-icon>
-            }
-            <div>
-              <div>{{ cipherName() }}</div>
-              @if (collectionName(); as collection) {
-                <div class="tw-text-xs tw-text-muted">
-                  {{ "pamInboxInCollection" | i18n: collection }}
-                </div>
-              }
-            </div>
-          </div>
-        </dd>
-      </div>
-
-      <!-- Status -->
-      <div class="tw-flex tw-gap-4">
-        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnStatus" | i18n }}</dt>
-        <dd class="tw-m-0 tw-flex-1">
-          @if (badge()?.badgeState; as state) {
-            <app-pam-access-state-badge [state]="state" />
-          } @else if (badge()?.statusBadge; as b) {
-            <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
-          }
-        </dd>
-      </div>
-
-      <!-- Requester -->
-      <div class="tw-flex tw-gap-4">
-        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamInboxRequester" | i18n }}</dt>
-        <dd class="tw-m-0 tw-flex-1">{{ requesterDisplay() }}</dd>
-      </div>
-
-      <!-- Requested window -->
-      <div class="tw-flex tw-gap-4">
-        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnRequestedWindow" | i18n }}</dt>
-        <dd class="tw-m-0 tw-flex-1">
-          <span [bitTooltip]="exactWindowText()">
-            @if (duration(); as d) {
-              {{ d.key | i18n: d.value }}
-            }
-            @if (start(); as s) {
-              <span class="tw-text-muted">&nbsp;·&nbsp;{{ s.key | i18n: s.value }}</span>
-            }
-          </span>
-          <div class="tw-text-xs tw-text-muted">
-            {{ r.leaseNotBefore | date: "short" }} &ndash; {{ r.leaseNotAfter | date: "short" }}
-          </div>
-        </dd>
-      </div>
-
-      <!-- Reason -->
-      <div class="tw-flex tw-gap-4">
-        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamInboxReason" | i18n }}</dt>
-        <dd class="tw-m-0 tw-flex-1">
-          @if (reason()) {
-            {{ reason() }}
-          } @else {
-            <span class="tw-italic tw-text-muted">{{ "pamInboxReasonMissing" | i18n }}</span>
-          }
-        </dd>
-      </div>
-
-      <!-- Submitted -->
-      <div class="tw-flex tw-gap-4">
-        <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnSubmitted" | i18n }}</dt>
-        <dd class="tw-m-0 tw-flex-1">{{ r.submittedAt | date: "medium" }}</dd>
-      </div>
-
-      <!-- Resolved -->
-      @if (r.resolvedAt) {
-        <div class="tw-flex tw-gap-4">
-          <dt class="tw-w-40 tw-shrink-0 tw-font-bold">{{ "pamColumnResolved" | i18n }}</dt>
-          <dd class="tw-m-0 tw-flex-1">{{ r.resolvedAt | date: "medium" }}</dd>
-        </div>
+  <pam-request-summary
+    data-testid="request-detail-summary"
+    [cipher]="cipherFor(r.cipherId) ?? null"
+    [itemName]="cipherName() ?? ''"
+    [organizationName]="organizationName()"
+    [collectionName]="collectionName()"
+    [requesterName]="requesterDisplay() ?? ''"
+    [requesterEmail]="requesterEmail()"
+    [duration]="duration()"
+    [relativeStart]="start()"
+    [exactWindow]="exactWindowText()"
+    [reason]="reason()"
+  >
+    <pam-summary-field [label]="'pamColumnStatus' | i18n">
+      @if (badge()?.badgeState; as state) {
+        <app-pam-access-state-badge [state]="state" />
+      } @else if (badge()?.statusBadge; as b) {
+        <span bitBadge [variant]="b.variant">{{ b.labelKey | i18n }}</span>
       }
-    </dl>
-  </bit-section>
+    </pam-summary-field>
 
-  <!-- Lease -->
+    <pam-summary-field [label]="'pamColumnSubmitted' | i18n">
+      {{ r.submittedAt | date: "medium" }}
+    </pam-summary-field>
+
+    @if (r.resolvedAt) {
+      <pam-summary-field [label]="'pamColumnResolved' | i18n">
+        {{ r.resolvedAt | date: "medium" }}
+      </pam-summary-field>
+    }
+  </pam-request-summary>
+
   @if (r.producedLeaseId) {
     <bit-section>
       <bit-section-header>
@@ -122,7 +61,6 @@
     </bit-section>
   }
 
-  <!-- Decision log -->
   @if (decisions().length > 0) {
     <bit-section>
       <bit-section-header>
@@ -164,7 +102,6 @@
     </bit-section>
   }
 
-  <!-- Actions -->
   <div class="tw-flex tw-flex-wrap tw-items-center tw-gap-2">
     @if (canStart()) {
       <button
