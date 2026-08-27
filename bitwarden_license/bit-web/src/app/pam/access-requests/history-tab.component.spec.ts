@@ -337,7 +337,7 @@ describe("HistoryTabComponent", () => {
 
       expect(dialogService.openSimpleDialog).toHaveBeenCalledWith(
         expect.objectContaining({
-          content: expect.objectContaining({ placeholders: ["cipher-1"] }),
+          content: { key: "pamInboxWithdrawApprovalConfirm", placeholders: ["cipher-1"] },
         }),
       );
     });

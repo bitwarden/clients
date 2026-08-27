@@ -184,9 +184,8 @@ export class HistoryTabComponent {
   }
 
   /**
-   * Withdraw an approval the requester has not started. Confirmed first, like {@link revoke}: it
-   * takes a decision away from a third party, cannot be undone from this screen, and the requester
-   * is not told.
+   * Withdraw an approval the requester has not started. Confirmed first because it takes a decision
+   * away from a third party, cannot be undone from this screen, and the requester is not told.
    */
   protected async cancelApproval(row: MyAccessRequestRow): Promise<void> {
     if (!this.canCancelApproval(row) || this.isActing(row)) {
