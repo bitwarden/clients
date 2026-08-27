@@ -632,6 +632,9 @@ describe("CipherViewBannerComponent", () => {
       const focused = document.activeElement as HTMLElement | null;
       expect(focused).not.toBe(document.body);
       expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
+      // The move is only announceable if what it lands on names itself.
+      expect(focused?.getAttribute("role")).toBe("group");
+      expect(focused?.getAttribute("aria-label")?.trim()).toBe("pamRequestAccessButton");
     });
 
     it("returns focus to the toggle when Cancel unmounts itself", async () => {
@@ -687,6 +690,46 @@ describe("CipherViewBannerComponent", () => {
 
       const focused = document.activeElement as HTMLElement | null;
       expect(focused?.contains(query("#pam-cipher-view-banner_button_request-cancel"))).toBe(true);
+    });
+
+    it("drops a toggle's pending focus when the card unmounts before either target renders", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      // Cancel in the fold-out, with an access change landing in the same pass: the whole request
+      // card unmounts, so neither the toggle nor the fold-out is ever on screen to take the focus.
+      await component["toggleRequestForm"]();
+      await refreshTo(accessState({ activeLease: leaseView() }));
+      expect(query('[data-testid="cipher-view-banner-request"]')).toBeNull();
+
+      const elsewhere = document.createElement("input");
+      document.body.appendChild(elsewhere);
+      elsewhere.focus();
+
+      await refreshTo(accessState());
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+
+      expect(document.activeElement).toBe(elsewhere);
+      elsewhere.remove();
+    });
+
+    it("does not render the fold-out back open when the card cycles away and returns", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      expect(query("#pam-cipher-view-banner_button_request-submit")).not.toBeNull();
+
+      await refreshTo(accessState({ activeLease: leaseView() }));
+      expect(query('[data-testid="cipher-view-banner-request"]')).toBeNull();
+
+      await refreshTo(accessState());
+
+      expect(component["requestFormExpanded"]()).toBe(false);
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_request-submit")).toBeNull();
     });
 
     it("shapes the form from the pre-check's human path and seeds the window", async () => {
