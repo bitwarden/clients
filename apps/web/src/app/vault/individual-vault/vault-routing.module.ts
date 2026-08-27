@@ -21,13 +21,9 @@ const routes: Routes = [
     },
   }),
   {
-    // The side nav's vault scopes: `my-vault` and an organization id. "All items" is the unscoped
-    // route above, so every existing vault deep link keeps hitting the component it does today.
     path: ":vaultId",
     component: VaultNextComponent,
     canActivate: [
-      // Scoped vaults only exist in the new vault, so send them to the legacy one when it is off.
-      // No toast — a redirect is the whole story here, not an access denial.
       canAccessFeature(FeatureFlag.VFO1Foundation, true, "/vault", false),
       vaultScopeGuard,
     ],
