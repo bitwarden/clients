@@ -624,6 +624,45 @@ describe("SendService", () => {
         expect(encryptService.decryptBytes).not.toHaveBeenCalled();
         expect(encryptService.encryptBytes).not.toHaveBeenCalled();
       });
+
+      // A decrypted SendView only ever carries `password` as an already-derived hash, never the
+      // plaintext `encrypt_send_for_rotation` would need to re-derive one — so the request this
+      // sends to the SDK can only signal `hasPassword: true`/`newPassword: undefined`, never the
+      // existing hash. Safety relies on the server: its rotation validator special-cases
+      // AuthType.Password on both the stored and incoming record and preserves the stored hash
+      // unconditionally in that case (see SendView::encrypt_composite's doc comment in
+      // sdk-internal's send.rs), regardless of what the wire request's `password` field carries.
+      it("rotates a password-protected send with hasPassword set and no plaintext, and comes back with a null wire password", async () => {
+        decryptedView.authType = AuthType.Password;
+        decryptedView.password = "existing-hash";
+        encryptSendForRotation.mockResolvedValue({
+          id: sendGuid,
+          accessId: "1",
+          name: "2.rotatedName",
+          notes: "2.rotatedNotes",
+          key: "2.rotatedKey",
+          type: SendType.Text,
+          text: { text: "2.rotatedText", hidden: false },
+          accessCount: 2,
+          disabled: false,
+          hideEmail: false,
+          revisionDate: "2024-09-04T00:00:00.000Z",
+          deletionDate: "2024-09-04T00:00:00.000Z",
+          authType: AuthType.Password,
+          // No `password` field: the rotated SDK Send never carries the existing hash either.
+        });
+
+        const result = await sendService.getRotatedData(originalUserKey, newUserKey, mockUserId);
+
+        expect(encryptSendForRotation).toHaveBeenCalledWith(
+          expect.objectContaining({ hasPassword: true, newPassword: undefined }),
+          newUserKey.toBase64(),
+        );
+        // authType survives the round-trip unchanged, which is what makes the server preserve
+        // the stored hash despite the null password below.
+        expect(result[0].authType).toBe(AuthType.Password);
+        expect(result[0].password).toBeNull();
+      });
     });
   });
 
