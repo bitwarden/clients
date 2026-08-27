@@ -12,6 +12,7 @@ import {
   inject,
   input,
   signal,
+  untracked,
   viewChild,
 } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
@@ -355,13 +356,17 @@ export class CipherViewBannerComponent implements OnInit {
   constructor() {
     // Opening unmounts the "Request access" button and collapsing unmounts Cancel, so each
     // direction destroys the element the requester just activated and focus falls to <body>.
-    // Latched on the first toggle, so the initial render never pulls focus.
+    // Latched by a toggle and spent on the first mounted target, so neither the initial render nor
+    // a later remount — the toggle returning when a lease lapses, say — pulls focus on its own. The
+    // latch is read untracked so spending it cannot re-enter; `requestFormExpanded` is written by
+    // every toggle and still drives the re-run.
     effect(() => {
       const target = this.requestFormExpanded()
         ? this.requestFoldOut()
         : this.requestToggleButton();
-      if (this.requestFormToggled()) {
-        target?.nativeElement.focus();
+      if (target != null && untracked(this.requestFormToggled)) {
+        this.requestFormToggled.set(false);
+        target.nativeElement.focus();
       }
     });
   }
