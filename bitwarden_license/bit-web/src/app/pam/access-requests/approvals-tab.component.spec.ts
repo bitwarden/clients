@@ -271,6 +271,69 @@ describe("ApprovalsTabComponent", () => {
       expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
     });
 
+    it("does not announce a retry of a failed load as loaded while it is still in flight", () => {
+      inbox.loading$.next(true);
+
+      create();
+
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      inbox.loadError$.next(new Error("boom"));
+      inbox.loading$.next(false);
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
+
+      // A push retries the load, and the service clears the error before the fetch is even sent.
+      inbox.loading$.next(true);
+      inbox.loadError$.next(null);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
+
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain("loading");
+
+      inbox.loading$.next(false);
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain(
+        "pamApprovalsLoaded",
+      );
+    });
+
+    it("does not announce a reload that shows no skeleton as loaded", () => {
+      inbox.loading$.next(true);
+
+      create();
+
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      inbox.loading$.next(false);
+      jest.advanceTimersByTime(1000);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent).toContain(
+        "pamApprovalsLoaded",
+      );
+
+      inbox.loading$.next(true);
+      fixture.detectChanges();
+      jest.advanceTimersByTime(500);
+      inbox.loading$.next(false);
+      jest.advanceTimersByTime(500);
+      fixture.detectChanges();
+
+      expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="approvals-loading-status"]')?.textContent?.trim()).toBe("");
+    });
+
     it("shows the empty state when there is nothing to approve", () => {
       create();
 
