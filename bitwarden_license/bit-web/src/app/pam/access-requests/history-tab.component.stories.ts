@@ -1,6 +1,7 @@
 import { importProvidersFrom } from "@angular/core";
 import { Meta, StoryObj, applicationConfig, moduleMetadata } from "@storybook/angular";
 import { of } from "rxjs";
+import { userEvent } from "storybook/test";
 
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
@@ -24,6 +25,8 @@ import { toRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
 const names = storyNames();
+
+const MANAGED_TOGGLE = '[data-testid="history-scope-managed"] label';
 
 const request = (overrides: Record<string, unknown>) =>
   toRequestRow(accessRequest(overrides), names);
@@ -184,7 +187,14 @@ export const WithManagedHistory: Story = {
   decorators: [history({ managed: managedRows })],
 };
 
-/** An approver whose own history is empty but who has decided other people's requests. */
+/**
+ * An approver whose own history is empty but who has decided other people's requests. Opens on the
+ * managed scope: the Actions column exists nowhere else, so this is the only story that renders the
+ * revoke and withdraw buttons.
+ */
 export const ManagedOnly: Story = {
   decorators: [history({ mine: [], managed: managedRows })],
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector<HTMLLabelElement>(MANAGED_TOGGLE)!);
+  },
 };
