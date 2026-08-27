@@ -65,7 +65,7 @@ export { formatRelativeTime } from "./date/relative-time";
 export { formatRemaining } from "./date/format-remaining";
 export { findHumanDecision, humanApprover } from "./helpers/find-human-decision";
 export { requestedWindowSeconds } from "./helpers/requested-window";
-export { actionableRequestCount, isActionableRequest } from "./helpers/actionable-requests";
+export { isActionableRequest } from "./helpers/actionable-requests";
 export { canApprove } from "./helpers/can-approve";
 export type { AccessRequestForApproval, UserForApproval } from "./helpers/can-approve";
 export { elapsedLabel } from "./date/elapsed";
