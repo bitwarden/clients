@@ -44,7 +44,10 @@
             class="tw-mb-0 tw-text-muted"
             data-testid="approvals-pending-empty"
           >
-            {{ "pamApprovalsPendingEmpty" | i18n }}
+            {{
+              (pendingHiddenByFilters() ? "pamApprovalsNoResults" : "pamApprovalsPendingEmpty")
+                | i18n
+            }}
           </p>
         } @else {
           <bit-table [dataSource]="dataSource">
@@ -154,7 +157,12 @@
             class="tw-mb-0 tw-text-muted"
             data-testid="approvals-active-access-empty"
           >
-            {{ "pamApprovalsActiveAccessEmpty" | i18n }}
+            {{
+              (activeAccessHiddenByFilters()
+                ? "pamApprovalsNoResults"
+                : "pamApprovalsActiveAccessEmpty"
+              ) | i18n
+            }}
           </p>
         } @else {
           <bit-table [dataSource]="leasesDataSource">
