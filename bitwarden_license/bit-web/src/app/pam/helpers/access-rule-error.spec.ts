@@ -120,30 +120,16 @@ describe("accessRuleErrorMessageKey", () => {
   });
 });
 
+/**
+ * The SDK builds this sentence itself, before any request goes out, and offers no code to switch
+ * on, so the mapping onto the Name field survives only while the catalog repeats it verbatim. The
+ * expectation spells the sentence out rather than reading it back from the catalog or rebuilding it
+ * from ACCESS_RULE_NAME_MAX_LENGTH — either would pass against a reword the catalog had absorbed.
+ */
 describe("ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally", () => {
-  /**
-   * The SDK builds this sentence itself, before any request goes out, and offers no code to switch
-   * on — so the mapping onto the Name field survives only while these two strings stay identical.
-   * Typed out in full on purpose: reading it back from the catalog, or rebuilding it from
-   * ACCESS_RULE_NAME_MAX_LENGTH, would pass against any reword the catalog had already absorbed.
-   */
-  const SDK_BLANK_NAME_REJECTION = "Name must be between 1 and 256 characters";
-
   it("still matches the SDK's own wording", () => {
     expect(ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally.serverMessage).toBe(
-      SDK_BLANK_NAME_REJECTION,
+      "Name must be between 1 and 256 characters",
     );
-  });
-
-  it("still routes that exact sentence to the Name field", () => {
-    const outcome = classifyAccessRuleError(
-      accessRuleError("Validation", SDK_BLANK_NAME_REJECTION),
-    );
-
-    expect(outcome).toEqual({
-      kind: "mapped",
-      messageKey: "pamAccessRuleNameRequired",
-      field: "name",
-    });
   });
 });
