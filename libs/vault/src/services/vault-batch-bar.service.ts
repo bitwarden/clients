@@ -382,7 +382,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         takeUntilDestroyed(),
       )
       .subscribe(() => {
-        this.selection.clear();
+        this.clear();
       });
   }
 
@@ -429,7 +429,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
         variant: "success",
         message: this.i18nService.t(successKey),
       });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error archiving ciphers", e);
@@ -458,7 +458,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
           ciphers.length === 1 ? "itemUnarchivedToast" : "bulkUnarchiveItems",
         ),
       });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error unarchiving ciphers", e);
@@ -544,7 +544,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
       }
 
       this.toastService.showToast({ variant: "success", message: toastMessage });
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     } catch (e) {
       this.logService.error("Error restoring ciphers", e);
@@ -632,7 +632,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkDeleteDialogResult.Deleted) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -660,7 +660,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
 
     const result = await lastValueFrom(dialog.closed);
     if (result === BulkMoveDialogResult.Moved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -735,7 +735,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === AssignCollectionsResult.Saved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
@@ -771,7 +771,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
     });
 
     if (result === BulkEditCollectionAccessResult.Saved) {
-      this.selection.clear();
+      this.clear();
       this._completed$.next();
     }
   }
