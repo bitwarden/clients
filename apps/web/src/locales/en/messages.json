@@ -17950,9 +17950,6 @@
   "pamInboxHistoryEmpty": {
     "message": "No history to display"
   },
-  "pamInboxHistoryFilterLabel": {
-    "message": "Filter history by status"
-  },
   "pamInboxLoadFailed": {
     "message": "Could not load inbox"
   },
