@@ -271,6 +271,43 @@ describe("DefaultCollectionEncryptionService", () => {
         expect(result.defaultUserCollectionEmail).toBeUndefined();
       });
 
+      it("matches each decrypted view to its source collection by ID", async () => {
+        const email = "offboarded@example.com";
+        const collection1 = makeCollection({
+          defaultUserCollectionEmail: email,
+          type: CollectionTypes.DefaultUserCollection,
+        });
+        const collection2 = makeCollection({
+          id: collectionId2,
+          type: CollectionTypes.SharedCollection,
+        });
+        jest.spyOn(collection1, "toSdkCollection").mockReturnValue(stubSdkCollection);
+        jest.spyOn(collection2, "toSdkCollection").mockReturnValue(stubSdkCollection);
+
+        // Return views in reverse order to confirm ID-based matching, not index-based.
+        mockDecryptListWithFailures.mockReturnValue(
+          makeResult([
+            makeSdkCollectionView({
+              id: collectionId2 as any,
+              type: CollectionTypes.SharedCollection,
+            }),
+            makeSdkCollectionView({
+              id: collectionId as any,
+              type: CollectionTypes.DefaultUserCollection,
+            }),
+          ]),
+        );
+
+        const results = await firstValueFrom(
+          service.decryptMany([collection1, collection2], userId),
+        );
+
+        const view1 = results.find((v) => v.id === collectionId);
+        const view2 = results.find((v) => v.id === collectionId2);
+        expect(view1?.defaultUserCollectionEmail).toBe(email);
+        expect(view2?.defaultUserCollectionEmail).toBeUndefined();
+      });
+
       it("logs the error and rejects when the SDK client is unavailable", async () => {
         (sdkService.userClient$ as jest.Mock).mockReturnValue(of(null));
         const collection = makeCollection();
