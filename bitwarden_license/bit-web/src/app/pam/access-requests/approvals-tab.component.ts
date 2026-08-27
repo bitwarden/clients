@@ -2,6 +2,9 @@ import { CommonModule } from "@angular/common";
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
+  NgZone,
+  OnInit,
   computed,
   effect,
   inject,
@@ -82,12 +85,14 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
     I18nPipe,
   ],
 })
-export class ApprovalsTabComponent {
+export class ApprovalsTabComponent implements OnInit {
   private readonly inbox = inject(ApproverInboxService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
   private readonly i18nService = inject(I18nService);
   private readonly logService = inject(LogService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly ngZone = inject(NgZone);
 
   /** Ids currently being decided, so a second click on the same row is a no-op. */
   private readonly deciding = signal<Set<string>>(new Set());
@@ -96,6 +101,9 @@ export class ApprovalsTabComponent {
   private readonly revoking = signal<Set<string>>(new Set());
 
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: true });
+
+  /** Ticks once a second so a lease that lapses while the tab is open stops being listed. */
+  private readonly nowMs = signal(Date.now());
 
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
   protected readonly collectionControl = new FormControl<string | null>(null);
@@ -119,10 +127,23 @@ export class ApprovalsTabComponent {
     initialValue: new Map<string, CipherView>(),
   });
 
+  /**
+   * The leases still inside their window. `activeLeaseRows$` tests the window too, but against the
+   * clock stamped at load, and a lease lapsing on its own produces no server push to reload it away
+   * — so without a live clock here the row would stay listed, counted and revocable indefinitely.
+   *
+   * Compared by identity so the once-a-second tick only reaches `leasesDataSource` when the rows
+   * really change; reassigning its data every second would re-create every row.
+   */
+  private readonly liveLeases = computed(
+    () => this.allLeases().filter((row) => row.endsAtMs > this.nowMs()),
+    { equal: sameRows },
+  );
+
   /** Both sections' rows before filtering — what the chip filters offer options from. */
   private readonly filterableRows = computed<FilterableRow[]>(() => [
     ...this.allRows(),
-    ...this.allLeases(),
+    ...this.liveLeases(),
   ]);
 
   /** Every distinct collection present on the tab, for the Collection filter. */
@@ -137,7 +158,7 @@ export class ApprovalsTabComponent {
 
   protected readonly rows = computed(() => this.applyFilters(this.allRows()));
 
-  protected readonly leaseRows = computed(() => this.applyFilters(this.allLeases()));
+  protected readonly leaseRows = computed(() => this.applyFilters(this.liveLeases()));
 
   /**
    * Whether the tab has anything at all before filtering, across both sections. Distinguishes an
@@ -171,6 +192,16 @@ export class ApprovalsTabComponent {
     });
     effect(() => {
       this.leasesDataSource.data = this.leaseRows();
+    });
+  }
+
+  ngOnInit(): void {
+    // Outside the Angular zone: a periodic in-zone timer never lets NgZone settle, which would hang
+    // `fixture.whenStable()` for any host that embeds this view. The signal write still drives
+    // change detection on its own.
+    this.ngZone.runOutsideAngular(() => {
+      const intervalId = setInterval(() => this.nowMs.set(Date.now()), 1000);
+      this.destroyRef.onDestroy(() => clearInterval(intervalId));
     });
   }
 
@@ -293,6 +324,11 @@ export class ApprovalsTabComponent {
       });
     }
   }
+}
+
+/** Whether two row lists hold the same row objects in the same order. */
+function sameRows(a: readonly ManagedLeaseRow[], b: readonly ManagedLeaseRow[]): boolean {
+  return a.length === b.length && a.every((row, index) => row === b[index]);
 }
 
 /** Deduped, locale-sorted chip options from a list of possibly-blank labels. */
