@@ -8,7 +8,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { I18nMockService } from "@bitwarden/components";
+import { FilterMenuComponent, I18nMockService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
@@ -93,6 +93,14 @@ describe("AccessAuditComponent", () => {
             pamAuditKindRequestApproved: "Request approved",
             pamAuditKindLeaseActivated: "Lease activated",
             pamAuditKindRuleCreated: "Access rule created",
+            pamAuditKindLeaseRevoked: "Lease revoked",
+            pamAuditKindLeaseEndedByHolder: "Lease ended by holder",
+            all: "All",
+            clear: "Clear",
+            noMatchingItems: "No matching items",
+            removeItem: (name: string) => `Remove ${name}`,
+            search: "Search",
+            resetSearch: "Reset search",
           }),
         },
       ],
@@ -235,6 +243,60 @@ describe("AccessAuditComponent", () => {
 
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].kindLabelKey).toBe("pamAuditKindLeaseActivated");
+  });
+
+  // A LeaseRevoked whose actor is the requester is relabelled "Lease ended by holder" by
+  // toAuditRow. The filter is keyed on that same label, so the two can no longer disagree.
+  it("offers holder-ended access as its own option, separate from an operator revoke", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "leaseRevoked", ActorId: "user-1", ActorName: "Ada", RequesterId: "user-2" }),
+      event({ Kind: "leaseRevoked", ActorId: "user-2", ActorName: "Grace", RequesterId: "user-2" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(component().kindOptions()).toEqual([
+      { label: "Lease ended by holder", value: "pamAuditKindLeaseEndedByHolder" },
+      { label: "Lease revoked", value: "pamAuditKindLeaseRevoked" },
+    ]);
+
+    component().kindControl.setValue("pamAuditKindLeaseEndedByHolder");
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].actor).toBe("Grace");
+
+    component().kindControl.setValue("pamAuditKindLeaseRevoked");
+    expect(component().filteredRows()).toHaveLength(1);
+    expect(component().filteredRows()[0].actor).toBe("Ada");
+  });
+
+  it("filters through the Event chip, which drives kindControl rather than binding to it", async () => {
+    auditApiService.listAccessAuditTrail.mockResolvedValue([
+      event({ Kind: "leaseActivated" }),
+      event({ Kind: "requestApproved" }),
+    ]);
+
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector("bit-chip-filter")).toBeNull();
+    const chip = fixture.debugElement
+      .queryAllNodes(() => true)
+      .find((node: any) => node.nativeNode?.tagName === "BIT-FILTER-MENU")!
+      .injector.get(FilterMenuComponent);
+
+    chip.toggle("pamAuditKindLeaseActivated");
+    fixture.detectChanges();
+
+    expect(component().kindControl.value).toBe("pamAuditKindLeaseActivated");
+    expect(component().filteredRows()).toHaveLength(1);
+
+    chip.clear();
+    fixture.detectChanges();
+
+    expect(component().kindControl.value).toBeNull();
+    expect(component().filteredRows()).toHaveLength(2);
   });
 
   it("filters rows by free text over actor, requester, item, and detail", async () => {
