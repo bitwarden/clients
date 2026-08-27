@@ -5,7 +5,7 @@
       [subtitle]="cipherSubtitle()"
       [startIcon]="cipherTypeIcon()"
       variant="subtle"
-      [open]="true"
+      [open]="false"
     >
       <span bitTypography="body2" class="tw-mb-2 tw-block tw-font-semibold">{{
         "itemDetails" | i18n
@@ -33,10 +33,10 @@
   <form [formGroup]="form">
     <bit-section disableMargin>
       <bit-card>
-        <p bitTypography="h6" class="tw-mb-1 !tw-font-normal">
+        <p bitTypography="h6" class="tw-mb-1">
           {{ "peopleWhoCanView" | i18n }}
         </p>
-        <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-3">
+        <p bitTypography="helper" class="tw-text-fg-body tw-font-normal tw-mb-4">
           {{ "shareEmailVerificationDescription" | i18n }}
         </p>
         <bit-form-field>
