@@ -69,7 +69,8 @@ export function toManagedLeaseRow(
   const cipherName = names.cipherNameById.get(cipherId) ?? null;
   const collectionName = names.collectionNameById.get(collectionId) ?? null;
   const extended = extension != null && extension.latestEndMs > 0;
-  const endsAt = extended ? new Date(extension.latestEndMs).toISOString() : request.leaseNotAfter;
+  const endsAtMs = extended ? extension.latestEndMs : Date.parse(request.leaseNotAfter);
+  const endsAt = extended ? new Date(endsAtMs).toISOString() : request.leaseNotAfter;
 
   return {
     requestId: request.id,
@@ -82,7 +83,7 @@ export function toManagedLeaseRow(
     requesterEmail: request.requesterEmail ?? null,
     startsAt: request.leaseNotBefore,
     endsAt,
-    endsAtMs: Date.parse(endsAt),
+    endsAtMs,
     extendedBySeconds: extended ? extension.addedSeconds : null,
     extendedUntil: extended ? endsAt : null,
     searchText: [cipherName, collectionName, request.requesterName, request.requesterEmail]

@@ -43,6 +43,9 @@ import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.
 import { ManagedLeaseRow } from "../approvals/managed-lease-row";
 import { DurationShortPipe } from "../date/duration-short.pipe";
 
+/** The fields the toolbar filters against, carried by both sections' row models. */
+type FilterableRow = { searchText: string; collectionName: string | null; requester: string };
+
 /**
  * "Approvals" tab — the requests awaiting the caller's decision, oldest first, and the access
  * already running on the collections they manage.
@@ -116,37 +119,25 @@ export class ApprovalsTabComponent {
     initialValue: new Map<string, CipherView>(),
   });
 
+  /** Both sections' rows before filtering — what the chip filters offer options from. */
+  private readonly filterableRows = computed<FilterableRow[]>(() => [
+    ...this.allRows(),
+    ...this.allLeases(),
+  ]);
+
   /** Every distinct collection present on the tab, for the Collection filter. */
   protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
-    distinctOptions([...this.allRows(), ...this.allLeases()].map((row) => row.collectionName)),
+    distinctOptions(this.filterableRows().map((row) => row.collectionName)),
   );
 
   /** Every distinct requester present on the tab, for the Requester filter. */
   protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
-    distinctOptions([...this.allRows(), ...this.allLeases()].map((row) => row.requester)),
+    distinctOptions(this.filterableRows().map((row) => row.requester)),
   );
 
-  protected readonly rows = computed(() =>
-    this.allRows().filter((row) =>
-      matchesFilters(
-        row,
-        this.searchTerm().trim().toLowerCase(),
-        this.collectionFilter(),
-        this.requesterFilter(),
-      ),
-    ),
-  );
+  protected readonly rows = computed(() => this.applyFilters(this.allRows()));
 
-  protected readonly leaseRows = computed(() =>
-    this.allLeases().filter((row) =>
-      matchesFilters(
-        row,
-        this.searchTerm().trim().toLowerCase(),
-        this.collectionFilter(),
-        this.requesterFilter(),
-      ),
-    ),
-  );
+  protected readonly leaseRows = computed(() => this.applyFilters(this.allLeases()));
 
   /**
    * Whether the tab has anything at all before filtering, across both sections. Distinguishes an
@@ -183,6 +174,22 @@ export class ApprovalsTabComponent {
     effect(() => {
       this.leasesDataSource.data = this.leaseRows();
     });
+  }
+
+  /**
+   * The toolbar's three filters, applied to either section's rows. Both row models carry the same
+   * three fields, so one predicate keeps the two sections from drifting apart.
+   */
+  private applyFilters<T extends FilterableRow>(rows: T[]): T[] {
+    const term = this.searchTerm().trim().toLowerCase();
+    const collection = this.collectionFilter();
+    const requester = this.requesterFilter();
+    return rows.filter(
+      (row) =>
+        (term === "" || row.searchText.includes(term)) &&
+        (collection == null || row.collectionName === collection) &&
+        (requester == null || row.requester === requester),
+    );
   }
 
   protected cipherFor(cipherId: string): CipherView | undefined {
@@ -282,23 +289,6 @@ export class ApprovalsTabComponent {
       });
     }
   }
-}
-
-/**
- * The toolbar's three filters, applied to either section's rows. Both row models carry the same
- * three fields, so one predicate keeps the two sections from drifting apart.
- */
-function matchesFilters(
-  row: { searchText: string; collectionName: string | null; requester: string },
-  term: string,
-  collection: string | null,
-  requester: string | null,
-): boolean {
-  return (
-    (term === "" || row.searchText.includes(term)) &&
-    (collection == null || row.collectionName === collection) &&
-    (requester == null || row.requester === requester)
-  );
 }
 
 /** Deduped, locale-sorted chip options from a list of possibly-blank labels. */

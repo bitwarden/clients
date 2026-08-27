@@ -57,7 +57,10 @@ const ROWS: ApprovalRow[] = [
  * Lease ends are stamped off the real clock, not {@link STORY_NOW}: the remaining-time badge runs
  * its own countdown, so a STORY_NOW-relative window renders as already expired.
  */
-function lease(overrides: Record<string, unknown>): ManagedLeaseRow {
+function lease(
+  overrides: Record<string, unknown>,
+  extension?: { addedSeconds: number; latestEndMs: number },
+): ManagedLeaseRow {
   return toManagedLeaseRow(
     accessRequest({
       status: "approved",
@@ -65,6 +68,7 @@ function lease(overrides: Record<string, unknown>): ManagedLeaseRow {
       ...overrides,
     }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
     names,
+    extension,
   );
 }
 
@@ -87,19 +91,16 @@ function activeLeases(): ManagedLeaseRow[] {
       leaseNotAfter: liveFromNow(3 * HOUR),
     }),
     // Extended in place: the row must end at the extension's end, not the request's own.
-    toManagedLeaseRow(
-      accessRequest({
+    lease(
+      {
         id: "req-live-3",
         cipherId: "cipher-3",
-        status: "approved",
         producedLeaseId: "lease-3",
-        producedLeaseStatus: "active",
         requesterName: "Katherine Johnson",
         requesterEmail: "katherine@example.com",
         leaseNotBefore: liveFromNow(-90 * MINUTE),
         leaseNotAfter: liveFromNow(30 * MINUTE),
-      }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
-      names,
+      },
       { addedSeconds: 2 * 60 * 60, latestEndMs: Date.now() + 2.5 * HOUR },
     ),
   ];
