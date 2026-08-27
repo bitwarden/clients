@@ -1014,6 +1014,7 @@ describe("CipherViewBannerComponent", () => {
       );
       const request = { durationSeconds: 3600, reason: "still working" };
       dialogService.open.mockReturnValue({ closed: of(request) } as never);
+      leasesApi.extendLease.mockResolvedValue(requestView({ status: "approved" }));
       await create(gatedCipher());
 
       await component["extendLease"]();
@@ -1022,6 +1023,29 @@ describe("CipherViewBannerComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith({
         variant: "success",
         message: "pamExtendLeaseSuccess",
+      });
+    });
+
+    it("reports a denied extension as the lease having ended, not as a success", async () => {
+      requestsApi.getCipherAccessState.mockResolvedValue(
+        accessState({
+          activeLease: leaseView({ id: "lease-8" } as never),
+          extensionsAllowed: true,
+        }),
+      );
+      dialogService.open.mockReturnValue({
+        closed: of({ durationSeconds: 3600, reason: "still working" }),
+      } as never);
+      // The lease ran out while the dialog was open. The server records that as a denied request and
+      // answers with it, so the call resolves rather than throwing (PM-42632).
+      leasesApi.extendLease.mockResolvedValue(requestView({ status: "denied" }));
+      await create(gatedCipher());
+
+      await component["extendLease"]();
+
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "warning",
+        message: "pamExtendLeaseEnded",
       });
     });
 
