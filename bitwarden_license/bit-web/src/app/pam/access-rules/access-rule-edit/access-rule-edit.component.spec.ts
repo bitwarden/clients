@@ -277,11 +277,9 @@ describe("AccessRuleEditComponent — page furniture", () => {
 
   it("hangs the single-active-access hint off the single-active-user checkbox", async () => {
     const fixture = await render({});
-    const control = (
-      fixture.nativeElement.querySelector(
-        "#access-rule-edit_checkbox_single-active-lease",
-      ) as HTMLInputElement
-    ).closest("bit-form-control") as HTMLElement;
+    const control = fixture.nativeElement
+      .querySelector("#access-rule-edit_checkbox_single-active-lease")
+      .closest("bit-form-control") as HTMLElement;
 
     expect(control.querySelector("bit-label")!.textContent!.trim()).toBe(
       "pamAccessRuleSingleActiveUser",
