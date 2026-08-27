@@ -14,18 +14,21 @@ PAM endpoints reject with `ErrorResponseModel`, which carries a human-readable `
 machine-readable discriminant. Every failure a client must _act_ on differently is therefore
 identified by matching the server's English sentence.
 
-The web client now keeps **two** such catalogs, eighteen sentences in total, matched with
+The web client now keeps **three** such catalogs, twenty-eight sentences in total, matched with
 `String.includes()`:
 
 - [`helpers/request-access-error.ts`](../bitwarden_license/bit-web/src/app/pam/helpers/request-access-error.ts)
   — twelve sentences from the lease-request endpoint.
+- [`helpers/activate-access-error.ts`](../bitwarden_license/bit-web/src/app/pam/helpers/activate-access-error.ts)
+  — nine from the activation endpoint.
 - [`helpers/access-rule-error.ts`](../bitwarden_license/bit-web/src/app/pam/helpers/access-rule-error.ts)
-  — six from the access-rule write endpoints.
+  — seven from the access-rule write endpoints: six the server words, plus one the SDK raises
+  locally before the request ever leaves the client.
 
-They were written weeks apart by different people, and both carry the same note in their own words:
-_"When the server grows a code, this catalog is the single place to retire."_ Two independent
-authors reaching for the same workaround, and writing down the same wish, is the argument for this
-ask in miniature.
+They were written weeks apart by different people, and all three carry the same note in their own
+words: _"When the server grows a code, this catalog is the single place to retire."_ Three
+independent authors reaching for the same workaround, and writing down the same wish, is the
+argument for this ask in miniature.
 
 Three consequences, in order of severity:
 
@@ -42,10 +45,12 @@ falls back to generic copy. So a sentence the catalog misses is not degraded to 
 words" — it degrades to "something went wrong."
 
 **3. Every other client repeats the work.** Browser, desktop and mobile each need their own copy of
-both catalogs, kept in sync by hand against a server that has never promised to keep the wording
-stable.
+all three catalogs, kept in sync by hand against a server that has never promised to keep the
+wording stable.
 
-Status codes do not disambiguate: these are all `400`.
+Status codes do not disambiguate. The request and rule catalogs are all `400`; activation splits
+`400` and `409`, but both codes cover several distinct sentences apiece, so neither narrows a
+failure to one case.
 
 This has already bitten an adjacent feature. The organization-invite classifier regexes the status
 and JSON body out of the SDK's error string; its own comment calls the coupling _"fragile … accepted
@@ -86,10 +91,32 @@ to any endpoint rather than being PAM-specific:
 | `The requested window exceeds the maximum of 86400 seconds.`                       | `window_exceeds_max`              | Inline form error                             |
 | `This item does not require a lease.`                                              | `cipher_not_gated`                | Inline form error                             |
 
+### Codes needed — activation (`POST /access-requests/{id}/activate`)
+
+Sourced from `ActivateAccessRequestCommand`, except the three condition denials, which
+`AccessDenialMessage` words for both this gate and the submit gate. Each maps to a distinct
+explanation of why the approved request would not start.
+
+| Current message                                                        | Status | Proposed code                    | Why the client must tell it apart           |
+| ---------------------------------------------------------------------- | ------ | -------------------------------- | ------------------------------------------- |
+| `The approved access window has not started yet.`                      | `400`  | `activation_window_not_started`  | Tells the holder to come back later         |
+| `The approved access window has already ended.`                        | `400`  | `activation_window_ended`        | Terminal — the approval is spent            |
+| `This request has not been approved yet.`                              | `409`  | `activation_not_approved`        | Still awaiting an approver, not an error    |
+| `This request can no longer be activated.`                             | `409`  | `activation_no_longer_possible`  | Terminal — denied, cancelled or expired     |
+| `This request's access has already been used and is no longer active.` | `409`  | `activation_already_used`        | Terminal — distinct from "not approved"     |
+| `Another active lease exists for this item. Try again once it ends.`   | `409`  | `activation_single_active_lease` | Retryable — the only case worth retrying    |
+| `Access to this item is not permitted from your current network.`      | `400`  | `activation_network_denied`      | Actionable — change network and retry       |
+| `Access to this item is not permitted at this time.`                   | `400`  | `activation_time_denied`         | Actionable — retry inside the allowed hours |
+| `Access to this item is not permitted right now.`                      | `400`  | `activation_condition_denied`    | Catch-all denial; no action implied         |
+
+The last three share one `AccessDenialMessage` switch with the submit gate, so a code added there
+serves both endpoints.
+
 ### Codes needed — access rules (`POST`/`PUT /organizations/{id}/access-rules`)
 
 Sourced from `AccessRuleWriteValidator` and the create/update commands; each maps to correctable
-copy against a named form control.
+copy against a named form control. The catalog's seventh entry is absent here deliberately: it is
+the SDK's own local, pre-HTTP validation message, so no server code would reach it.
 
 | Current message                                                        | Proposed code                  | Form control                  |
 | ---------------------------------------------------------------------- | ------------------------------ | ----------------------------- |
@@ -114,5 +141,5 @@ Names are suggestions; any stable spelling works as long as the contract below h
 
 The SDK maps codes onto typed error variants (`AccessRequestError::AlreadyPending`,
 `AccessRuleError::CollectionsAlreadyGoverned`, …) — the same way it now maps the server's `404` onto
-`AccessRuleError::NotFound` — and both client catalogs are deleted rather than copied into the next
-client.
+`AccessRuleError::NotFound` — and all three client catalogs are deleted rather than copied into the
+next client.

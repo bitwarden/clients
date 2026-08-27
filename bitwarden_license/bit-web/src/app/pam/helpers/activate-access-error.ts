@@ -1,4 +1,16 @@
-/** The activation endpoint's error catalog, as the server words it, paired with the copy we show instead. */
+/**
+ * The activation endpoint's error catalog, as the server words it, paired with the copy we show
+ * instead. Reproduced here rather than imported because the strings cross the wire as prose: the
+ * SDK surfaces the server's rejection as an `AccessRequestError` with `variant: "Api"` and the
+ * whole serialized response body on `.message` — envelope, exception message and server-side stack
+ * trace included — with no machine-readable code to switch on. When the server grows a code, this
+ * catalog is the single place to retire.
+ *
+ * Sourced from `ActivateAccessRequestCommand`, except the three "not permitted" sentences, which
+ * the rule engine's `AccessDenialMessage` words for both this gate and the submit gate. The
+ * rejections are a mix of `400` (window, condition denial) and `409` (state, lease contention), so
+ * the status code does not disambiguate them either.
+ */
 export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
   WindowNotStarted: {
     serverMessage: "The approved access window has not started yet.",
