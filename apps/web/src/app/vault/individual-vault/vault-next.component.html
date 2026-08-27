@@ -16,7 +16,7 @@
           {{ crumb.name }}
         </bit-breadcrumb>
       }
-      <bit-breadcrumb [icon]="'bwi-collection-shared' | vfo1Icon" active>
+      <bit-breadcrumb [icon]="'bwi-collection-shared' | vfo1Icon" [route]="currentFolderRoute()">
         {{ sharedFolderName() }}
       </bit-breadcrumb>
     </bit-breadcrumbs>
