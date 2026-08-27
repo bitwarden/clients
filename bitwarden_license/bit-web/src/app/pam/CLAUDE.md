@@ -23,10 +23,22 @@ requester's leasing flow, and the approver's inbox. Gated behind `FeatureFlag.Pa
   off. Per-row CIDR validation rides on each pushed control.
 - `access-requests/` — the user-scoped "Access requests" page at `/pam`: a tabbed shell
   (`access-requests.component`) over Approvals, My requests, and History, plus the
-  shareable single-request page at `/pam/requests/:id`. `MyAccessService`,
+  shareable single request at `/pam/requests/:id`. `MyAccessService`,
   `ApproverInboxService`, and `AccessNameResolverService` are provided on the SHELL
   ROUTE, not on the component, because routed children inherit a parent route's
   providers but not a component's — that is what lets the tabs share one load.
+- `access-requests/access-request-route/` — `/pam/requests/:id`. A real route, not a
+  click handler, because the rows link to it and the planned `EmailApprovalDeepLink`
+  lands on it; but a DIALOG over the shell rather than a page of its own. It is a
+  fourth child of the shell route, so the header and tab bar stay mounted;
+  `access-request-route.component` is the host (opens the dialog, renders My requests
+  behind it, and navigates on close — back if the caller came from inside the app,
+  `/pam` on a cold load), and `access-request-dialog.component` is the view.
+  `AccessRequestDetailService` is provided on the host component, not the route config,
+  because it reads the `:id` off `ActivatedRoute` — a route-level provider resolves in
+  the route's environment injector, where that lookup falls through to the root route.
+  The host hands the service to the dialog through `DIALOG_DATA` for the same reason:
+  `DialogService` builds the dialog's injector from the root one.
 - `approvals/` — the approver side: the SDK-backed inbox data service, the decide
   dialog, the privilege check, and the route guard.
 - `cipher-view-banner/` — the requester's entry point on an open gated cipher: four
