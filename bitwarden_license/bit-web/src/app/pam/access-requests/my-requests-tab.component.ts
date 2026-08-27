@@ -174,12 +174,12 @@ export class MyRequestsTabComponent implements OnInit {
    * `status` alone: a clock-dependent split (`canStart`) would drop a grant whose activation
    * window has lapsed out of both sections.
    */
-  protected readonly approvedRows = computed(() =>
+  private readonly approvedRows = computed(() =>
     this.filteredPending().filter((row) => row.status !== "pending"),
   );
 
   protected readonly extensionRows = computed(() => this.applyFilters(this.allExtensions()));
-  protected readonly leases = computed(() => this.applyFilters(this.allLeases()));
+  private readonly leases = computed(() => this.applyFilters(this.allLeases()));
 
   /**
    * Deliberately depends on `approvedRows` and `leases` only, never on `nowMs()`: a per-tick
