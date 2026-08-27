@@ -601,6 +601,7 @@ const safeProviders: SafeProvider[] = [
       UserKeyRotationServiceAbstraction,
       CipherServiceAbstraction,
       SdkService,
+      StateProvider,
     ],
   }),
   safeProvider({

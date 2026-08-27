@@ -1167,6 +1167,7 @@ export class ServiceContainer {
       new CliUserKeyRotationService(),
       this.cipherService,
       this.sdkService,
+      this.stateProvider,
     );
   }
 
