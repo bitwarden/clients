@@ -24,6 +24,7 @@ function row(overrides: Record<string, unknown> = {}, canDecide = true): Approva
     id: "req-1",
     cipherId: "cipher-1",
     collectionId: "col-1",
+    organizationId: "org-1",
     requesterId: "user-1",
     status: "pending",
     leaseNotBefore: "2026-08-17T12:00:00.000Z",
@@ -41,6 +42,7 @@ function row(overrides: Record<string, unknown> = {}, canDecide = true): Approva
       ...emptyResolvedNames(),
       cipherNameById: new Map([["cipher-1", "Prod database"]]),
       collectionNameById: new Map([["col-1", "Production"]]),
+      organizationNameById: new Map([["org-1", "Meridian Group"]]),
     },
     NOW,
     canDecide,
@@ -197,7 +199,7 @@ describe("ApprovalsTabComponent", () => {
 
     it("records an approval once confirmed, and toasts", async () => {
       dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, comment: "fine" }),
+        closed: of({ confirmed: true, verdict: "approve", comment: "fine" }),
       } as never);
       create();
 
@@ -207,6 +209,23 @@ describe("ApprovalsTabComponent", () => {
       expect(toastService.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ variant: "success" }),
       );
+    });
+
+    it("records the verdict the dialog closed with, not the one it was opened on", async () => {
+      // The approve dialog offers "Deny request" and switches in place; recording the requested
+      // verdict here would approve a request the approver denied.
+      dialogService.open.mockReturnValue({
+        closed: of({ confirmed: true, verdict: "deny", comment: "wrong window" }),
+      } as never);
+      create();
+
+      await component["decide"](component["rows"]()[0], "approve");
+
+      expect(inbox.decide).toHaveBeenCalledWith("req-1", "deny", "wrong window");
+      expect(toastService.showToast).toHaveBeenCalledWith({
+        variant: "success",
+        message: "pamInboxDeniedToast",
+      });
     });
 
     it("does nothing when the dialog is dismissed", async () => {
@@ -221,7 +240,7 @@ describe("ApprovalsTabComponent", () => {
 
     it("toasts an error when recording the decision fails", async () => {
       dialogService.open.mockReturnValue({
-        closed: of({ confirmed: true, comment: undefined }),
+        closed: of({ confirmed: true, verdict: "deny", comment: undefined }),
       } as never);
       inbox.decide.mockRejectedValue(new Error("boom"));
       create();
