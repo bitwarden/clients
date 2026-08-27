@@ -286,16 +286,19 @@ export class HistoryTabComponent {
   });
 
   /**
-   * Shown exactly when something in the current list can be acted on. Keyed off the listed rows
-   * rather than the viewer's privilege because an approver who has decided nothing yet, and the
-   * caller's own rows under "Raised by me", would otherwise get a column of nothing but dashes —
-   * and keyed off the rows rather than the scope because a request the caller raised against a
-   * collection they manage is actionable under every filter it appears in.
+   * Shown exactly when something in the current list can be acted on, asked with the same two
+   * predicates the cells answer to — so the column cannot outlive the buttons it exists to hold.
+   * Managed-ness alone is the weaker question: it holds for every request the caller manages,
+   * decided-and-done included, which is most of what a history accumulates.
+   *
+   * Keyed off the listed rows rather than the viewer's privilege because an approver who has
+   * decided nothing yet, and the caller's own rows under "Raised by me", would otherwise get a
+   * column of nothing but dashes — and off the rows rather than the scope because a request the
+   * caller raised against a collection they manage is actionable under every filter it appears in.
    */
-  protected readonly showActionsColumn = computed(() => {
-    const managed = this.managedIds();
-    return this.historyRows().some((row) => managed.has(String(row.id)));
-  });
+  protected readonly showActionsColumn = computed(() =>
+    this.historyRows().some((row) => this.canRevoke(row) || this.canCancelApproval(row)),
+  );
 
   /**
    * Each scope answers for the slice it lists. All spans both sources, so borrowing either side's
