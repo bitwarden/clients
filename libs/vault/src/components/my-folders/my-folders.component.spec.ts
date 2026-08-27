@@ -126,7 +126,7 @@ describe("MyFoldersComponent", () => {
     beforeEach(() => {
       open = jest
         .spyOn(AddEditFolderDialogComponent, "open")
-        .mockReturnValue({ closed: new BehaviorSubject(undefined) } as never);
+        .mockReturnValue({ closed: of(undefined) } as never);
     });
 
     it("opens the dialog with no folder from the add button", async () => {

@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   TrackByFunction,
   computed,
   effect,
@@ -39,7 +40,10 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import { buildFolderRows, FolderTableRow } from "../../models/folder-table-row";
-import { AddEditFolderDialogComponent } from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
+import {
+  AddEditFolderDialogComponent,
+  AddEditFolderDialogResult,
+} from "../add-edit-folder-dialog/add-edit-folder-dialog.component";
 import { openDeleteFolderDialog } from "../delete-folder-dialog/delete-folder-dialog.component";
 
 /**
@@ -79,6 +83,8 @@ export class MyFoldersComponent {
   private readonly toastService = inject(ToastService);
 
   private readonly tableRef = viewChild(BitTableV2Component<FolderTableRow>);
+
+  private readonly tableRegion = viewChild<ElementRef<HTMLElement>>("tableRegion");
 
   private readonly loadedRows = toSignal(
     this.accountService.activeAccount$.pipe(
@@ -131,7 +137,15 @@ export class MyFoldersComponent {
     !values.search || row.name.toLowerCase().includes(values.search.toLowerCase());
 
   protected async addFolder(): Promise<void> {
-    await lastValueFrom(AddEditFolderDialogComponent.open(this.dialogService).closed);
+    const result = await lastValueFrom(
+      AddEditFolderDialogComponent.open(this.dialogService).closed,
+    );
+
+    if (result !== AddEditFolderDialogResult.Created) {
+      return;
+    }
+
+    this.tableRegion()?.nativeElement.focus({ preventScroll: true });
   }
 
   protected async editFolder(row: FolderTableRow): Promise<void> {
