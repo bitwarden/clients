@@ -629,11 +629,6 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   private readonly tableComponent = viewChild(BitTableV2Component);
 
-  /** Clear the table's internal row selection (called when the batch bar "Clear" fires). */
-  clearSelection(): void {
-    this.tableComponent()?.selectionModel()?.clear();
-  }
-
   /**
    * Registers the table's own `TableSelectionModel<C>` as the batch bar's selection source, so
    * checking rows drives `VaultBatchBarService`'s `can*` permission signals and
