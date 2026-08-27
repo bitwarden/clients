@@ -977,6 +977,40 @@ describe("SettingsDialogComponent", () => {
       // `showEnableAutotype` signal should be false
       expect((component as any).showEnableAutotype()).toBe(false);
     });
+
+    describe("flag-driven visibility on windows", () => {
+      beforeEach(() => {
+        // `isWindows` is captured in the constructor, so the device must be set before
+        // the component is created.
+        platformUtilsService.getDevice.mockReturnValue(DeviceType.WindowsDesktop);
+
+        fixture = TestBed.createComponent(SettingsDialogComponent);
+        component = fixture.componentInstance;
+      });
+
+      it("shows the enable autotype control when the feature flag is enabled", async () => {
+        configService.getFeatureFlag$.mockReturnValue(of(true) as any);
+
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(true);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotype']")),
+        ).not.toBeNull();
+      });
+
+      it("hides the enable autotype control when the feature flag is disabled", async () => {
+        // The top-level `beforeEach` already mocks every feature flag as false.
+        await component.ngOnInit();
+        fixture.detectChanges();
+
+        expect((component as any).showEnableAutotype()).toBe(false);
+        expect(
+          fixture.debugElement.query(By.css("input[formControlName='enableAutotype']")),
+        ).toBeNull();
+      });
+    });
   });
 
   describe("quick copy actions", () => {

@@ -1,8 +1,7 @@
 import { inject } from "@angular/core";
-import { combineLatest, defer, filter, map, Observable } from "rxjs";
+import { combineLatest, defer, map, Observable } from "rxjs";
 
 import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
-import { SharedUnlockFollowerService } from "@bitwarden/common/key-management/shared-unlock";
 import { UserId } from "@bitwarden/common/types/guid";
 import { BiometricsStatus } from "@bitwarden/key-management";
 import {
@@ -14,7 +13,6 @@ import {
 export class WebLockComponentService implements LockComponentService {
   private readonly userDecryptionOptionsService = inject(UserDecryptionOptionsServiceAbstraction);
   private readonly webAuthnPrfUnlockService = inject(WebAuthnPrfUnlockService);
-  private readonly sharedUnlockFollowerService = inject(SharedUnlockFollowerService);
 
   constructor() {}
 
@@ -43,13 +41,6 @@ export class WebLockComponentService implements LockComponentService {
   getBiometricsUnlockBtnText(): string {
     throw new Error(
       "Biometric unlock is not supported in the web app. See getAvailableUnlockOptions$",
-    );
-  }
-
-  getExternalUnlock$(userId: UserId): Observable<void> {
-    return this.sharedUnlockFollowerService.externalUnlock$.pipe(
-      filter((id) => id === userId),
-      map((): void => undefined),
     );
   }
 

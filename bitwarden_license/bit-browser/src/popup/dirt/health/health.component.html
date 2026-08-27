@@ -10,9 +10,9 @@
   } @else if (loading()) {
     <dirt-health-scanning />
   } @else if (scanFailed()) {
-    <dirt-health-scan-error />
+    <dirt-health-scan-error (retry)="handleRetry()" />
   } @else if (report(); as report) {
-    <dirt-health-overview [report]="report" />
+    <dirt-health-overview [report]="report" [locked]="locked()" (upgrade)="handleUpgrade()" />
   } @else {
     <dirt-health-scanning />
   }
