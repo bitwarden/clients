@@ -10,12 +10,13 @@ import {
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
 import { RouterModule } from "@angular/router";
-import { EMPTY, firstValueFrom, switchMap } from "rxjs";
+import { EMPTY, distinctUntilChanged, firstValueFrom, switchMap } from "rxjs";
 
 import { IconComponent } from "@bitwarden/angular/vault/components/icon.component";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { skeletonLoadingDelay } from "@bitwarden/common/vault/utils/skeleton-loading.operator";
 import {
   AccordionComponent,
   AccordionGroupComponent,
@@ -26,6 +27,8 @@ import {
   DialogService,
   NoItemsModule,
   SearchModule,
+  SkeletonComponent,
+  SkeletonTextComponent,
   TableDataSource,
   TableModule,
   ToastService,
@@ -77,6 +80,8 @@ type FilterableRow = { searchText: string; collectionName: string | null; reques
     IconComponent,
     NoItemsModule,
     SearchModule,
+    SkeletonComponent,
+    SkeletonTextComponent,
     TableModule,
     TooltipDirective,
     TypographyModule,
@@ -98,6 +103,15 @@ export class ApprovalsTabComponent {
   private readonly revoking = signal<Set<string>>(new Set());
 
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: true });
+
+  /**
+   * The skeleton is held back until the load has run for a second, per the component library's
+   * display guidance, so an inbox that arrives quickly never flashes it.
+   */
+  protected readonly showSkeleton = toSignal(
+    this.inbox.loading$.pipe(distinctUntilChanged(), skeletonLoadingDelay()),
+    { initialValue: false },
+  );
 
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
   protected readonly collectionControl = new FormControl<string | null>(null);
@@ -186,6 +200,9 @@ export class ApprovalsTabComponent {
    * visible), which need different copy and, for the latter, the filter controls left on screen.
    */
   protected readonly hasRows = computed(() => this.filterableRows().length > 0);
+
+  /** Five fills the space the table occupies without implying a row count the inbox may not have. */
+  protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
   protected readonly dataSource = new TableDataSource<ApprovalRow>();
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
