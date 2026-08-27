@@ -1418,6 +1418,18 @@
   "aboutFillAssistLabelV2": {
     "message": "About fill assist"
   },
+  "honorDataBitwardenIgnoreAttributeLabel": {
+    "message": "Allow websites to exclude fields to autofill"
+  },
+  "honorDataBitwardenIgnoreAttributeHint": {
+    "message": "Skip fields that a website marks with the `data-bwignore` attribute."
+  },
+  "honorDataBitwardenAutofillAttributeLabel": {
+    "message": "Allow websites to add fields to autofill"
+  },
+  "honorDataBitwardenAutofillAttributeHint": {
+    "message": "Use any span elements that a website marks with the `data-bwautofill` attribute."
+  },
   "enableContextMenuItem": {
     "message": "Show context menu options"
   },
@@ -3182,12 +3194,6 @@
   },
   "errorRefreshingAccessTokenDesc": {
     "message": "No refresh token or API keys found. Please try logging out and logging back in."
-  },
-  "desktopSyncVerificationTitle": {
-    "message": "Desktop sync verification"
-  },
-  "desktopIntegrationVerificationText": {
-    "message": "Please verify that the desktop application shows this fingerprint: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Browser integration is not set up"
@@ -7080,12 +7086,6 @@
       }
     }
   },
-  "updateDesktopAppOrDisableFingerprintDialogTitle": {
-    "message": "Please update your desktop application"
-  },
-  "updateDesktopAppOrDisableFingerprintDialogMessage": {
-    "message": "To use biometric unlock, please update your desktop application, or disable fingerprint unlock in the desktop settings."
-  },
   "changeAtRiskPassword": {
     "message": "Change at-risk password"
   },
@@ -7927,7 +7927,7 @@
   },
   "weakPasswordsDescription": {
     "message": "These passwords can be easily guessed because they are too short or simple. Strengthen them by making them more complex."
-  },    
+  },
   "reusedPasswordsTitle": {
     "message": "Reused passwords"
   },
@@ -7956,7 +7956,7 @@
   },
   "exposedPasswordsEmpty": {
     "message": "None of your passwords were found in data breaches."
-  },  
+  },
   "weakPasswordEmpty": {
     "message": "All your passwords are strong."
   },
