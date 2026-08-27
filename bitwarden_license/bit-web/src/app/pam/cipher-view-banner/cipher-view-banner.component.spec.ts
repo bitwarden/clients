@@ -562,6 +562,38 @@ describe("CipherViewBannerComponent", () => {
       expect(query("#pam-cipher-view-banner_input_date")).toBeNull();
     });
 
+    it("moves Cancel down beside Request access once the form is open", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).toBeNull();
+      const cancel = query("#pam-cipher-view-banner_button_request-cancel");
+      expect(cancel).not.toBeNull();
+      expect(cancel?.closest("div")).toBe(
+        query("#pam-cipher-view-banner_button_request-submit")?.closest("div"),
+      );
+    });
+
+    it("collapses the form from the Cancel beside Request access", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "automatic" }));
+      await create(gatedCipher());
+
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+
+      query("#pam-cipher-view-banner_button_request-cancel")?.click();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["requestFormExpanded"]()).toBe(false);
+      expect(query("#pam-cipher-view-banner_button_request-toggle")).not.toBeNull();
+      expect(query("#pam-cipher-view-banner_button_request-cancel")).toBeNull();
+    });
+
     it("shapes the form from the pre-check's human path and seeds the window", async () => {
       requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
       await create(gatedCipher());
