@@ -44,6 +44,7 @@ import {
   REQUEST_ACCESS_DURATION_PRESETS,
   type RequestDurationOption,
   activateAccessErrorMessageKey,
+  apiErrorBodyMessage,
   classifyRequestAccessError,
   composeRequestWindow,
   defaultRequestWindow,
@@ -613,7 +614,9 @@ export class CipherViewBannerComponent implements OnInit {
       : e instanceof Error
         ? e.message
         : undefined;
-    const outcome = classifyRequestAccessError(message);
+    const outcome = classifyRequestAccessError(
+      message == null ? message : (apiErrorBodyMessage(message) ?? message),
+    );
 
     switch (outcome.kind) {
       case "reconcile":

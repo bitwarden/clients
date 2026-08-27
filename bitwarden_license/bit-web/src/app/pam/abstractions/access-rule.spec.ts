@@ -43,6 +43,14 @@ describe("accessRuleErrorMessage", () => {
       ).toBe("A rule with that name already exists.");
     });
 
+    it("extracts it even when the transport appended content after the body", () => {
+      expect(
+        accessRuleErrorMessage(
+          wrap('{"message":"A rule with that name already exists."} (request id 8f2c)'),
+        ),
+      ).toBe("A rule with that name already exists.");
+    });
+
     it("returns undefined when the body has no usable message", () => {
       expect(accessRuleErrorMessage(wrap('{"message":""}'))).toBeUndefined();
       expect(accessRuleErrorMessage(wrap('{"validationErrors":{}}'))).toBeUndefined();
