@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input, output } from "@angular/core
 import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { of } from "rxjs";
+import { Observable, of } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -79,7 +79,10 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
   let fixture: ComponentFixture<OrganizationSubscriptionCloudVNextComponent>;
   let dataService: jest.Mocked<OrganizationSubscriptionDataService>;
   let i18nService: jest.Mocked<I18nService>;
-  let activatedRoute: { snapshot: { params: Record<string, string>; queryParamMap: ParamMap } };
+  let activatedRoute: {
+    snapshot: { params: Record<string, string> };
+    queryParamMap: Observable<ParamMap>;
+  };
   let router: jest.Mocked<Router>;
   let platformUtilsService: jest.Mocked<PlatformUtilsService>;
 
@@ -184,7 +187,8 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     i18nService.t = jest.fn((key: string) => key);
 
     activatedRoute = {
-      snapshot: { params: { organizationId: "org-123" }, queryParamMap: convertToParamMap({}) },
+      snapshot: { params: { organizationId: "org-123" } },
+      queryParamMap: of(convertToParamMap({})),
     };
     router = mock<Router>();
     platformUtilsService = mock<PlatformUtilsService>();
@@ -487,7 +491,7 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
 
     it("auto-opens change plan once the subscription loads when ?upgrade is present", async () => {
-      activatedRoute.snapshot.queryParamMap = convertToParamMap({ upgrade: "true" });
+      activatedRoute.queryParamMap = of(convertToParamMap({ upgrade: "true" }));
 
       createComponent();
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
@@ -498,10 +502,12 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
 
     it("passes the deep-link productTierType to change plan", async () => {
-      activatedRoute.snapshot.queryParamMap = convertToParamMap({
-        upgrade: "true",
-        productTierType: ProductTierType.Enterprise.toString(),
-      });
+      activatedRoute.queryParamMap = of(
+        convertToParamMap({
+          upgrade: "true",
+          productTierType: ProductTierType.Enterprise.toString(),
+        }),
+      );
 
       createComponent();
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
@@ -512,10 +518,12 @@ describe("OrganizationSubscriptionCloudVNextComponent", () => {
     });
 
     it("ignores an invalid productTierType and falls back to the current tier", async () => {
-      activatedRoute.snapshot.queryParamMap = convertToParamMap({
-        upgrade: "true",
-        productTierType: "not-a-tier",
-      });
+      activatedRoute.queryParamMap = of(
+        convertToParamMap({
+          upgrade: "true",
+          productTierType: "not-a-tier",
+        }),
+      );
 
       createComponent();
       const changePlan = jest.spyOn(component, "changePlan").mockResolvedValue();
