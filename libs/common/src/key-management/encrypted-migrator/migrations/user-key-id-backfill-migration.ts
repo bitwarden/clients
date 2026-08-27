@@ -26,7 +26,7 @@ export const USER_KEY_ID_BACKFILL_COOLDOWN = new UserKeyDefinition<Date>(
   "userKeyIdBackfillCooldown",
   {
     deserializer: (obj: string) => (obj != null ? new Date(obj) : null),
-    clearOn: [],
+    clearOn: ["logout"],
   },
 );
 

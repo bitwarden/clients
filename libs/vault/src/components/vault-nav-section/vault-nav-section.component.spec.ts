@@ -2,8 +2,9 @@ import { ComponentFixture, TestBed } from "@angular/core/testing";
 import { By } from "@angular/platform-browser";
 import { provideRouter } from "@angular/router";
 import { mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
+import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { FakeGlobalStateProvider } from "@bitwarden/common/spec";
 import { CollectionId, UserId } from "@bitwarden/common/types/guid";
@@ -86,6 +87,7 @@ describe("VaultNavSectionComponent", () => {
   const viewModel$ = new BehaviorSubject<VaultsNavViewModel>(personalOnly);
   const vaultNavService = mock<VaultNavService>();
   const i18nService = mock<I18nService>();
+  const accountService = mock<AccountService>();
 
   /** Trimmed first-line text of every rendered nav item, group, and section, in document order. */
   const navText = () =>
@@ -121,12 +123,14 @@ describe("VaultNavSectionComponent", () => {
     viewModel$.next(personalOnly);
 
     i18nService.t.mockImplementation((key: string) => key);
-    Object.defineProperty(vaultNavService, "viewModel$", { value: viewModel$ });
+    vaultNavService.viewModel$.mockReturnValue(viewModel$);
+    accountService.activeAccount$ = of({ id: userId } as Account);
 
     await TestBed.configureTestingModule({
       imports: [VaultNavSectionComponent, NavigationModule],
       providers: [
         { provide: VaultNavService, useValue: vaultNavService },
+        { provide: AccountService, useValue: accountService },
         { provide: I18nService, useValue: i18nService },
         { provide: GlobalStateProvider, useValue: new FakeGlobalStateProvider() },
         provideRouter([]),
