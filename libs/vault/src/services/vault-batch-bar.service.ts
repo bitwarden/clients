@@ -146,7 +146,7 @@ export class VaultBatchBarService<C extends CipherViewLike> {
   readonly selection = new SelectionModel<VaultItem<C>>(true, [], true, compareVaultItems);
 
   private readonly _cleared$ = new Subject<void>();
-  /** Emits when "Clear" is explicitly clicked in the batch bar. */
+  /** Emits whenever the selection is cleared via {@link clear} — the "Clear" button, a filter change, or a completed bulk action. */
   readonly cleared$ = this._cleared$.asObservable();
 
   private readonly _completed$ = new Subject<void>();
