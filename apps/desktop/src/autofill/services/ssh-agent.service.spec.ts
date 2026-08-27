@@ -684,6 +684,50 @@ describe("SshAgentService – sign request authorization", () => {
     expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
   });
 
+  it("RememberUntilLock: direct connections to different hosts prompt independently", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+    mockDialogOpen.mockClear();
+    mockSignRequestResponse.mockClear();
+
+    // A different destination host must not inherit the first host's approval.
+    sendSignRequest(false, "SHA256:fp-container2");
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("RememberUntilLock: direct connections to the same host are remembered", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+    mockDialogOpen.mockClear();
+    mockSignRequestResponse.mockClear();
+
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+
+    expect(mockDialogOpen).not.toHaveBeenCalled();
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
+  it("RememberUntilLock: a direct approval does not cover a forwarded request to the same host", async () => {
+    promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
+    sendSignRequest(false, "SHA256:fp-container1");
+    await flush();
+    mockDialogOpen.mockClear();
+    mockSignRequestResponse.mockClear();
+
+    // Same fingerprint, but forwarding is a distinct trust boundary and must re-prompt.
+    sendSignRequest(true, "SHA256:fp-container1");
+    await flush();
+
+    expect(mockDialogOpen).toHaveBeenCalledTimes(1);
+    expect(mockSignRequestResponse).toHaveBeenCalledWith(REQUEST_ID, true);
+  });
+
   it("RememberUntilLock: local approval does not cover forwarded requests", async () => {
     promptBehaviorSubject.next(SshAgentPromptType.RememberUntilLock);
 

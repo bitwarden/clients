@@ -49,8 +49,8 @@ export class SshAgentService implements OnDestroy {
   SSH_VAULT_UNLOCK_REQUEST_TIMEOUT = 60_000;
 
   private static readonly LOCAL_HOST_KEY = "local";
-  // map of cipherId to set of authorized host keys.
-  // Local connections use LOCAL_HOST_KEY; forwarded connections use the remote host's fingerprint.
+
+  // map of cipherId to set of authorized host keys
   private authorizedKeys: Map<string, Set<string>> = new Map();
 
   private destroy$ = new Subject<void>();
@@ -481,12 +481,26 @@ export class SshAgentService implements OnDestroy {
       .map((c) => ({ name: c.name, privateKey: c.sshKey.privateKey, cipherId: c.id }));
   }
 
+  // Builds the key for caching RememberUntilLock approvals, via the target host.
+  // Returns undefined when there is nothing safe to cache against, which forces a re-prompt.
+  private static authorizationKey(
+    isForwarded: boolean,
+    hostFingerprint?: string,
+  ): string | undefined {
+    if (isForwarded) {
+      return hostFingerprint ? `forwarded:${hostFingerprint}` : undefined;
+    }
+    return hostFingerprint
+      ? `${SshAgentService.LOCAL_HOST_KEY}:${hostFingerprint}`
+      : SshAgentService.LOCAL_HOST_KEY;
+  }
+
   private async rememberAuthorization(
     cipherId: string,
     isForwarded: boolean,
     hostFingerprint?: string,
   ): Promise<void> {
-    const key = isForwarded ? hostFingerprint : SshAgentService.LOCAL_HOST_KEY;
+    const key = SshAgentService.authorizationKey(isForwarded, hostFingerprint);
     if (!key) {
       return;
     }
@@ -507,8 +521,8 @@ export class SshAgentService implements OnDestroy {
       case SshAgentPromptType.Always:
         return true;
       case SshAgentPromptType.RememberUntilLock: {
-        const key = isForwarded ? hostFingerprint : SshAgentService.LOCAL_HOST_KEY;
-        // key will only ever be undefined for forwarded requests in the v1, re-prompt.
+        const key = SshAgentService.authorizationKey(isForwarded, hostFingerprint);
+        // This is a defensive check. While the API for the agent doesn't allow `key` to not be defined, if an IPC error or otherwise resulted in the key not being defined, then without this guard we'd silently approve forwarded requests to any host for this vault item.
         if (!key) {
           return true;
         }
