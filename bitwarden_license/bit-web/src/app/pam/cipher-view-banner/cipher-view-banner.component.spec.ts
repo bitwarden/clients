@@ -655,19 +655,17 @@ describe("CipherViewBannerComponent", () => {
 
       // A 2h window is well inside the global 24h ceiling but past this rule's 30m cap.
       component["humanForm"].patchValue({ date: "2026-08-17", start: "09:00", end: "11:00" });
+      component["humanForm"].controls.end.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["windowExceedsMax"]()).toBe(true);
       expect(component["humanForm"].invalid).toBe(true);
-      // Asserted on what the requester actually sees. The error lives on the form GROUP, so
-      // `bit-form-field`'s slot (which reads `end`'s own status) never renders it; the visible
-      // paragraph is the only thing that does.
       const maxWindow = formatDuration("en-US", 1800, "long");
       const error = query('[data-testid="window-exceeds-max"]');
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain(maxWindow);
+      expect(error?.querySelector("bit-error")).not.toBeNull();
     });
 
     it("re-resolves the bounds when the fold-out is re-opened against a different rule", async () => {
@@ -792,11 +790,82 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
 
       component["humanForm"].patchValue({ date: "2026-08-17", start: "10:00", end: "09:00" });
+      component["humanForm"].controls.end.markAsTouched();
       fixture.detectChanges();
       await fixture.whenStable();
       fixture.detectChanges();
 
-      expect(component["windowEndBeforeStart"]()).toBe(true);
+      const error = query('[data-testid="window-end-before-start"]');
+      expect(error).not.toBeNull();
+      expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
+
+      const endInput = query("#pam-cipher-view-banner_input_end");
+      const bitError = error?.querySelector("bit-error");
+      expect(bitError).not.toBeNull();
+      expect(bitError?.getAttribute("aria-live")).toBe("assertive");
+      expect(endInput?.getAttribute("aria-invalid")).toBe("true");
+    });
+
+    it("reveals the window error when a start edit breaks a window the requester never touched", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component["humanForm"].patchValue({ date: "2026-08-17", start: "09:00", end: "10:00" });
+      component["humanForm"].controls.start.setValue("11:00");
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["humanForm"].controls.end.touched).toBe(true);
+      const error = query('[data-testid="window-end-before-start"]');
+      expect(error).not.toBeNull();
+      expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
+    });
+
+    it("clears the window error once the window is valid again", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component["humanForm"].patchValue({ date: "2026-08-17", start: "11:00", end: "10:00" });
+      component["humanForm"].controls.end.markAsTouched();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component["humanForm"].controls.start.setValue("09:00");
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component["humanForm"].controls.end.errors).toBeNull();
+      expect(query('[data-testid="window-end-before-start"]')).toBeNull();
+      expect(query('[data-testid="window-exceeds-max"]')).toBeNull();
+    });
+
+    it("reveals the window error on submit rather than submitting", async () => {
+      requestsApi.preCheck.mockResolvedValue(preCheck({ approvalMode: "human" }));
+      await create(gatedCipher());
+      await component["toggleRequestForm"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      component["humanForm"].patchValue({
+        date: "2026-08-17",
+        start: "10:00",
+        end: "09:00",
+        reason: "prod incident",
+      });
+      await component["submitRequest"]();
+      fixture.detectChanges();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
       const error = query('[data-testid="window-end-before-start"]');
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
