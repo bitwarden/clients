@@ -1,3 +1,5 @@
+import { apiErrorBodyMessage } from "../abstractions/api-error";
+
 /**
  * The activation endpoint's error catalog, as the server words it, paired with the copy we show
  * instead. Reproduced here rather than imported because the strings cross the wire as prose: the
@@ -50,25 +52,10 @@ export const ACTIVATE_ACCESS_SERVER_ERRORS = Object.freeze({
   },
 } as const satisfies Record<string, { serverMessage: string; messageKey: string }>);
 
-/** The server's sentence, decoded out of the JSON envelope the SDK concatenated onto its transport string, or `null` when the message isn't that shape. */
-function serverSentence(message: string): string | null {
-  const bodyStart = message.indexOf("{");
-  const bodyEnd = message.lastIndexOf("}");
-  if (bodyStart === -1 || bodyEnd <= bodyStart) {
-    return null;
-  }
-  try {
-    const body = JSON.parse(message.slice(bodyStart, bodyEnd + 1)) as { message?: unknown };
-    return typeof body?.message === "string" ? body.message : null;
-  } catch {
-    return null;
-  }
-}
-
 /** The i18n key to toast for a rejected activation, generic copy included. */
 export function activateAccessErrorMessageKey(e: unknown): string {
   const message = e instanceof Error ? e.message : "";
-  const candidate = serverSentence(message) ?? message;
+  const candidate = apiErrorBodyMessage(message) ?? message;
   const mapped = Object.values(ACTIVATE_ACCESS_SERVER_ERRORS).find((entry) =>
     candidate.includes(entry.serverMessage),
   );

@@ -14,6 +14,7 @@ export {
   isKnownAccessCondition,
 } from "./abstractions/access-rule";
 export { AccessRuleSdkService } from "./abstractions/access-rule-sdk.service";
+export { apiErrorBodyMessage } from "./abstractions/api-error";
 
 export type {
   AccessApprovalMode,
