@@ -1,5 +1,11 @@
 import { svg } from "../svg";
 
+/**
+ * Exception: SVGs should not reference color variables directly, but the beta
+ * badge is an intentional exception because its gradient and accent colors are
+ * fixed brand assets that do not adapt to themes. Do not follow this pattern
+ * for other SVGs.
+ */
 export const BitwardenLogoBeta = svg`
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 121 18">
     <title>Bitwarden Beta</title>
