@@ -23,7 +23,10 @@ const NOW = new Date("2026-08-17T12:00:00.000Z");
 const NAMES = {
   ...emptyResolvedNames(),
   cipherNameById: new Map([["cipher-1", "Prod database"]]),
-  collectionNameById: new Map([["col-1", "Production"]]),
+  collectionNameById: new Map([
+    ["col-1", "Production"],
+    ["col-2", "Staging"],
+  ]),
   organizationNameById: new Map([["org-1", "Meridian Group"]]),
 };
 
@@ -335,6 +338,34 @@ describe("ApprovalsTabComponent", () => {
       expect(query("bit-accordion-group")).not.toBeNull();
       expect(query('[data-testid="approvals-active-access-empty"]')).not.toBeNull();
       expect(query('[data-testid="approvals-empty"]')).toBeNull();
+    });
+
+    it("does not claim there is no active access when a filter hid the live rows", () => {
+      inbox.inboxRows$.next([row({ id: "req-pending", collectionId: "col-2" })]);
+      inbox.activeLeaseRows$.next([leaseRow()]);
+      create();
+
+      component["collectionControl"].setValue("Staging");
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-lease-lease-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-active-access-empty"]')?.textContent).toContain(
+        "pamApprovalsNoResults",
+      );
+    });
+
+    it("does not claim there is nothing to decide when a filter hid the pending rows", () => {
+      inbox.inboxRows$.next([row()]);
+      inbox.activeLeaseRows$.next([leaseRow({ id: "req-live", collectionId: "col-2" })]);
+      create();
+
+      component["collectionControl"].setValue("Staging");
+      fixture.detectChanges();
+
+      expect(query('[data-testid="approvals-row-req-1"]')).toBeNull();
+      expect(query('[data-testid="approvals-pending-empty"]')?.textContent).toContain(
+        "pamApprovalsNoResults",
+      );
     });
 
     it("shows the inbox-zero empty state only when both sections are empty", () => {

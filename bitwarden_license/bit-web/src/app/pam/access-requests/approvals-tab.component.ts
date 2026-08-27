@@ -161,6 +161,19 @@ export class ApprovalsTabComponent implements OnInit {
   protected readonly leaseRows = computed(() => this.applyFilters(this.liveLeases()));
 
   /**
+   * Whether a section is empty only because the toolbar filters excluded its own rows. Its empty
+   * copy asserts an absolute, so rendering it in this case tells an operator that no privileged
+   * access is running while a lease the filters hid is still live and still revocable.
+   */
+  protected readonly pendingHiddenByFilters = computed(
+    () => this.rows().length === 0 && this.allRows().length > 0,
+  );
+
+  protected readonly activeAccessHiddenByFilters = computed(
+    () => this.leaseRows().length === 0 && this.liveLeases().length > 0,
+  );
+
+  /**
    * Whether the tab has anything at all before filtering, across both sections. Distinguishes an
    * empty inbox (nothing to do) from a filter that matched nothing (something to do, just not
    * visible), which need different copy and, for the latter, the filter controls left on screen.
