@@ -56,7 +56,7 @@ type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
  *
  * Own rows are read-only, so `Mine` has no action column and no clock. `Managed` adds revoke (end a
  * lease the caller granted) and withdraw (take back an approval the requester has not started), both
- * of which the SDK serves — only the two history reads themselves go over raw HTTP.
+ * of which the SDK serves.
  */
 @Component({
   selector: "pam-history-tab",
@@ -140,9 +140,13 @@ export class HistoryTabComponent {
 
   /**
    * A lease the caller granted and can still end: the row is one they manage, it produced a lease,
-   * and that lease is still live. Liveness comes from {@link isLiveManagedLease}, the same predicate
-   * the Approvals tab's Active access section lists by, so the two surfaces cannot disagree about
-   * whether a given lease can be ended.
+   * and the server still holds that lease open. Openness comes from {@link isLiveManagedLease} — the
+   * same lease-status signal the Approvals tab's Active access section lists by, read off the
+   * request rather than off the derived status badge.
+   *
+   * Membership is not identical to that section's: Active access also drops rows whose effective end
+   * has passed, a test these rows cannot make because `toRequestRow` leaves them no `extendedUntil`.
+   * A lease still marked `active` past its window is therefore revocable here and absent there.
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
     return (
