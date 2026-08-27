@@ -67,9 +67,10 @@ export class ManageClientNameDialogComponent {
       return;
     }
 
-    const request = new UpdateProviderOrganizationRequest();
-    request.assignedSeats = this.dialogParams.organization.seats;
-    request.name = this.formGroup.value.name;
+    const request = new UpdateProviderOrganizationRequest({
+      assignedSeats: this.dialogParams.organization.seats,
+      name: this.formGroup.value.name,
+    });
 
     await this.providerApiService.updateProviderOrganization(
       this.dialogParams.providerId,
