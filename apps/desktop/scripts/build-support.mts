@@ -5,7 +5,7 @@
 /// parts none of them should be spelling out themselves.
 
 import { execFileSync } from "child_process";
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from "fs";
+import { copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "fs";
 import path from "path";
 import { parseArgs } from "util";
 
@@ -87,7 +87,7 @@ export interface RunOptions {
 export function runCommand(bin: string, args: string[], options: RunOptions = {}): void {
   const cwd = path.resolve(projectDir, options.cwd ?? ".");
   // eslint-disable-next-line no-console
-  console.log(`> ${[bin, ...args].join(" ")}${options.cwd == null ? "" : `  (in ${options.cwd})`}`);
+  console.log(`> ${quoteCommand(bin, args)}${options.cwd == null ? "" : `  (in ${options.cwd})`}`);
   try {
     execFileSync(bin, args, {
       cwd,
@@ -102,9 +102,16 @@ export function runCommand(bin: string, args: string[], options: RunOptions = {}
     }
     const status = (error as { status?: number }).status;
     throw new BuildError(
-      `${bin} ${args.join(" ")} failed${status == null ? "" : ` with exit code ${status}`}.`,
+      `${quoteCommand(bin, args)} failed${status == null ? "" : ` with exit code ${status}`}.`,
     );
   }
+}
+
+/// Renders a command so that reading it back tells you what actually ran. Build settings like
+/// `CODE_SIGN_IDENTITY=Apple Development` are a single argument, and printing them bare reads
+/// as two.
+function quoteCommand(bin: string, args: string[]): string {
+  return [bin, ...args].map((part) => (/\s/.test(part) ? `'${part}'` : part)).join(" ");
 }
 
 /// Copies a built artifact to where the configuration says it belongs.
@@ -115,6 +122,20 @@ export function stageArtifact(from: string, intoDir: string, as: string): void {
   mkdirSync(intoDir, { recursive: true });
   const to = path.join(intoDir, as);
   copyFileSync(from, to);
+  // eslint-disable-next-line no-console
+  console.log(`Staged ${path.relative(projectDir, to)}`);
+}
+
+/// Copies a built bundle -- a directory macOS treats as one file, like an .appex -- to the
+/// exact path the configuration named for it. Symlinks are preserved verbatim so a signed
+/// bundle survives the copy intact.
+export function stageBundle(from: string, to: string): void {
+  if (!existsSync(from)) {
+    throw new BuildError(`Expected a build output at ${from}, but it is not there.`);
+  }
+  rmSync(to, { recursive: true, force: true });
+  mkdirSync(path.dirname(to), { recursive: true });
+  cpSync(from, to, { recursive: true, verbatimSymlinks: true });
   // eslint-disable-next-line no-console
   console.log(`Staged ${path.relative(projectDir, to)}`);
 }
