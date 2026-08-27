@@ -42,33 +42,38 @@ import { RelativeTimePipe } from "../date/relative-time.pipe";
 import { MyAccessRequestRow } from "./my-access-row";
 import { MyAccessService } from "./my-access.service";
 
-/** Which side of the history the table is showing. */
-const HistoryScope = Object.freeze({ Mine: "mine", Managed: "managed" } as const);
+/** Which slice of the history the table is showing. */
+const HistoryScope = Object.freeze({ All: "all", Mine: "mine", Managed: "managed" } as const);
 type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
 
+/** Newest first, by the moment the request was decided — falling back to when it was raised. */
+function resolvedOrSubmittedMs(row: MyAccessRequestRow): number {
+  return Date.parse(row.resolvedAt ?? row.submittedAt);
+}
+
 /**
- * "History" tab — decided requests, from two perspectives the viewer can switch between:
+ * "History" tab — decided requests, drawn from two sources:
  *
  *  - Mine: the caller's own terminal requests (everything but pending/approved, which live on the My
  *    requests tab).
- *  - Managed: the decided requests for the collections the caller manages — offered to anyone who
- *    can approve, and the only place they can undo a decision.
+ *  - Managed: the decided requests for the collections the caller manages — the only rows they can
+ *    undo a decision on.
  *
- * An untouched toggle lands on Managed whenever that side has rows, since this tab is aimed at the
- * approver and answering them with an empty table hides the history they came for behind a control
- * they have no reason to press. Nothing is rendered until both sides have answered, and the default
- * is fixed at that one moment rather than tracked: read off rows as they arrive, it would paint the
- * wrong half first, and a later background reload would swap the table — and the toggle's own
- * selection — out from under whoever is reading it.
+ * The tab opens on All, which lists both sources merged, and the toggle narrows that list to one
+ * source. Landing on everything means the reader is never answered with an empty table while their
+ * history sits behind a control they had no reason to press, and — unlike a default read off which
+ * side happens to have rows — the selection cannot move under them when a background load arrives.
  *
- * A toggle rather than one merged table. Merging them would put "a request I raised" and "a request I
- * decided" in the same list with the same columns but different available actions, so a row's
- * capabilities would depend on something invisible. Splitting keeps "what can I do to this row?"
- * answerable from what is on screen.
+ * Merging is safe because both sources are already the same row model, sorted on the same key. What
+ * differs is what a row permits: `managedIds` is the per-row authority, so a row carries the same
+ * actions under All as under the filter it came from, and a row the caller merely raised carries
+ * none. A request the caller raised against a collection they also manage is returned by both reads,
+ * so All de-duplicates by request id.
  *
- * Own rows are read-only, so `Mine` has no action column and no clock. `Managed` adds revoke (end a
- * lease the caller granted) and withdraw (take back an approval the requester has not started), both
- * of which the SDK serves.
+ * Own rows are read-only, so a caller with no approval privilege has no managed rows, gets no
+ * Actions column, and is shown no toggle — every option would be a filter over the same one list.
+ * `Managed` adds revoke (end a lease the caller granted) and withdraw (take back an approval the
+ * requester has not started), both of which the SDK serves.
  */
 @Component({
   selector: "pam-history-tab",
@@ -108,8 +113,8 @@ export class HistoryTabComponent {
     initialValue: false,
   });
 
-  /** The scope the viewer picked from the toggle, or null while the default below still applies. */
-  private readonly chosenScope = signal<HistoryScope | null>(null);
+  /** The filter the viewer picked from the toggle. */
+  private readonly selectedScope = signal<HistoryScope>(HistoryScope.All);
 
   /** Request ids currently being acted on, so a second click on the same row is a no-op. */
   private readonly acting = signal<Set<string>>(new Set());
@@ -132,59 +137,94 @@ export class HistoryTabComponent {
   });
 
   /**
-   * The half to open on, decided once both sides have answered and latched there — null until then,
-   * which is what the skeleton renders on.
+   * Latched true the first time every source the table draws from has finished loading — which is
+   * all the skeleton is waiting for, now that nothing about the opening view is read off the rows.
    *
-   * Each service's `loading$` starts true and clears when its `load()` resolves, but the shell only
-   * loads the inbox for a caller who can approve, so for everyone else that flag stays raised for
-   * the life of the page and cannot be waited on.
+   * Latched rather than tracked so a background reload cannot pull the table out from under whoever
+   * is reading it. Sampling the whole first load, rather than clearing as soon as any one source
+   * answers, also keeps All from rendering half its rows as though they were all of them.
    *
-   * Hence the sync date. `canApprove$` is derived from synced organization and collection state, so
-   * before the first sync lands it answers `false` for a genuine approver too, and taking that for a
-   * settled "not an approver" is what opened this tab on the wrong half. Nothing else on this path
-   * awaits the sync — the history route has no guard; `canViewApprovalsGuard` waits the same way for
-   * the same reason on the sibling tab.
+   * The shell only loads the inbox for a caller who can approve, so for everyone else that flag
+   * stays raised for the life of the page and cannot be waited on. `canApprove$` is derived from
+   * synced organization and collection state, so before the first sync lands it answers `false` for
+   * a genuine approver too; until a sync date exists a `false` there is not a settled "not an
+   * approver", and the inbox still has to be waited on. Nothing else on this path awaits the sync —
+   * the history route has no guard; `canViewApprovalsGuard` waits the same way for the same reason
+   * on the sibling tab.
    */
-  private readonly openingScope = toSignal(
+  private readonly historyLoaded = toSignal(
     combineLatest([
-      this.syncService.activeUserLastSync$(),
-      this.approvalPrivileges.canApprove$,
-      this.inbox.loading$,
       this.myAccess.loading$,
-      this.inbox.historyRows$,
+      this.inbox.loading$,
+      this.approvalPrivileges.canApprove$,
+      this.syncService.activeUserLastSync$(),
     ]).pipe(
       filter(
-        ([lastSync, canApprove, inboxLoading, myLoading]) =>
-          !myLoading && (canApprove ? !inboxLoading : lastSync != null),
+        ([myLoading, inboxLoading, canApprove, lastSync]) =>
+          !myLoading && !((canApprove || lastSync == null) && inboxLoading),
       ),
       take(1),
-      map(([, , , , managed]) => (managed.length > 0 ? HistoryScope.Managed : HistoryScope.Mine)),
+      map(() => true),
     ),
-    { initialValue: null as HistoryScope | null },
+    { initialValue: false },
   );
-
-  protected readonly historyReady = computed(() => this.openingScope() != null);
 
   private readonly hasManagedHistory = computed(() => this.managedRows().length > 0);
 
-  protected readonly scope = computed<HistoryScope>(
-    () => this.chosenScope() ?? this.openingScope() ?? HistoryScope.Mine,
-  );
-
   /**
    * The toggle is offered to anyone who can approve, rows or not — gating it on rows hides the
-   * second scope until it has content, which is exactly when the reader no longer needs telling it
-   * exists. The `hasManagedHistory()` term keeps it for a viewer who has managed rows but whom the
-   * privilege predicate does not recognise as an approver.
+   * filters until there is something to filter, which is exactly when the reader no longer needs
+   * telling they exist. The `hasManagedHistory()` term keeps it for a viewer who has managed rows
+   * but whom the privilege predicate does not recognise as an approver.
    */
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
-  protected readonly showingManaged = computed(
-    () => this.scope() === HistoryScope.Managed && this.canSwitchScope(),
+  /** Falls back to All if the toggle goes away while a filter is applied. */
+  protected readonly scope = computed<HistoryScope>(() =>
+    this.canSwitchScope() ? this.selectedScope() : HistoryScope.All,
   );
 
-  protected readonly historyRows = computed(() =>
-    this.showingManaged() ? this.managedRows() : this.myRows(),
+  /** Both sources in one list, de-duplicated by request id and re-sorted on the shared key. */
+  private readonly allRows = computed(() => {
+    const rowsById = new Map(this.managedRows().map((row) => [String(row.id), row]));
+    for (const row of this.myRows()) {
+      const key = String(row.id);
+      if (!rowsById.has(key)) {
+        rowsById.set(key, row);
+      }
+    }
+    return [...rowsById.values()].sort(
+      (a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a),
+    );
+  });
+
+  protected readonly historyRows = computed(() => {
+    switch (this.scope()) {
+      case HistoryScope.Mine:
+        return this.myRows();
+      case HistoryScope.Managed:
+        return this.managedRows();
+      default:
+        return this.allRows();
+    }
+  });
+
+  protected readonly showSkeleton = computed(() => !this.historyLoaded());
+
+  /**
+   * Shown exactly when something in the current list can be acted on. Keyed off the listed rows
+   * rather than the viewer's privilege because an approver who has decided nothing yet, and the
+   * caller's own rows under "Raised by me", would otherwise get a column of nothing but dashes —
+   * and keyed off the rows rather than the scope because a request the caller raised against a
+   * collection they manage is actionable under every filter it appears in.
+   */
+  protected readonly showActionsColumn = computed(() => {
+    const managed = this.managedIds();
+    return this.historyRows().some((row) => managed.has(String(row.id)));
+  });
+
+  protected readonly emptyMessageKey = computed(() =>
+    this.scope() === HistoryScope.Managed ? "pamInboxHistoryEmpty" : "pamMyRequestsHistoryEmpty",
   );
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
@@ -198,15 +238,13 @@ export class HistoryTabComponent {
     });
   }
 
-  /** Pin the scope to the viewer's choice, so a later load cannot move them off it. */
   protected selectScope(scope: HistoryScope): void {
-    this.chosenScope.set(scope);
+    this.selectedScope.set(scope);
   }
 
   /** The decrypted cipher for a row, or undefined when it isn't in the caller's vault. */
   protected cipherFor(cipherId: string): CipherView | undefined {
-    const source = this.showingManaged() ? this.managedCiphers() : this.myCiphers();
-    return source.get(cipherId);
+    return this.myCiphers().get(cipherId) ?? this.managedCiphers().get(cipherId);
   }
 
   protected isActing(row: MyAccessRequestRow): boolean {
@@ -225,14 +263,13 @@ export class HistoryTabComponent {
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
     return (
-      this.showingManaged() && this.managedIds().has(String(row.id)) && isLiveManagedLease(row)
+      this.managedIds().has(String(row.id)) && isLiveManagedLease(row)
     );
   }
 
   /** An approval the requester has not started yet, so it can still be withdrawn. */
   protected canCancelApproval(row: MyAccessRequestRow): boolean {
     return (
-      this.showingManaged() &&
       this.managedIds().has(String(row.id)) &&
       row.status === "approved" &&
       row.producedLeaseId == null
