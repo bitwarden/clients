@@ -12,7 +12,7 @@
     "message": "Yêu thích"
   },
   "favoritesFilterTooltip": {
-    "message": "Mark items as favorites to filter them here."
+    "message": "Đánh dấu các mục là yêu thích để lọc chúng tại đây."
   },
   "unfavorite": {
     "message": "Bỏ thích"
@@ -120,7 +120,7 @@
     "message": "Thư mục của tôi"
   },
   "foldersFilterTooltip": {
-    "message": "Add folders to items to filter them here."
+    "message": "Thêm thư mục vào các mục để lọc chúng tại đây."
   },
   "addSharedFolder": {
     "message": "Thêm thư mục chia sẻ"
@@ -525,17 +525,8 @@
   "launch": {
     "message": "Khởi chạy"
   },
-  "launchWebsiteForName": {
-    "message": "Khởi chạy trang web cho $ITEMNAME$",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret item"
-      }
-    }
-  },
   "launchWebsite": {
-    "message": "Launch website"
+    "message": "Mở trang web"
   },
   "copyValue": {
     "message": "Sao chép giá trị",
@@ -1202,20 +1193,6 @@
   },
   "copyVerificationCodeTotp": {
     "message": "Sao chép mã xác thực (TOTP)"
-  },
-  "copyFieldCipherName": {
-    "message": "Sao chép $FIELD$, $CIPHERNAME$",
-    "description": "Title for a button that copies a field value to the clipboard.",
-    "placeholders": {
-      "field": {
-        "content": "$1",
-        "example": "Username"
-      },
-      "ciphername": {
-        "content": "$2",
-        "example": "Login Item"
-      }
-    }
   },
   "copyPrivateKey": {
     "message": "Sao chép khóa riêng tư"
@@ -2027,16 +2004,6 @@
   "showQuickCopyActionsInVault": {
     "message": "Hiển thị các thao tác sao chép nhanh trong kho lưu trữ"
   },
-  "copyNoteTitle": {
-    "message": "Sao chép ghi chú - $ITEMNAME$",
-    "description": "Title for a button copies a note to the clipboard.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Note Item"
-      }
-    }
-  },
   "noDetailsToCopy": {
     "message": "Không có chi tiết để sao chép"
   },
@@ -2151,16 +2118,6 @@
   "noSecurityCode": {
     "message": "Không có mã bảo mật"
   },
-  "copyDetailsTitle": {
-    "message": "Sao chép chi tiết cho $ITEMNAME$",
-    "description": "Title for a button that opens a menu with options to copy information from an item.",
-    "placeholders": {
-      "itemname": {
-        "content": "$1",
-        "example": "Secret Item"
-      }
-    }
-  },
   "copyUsername": {
     "message": "Sao chép tên đăng nhập"
   },
@@ -2179,9 +2136,6 @@
     "message": "Sao chép mã bảo mật",
     "description": "Copy credit card security code (CVV)"
   },
-  "cardNumber": {
-    "message": "số thẻ"
-  },
   "premiumMembership": {
     "message": "Thành viên Cao Cấp"
   },
@@ -2191,62 +2145,14 @@
   "premiumManageAlert": {
     "message": "Bạn có thể quản lý tài khoản thành viên của mình trên trang web bitwarden.com. Bạn có muốn truy cập trang web bây giờ không?"
   },
-  "premiumRefresh": {
-    "message": "Làm mới thành viên"
-  },
-  "premiumNotCurrentMember": {
-    "message": "Bạn hiện không phải là thành viên Cao cấp."
-  },
-  "premiumSignUpAndGet": {
-    "message": "Đăng ký làm thành viên Cao cấp và nhận được:"
-  },
   "premiumSignUpStorage": {
     "message": "1GB bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm."
-  },
-  "premiumSignUpStorageV2": {
-    "message": "$SIZE$ bộ nhớ lưu trữ được mã hóa cho các tệp đính kèm.",
-    "placeholders": {
-      "size": {
-        "content": "$1",
-        "example": "1 GB"
-      }
-    }
-  },
-  "premiumSignUpTwoStepOptions": {
-    "message": "Các tùy chọn xác minh hai bước như YubiKey và Duo."
-  },
-  "premiumSignUpReports": {
-    "message": "Độ mạnh của mật khẩu, tình trạng bảo mật tài khoản và các báo cáo rò rỉ dữ liệu để bảo vệ kho lưu trữ của bạn."
-  },
-  "premiumSignUpTotp": {
-    "message": "Trình tạo mã xác minh TOTP (2FA) cho các mục đăng nhập trong kho của bạn."
-  },
-  "premiumSignUpSupport": {
-    "message": "Hỗ trợ khách hàng ưu tiên."
-  },
-  "premiumSignUpFuture": {
-    "message": "Tất cả các tính năng cao cấp trong tương lai. Nó sẽ sớm xuất hiện!"
   },
   "premiumPurchase": {
     "message": "Mua bản Cao Cấp"
   },
   "premiumPurchaseAlertV2": {
     "message": "Bạn có thể mua gói Cao cấp từ cài đặt tài khoản trên kho web Bitwarden."
-  },
-  "premiumCurrentMember": {
-    "message": "Bạn là một thành viên Cao cấp!"
-  },
-  "premiumCurrentMemberThanks": {
-    "message": "Cảm ơn bạn đã hỗ trợ Bitwarden."
-  },
-  "premiumPrice": {
-    "message": "Tất cả chỉ với $PRICE$/năm!",
-    "placeholders": {
-      "price": {
-        "content": "$1",
-        "example": "$10"
-      }
-    }
   },
   "month": {
     "message": "tháng"
@@ -3553,7 +3459,7 @@
     "message": "Tùy chọn khác"
   },
   "optionsForItem": {
-    "message": "Options for $NAME$",
+    "message": "Tùy chọn cho $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -3562,10 +3468,10 @@
     }
   },
   "noSharedFolder": {
-    "message": "No shared folder"
+    "message": "Không có thư mục chia sẻ nào"
   },
   "filterByName": {
-    "message": "Filter by $NAME$",
+    "message": "Lọc theo $NAME$",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -5267,10 +5173,17 @@
     "message": "Đổi email tài khoản"
   },
   "passkeyLogin": {
-    "message": "Đăng nhập bằng mã khóa?"
+    "message": "Đăng nhập bằng mã khóa?",
+    "description": "Deprecated; we shouldn't use a question mark. Use passkeyLogin2 instead."
+  },
+  "passkeyLogin2": {
+    "message": "Log in with passkey"
   },
   "savePasskeyQuestion": {
     "message": "Lưu mã khóa?"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
   },
   "saveNewPasskey": {
     "message": "Lưu như đăng nhập mới"
@@ -5282,7 +5195,11 @@
     "message": "Không có đăng nhập khớp với trang web này"
   },
   "overwritePasskey": {
-    "message": "Ghi đè mã khoá?"
+    "message": "Ghi đè mã khoá?",
+    "description": "Deprecated; we shouldn't use a question mark. Use overwritePasskey2 instead."
+  },
+  "overwritePasskey2": {
+    "message": "Overwrite passkey"
   },
   "unableToSavePasskey": {
     "message": "Không thể lưu mã khóa"
@@ -6401,6 +6318,90 @@
       "label": {
         "content": "$1",
         "example": "Login"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationMacOS": {
+    "message": "create a new $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to create a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteMacOS": {
+    "message": "overwrite a $RPID$ passkey for $USERNAME$",
+    "description": "Prompt for the user to overwrite an existing passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionMacOS": {
+    "message": "sign in as $USERNAME$ with your $RPID$ passkey",
+    "description": "Prompt for the user to use a passkey. Shown in macOS Touch ID prompt as \"Bitwarden is trying to {message}.\", so sentence capitalization and ending punctuation should be omitted.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyRegistrationWindows": {
+    "message": "Verify it's you to create a new $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to register a new passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyOverwriteWindows": {
+    "message": "Verify it's you to overwrite a $RPID$ passkey for $USERNAME$.",
+    "description": "Prompt in Windows Hello to overwrite an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
+      }
+    }
+  },
+  "confirmPasskeyAssertionWindows": {
+    "message": "Verify it's you to sign in as $USERNAME$ with your $RPID$ passkey.",
+    "description": "Prompt in Windows Hello to use an existing passkey.",
+    "placeholders": {
+      "rpId": {
+        "content": "$1",
+        "example": "example.com"
+      },
+      "username": {
+        "content": "$2",
+        "example": "user@acme.com"
       }
     }
   }

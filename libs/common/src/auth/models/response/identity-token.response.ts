@@ -121,11 +121,16 @@ export class IdentityTokenResponse extends BaseResponse {
     // to enroll, just after key-connector has been enabled for the organization. Thus, we need to check that the
     // master password is also not present. Upon migration, the master-password will be removed from the user.
     //
+    // A newly JIT-provisioned SSO user in a key-connector organization has neither a master password nor a
+    // wrapped user key yet; their key-connector key is created during the domain confirmation flow. Without a
+    // wrapped user key there is nothing to unwrap, so unlock is not possible from this response.
+    //
     // Ideally, the server would track key connector enrollment, and deliver a status indicating whether the user
     // is enrolled fully, or needs migration, but this is currently not present.
     return (
       this.userDecryptionOptions?.keyConnectorOption != null &&
-      this.userDecryptionOptions.hasMasterPassword == false
+      this.userDecryptionOptions.hasMasterPassword == false &&
+      this.hasMasterKeyEncryptedUserKey()
     );
   }
 
@@ -136,7 +141,7 @@ export class IdentityTokenResponse extends BaseResponse {
 
     return {
       url: this.userDecryptionOptions!.keyConnectorOption.keyConnectorUrl,
-      keyConnectorKeyWrappedUserKey: this.key.toSdk(),
+      keyConnectorKeyWrappedUserKey: this.key!.toSdk(),
     };
   }
 }

@@ -4,7 +4,7 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { of } from "rxjs";
 
 import { CollectionAdminService } from "@bitwarden/admin-console/common";
-import { LockService, LogoutService } from "@bitwarden/auth/common";
+import { LogoutService } from "@bitwarden/auth/common";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -23,6 +23,7 @@ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { RestrictedItemTypesService } from "@bitwarden/common/vault/services/restricted-item-types.service";
 import { DialogService } from "@bitwarden/components";
 import { enabledFlags } from "@bitwarden/storybook";
+import { LockService } from "@bitwarden/unlock";
 import { RoutedVaultFilterModel } from "@bitwarden/vault";
 
 import { PreloadedEnglishI18nModule } from "../../../../core/tests";
