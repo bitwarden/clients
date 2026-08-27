@@ -110,7 +110,6 @@ import { PhishingDetectionSettingsServiceAbstraction } from "@bitwarden/common/d
 import { HibpApiService } from "@bitwarden/common/dirt/services/hibp-api.service";
 import { PhishingDetectionSettingsService } from "@bitwarden/common/dirt/services/phishing-detection/phishing-detection-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { DefaultAccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/default-account-cryptographic-state.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/key-management/device-trust/abstractions/device-trust.service.abstraction";
