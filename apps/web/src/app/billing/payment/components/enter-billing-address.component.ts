@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { map, Observable, startWith, Subject, takeUntil } from "rxjs";
+import { map, Observable, pairwise, startWith, Subject, takeUntil } from "rxjs";
 
 import { ControlsOf } from "@bitwarden/angular/types/controls-of";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -10,7 +10,14 @@ import {
 } from "@bitwarden/web-vault/app/billing/warnings/types";
 
 import { SharedModule } from "../../../shared";
-import { BillingAddress, getTaxIdTypeForCountry, selectableCountries, taxIdTypes } from "../types";
+import {
+  BillingAddress,
+  findTaxIdTypeByValue,
+  getTaxIdTypeForCountry,
+  normalizeTaxIdValue,
+  selectableCountries,
+  taxIdTypes,
+} from "../types";
 
 export interface BillingAddressControls {
   country: string;
@@ -29,9 +36,12 @@ export const getBillingAddressFromForm = (formGroup: BillingAddressFormGroup): B
 
 export const getBillingAddressFromControls = (controls: BillingAddressControls) => {
   const { taxId, ...addressFields } = controls;
-  const taxIdType = taxId ? getTaxIdTypeForCountry(addressFields.country) : null;
+  const normalizedTaxId = taxId ? normalizeTaxIdValue(taxId) : null;
+  const taxIdType = normalizedTaxId
+    ? getTaxIdTypeForCountry(addressFields.country, normalizedTaxId)
+    : null;
   return taxIdType
-    ? { ...addressFields, taxId: { code: taxIdType.code, value: taxId! } }
+    ? { ...addressFields, taxId: { code: taxIdType.code, value: normalizedTaxId! } }
     : { ...addressFields, taxId: null };
 };
 
@@ -140,16 +150,18 @@ type Scenario =
                 [formControl]="group.controls.taxId"
                 data-testid="tax-id"
               />
-              @let hint = taxIdWarningHint;
+              @let hint = taxIdHint;
               @if (hint) {
-                <bit-hint
-                  ><i
-                    class="bwi bwi-exclamation-triangle tw-mr-1"
-                    title="{{ hint }}"
-                    aria-hidden="true"
-                  ></i
-                  >{{ hint }}</bit-hint
-                >
+                <bit-hint>
+                  @if (taxIdWarningActive) {
+                    <bit-icon
+                      name="bwi-exclamation-triangle"
+                      class="tw-mr-1"
+                      title="{{ hint }}"
+                    ></bit-icon>
+                  }
+                  {{ hint }}
+                </bit-hint>
               }
             </bit-form-field>
           </div>
@@ -202,13 +214,18 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
       }),
     );
 
-    this.supportsTaxId$.pipe(takeUntil(this.destroy$)).subscribe((supportsTaxId) => {
-      if (supportsTaxId) {
-        this.group.controls.taxId.enable();
-      } else {
-        this.group.controls.taxId.disable();
-      }
-    });
+    this.supportsTaxId$
+      .pipe(startWith(undefined), pairwise(), takeUntil(this.destroy$))
+      .subscribe(([previouslySupported, supportsTaxId]) => {
+        if (supportsTaxId) {
+          this.group.controls.taxId.enable();
+        } else {
+          this.group.controls.taxId.disable();
+          if (previouslySupported) {
+            this.group.controls.taxId.reset();
+          }
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -223,38 +240,40 @@ export class EnterBillingAddressComponent implements OnInit, OnDestroy {
     this.group.controls.state.disable();
   };
 
-  get taxIdWarningHint() {
-    if (
-      this.scenario.type === "checkout" ||
-      !this.scenario.supportsTaxId ||
-      !this.group.value.country ||
-      this.scenario.taxIdWarning !== TaxIdWarningTypes.FailedVerification
-    ) {
+  get taxIdHint(): string | null {
+    return this.computeTaxIdHint(this.group.value.country, this.group.value.taxId);
+  }
+
+  get taxIdWarningActive(): boolean {
+    return (
+      this.scenario.type === "update" &&
+      this.scenario.taxIdWarning === TaxIdWarningTypes.FailedVerification
+    );
+  }
+
+  private computeTaxIdHint(country: string | null | undefined, taxId: string | null | undefined) {
+    if (!this.scenario.supportsTaxId || !country || country === "US") {
       return null;
     }
-
-    const taxIdType = getTaxIdTypeForCountry(this.group.value.country);
-
-    if (!taxIdType) {
+    const types = taxIdTypes.filter((type) => type.iso === country);
+    if (types.length === 0) {
       return null;
     }
+    const resolved =
+      types.length === 1 ? types[0] : taxId ? findTaxIdTypeByValue(types, taxId) : undefined;
 
-    const checkInputFormat = this.i18nService.t("checkInputFormat");
-
-    switch (taxIdType.code) {
-      case "au_abn": {
-        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "ABN", taxIdType.example);
-        return `${checkInputFormat} ${exampleFormat}`;
-      }
-      case "eu_vat": {
-        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "EU VAT", taxIdType.example);
-        return `${checkInputFormat} ${exampleFormat}`;
-      }
-      case "gb_vat": {
-        const exampleFormat = this.i18nService.t("exampleTaxIdFormat", "GB VAT", taxIdType.example);
-        return `${checkInputFormat} ${exampleFormat}`;
-      }
+    if (this.taxIdWarningActive) {
+      const check = this.i18nService.t("checkInputFormat");
+      return resolved
+        ? `${check} ${this.i18nService.t("taxIdFormatExample", resolved.example)}`
+        : check;
     }
+
+    if (types.length === 1) {
+      return this.i18nService.t("taxIdFormatExample", types[0].example);
+    }
+
+    return resolved ? this.i18nService.t("recognizedTaxIdFormat", resolved.description) : null;
   }
 
   static getFormGroup = (): BillingAddressFormGroup =>
