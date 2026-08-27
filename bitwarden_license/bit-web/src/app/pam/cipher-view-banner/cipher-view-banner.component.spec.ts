@@ -155,12 +155,6 @@ describe("CipherViewBannerComponent", () => {
       ?.querySelector("bit-error") ?? null) as HTMLElement | null;
   }
 
-  // The hooks sit on the End `bit-form-field`: `bit-error` is created inside the design system's
-  // own template, so it cannot carry one itself.
-  function windowError(testId: string): HTMLElement | null {
-    return query(`[data-testid="${testId}"] bit-error`);
-  }
-
   beforeEach(() => {
     enabled$ = new BehaviorSubject<boolean>(true);
     requestsApi = mock<AccessRequestSdkService>();
@@ -674,9 +668,8 @@ describe("CipherViewBannerComponent", () => {
 
       expect(component["humanForm"].invalid).toBe(true);
       const maxWindow = formatDuration("en-US", 1800, "long");
-      const error = windowError("window-exceeds-max");
+      const error = endFieldError();
       expect(error).not.toBeNull();
-      expect(error).toBe(endFieldError());
       expect(error?.textContent).toContain(maxWindow);
     });
 
@@ -807,9 +800,8 @@ describe("CipherViewBannerComponent", () => {
       await fixture.whenStable();
       fixture.detectChanges();
 
-      const error = windowError("window-end-before-start");
+      const error = endFieldError();
       expect(error).not.toBeNull();
-      expect(error).toBe(endFieldError());
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
       expect(error?.getAttribute("aria-live")).toBe("assertive");
       const endInput = query("#pam-cipher-view-banner_input_end");
@@ -830,7 +822,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(component["humanForm"].controls.end.touched).toBe(true);
-      const error = windowError("window-end-before-start");
+      const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
     });
@@ -854,8 +846,6 @@ describe("CipherViewBannerComponent", () => {
 
       expect(component["humanForm"].controls.end.errors).toBeNull();
       expect(endFieldError()).toBeNull();
-      expect(query('[data-testid="window-end-before-start"]')).toBeNull();
-      expect(query('[data-testid="window-exceeds-max"]')).toBeNull();
     });
 
     it("reveals the window error on submit rather than submitting", async () => {
@@ -877,7 +867,7 @@ describe("CipherViewBannerComponent", () => {
       fixture.detectChanges();
 
       expect(requestsApi.submitAccessRequest).not.toHaveBeenCalled();
-      const error = windowError("window-end-before-start");
+      const error = endFieldError();
       expect(error).not.toBeNull();
       expect(error?.textContent).toContain("requestAccessModalEndBeforeStart");
     });
