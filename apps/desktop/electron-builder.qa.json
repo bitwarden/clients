@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "extends": "electron-builder.json",
+  "appId": "com.bitwarden.desktop.qa",
+  "productName": "Bitwarden QA",
+  "extraMetadata": {
+    "name": "bitwarden-qa"
+  },
+  "dmg": {
+    "artifactName": "Bitwarden-${version}-${arch}.${ext}"
+  },
+  "portable": {
+    "artifactName": "Bitwarden-Portable-${version}.${ext}"
+  }
+}
