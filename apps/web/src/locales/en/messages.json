@@ -17347,6 +17347,9 @@
   "pamInboxReasonMissing": {
     "message": "No reason provided"
   },
+  "pamAccessRequestedLabel": {
+    "message": "Access requested"
+  },
   "pamInboxRequester": {
     "message": "Requester"
   },
@@ -17809,14 +17812,26 @@
   "pamApprovalsSearchPlaceholder": {
     "message": "Search credential, collection, requester"
   },
+  "pamDecideAdditionalInformation": {
+    "message": "Additional information"
+  },
+  "pamDecideCommentAuditHint": {
+    "message": "Optional, saved to the audit log"
+  },
   "pamDecideApproveTitle": {
     "message": "Approve access request"
   },
-  "pamDecideCommentHint": {
-    "message": "Optional · saved to the audit log"
-  },
   "pamDecideDenyTitle": {
     "message": "Deny access request"
+  },
+  "pamDecideDenyReasonLabel": {
+    "message": "Reason for denial"
+  },
+  "pamDecideDenyReasonPlaceholder": {
+    "message": "e.g. Access no longer needed"
+  },
+  "pamDecideDenyReasonRequired": {
+    "message": "A reason is required to deny this request."
   },
   "pamInboxApprove": {
     "message": "Approve"
@@ -17836,14 +17851,8 @@
   "pamInboxCommentPlaceholder": {
     "message": "Add an optional comment"
   },
-  "pamInboxConfirmApprove": {
-    "message": "Approve this access request?"
-  },
   "pamInboxConfirmApproveButton": {
     "message": "Approve request"
-  },
-  "pamInboxConfirmDeny": {
-    "message": "Deny this access request?"
   },
   "pamInboxConfirmDenyButton": {
     "message": "Deny request"
