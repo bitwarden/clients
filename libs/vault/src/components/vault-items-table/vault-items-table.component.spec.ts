@@ -85,7 +85,7 @@ function cipherListView(overrides: Partial<CipherListView> = {}): CipherListView
 @Component({
   selector: "test-wrapped-toolbar-host",
   template: `
-    <vault-items-table [ciphers]="[]">
+    <vault-items-table [ciphers]="[]" [orgRequiresDataOwnership]="false">
       <div slot="toolbar">
         @if (show()) {
           <button id="toolbar-action" type="button">Add</button>
@@ -104,7 +104,7 @@ class WrappedToolbarHostComponent {
 @Component({
   selector: "test-bare-toolbar-host",
   template: `
-    <vault-items-table [ciphers]="[]">
+    <vault-items-table [ciphers]="[]" [orgRequiresDataOwnership]="false">
       @if (show()) {
         <button slot="toolbar" id="toolbar-action" type="button" bitButton>Import</button>
         <span slot="toolbar" id="toolbar-second">Add</span>
@@ -181,6 +181,7 @@ describe("VaultItemsTableComponent", () => {
       TestBed.createComponent<VaultItemsTableComponent<CipherViewLike>>(VaultItemsTableComponent);
     component = fixture.componentInstance;
     fixture.componentRef.setInput("ciphers", []);
+    fixture.componentRef.setInput("orgRequiresDataOwnership", false);
   });
 
   /** The component's single filter predicate, which the table derives every other state from. */
@@ -716,13 +717,13 @@ describe("VaultItemsTableComponent", () => {
     });
 
     describe("chip options", () => {
-      it("omits an organization that holds no ciphers", () => {
+      it("includes all organizations regardless of which hold ciphers", () => {
         fixture.componentRef.setInput("ciphers", [
           cipherView({ id: "a", organizationId: undefined }),
           cipherView({ id: "b", organizationId: "org-2" as never }),
         ]);
 
-        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-2"]);
+        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-1", "org-2"]);
       });
 
       it("omits My vault when every cipher is organization-owned", () => {
@@ -741,6 +742,26 @@ describe("VaultItemsTableComponent", () => {
         ]);
 
         expect(component["showMyVaultOption"]()).toBe(true);
+      });
+
+      it("offers My vault when the vault is empty and not org-scoped", () => {
+        fixture.componentRef.setInput("ciphers", []);
+
+        expect(component["showMyVaultOption"]()).toBe(true);
+      });
+
+      it("omits My vault in the empty-vault fallback when scoped to an organization", () => {
+        fixture.componentRef.setInput("ciphers", []);
+        fixture.componentRef.setInput("organizationId", "org-1");
+
+        expect(component["showMyVaultOption"]()).toBe(false);
+      });
+
+      it("omits My vault in the empty-vault fallback when the org requires data ownership", () => {
+        fixture.componentRef.setInput("ciphers", []);
+        fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+
+        expect(component["showMyVaultOption"]()).toBe(false);
       });
     });
 
@@ -969,6 +990,8 @@ describe("VaultItemsTableComponent", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
         { id: "org-1", name: "Acme" } as Organization,
+        // A second org is required for the Vault chip to render (organizations().length > 1).
+        { id: "org-2", name: "Contoso" } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,

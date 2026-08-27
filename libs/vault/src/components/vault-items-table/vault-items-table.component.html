@@ -45,7 +45,7 @@
       [style.pointer-events]="'auto'"
     ></bit-filter-toggle>
 
-    @if (multipleVaults()) {
+    @if (organizations().length > 1 || (showMyVaultOption() && organizations().length === 1)) {
       <bit-filter-menu [key]="filterKeys.vault" [placeholderText]="'vault' | i18n" multiple>
         @if (showMyVaultOption()) {
           <bit-filter-option [value]="MY_VAULT">{{ "myVault" | i18n }}</bit-filter-option>

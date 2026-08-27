@@ -274,6 +274,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   readonly itemAction = input<(item: C) => void | Promise<void>>();
 
+  /**
+   * Whether the `OrganizationDataOwnership` organization policy is enabled.
+   */
+  readonly orgRequiresDataOwnership = input.required<boolean>();
+
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
 
@@ -409,18 +414,25 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly multipleVaults = computed(() => this.presentVaults().size > 1);
 
-  /** Whether the Vault chip offers "My vault" — only when some cipher is individually owned. */
-  protected readonly showMyVaultOption = computed(() => this.presentVaults().has(MY_VAULT));
+  /**
+   * Whether the Vault chip offers "My vault". True when some cipher is individually owned, or
+   * when there are no ciphers yet and this is not an org-scoped view — so the option is always
+   * available in an empty individual vault.
+   */
+  protected readonly showMyVaultOption = computed(() => {
+    const hasPersonalCiphers = this.presentVaults().has(MY_VAULT);
+    const isEmptyIndividualVault =
+      !this.ciphers().length && !this.organizationId() && !this.orgRequiresDataOwnership();
+    return hasPersonalCiphers || isEmptyIndividualVault;
+  });
 
   /**
-   * The organizations the Vault chip offers, sorted for a stable menu.
+   * The organizations the Vault chip offers, sorted for a stable menu. All organizations are
+   * always included so the dropdown is stable — it never shrinks as items are added.
    */
-  protected readonly sortedOrganizations = computed(() => {
-    const present = this.presentVaults();
-    return this.organizations()
-      .filter((organization) => present.has(idString(organization.id) ?? ""))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  });
+  protected readonly sortedOrganizations = computed(() =>
+    [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
+  );
 
   /**
    * Whether the Shared folders chip has anything to offer — only when some cipher belongs to an organization
