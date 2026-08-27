@@ -138,15 +138,28 @@ describe("TableSelectionModel", () => {
     });
 
     /**
-     * The header checkbox reads off these two. Measured against every selectable row they would
-     * never resolve once a capped select-all stops short — leaving the header stuck indeterminate
-     * with no way to reach a checked state.
+     * A capped select-all leaves rows the user can see unchecked, so the header has to read as
+     * partial. A filled box above visibly unchecked rows claims the selection covers them.
      */
-    it("resolves allSelected at the cap rather than staying indeterminate", () => {
+    it("reads as partial at the cap, not complete", () => {
       const model = new TableSelectionModel<Row>({
         multiple: true,
         max: 10,
         rows: signal(rows(25)),
+      });
+
+      model.toggleAll();
+
+      expect(model.allSelected()).toBe(false);
+      expect(model.indeterminate()).toBe(true);
+    });
+
+    /** With nothing left out, the header is genuinely complete. */
+    it("reads as complete when the cap happens to cover every row", () => {
+      const model = new TableSelectionModel<Row>({
+        multiple: true,
+        max: 10,
+        rows: signal(rows(10)),
       });
 
       model.toggleAll();

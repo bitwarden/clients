@@ -1539,10 +1539,10 @@ describe("VaultItemsTableComponent", () => {
     });
 
     /**
-     * The header checkbox has to resolve at the cap. Measured against every filtered row it would
-     * never read as fully selected once a select-all stops short, leaving it stuck indeterminate.
+     * A capped select-all leaves rows on screen unchecked, so the header reads as partial — a
+     * filled box above visibly unchecked rows would claim the selection covers them.
      */
-    it("reports allSelected once a capped select-all has taken everything it will take", () => {
+    it("reports a partial header when the cap stops select-all short", () => {
       const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
         cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
       );
@@ -1552,8 +1552,24 @@ describe("VaultItemsTableComponent", () => {
       selectionModel().toggleAll();
       fixture.detectChanges();
 
-      expect(selectionModel().allSelected()).toBe(true);
-      expect(selectionModel().indeterminate()).toBe(false);
+      expect(selectionModel().allSelected()).toBe(false);
+      expect(selectionModel().indeterminate()).toBe(true);
+    });
+
+    /** The partial header still clears, so the cap can't strand it — see `toggleAll`. */
+    it("clears from the partial header at the cap", () => {
+      const many = Array.from({ length: MAX_SELECTION_COUNT + 25 }, (_, i) =>
+        cipherView({ id: `cipher-${i}`, name: `Item ${String(i).padStart(4, "0")}` }),
+      );
+      fixture.componentRef.setInput("ciphers", many);
+      fixture.detectChanges();
+
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+      selectionModel().toggleAll();
+      fixture.detectChanges();
+
+      expect(selectionModel().count()).toBe(0);
     });
 
     /**

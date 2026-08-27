@@ -66,11 +66,15 @@ export class TableSelectionModel<T> {
   );
 
   /**
-   * Whether every selectable in-scope row a select-all would take is selected. Measured against
-   * the capped set, so at the cap the header reads as fully selected rather than never resolving.
+   * Whether every selectable in-scope row is selected.
+   *
+   * Measured over the full set even when a `max` is in force, so a capped select-all reads as
+   * partial rather than complete — a filled header above rows the user can see are unchecked
+   * claims something untrue. {@link toggleAll} checks the cap before this, so the header stays
+   * actionable: clicking it at the cap clears.
    */
   readonly allSelected = computed(() => {
-    const rows = this.selectableWithinMax();
+    const rows = this.selectable();
     return rows.length > 0 && rows.every((row) => this.isSelected(row));
   });
 

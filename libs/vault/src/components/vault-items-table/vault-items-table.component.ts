@@ -85,7 +85,7 @@ export const VAULT_FILTER_NAMESPACE = "vault";
  * downstream view would leave rows checked that no action would ever touch, so a bulk delete over
  * the cap would silently skip the remainder.
  */
-export const MAX_SELECTION_COUNT = 500;
+export const MAX_SELECTION_COUNT = 5;
 
 /**
  * Bottom margin (px) held while the bulk-actions bar is showing: the bar's own height (53),
