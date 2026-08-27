@@ -1275,6 +1275,9 @@
   "foldersFilterTooltip": {
     "message": "Add folders to items to filter them here."
   },
+  "sharedFolderFilterTooltip": {
+    "message": "Add items to a shared folder to filter here."
+  },
   "addSharedFolder": {
     "message": "Add shared folder"
   },

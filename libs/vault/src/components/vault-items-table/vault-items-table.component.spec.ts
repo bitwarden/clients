@@ -643,6 +643,38 @@ describe("VaultItemsTableComponent", () => {
         expect(component["foldersDisabledTooltip"]()).toBe("");
       });
     });
+
+    describe("Shared folders", () => {
+      it("is disabled with a tooltip when no cipher belongs to an organization", () => {
+        fixture.componentRef.setInput("ciphers", [cipherView({ organizationId: undefined })]);
+
+        expect(component["noSharedFolderOptions"]()).toBe(true);
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("sharedFolderFilterTooltip");
+      });
+
+      it("is disabled with a tooltip when org ciphers exist but no collections are provided", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("collections", []);
+
+        expect(component["noSharedFolderOptions"]()).toBe(true);
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("sharedFolderFilterTooltip");
+      });
+
+      it("is enabled with an empty tooltip when org ciphers exist and collections are provided", () => {
+        fixture.componentRef.setInput("ciphers", [
+          cipherView({ organizationId: "org-1" as never }),
+        ]);
+        fixture.componentRef.setInput("collections", [
+          { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,
+        ]);
+
+        expect(component["noSharedFolderOptions"]()).toBe(false);
+        // Empty, not just falsy — bitTooltip only renders nothing for an empty string.
+        expect(component["sharedFolderDisabledTooltip"]()).toBe("");
+      });
+    });
   });
 
   describe("vaults present in the rows", () => {
@@ -716,22 +748,22 @@ describe("VaultItemsTableComponent", () => {
     });
 
     describe("chip options", () => {
-      it("omits an organization that holds no ciphers", () => {
+      it("includes all organizations regardless of which hold ciphers", () => {
         fixture.componentRef.setInput("ciphers", [
           cipherView({ id: "a", organizationId: undefined }),
           cipherView({ id: "b", organizationId: "org-2" as never }),
         ]);
 
-        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-2"]);
+        expect(component["sortedOrganizations"]().map((o) => o.id)).toEqual(["org-1", "org-2"]);
       });
 
-      it("omits My vault when every cipher is organization-owned", () => {
+      it("offers My vault when every cipher is organization-owned but the view is unscoped", () => {
         fixture.componentRef.setInput("ciphers", [
           cipherView({ id: "a", organizationId: "org-1" as never }),
           cipherView({ id: "b", organizationId: "org-2" as never }),
         ]);
 
-        expect(component["showMyVaultOption"]()).toBe(false);
+        expect(component["showMyVaultOption"]()).toBe(true);
       });
 
       it("offers My vault when some cipher is individually owned", () => {
@@ -741,6 +773,26 @@ describe("VaultItemsTableComponent", () => {
         ]);
 
         expect(component["showMyVaultOption"]()).toBe(true);
+      });
+
+      it("offers My vault when the vault is empty and not org-scoped", () => {
+        fixture.componentRef.setInput("ciphers", []);
+
+        expect(component["showMyVaultOption"]()).toBe(true);
+      });
+
+      it("omits My vault in the empty-vault fallback when scoped to an organization", () => {
+        fixture.componentRef.setInput("ciphers", []);
+        fixture.componentRef.setInput("scopedOrganizationId", "org-1");
+
+        expect(component["showMyVaultOption"]()).toBe(false);
+      });
+
+      it("omits My vault in the empty-vault fallback when the org requires data ownership", () => {
+        fixture.componentRef.setInput("ciphers", []);
+        fixture.componentRef.setInput("orgRequiresDataOwnership", true);
+
+        expect(component["showMyVaultOption"]()).toBe(false);
       });
     });
 
@@ -874,6 +926,9 @@ describe("VaultItemsTableComponent", () => {
 
   describe("filtering from a membership chip", () => {
     beforeEach(() => {
+      fixture.componentRef.setInput("organizations", [
+        { id: "org-1", name: "Acme" } as Organization,
+      ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Operations" } as CollectionView,
         { id: "col-2", name: "Engineering" } as CollectionView,
@@ -969,6 +1024,8 @@ describe("VaultItemsTableComponent", () => {
     beforeEach(() => {
       fixture.componentRef.setInput("organizations", [
         { id: "org-1", name: "Acme" } as Organization,
+        // A second org is required for the Vault chip to render (organizations().length > 1).
+        { id: "org-2", name: "Contoso" } as Organization,
       ]);
       fixture.componentRef.setInput("collections", [
         { id: "col-1", name: "Engineering", organizationId: "org-1" } as CollectionView,

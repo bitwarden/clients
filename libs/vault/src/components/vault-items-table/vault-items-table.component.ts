@@ -253,14 +253,14 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   readonly cipherTypes = input<CipherType[]>(ALL_CIPHER_TYPES);
 
   /**
-   * The organization these rows belong to, for a vault the admin console has scoped to one.
+   * The organization this table is scoped to, when the host has narrowed the view to one org.
    *
-   * It scopes `SearchService`'s lunr index (see {@link cipherSearchMatches}) and nothing else.
-   * Which columns and filter chips apply is derived from `ciphers` alone, so setting this neither
-   * hides nor reveals any of them — scoping the table stays a matter of narrowing `ciphers`. Leave
-   * it unset for an individual vault.
+   * Scopes `SearchService`'s lunr index (see {@link cipherSearchMatches}) and suppresses the
+   * "My vault" option in the Vault chip's empty-state fallback so a user who has no personal
+   * items yet does not see a personal-vault filter while browsing an org-scoped view.
+   * Leave it unset for an unscoped individual vault.
    */
-  readonly organizationId = input<OrganizationId>();
+  readonly scopedOrganizationId = input<OrganizationId>();
 
   /**
    * Filter chip selections to open the table with, keyed by chip `key` — e.g. deep-linking into
@@ -273,6 +273,11 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    * Runs when a row's name is activated. Omit to render the name as plain text rather than a button.
    */
   readonly itemAction = input<(item: C) => void | Promise<void>>();
+
+  /**
+   * Whether the `OrganizationDataOwnership` organization policy applies to the current user.
+   */
+  readonly orgRequiresDataOwnership = input<boolean>(false);
 
   /** Emits the selected rows whenever the selection changes. */
   readonly selectedChange = output<readonly C[]>();
@@ -367,6 +372,19 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
     this.noFolders() ? this.i18nService.t("foldersFilterTooltip") : "",
   );
 
+  /**
+   * Whether the Shared folders chip has nothing to offer: either no cipher belongs to an org,
+   * or no collections have been provided to populate the dropdown.
+   */
+  protected readonly noSharedFolderOptions = computed(
+    () => !this.showSharedFolders() || !this.collections().length,
+  );
+
+  /** Tooltip for the disabled Shared folders chip — see {@link favoritesDisabledTooltip}. */
+  protected readonly sharedFolderDisabledTooltip = computed(() =>
+    this.noSharedFolderOptions() ? this.i18nService.t("sharedFolderFilterTooltip") : "",
+  );
+
   private readonly folderNames = computed(() => this.nameMap(this.folders()));
 
   private readonly collectionNames = computed(() => this.nameMap(this.collections()));
@@ -409,18 +427,26 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
    */
   protected readonly multipleVaults = computed(() => this.presentVaults().size > 1);
 
-  /** Whether the Vault chip offers "My vault" — only when some cipher is individually owned. */
-  protected readonly showMyVaultOption = computed(() => this.presentVaults().has(MY_VAULT));
+  /**
+   * Whether the Vault chip offers "My vault". True when some cipher is individually owned, or
+   * when there are no ciphers yet and the user can have personal ciphers.
+   */
+  protected readonly showMyVaultOption = computed(() => {
+    const hasPersonalCiphers = this.presentVaults().has(MY_VAULT);
+    const canHaveEmptyPersonalVault =
+      !this.ciphers().filter((cipher) => !cipher.organizationId).length &&
+      !this.scopedOrganizationId() &&
+      !this.orgRequiresDataOwnership();
+    return hasPersonalCiphers || canHaveEmptyPersonalVault;
+  });
 
   /**
-   * The organizations the Vault chip offers, sorted for a stable menu.
+   * The organizations the Vault chip offers, sorted for a stable menu. All organizations are
+   * always included so the dropdown is stable — it never shrinks as items are added.
    */
-  protected readonly sortedOrganizations = computed(() => {
-    const present = this.presentVaults();
-    return this.organizations()
-      .filter((organization) => present.has(idString(organization.id) ?? ""))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  });
+  protected readonly sortedOrganizations = computed(() =>
+    [...this.organizations()].sort((a, b) => a.name.localeCompare(b.name)),
+  );
 
   /**
    * Whether the Shared folders chip has anything to offer — only when some cipher belongs to an organization
@@ -577,7 +603,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
   private readonly searchMatches = cipherSearchMatches(
     this.ciphers,
     this.searchTerm,
-    this.organizationId,
+    this.scopedOrganizationId,
   );
 
   /**

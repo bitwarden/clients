@@ -368,7 +368,8 @@ const rowActions: VaultItemsTableRowAction<CipherView>[] = [
  */
 type StoryProps = {
   ciphers: CipherView[];
-  organizationId?: OrganizationId;
+  scopedOrganizationId?: OrganizationId;
+  orgRequiresDataOwnership: boolean;
   loading: boolean;
   rowActions: VaultItemsTableRowAction<CipherView>[];
   folders: FolderView[];
@@ -392,7 +393,8 @@ const template = `
   <div style="display:flex; min-height: 600px;">
     <vault-items-table
       [ciphers]="ciphers"
-      [organizationId]="organizationId"
+      [scopedOrganizationId]="scopedOrganizationId"
+      [orgRequiresDataOwnership]="orgRequiresDataOwnership"
       [loading]="loading"
       [rowActions]="rowActions"
       [folders]="folders"
@@ -415,6 +417,7 @@ const template = `
 const baseProps: StoryProps = {
   ciphers,
   loading: false,
+  orgRequiresDataOwnership: false,
   rowActions,
   folders,
   collections,
@@ -670,16 +673,15 @@ export const ScopedToMyVault: Story = {
  * The same scoping to a single organization — see [Scoped To My Vault](#scoped-to-my-vault). Shared
  * folders stays useful here, since the rows still spread across that organization's collections.
  *
- * This story also binds `organizationId`, which is what an admin-console caller adds so the search
- * service scopes its lunr index to that organization. Note that it changes nothing you can see:
- * narrowing `ciphers` is what dropped the Vault chip and column, and it would have dropped them
- * just the same with `organizationId` left unset.
+ * This story also binds `scopedOrganizationId`, which scopes the search service's lunr index and
+ * suppresses the "My vault" option in the empty-state fallback. Since this story provides ciphers,
+ * it changes nothing visible here — narrowing `ciphers` is what dropped the Vault chip and column.
  */
 export const ScopedToOrganizationVault: Story = {
   args: {
     heading: "Acme corporation's vault",
     ciphers: ciphers.filter((cipher) => cipher.organizationId === "org-1"),
-    organizationId: "org-1" as OrganizationId,
+    scopedOrganizationId: "org-1" as OrganizationId,
   },
 };
 
