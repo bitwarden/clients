@@ -10,7 +10,9 @@ Autofill and the monitoring lifecycle are separate concerns. The
 [monitoring lifecycle](./lifecycle.design.md) decides _when a frame is worth engaging_ — it
 reconciles the page, account, extension, and tab lifecycles and, when a page transition resolves,
 surfaces an **opportunity**: this frame has reached a point where a fill _may_ be appropriate.
-Autofill decides _whether and how to fill_.
+Autofill decides _whether and how to fill_. The [orchestrator](./orchestrator.design.md) coordinates
+the fill action, including resolving concurrent autofill requests. It decides which contexts are
+targeted, how autofill operations are sequenced, and secures the autofill workflow at large.
 
 One rule spans every fill: autofill fills only the **committed** tab — the one the user is working in
 (see the [tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)) — and never an inactive one. The
@@ -21,7 +23,7 @@ Either way a fill lands where the user is looking, never on a background tab.
 ## Autofill on page load
 
 Autofill on page load is the response to a resolved page transition. When the lifecycle surfaces the
-opportunity, autofill applies its policy before touching the page:
+opportunity, autofill applies its policy before it commits a fill:
 
 - **The autofill-on-page-load setting must be enabled.** It is off by default, and a user who has not
   opted in gets no page-load fill even on a committed, monitored frame. The monitoring lifecycle
@@ -29,61 +31,50 @@ opportunity, autofill applies its policy before touching the page:
   re-evaluated when the setting changes — it keeps reporting transitions until logout or context
   loss — so this fill-time check, not the injection-time gate, is what enforces the setting when a
   user toggles it off mid-session.
-- **A cipher must match the frame's page.** With no match there is nothing to fill, and the
-  opportunity is discarded without collecting page details.
+- **A cipher must match the frame's page.** Autofill reads the frame to learn its fields and selects
+  the cipher saved for its URL; with no match there is nothing to fill and the opportunity is
+  discarded.
 - **The frame's trust must permit filling.** A page-load fill into an untrusted iframe is refused as
   a policy decision, not retried.
 
-Only when policy permits does autofill collect the frame's page details and fill it. A page-load
-fill carries side effects that belong to the fill and must travel with
-it: it records the account as recently active, copies a returned TOTP to the clipboard, and refreshes
-the inline menu's cipher list so the overlay reflects what was filled.
-
 The opportunity is per frame, so simultaneous page loads across frames are decided independently.
+Once policy permits, the fill is carried out by the [orchestrator](./orchestrator.design.md), which
+sequences the collect with the fill, targets the reporting frame by its live identity, and books the
+fill's user-visible effects only when a credential is actually placed.
 
-Fills are serialized per frame. A frame handles one collect-and-fill at a time: an opportunity — or a
-user-initiated fill — that arrives for a frame already filling waits its turn rather than running
-concurrently. Page-load and user-initiated fills share one dispatcher, so this ordering holds across
-both. Serializing collect→fill this way keeps two fills from racing on a single frame — a race that
-could fill twice, or, if the page navigated between collecting its details and dispatching the fill,
-place a credential chosen for the old page onto the new one.
+## Automated login (auto-submit)
 
-## Fill targeting
+Automated login extends autofill with form submission logic. On identity-provider hosts an enterprise
+administrator has approved, it carries the user through a multi-step sign-in without their intervention.
+Filling and submitting are different stakes: a fill places a credential where the user can see it and
+decide whether to send it, while a submit sends it. So the cost of acting on the wrong page rises from
+a credential _shown_ to the wrong origin to a credential _transmitted_ to it. Automated login is gated
+more tightly than any other fill to match.
 
-A page-load fill targets **the frame that produced the transition**, resolved live, by id, at the
-moment of the fill. It must not use a snapshot carried from when the transition was reported.
+Two constraints carry that weight. First, automated login runs only where policy permits: the
+approved host set is administrator-configured and approval is re-checked at every
+step rather than once at the start. A redirect can carry a frame off an approved host mid-login, so
+the check that governs an action is the one taken at the moment of that action, not at injection.
+Second, a frame is never trusted to declare itself part of an automated login. The frame
+contributes only _timing_. It reports that its current step has rendered and is ready to be acted on.
+Which frames are running the workflow is decided by trusted code from policy.
 
-The distinction is a security boundary. A transition can be paused (see the
-[tab lifecycle](./lifecycle.design.md#the-tab-lifecycle)): held while its tab is away and resolved
-later, when the tab is committed again. Between report and fill, the frame may have navigated. Filling
-from the transition's stale snapshot would put a cipher chosen for the _old_ page into whatever page
-now occupies that frame — a credential handed to the wrong origin.
+The autosubmit code is susceptible to wrong-page fill hazards. Submit actions can change the URL
+being filled, and fills happen at machine-speed. Per-step host approval means a credential is
+submitted only into a frame that still resolves to an approved host at the step that submits it.
+Beyond that gate, automated login obeys the rules every fill obeys, including the foreground
+verification that keeps a submit off a background tab.
 
-So the fill re-resolves the target tab by id and confirms the reporting frame still shows the URL it
-reported with the transition message. If the tab or frame is gone, or the frame has navigated, the fill
-is abandoned rather than redirected. Targeting the frame by its live identity and validating its origin
-keeps a paused-then-resumed transition from filling the wrong page.
+## The autofill service
 
-This applies to the page-load path specifically. Fills the user triggers directly — a keyboard
-shortcut, or choosing a card or identity — legitimately target the active tab, because the user just
-acted on the tab in front of them.
+The autofill service's **fill operation** is a narrow primitive: given a concrete cipher and a
+target, it fills and reports whether it did. It makes no selection, targeting, or foreground
+decision. The [orchestrator](./orchestrator.design.md) chooses the cipher, verifies the tab the
+user is working in, and sequences the collect with other autofill operations. Keeping the
+fill contract narrow lets autofill's fill invariants live in one place rather than being
+re-derived at every entry point.
 
-## Retry classification
-
-A form that has not finished rendering when autofill reaches it looks, momentarily, like a page with
-nothing to fill. Retrying blindly would spin on pages that genuinely have nothing; never retrying
-would miss slow-rendering forms. Autofill distinguishes the two by the **outcome** of a fill attempt,
-not by a "did I already fill this page" flag:
-
-- **Retryable** — a cipher matched, but no field accepted a value yet. The form has most likely not
-  rendered; the same attempt, made a moment later, may succeed. This is the only outcome that
-  warrants a retry.
-- **Terminal** — filling will not succeed by waiting: no cipher matched, the fill was refused on an
-  untrusted iframe, or the target tab no longer matches the transition. A retry would re-run the same
-  refusal. A successful fill is likewise terminal — there is nothing left to do.
-
-A retry is a fresh attempt at the page-load opportunity after a short delay, gated on the tab still
-being committed: if the tab has gone away or the transition has retired in the meantime, the retry is
-abandoned. Because the decision to retry is made from the honest outcome of the attempt — not from a
-flag set on the page — a page fills at most once per opportunity, whether it renders promptly or
-slowly.
+The service also carries broader, older autofill responsibilities including injecting the content scripts,
+driving the reprompt popout, event and TOTP handling. These are under active migration. The direction
+is to keep the fill operation the service's only hand in placing a credential, with selection and
+coordination remaining the orchestrator's.
