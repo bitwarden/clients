@@ -46,7 +46,7 @@
       </billing-subscription-card>
     }
 
-    @if (org?.canEditSubscription) {
+    @if (showManagementActions()) {
       @if (showChangePlanButton()) {
         <div class="tw-mt-5">
           <button bitButton buttonType="secondary" type="button" (click)="changePlan()">

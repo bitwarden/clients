@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, resource } from "@angular/core";
 import { takeUntilDestroyed, toObservable, toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, RouterModule } from "@angular/router";
+import { ActivatedRoute, Router, RouterModule } from "@angular/router";
 import { filter, firstValueFrom, lastValueFrom, take } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -8,6 +8,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { PlanType, ProductTierType } from "@bitwarden/common/billing/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   AsyncActionsModule,
@@ -96,6 +97,8 @@ export class OrganizationSubscriptionCloudVNextComponent {
 
   private readonly data = inject(OrganizationSubscriptionDataService);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly platformUtilsService = inject(PlatformUtilsService);
   private readonly i18nService = inject(I18nService);
   private readonly dialogService = inject(DialogService);
   private readonly toastService = inject(ToastService);
@@ -159,6 +162,7 @@ export class OrganizationSubscriptionCloudVNextComponent {
   });
 
   readonly showSubscription = computed(() => this.access()?.showSubscription ?? false);
+  readonly showManagementActions = computed(() => this.access()?.showManagementActions ?? false);
   readonly showSelfHost = computed(() => this.access()?.showSelfHost ?? false);
   readonly showConsolidatedBillingMsp = computed(
     () => this.access()?.showConsolidatedBillingMsp ?? false,
@@ -358,16 +362,23 @@ export class OrganizationSubscriptionCloudVNextComponent {
   });
 
   handleCardAction(action: SubscriptionCardAction) {
-    if (action === SubscriptionCardActions.ReinstateSubscription) {
-      void this.reinstate();
-      return;
-    }
-    if (
-      action === SubscriptionCardActions.UpgradePlan ||
-      action === SubscriptionCardActions.Resubscribe
-    ) {
-      void this.changePlan();
-      return;
+    switch (action) {
+      case SubscriptionCardActions.ReinstateSubscription:
+        void this.reinstate();
+        return;
+      case SubscriptionCardActions.UpgradePlan:
+      case SubscriptionCardActions.Resubscribe:
+        void this.changePlan();
+        return;
+      case SubscriptionCardActions.ManageInvoices:
+        void this.router.navigate(["../history"], { relativeTo: this.route });
+        return;
+      case SubscriptionCardActions.UpdatePayment:
+        void this.router.navigate(["../payment-details"], { relativeTo: this.route });
+        return;
+      case SubscriptionCardActions.ContactSupport:
+        this.platformUtilsService.launchUri("https://bitwarden.com/contact/");
+        return;
     }
   }
 
