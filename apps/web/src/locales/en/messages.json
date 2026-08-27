@@ -17786,14 +17786,8 @@
   "pamApprovalsCollectionFilter": {
     "message": "Collection"
   },
-  "pamApprovalsPendingHeader": {
-    "message": "Pending approval $COUNT$",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+  "pamApprovalsPendingSection": {
+    "message": "Pending approval"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"

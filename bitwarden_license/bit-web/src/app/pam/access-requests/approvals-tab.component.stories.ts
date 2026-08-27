@@ -5,13 +5,16 @@ import { of } from "rxjs";
 import { DialogService, ToastService } from "@bitwarden/components";
 import { PreloadedEnglishI18nModule } from "@bitwarden/web-vault/app/core/tests";
 
+import type { AccessLeaseId, AccessRequestView } from "../abstractions/access-lease";
 import { ApprovalRow, toApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
+import { ManagedLeaseRow, toManagedLeaseRow } from "../approvals/managed-lease-row";
 import {
   HOUR,
   MINUTE,
   STORY_NOW,
   accessRequest,
+  liveFromNow,
   provideStoryChangeDetection,
   provideStoryLogService,
   storyNames,
@@ -50,22 +53,86 @@ const ROWS: ApprovalRow[] = [
   row({ id: "req-4", cipherId: "cipher-2", requesterName: "You", reason: "Own request." }, false),
 ];
 
-function inbox(options: { rows?: ApprovalRow[]; loading?: boolean } = {}) {
-  const { rows = ROWS, loading = false } = options;
+/**
+ * Lease ends are stamped off the real clock, not {@link STORY_NOW}: the remaining-time badge runs
+ * its own countdown, so a STORY_NOW-relative window renders as already expired.
+ */
+function lease(overrides: Record<string, unknown>): ManagedLeaseRow {
+  return toManagedLeaseRow(
+    accessRequest({
+      status: "approved",
+      producedLeaseStatus: "active",
+      ...overrides,
+    }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
+    names,
+  );
+}
+
+function activeLeases(): ManagedLeaseRow[] {
+  return [
+    lease({
+      id: "req-live-1",
+      producedLeaseId: "lease-1",
+      leaseNotBefore: liveFromNow(-20 * MINUTE),
+      leaseNotAfter: liveFromNow(40 * MINUTE),
+    }),
+    lease({
+      id: "req-live-2",
+      cipherId: "cipher-2",
+      collectionId: "col-2",
+      producedLeaseId: "lease-2",
+      requesterName: "Alan Turing",
+      requesterEmail: "alan@example.com",
+      leaseNotBefore: liveFromNow(-2 * HOUR),
+      leaseNotAfter: liveFromNow(3 * HOUR),
+    }),
+    // Extended in place: the row must end at the extension's end, not the request's own.
+    toManagedLeaseRow(
+      accessRequest({
+        id: "req-live-3",
+        cipherId: "cipher-3",
+        status: "approved",
+        producedLeaseId: "lease-3",
+        producedLeaseStatus: "active",
+        requesterName: "Katherine Johnson",
+        requesterEmail: "katherine@example.com",
+        leaseNotBefore: liveFromNow(-90 * MINUTE),
+        leaseNotAfter: liveFromNow(30 * MINUTE),
+      }) as AccessRequestView & { producedLeaseId: AccessLeaseId },
+      names,
+      { addedSeconds: 2 * 60 * 60, latestEndMs: Date.now() + 2.5 * HOUR },
+    ),
+  ];
+}
+
+function inbox(
+  options: { rows?: ApprovalRow[]; leases?: () => ManagedLeaseRow[]; loading?: boolean } = {},
+) {
+  const { rows = ROWS, leases = () => [], loading = false } = options;
   return moduleMetadata({
     imports: [ApprovalsTabComponent],
     providers: [
       {
         provide: ApproverInboxService,
-        useValue: {
+        // A factory rather than a value, so the real-clock lease windows are stamped when the
+        // story renders rather than when this module was first evaluated.
+        useFactory: () => ({
           loading$: of(loading),
           loadError$: of(null),
           inboxRows$: of(rows),
+          activeLeaseRows$: of(leases()),
           cipherById$: of(names.cipherById),
           decide: () => Promise.resolve(),
+          revokeLease: () => Promise.resolve(),
+        }),
+      },
+      {
+        provide: DialogService,
+        useValue: {
+          open: () => ({ closed: of(undefined) }),
+          openSimpleDialog: () => Promise.resolve(false),
         },
       },
-      { provide: DialogService, useValue: { open: () => ({ closed: of(undefined) }) } },
       { provide: ToastService, useValue: { showToast: () => {} } },
     ],
   });
@@ -88,9 +155,14 @@ export default {
 
 type Story = StoryObj<ApprovalsTabComponent>;
 
-/** The populated inbox, oldest-waiting first, with the search and chip filters above it. */
+/** Both sections populated: decisions to make, and access already running. */
 export const Default: Story = {
-  decorators: [inbox()],
+  decorators: [inbox({ leases: activeLeases })],
+};
+
+/** Nothing left to decide, but access the operator granted is still live and can be ended. */
+export const CheckedOutOnly: Story = {
+  decorators: [inbox({ rows: [], leases: activeLeases })],
 };
 
 /** Nothing awaiting a decision — distinct from a filter that matched nothing. */

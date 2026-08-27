@@ -17,6 +17,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import {
+  AccordionComponent,
+  AccordionGroupComponent,
+  BadgeComponent,
   ButtonModule,
   ChipFilterComponent,
   ChipFilterOption,
@@ -32,20 +35,25 @@ import {
 import { I18nPipe } from "@bitwarden/ui-common";
 
 import type { AccessDecisionVerdict } from "../abstractions/access-lease";
+import { AccessBadgeState } from "../access-state-badge/access-badge-state";
+import { AccessStateBadgeComponent } from "../access-state-badge/access-state-badge.component";
 import { ApprovalRow } from "../approvals/approval-row";
 import { ApproverInboxService } from "../approvals/approver-inbox.service";
 import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.component";
+import { ManagedLeaseRow } from "../approvals/managed-lease-row";
+import { DurationShortPipe } from "../date/duration-short.pipe";
 
 /**
- * "Approvals" tab — the requests awaiting the caller's decision, oldest first.
+ * "Approvals" tab — the requests awaiting the caller's decision, oldest first, and the access
+ * already running on the collections they manage.
  *
  * Only ever rendered for an approver: `canViewApprovalsGuard` redirects a non-approver's deep
  * link to the sibling `my-requests` tab, and the shell (`access-requests.component.html`) only
  * renders the "Approvals" tab-link when {@link ApprovalPrivilegeService} says so — so a non-approver
  * never reaches this component.
  *
- * Data, ordering, and the optimistic decide live in {@link ApproverInboxService} (shared with the
- * History tab); this component owns the toolbar, the table, the dialog, and the toasts.
+ * Data, ordering, and the optimistic decide/revoke live in {@link ApproverInboxService} (shared with
+ * the History tab); this component owns the toolbar, the tables, the dialogs, and the toasts.
  */
 @Component({
   selector: "pam-approvals-tab",
@@ -55,8 +63,13 @@ import { DecideDialogComponent } from "../approvals/decide-dialog/decide-dialog.
     CommonModule,
     ReactiveFormsModule,
     RouterModule,
+    AccessStateBadgeComponent,
+    AccordionComponent,
+    AccordionGroupComponent,
+    BadgeComponent,
     ButtonModule,
     ChipFilterComponent,
+    DurationShortPipe,
     IconComponent,
     NoItemsModule,
     SearchModule,
@@ -76,6 +89,9 @@ export class ApprovalsTabComponent {
   /** Ids currently being decided, so a second click on the same row is a no-op. */
   private readonly deciding = signal<Set<string>>(new Set());
 
+  /** Lease ids currently being revoked, for the same reason as {@link deciding}. */
+  private readonly revoking = signal<Set<string>>(new Set());
+
   protected readonly loading = toSignal(this.inbox.loading$, { initialValue: true });
 
   protected readonly searchControl = new FormControl<string>("", { nonNullable: true });
@@ -92,44 +108,80 @@ export class ApprovalsTabComponent {
 
   private readonly allRows = toSignal(this.inbox.inboxRows$, { initialValue: [] as ApprovalRow[] });
 
+  private readonly allLeases = toSignal(this.inbox.activeLeaseRows$, {
+    initialValue: [] as ManagedLeaseRow[],
+  });
+
   private readonly cipherById = toSignal(this.inbox.cipherById$, {
     initialValue: new Map<string, CipherView>(),
   });
 
-  /** Every distinct collection present in the inbox, for the Collection filter. */
+  /** Every distinct collection present on the tab, for the Collection filter. */
   protected readonly collectionOptions = computed<ChipFilterOption<string>[]>(() =>
-    distinctOptions(this.allRows().map((row) => row.collectionName)),
+    distinctOptions([...this.allRows(), ...this.allLeases()].map((row) => row.collectionName)),
   );
 
-  /** Every distinct requester present in the inbox, for the Requester filter. */
+  /** Every distinct requester present on the tab, for the Requester filter. */
   protected readonly requesterOptions = computed<ChipFilterOption<string>[]>(() =>
-    distinctOptions(this.allRows().map((row) => row.requester)),
+    distinctOptions([...this.allRows(), ...this.allLeases()].map((row) => row.requester)),
   );
 
-  protected readonly rows = computed(() => {
-    const term = this.searchTerm().trim().toLowerCase();
-    const collection = this.collectionFilter();
-    const requester = this.requesterFilter();
-    return this.allRows().filter(
-      (row) =>
-        (term === "" || row.searchText.includes(term)) &&
-        (collection == null || row.collectionName === collection) &&
-        (requester == null || row.requester === requester),
-    );
-  });
+  protected readonly rows = computed(() =>
+    this.allRows().filter((row) =>
+      matchesFilters(
+        row,
+        this.searchTerm().trim().toLowerCase(),
+        this.collectionFilter(),
+        this.requesterFilter(),
+      ),
+    ),
+  );
+
+  protected readonly leaseRows = computed(() =>
+    this.allLeases().filter((row) =>
+      matchesFilters(
+        row,
+        this.searchTerm().trim().toLowerCase(),
+        this.collectionFilter(),
+        this.requesterFilter(),
+      ),
+    ),
+  );
 
   /**
-   * How many requests await a decision before filtering. Distinguishes an empty inbox (nothing to
-   * do) from a filter that matched nothing (something to do, just not visible), which need different
-   * copy and, for the latter, the filter controls left on screen.
+   * Whether the tab has anything at all before filtering, across both sections. Distinguishes an
+   * empty inbox (nothing to do) from a filter that matched nothing (something to do, just not
+   * visible), which need different copy and, for the latter, the filter controls left on screen.
    */
-  protected readonly totalRows = computed(() => this.allRows().length);
+  protected readonly hasRows = computed(
+    () => this.allRows().length > 0 || this.allLeases().length > 0,
+  );
 
   protected readonly dataSource = new TableDataSource<ApprovalRow>();
+  protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
+
+  /**
+   * Badge state is memoised per lease so the shared badge component sees a stable input. A fresh
+   * object would re-run the badge's own effect and restart the countdown interval it runs itself.
+   * Keyed off the unfiltered rows so that typing in the search box does not churn the surviving
+   * badges.
+   */
+  private readonly leaseBadgeStates = computed(
+    () =>
+      new Map<string, AccessBadgeState>(
+        this.allLeases().map((row) => [
+          String(row.leaseId),
+          { kind: "active", expiresAt: new Date(row.endsAt) },
+        ]),
+      ),
+  );
 
   constructor() {
     effect(() => {
       this.dataSource.data = this.rows();
+    });
+    effect(() => {
+      this.leasesDataSource.data = this.leaseRows();
     });
   }
 
@@ -137,8 +189,16 @@ export class ApprovalsTabComponent {
     return this.cipherById().get(cipherId);
   }
 
+  protected leaseBadgeState(id: ManagedLeaseRow["leaseId"]): AccessBadgeState | null {
+    return this.leaseBadgeStates().get(String(id)) ?? null;
+  }
+
   protected isDeciding(row: ApprovalRow): boolean {
     return this.deciding().has(String(row.id));
+  }
+
+  protected isRevoking(row: ManagedLeaseRow): boolean {
+    return this.revoking().has(String(row.leaseId));
   }
 
   /**
@@ -181,6 +241,64 @@ export class ApprovalsTabComponent {
       });
     }
   }
+
+  /**
+   * Confirm and end a lease that is running right now. The confirm is not optional: this cuts off
+   * access someone is already using, and every dismissal route resolves false.
+   */
+  protected async revoke(row: ManagedLeaseRow): Promise<void> {
+    if (this.isRevoking(row)) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamInboxRevoke" },
+      content: { key: "pamInboxRevokeConfirm" },
+      acceptButtonText: { key: "pamInboxRevoke" },
+      type: "warning",
+    });
+    if (!confirmed) {
+      return;
+    }
+
+    const key = String(row.leaseId);
+    this.revoking.update((ids) => new Set([...ids, key]));
+    try {
+      await this.inbox.revokeLease(row.requestId, row.leaseId);
+      this.toastService.showToast({
+        variant: "success",
+        message: this.i18nService.t("pamInboxRevokedToast"),
+      });
+    } catch (e) {
+      this.logService.error(e);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("pamInboxRevokeFailed"),
+      });
+    } finally {
+      this.revoking.update((ids) => {
+        const next = new Set(ids);
+        next.delete(key);
+        return next;
+      });
+    }
+  }
+}
+
+/**
+ * The toolbar's three filters, applied to either section's rows. Both row models carry the same
+ * three fields, so one predicate keeps the two sections from drifting apart.
+ */
+function matchesFilters(
+  row: { searchText: string; collectionName: string | null; requester: string },
+  term: string,
+  collection: string | null,
+  requester: string | null,
+): boolean {
+  return (
+    (term === "" || row.searchText.includes(term)) &&
+    (collection == null || row.collectionName === collection) &&
+    (requester == null || row.requester === requester)
+  );
 }
 
 /** Deduped, locale-sorted chip options from a list of possibly-blank labels. */
