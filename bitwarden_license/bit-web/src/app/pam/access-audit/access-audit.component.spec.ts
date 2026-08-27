@@ -9,7 +9,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { FilterMenuComponent, I18nMockService } from "@bitwarden/components";
+import { FilterMenuComponent, FilterOptionComponent, I18nMockService } from "@bitwarden/components";
 import { HeaderModule } from "@bitwarden/web-vault/app/layouts/header/header.module";
 
 import {
@@ -132,6 +132,25 @@ describe("AccessAuditComponent", () => {
     fixture.debugElement.query(By.directive(FilterMenuComponent))
       .componentInstance as FilterMenuComponent;
 
+  /** The options declared into the Event menu, in template order. */
+  const kindMenuOptions = () =>
+    fixture.debugElement.queryAll(By.directive(FilterOptionComponent)).map((option) => ({
+      label: (option.componentInstance as FilterOptionComponent).label(),
+      value: (option.componentInstance as FilterOptionComponent).value(),
+    }));
+
+  /**
+   * Opens the Event menu and returns its rendered rows, "All" first. The menu body is stamped
+   * into a CDK overlay on the document, not inside the fixture's host element.
+   */
+  const openKindMenu = () => {
+    fixture.nativeElement
+      .querySelector<HTMLButtonElement>("bit-filter-menu button[aria-haspopup]")!
+      .click();
+    fixture.detectChanges();
+    return Array.from(document.querySelectorAll<HTMLButtonElement>("[role='menuitemradio']"));
+  };
+
   it("reads the trail for the organization in the route", async () => {
     auditApiService.listAccessAuditTrail.mockResolvedValue([event()]);
 
@@ -225,9 +244,10 @@ describe("AccessAuditComponent", () => {
 
     fixture.detectChanges();
     await fixture.whenStable();
+    fixture.detectChanges();
 
     // Labelled and sorted alphabetically, one entry per distinct kind label key.
-    expect(component().kindOptions()).toEqual([
+    expect(kindMenuOptions()).toEqual([
       { label: "Lease activated", value: "pamAuditKindLeaseActivated" },
       { label: "Request approved", value: "pamAuditKindRequestApproved" },
     ]);
@@ -245,7 +265,15 @@ describe("AccessAuditComponent", () => {
     expect(component().filteredRows()).toHaveLength(2);
     expect(fixture.nativeElement.querySelector("bit-chip-filter")).toBeNull();
 
-    kindChip().toggle("pamAuditKindLeaseActivated");
+    const rows = openKindMenu();
+    expect(rows.map((row) => row.textContent?.trim())).toEqual([
+      "All",
+      "Lease activated",
+      "Request approved",
+    ]);
+
+    rows[1].click();
+    fixture.detectChanges();
 
     expect(component().filteredRows()).toHaveLength(1);
     expect(component().filteredRows()[0].kindLabelKey).toBe("pamAuditKindLeaseActivated");
@@ -267,7 +295,7 @@ describe("AccessAuditComponent", () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(component().kindOptions()).toEqual([
+    expect(kindMenuOptions()).toEqual([
       { label: "Lease ended by holder", value: "pamAuditKindLeaseEndedByHolder" },
       { label: "Lease revoked", value: "pamAuditKindLeaseRevoked" },
     ]);
