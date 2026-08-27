@@ -12,7 +12,7 @@ const HOUR = 60 * MINUTE;
 /**
  * `active` is the only state whose recipe depends on the clock, so `expiresAt` is built at render
  * time rather than at module load — a story left open would otherwise drift past its own expiry and
- * silently fall back to the "Session ended" recipe.
+ * silently fall back to the "Access ended" recipe.
  */
 function expiringIn(ms: number): AccessBadgeState {
   return { kind: "active", expiresAt: new Date(Date.now() + ms) };
@@ -34,7 +34,7 @@ export default {
               pamAccessBadgePending: "Pending approval",
               pamAccessBadgeUnavailable: "Unavailable",
               pamAccessBadgeReady: "Ready to use",
-              pamAccessBadgeSessionEnded: "Session ended",
+              pamAccessBadgeEnded: "Access ended",
               pamAccessBadgeTimeLeft: (duration) => `${duration} left`,
               pamAccessBadgeEndingSoon: (duration) => `Ending soon • ${duration} left`,
             }),
@@ -90,7 +90,7 @@ export const EndingSoonSeconds: Story = {
 };
 
 /**
- * A finished session. Not currently reachable through `cipherAccessBadgeState` — the SDK has no
+ * A finished lease. Not currently reachable through `cipherAccessBadgeState` — the SDK has no
  * field to derive it from — but part of the badge model, so the recipe is pinned here.
  */
 export const Expired: Story = {
@@ -107,7 +107,7 @@ export const Unavailable: Story = {
 
 /**
  * An `active` lease whose `expiresAt` has already passed locally, before any refetch. The component
- * falls back to the resting "Session ended" recipe rather than rendering a negative countdown.
+ * falls back to the resting "Access ended" recipe rather than rendering a negative countdown.
  */
 export const LapsedLease: Story = {
   render: () => ({ props: { state: expiringIn(-1 * MINUTE) } }),

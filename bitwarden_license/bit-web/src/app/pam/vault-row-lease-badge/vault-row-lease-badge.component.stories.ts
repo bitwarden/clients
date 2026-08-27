@@ -40,7 +40,7 @@ function ungatedCipher(): CipherView {
 
 /**
  * `state` is a factory, not a value, so an active lease's `expiresAt` is relative to when the story
- * renders rather than when this module loaded — a stale one would resolve straight to "Session
+ * renders rather than when this module loaded — a stale one would resolve straight to "Access
  * ended".
  *
  * `organizations` stands in for the account's PAM-eligible organizations, which the component

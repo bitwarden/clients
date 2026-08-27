@@ -64,7 +64,7 @@ export class AccessStateBadgeComponent {
     if (state.kind === "active") {
       const remainingMs = state.expiresAt.getTime() - this.now();
       if (remainingMs <= 0) {
-        // The lease lapsed locally before a refetch — show the resting "Session ended" badge.
+        // The lease lapsed locally before a refetch — show the resting "Access ended" badge.
         return this.staticRecipe("expired");
       }
       const remaining = formatRemaining(remainingMs);
@@ -121,7 +121,7 @@ export class AccessStateBadgeComponent {
         return {
           variant: "subtle",
           icon: "bwi-lock",
-          label: this.i18nService.t("pamAccessBadgeSessionEnded"),
+          label: this.i18nService.t("pamAccessBadgeEnded"),
           testId: "access-state-badge-expired",
         };
     }
