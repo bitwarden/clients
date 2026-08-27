@@ -1,3 +1,5 @@
+import { LabelValue, durationLabel, exactWindow } from "../helpers/approval-window";
+
 import {
   AccessAuditEventKind,
   AccessAuditEventResponse,
@@ -35,6 +37,12 @@ export type AuditRow = {
    * offers no drill-down (see {@link AccessAuditComponent}).
    */
   requestId: string | null;
+  /** The length of the granted access window, as an i18n key + value. Null on every other kind. */
+  duration: LabelValue | null;
+  /** The exact "from – to" window behind {@link duration}, for the cell's tooltip. Null whenever {@link duration} is. */
+  exactWindow: string | null;
+  /** A lease-extended event's new lease end (the wire's ISO string). Null on every other kind. */
+  extendedUntil: string | null;
   /** Lowercased haystack for the free-text filter: actor, requester, item, and detail. */
   searchText: string;
 };
@@ -85,6 +93,10 @@ export function auditKindLabelKey(kind: AccessAuditEventKind): string {
   }
 }
 
+function isTimestamp(value: string | null): value is string {
+  return value != null && Number.isFinite(Date.parse(value));
+}
+
 /** Shape a server audit event into a display row, taking cipher/collection names from a resolved vault snapshot. */
 export function toAuditRow(
   event: AccessAuditEventResponse,
@@ -104,6 +116,16 @@ export function toAuditRow(
     (event.cipherId != null ? cipherNameById.get(event.cipherId) : undefined) ?? null;
   const collectionName =
     (event.collectionId != null ? collectionNameById.get(event.collectionId) : undefined) ?? null;
+  const grantedWindow =
+    event.kind === AccessAuditEventKind.LeaseActivated &&
+    isTimestamp(event.leaseNotBefore) &&
+    isTimestamp(event.leaseNotAfter)
+      ? { leaseNotBefore: event.leaseNotBefore, leaseNotAfter: event.leaseNotAfter }
+      : null;
+  const extendedUntil =
+    event.kind === AccessAuditEventKind.LeaseExtended && isTimestamp(event.leaseNotAfter)
+      ? event.leaseNotAfter
+      : null;
   return {
     occurredAt: new Date(event.occurredAt),
     kindLabelKey: selfEnded ? "pamAuditKindLeaseEndedByHolder" : auditKindLabelKey(event.kind),
@@ -116,6 +138,9 @@ export function toAuditRow(
     automated: event.automated,
     inDoubt: event.incomplete,
     requestId: event.requestId,
+    duration: grantedWindow == null ? null : durationLabel(grantedWindow),
+    exactWindow: grantedWindow == null ? null : exactWindow(grantedWindow),
+    extendedUntil,
     searchText: [actor, requester, cipherName, collectionName, event.ruleName, event.detail]
       .filter((value): value is string => value != null)
       .join(" ")

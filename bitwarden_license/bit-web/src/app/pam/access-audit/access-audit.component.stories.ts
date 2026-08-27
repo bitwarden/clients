@@ -74,13 +74,14 @@ const EVENTS: AccessAuditEventResponse[] = [
     kind: AccessAuditEventKind.LeaseExtended,
     occurredAt: fromNow(-45 * MINUTE),
     leaseId: "lease-1",
-    leaseNotBefore: fromNow(-2 * HOUR),
-    leaseNotAfter: fromNow(HOUR),
+    leaseNotAfter: fromNow(-5 * MINUTE),
   }),
   event({
     kind: AccessAuditEventKind.LeaseActivated,
     occurredAt: fromNow(-2 * HOUR),
     leaseId: "lease-1",
+    leaseNotBefore: fromNow(-2 * HOUR),
+    leaseNotAfter: fromNow(-30 * MINUTE),
   }),
   event({
     kind: AccessAuditEventKind.RequestApproved,
