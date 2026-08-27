@@ -226,7 +226,8 @@ describe("VaultNextComponent", () => {
         { provide: OrganizationService, useValue: organizationService },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
-        { provide: VaultNavService, useValue: { viewModel$: vaultNav$ } },
+        // `viewModel$` takes a userId and returns the stream, so the double is a function.
+        { provide: VaultNavService, useValue: { viewModel$: () => vaultNav$ } },
         { provide: ConfigService, useValue: configService },
       ],
     })
