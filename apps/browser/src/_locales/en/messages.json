@@ -7865,6 +7865,10 @@
     "message": "Share link deleted",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
   "expires": {
     "message": "Expires",
     "description": "Label prefix shown before the expiry date of an active share link"

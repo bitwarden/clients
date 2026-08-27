@@ -39,7 +39,6 @@ import {
   AccordionComponent,
   BitwardenIcon,
   ButtonModule,
-  CardComponent,
   CheckboxModule,
   FormControlModule,
   FormFieldModule,
@@ -67,7 +66,6 @@ import { ExpiryChoice, ExpiryOption } from "../share-link.types";
     ReactiveFormsModule,
     AccordionComponent,
     ButtonModule,
-    CardComponent,
     FormFieldModule,
     IconButtonModule,
     SectionComponent,
@@ -249,12 +247,20 @@ export class ShareItemFormComponent implements OnDestroy {
   }
 
   protected async deleteLink(link: ShareLink): Promise<void> {
-    await this.shareLinkService.deleteLink(link.sendId);
-    this.toastService.showToast({
-      variant: "success",
-      title: undefined,
-      message: this.i18nService.t("shareLinkDeleted"),
-    });
+    try {
+      await this.shareLinkService.deleteLink(link.sendId);
+      this.toastService.showToast({
+        variant: "success",
+        title: undefined,
+        message: this.i18nService.t("shareLinkDeleted"),
+      });
+    } catch (err) {
+      this.logService.error(err);
+      this.toastService.showToast({
+        variant: "error",
+        message: this.i18nService.t("shareLinkDeleteFailed"),
+      });
+    }
   }
 
   async createAndCopyLink(): Promise<boolean> {

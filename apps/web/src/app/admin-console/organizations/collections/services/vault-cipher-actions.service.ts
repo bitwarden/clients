@@ -35,6 +35,7 @@ import {
   PasswordRepromptService,
   RoutedVaultFilterBridgeService,
   RoutedVaultFilterService,
+  ShareItemDrawerComponent,
   VaultFilter,
   VaultItemDialogComponent,
   VaultItemDialogMode,
@@ -566,6 +567,13 @@ export class VaultCipherActionsService {
         entity: "cipher",
       },
     });
+  }
+
+  async shareViaLink(cipher: CipherView): Promise<void> {
+    if (!(await this.repromptCipher([cipher]))) {
+      return;
+    }
+    await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher } });
   }
 
   private async deleteCipherWithServer(

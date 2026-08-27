@@ -85,7 +85,6 @@ import {
   VaultFilterServiceAbstraction as VaultFilterService,
   VaultFilter,
   createFilterFunction,
-  ShareItemDrawerComponent,
 } from "@bitwarden/vault";
 import {
   OrganizationFreeTrialWarningComponent,
@@ -656,7 +655,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           await this.cipherActions.editCipher(event.item);
           break;
         case "shareViaLink":
-          await this.shareViaLink(event.item);
+          await this.cipherActions.shareViaLink(event.item);
           break;
       }
     } finally {
@@ -740,10 +739,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       replaceUrl: true,
       ...navigateOptions,
     });
-  }
-
-  private async shareViaLink(cipher: CipherView) {
-    await this.dialogService.openDrawer(ShareItemDrawerComponent, { data: { cipher } });
   }
 }
 

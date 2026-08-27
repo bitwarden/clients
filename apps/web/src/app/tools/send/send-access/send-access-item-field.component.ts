@@ -11,7 +11,7 @@ import { SharedModule } from "../../../shared";
 export class SendAccessItemFieldComponent implements OnInit {
   /** The value of the field */
   readonly value = input.required<string>();
-  /** The translation key of the label for the field */
+  /** The label text for the field */
   readonly label = input.required<string>();
   /** Whether or not the field can be copied */
   readonly copyable = input<boolean>(true);

@@ -6655,6 +6655,10 @@
     "message": "Share link deleted",
     "description": "Toast message shown when an active share link is successfully deleted"
   },
+  "shareLinkDeleteFailed": {
+    "message": "Failed to delete share link",
+    "description": "Toast message shown when an active share link deletion is unsuccessful"
+  },
   "linkSaveFailed": {
     "message": "Unable to create share link",
     "description": "Toast message shown after a new share link fails to create"

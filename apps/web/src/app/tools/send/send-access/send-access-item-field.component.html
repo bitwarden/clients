@@ -25,7 +25,7 @@
         type="button"
         [appCopyClick]="value()"
         showToast
-        [valueLabel]="label() | i18n"
+        [valueLabel]="label()"
         [label]="copyButtonLabel() === undefined ? '' : (copyButtonLabel() | i18n)"
       ></button>
     }
