@@ -1,9 +1,13 @@
-@if (loading() && !hasRows()) {
-  <div data-testid="approvals-loading">
-    <span class="tw-sr-only" role="status">{{ "loading" | i18n }}</span>
+<div class="tw-sr-only" role="status" aria-live="polite" data-testid="approvals-loading-status">
+  @if (skeletonVisible()) {
+    {{ "loading" | i18n }}
+  }
+</div>
 
-    @if (showSkeleton()) {
-      <bit-table>
+@if ((loading() || showSkeleton()) && !hasRows()) {
+  <div data-testid="approvals-loading">
+    @if (skeletonVisible()) {
+      <bit-table aria-hidden="true">
         <ng-container header>
           <tr>
             <th bitCell>{{ "pamColumnItem" | i18n }}</th>
@@ -33,7 +37,7 @@
               <td bitCell class="tw-hidden lg:tw-table-cell">
                 <bit-skeleton-text class="tw-w-24"></bit-skeleton-text>
               </td>
-              <td bitCell><bit-skeleton-text class="tw-w-36"></bit-skeleton-text></td>
+              <td bitCell></td>
             </tr>
           }
         </ng-template>
