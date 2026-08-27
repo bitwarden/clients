@@ -172,10 +172,12 @@ export const Empty: Story = {
 
 /**
  * The first load, before any row has arrived. The skeleton is held back for a second, per the
- * component library's display guidance, so this story renders blank for its first second.
+ * component library's display guidance, so this story renders blank for its first second — the
+ * Chromatic capture is delayed past that so the snapshot covers the skeleton, not the blank.
  */
 export const Loading: Story = {
   decorators: [inbox({ rows: [], loading: true })],
+  parameters: { chromatic: { delay: 1500 } },
 };
 
 /** A single request — the narrowest the table gets before the empty state takes over. */

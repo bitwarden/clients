@@ -210,6 +210,19 @@ export class ApprovalsTabComponent {
   /** Five fills the space the table occupies without implying a row count the inbox may not have. */
   protected readonly skeletonRows = [0, 1, 2, 3, 4];
 
+  /** Latched once the skeleton has been on screen, so its removal can be announced in turn. */
+  private readonly skeletonShown = signal(false);
+
+  /**
+   * Whether the live region announces that the content has arrived. Emptying the region announces
+   * nothing on its own, so the "loading" announcement needs a counterpart once the rows land. Gated
+   * on the skeleton having been shown, so a load that finishes inside the delay announces neither
+   * half.
+   */
+  protected readonly announceLoaded = computed(
+    () => this.skeletonShown() && !this.skeletonVisible(),
+  );
+
   protected readonly dataSource = new TableDataSource<ApprovalRow>();
   protected readonly leasesDataSource = new TableDataSource<ManagedLeaseRow>();
 
@@ -234,6 +247,11 @@ export class ApprovalsTabComponent {
     });
     effect(() => {
       this.leasesDataSource.data = this.leaseRows();
+    });
+    effect(() => {
+      if (this.skeletonVisible()) {
+        this.skeletonShown.set(true);
+      }
     });
   }
 
