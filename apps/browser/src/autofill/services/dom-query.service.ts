@@ -640,8 +640,6 @@ export class DomQueryService implements DomQueryServiceInterface {
         nodeShadowRoot = currentElement.shadowRoot ?? this.getShadowRoot(currentElement);
       }
       if (nodeShadowRoot) {
-        this.knownShadowRoots.add(nodeShadowRoot);
-
         // Descend before measuring the field-presence delta; over-counting nested fields only over-observes.
         const fieldsBefore = treeWalkerQueryResults.length;
         this.buildTreeWalkerNodesQueryResults(
@@ -661,6 +659,7 @@ export class DomQueryService implements DomQueryServiceInterface {
             );
           }
         }
+        this.knownShadowRoots.add(nodeShadowRoot);
       } else {
         this.sinkUnresolvedHost(currentElement, unresolvedHosts);
       }
