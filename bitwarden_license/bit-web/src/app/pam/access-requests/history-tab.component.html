@@ -1,4 +1,12 @@
-@if (!showSkeleton() && canSwitchScope()) {
+<div class="tw-sr-only" role="status" aria-live="polite" data-testid="history-loading-status">
+  @if (skeletonVisible()) {
+    {{ "loading" | i18n }}
+  } @else if (announceLoaded()) {
+    {{ "pamHistoryLoaded" | i18n }}
+  }
+</div>
+
+@if (historyLoaded() && canSwitchScope()) {
   <div class="tw-mb-4 tw-flex tw-justify-end">
     <bit-toggle-group
       [selected]="scope()"
@@ -18,42 +26,42 @@
   </div>
 }
 
-@if (showSkeleton()) {
-  <div data-testid="history-loading">
-    <span class="tw-sr-only" role="status">{{ "loading" | i18n }}</span>
+@if (!historyLoaded()) {
+  @if (skeletonVisible()) {
+    <div data-testid="history-loading" aria-hidden="true">
+      <div class="tw-mb-4 tw-flex tw-justify-end">
+        <bit-skeleton class="tw-h-10 tw-w-64"></bit-skeleton>
+      </div>
 
-    <div class="tw-mb-4 tw-flex tw-justify-end">
-      <bit-skeleton class="tw-h-10 tw-w-64"></bit-skeleton>
-    </div>
-
-    <bit-table>
-      <ng-container header>
-        <tr>
-          <th bitCell>{{ "pamColumnItem" | i18n }}</th>
-          <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
-          <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
-          <th bitCell>{{ "pamColumnComment" | i18n }}</th>
-          <th bitCell>{{ "pamColumnResolved" | i18n }}</th>
-        </tr>
-      </ng-container>
-      <ng-template body>
-        @for (skeletonRow of skeletonRows; track skeletonRow) {
-          <tr bitRow>
-            <td bitCell>
-              <div class="tw-flex tw-items-center tw-gap-3">
-                <bit-skeleton class="tw-size-6 tw-shrink-0"></bit-skeleton>
-                <bit-skeleton-text [lines]="2" class="tw-w-40"></bit-skeleton-text>
-              </div>
-            </td>
-            <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
-            <td bitCell><bit-skeleton-text class="tw-w-32"></bit-skeleton-text></td>
-            <td bitCell><bit-skeleton-text class="tw-w-56"></bit-skeleton-text></td>
-            <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
+      <bit-table>
+        <ng-container header>
+          <tr>
+            <th bitCell>{{ "pamColumnItem" | i18n }}</th>
+            <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
+            <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
+            <th bitCell>{{ "pamColumnComment" | i18n }}</th>
+            <th bitCell>{{ "pamColumnResolved" | i18n }}</th>
           </tr>
-        }
-      </ng-template>
-    </bit-table>
-  </div>
+        </ng-container>
+        <ng-template body>
+          @for (skeletonRow of skeletonRows; track skeletonRow) {
+            <tr bitRow>
+              <td bitCell>
+                <div class="tw-flex tw-items-center tw-gap-3">
+                  <bit-skeleton class="tw-size-6 tw-shrink-0"></bit-skeleton>
+                  <bit-skeleton-text [lines]="2" class="tw-w-40"></bit-skeleton-text>
+                </div>
+              </td>
+              <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
+              <td bitCell><bit-skeleton-text class="tw-w-32"></bit-skeleton-text></td>
+              <td bitCell><bit-skeleton-text class="tw-w-56"></bit-skeleton-text></td>
+              <td bitCell><bit-skeleton-text class="tw-w-24"></bit-skeleton-text></td>
+            </tr>
+          }
+        </ng-template>
+      </bit-table>
+    </div>
+  }
 } @else if (historyRows().length === 0) {
   <bit-no-items class="tw-mt-2 tw-block" data-testid="my-access-history-empty">
     <span slot="title" class="tw-mt-4 tw-block">{{ emptyMessageKey() | i18n }}</span>
@@ -66,7 +74,9 @@
         <th bitCell bitSortable="status">{{ "pamColumnStatus" | i18n }}</th>
         <th bitCell>{{ "pamColumnResolver" | i18n }}</th>
         <th bitCell>{{ "pamColumnComment" | i18n }}</th>
-        <th bitCell bitSortable="resolvedAt" default="desc">{{ "pamColumnResolved" | i18n }}</th>
+        <th bitCell bitSortable="resolvedAt" default="desc" [fn]="byResolvedOrSubmitted">
+          {{ "pamColumnResolved" | i18n }}
+        </th>
         @if (showActionsColumn()) {
           <th bitCell>{{ "pamColumnActions" | i18n }}</th>
         }

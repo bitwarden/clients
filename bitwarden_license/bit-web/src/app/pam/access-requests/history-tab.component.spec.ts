@@ -77,13 +77,27 @@ describe("HistoryTabComponent", () => {
     return fixture.nativeElement.querySelector(selector) as HTMLElement | null;
   }
 
+  /** The ids of the rows the table actually renders, in the order the table renders them. */
+  function renderedRowIds(): string[] {
+    return [...fixture.nativeElement.querySelectorAll("tr[data-testid]")].map((row: HTMLElement) =>
+      (row.getAttribute("data-testid") ?? "").replace("my-access-history-", ""),
+    );
+  }
+
   /** Switch to the approver-side scope and re-render. */
   function showManaged(): void {
     component["selectScope"]("managed");
     fixture.detectChanges();
   }
 
+  /** Run past the skeleton's show delay and re-render. */
+  function passSkeletonDelay(): void {
+    jest.advanceTimersByTime(1000);
+    fixture.detectChanges();
+  }
+
   beforeEach(async () => {
+    jest.useFakeTimers();
     myRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedRows$ = new BehaviorSubject<MyAccessRequestRow[]>([]);
     managedIds$ = new BehaviorSubject<Set<string>>(new Set());
@@ -129,6 +143,11 @@ describe("HistoryTabComponent", () => {
     })
       .overrideComponent(HistoryTabComponent, { add: { schemas: [NO_ERRORS_SCHEMA] } })
       .compileComponents();
+  });
+
+  afterEach(() => {
+    fixture?.destroy();
+    jest.useRealTimers();
   });
 
   describe("scope toggle", () => {
@@ -197,6 +216,29 @@ describe("HistoryTabComponent", () => {
       expect(component["historyRows"]().map((r) => r.id)).toEqual(["both-1"]);
     });
 
+    // Only the caller's own read folds an approved extension onto the grant it extended, so the
+    // managed copy of the same request has no "Extended" badge to show.
+    it("keeps the richer copy of a request both reads return", () => {
+      canApprove$.next(true);
+      myRows$.next([
+        historyRow({
+          id: "both-1",
+          extendedBySeconds: 3600,
+          extendedUntil: "2026-08-17T14:00:00.000Z",
+        }),
+      ]);
+      managedRows$.next([historyRow({ id: "both-1" })]);
+
+      create();
+
+      expect(component["historyRows"]().map((r) => r.extendedUntil)).toEqual([
+        "2026-08-17T14:00:00.000Z",
+      ]);
+      expect(query('[data-testid="my-access-history-extended-both-1"]')).not.toBeNull();
+    });
+
+    // Asserted on the rendered rows: the table re-orders whatever it is handed, so the merge's own
+    // sort proves nothing about what the reader sees.
     it("sorts a row with no decision by when it was raised", () => {
       canApprove$.next(true);
       myRows$.next([
@@ -206,7 +248,20 @@ describe("HistoryTabComponent", () => {
 
       create();
 
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["mine-1", "managed-1"]);
+      expect(renderedRowIds()).toEqual(["mine-1", "managed-1"]);
+    });
+
+    it("renders the merged list newest first", () => {
+      canApprove$.next(true);
+      myRows$.next([historyRow({ id: "mine-1", resolvedAt: "2026-08-17T10:00:00.000Z" })]);
+      managedRows$.next([
+        historyRow({ id: "managed-1", resolvedAt: "2026-08-17T12:00:00.000Z" }),
+        historyRow({ id: "managed-2", resolvedAt: "2026-08-17T09:00:00.000Z" }),
+      ]);
+
+      create();
+
+      expect(renderedRowIds()).toEqual(["managed-1", "mine-1", "managed-2"]);
     });
 
     it("narrows to the caller's own rows, then restores the union", () => {
@@ -280,17 +335,21 @@ describe("HistoryTabComponent", () => {
   });
 
   describe("loading", () => {
-    it("shows the skeleton until the managed history has loaded", () => {
+    it("shows the skeleton once the load has run for a second, then the managed history", () => {
       canApprove$.next(true);
       managedLoading$.next(true);
       myRows$.next([historyRow({ id: "mine-1" })]);
 
       create();
 
+      expect(query('[data-testid="history-loading"]')).toBeNull();
+
+      passSkeletonDelay();
+
       const skeleton = query('[data-testid="history-loading"]');
       expect(skeleton).not.toBeNull();
+      expect(skeleton?.getAttribute("aria-hidden")).toBe("true");
       expect(skeleton?.querySelectorAll("bit-skeleton").length).toBeGreaterThan(0);
-      expect(skeleton?.querySelector('[role="status"]')?.textContent).toContain("loading");
 
       managedRows$.next([historyRow({ id: "managed-1" })]);
       managedLoading$.next(false);
@@ -298,6 +357,52 @@ describe("HistoryTabComponent", () => {
 
       expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-managed-1"]')).not.toBeNull();
+    });
+
+    it("never shows the skeleton when the history arrives inside a second", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+      myRows$.next([historyRow({ id: "mine-1" })]);
+
+      create();
+
+      jest.advanceTimersByTime(500);
+      fixture.detectChanges();
+
+      expect(query("bit-skeleton")).toBeNull();
+
+      managedLoading$.next(false);
+      passSkeletonDelay();
+
+      expect(query("bit-skeleton")).toBeNull();
+      expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
+      expect(query('[data-testid="history-loading-status"]')?.textContent?.trim()).toBe("");
+    });
+
+    // A live region has to be in the DOM before its text changes for assistive tech to announce
+    // them, and emptying it announces nothing on its own.
+    it("keeps one live region mounted and announces both halves of the load", () => {
+      canApprove$.next(true);
+      managedLoading$.next(true);
+
+      create();
+
+      const status = query('[data-testid="history-loading-status"]');
+      expect(status?.getAttribute("role")).toBe("status");
+      expect(status?.getAttribute("aria-live")).toBe("polite");
+      expect(status?.textContent?.trim()).toBe("");
+
+      passSkeletonDelay();
+
+      expect(query('[data-testid="history-loading-status"]')).toBe(status);
+      expect(status?.textContent).toContain("loading");
+
+      managedRows$.next([historyRow({ id: "managed-1" })]);
+      managedLoading$.next(false);
+      fixture.detectChanges();
+
+      expect(query('[data-testid="history-loading-status"]')).toBe(status);
+      expect(status?.textContent).toContain("pamHistoryLoaded");
     });
 
     // The shell never loads the inbox for a member who cannot approve, so its loading flag stays
@@ -322,6 +427,7 @@ describe("HistoryTabComponent", () => {
       myRows$.next([historyRow({ id: "mine-1" })]);
 
       create();
+      passSkeletonDelay();
 
       expect(query('[data-testid="history-loading"]')).not.toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).toBeNull();
@@ -339,6 +445,7 @@ describe("HistoryTabComponent", () => {
       myLoading$.next(true);
 
       create();
+      passSkeletonDelay();
 
       expect(query('[data-testid="history-loading"]')).not.toBeNull();
       expect(fixture.nativeElement.textContent).not.toContain("pamMyRequestsHistoryEmpty");
@@ -355,7 +462,7 @@ describe("HistoryTabComponent", () => {
       create();
 
       myLoading$.next(true);
-      fixture.detectChanges();
+      passSkeletonDelay();
 
       expect(query('[data-testid="history-loading"]')).toBeNull();
       expect(query('[data-testid="my-access-history-mine-1"]')).not.toBeNull();
@@ -401,7 +508,10 @@ describe("HistoryTabComponent", () => {
       create();
 
       expect(component["scope"]()).toBe("all");
-      expect(component["historyRows"]().map((r) => r.id)).toEqual(["managed-1", "mine-1"]);
+      expect([...component["historyRows"]().map((r) => r.id)].sort()).toEqual([
+        "managed-1",
+        "mine-1",
+      ]);
       expect(query('[data-testid="history-revoke-managed-1"]')).not.toBeNull();
       expect(query('[data-testid="history-revoke-mine-1"]')).toBeNull();
       expect(component["canRevoke"](historyRow({ id: "mine-1" }))).toBe(false);
