@@ -16,7 +16,9 @@
 <bit-accordion-group>
   <!-- Pending -->
   <bit-accordion [title]="'pamMyRequestsPendingSection' | i18n" [open]="true">
-    <span slot="end" bitBadge variant="secondary">{{ pendingRows().length }}</span>
+    <span slot="end" bitBadge variant="secondary" data-testid="my-access-pending-count">{{
+      pendingRows().length
+    }}</span>
 
     @if (pendingRows().length === 0) {
       <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-pending-empty">
@@ -86,26 +88,6 @@
             <td bitCell>{{ row.submittedAt | date: "short" }}</td>
             <td bitCell>
               <div class="tw-flex tw-items-start tw-gap-2">
-                @if (canStart(row)) {
-                  <div class="tw-flex tw-flex-col tw-items-start tw-gap-1">
-                    <button
-                      type="button"
-                      bitButton
-                      buttonType="primary"
-                      size="small"
-                      class="tw-whitespace-nowrap"
-                      [loading]="isStarting(row.id)"
-                      [disabled]="isStarting(row.id)"
-                      (click)="activate(row)"
-                      [attr.data-testid]="'my-access-pending-start-' + row.id"
-                    >
-                      {{ "pamStartLeaseButton" | i18n }}
-                    </button>
-                    <span class="tw-text-xs tw-text-muted tw-whitespace-nowrap">
-                      {{ "pamActivateWithin" | i18n: (row.leaseNotAfter | remainingTime: nowMs()) }}
-                    </span>
-                  </div>
-                }
                 @if (canCancel(row)) {
                   <button
                     type="button"
@@ -195,82 +177,140 @@
   }
 
   <!-- Currently checked out (active leases) -->
-  <bit-accordion [title]="'pamMyRequestsGroupCheckedOut' | i18n">
-    <span slot="end" bitBadge variant="secondary">{{ leases().length }}</span>
+  <bit-accordion [title]="'pamMyRequestsGroupCheckedOut' | i18n" [open]="true">
+    <span slot="end" bitBadge variant="secondary" data-testid="my-access-active-count">{{
+      activeAccessRows().length
+    }}</span>
 
-    @if (leases().length === 0) {
+    @if (activeAccessRows().length === 0) {
       <p bitTypography="body2" class="tw-mb-0 tw-text-muted" data-testid="my-access-leases-empty">
         {{ "pamMyLeasesActiveEmpty" | i18n }}
       </p>
     } @else {
-      <bit-table [dataSource]="leasesDataSource">
+      <bit-table [dataSource]="activeAccessDataSource">
         <ng-container header>
           <tr>
             <th bitCell bitSortable="cipherName">{{ "pamColumnItem" | i18n }}</th>
-            <th bitCell>{{ "pamColumnWindow" | i18n }}</th>
-            <th bitCell bitSortable="notAfter" default="asc">{{ "pamColumnRemaining" | i18n }}</th>
+            <th bitCell bitSortable="notAfter" default="asc">{{ "pamColumnWindow" | i18n }}</th>
+            <th bitCell>{{ "pamColumnStatus" | i18n }}</th>
             <th bitCell class="tw-w-32">
               <span class="tw-sr-only">{{ "pamColumnActions" | i18n }}</span>
             </th>
           </tr>
         </ng-container>
         <ng-template body let-rows$>
-          <tr
-            bitRow
-            *ngFor="let lease of rows$ | async"
-            [attr.data-testid]="'my-access-lease-' + lease.id"
-          >
+          <tr bitRow *ngFor="let row of rows$ | async" [attr.data-testid]="rowTestId(row)">
             <td bitCell>
               <div class="tw-flex tw-items-center tw-gap-3">
-                @if (cipherFor(lease.cipherId); as cipher) {
+                @if (cipherFor(row.cipherId); as cipher) {
                   <app-vault-icon [cipher]="cipher" />
                 }
                 <div>
-                  <a [routerLink]="['/pam/requests', lease.requestId]">{{
-                    lease.cipherName ?? lease.cipherId
+                  <a [routerLink]="['/pam/requests', row.requestId]">{{
+                    row.cipherName ?? row.cipherId
                   }}</a>
-                  @if (lease.collectionName) {
+                  @if (row.collectionName) {
                     <div class="tw-text-xs tw-text-muted">
-                      {{ "pamInboxInCollection" | i18n: lease.collectionName }}
+                      {{ "pamInboxInCollection" | i18n: row.collectionName }}
                     </div>
                   }
-                  @if (lease.extendedUntil) {
-                    <span
-                      bitBadge
-                      variant="secondary"
-                      class="tw-mt-1 tw-inline-block"
-                      [attr.data-testid]="'my-access-lease-extended-' + lease.id"
-                    >
-                      {{
-                        "pamExtendedBadge"
-                          | i18n
-                            : (lease.extendedBySeconds | durationShort)
-                            : (lease.extendedUntil | date: "short")
-                      }}
-                    </span>
+                  @if (row.lease; as lease) {
+                    @if (lease.extendedUntil) {
+                      <span
+                        bitBadge
+                        variant="secondary"
+                        class="tw-mt-1 tw-inline-block"
+                        [attr.data-testid]="'my-access-lease-extended-' + lease.id"
+                      >
+                        {{
+                          "pamExtendedBadge"
+                            | i18n
+                              : (lease.extendedBySeconds | durationShort)
+                              : (lease.extendedUntil | date: "short")
+                        }}
+                      </span>
+                    }
                   }
                 </div>
               </div>
             </td>
             <td bitCell>
-              {{ lease.notBefore | date: "short" }} &ndash; {{ lease.notAfter | date: "short" }}
+              @if (row.request != null && startsNow(row.request)) {
+                {{ "pamWindowUntil" | i18n: (row.notAfter | date: "short") }}
+              } @else {
+                {{ row.notBefore | date: "short" }} &ndash; {{ row.notAfter | date: "short" }}
+              }
             </td>
             <td bitCell>
-              <app-pam-access-state-badge [state]="leaseBadgeState(lease.id)" />
+              @if (row.lease; as lease) {
+                <app-pam-access-state-badge [state]="leaseBadgeState(lease.id)" />
+              } @else if (row.request; as request) {
+                @if (isReadyNow(request)) {
+                  <app-pam-access-state-badge [state]="readyBadge" />
+                } @else if (request.statusBadge; as badge) {
+                  <span
+                    bitBadge
+                    [variant]="badge.variant"
+                    [attr.data-testid]="'my-access-approved-status-' + request.id"
+                  >
+                    {{ badge.labelKey | i18n }}
+                  </span>
+                }
+                @if (canStart(request)) {
+                  <div class="tw-mt-1 tw-text-xs tw-text-muted tw-whitespace-nowrap">
+                    {{
+                      "pamActivateWithin" | i18n: (request.leaseNotAfter | remainingTime: nowMs())
+                    }}
+                  </div>
+                }
+              }
             </td>
             <td bitCell>
-              <button
-                type="button"
-                bitButton
-                buttonType="secondary"
-                size="small"
-                [loading]="isEnding(lease.id)"
-                [disabled]="isEnding(lease.id)"
-                (click)="endLease(lease)"
-                [attr.data-testid]="'my-access-end-' + lease.id"
-              >
-                {{ "pamEndLeaseButton" | i18n }}
-              </button>
+              @if (row.lease; as lease) {
+                <button
+                  type="button"
+                  bitButton
+                  buttonType="secondary"
+                  size="small"
+                  [loading]="isEnding(lease.id)"
+                  [disabled]="isEnding(lease.id)"
+                  (click)="endLease(lease)"
+                  [attr.data-testid]="'my-access-end-' + lease.id"
+                >
+                  {{ "pamEndLeaseButton" | i18n }}
+                </button>
+              } @else if (row.request; as request) {
+                <div class="tw-flex tw-items-start tw-gap-2">
+                  @if (canStart(request)) {
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="primary"
+                      size="small"
+                      class="tw-whitespace-nowrap"
+                      [loading]="isStarting(request.id)"
+                      [disabled]="isStarting(request.id)"
+                      (click)="activate(request)"
+                      [attr.data-testid]="'my-access-approved-start-' + request.id"
+                    >
+                      {{ "pamStartLeaseButton" | i18n }}
+                    </button>
+                  }
+                  @if (canCancel(request)) {
+                    <button
+                      type="button"
+                      bitButton
+                      buttonType="secondary"
+                      size="small"
+                      [disabled]="isCancelling(request.id)"
+                      (click)="cancel(request)"
+                      [attr.data-testid]="'my-access-approved-cancel-' + request.id"
+                    >
+                      {{ "cancel" | i18n }}
+                    </button>
+                  }
+                </div>
+              }
             </td>
           </tr>
         </ng-template>
