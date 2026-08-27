@@ -45,6 +45,7 @@ export * from "./components/add-item-dialog/add-item-dialog.component";
 export * from "./components/carousel";
 export * from "./components/new-cipher-menu/new-cipher-menu.component";
 export * from "./components/permit-cipher-details-popover/permit-cipher-details-popover.component";
+export { SharedFolderCardGridComponent } from "./components/shared-folder-card-grid/shared-folder-card-grid.component";
 export * from "./components/show-quick-copy-actions-details-popover/show-quick-copy-actions-details-popover.component";
 export * from "./components/vault-items-transfer";
 export { VaultItem, compareVaultItems } from "./components/vault-item";
@@ -72,6 +73,7 @@ export * from "./models/vault-filter-section.type";
 export * from "./models/filter-function";
 export * from "./models/vault-nav-view-model";
 export * from "./models/folder-table-row";
+export * from "./models/vault-scope";
 export { VaultFilterService as VaultFilterServiceAbstraction } from "./abstractions/vault-filter.service";
 export * from "./services/vault-filter.service";
 export * from "./services/routed-vault-filter.service";
@@ -80,6 +82,7 @@ export * from "./services/bulk-delete.service";
 export { VaultNavService } from "./services/vault-nav.service";
 export { DefaultVaultNavService } from "./services/default-vault-nav.service";
 export { VaultNavSectionComponent } from "./components/vault-nav-section/vault-nav-section.component";
+export { VaultManageNavComponent } from "./components/vault-manage-nav/vault-manage-nav.component";
 export {
   VaultItemDialogComponent,
   VaultItemDialogParams,
@@ -122,3 +125,4 @@ export { Vfo1TerminologyService } from "./services/vfo1-terminology.service";
 export { Vfo1I18nPipe } from "./pipes/vfo1-i18n.pipe";
 export { Vfo1IconPipe } from "./pipes/vfo1-icon.pipe";
 export { vaultFilterLegacyRedirectGuard } from "./routing/vault-filter-legacy-redirect.guard";
+export { vaultScopeGuard } from "./routing/vault-scope.guard";

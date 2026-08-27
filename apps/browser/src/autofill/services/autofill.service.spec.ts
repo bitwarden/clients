@@ -133,6 +133,10 @@ describe("AutofillService", () => {
     authService = mock<AuthService>();
     authService.authStatusFor$.mockReturnValue(of(AuthenticationStatus.Unlocked));
 
+    // fillAssistPolicy$ (feeding resolvedEnableFillAssist$) subscribes to
+    // policyService.policiesByType$; default the mock to an empty stream.
+    policyService.policiesByType$.mockReturnValue(of([]));
+
     // Initialize domainSettingsService BEFORE it's used
     domainSettingsService = new DefaultDomainSettingsService(
       fakeStateProvider,

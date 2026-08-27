@@ -4,17 +4,13 @@ import "core-js/proposals/explicit-resource-management";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
-import { ClientType } from "@bitwarden/client-type";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AccountCryptographicStateService } from "@bitwarden/common/key-management/account-cryptography/account-cryptographic-state.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/key-management/master-password/abstractions/master-password.service.abstraction";
 import { MASTER_KEY } from "@bitwarden/common/key-management/master-password/services/master-password.service";
 import { V2UpgradeTokenStateService } from "@bitwarden/common/key-management/upgrade-token/abstractions/v2-upgrade-token-state.service.abstraction";
-import { VaultTimeoutStringType } from "@bitwarden/common/key-management/vault-timeout";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { RegisterSdkService } from "@bitwarden/common/platform/abstractions/sdk/register-sdk.service";
 import { SdkLoadService } from "@bitwarden/common/platform/abstractions/sdk/sdk-load.service";
-import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { USER_EVER_HAD_USER_KEY } from "@bitwarden/common/platform/services/key-state/user-key.state";
 import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
@@ -22,15 +18,16 @@ import {
   BiometricsService,
   BiometricStateService,
   KdfConfigService,
-  KeyService,
 } from "@bitwarden/key-management";
 // eslint-disable-next-line no-restricted-imports
 import { CsprngArray, SymmetricCryptoKey } from "@bitwarden/legacy-crypto";
 import { LogService } from "@bitwarden/logging";
 import { EncString, PureCrypto, V2UpgradeToken } from "@bitwarden/sdk-internal";
-import { StateProvider, StateService } from "@bitwarden/state";
+import { StateProvider } from "@bitwarden/state";
 
+import { AutoUnlockService } from "./auto-unlock.service";
 import { DefaultUnlockService } from "./default-unlock.service";
+import { UnlockMethod } from "./unlock-method.enum";
 
 const mockUserId = "b1e2d3c4-a1b2-c3d4-e5f6-a1b2c3d4e5f6" as UserId;
 const mockEmail = "test@example.com";
@@ -51,13 +48,11 @@ describe("DefaultUnlockService", () => {
   const accountService = mock<AccountService>();
   const masterPasswordService = mock<InternalMasterPasswordServiceAbstraction>();
   const stateProvider = mock<StateProvider>();
-  const stateService = mock<StateService>();
   const logService = mock<LogService>();
   const biometricsService = mock<BiometricsService>();
-  const platformUtilsService = mock<PlatformUtilsService>();
   const biometricStateService = mock<BiometricStateService>();
   const v2UpgradeTokenStateService = mock<V2UpgradeTokenStateService>();
-  const keyService = mock<KeyService>();
+  const autoUnlockService = mock<AutoUnlockService>();
 
   let service: DefaultUnlockService;
   let mockSdkRef: any;
@@ -97,11 +92,9 @@ describe("DefaultUnlockService", () => {
     masterPasswordService.masterPasswordUnlockData$.mockReturnValue(
       of({ toSdk: () => mockMasterPasswordUnlockData } as any),
     );
-    stateProvider.getUserState$.mockReturnValue(of(VaultTimeoutStringType.Never));
-    stateService.setUserKeyAutoUnlock.mockResolvedValue(undefined);
+    autoUnlockService.setAutoUnlockKey.mockResolvedValue(undefined);
     biometricsService.setBiometricProtectedUnlockKeyForUser.mockResolvedValue(undefined);
     biometricStateService.biometricUnlockEnabled$.mockReturnValue(of(true));
-    platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
     v2UpgradeTokenStateService.v2UpgradeToken$.mockReturnValue(of(null));
 
     Object.defineProperty(SdkLoadService, "Ready", {
@@ -125,11 +118,9 @@ describe("DefaultUnlockService", () => {
       stateProvider,
       logService,
       biometricsService,
-      platformUtilsService,
-      stateService,
       biometricStateService,
       v2UpgradeTokenStateService,
-      keyService,
+      autoUnlockService,
     );
 
     setLegacyMasterKeyFromUnlockDataSpy = jest
@@ -181,9 +172,10 @@ describe("DefaultUnlockService", () => {
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );
-      expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(userEncryptionKey.toBase64(), {
-        userId: mockUserId,
-      });
+      expect(autoUnlockService.setAutoUnlockKey).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({ keyB64: userEncryptionKey.toBase64() }),
+      );
       expect(stateProvider.setUserState).toHaveBeenCalledWith(
         USER_EVER_HAD_USER_KEY,
         true,
@@ -239,9 +231,10 @@ describe("DefaultUnlockService", () => {
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );
-      expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(userEncryptionKey.toBase64(), {
-        userId: mockUserId,
-      });
+      expect(autoUnlockService.setAutoUnlockKey).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({ keyB64: userEncryptionKey.toBase64() }),
+      );
       expect(stateProvider.setUserState).toHaveBeenCalledWith(
         USER_EVER_HAD_USER_KEY,
         true,
@@ -310,9 +303,10 @@ describe("DefaultUnlockService", () => {
         mockUserId,
         expect.any(SymmetricCryptoKey),
       );
-      expect(stateService.setUserKeyAutoUnlock).toHaveBeenCalledWith(userEncryptionKey.toBase64(), {
-        userId: mockUserId,
-      });
+      expect(autoUnlockService.setAutoUnlockKey).toHaveBeenCalledWith(
+        mockUserId,
+        expect.objectContaining({ keyB64: userEncryptionKey.toBase64() }),
+      );
       expect(stateProvider.setUserState).toHaveBeenCalledWith(
         USER_EVER_HAD_USER_KEY,
         true,
@@ -365,81 +359,83 @@ describe("DefaultUnlockService", () => {
     });
   });
 
-  describe("unlockWithAutoUnlockKey", () => {
-    const mockAutoUserKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+  describe("runOnUnlockActions", () => {
+    it("runs the registered actions when the service performs an unlock", async () => {
+      const userEncryptionKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray);
+      mockCrypto.get_user_encryption_key.mockResolvedValue(userEncryptionKey.toBase64());
+      const action = jest.fn().mockResolvedValue(undefined);
+      service.registerOnUnlockAction(action);
 
-    it("returns false without reading storage when the userId is null", async () => {
-      const result = await service.unlockWithAutoUnlockKey(null as unknown as UserId);
+      await service.unlockWithPin(mockUserId, mockPin);
 
-      expect(result).toBe(false);
-      expect(keyService.getUserKeyFromStorage).not.toHaveBeenCalled();
-      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
-    });
-
-    it("returns false without unlocking when no never-lock key is stored", async () => {
-      keyService.getUserKeyFromStorage.mockResolvedValue(null);
-
-      const result = await service.unlockWithAutoUnlockKey(mockUserId);
-
-      expect(result).toBe(false);
-      expect(keyService.getUserKeyFromStorage).toHaveBeenCalledWith(
-        KeySuffixOptions.Auto,
+      expect(action).toHaveBeenCalledWith(
         mockUserId,
+        expect.any(SymmetricCryptoKey),
+        UnlockMethod.Pin,
       );
-      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
     });
 
-    it("calls SDK initialize_user_crypto with the stored key and returns true", async () => {
-      keyService.getUserKeyFromStorage.mockResolvedValue(mockAutoUserKey);
+    it("emits on unlocked$ for both", async () => {
+      const emissions: unknown[] = [];
+      service.unlocked$.subscribe((e) => emissions.push(e));
 
-      const result = await service.unlockWithAutoUnlockKey(mockUserId);
-
-      expect(result).toBe(true);
-      expect(keyService.getUserKeyFromStorage).toHaveBeenCalledWith(
-        KeySuffixOptions.Auto,
+      await service.unlockWithPin(mockUserId, mockPin);
+      await service.runOnUnlockActions(
         mockUserId,
+        new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey,
+        UnlockMethod.SharedUnlock,
       );
-      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith({
-        userId: mockUserId,
-        kdfParams: mockKdfParams,
-        email: mockEmail,
-        accountCryptographicState: mockAccountCryptographicState,
-        method: {
-          decryptedKey: {
-            decrypted_user_key: mockAutoUserKey.toBase64(),
-          },
-        },
-      });
+
+      expect(emissions).toEqual([
+        { userId: mockUserId, method: UnlockMethod.Pin },
+        { userId: mockUserId, method: UnlockMethod.SharedUnlock },
+      ]);
     });
 
-    it("throws when SDK is not available", async () => {
-      keyService.getUserKeyFromStorage.mockResolvedValue(mockAutoUserKey);
-      registerSdkService.registerClient$.mockReturnValue(of(null as any));
+    it("runs the registered actions for an unlock performed elsewhere", async () => {
+      const userKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
+      const action = jest.fn().mockResolvedValue(undefined);
+      service.registerOnUnlockAction(action);
 
-      await expect(service.unlockWithAutoUnlockKey(mockUserId)).rejects.toThrow(
-        "SDK not available",
-      );
+      await service.runOnUnlockActions(mockUserId, userKey, UnlockMethod.Pin);
+
+      expect(action).toHaveBeenCalledWith(mockUserId, userKey, UnlockMethod.Pin);
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
     });
   });
 
-  describe("shouldStoreUserKeyAutoUnlock", () => {
-    it("returns true for cli without checking vault timeout", async () => {
-      platformUtilsService.getClientType.mockReturnValue(ClientType.Cli);
+  describe("unlockWithAutoUnlockKey", () => {
+    const mockAutoUnlockKey = new SymmetricCryptoKey(new Uint8Array(64) as CsprngArray) as UserKey;
 
-      const result = await (service as any).shouldStoreUserKeyAutoUnlock(mockUserId);
+    it("does nothing when the userId is null", async () => {
+      const result = await service.unlockWithAutoUnlockKey(null as unknown as UserId);
 
-      expect(result).toBe(true);
-      expect(stateProvider.getUserState$).not.toHaveBeenCalled();
+      expect(result).toBe(false);
+      expect(autoUnlockService.getAutoUnlockKey).not.toHaveBeenCalled();
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
     });
 
-    it("returns true when vault timeout is Never", async () => {
-      platformUtilsService.getClientType.mockReturnValue(ClientType.Browser);
-      stateProvider.getUserState$.mockReturnValue(of(VaultTimeoutStringType.Never));
+    it("does nothing when no never-lock key is stored", async () => {
+      autoUnlockService.getAutoUnlockKey.mockResolvedValue(null);
 
-      const result = await (service as any).shouldStoreUserKeyAutoUnlock(mockUserId);
+      const result = await service.unlockWithAutoUnlockKey(mockUserId);
+
+      expect(result).toBe(false);
+      expect(autoUnlockService.getAutoUnlockKey).toHaveBeenCalledWith(mockUserId);
+      expect(mockCrypto.initialize_user_crypto).not.toHaveBeenCalled();
+    });
+
+    it("unlocks with the stored never-lock key", async () => {
+      autoUnlockService.getAutoUnlockKey.mockResolvedValue(mockAutoUnlockKey);
+
+      const result = await service.unlockWithAutoUnlockKey(mockUserId);
 
       expect(result).toBe(true);
-      expect(stateProvider.getUserState$).toHaveBeenCalledWith(expect.anything(), mockUserId);
+      expect(mockCrypto.initialize_user_crypto).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: { decryptedKey: { decrypted_user_key: mockAutoUnlockKey.toSdk() } },
+        }),
+      );
     });
   });
 
