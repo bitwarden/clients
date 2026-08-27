@@ -63,6 +63,7 @@ import { CurrentAccountComponent } from "../../../../auth/popup/account-switchin
 import { PopOutComponent } from "../../../../platform/popup/components/pop-out.component";
 import { PopupHeaderComponent } from "../../../../platform/popup/layout/popup-header.component";
 import { PopupPageComponent } from "../../../../platform/popup/layout/popup-page.component";
+import { ImportUpgradeNavigationService } from "../../../../tools/popup/settings/import/import-upgrade-navigation.service";
 import { IntroCarouselService } from "../../services/intro-carousel.service";
 import { VaultPopupItemsService } from "../../services/vault-popup-items.service";
 import { VaultPopupListFiltersService } from "../../services/vault-popup-list-filters.service";
@@ -282,6 +283,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   private readonly scrollLayout = inject(ScrollLayoutService);
+  private readonly importUpgradeNavigationService = inject(ImportUpgradeNavigationService);
 
   private readonly _scrollPositionEffect = effect((onCleanup) => {
     const sub = combineLatest([this.scrollLayout.scrollableRef$, this.allFilters$, this.loading$])
@@ -375,6 +377,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async navigateToImport() {
+    if (await this.configService.getFeatureFlag(FeatureFlag.ImportUpgrade)) {
+      await this.importUpgradeNavigationService.openImportSourceSelectTab();
+      return;
+    }
+
     await this.router.navigate(["/import"]);
   }
 

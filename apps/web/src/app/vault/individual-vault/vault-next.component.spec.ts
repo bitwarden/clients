@@ -1,6 +1,6 @@
 import { NO_ERRORS_SCHEMA } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { ActivatedRoute, convertToParamMap, ParamMap } from "@angular/router";
+import { ActivatedRoute, convertToParamMap, ParamMap, Router } from "@angular/router";
 import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, of, Subject } from "rxjs";
 
@@ -9,6 +9,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { CollectionView } from "@bitwarden/common/admin-console/models/collections";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Account, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CollectionId, OrganizationId, UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -34,6 +35,7 @@ import {
   VaultsNavViewModel,
 } from "@bitwarden/vault";
 
+import { ImportDialogComponent } from "../../tools/import/import-dialog.component";
 import { WebVaultItemActionsService } from "../services/vault-item-actions.service";
 
 import { VaultNextComponent } from "./vault-next.component";
@@ -46,6 +48,8 @@ describe("VaultNextComponent", () => {
   let fixture: ComponentFixture<VaultNextComponent>;
   let itemActions: MockProxy<WebVaultItemActionsService>;
   let cipherRowMenuService: MockProxy<CipherRowMenuService>;
+  let configService: MockProxy<ConfigService>;
+  let router: MockProxy<Router>;
   let restrictedItemTypesService: MockProxy<RestrictedItemTypesService>;
   let addItemDialogOpen: jest.SpyInstance;
 
@@ -147,6 +151,12 @@ describe("VaultNextComponent", () => {
     cipherRowMenuService = mock<CipherRowMenuService>();
     cipherRowMenuService.getRowActions.mockReturnValue([]);
 
+    configService = mock<ConfigService>();
+    configService.getFeatureFlag.mockResolvedValue(false);
+
+    router = mock<Router>();
+    router.navigate.mockResolvedValue(true);
+
     restrictedItemTypesService = mock<RestrictedItemTypesService>();
     // `restricted$` is readonly on the service, so it can't be assigned onto the mock.
     Object.defineProperty(restrictedItemTypesService, "restricted$", { value: of([]) });
@@ -189,10 +199,12 @@ describe("VaultNextComponent", () => {
         { provide: CipherRowMenuService, useValue: cipherRowMenuService },
         { provide: CipherService, useValue: cipherService },
         { provide: CollectionService, useValue: collectionService },
+        { provide: ConfigService, useValue: configService },
         { provide: DialogService, useValue: mock<DialogService>() },
         { provide: FolderService, useValue: folderService },
         { provide: I18nService, useValue: i18nService },
         { provide: OrganizationService, useValue: organizationService },
+        { provide: Router, useValue: router },
         { provide: RestrictedItemTypesService, useValue: restrictedItemTypesService },
         { provide: VaultCopyButtonsService, useValue: copyButtonsService },
         { provide: VaultNavService, useValue: { viewModel$: vaultNav$ } },
@@ -600,6 +612,35 @@ describe("VaultNextComponent", () => {
       await component().openAddItemDialog();
 
       expect(itemActions.add).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("openImport", () => {
+    let legacyOpen: jest.SpyInstance;
+
+    beforeEach(() => {
+      legacyOpen = jest
+        .spyOn(ImportDialogComponent, "open")
+        .mockClear()
+        .mockReturnValue({} as DialogRef);
+    });
+
+    it("opens the legacy import dialog when the flag is off", async () => {
+      configService.getFeatureFlag.mockResolvedValue(false);
+
+      await component().openImport();
+
+      expect(legacyOpen).toHaveBeenCalled();
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("navigates to the new import source picker page when the flag is on", async () => {
+      configService.getFeatureFlag.mockResolvedValue(true);
+
+      await component().openImport();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/tools/import"]);
+      expect(legacyOpen).not.toHaveBeenCalled();
     });
   });
 });

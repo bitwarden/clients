@@ -1,4 +1,4 @@
-import { NgModule } from "@angular/core";
+import { inject, NgModule } from "@angular/core";
 import { Route, RouterModule, Routes } from "@angular/router";
 import { map, switchMap } from "rxjs";
 
@@ -53,6 +53,7 @@ import {
 import { canAccessEmergencyAccess } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/components";
 import { LockComponent, RemovePasswordComponent } from "@bitwarden/key-management-ui";
 import { premiumInterestRedirectGuard } from "@bitwarden/web-vault/app/vault/guards/premium-interest-redirect/premium-interest-redirect.guard";
@@ -792,6 +793,22 @@ const routes: Routes = [
         canActivate: [authGuard],
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },
+          {
+            path: "import",
+            canMatch: [
+              () =>
+                inject(ConfigService)
+                  .getFeatureFlag$(FeatureFlag.ImportUpgrade)
+                  .pipe(map((flagValue) => flagValue === true)),
+            ],
+            loadComponent: () =>
+              import("./tools/import/import-source-select-web.component").then(
+                (mod) => mod.ImportSourceSelectWebComponent,
+              ),
+            data: {
+              titleId: "importNoun",
+            } satisfies RouteDataProperties,
+          },
           {
             path: "import",
             loadComponent: () =>

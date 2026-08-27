@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from "@angular/core";
 import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { mock } from "jest-mock-extended";
 import { of } from "rxjs";
 
@@ -12,6 +12,7 @@ import { SendPolicyService } from "@bitwarden/send-ui";
 import { GlobalStateProvider } from "@bitwarden/state";
 
 import { VaultFilterComponent } from "../../vault/app/vault-v3/vault-filter/vault-filter.component";
+import { ImportDesktopComponent } from "../tools/import/import-desktop.component";
 import { SendFiltersNavComponent } from "../tools/send/send-filters-nav.component";
 
 import { DesktopLayoutComponent } from "./desktop-layout.component";
@@ -128,5 +129,33 @@ describe("DesktopLayoutComponent", () => {
     const vaultFiltersNav = compiled.querySelector("app-vault-filter");
 
     expect(vaultFiltersNav).toBeTruthy();
+  });
+
+  describe("openImport", () => {
+    it("opens the legacy import dialog when the import upgrade flag is off", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(false);
+      const dialogService = TestBed.inject(DialogService);
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate");
+
+      await component["openImport"]();
+
+      expect(dialogService.open).toHaveBeenCalledWith(ImportDesktopComponent);
+      expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it("navigates to the new import source picker page when the import upgrade flag is on", async () => {
+      const configService = TestBed.inject(ConfigService);
+      jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
+      const dialogService = TestBed.inject(DialogService);
+      const router = TestBed.inject(Router);
+      jest.spyOn(router, "navigate").mockResolvedValue(true);
+
+      await component["openImport"]();
+
+      expect(router.navigate).toHaveBeenCalledWith(["/import"]);
+      expect(dialogService.open).not.toHaveBeenCalled();
+    });
   });
 });

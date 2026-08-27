@@ -1,0 +1,120 @@
+<p bitTypography="helper" noMargin class="tw-mb-2 tw-text-fg-body-subtle">
+  {{ "importSourceBreadcrumb" | i18n }}
+</p>
+
+<bit-card>
+  <bit-progress-bar
+    [hideStartHint]="true"
+    [value]="progressValue()"
+    [accessibleName]="stepText()"
+    [ariaValueText]="stepText()"
+  ></bit-progress-bar>
+  <p
+    bitTypography="helper"
+    noMargin
+    aria-hidden="true"
+    class="tw-mt-1 tw-mb-4 tw-text-fg-body-subtle"
+  >
+    {{ stepText() }}
+  </p>
+
+  <h2 bitTypography="h4">{{ "importSourceSelectTitle" | i18n }}</h2>
+  <p bitTypography="body2" class="tw-text-fg-body-subtle">
+    {{ "importSourceSelectDescription" | i18n }}
+  </p>
+
+  <bit-search [formControl]="searchControl" [placeholder]="'search' | i18n" class="tw-mb-4">
+  </bit-search>
+
+  <bit-form-control-group [grid]="true" [formControl]="sourceControl">
+    <bit-label class="tw-sr-only">{{ "importSourceSelectTitle" | i18n }}</bit-label>
+
+    <!-- Must be declared inside `bit-form-control-group`: `*ngTemplateOutlet` embedded views
+         resolve DI (e.g. `inject(FormControlGroupComponent)`) from this template's declaration
+         site, not from wherever the outlet renders it. Declared outside, every radio's injected
+         group is null — breaking both the shared `name` attribute and the write-back to
+         `sourceControl`. -->
+    <ng-template #optionCard let-option="option">
+      <bit-form-control-card>
+        @if (iconFor(option.id); as icon) {
+          <bit-svg slot="start" [content]="icon" class="tw-size-8"></bit-svg>
+        } @else {
+          <bit-icon-tile slot="start" icon="bwi-key"></bit-icon-tile>
+        }
+        <input type="radio" bitRadio [value]="option.id" />
+        <bit-label>
+          <!-- tw-block + tw-min-w-0: text-overflow's ellipsis glyph has no effect on an inline
+               element and won't shrink inside bit-label's flex host without a width to shrink to
+               — both needed for tw-truncate to render an ellipsis instead of clipping mid-word. -->
+          <span class="tw-block tw-truncate tw-min-w-0">{{ displayNameFor(option) }}</span>
+        </bit-label>
+      </bit-form-control-card>
+    </ng-template>
+
+    @if (!hasAnyResults()) {
+      <p bitTypography="body2" noMargin class="tw-col-span-full tw-text-fg-body-subtle">
+        {{ "noMatchingItems" | i18n }}
+      </p>
+    }
+
+    @if (browsers().length > 0) {
+      <p
+        bitTypography="body2"
+        noMargin
+        class="tw-col-span-full tw-font-semibold tw-text-fg-body-subtle"
+      >
+        {{ "importSourceBrowsers" | i18n }}
+      </p>
+      @for (option of browsers(); track option.id) {
+        <ng-container *ngTemplateOutlet="optionCard; context: { option: option }"></ng-container>
+      }
+    }
+
+    @if (featuredPasswordManagers().length > 0) {
+      <p
+        bitTypography="body2"
+        noMargin
+        class="tw-col-span-full tw-font-semibold tw-text-fg-body-subtle"
+      >
+        {{ "importSourcePasswordManagers" | i18n }}
+      </p>
+      @for (option of featuredPasswordManagers(); track option.id) {
+        <ng-container *ngTemplateOutlet="optionCard; context: { option: option }"></ng-container>
+      }
+    }
+
+    <bit-disclosure #allImportersDisclosure [(open)]="disclosureOpen" class="tw-contents">
+      @for (option of visibleRemainingPasswordManagers(); track option.id) {
+        <ng-container *ngTemplateOutlet="optionCard; context: { option: option }"></ng-container>
+      }
+    </bit-disclosure>
+
+    @if (hasRemainingPasswordManagers()) {
+      <button
+        type="button"
+        bitLink
+        [endIcon]="disclosureOpen() ? 'bwi-angle-up' : 'bwi-angle-down'"
+        class="tw-col-span-full tw-justify-self-start"
+        [bitDisclosureTriggerFor]="allImportersDisclosure"
+        id="import-source-select_button_show-all"
+      >
+        {{ "importSourceShowAll" | i18n }}
+      </button>
+    }
+  </bit-form-control-group>
+
+  <div
+    class="tw-flex tw-justify-end tw-border-0 tw-border-t tw-border-solid tw-border-border-base tw-pt-4"
+  >
+    <button
+      type="button"
+      bitButton
+      buttonType="primary"
+      [disabled]="!canContinue()"
+      (click)="onContinue()"
+      id="import-source-select_button_continue"
+    >
+      {{ "continue" | i18n }}
+    </button>
+  </div>
+</bit-card>

@@ -56,6 +56,7 @@ import { Fido2VaultComponent } from "../autofill/modal/credentials/fido2-vault.c
 import { VaultComponent } from "../vault/app/vault-v3/vault.component";
 
 import { DesktopLayoutComponent } from "./layout/desktop-layout.component";
+import { ImportSourceSelectDesktopComponent } from "./tools/import/import-source-select-desktop.component";
 import { unsavedSendEditsGuard } from "./tools/send/guards/unsaved-send-edits.guard";
 import { SendComponent } from "./tools/send/send.component";
 
@@ -457,6 +458,11 @@ const routes: Routes = [
         component: SendComponent,
         data: { pageTitle: { key: "send" } } satisfies RouteDataProperties,
         canDeactivate: [unsavedSendEditsGuard],
+      },
+      {
+        path: "import",
+        component: ImportSourceSelectDesktopComponent,
+        data: { pageTitle: { key: "importNoun" } } satisfies RouteDataProperties,
       },
     ],
   },

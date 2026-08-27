@@ -1,0 +1,10 @@
+<popup-page disablePadding>
+  <!-- Plain title, no popup-header: popup-header always renders a distinct background bar (undesired) -->
+  <div slot="header" class="tw-max-w-6xl tw-mx-auto tw-w-full tw-p-4 tw-pb-0">
+    <h1 bitTypography="h1" noMargin>{{ "importNoun" | i18n }}</h1>
+  </div>
+
+  <div class="tw-max-w-6xl tw-mx-auto tw-p-4">
+    <importer-source-select></importer-source-select>
+  </div>
+</popup-page>
