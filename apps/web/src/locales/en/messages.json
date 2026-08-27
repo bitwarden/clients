@@ -19909,14 +19909,11 @@
   "pamApprovalsCollectionFilter": {
     "message": "Collection"
   },
-  "pamApprovalsPendingHeader": {
-    "message": "Pending approval $COUNT$",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "3"
-      }
-    }
+  "pamApprovalsPendingEmpty": {
+    "message": "No requests waiting for your decision"
+  },
+  "pamApprovalsPendingSection": {
+    "message": "Pending approval"
   },
   "pamApprovalsRequesterFilter": {
     "message": "Requester"
