@@ -181,7 +181,7 @@ describe("DefaultAccessIntelligenceDataService", () => {
       expect(report?.id).toBe("report-id-123" as OrganizationReportId);
       expect(report?.organizationId).toBe(orgId);
 
-      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId);
+      expect(cipherService.getAllFromApiForOrganization).toHaveBeenCalledWith(orgId, true);
       expect(organizationUserApiService.getAllUsers).toHaveBeenCalledWith(orgId, {
         includeGroups: true,
       });
