@@ -62,7 +62,6 @@ import { PopupSizeService } from "../platform/popup/layout/popup-size.service";
 import { initPopupClosedListener } from "../platform/services/popup-view-cache-background.service";
 
 import { routerTransition } from "./app-routing.animations";
-import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
 
 // FIXME(https://bitwarden.atlassian.net/browse/CL-764): Migrate to OnPush
 // eslint-disable-next-line @angular-eslint/prefer-on-push-component-change-detection
@@ -234,18 +233,6 @@ export class AppComponent implements OnInit, OnDestroy {
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.showDialog(msg);
-          } else if (msg.command === "showNativeMessagingFingerprintDialog") {
-            // TODO: Should be refactored to live in another service.
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.showNativeMessagingFingerprintDialog(msg);
-          } else if (msg.command === "showUpdateDesktopAppOrDisableFingerprintDialog") {
-            // TODO: Should be refactored to live in another service.
-            await this.showDialog({
-              title: this.i18nService.t("updateDesktopAppOrDisableFingerprintDialogTitle"),
-              content: this.i18nService.t("updateDesktopAppOrDisableFingerprintDialogMessage"),
-              type: "warning",
-            });
           } else if (msg.command === "showToast") {
             this.toastService._showToast(msg);
           } else if (msg.command === "reloadProcess") {
@@ -354,14 +341,6 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private async showDialog(msg: SimpleDialogOptions) {
     await this.dialogService.openSimpleDialog(msg);
-  }
-
-  private async showNativeMessagingFingerprintDialog(msg: any) {
-    const dialogRef = DesktopSyncVerificationDialogComponent.open(this.dialogService, {
-      fingerprint: msg.fingerprint,
-    });
-
-    return firstValueFrom(dialogRef.closed);
   }
 
   // Displaying toasts isn't super useful on the popup due to the reloads we do.
