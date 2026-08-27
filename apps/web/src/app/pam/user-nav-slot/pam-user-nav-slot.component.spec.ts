@@ -85,6 +85,14 @@ describe("PamUserNavSlotComponent", () => {
     expect(navItem()).toBeNull();
   });
 
+  it("generates no box of its own, so rendering nothing takes up no space", () => {
+    organizations$.next([nonPamOrg]);
+    fixture.detectChanges();
+
+    expect(navItem()).toBeNull();
+    expect(fixture.debugElement.nativeElement.classList).toContain("tw-contents");
+  });
+
   describe("the pending-count badge", () => {
     const badge = () => fixture.debugElement.query(By.css("[bitBadge]"));
 
