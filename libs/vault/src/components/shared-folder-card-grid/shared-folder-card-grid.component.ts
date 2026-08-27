@@ -4,11 +4,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
   linkedSignal,
-  untracked,
 } from "@angular/core";
 import { RouterLink } from "@angular/router";
 
@@ -114,6 +112,15 @@ export class SharedFolderCardGridComponent {
    */
   readonly scope = input.required<VaultScope>();
 
+  /** Whether the section starts open. Users can still collapse and reopen it from its header. */
+  readonly open = input(true);
+
+  /**
+   * Whether the overflow cards start revealed, before the trigger below the grid has been used.
+   * Reset along with {@link expanded} whenever the set of children changes.
+   */
+  readonly initiallyExpanded = input(false);
+
   protected readonly gridTemplateColumns = GRID_TEMPLATE_COLUMNS;
 
   /**
@@ -149,10 +156,16 @@ export class SharedFolderCardGridComponent {
       .join(","),
   );
 
-  /** Whether the overflow cards have been revealed. Toggled by the trigger below the grid. */
-  protected readonly expanded = linkedSignal<string, boolean>({
-    source: this.folderIds,
-    computation: () => false,
+  /**
+   * Whether the overflow cards have been revealed. Toggled by the trigger below the grid, and reset
+   * to {@link initiallyExpanded} whenever the set of children changes.
+   */
+  protected readonly expanded = linkedSignal({
+    source: () => ({
+      folderIds: this.folderIds(),
+      initiallyExpanded: this.initiallyExpanded(),
+    }),
+    computation: ({ initiallyExpanded }) => initiallyExpanded,
   });
 
   /**
@@ -215,25 +228,20 @@ export class SharedFolderCardGridComponent {
 
   protected toggleExpanded() {
     this.expanded.update((expanded) => !expanded);
-  }
 
-  constructor() {
-    effect(() => {
-      if (!this.expanded()) {
-        return;
-      }
+    if (!this.expanded()) {
+      return;
+    }
 
-      // The grid sits above its own trigger, so the cards that just appeared are behind the user's
-      // focus and would otherwise go unnoticed by a screen reader.
-      const message = untracked(() => {
-        const overflowCardsCount = this.overflowCards().length;
-        if (overflowCardsCount === 1) {
-          return this.i18nService.t("moreSharedFoldersShownAboveSingular");
-        }
-        return this.i18nService.t("moreSharedFoldersShownAbove", overflowCardsCount);
-      });
+    // The grid sits above its own trigger, so the cards that just appeared are behind the user's
+    // focus and would otherwise go unnoticed by a screen reader. Only the toggle announces: a grid
+    // the host renders expanded has revealed nothing, so there is nothing to point back at.
+    const overflowCardsCount = this.overflowCards().length;
+    const message =
+      overflowCardsCount === 1
+        ? this.i18nService.t("moreSharedFoldersShownAboveSingular")
+        : this.i18nService.t("moreSharedFoldersShownAbove", overflowCardsCount);
 
-      void this.liveAnnouncer.announce(message, "polite");
-    });
+    void this.liveAnnouncer.announce(message, "polite");
   }
 }
