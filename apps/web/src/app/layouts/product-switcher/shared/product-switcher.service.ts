@@ -26,6 +26,8 @@ import { Provider } from "@bitwarden/common/admin-console/models/domain/provider
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { getUserId } from "@bitwarden/common/auth/services/account.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/platform/sync";
@@ -112,6 +114,7 @@ export class ProductSwitcherService {
     private policyService: PolicyService,
     private i18nService: I18nService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    private configService: ConfigService,
   ) {
     this.pollUntilSynced();
   }
@@ -129,6 +132,10 @@ export class ProductSwitcherService {
   userHasSingleOrgPolicy$ = this.accountService.activeAccount$.pipe(
     getUserId,
     switchMap((userId) => singleOrganizationPolicyApplies$(userId, this.policyService)),
+  );
+
+  private vfo1Enabled$: Observable<boolean> = this.configService.getFeatureFlag$(
+    FeatureFlag.VFO1Foundation,
   );
 
   shouldShowPremiumUpgradeButton$: Observable<boolean> = this.accountService.activeAccount$.pipe(
@@ -151,14 +158,16 @@ export class ProductSwitcherService {
     this.userHasSingleOrgPolicy$,
     this.route.paramMap,
     this.triggerProductUpdate$,
+    this.vfo1Enabled$,
   ]).pipe(
     map(
-      ([orgs, providers, userHasSingleOrgPolicy, paramMap]: [
+      ([orgs, providers, userHasSingleOrgPolicy, paramMap, , vfo1Enabled]: [
         Organization[],
         Provider[],
         boolean,
         ParamMap,
         void,
+        boolean,
       ]) => {
         // Sort orgs by name to match the order within the sidebar
         orgs.sort((a, b) => a.name.localeCompare(b.name));
@@ -235,6 +244,7 @@ export class ProductSwitcherService {
             },
             isActive: this.router.url.includes("/sm/"),
             otherProductOverrides: {
+              name: vfo1Enabled ? this.i18nService.t("getSecretsManager") : undefined,
               supportingText: this.i18nService.t("secureYourInfrastructure"),
             },
           },

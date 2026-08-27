@@ -5,6 +5,7 @@ import { applicationConfig, Meta, moduleMetadata, StoryObj } from "@storybook/an
 import { BehaviorSubject, Observable, of } from "rxjs";
 
 import { PasswordManagerLogo, SideNavLogo } from "@bitwarden/assets/svg";
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
@@ -20,7 +21,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 import {
   BadgeComponent,
   BerryComponent,
-  CalloutComponent,
+  DialogService,
   I18nMockService,
   IconTileComponent,
   LayoutComponent,
@@ -33,6 +34,7 @@ import { GlobalStateProvider } from "@bitwarden/state";
 import { enabledFlags } from "@bitwarden/storybook";
 import { I18nPipe } from "@bitwarden/ui-common";
 
+import { UpgradeCalloutComponent } from "../../../billing/individual/upgrade/upgrade-nav-button/upgrade-callout/upgrade-callout.component";
 import { ProductSwitcherService } from "../shared/product-switcher.service";
 
 import { NavigationProductSwitcherComponent } from "./navigation-switcher.component";
@@ -120,6 +122,7 @@ class StoryContentComponent {}
 
 const translations: Record<string, string> = {
   moreFromBitwarden: "More from Bitwarden",
+  getSecretsManager: "Get Secrets Manager",
   secureYourInfrastructure: "Secure your infrastructure",
   protectYourFamilyOrBusiness: "Protect your family or business",
   switchProducts: "Switch products",
@@ -132,6 +135,10 @@ const translations: Record<string, string> = {
   loading: "Loading",
   sideNavigation: "Side navigation",
   skipLink: "Skip link",
+  upgradeYourPlan: "Upgrade your plan",
+  upgradeNow: "Upgrade now",
+  getAdvancedOnlineSecurityWithBitwardenPremium:
+    "Get advanced online security with Bitwarden premium.",
 };
 
 export default {
@@ -149,7 +156,7 @@ export default {
         BadgeComponent,
         BerryComponent,
         IconTileComponent,
-        CalloutComponent,
+        UpgradeCalloutComponent,
       ],
       providers: [
         { provide: OrganizationService, useClass: MockOrganizationService },
@@ -172,6 +179,20 @@ export default {
           provide: PolicyService,
           useValue: {
             policyAppliesToUser$: () => of(false),
+          },
+        },
+        {
+          provide: DialogService,
+          useValue: {
+            open: () => ({
+              closed: of({}),
+            }),
+          },
+        },
+        {
+          provide: ApiService,
+          useValue: {
+            refreshIdentityToken: () => {},
           },
         },
       ],
@@ -398,9 +419,7 @@ export const RealisticSideNavV2: Story = {
             <bit-nav-item text="Settings" icon="bwi-cog" route="settings"></bit-nav-item>
           </bit-nav-section>
           <ng-container slot="callout">
-            <div class="tw-px-3">
-              <bit-callout class="[&_aside]:!tw-m-0" icon="bwi-premium" type="info" title="Info">Some promo callout content here</bit-callout>
-            </div>
+            <app-upgrade-callout></app-upgrade-callout>
           </ng-container>
           <ng-container slot="account">
             <div class="tw-p-3">Account section would go here</div>
