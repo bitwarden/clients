@@ -384,6 +384,23 @@ describe("ApproverInboxService", () => {
       expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(0);
     });
 
+    it("names a cipher outside the local vault by its id, the text the Item column shows", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "unresolved",
+          status: "approved",
+          producedLeaseId: "lease-unresolved",
+          producedLeaseStatus: "active",
+        }),
+      ]);
+
+      await service.load();
+
+      const [row] = await firstValueFrom(service.activeLeaseRows$);
+      expect(row.cipherName).toBe("cipher-1");
+      expect(row.searchText).toContain("cipher-1");
+    });
+
     it("keeps a lease an extension has carried past the request's own end", async () => {
       const requestEnd = new Date(Date.now() - 1000).toISOString();
       const extendedEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
