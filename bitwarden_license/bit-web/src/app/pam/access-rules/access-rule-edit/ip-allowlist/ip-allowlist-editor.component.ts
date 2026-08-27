@@ -96,7 +96,7 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
     // Not ngOnInit: each row's `[formControl]` directive revalidates its control as its binding
     // initialises, replacing `control.errors` wholesale and wiping any mark set earlier. Not
     // valueChanges alone either: the host seeds an existing rule's rows with `{ emitEvent: false }`
-    // (access-rule-edit.component.ts:426-438), so nothing is emitted on load.
+    // (`AccessRuleEditComponent.setIpAllowlistCidrs`), so nothing is emitted on load.
     this.syncDuplicateErrors();
   }
 
@@ -134,16 +134,21 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
     const controls = this.cidrArray().controls;
     const values = controls.map((control) => control.value.trim());
 
-    const counts = new Map<string, number>();
+    const seen = new Set<string>();
+    const duplicated = new Set<string>();
     for (const value of values) {
-      if (value !== "") {
-        counts.set(value, (counts.get(value) ?? 0) + 1);
+      if (value === "") {
+        continue;
       }
+      if (seen.has(value)) {
+        duplicated.add(value);
+      }
+      seen.add(value);
     }
 
     const message = this.i18n.t("accessRuleIpAllowlistDuplicateCidr");
     controls.forEach((control, index) => {
-      const isDuplicate = (counts.get(values[index]) ?? 0) > 1;
+      const isDuplicate = duplicated.has(values[index]);
       // Every `setErrors` revalidates the whole array through its ancestors, so only write to the
       // rows whose mark actually changes.
       if (isDuplicate === control.hasError("duplicateCidr")) {
