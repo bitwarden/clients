@@ -32,10 +32,15 @@ import {
   ResolvedNames,
   emptyResolvedNames,
 } from "../access-requests/access-name-resolver.service";
-import { MyAccessRequestRow, toRequestRow } from "../access-requests/my-access-row";
+import {
+  MyAccessRequestRow,
+  extensionsByLeaseId,
+  toRequestRow,
+} from "../access-requests/my-access-row";
 
 import { ApprovalRow, sortApprovalRows, toApprovalRow } from "./approval-row";
 import { isActionableInboxRequest } from "./inbox-request-filter";
+import { ManagedLeaseRow, isLiveManagedLease, toManagedLeaseRow } from "./managed-lease-row";
 
 /**
  * Page-level data service for the approver surfaces: the pending inbox and the decided history for
@@ -108,6 +113,36 @@ export class ApproverInboxService {
         .map((request) => toRequestRow(request, names))
         .sort((a, b) => resolvedOrSubmittedMs(b) - resolvedOrSubmittedMs(a)),
     ),
+  );
+
+  /**
+   * The leases that are live RIGHT NOW on the collections the caller manages, soonest to end first —
+   * the access an operator can still cut off.
+   *
+   * A filter over the history read rather than a governance read of its own: `listHistory()` already
+   * returns every managed non-pending request with its produced lease's id and status, and the SDK
+   * omits a list-active-leases call on purpose.
+   *
+   * The window is tested as well as the status, and only once the row's effective end is known: the
+   * server never transitions a lease out of `active` when its window closes, so status alone would
+   * keep listing — and offering Revoke on — access that ended on its own, while testing the
+   * request's own end first would drop a lease an extension has carried past it.
+   */
+  readonly activeLeaseRows$: Observable<ManagedLeaseRow[]> = combineLatest([
+    this._history$,
+    this._names$,
+    this._renderedAt$,
+  ]).pipe(
+    map(([requests, names, now]) => {
+      const extensions = extensionsByLeaseId(requests);
+      return requests
+        .filter(isLiveManagedLease)
+        .map((request) =>
+          toManagedLeaseRow(request, names, extensions.get(uuidAsString(request.producedLeaseId))),
+        )
+        .filter((row) => row.endsAtMs > now.getTime())
+        .sort((a, b) => a.endsAtMs - b.endsAtMs);
+    }),
   );
 
   /**
