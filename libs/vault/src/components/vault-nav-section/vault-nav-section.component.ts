@@ -32,6 +32,8 @@ import { VaultNavService } from "../../services/vault-nav.service";
   imports: [NgTemplateOutlet, I18nPipe, NavigationModule, IconTileComponent],
 })
 export class VaultNavSectionComponent {
+  protected readonly VaultNavItemType = VaultNavItemType;
+
   private readonly vaultNavService = inject(VaultNavService);
 
   protected readonly vaultNav = toSignal(this.vaultNavService.viewModel$);
