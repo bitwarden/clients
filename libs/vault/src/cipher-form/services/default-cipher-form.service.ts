@@ -88,6 +88,7 @@ export class DefaultCipherFormService implements CipherFormService {
         activeUserId,
         originalCipherView,
         config.admin,
+        config.leaseGated,
       );
       await this.markAssociatedTaskAsComplete(activeUserId, cipher, config);
       return saved;
@@ -109,6 +110,7 @@ export class DefaultCipherFormService implements CipherFormService {
         activeUserId,
         originalCipherView,
         config.admin || originalCollectionIds.size === 0,
+        config.leaseGated,
       );
 
       // Then save the new collection changes separately

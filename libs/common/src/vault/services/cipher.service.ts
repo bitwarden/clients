@@ -777,6 +777,7 @@ export class CipherService implements CipherServiceAbstraction {
     userId: UserId,
     originalCipherView?: CipherView,
     orgAdmin?: boolean,
+    leaseGated?: boolean,
   ): Promise<CipherView> {
     if (orgAdmin) {
       return await this.updateWithServerUsingSdk(cipherView, userId, originalCipherView, orgAdmin);
@@ -809,6 +810,7 @@ export class CipherService implements CipherServiceAbstraction {
       userId,
       originalCipherView,
       orgAdmin,
+      leaseGated,
     );
     return resultCipherView;
   }
