@@ -53,10 +53,8 @@
     <bit-item size="lg" class="!tw-mb-0">
       <a
         bit-item-content
+        [id]="'shared-folder-card-grid_link_folder-' + folder.id"
         [routerLink]="folder.commands"
-        [queryParams]="folder.queryParams"
-        [queryParamsHandling]="folder.queryParamsHandling"
-        [state]="folder.state"
       >
         <bit-icon-tile slot="start" icon="bwi-shared-folder"></bit-icon-tile>
         {{ folder.name }}
