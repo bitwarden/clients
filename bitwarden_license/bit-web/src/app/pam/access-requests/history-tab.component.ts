@@ -183,9 +183,27 @@ export class HistoryTabComponent {
     );
   }
 
-  /** Withdraw an approval the requester has not started. */
+  /**
+   * Withdraw an approval the requester has not started. Confirmed first, like {@link revoke}: it
+   * takes a decision away from a third party, cannot be undone from this screen, and the requester
+   * is not told.
+   */
   protected async cancelApproval(row: MyAccessRequestRow): Promise<void> {
     if (!this.canCancelApproval(row) || this.isActing(row)) {
+      return;
+    }
+    const confirmed = await this.dialogService.openSimpleDialog({
+      title: { key: "pamInboxWithdrawApproval" },
+      content: {
+        key: "pamInboxWithdrawApprovalConfirm",
+        // The same expression the Item column renders, so the dialog and its row can never name the
+        // item differently — including when the cipher is not in the approver's vault.
+        placeholders: [row.cipherName ?? row.cipherId],
+      },
+      acceptButtonText: { key: "pamInboxWithdrawApproval" },
+      type: "warning",
+    });
+    if (!confirmed) {
       return;
     }
     await this.act(row, "pamInboxApprovalWithdrawnToast", "pamInboxWithdrawApprovalFailed", () =>
