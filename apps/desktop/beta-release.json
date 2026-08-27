@@ -1,4 +1,5 @@
 {
-  "$comment": "Read by the beta jobs in build-desktop.yml. betaNumber is the ordinal appended to each beta build.",
-  "betaNumber": 1
+  "$comment": "Read by the beta jobs in build-desktop.yml. betaNumber is the ordinal appended to each beta build. msStoreInScope records whether this beta cycle publishes the Windows Store appx, which only the first beta off a base version can do.",
+  "betaNumber": 1,
+  "msStoreInScope": false
 }

@@ -9,7 +9,7 @@ import {
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { FormControl } from "@angular/forms";
 import { Router } from "@angular/router";
-import { combineLatest, debounceTime, take } from "rxjs";
+import { combineLatest, debounceTime, map, take } from "rxjs";
 
 import { Security } from "@bitwarden/assets/svg";
 import {
@@ -21,7 +21,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import {
   LinkModule,
-  NoItemsModule,
   PopoverModule,
   SearchModule,
   TableDataSource,
@@ -54,7 +53,6 @@ import {
     ReportLoadingComponent,
     LinkModule,
     SearchModule,
-    NoItemsModule,
     PipesModule,
     PopoverModule,
     SharedModule,
@@ -91,9 +89,18 @@ export class CriticalApplicationsTabComponent {
 
   protected readonly drawerState = this.drawerStateService.drawerState;
 
-  protected readonly unassignedCipherIds = toSignal(
-    this.securityTasksService.unassignedCriticalCipherIds$,
+  protected readonly atRiskCipherIds = toSignal(
+    this.accessIntelligenceService.report$.pipe(
+      map(
+        (report) =>
+          report?.getCriticalAtRiskApplications().flatMap((app) => app.getAtRiskCipherIds()) ?? [],
+      ),
+    ),
     { initialValue: [] },
+  );
+
+  protected readonly enableRequestPasswordChange = computed(
+    () => this.atRiskCipherIds().length > 0,
   );
 
   protected readonly helpMembersOpen = computed(
@@ -111,11 +118,6 @@ export class CriticalApplicationsTabComponent {
       totalAtRiskApplicationCount: report.summary.totalCriticalAtRiskApplicationCount,
       totalApplicationCount: report.summary.totalCriticalApplicationCount,
     };
-  });
-
-  protected readonly enableRequestPasswordChange = computed(() => {
-    const summary = this.applicationSummary();
-    return !!summary && summary.totalAtRiskMemberCount > 0;
   });
 
   constructor() {
@@ -212,7 +214,7 @@ export class CriticalApplicationsTabComponent {
     }
 
     this.securityTasksService
-      .requestPasswordChangeForCriticalApplications$(orgId, this.unassignedCipherIds())
+      .requestPasswordChangeForCriticalApplications$(orgId, this.atRiskCipherIds())
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {

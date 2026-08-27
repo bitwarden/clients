@@ -1,26 +1,42 @@
 @if (vaultNav(); as nav) {
   @if (nav.vaults.length > 1) {
-    <bit-nav-item [text]="'allItems' | i18n" (mainContentClicked)="selectAllItems()">
+    <bit-nav-item
+      class="tw-mb-2"
+      [text]="'allItems' | i18n"
+      [route]="allItemsRoute"
+      [routerLinkActiveOptions]="allItemsActiveOptions"
+    >
       <bit-icon-tile icon="bwi-list" variant="brand" emphasis="bold" size="sm" />
     </bit-nav-item>
   }
 
   <ng-template #vaultGroups>
     @for (vault of nav.vaults; track vault.id) {
-      <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
-        <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
-        <bit-nav-item
-          icon="bwi-list-alt"
-          [text]="'allVaultItems' | i18n"
-          (mainContentClicked)="selectVault(vault)"
-        ></bit-nav-item>
-      </bit-nav-group>
+      @if (vault.type === VaultNavItemType.Personal) {
+        <bit-nav-item [text]="vault.label" [route]="vaultRoute(vault)">
+          <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
+        </bit-nav-item>
+      } @else {
+        <bit-nav-group [text]="vault.label" [open]="nav.organizationDataOwnership">
+          <bit-icon-tile [icon]="vault.icon" [color]="vaultTileColor(vault)" size="sm" />
+          <bit-nav-item
+            icon="bwi-list-alt"
+            [text]="'allVaultItems' | i18n"
+            [route]="vaultRoute(vault)"
+          ></bit-nav-item>
+        </bit-nav-group>
+      }
     }
   </ng-template>
 
-  @if (nav.vaults.length === 1 && !nav.organizationDataOwnership) {
+  @if (personalOnly()) {
     @let loneVault = nav.vaults[0];
-    <bit-nav-item [text]="loneVault.label" (mainContentClicked)="selectVault(loneVault)">
+    <!-- A lone vault still routes to /vault; only the label differs. -->
+    <bit-nav-item
+      [text]="loneVault.label"
+      [route]="allItemsRoute"
+      [routerLinkActiveOptions]="allItemsActiveOptions"
+    >
       <bit-icon-tile [icon]="loneVault.icon" [color]="vaultTileColor(loneVault)" size="sm" />
     </bit-nav-item>
   } @else if (nav.organizationDataOwnership) {
