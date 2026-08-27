@@ -276,6 +276,7 @@ export class VaultItemsTableComponent<C extends CipherViewLike> {
 
   /**
    * Whether the `OrganizationDataOwnership` organization policy applies to the current user.
+   * Used within the logic of determining whether the "My vault" filter should be available to the user.
    */
   readonly orgRequiresDataOwnership = input<boolean>(false);
 
