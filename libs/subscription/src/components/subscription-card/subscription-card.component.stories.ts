@@ -287,6 +287,37 @@ export const PastDue: Story = {
   },
 };
 
+export const CalloutSuppressed: Story = {
+  name: "Callout Suppressed (hideCallout)",
+  args: {
+    title: "Enterprise Subscription",
+    // hideCallout suppresses the status callout entirely (e.g. reseller orgs exempt from billing
+    // automation) — the badge still renders, but the past-due callout does not.
+    hideCallout: true,
+    subscription: {
+      status: "past_due",
+      suspension: new Date("2025-02-05"),
+      gracePeriod: 14,
+      cart: {
+        passwordManager: {
+          seats: {
+            quantity: 20,
+            translationKey: "members",
+            cost: 6.0,
+          },
+        },
+        cadence: "annually",
+        estimatedTax: 0,
+      },
+      storage: {
+        available: 1000,
+        used: 234,
+        readableUsed: "234 MB",
+      },
+    } satisfies BitwardenSubscription,
+  },
+};
+
 export const PendingCancellation: Story = {
   args: {
     title: "Premium Subscription",
