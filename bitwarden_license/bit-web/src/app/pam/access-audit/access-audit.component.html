@@ -43,12 +43,11 @@
         [placeholder]="'pamAuditSearchPlaceholder' | i18n"
         [formControl]="searchControl"
       ></bit-search>
-      <bit-chip-filter
-        [placeholderText]="'pamAuditColumnEvent' | i18n"
-        placeholderIcon="bwi-filter"
-        [options]="kindOptions()"
-        [formControl]="kindControl"
-      ></bit-chip-filter>
+      <bit-filter-menu key="kind" [placeholderText]="'pamAuditColumnEvent' | i18n">
+        @for (option of kindOptions(); track option.value) {
+          <bit-filter-option [value]="option.value">{{ option.label }}</bit-filter-option>
+        }
+      </bit-filter-menu>
     </div>
 
     @if (filteredRows().length === 0) {

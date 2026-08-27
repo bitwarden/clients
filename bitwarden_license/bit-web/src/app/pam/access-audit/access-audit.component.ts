@@ -4,8 +4,10 @@ import {
   Component,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
+  viewChild,
 } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { FormControl, ReactiveFormsModule } from "@angular/forms";
@@ -22,8 +24,8 @@ import {
   BadgeModule,
   ButtonModule,
   CalloutModule,
-  ChipFilterComponent,
-  ChipFilterOption,
+  FilterMenuComponent,
+  FilterOptionComponent,
   LinkModule,
   NoItemsModule,
   SearchModule,
@@ -39,6 +41,8 @@ import { AuditRow, auditRowMatchesFilter, toAuditRow } from "./access-audit-row"
 import { AuditApiService } from "./audit-api.service";
 
 type AuditStatus = "loading" | "ready" | "empty" | "error";
+
+type AuditKindOption = { label: string; value: string };
 
 /**
  * The organization's PAM access-audit trail, read from the dedicated append-only audit store.
@@ -67,7 +71,8 @@ type AuditStatus = "loading" | "ready" | "empty" | "error";
     BadgeModule,
     ButtonModule,
     CalloutModule,
-    ChipFilterComponent,
+    FilterMenuComponent,
+    FilterOptionComponent,
     HeaderModule,
     LinkModule,
     NoItemsModule,
@@ -121,8 +126,29 @@ export class AccessAuditComponent implements OnInit {
   private readonly searchText = toSignal(this.searchControl.valueChanges, { initialValue: "" });
   private readonly kindValue = toSignal(this.kindControl.valueChanges, { initialValue: null });
 
+  /**
+   * The Event chip. `bit-filter-menu` is not a `ControlValueAccessor` — it owns its selection and
+   * publishes it as a signal — so the chip is the source and `kindControl` mirrors it, rather than
+   * the other way round.
+   */
+  private readonly kindMenu = viewChild(FilterMenuComponent);
+
+  constructor() {
+    let mirrored: string | null = null;
+    effect(() => {
+      const selected = (this.kindMenu()?.value() ?? null) as string | null;
+      // Only a real change to the chip's own selection is pushed, so a value set directly on
+      // kindControl is not clobbered when the effect re-runs for an unrelated reason.
+      if (selected === mirrored) {
+        return;
+      }
+      mirrored = selected;
+      this.kindControl.setValue(selected);
+    });
+  }
+
   /** Event-kind chip options, limited to the labels actually present in the trail, sorted. */
-  protected readonly kindOptions = computed<ChipFilterOption<string>[]>(() =>
+  protected readonly kindOptions = computed<AuditKindOption[]>(() =>
     [...new Set(this.rows().map((row) => row.kindLabelKey))]
       .map((labelKey) => ({ label: this.i18nService.t(labelKey), value: labelKey }))
       .sort((a, b) => a.label.localeCompare(b.label)),

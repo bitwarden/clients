@@ -67,8 +67,14 @@ const EVENTS: AccessAuditEventResponse[] = [
     kind: AccessAuditEventKind.LeaseRevoked,
     occurredAt: fromNow(-20 * MINUTE),
     leaseId: "lease-2",
+    actorId: "user-2",
     actorName: "Ada Lovelace",
     detail: "Incident closed early.",
+  }),
+  event({
+    kind: AccessAuditEventKind.LeaseRevoked,
+    occurredAt: fromNow(-25 * MINUTE),
+    leaseId: "lease-3",
   }),
   event({
     kind: AccessAuditEventKind.LeaseExtended,
