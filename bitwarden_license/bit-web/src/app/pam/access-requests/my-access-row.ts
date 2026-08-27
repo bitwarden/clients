@@ -191,8 +191,8 @@ export function historyDisplayStatus(
     if (request.producedLeaseStatus === "revoked") {
       return terminal("pamStatusRevoked", "subtle");
     }
-    // "expired" (or the SDK's "unknown" default) — the server has no autonomous-expiry push in
-    // v1, so a lapsed lease still reads as its last known status; default to Expired here.
+    // "expired" (or the SDK's "unknown" default) — the server derives a lapsed lease as expired at
+    // read time, and a lease that lapses after load lands here too, so Expired is the right default.
     return terminal("pamStatusExpired", "warning");
   }
   if (request.status === "pending") {
@@ -217,6 +217,11 @@ function terminal(
  * id if the server could not resolve the user (e.g. a deleted account) — so the column is never
  * blank.
  *
+ * Two statuses come with no human decision and must not read as "Access rule": a cancelled request
+ * was withdrawn by its requester (the log is scoped to approval-authority verdicts, so the
+ * withdrawal never appears in it), and an expired request lapsed precisely because nobody acted —
+ * that row renders the empty em dash.
+ *
  * Returns an i18n key for system decisions (translated in the template) and a display name for
  * human decisions, keeping localization out of the row model. Exported for tests.
  */
@@ -224,8 +229,14 @@ export function resolveResolver(
   status: AccessRequestStatus,
   human: AccessRequestDecisionView | undefined,
 ): Pick<MyAccessRequestRow, "resolverLabelKey" | "resolverName"> {
-  if (status === "pending") {
+  // The terminal transition's actor, not just any human in the log: a cancelled request was ended
+  // by its requester even when the log carries the approval it abandoned, and an expired one was
+  // ended by the clock alone.
+  if (status === "pending" || status === "expired") {
     return { resolverLabelKey: null, resolverName: null };
+  }
+  if (status === "canceled") {
+    return { resolverLabelKey: "pamResolverRequester", resolverName: null };
   }
   const approver = human == null ? undefined : humanApprover(human);
   if (approver == null) {

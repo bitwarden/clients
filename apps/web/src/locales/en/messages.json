@@ -17801,6 +17801,9 @@
   "pamResolverAccessRule": {
     "message": "Access rule"
   },
+  "pamResolverRequester": {
+    "message": "Requester"
+  },
   "pamInboxInCollection": {
     "message": "in $COLLECTION$",
     "placeholders": {
