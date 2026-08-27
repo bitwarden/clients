@@ -45,6 +45,8 @@ function requestRow(overrides: Record<string, unknown> = {}): MyAccessRequestRow
     status: "approved",
     statusVariant: "info",
     statusLabelKey: "pamStatusApproved",
+    badgeState: null,
+    statusBadge: { labelKey: "pamStatusApproved", variant: "success" },
     submittedAt: "2026-08-17T11:00:00.000Z",
     resolvedAt: "2026-08-17T11:05:00.000Z",
     leaseNotBefore: "2026-08-17T11:00:00.000Z",
@@ -329,6 +331,80 @@ describe("MyRequestsTabComponent", () => {
 
       expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
       expect(fixture.nativeElement.textContent).toContain("pamMyRequestsPendingEmpty");
+    });
+  });
+
+  describe("grouping an approved request", () => {
+    beforeEach(() => {
+      jest.setSystemTime(new Date("2026-08-20T11:30:00.000Z"));
+    });
+
+    it("renders an approved, unactivated request with the active access rather than Pending", () => {
+      pendingRows$.next([requestRow(), requestRow({ id: "req-pending", status: "pending" })]);
+
+      create();
+
+      expect(query('[data-testid="my-access-approved-req-1"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-pending-req-1"]')).toBeNull();
+      expect(query('[data-testid="my-access-pending-req-pending"]')).not.toBeNull();
+    });
+
+    it("counts undecided rows under Pending and approved rows with the active access", () => {
+      pendingRows$.next([requestRow(), requestRow({ id: "req-pending", status: "pending" })]);
+      leases$.next([leaseRow()]);
+
+      create();
+
+      expect(query('[data-testid="my-access-pending-count"]')!.textContent).toContain("1");
+      expect(query('[data-testid="my-access-active-count"]')!.textContent).toContain("2");
+    });
+
+    it("never renders a Start button inside the Pending table", () => {
+      pendingRows$.next([requestRow(), requestRow({ id: "req-pending", status: "pending" })]);
+
+      create();
+
+      expect(query('[data-testid^="my-access-pending-start-"]')).toBeNull();
+      expect(query('[data-testid="my-access-approved-start-req-1"]')).not.toBeNull();
+    });
+
+    it("badges a grant inside its window 'Ready to use'", () => {
+      pendingRows$.next([requestRow()]);
+
+      create();
+
+      expect(query('[data-testid="access-state-badge-ready"]')).not.toBeNull();
+    });
+
+    it("does not claim readiness before the window opens", () => {
+      pendingRows$.next([requestRow({ leaseNotBefore: "2026-08-21T11:30:00.000Z" })]);
+
+      create();
+
+      expect(query('[data-testid="access-state-badge-ready"]')).toBeNull();
+      expect(query('[data-testid="my-access-approved-status-req-1"]')!.textContent).toContain(
+        "pamStatusApproved",
+      );
+    });
+
+    it("keeps a grant whose window has lapsed visible, with nothing to start or cancel", () => {
+      pendingRows$.next([requestRow({ leaseNotAfter: "2026-08-19T11:30:00.000Z" })]);
+
+      create();
+
+      expect(query('[data-testid="my-access-approved-req-1"]')).not.toBeNull();
+      expect(query('[data-testid="access-state-badge-ready"]')).toBeNull();
+      expect(query('[data-testid="my-access-approved-start-req-1"]')).toBeNull();
+      expect(query('[data-testid="my-access-approved-cancel-req-1"]')).toBeNull();
+    });
+
+    it("shows the Pending empty state when the only request is approved", () => {
+      pendingRows$.next([requestRow()]);
+
+      create();
+
+      expect(query('[data-testid="my-access-pending-empty"]')).not.toBeNull();
+      expect(query('[data-testid="my-access-approved-req-1"]')).not.toBeNull();
     });
   });
 });
