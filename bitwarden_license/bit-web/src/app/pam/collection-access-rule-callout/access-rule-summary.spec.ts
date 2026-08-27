@@ -25,11 +25,10 @@ describe("accessRuleSummaryKeys", () => {
     ]);
   });
 
-  it("adds the IP restriction", () => {
+  it("reports only the IP restriction when there is no human-approval condition", () => {
     const conditions = [{ kind: "ip_allowlist", cidrs: ["10.0.0.0/8"] }];
 
     expect(accessRuleSummaryKeys(rule({ conditions }))).toEqual([
-      "pamAccessRuleConditionAutoApproved",
       "pamAccessRuleConditionIpRestricted",
     ]);
   });
