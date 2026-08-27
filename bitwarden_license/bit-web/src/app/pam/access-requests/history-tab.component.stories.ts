@@ -63,7 +63,10 @@ const MY_ROWS = [
   }),
 ];
 
-/** A grant the caller decided as an approver, still running — the only revocable shape. */
+/**
+ * Rows the caller decided as an approver: a running grant (the only revocable shape), an approval
+ * the requester has not started (the only withdrawable one), and a denial, which offers neither.
+ */
 function managedRows() {
   return [
     toRequestRow(
@@ -76,6 +79,19 @@ function managedRows() {
         producedLeaseStatus: "active",
         resolvedAt: liveFromNow(-30 * MINUTE),
         leaseNotAfter: liveFromNow(HOUR),
+        decisions: [decision()],
+      }),
+      names,
+    ),
+    toRequestRow(
+      accessRequest({
+        id: "req-managed-approved",
+        cipherId: "cipher-3",
+        requesterName: "Grace Hopper",
+        status: "approved",
+        resolvedAt: fromNow(-2 * HOUR),
+        leaseNotBefore: fromNow(HOUR),
+        leaseNotAfter: fromNow(3 * HOUR),
         decisions: [decision()],
       }),
       names,
