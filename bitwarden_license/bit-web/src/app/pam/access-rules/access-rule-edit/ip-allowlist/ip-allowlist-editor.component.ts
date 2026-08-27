@@ -94,10 +94,6 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // Not ngOnInit: each row's `[formControl]` directive revalidates its control as its binding
-    // initialises, replacing `control.errors` wholesale and wiping any mark set earlier. Not
-    // valueChanges alone either: the host seeds an existing rule's rows with `{ emitEvent: false }`
-    // (`AccessRuleEditComponent.setIpAllowlistCidrs`), so nothing is emitted on load.
     this.syncDuplicateErrors();
   }
 
@@ -129,10 +125,6 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
    *
    * The rows marked here and the array's own `duplicateCidrs` error come from that one function, so
    * the array can never be rejected with no row saying why.
-   *
-   * Marking the row touched is part of the contract, not a nicety:
-   * `BitFormFieldControlDirective.hasError` gates on the row's own `touched`, and neither an
-   * untouched initial load nor a blur on one row of a pair ever sets it on the partner row.
    */
   private syncDuplicateErrors(): void {
     const controls = this.cidrArray().controls;
@@ -142,15 +134,10 @@ export class IpAllowlistEditorComponent implements OnInit, AfterViewInit {
     const message = this.i18n.t("accessRuleIpAllowlistDuplicateCidr");
     controls.forEach((control, index) => {
       const isDuplicate = duplicated.has(values[index]);
-      // Every `setErrors` revalidates the whole array through its ancestors, so only write to the
-      // rows whose mark actually changes.
       if (isDuplicate === control.hasError("duplicateCidr")) {
         return;
       }
       if (isDuplicate) {
-        // No `{ emitEvent: false }` on either call: `hasError` only recomputes on a
-        // StatusChangeEvent / TouchedChangeEvent, so suppressing them would change the errors
-        // without rendering them.
         control.setErrors({ ...control.errors, duplicateCidr: { message } });
         control.markAsTouched();
       } else {
