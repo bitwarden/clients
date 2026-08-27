@@ -26,7 +26,8 @@ import { MyAccessService } from "./my-access.service";
  *    something to act on — unlike the My requests and Approvals berries below.
  *
  * Each tab is a child route rendered in the shell's `<router-outlet>`; the shell stays mounted
- * across tab navigation. {@link MyAccessService} is provided at the parent route (see the routing
+ * across tab navigation. So is `/pam/requests/:id`, which is not a tab — it renders the single
+ * request as a dialog over this shell. {@link MyAccessService} is provided at the parent route (see the routing
  * module) so every tab shares one loaded instance — this shell owns the single load and the
  * load-failure toast, and renders the tab nav with live berry counts. {@link ApproverInboxService} is
  * provided the same way and loaded the same way, but only for a caller who can actually approve:
