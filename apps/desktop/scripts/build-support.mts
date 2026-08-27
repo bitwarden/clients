@@ -120,17 +120,24 @@ export function stageArtifact(from: string, intoDir: string, as: string): void {
 }
 
 /// Runs a build script's entry point, turning the errors it reports into a clean exit rather
-/// than a stack trace.
-export function runScript(main: () => void): void {
+/// than a stack trace. Accepts an async entry point for the targets whose build tool has a
+/// promise-based API.
+export function runScript(main: () => void | Promise<void>): void {
   try {
-    main();
-  } catch (error) {
-    if (error instanceof BuildError) {
-      // eslint-disable-next-line no-console
-      console.error(`error: ${error.message}`);
-      process.exitCode = 1;
-      return;
+    const running = main();
+    if (running instanceof Promise) {
+      running.catch(report);
     }
+  } catch (error) {
+    report(error);
+  }
+}
+
+function report(error: unknown): void {
+  if (!(error instanceof BuildError)) {
     throw error;
   }
+  // eslint-disable-next-line no-console
+  console.error(`error: ${error.message}`);
+  process.exitCode = 1;
 }
