@@ -84,3 +84,75 @@ describe("AccessStateBadgeComponent", () => {
     expect(recipe.label).toBe("pamAccessBadgeSessionEnded");
   });
 });
+
+describe("AccessStateBadgeComponent timer sharing", () => {
+  const fixtures: ComponentFixture<AccessStateBadgeComponent>[] = [];
+
+  function createBadge(
+    state: AccessBadgeState | null,
+  ): ComponentFixture<AccessStateBadgeComponent> {
+    const created = TestBed.createComponent(AccessStateBadgeComponent);
+    created.componentRef.setInput("state", state);
+    created.detectChanges();
+    fixtures.push(created);
+    return created;
+  }
+
+  function activeState(): AccessBadgeState {
+    return { kind: "active", expiresAt: new Date(Date.now() + 30 * 60_000) } as AccessBadgeState;
+  }
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    TestBed.configureTestingModule({
+      imports: [AccessStateBadgeComponent],
+      providers: [
+        {
+          provide: I18nService,
+          useValue: { t: (key: string, ...args: unknown[]) => [key, ...args].join(" ") },
+        },
+      ],
+    });
+  });
+
+  afterEach(() => {
+    while (fixtures.length > 0) {
+      fixtures.pop()!.destroy();
+    }
+    jest.useRealTimers();
+  });
+
+  it("starts no timer when every badge is resting", () => {
+    const setInterval = jest.spyOn(global, "setInterval");
+
+    createBadge({ kind: "privileged" } as AccessBadgeState);
+    createBadge({ kind: "pending" } as AccessBadgeState);
+    createBadge(null);
+
+    expect(setInterval).not.toHaveBeenCalled();
+  });
+
+  it("shares one timer across many active badges", () => {
+    const setInterval = jest.spyOn(global, "setInterval");
+
+    createBadge(activeState());
+    createBadge(activeState());
+    createBadge(activeState());
+
+    expect(setInterval).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the timer until the last active badge is gone", () => {
+    const clearInterval = jest.spyOn(global, "clearInterval");
+    const first = createBadge(activeState());
+    const second = createBadge(activeState());
+
+    first.destroy();
+    fixtures.splice(fixtures.indexOf(first), 1);
+    expect(clearInterval).not.toHaveBeenCalled();
+
+    second.destroy();
+    fixtures.splice(fixtures.indexOf(second), 1);
+    expect(clearInterval).toHaveBeenCalled();
+  });
+});

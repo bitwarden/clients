@@ -27,6 +27,7 @@ import { PamNavBadgeService } from "../pam-nav-badge.service";
 @Component({
   selector: "app-pam-user-nav-slot",
   templateUrl: "./pam-user-nav-slot.component.html",
+  host: { class: "tw-contents" },
   imports: [BadgeModule, I18nPipe, NavigationModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
