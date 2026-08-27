@@ -3,11 +3,13 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  DestroyRef,
   effect,
   inject,
   signal,
+  untracked,
 } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { RouterModule } from "@angular/router";
 import {
   combineLatest,
@@ -54,6 +56,13 @@ import { MyAccessService } from "./my-access.service";
 /** Which slice of the history the table is showing. */
 const HistoryScope = Object.freeze({ All: "all", Mine: "mine", Managed: "managed" } as const);
 type HistoryScope = (typeof HistoryScope)[keyof typeof HistoryScope];
+
+/**
+ * How long the "loaded" announcement is left in the live region. Long enough for a polite
+ * announcement to be taken, short enough that what is left behind is the empty region rather than a
+ * stale claim about a load.
+ */
+const announcementHoldMs = 2000;
 
 /** Newest first, by the moment the request was decided — falling back to when it was raised. */
 function resolvedOrSubmittedMs(row: MyAccessRequestRow): number {
@@ -116,6 +125,7 @@ export class HistoryTabComponent {
   private readonly logService = inject(LogService);
   private readonly approvalPrivileges = inject(ApprovalPrivilegeService);
   private readonly syncService = inject(SyncService);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly HistoryScope = HistoryScope;
 
@@ -175,6 +185,7 @@ export class HistoryTabComponent {
     take(1),
     map(() => true),
     startWith(false),
+    takeUntilDestroyed(this.destroyRef),
     shareReplay({ bufferSize: 1, refCount: false }),
   );
 
@@ -197,10 +208,19 @@ export class HistoryTabComponent {
   /**
    * Whether the skeleton table is on screen. Drives the `role="status"` announcement as well, so
    * that a load finishing inside the delay never announces a screen the user was not shown.
+   *
+   * The `historyLoaded()` term buys nothing for the skeleton markup — the template gates that on the
+   * same flag, and so ends the skeleton as soon as the rows are in hand rather than holding it for
+   * whatever the operator has left of its minimum display time. It is the live region, which sits
+   * outside that block, that needs the term: without it the region goes on announcing "loading" over
+   * an already rendered table.
    */
   protected readonly skeletonVisible = computed(() => this.showSkeleton() && !this.historyLoaded());
 
-  /** Latched once the skeleton has been on screen, so its removal can be announced in turn. */
+  /**
+   * Raised once the skeleton has been on screen, so its removal can be announced in turn, and
+   * lowered again once that announcement has had its moment in the live region.
+   */
   private readonly skeletonShown = signal(false);
 
   /**
@@ -208,6 +228,9 @@ export class HistoryTabComponent {
    * nothing on its own, so the "loading" announcement needs a counterpart once the rows land. Gated
    * on the skeleton having been shown, so a load that finishes inside the delay announces neither
    * half.
+   *
+   * The announcement is transient: assistive tech that re-reads a region's contents on demand would
+   * otherwise be handed a load that finished minutes ago as though it were current.
    */
   protected readonly announceLoaded = computed(
     () => this.skeletonShown() && !this.skeletonVisible(),
@@ -223,7 +246,11 @@ export class HistoryTabComponent {
    */
   protected readonly canSwitchScope = computed(() => this.canApprove() || this.hasManagedHistory());
 
-  /** Falls back to All if the toggle goes away while a filter is applied. */
+  /**
+   * Falls back to All if the toggle goes away while a filter is applied — synchronously here, and
+   * forgotten by the effect that clears the pick, so a toggle that returns cannot silently narrow
+   * the table back to a filter the reader last chose under different circumstances.
+   */
   protected readonly scope = computed<HistoryScope>(() =>
     this.canSwitchScope() ? this.selectedScope() : HistoryScope.All,
   );
@@ -270,9 +297,21 @@ export class HistoryTabComponent {
     return this.historyRows().some((row) => managed.has(String(row.id)));
   });
 
-  protected readonly emptyMessageKey = computed(() =>
-    this.scope() === HistoryScope.Managed ? "pamInboxHistoryEmpty" : "pamMyRequestsHistoryEmpty",
-  );
+  /**
+   * Each scope answers for the slice it lists. All spans both sources, so borrowing either side's
+   * wording tells a reader with no history at all that they have raised nothing — which is only
+   * half of what the empty table means.
+   */
+  protected readonly emptyMessageKey = computed(() => {
+    switch (this.scope()) {
+      case HistoryScope.Managed:
+        return "pamInboxHistoryEmpty";
+      case HistoryScope.Mine:
+        return "pamMyRequestsHistoryEmpty";
+      default:
+        return "pamHistoryEmpty";
+    }
+  });
 
   protected readonly historyDataSource = new TableDataSource<MyAccessRequestRow>();
 
@@ -291,9 +330,20 @@ export class HistoryTabComponent {
     effect(() => {
       this.historyDataSource.data = this.historyRows();
     });
-    effect(() => {
+    effect((onCleanup) => {
       if (this.skeletonVisible()) {
         this.skeletonShown.set(true);
+        return;
+      }
+      if (!untracked(this.skeletonShown)) {
+        return;
+      }
+      const handle = setTimeout(() => this.skeletonShown.set(false), announcementHoldMs);
+      onCleanup(() => clearTimeout(handle));
+    });
+    effect(() => {
+      if (!this.canSwitchScope()) {
+        this.selectedScope.set(HistoryScope.All);
       }
     });
   }
@@ -322,9 +372,7 @@ export class HistoryTabComponent {
    * A lease still marked `active` past its window is therefore revocable here and absent there.
    */
   protected canRevoke(row: MyAccessRequestRow): boolean {
-    return (
-      this.managedIds().has(String(row.id)) && isLiveManagedLease(row)
-    );
+    return this.managedIds().has(String(row.id)) && isLiveManagedLease(row);
   }
 
   /** An approval the requester has not started yet, so it can still be withdrawn. */
