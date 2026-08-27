@@ -187,7 +187,7 @@ describe("ApprovalsTabComponent", () => {
 
     // jsdom performs no layout and loads no stylesheet, so these assert the breakpoint classes on
     // both the header and the cell of each column, not that the buttons are on screen. The 1024px
-    // behaviour still needs verifying in a browser.
+    // and 1280px behaviour still needs verifying in a browser.
     it.each([
       ["window", "xl"],
       ["reason", "xl"],
