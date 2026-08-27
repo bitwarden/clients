@@ -19045,8 +19045,8 @@
       }
     }
   },
-  "pamAccessBadgeSessionEnded": {
-    "message": "Session ended"
+  "pamAccessBadgeEnded": {
+    "message": "Access ended"
   },
   "pamAuditKindLeaseEndedByHolder": {
     "message": "Lease ended by holder"
