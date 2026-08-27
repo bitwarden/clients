@@ -303,6 +303,152 @@ describe("ApproverInboxService", () => {
     });
   });
 
+  describe("activeLeaseRows$", () => {
+    it("lists only the requests whose produced lease is still active", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "live",
+          status: "approved",
+          producedLeaseId: "lease-live",
+          producedLeaseStatus: "active",
+        }),
+        request({
+          id: "ended",
+          status: "approved",
+          producedLeaseId: "lease-ended",
+          producedLeaseStatus: "revoked",
+        }),
+        request({ id: "never-started", status: "approved", producedLeaseId: undefined }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.activeLeaseRows$);
+      expect(rows.map((r) => r.requestId)).toEqual(["live"]);
+      expect(rows[0].leaseId).toBe("lease-live");
+      expect(rows[0].requester).toBe("Grace");
+    });
+
+    it("lists an activated grant whose status does not read as approved", async () => {
+      // The server can serve an activated grant with a status the client reads as denied
+      // (uat-FLW-06-9e1cc0ec), which is why liveness is read off the produced lease and never off
+      // the display badge. Reverting this filter onto `statusBadge` empties the section in the
+      // product while every other test here still passes.
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "reads-denied",
+          status: "denied",
+          producedLeaseId: "lease-live",
+          producedLeaseStatus: "active",
+        }),
+      ]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(1);
+    });
+
+    it("drops a lease whose window has closed, however the server still reports its status", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "lapsed",
+          status: "approved",
+          leaseNotAfter: new Date(Date.now() - 1000).toISOString(),
+          producedLeaseId: "lease-lapsed",
+          producedLeaseStatus: "active",
+        }),
+      ]);
+
+      await service.load();
+
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(0);
+    });
+
+    it("keeps a lease an extension has carried past the request's own end", async () => {
+      const requestEnd = new Date(Date.now() - 1000).toISOString();
+      const extendedEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "original",
+          status: "approved",
+          leaseNotAfter: requestEnd,
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+        request({
+          id: "the-extension",
+          status: "approved",
+          extensionOfLeaseId: "lease-1",
+          leaseNotBefore: requestEnd,
+          leaseNotAfter: extendedEnd,
+        }),
+      ]);
+
+      await service.load();
+
+      const rows = await firstValueFrom(service.activeLeaseRows$);
+      expect(rows.map((r) => r.requestId)).toEqual(["original"]);
+      expect(rows[0].endsAt).toBe(extendedEnd);
+    });
+
+    it("ends the row at the applied extension's end, not the originating request's", async () => {
+      const requestEnd = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+      const extendedEnd = new Date(Date.now() + 3 * 60 * 60 * 1000).toISOString();
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "original",
+          status: "approved",
+          leaseNotAfter: requestEnd,
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+        request({
+          id: "the-extension",
+          status: "approved",
+          extensionOfLeaseId: "lease-1",
+          leaseNotBefore: requestEnd,
+          leaseNotAfter: extendedEnd,
+        }),
+      ]);
+
+      await service.load();
+
+      const [row] = await firstValueFrom(service.activeLeaseRows$);
+      expect(row.endsAt).toBe(extendedEnd);
+      expect(row.endsAtMs).toBe(Date.parse(extendedEnd));
+      expect(row.extendedUntil).toBe(extendedEnd);
+      expect(row.extendedBySeconds).toBe(2 * 60 * 60);
+    });
+
+    it("drops the row on revoke and puts it back when the SDK rejects", async () => {
+      approvalApi.listHistory.mockResolvedValue([
+        request({
+          id: "req-1",
+          status: "approved",
+          producedLeaseId: "lease-1",
+          producedLeaseStatus: "active",
+        }),
+      ]);
+      await service.load();
+
+      await service.revokeLease(
+        "req-1" as unknown as AccessRequestId,
+        "lease-1" as unknown as AccessLeaseId,
+      );
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(0);
+
+      leasesApi.endLease.mockRejectedValue(new Error("boom"));
+      await service.load();
+      await expect(
+        service.revokeLease(
+          "req-1" as unknown as AccessRequestId,
+          "lease-1" as unknown as AccessLeaseId,
+        ),
+      ).rejects.toThrow("boom");
+      expect(await firstValueFrom(service.activeLeaseRows$)).toHaveLength(1);
+    });
+  });
+
   it("sorts history newest-resolved first", async () => {
     approvalApi.listHistory.mockResolvedValue([
       request({ id: "older", status: "denied", resolvedAt: "2026-08-17T09:00:00.000Z" }),
