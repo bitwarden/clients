@@ -1,8 +1,11 @@
+import { readFileSync } from "fs";
+
 import {
   ACCESS_RULE_SERVER_ERRORS,
   accessRuleErrorMessageKey,
   classifyAccessRuleError,
 } from "./access-rule-error";
+import { ACCESS_RULE_NAME_MAX_LENGTH } from "./access-rule-request";
 
 /** The SDK's flat access-rule error: a `name`-tagged Error carrying a `variant`. */
 const accessRuleError = (variant: string, message: string) =>
@@ -123,13 +126,31 @@ describe("accessRuleErrorMessageKey", () => {
 /**
  * The SDK builds this sentence itself, before any request goes out, and offers no code to switch
  * on, so the mapping onto the Name field survives only while the catalog repeats it verbatim. The
- * expectation spells the sentence out rather than reading it back from the catalog or rebuilding it
- * from ACCESS_RULE_NAME_MAX_LENGTH — either would pass against a reword the catalog had absorbed.
+ * first expectation spells the sentence out rather than reading it back from the catalog or
+ * rebuilding it from ACCESS_RULE_NAME_MAX_LENGTH — either would pass against a reword the catalog
+ * had absorbed — but on its own it can only catch an edit to the catalog, so the rest hold it to
+ * the SDK. The wasm never spells the sentence out whole: it stores the literal pieces either side
+ * of the maximum and formats the number in at runtime, which is why the number is pinned to
+ * ACCESS_RULE_NAME_MAX_LENGTH while the pieces are matched against the binary.
  */
 describe("ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally", () => {
+  const { serverMessage } = ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally;
+  const wasm = readFileSync(
+    require.resolve("@bitwarden/commercial-sdk-internal/bitwarden_wasm_internal_bg.wasm"),
+  );
+
   it("still holds the wording last verified against the SDK", () => {
-    expect(ACCESS_RULE_SERVER_ERRORS.NameRequiredLocally.serverMessage).toBe(
-      "Name must be between 1 and 256 characters",
-    );
+    expect(serverMessage).toBe("Name must be between 1 and 256 characters");
   });
+
+  it("names the maximum a name is held to before it is sent", () => {
+    expect(serverMessage).toContain(String(ACCESS_RULE_NAME_MAX_LENGTH));
+  });
+
+  it.each(serverMessage.split(String(ACCESS_RULE_NAME_MAX_LENGTH)))(
+    "is still built from %p in the SDK's wasm",
+    (piece) => {
+      expect(wasm.includes(Buffer.from(piece, "utf8"))).toBe(true);
+    },
+  );
 });
